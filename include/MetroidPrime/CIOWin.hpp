@@ -27,7 +27,7 @@ public:
   virtual void PreDraw() const;
 
 private:
-  rstl::string x4_name;
+  rstl::string mName;
 };
 
 #define kFrontEndUIMsgPriority 12

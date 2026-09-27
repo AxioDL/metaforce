@@ -11,30 +11,30 @@ public:
   public:
     CPrimDesc(const CCollisionPrimitive& prim, const CMaterialFilter& filter,
               const CTransform4f& xf)
-    : x0_prim(prim), x4_filter(filter), x8_xf(xf) {}
+    : mPrim(prim), mFilter(filter), mXf(xf) {}
 
-    const CCollisionPrimitive& GetPrim() const { return x0_prim; }
-    const CMaterialFilter& GetFilter() const { return x4_filter; }
-    const CTransform4f& GetTransform() const { return x8_xf; }
+    const CCollisionPrimitive& GetPrim() const { return mPrim; }
+    const CMaterialFilter& GetFilter() const { return mFilter; }
+    const CTransform4f& GetTransform() const { return mXf; }
 
   private:
-    const CCollisionPrimitive& x0_prim;
-    const CMaterialFilter& x4_filter;
-    CTransform4f x8_xf;
+    const CCollisionPrimitive& mPrim;
+    const CMaterialFilter& mFilter;
+    CTransform4f mXf;
   };
 
   CInternalCollisionStructure(const CPrimDesc& left, const CPrimDesc& right)
-  : x0_left(left), x38_right(right) {}
+  : mLeft(left), mRight(right) {}
 
-  const CPrimDesc& GetLeft() const { return x0_left; }
-  const CPrimDesc& GetRight() const { return x38_right; }
+  const CPrimDesc& GetLeft() const { return mLeft; }
+  const CPrimDesc& GetRight() const { return mRight; }
   CInternalCollisionStructure GetSwapped() const {
-    return CInternalCollisionStructure(x38_right, x0_left);
+    return CInternalCollisionStructure(mRight, mLeft);
   }
 
 private:
-  CPrimDesc x0_left;
-  CPrimDesc x38_right;
+  CPrimDesc mLeft;
+  CPrimDesc mRight;
 };
 
 #endif // _CINTERNALCOLLISIONSTRUCTURE

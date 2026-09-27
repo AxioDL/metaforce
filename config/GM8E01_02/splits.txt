@@ -64,7 +64,11 @@ MetroidPrime/CMFGame.cpp:
 	.text       start:0x80023D40 end:0x800241D0
 
 MetroidPrime/CCredits.cpp:
-	.text       start:0x80026CA4 end:0x8002788C
+	.text       start:0x80025448 end:0x800284F0
+	.rodata     start:0x803CDBD8 end:0x803CDD90
+	.data       start:0x803DAAB0 end:0x803DAB10
+	.sdata      start:0x805A7DD8 end:0x805A7E10
+	.sdata2     start:0x805AB0F0 end:0x805AB160
 
 MetroidPrime/CSplashScreen.cpp:
 	.text       start:0x80028568 end:0x80028C48

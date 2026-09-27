@@ -8,9 +8,9 @@
 
 class CRippleManager {
 private:
-  float x0_maxTimeFalloff;
-  rstl::vector< CRipple > x4_ripples;
-  float x14_alpha;
+  float mMaxTimeFalloff;
+  rstl::vector< CRipple > mRipples;
+  float mAlpha;
 
 public:
   CRippleManager(int maxRipples, float alpha);
@@ -21,14 +21,14 @@ public:
   float GetLastRippleDeltaTime(TUniqueId rippler) const;
   void AddRipple(const CRipple& ripple);
 
-  void SetMaxTimeFalloff(float time) { x0_maxTimeFalloff = time; }
-  float GetMaxTimeFalloff() const { return x0_maxTimeFalloff; }
+  void SetMaxTimeFalloff(float time) { mMaxTimeFalloff = time; }
+  float GetMaxTimeFalloff() const { return mMaxTimeFalloff; }
 
-  rstl::vector< CRipple >& Ripples() { return x4_ripples; }
-  const rstl::vector< CRipple >& GetRipples() const { return x4_ripples; }
+  rstl::vector< CRipple >& Ripples() { return mRipples; }
+  const rstl::vector< CRipple >& GetRipples() const { return mRipples; }
 
-  void SetAlpha(float a) { x14_alpha = a; }
-  float GetAlpha() const { return x14_alpha; }
+  void SetAlpha(float a) { mAlpha = a; }
+  float GetAlpha() const { return mAlpha; }
 };
 CHECK_SIZEOF(CRippleManager, 0x18)
 

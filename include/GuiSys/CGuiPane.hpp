@@ -17,26 +17,26 @@ public:
   virtual CVector2f GetDimensions() const;
   virtual void InitializeBuffers();
   virtual void WriteData(COutputStream& out, bool flag) const;
-  int GetCount() const { return xc4_panePointCount * 3; }
+  int GetCount() const { return mPanePointCount * 3; }
 
-  const float* GetVtxBuf() const { return xc0_panePoints; }
-  const CVector3f& GetPivot() const { return xc8_scaleCenter; }
-  float GetWidth() const { return xb8_width; }
-  float GetHeight() const { return xbc_height; }
+  const float* GetVtxBuf() const { return mPanePoints; }
+  const CVector3f& GetPivot() const { return mScaleCenter; }
+  float GetWidth() const { return mWidth; }
+  float GetHeight() const { return mHeight; }
 
   FourCC GetWidgetTypeID() const override;
 
-  CVector3f& ScaleCenter() { return xc8_scaleCenter; }
-  const CVector3f& GetScaleCenter() const { return xc8_scaleCenter; }
+  CVector3f& ScaleCenter() { return mScaleCenter; }
+  const CVector3f& GetScaleCenter() const { return mScaleCenter; }
 
-  const int GetPointCount() const { return xc4_panePointCount; }
+  const int GetPointCount() const { return mPanePointCount; }
 
 private:
-  float xb8_width;
-  float xbc_height;
-  float* xc0_panePoints;
-  int xc4_panePointCount;
-  CVector3f xc8_scaleCenter;
+  float mWidth;
+  float mHeight;
+  float* mPanePoints;
+  int mPanePointCount;
+  CVector3f mScaleCenter;
 };
 CHECK_SIZEOF(CGuiPane, 0xd4)
 

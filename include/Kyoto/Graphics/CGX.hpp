@@ -17,76 +17,76 @@
 class CGX {
 public:
   struct STevState {
-    uint x0_colorInArgs;
-    uint x4_alphaInArgs;
-    uint x8_colorOps;
-    uint xc_alphaOps;
-    uint x10_indFlags;
-    uint x14_tevOrderFlags;
-    uchar x18_kColorSel;
-    uchar x19_kAlphaSel;
+    uint mColorInArgs;
+    uint mAlphaInArgs;
+    uint mColorOps;
+    uint mAlphaOps;
+    uint mIndFlags;
+    uint mTevOrderFlags;
+    uchar mKColorSel;
+    uchar mKAlphaSel;
 
     STevState()
-    : x0_colorInArgs(0)
-    , x4_alphaInArgs(0)
-    , x8_colorOps(0)
-    , xc_alphaOps(0)
-    , x10_indFlags(0)
-    , x14_tevOrderFlags(UINT_MAX)
-    , x18_kColorSel(UCHAR_MAX)
-    , x19_kAlphaSel(UCHAR_MAX) {}
+    : mColorInArgs(0)
+    , mAlphaInArgs(0)
+    , mColorOps(0)
+    , mAlphaOps(0)
+    , mIndFlags(0)
+    , mTevOrderFlags(UINT_MAX)
+    , mKColorSel(UCHAR_MAX)
+    , mKAlphaSel(UCHAR_MAX) {}
   };
 
   struct STexState {
-    uint x0_coordGen;
+    uint mCoordGen;
 
-    STexState() : x0_coordGen(0) {}
+    STexState() : mCoordGen(0) {}
   };
 
   struct SFogParams {
-    float x0_fogStartZ;
-    float x4_fogEndZ;
-    float x8_fogNearZ;
-    float xc_fogFarZ;
-    GXColor x10_fogColor;
+    float mFogStartZ;
+    float mFogEndZ;
+    float mFogNearZ;
+    float mFogFarZ;
+    GXColor mFogColor;
 
-    SFogParams() : x0_fogStartZ(0.f), x4_fogEndZ(1.f), x8_fogNearZ(0.1f), xc_fogFarZ(1.f) {
-      x10_fogColor.a = 0;
-      x10_fogColor.b = 0;
-      x10_fogColor.g = 0;
-      x10_fogColor.r = 0;
+    SFogParams() : mFogStartZ(0.f), mFogEndZ(1.f), mFogNearZ(0.1f), mFogFarZ(1.f) {
+      mFogColor.a = 0;
+      mFogColor.b = 0;
+      mFogColor.g = 0;
+      mFogColor.r = 0;
     }
   };
 
   struct SGXState {
-    const void* x0_arrayPtrs[12];
-    ushort x30_prevChanCtrls[2];
-    ushort x34_chanCtrls[2];
-    GXColor x38_chanAmbColors[2];
-    GXColor x40_chanMatColors[2];
-    uint x48_descList;
+    const void* mArrayPtrs[12];
+    ushort mPrevChanCtrls[2];
+    ushort mChanCtrls[2];
+    GXColor mChanAmbColors[2];
+    GXColor mChanMatColors[2];
+    uint mDescList;
     union {
-      uchar x4c_chanFlags;
+      uchar mChanFlags;
       struct {
         uchar unused : 5;
         uchar chansDirty : 2;
         uchar numDirty : 1;
-      } x4c_flags;
+      } mFlags;
     };
-    uchar x4d_prevNumChans;
-    uchar x4e_numChans;
-    uchar x4f_numTexGens;
-    uchar x50_numTevStages;
-    uchar x51_numIndStages;
-    uchar x52_zmode;
-    uchar x53_fogType;
-    ushort x54_lineWidthAndOffset;
-    ushort x56_blendMode;
-    GXColor x58_kColors[4];
-    STevState x68_tevStates[16];
-    STexState x228_texStates[8];
-    uint x248_alphaCompare;
-    SFogParams x24c_fogParams;
+    uchar mPrevNumChans;
+    uchar mNumChans;
+    uchar mNumTexGens;
+    uchar mNumTevStages;
+    uchar mNumIndStages;
+    uchar mZmode;
+    uchar mFogType;
+    ushort mLineWidthAndOffset;
+    ushort mBlendMode;
+    GXColor mKColors[4];
+    STevState mTevStates[16];
+    STexState mTexStates[8];
+    uint mAlphaCompare;
+    SFogParams mFogParams;
 
     SGXState();
   };

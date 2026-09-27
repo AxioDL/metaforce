@@ -61,57 +61,57 @@ public:
 
   rstl::optional_object< CAABox > GetBounds() const;
 
-  bool IsProjectileActive() const { return x124_24_active; }
-  TLockedToken< CWeaponDescription > GetWeaponDescription() const { return x4_weaponDesc; }
-  CElementGen* GetAttachedPS1() { return xfc_APSMGen; }
-  const CElementGen* GetAttachedPS1() const { return xfc_APSMGen; }
-  double GameTime() const { return xd0_curTime; }
+  bool IsProjectileActive() const { return mActive; }
+  TLockedToken< CWeaponDescription > GetWeaponDescription() const { return mWeaponDesc; }
+  CElementGen* GetAttachedPS1() { return mAPSMGen; }
+  const CElementGen* GetAttachedPS1() const { return mAPSMGen; }
+  double GameTime() const { return mCurTime; }
 
 private:
-  TLockedToken< CWeaponDescription > x4_weaponDesc;
-  CRandom16 x10_random;
-  CTransform4f x14_localToWorldXf;
-  CTransform4f x44_localXf;
-  CVector3f x74_worldOffset;
-#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
-  CVector3f x80_previousLocalOffset;
+  TLockedToken< CWeaponDescription > mWeaponDesc;
+  CRandom16 mRandom;
+  CTransform4f mLocalToWorldXf;
+  CTransform4f mLocalXf;
+  CVector3f mWorldOffset;
+#if VERSION >= VERSION_GM8P_00
+  CVector3f mPreviousLocalOffset;
 #endif
-  CVector3f x80_localOffset;
-#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
-  CVector3f x98_interpolationOffset;
+  CVector3f mLocalOffset;
+#if VERSION >= VERSION_GM8P_00
+  CVector3f mInterpolationOffset;
 #endif
-  CVector3f x8c_projOffset;
-  CVector3f x98_scale;
-  CVector3f xa4_localOffset2;
-  CVector3f xb0_velocity;
-  CVector3f xbc_gravity;
-  CColor xc8_ambientLightColor;
-  double xd0_curTime;
-  double xd8_remainderTime;
-  float xe0_maxTurnRate;
-  int xe4_flags;
-  int xe8_lifetime;
-  int xec_childSystemUpdateRate;
+  CVector3f mProjOffset;
+  CVector3f mScale;
+  CVector3f mLocalOffset2;
+  CVector3f mVelocity;
+  CVector3f mGravity;
+  CColor mAmbientLightColor;
+  double mCurTime;
+  double mRemainderTime;
+  float mMaxTurnRate;
+  int mFlags;
+  int mLifetime;
+  int mChildSystemUpdateRate;
   int xf0_;
-  int xf4_curFrame;
-  int xf8_lastParticleFrame;
-  CElementGen* xfc_APSMGen;
-  CElementGen* x100_APS2Gen;
+  int mCurFrame;
+  int mLastParticleFrame;
+  CElementGen* mAPSMGen;
+  CElementGen* mAPS2Gen;
   CElementGen* x104_;
-  rstl::optional_object< TLockedToken< CModel > > x108_model;
-  CParticleSwoosh* x118_swoosh1;
-  CParticleSwoosh* x11c_swoosh2;
-  CParticleSwoosh* x120_swoosh3;
-  bool x124_24_active : 1;
-  bool x124_25_APSO : 1;
-  bool x124_26_AP11 : 1;
-  bool x124_27_AP21 : 1;
-  bool x124_28_AS11 : 1;
-  bool x124_29_AS12 : 1;
-  bool x124_30_AS13 : 1;
-  bool x124_31_VMD2 : 1;
+  rstl::optional_object< TLockedToken< CModel > > mModel;
+  CParticleSwoosh* mSwoosh1;
+  CParticleSwoosh* mSwoosh2;
+  CParticleSwoosh* mSwoosh3;
+  bool mActive : 1;
+  bool mAPSO : 1;
+  bool mAP11 : 1;
+  bool mAP21 : 1;
+  bool mAS11 : 1;
+  bool mAS12 : 1;
+  bool mAS13 : 1;
+  bool mVMD2 : 1;
 };
 CHECK_SIZEOF(CProjectileWeapon,
-             (VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02 ? 0x140 : 0x128))
+             (VERSION >= VERSION_GM8P_00 ? 0x140 : 0x128))
 
 #endif // _CPROJECTILEWEAPON_HPP

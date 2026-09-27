@@ -28,39 +28,39 @@ CIceAttackProjectile::CIceAttackProjectile(TToken< CGenDescription > trail,
          CEntityInfo(area, CEntity::NullConnectionList), xf, CModelData::CModelDataNull(),
          CMaterialList(kMT_Projectile, kMT_CameraPassthrough), CActorParameters::None(),
          kInvalidUniqueId)
-, xe8_trailDesc(trail)
-, xf0_explosionDesc(explosion)
-, xf8_movingDesc(moving)
-, x118_owner(owner)
-, x11c_damage(damage)
-, x138_currentDamage(damage)
-, x154_bounds(bounds)
-, x170_speed(speed)
-, x174_turnSpeed(turnSpeed)
-, x178_moveTime(0.f)
-, x17c_explosionTimer(0.f)
-, x180_frameCount(0)
-, x184_steamTexture(steamTexture)
-, x188_freezeSfx(freezeSfx)
-, x18a_explosionSfx(explosionSfx)
-, x18c_iceTexture(iceTexture)
-, x190_finishedMoving(false)
-, x191_explosionSoundStarted(false)
-, x192_useWorldRay(false) {
+, mTrailDesc(trail)
+, mExplosionDesc(explosion)
+, mMovingDesc(moving)
+, mOwner(owner)
+, mDamage(damage)
+, mCurrentDamage(damage)
+, mBounds(bounds)
+, mSpeed(speed)
+, mTurnSpeed(turnSpeed)
+, mMoveTime(0.f)
+, mExplosionTimer(0.f)
+, mFrameCount(0)
+, mSteamTexture(steamTexture)
+, mFreezeSfx(freezeSfx)
+, mExplosionSfx(explosionSfx)
+, mIceTexture(iceTexture)
+, mFinishedMoving(false)
+, mExplosionSoundStarted(false)
+, mUseWorldRay(false) {
   const CVector3f up(0.f, 0.f, 1.f);
   const CVector3f right = CVector3f::Cross(up, xf.GetForward()).AsNormalized();
   const CVector3f forward = CVector3f::Cross(right, up).AsNormalized();
   SetTransform(CTransform4f::FromColumns(right, forward, up, GetTranslation()));
-  x100_movingGen = rs_new CElementGen(xf8_movingDesc);
+  mMovingGen = rs_new CElementGen(mMovingDesc);
 }
 
 CIceAttackProjectile::~CIceAttackProjectile() {}
 
 void CIceAttackProjectile::Touch(CActor& actor, CStateManager& mgr) {
-  if (actor.GetUniqueId() == x118_owner && !mgr.GetPlayer()->GetFrozenState()) {
-    const ushort sfx = x188_freezeSfx;
-    mgr.Player()->SetFrozenState(mgr, x184_steamTexture, sfx, x18c_iceTexture);
-    mgr.ApplyDamage(GetUniqueId(), actor.GetUniqueId(), GetUniqueId(), x11c_damage,
+  if (actor.GetUniqueId() == mOwner && !mgr.GetPlayer()->GetFrozenState()) {
+    const ushort sfx = mFreezeSfx;
+    mgr.Player()->SetFrozenState(mgr, mSteamTexture, sfx, mIceTexture);
+    mgr.ApplyDamage(GetUniqueId(), actor.GetUniqueId(), GetUniqueId(), mDamage,
                     CMaterialFilter::MakeIncludeExclude(CMaterialList(kMT_Solid), CMaterialList()),
                     CVector3f::Zero());
   }
@@ -68,7 +68,7 @@ void CIceAttackProjectile::Touch(CActor& actor, CStateManager& mgr) {
 
 rstl::optional_object< CAABox > CIceAttackProjectile::GetTouchBounds() const {
   if (GetActive()) {
-    return x154_bounds->GetTransformedAABox(GetTransform());
+    return mBounds->GetTransformedAABox(GetTransform());
   }
   return rstl::optional_object_null();
 }
@@ -81,10 +81,10 @@ void CIceAttackProjectile::AddToRenderer(const CFrustumPlanes& planes,
 
 void CIceAttackProjectile::Render(const CStateManager& mgr) const {
   CFrustumPlanes planes;
-  for (int i = 0; i < x108_trailObjects.size(); ++i) {
-    x108_trailObjects[i].AddToRenderer(planes, mgr);
+  for (int i = 0; i < mTrailObjects.size(); ++i) {
+    mTrailObjects[i].AddToRenderer(planes, mgr);
   }
-  x100_movingGen->Render();
+  mMovingGen->Render();
 }
 
 ENTITY_ACCEPT_IMPL(CIceAttackProjectile)
@@ -103,42 +103,42 @@ void CIceAttackProjectile::CreateTrailObject(CStateManager& mgr, const CVector3f
   collision->SetMaterialFilter(filter);
   mgr.AddObject(collision);
 
-  CElementGen* const gen = rs_new CElementGen(xe8_trailDesc, CElementGen::kMOT_One);
+  CElementGen* const gen = rs_new CElementGen(mTrailDesc, CElementGen::kMOT_One);
   gen->SetLeaveLightsEnabledForModelRender(true);
   CTrailObject trail(gen, collisionId, GetTranslation(), normal,
-                     GetTransform().Rotate(CVector3f(0.f, x170_speed * dt, 0.f)));
+                     GetTransform().Rotate(CVector3f(0.f, mSpeed * dt, 0.f)));
   trail.ActorLights().SetMaxAreaLights(2);
   trail.ActorLights().BuildAreaLightList(mgr, *mgr.GetWorld()->GetArea(GetCurrentAreaId()),
                                          CAABox(GetTranslation(), GetTranslation()));
-  if (x108_trailObjects.capacity() < x108_trailObjects.size() + 1) {
-    x108_trailObjects.reserve(x108_trailObjects.size() + 1);
+  if (mTrailObjects.capacity() < mTrailObjects.size() + 1) {
+    mTrailObjects.reserve(mTrailObjects.size() + 1);
   }
-  x108_trailObjects.push_back(trail);
+  mTrailObjects.push_back(trail);
 }
 
 void CIceAttackProjectile::UpdateTrailObjects(float dt, CStateManager& mgr) {
-  if (x190_finishedMoving) {
-    x17c_explosionTimer += dt;
-    if (x17c_explosionTimer > 0.05f) {
-      if (!x191_explosionSoundStarted) {
-        x194_explosionSfxHandle =
-            CSfxManager::SfxStart(x18a_explosionSfx, 0x7f, 0x40, false, CSfxManager::kMedPriority,
+  if (mFinishedMoving) {
+    mExplosionTimer += dt;
+    if (mExplosionTimer > 0.05f) {
+      if (!mExplosionSoundStarted) {
+        mExplosionSfxHandle =
+            CSfxManager::SfxStart(mExplosionSfx, 0x7f, 0x40, false, CSfxManager::kMedPriority,
                                   true, CSfxManager::kAllAreas);
-        x191_explosionSoundStarted = true;
+        mExplosionSoundStarted = true;
       }
-      x17c_explosionTimer -= 0.05f;
-      for (int i = 0; i < x108_trailObjects.size(); ++i) {
-        CTrailObject& trail = x108_trailObjects[i];
+      mExplosionTimer -= 0.05f;
+      for (int i = 0; i < mTrailObjects.size(); ++i) {
+        CTrailObject& trail = mTrailObjects[i];
         if (!trail.ExplosionStarted()) {
-          trail.StartExplosion(rs_new CElementGen(xf0_explosionDesc), mgr);
+          trail.StartExplosion(rs_new CElementGen(mExplosionDesc), mgr);
           break;
         }
       }
     }
   }
-  const CPhysicsActor* owner = static_cast< const CPhysicsActor* >(mgr.GetObjectById(x118_owner));
-  for (int i = 0; i < x108_trailObjects.size(); ++i) {
-    x108_trailObjects[i].Update(dt, mgr, owner);
+  const CPhysicsActor* owner = static_cast< const CPhysicsActor* >(mgr.GetObjectById(mOwner));
+  for (int i = 0; i < mTrailObjects.size(); ++i) {
+    mTrailObjects[i].Update(dt, mgr, owner);
   }
 }
 
@@ -148,28 +148,28 @@ void CIceAttackProjectile::Think(float dt, CStateManager& mgr) {
   if (!GetActive()) {
     return;
   }
-  if (!x190_finishedMoving) {
-    if (const CActor* owner = TCastToConstPtr< CActor >(mgr.GetObjectById(x118_owner))) {
+  if (!mFinishedMoving) {
+    if (const CActor* owner = TCastToConstPtr< CActor >(mgr.GetObjectById(mOwner))) {
       CVector3f delta = owner->GetTranslation() - GetTranslation();
       const CVector3f flatDelta(delta.GetX(), delta.GetY(), 0.f);
       if (flatDelta.MagSquared() < 25.f) {
-        x174_turnSpeed = 0.f;
+        mTurnSpeed = 0.f;
       }
       if (delta.CanBeNormalized()) {
         delta.Normalize();
         delta = GetTransform().TransposeRotate(delta);
         const float angle =
             CVector3f::GetAngleDiff(CVector3f(0.f, 1.f, 0.f), delta) * CMath::Sign(delta.GetX());
-        const float turn = -CMath::Clamp(-x174_turnSpeed * dt, angle, x174_turnSpeed * dt);
+        const float turn = -CMath::Clamp(-mTurnSpeed * dt, angle, mTurnSpeed * dt);
         CTransform4f xf = GetTransform();
         xf.RotateLocalZ(CRelAngle::FromRadians(turn));
         SetTransform(xf);
       }
     }
-    x178_moveTime += dt;
-    CVector3f position = GetTransform() * CVector3f(0.f, x170_speed * dt, 0.f);
+    mMoveTime += dt;
+    CVector3f position = GetTransform() * CVector3f(0.f, mSpeed * dt, 0.f);
     CRayCastResult floorResult;
-    if (x192_useWorldRay) {
+    if (mUseWorldRay) {
       TUniqueId uid = kInvalidUniqueId;
       TEntityList nearList;
       const CMaterialFilter filter =
@@ -194,24 +194,24 @@ void CIceAttackProjectile::Think(float dt, CStateManager& mgr) {
       hasWall = true;
     }
     SetTranslation(position);
-    if (x178_moveTime > 3.f || hasWall || !hasFloor) {
-      x190_finishedMoving = true;
+    if (mMoveTime > 3.f || hasWall || !hasFloor) {
+      mFinishedMoving = true;
     }
-    ++x180_frameCount;
-    if (x180_frameCount % 4 == 0 && hasFloor) {
+    ++mFrameCount;
+    if (mFrameCount % 4 == 0 && hasFloor) {
       CreateTrailObject(mgr, floorResult.GetPlane().GetNormal(), dt);
     }
   }
   UpdateTrailObjects(dt, mgr);
-  x100_movingGen->SetOrientation(GetTransform().GetRotation());
-  x100_movingGen->SetGlobalTranslation(GetTranslation() + 1.f * GetTransform().GetForward() -
+  mMovingGen->SetOrientation(GetTransform().GetRotation());
+  mMovingGen->SetGlobalTranslation(GetTranslation() + 1.f * GetTransform().GetForward() -
                                        1.f * GetTransform().GetUp());
-  x100_movingGen->Update(dt);
-  if (x190_finishedMoving) {
-    x100_movingGen->SetParticleEmission(false);
-    bool finished = x100_movingGen->GetParticleCount() == 0;
-    for (int i = 0; i < x108_trailObjects.size(); ++i) {
-      const CTrailObject& trail = x108_trailObjects[i];
+  mMovingGen->Update(dt);
+  if (mFinishedMoving) {
+    mMovingGen->SetParticleEmission(false);
+    bool finished = mMovingGen->GetParticleCount() == 0;
+    for (int i = 0; i < mTrailObjects.size(); ++i) {
+      const CTrailObject& trail = mTrailObjects[i];
       if (!trail.ExplosionFinished() || !trail.ExplosionStarted()) {
         finished = false;
         break;
@@ -219,10 +219,10 @@ void CIceAttackProjectile::Think(float dt, CStateManager& mgr) {
     }
     if (finished) {
       mgr.DeleteObjectRequest(GetUniqueId());
-      CSfxManager::SfxStop(x194_explosionSfxHandle);
+      CSfxManager::SfxStop(mExplosionSfxHandle);
     }
   }
-  x138_currentDamage = x11c_damage.MakeScaledForTime(dt);
+  mCurrentDamage = mDamage.MakeScaledForTime(dt);
 }
 
 void CIceAttackProjectile::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender,
@@ -234,8 +234,8 @@ void CIceAttackProjectile::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId s
     break;
   case kSM_Deleted:
     if (sender == kInvalidUniqueId) {
-      for (int i = 0; i < x108_trailObjects.size(); ++i) {
-        x108_trailObjects[i].DeleteCollisionObject(mgr);
+      for (int i = 0; i < mTrailObjects.size(); ++i) {
+        mTrailObjects[i].DeleteCollisionObject(mgr);
       }
     }
     break;
@@ -245,38 +245,38 @@ void CIceAttackProjectile::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId s
 CIceAttackProjectile::CTrailObject::CTrailObject(CElementGen* gen, TUniqueId collisionId,
                                                  const CVector3f& position, const CVector3f& normal,
                                                  const CVector3f& step)
-: x0_trail(gen)
-, x10_collisionObj(collisionId)
-, x14_elapsed(0.f)
-, x18_actorLights(1, CVector3f(0.f, 0.f, 1.f), 4, 4)
-, x2f8_position(position)
-, x304_normal(normal)
-, x310_step(step)
-, x31c_createdParticles(0)
-, x320_collisionActive(false) {
+: mTrail(gen)
+, mCollisionObj(collisionId)
+, mElapsed(0.f)
+, mActorLights(1, CVector3f(0.f, 0.f, 1.f), 4, 4)
+, mPosition(position)
+, mNormal(normal)
+, mStep(step)
+, mCreatedParticles(0)
+, mCollisionActive(false) {
   CHECK_SIZEOF(CTrailObject, 0x324)
 }
 
 void CIceAttackProjectile::CTrailObject::StartExplosion(CElementGen* gen, CStateManager& mgr) {
-  x8_explosion = gen;
-  x8_explosion->SetOrientation(x0_trail->GetOrientation());
-  x8_explosion->SetTranslation(x0_trail->GetTranslation() + CVector3f(0.f, 0.f, 0.5f));
-  x8_explosion->SetParticleEmission(true);
+  mExplosion = gen;
+  mExplosion->SetOrientation(mTrail->GetOrientation());
+  mExplosion->SetTranslation(mTrail->GetTranslation() + CVector3f(0.f, 0.f, 0.5f));
+  mExplosion->SetParticleEmission(true);
   DeleteCollisionObject(mgr);
 }
 
 void CIceAttackProjectile::CTrailObject::DeleteCollisionObject(CStateManager& mgr) {
-  if (x10_collisionObj != kInvalidUniqueId) {
-    mgr.DeleteObjectRequest(x10_collisionObj);
-    x10_collisionObj = kInvalidUniqueId;
+  if (mCollisionObj != kInvalidUniqueId) {
+    mgr.DeleteObjectRequest(mCollisionObj);
+    mCollisionObj = kInvalidUniqueId;
   }
 }
 
 void CIceAttackProjectile::CTrailObject::Update(float dt, CStateManager& mgr,
                                                 const CPhysicsActor* owner) {
-  if (!x320_collisionActive) {
+  if (!mCollisionActive) {
     if (CPhysicsActor* collision =
-            static_cast< CPhysicsActor* >(mgr.ObjectById(x10_collisionObj))) {
+            static_cast< CPhysicsActor* >(mgr.ObjectById(mCollisionObj))) {
       if (!CCollisionPrimitive::CollideBoolean(
               CInternalCollisionStructure::CPrimDesc(*collision->GetCollisionPrimitive(),
                                                      CMaterialFilter::GetPassEverything(),
@@ -285,12 +285,12 @@ void CIceAttackProjectile::CTrailObject::Update(float dt, CStateManager& mgr,
                                                      CMaterialFilter::GetPassEverything(),
                                                      owner->GetPrimitiveTransform()))) {
         collision->SetActive(true);
-        x320_collisionActive = true;
+        mCollisionActive = true;
       }
     }
   }
-  if (!x0_trail.null() && x31c_createdParticles < 3) {
-    CVector3f normal = x304_normal;
+  if (!mTrail.null() && mCreatedParticles < 3) {
+    CVector3f normal = mNormal;
     normal[kDX] += mgr.Random()->Range(-0.4f, 0.4f);
     normal[kDY] += mgr.Random()->Range(-0.4f, 0.4f);
     normal[kDZ] += mgr.Random()->Range(-0.4f, 0.4f);
@@ -299,43 +299,43 @@ void CIceAttackProjectile::CTrailObject::Update(float dt, CStateManager& mgr,
         CVector3f(0.f, 1.f, 0.f);
     const CTransform4f orientation =
         CTransform4f::LookAt(CVector3f::Zero(), normal.AsNormalized(), up);
-    const float radius = x310_step.Magnitude();
-    x0_trail->SetTranslation(x2f8_position + CVector3f(mgr.Random()->Range(-radius, radius),
+    const float radius = mStep.Magnitude();
+    mTrail->SetTranslation(mPosition + CVector3f(mgr.Random()->Range(-radius, radius),
                                                        mgr.Random()->Range(-radius, radius), -1.f));
-    x0_trail->SetOrientation(orientation);
-    x0_trail->ForceParticleCreation(1);
-    x0_trail->SetOrientation(CTransform4f::Identity());
-    ++x31c_createdParticles;
-    x2f8_position += x310_step;
+    mTrail->SetOrientation(orientation);
+    mTrail->ForceParticleCreation(1);
+    mTrail->SetOrientation(CTransform4f::Identity());
+    ++mCreatedParticles;
+    mPosition += mStep;
   }
-  if (!x0_trail.null() && (x14_elapsed < 0.3f || !x8_explosion.null())) {
-    x0_trail->Update(dt);
+  if (!mTrail.null() && (mElapsed < 0.3f || !mExplosion.null())) {
+    mTrail->Update(dt);
   }
-  x14_elapsed += dt;
-  if (!x8_explosion.null()) {
-    x8_explosion->Update(dt);
-    if (!x0_trail.null() && x0_trail->IsSystemDeletable()) {
-      delete x0_trail.release();
-      x0_trail = rstl::auto_ptr< CElementGen >();
+  mElapsed += dt;
+  if (!mExplosion.null()) {
+    mExplosion->Update(dt);
+    if (!mTrail.null() && mTrail->IsSystemDeletable()) {
+      delete mTrail.release();
+      mTrail = rstl::auto_ptr< CElementGen >();
     }
   }
 }
 
 void CIceAttackProjectile::CTrailObject::AddToRenderer(const CFrustumPlanes& planes,
                                                        const CStateManager& mgr) const {
-  if (!x0_trail.null()) {
-    x18_actorLights.ActivateLights();
-    x0_trail->Render();
+  if (!mTrail.null()) {
+    mActorLights.ActivateLights();
+    mTrail->Render();
   }
-  if (!x8_explosion.null()) {
-    x8_explosion->Render();
+  if (!mExplosion.null()) {
+    mExplosion->Render();
   }
 }
 
-bool CIceAttackProjectile::CTrailObject::ExplosionStarted() const { return !x8_explosion.null(); }
+bool CIceAttackProjectile::CTrailObject::ExplosionStarted() const { return !mExplosion.null(); }
 
 bool CIceAttackProjectile::CTrailObject::ExplosionFinished() const {
-  if (!x8_explosion.null() && x8_explosion->IsSystemDeletable()) {
+  if (!mExplosion.null() && mExplosion->IsSystemDeletable()) {
     return true;
   }
   return false;

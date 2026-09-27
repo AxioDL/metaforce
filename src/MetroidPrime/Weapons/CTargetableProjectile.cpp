@@ -16,8 +16,8 @@ CTargetableProjectile::CTargetableProjectile(
                     attribs | CWeapon::kPA_BigProjectile | CWeapon::kPA_PartialCharge |
                         CWeapon::kPA_PlasmaProjectile,
                     false, CVector3f(1.f, 1.f, 1.f), visorParticle, visorSfx, sendCollideMsg)
-, x3d8_weaponDesc(weapDesc)
-, x3e0_damage(damage2) {
+, mWeaponDesc(weapDesc)
+, mDamage(damage2) {
   MaterialList().Add(kMT_Target);
   MaterialList().Add(kMT_Orbit);
 }
@@ -38,9 +38,9 @@ const bool CTargetableProjectile::Explode(const CVector3f& pos, const CVector3f&
         const CVector3f aimPosition = act->GetAimPosition(mgr, 0.f);
 
         CEnergyProjectile* projectile = rs_new CEnergyProjectile(
-            true, x3d8_weaponDesc, GetType(),
-            CTransform4f::LookAt(x170_projectile.GetTranslation(), aimPosition, CVector3f::Up()),
-            kMT_Player, x3e0_damage, uid, GetCurrentAreaId(), projOwner, GetOwnerId(),
+            true, mWeaponDesc, GetType(),
+            CTransform4f::LookAt(mProjectile.GetTranslation(), aimPosition, CVector3f::Up()),
+            kMT_Player, mDamage, uid, GetCurrentAreaId(), projOwner, GetOwnerId(),
             CWeapon::kPA_None, false, CVector3f(1.f, 1.f, 1.f), rstl::optional_object_null(),
             CSfxManager::kInternalInvalidSfxId, false);
         mgr.AddObject(*projectile);

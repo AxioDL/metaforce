@@ -25,56 +25,56 @@ static const ushort kSoundId[2] = {
 CWaveBeam::CWaveBeam(const CAssetId characterId, const EWeaponType type, const TUniqueId playerId,
                      const EMaterialTypes playerMaterial, const CVector3f& scale)
 : CGunWeapon(characterId, type, playerId, playerMaterial, scale)
-, x21c_waveBeam(gpSimplePool->GetObj("WaveBeam"))
-, x228_wave2nd1(gpSimplePool->GetObj("Wave2nd_1"))
-, x234_wave2nd2(gpSimplePool->GetObj("Wave2nd_2"))
-, x240_wave2nd3(gpSimplePool->GetObj("Wave2nd_3"))
-, x24c_effectTimer(0.f)
-, x258_24_loaded(false)
-, x258_25_effectTimerActive(false) {}
+, mWaveBeam(gpSimplePool->GetObj("WaveBeam"))
+, mWave2nd1(gpSimplePool->GetObj("Wave2nd_1"))
+, mWave2nd2(gpSimplePool->GetObj("Wave2nd_2"))
+, mWave2nd3(gpSimplePool->GetObj("Wave2nd_3"))
+, mEffectTimer(0.f)
+, mLoaded(false)
+, mEffectTimerActive(false) {}
 
 CWaveBeam::~CWaveBeam() {}
 
 void CWaveBeam::ReInitVariables() {
-  x24c_effectTimer = 0.f;
-  x250_chargeElec = nullptr;
-  x254_chargeFx = nullptr;
-  x258_24_loaded = false;
-  x258_25_effectTimerActive = false;
-  x1cc_enabledSecondaryEffect = kSFT_None;
+  mEffectTimer = 0.f;
+  mChargeElec = nullptr;
+  mChargeFx = nullptr;
+  mLoaded = false;
+  mEffectTimerActive = false;
+  mEnabledSecondaryEffect = kSFT_None;
 }
 
 void CWaveBeam::PostRenderGunFx(const CStateManager& mgr, const CTransform4f& xf) {
-  if (x1cc_enabledSecondaryEffect != kSFT_None) {
-    if (x254_chargeFx.get())
-      x254_chargeFx->Render();
-    if (x250_chargeElec.get())
-      x250_chargeElec->Render();
+  if (mEnabledSecondaryEffect != kSFT_None) {
+    if (mChargeFx.get())
+      mChargeFx->Render();
+    if (mChargeElec.get())
+      mChargeElec->Render();
   }
   CGunWeapon::PostRenderGunFx(mgr, xf);
 }
 
 void CWaveBeam::UpdateGunFx(const bool shotSmoke, const float dt, const CStateManager& mgr,
                             const CTransform4f& xf) {
-  if (x1cc_enabledSecondaryEffect != kSFT_None) {
-    if (x258_25_effectTimerActive && x24c_effectTimer < 0.f) {
-      x1cc_enabledSecondaryEffect = kSFT_None;
-      x24c_effectTimer = 0.f;
-      x258_25_effectTimerActive = false;
+  if (mEnabledSecondaryEffect != kSFT_None) {
+    if (mEffectTimerActive && mEffectTimer < 0.f) {
+      mEnabledSecondaryEffect = kSFT_None;
+      mEffectTimer = 0.f;
+      mEffectTimerActive = false;
     } else {
-      if (x254_chargeFx.get()) {
-        x254_chargeFx->SetGlobalTranslation(xf.GetTranslation());
-        x254_chargeFx->SetGlobalOrientation(xf.GetRotation());
-        x254_chargeFx->Update(dt);
+      if (mChargeFx.get()) {
+        mChargeFx->SetGlobalTranslation(xf.GetTranslation());
+        mChargeFx->SetGlobalOrientation(xf.GetRotation());
+        mChargeFx->Update(dt);
       }
-      if (x250_chargeElec.get()) {
-        x250_chargeElec->SetGlobalTranslation(xf.GetTranslation());
-        x250_chargeElec->SetGlobalOrientation(xf.GetRotation());
-        x250_chargeElec->Update(dt);
+      if (mChargeElec.get()) {
+        mChargeElec->SetGlobalTranslation(xf.GetTranslation());
+        mChargeElec->SetGlobalOrientation(xf.GetRotation());
+        mChargeElec->Update(dt);
       }
     }
-    if (x258_25_effectTimerActive && x24c_effectTimer > 0.f)
-      x24c_effectTimer -= dt;
+    if (mEffectTimerActive && mEffectTimer > 0.f)
+      mEffectTimer -= dt;
   }
   CGunWeapon::UpdateGunFx(shotSmoke, dt, mgr, xf);
 }
@@ -84,9 +84,9 @@ void CWaveBeam::Update(float dt, CStateManager& mgr) {
   if (IsLoaded())
     return;
 
-  if (CGunWeapon::IsLoaded() && !x258_24_loaded) {
-    x258_24_loaded = x228_wave2nd1.TryCache() && x234_wave2nd2.TryCache() &&
-                     x240_wave2nd3.TryCache() && x21c_waveBeam.TryCache();
+  if (CGunWeapon::IsLoaded() && !mLoaded) {
+    mLoaded = mWave2nd1.TryCache() && mWave2nd2.TryCache() &&
+                     mWave2nd3.TryCache() && mWaveBeam.TryCache();
   }
 }
 
@@ -103,7 +103,7 @@ void CWaveBeam::Fire(const bool underwater, const float dt,
       CTransform4f shotXf = xf * CTransform4f::RotateY(CRelAngle::FromDegrees(
                                      skShotAnglePitch * (randAng + CCast::ToReal32(i))));
       CEnergyProjectile* proj = rs_new CEnergyProjectile(
-          true, x144_weapons[chargeState], GetType(), shotXf, GetPlayerMaterial(),
+          true, mWeapons[chargeState], GetType(), shotXf, GetPlayerMaterial(),
           GetDamageInfo(mgr, chargeState, chargeFactor1), mgr.AllocateUniqueId(), kInvalidAreaId,
           GetPlayerId(), homingTarget, CWeapon::kPA_ArmCannon, underwater, CVector3f(1.f, 1.f, 1.f),
           rstl::optional_object_null(), CSfxManager::kInternalInvalidSfxId, false);
@@ -113,70 +113,70 @@ void CWaveBeam::Fire(const bool underwater, const float dt,
   }
 
   if (chargeState != CPlayerState::kCS_Normal)
-    x218_25_enableCharge = true;
+    mEnableCharge = true;
 
   NWeaponTypes::play_sfx(kSoundId[size_t(chargeState)], underwater, false, 0x4a);
-  CAnimData& animData = *x10_solidModelData->AnimationData();
+  CAnimData& animData = *mSolidModelData->AnimationData();
   animData.EnableLooping(false);
   animData.SetAnimation(CAnimPlaybackParms(skShootAnim[chargeState], -1, 1.f, true), false);
 }
 
 void CWaveBeam::Load(CStateManager& mgr, const bool subtypeBasePose) {
   CGunWeapon::Load(mgr, subtypeBasePose);
-  x228_wave2nd1.Lock();
-  x234_wave2nd2.Lock();
-  x240_wave2nd3.Lock();
-  x21c_waveBeam.Lock();
+  mWave2nd1.Lock();
+  mWave2nd2.Lock();
+  mWave2nd3.Lock();
+  mWaveBeam.Lock();
 }
 
 void CWaveBeam::Unload(CStateManager& mgr) {
   CGunWeapon::Unload(mgr);
-  x21c_waveBeam.Unlock();
-  x240_wave2nd3.Unlock();
-  x234_wave2nd2.Unlock();
-  x228_wave2nd1.Unlock();
+  mWaveBeam.Unlock();
+  mWave2nd3.Unlock();
+  mWave2nd2.Unlock();
+  mWave2nd1.Unlock();
   ReInitVariables();
 }
 
-bool CWaveBeam::IsLoaded() const { return CGunWeapon::IsLoaded() && x258_24_loaded; }
+bool CWaveBeam::IsLoaded() const { return CGunWeapon::IsLoaded() && mLoaded; }
 
 void CWaveBeam::EnableSecondaryFx(const ESecondaryFxType type) {
   switch (type) {
   case kSFT_None:
-    x1cc_enabledSecondaryEffect = kSFT_None;
+    mEnabledSecondaryEffect = kSFT_None;
     break;
   case kSFT_CancelCharge:
-    if (x1cc_enabledSecondaryEffect == kSFT_None)
+    if (mEnabledSecondaryEffect == kSFT_None)
       break;
     // [[fallthrough]];
   default:
-    if (x1cc_enabledSecondaryEffect != kSFT_ToCombo) {
+    if (mEnabledSecondaryEffect != kSFT_ToCombo) {
       const TToken< CElectricDescription >& fx =
-          type == kSFT_Charge ? x228_wave2nd1.GetToken() : x234_wave2nd2.GetToken();
-      x250_chargeElec = rs_new CParticleElectric(fx);
-      x250_chargeElec->SetGlobalScale(x4_scale);
+          type == kSFT_Charge ? mWave2nd1.GetToken() : mWave2nd2.GetToken();
+      mChargeElec = rs_new CParticleElectric(fx);
+      mChargeElec->SetGlobalScale(mScale);
     }
     switch (type) {
     case kSFT_Charge:
-      x254_chargeFx = nullptr;
+      mChargeFx = nullptr;
       break;
     case kSFT_CancelCharge:
-      if (x1cc_enabledSecondaryEffect != kSFT_CancelCharge) {
-        x258_25_effectTimerActive = true;
-        x24c_effectTimer = 3.f;
-        if (x254_chargeFx.get())
-          x254_chargeFx->SetParticleEmission(false);
+      if (mEnabledSecondaryEffect != kSFT_CancelCharge) {
+        mEffectTimerActive = true;
+        mEffectTimer = 3.f;
+        if (mChargeFx.get())
+          mChargeFx->SetParticleEmission(false);
       }
       break;
     case kSFT_ToCombo:
-      x254_chargeFx = rs_new CElementGen(x240_wave2nd3);
-      x254_chargeFx->SetGlobalScale(x4_scale);
-      x24c_effectTimer = 0.f;
-      x258_25_effectTimerActive = true;
+      mChargeFx = rs_new CElementGen(mWave2nd3);
+      mChargeFx->SetGlobalScale(mScale);
+      mEffectTimer = 0.f;
+      mEffectTimerActive = true;
       break;
     default:
       break;
     }
-    x1cc_enabledSecondaryEffect = type;
+    mEnabledSecondaryEffect = type;
   }
 }

@@ -28,25 +28,25 @@ public:
 
   struct Primitive {
     Primitive(ECmd cmd, short x, short y, short chr, uint color, schar index)
-    : x0_color(color), x4_cmd(cmd), x8_x(x), xa_y(y), xc_char(chr), xe_index(index) {}
+    : mColor(color), mCmd(cmd), mX(x), mY(y), mChar(chr), mIndex(index) {}
 
-    uint x0_color;
-    ECmd x4_cmd;
-    short x8_x;
-    short xa_y;
-    short xc_char;
-    schar xe_index;
+    uint mColor;
+    ECmd mCmd;
+    short mX;
+    short mY;
+    short mChar;
+    schar mIndex;
   };
 
-#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+#if VERSION >= VERSION_GM8P_00
   struct SFontPalette {
     int x0_;
     uint x4_;
     uint x8_;
-    rstl::auto_ptr< CGraphicsPalette > xc_palette;
-    rstl::auto_ptr< CGraphicsPalette > x14_palette;
-    rstl::auto_ptr< CGraphicsPalette > x1c_palette;
-    rstl::auto_ptr< CGraphicsPalette > x24_palette;
+    rstl::auto_ptr< CGraphicsPalette > mPalette0;
+    rstl::auto_ptr< CGraphicsPalette > mPalette1;
+    rstl::auto_ptr< CGraphicsPalette > mPalette2;
+    rstl::auto_ptr< CGraphicsPalette > mPalette3;
   };
 #endif
 
@@ -63,7 +63,7 @@ public:
   size_t GetCurLen();
   void SetMode(EMode mode);
   void Render(const CColor& color, float time) const;
-  int GetNumPrimitives() const { return x24_primOffsets.size(); }
+  int GetNumPrimitives() const { return mPrimOffsets.size(); }
   Primitive GetPrimitive(int index) const;
   void SetPrimitive(const Primitive& prim, int index);
   rstl::pair< CVector2i, CVector2i > AccumulateTextBounds();
@@ -72,33 +72,33 @@ public:
 private:
   void VerifyBuffer();
 
-  EMode x0_mode;
-  rstl::vector< TToken< CRasterFont > > x4_fonts;
-  rstl::vector< CFontImageDef > x14_images;
-  rstl::vector< int > x24_primOffsets;
-  rstl::vector< signed char > x34_bytecode;
-  uint x44_blobSize;
-  uint x48_curBytecodeOffset;
-  mutable char x4c_activeFont;
-  mutable char x4d_activePalette;
-  mutable char x4e_queuedFont;
-  mutable char x4f_queuedPalette;
-#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
-  mutable rstl::reserved_vector< SFontPalette, 64 > x50_palettes;
+  EMode mMode;
+  rstl::vector< TToken< CRasterFont > > mFonts;
+  rstl::vector< CFontImageDef > mImages;
+  rstl::vector< int > mPrimOffsets;
+  rstl::vector< signed char > mBytecode;
+  uint mBlobSize;
+  uint mCurBytecodeOffset;
+  mutable char mActiveFont;
+  mutable char mActivePalette;
+  mutable char mQueuedFont;
+  mutable char mQueuedPalette;
+#if VERSION >= VERSION_GM8P_00
+  mutable rstl::reserved_vector< SFontPalette, 64 > mPalettes;
 #else
-  mutable rstl::reserved_vector< rstl::auto_ptr< CGraphicsPalette >, 64 > x50_palettes;
+  mutable rstl::reserved_vector< rstl::auto_ptr< CGraphicsPalette >, 64 > mPalettes;
 #endif
-  mutable int x254_nextPalette;
-#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+  mutable int mNextPalette;
+#if VERSION >= VERSION_GM8P_00
   CVector2i xb58_;
   CVector2i xb60_;
   bool xb68_;
 #endif
 };
 
-CHECK_SIZEOF(CTextRenderBuffer, (VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02 ? 0xb6c : 0x258))
+CHECK_SIZEOF(CTextRenderBuffer, (VERSION >= VERSION_GM8P_00 ? 0xb6c : 0x258))
 NESTED_CHECK_SIZEOF(CTextRenderBuffer, Primitive, 0x10)
-#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+#if VERSION >= VERSION_GM8P_00
 NESTED_CHECK_SIZEOF(CTextRenderBuffer, SFontPalette, 0x2c)
 #endif
 

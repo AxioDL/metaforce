@@ -1,11 +1,11 @@
 #include "Kyoto/Text/CFontRenderState.hpp"
 
 CFontRenderState::CFontRenderState()
-: x88_curBlock(nullptr)
-, xd4_curX(0)
-, xd8_curY(0)
-, xdc_currentLineInst(nullptr)
-, x108_lineInitialized(true) {
+: mCurBlock(nullptr)
+, mCurX(0)
+, mCurY(0)
+, mCurrentLineInst(nullptr)
+, mLineInitialized(true) {
   GetColors()[0] = CTextColor(255, 255, 255, 255);
   GetColors()[1] = CTextColor(128, 128, 128, 255);
   GetColors()[2] = CTextColor(255, 255, 255, 255);
@@ -82,11 +82,11 @@ void CFontRenderState::SetColor(const EColorType type, const CTextColor& color) 
   RefreshColor(type);
 }
 
-void CFontRenderState::PushState() { x10c_pushedStates.push_front(x0_state); }
+void CFontRenderState::PushState() { mPushedStates.push_front(mState); }
 
 void CFontRenderState::PopState() {
-  x0_state = x10c_pushedStates.front();
-  x10c_pushedStates.pop_front();
+  mState = mPushedStates.front();
+  mPushedStates.pop_front();
   RefreshPalette();
 }
 

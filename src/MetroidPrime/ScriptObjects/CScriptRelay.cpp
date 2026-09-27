@@ -2,20 +2,20 @@
 
 CScriptRelay::CScriptRelay(TUniqueId uid, const rstl::string& name, const CEntityInfo& info,
                            const bool active)
-: CEntity(uid, info, active, name), x34_nextRelay(kInvalidUniqueId), x38_sendCount(0) {}
+: CEntity(uid, info, active, name), mNextRelay(kInvalidUniqueId), mSendCount(0) {}
 
 void CScriptRelay::UpdateObjectRef(CStateManager& stateMgr) {
   TUniqueId* tmp = stateMgr.GetLastRelayIdPtr();
   while (tmp != nullptr && *tmp != kInvalidUniqueId) {
     if (*tmp == GetUniqueId()) {
-      *tmp = x34_nextRelay;
+      *tmp = mNextRelay;
       return;
     }
     CScriptRelay* obj = static_cast< CScriptRelay* >(stateMgr.ObjectById(*tmp));
     if (obj == nullptr) {
       return;
     }
-    tmp = &obj->x34_nextRelay;
+    tmp = &obj->mNextRelay;
   }
 }
 
@@ -29,7 +29,7 @@ void CScriptRelay::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId,
       return;
     }
 
-    x38_sendCount++;
+    mSendCount++;
     TUniqueId tmp = stateMgr.GetLastRelayId();
     while (tmp != GetUniqueId() && tmp != kInvalidUniqueId) {
       CEntity* obj = stateMgr.ObjectById(tmp);
@@ -38,11 +38,11 @@ void CScriptRelay::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId,
         break;
       }
 
-      tmp = static_cast< const CScriptRelay* >(obj)->x34_nextRelay;
+      tmp = static_cast< const CScriptRelay* >(obj)->mNextRelay;
     }
 
     if (tmp == kInvalidUniqueId) {
-      x34_nextRelay = stateMgr.GetLastRelayId();
+      mNextRelay = stateMgr.GetLastRelayId();
       stateMgr.SetLastRelayId(GetUniqueId());
     }
     break;
@@ -54,10 +54,10 @@ void CScriptRelay::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId,
 }
 
 void CScriptRelay::Think(float, CStateManager& stateMgr) {
-  switch (x38_sendCount) {
+  switch (mSendCount) {
   default:
-    while (x38_sendCount != 0) {
-      x38_sendCount--;
+    while (mSendCount != 0) {
+      mSendCount--;
       SendScriptMsgs(kSS_Zero, stateMgr, kSM_None);
     }
     UpdateObjectRef(stateMgr);

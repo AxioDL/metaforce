@@ -19,18 +19,18 @@ public:
     kBM_Blend = 1,
   };
   class CFlareDef {
-    mutable TToken< CTexture > x0_tex;
-    float x8_pos;
-    float xc_scale;
-    CColor x10_color;
+    mutable TToken< CTexture > mTex;
+    float mPos;
+    float mScale;
+    CColor mColor;
 
   public:
     CFlareDef(const TToken< CTexture >& tex, float pos, float scale, uint color);
 
-    TToken< CTexture >& GetTexture() const { return x0_tex; }
-    CColor GetColor() const { return x10_color; }
-    float GetPosition() const { return x8_pos; }
-    float GetScale() const { return xc_scale; }
+    TToken< CTexture >& GetTexture() const { return mTex; }
+    CColor GetColor() const { return mColor; }
+    float GetPosition() const { return mPos; }
+    float GetScale() const { return mScale; }
   };
 
   CVisorFlare(EBlendMode blendMode, bool, float, float, float, uint, uint,
@@ -42,16 +42,16 @@ public:
   static rstl::optional_object< CFlareDef > LoadFlareDef(CInputStream& in);
 
 private:
-  EBlendMode x0_blendMode;
-  rstl::vector< CFlareDef > x4_flareDefs;
-  bool x14_distanceScaled;
-  float x18_fadeTime;
-  float x1c_angularFalloff;
-  float x20_rotationScale;
-  float x24_intensity;
-  float x28_occlusionTime;
-  int x2c_thermalVisorMode;
-  int x30_combatVisorMode;
+  EBlendMode mBlendMode;
+  rstl::vector< CFlareDef > mFlareDefs;
+  bool mDistanceScaled;
+  float mFadeTime;
+  float mAngularFalloff;
+  float mRotationScale;
+  float mIntensity;
+  float mOcclusionTime;
+  int mThermalVisorMode;
+  int mCombatVisorMode;
 
   void SetupRenderState(const CStateManager& mgr) const;
   void ResetTevSwapMode(const CStateManager& mgr) const;

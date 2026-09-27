@@ -13,6 +13,24 @@ Sections:
 	.sdata2     type:rodata align:4
 	.sbss2      type:bss align:32
 
+MetroidPrime/CEntity.cpp:
+	.text       start:0x8008E814 end:0x8008EE9C
+	.ctors      start:0x8046D3A4 end:0x8046D3A8
+	.data       start:0x804865F8 end:0x80486618
+	.bss        start:0x804BD768 end:0x804BD780
+
+Kyoto/Streams/CInputStream.cpp:
+	.text       start:0x803025EC end:0x80302BA4
+	.rodata     start:0x8047B9A8 end:0x8047B9B0
+	.data       start:0x80492AB8 end:0x80492AC8
+	.bss        start:0x804E4438 end:0x804E4448
+	.sbss       start:0x805C29E0 end:0x805C29EC
+
+Weapons/CDecalDataFactory.cpp:
+	.text       start:0x8038D638 end:0x8038E5F0
+	.rodata     start:0x8047D710 end:0x8047D718
+	.data       start:0x804954D8 end:0x804954EC
+
 musyx/runtime/dsp_import.c:
 	.data       start:0x804B46A0 end:0x804B63E0
 	.sdata      start:0x805C22C8 end:0x805C22D0

@@ -9,14 +9,14 @@
 #include "Kyoto/Graphics/CColor.hpp"
 
 class CScriptCameraFilterKeyframe : public CEntity {
-  CCameraFilterPass::EFilterType x34_type;
-  CCameraFilterPass::EFilterShape x38_shape;
-  CStateManager::ECameraFilterStage x3c_filterIdx;
+  CCameraFilterPass::EFilterType mType;
+  CCameraFilterPass::EFilterShape mShape;
+  CStateManager::ECameraFilterStage mFilterIdx;
   uint x40_;
-  CColor x44_color;
-  float x48_timeIn;
-  float x4c_timeOut;
-  CAssetId x50_txtr;
+  CColor mColor;
+  float mTimeIn;
+  float mTimeOut;
+  CAssetId mTxtr;
 
 public:
   CScriptCameraFilterKeyframe(TUniqueId uid, const rstl::string& name, const CEntityInfo& info,

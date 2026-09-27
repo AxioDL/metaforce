@@ -5,9 +5,9 @@ const CVector3f CCubeSurface::skDefaultNormal(1.f, 0.f, 0.f);
 
 
 CAABox CCubeSurface::GetBounds() const {
-  if (x0_data->mExtraSize != 0) {
-    return x0_data->mBounds;
+  if (mData->mExtraSize != 0) {
+    return mData->mBounds;
   }
 
-  return CAABox(x0_data->mCenter, x0_data->mCenter);
+  return CAABox(mData->mCenter, mData->mCenter);
 }

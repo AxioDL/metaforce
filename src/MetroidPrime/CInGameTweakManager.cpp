@@ -54,7 +54,7 @@ rstl::string rstl::basic_string< char >::substr(int pos, int count) const {
 CInGameTweakManager::CInGameTweakManager() {}
 
 bool CInGameTweakManager::HasTweakValue(const rstl::string& name) const {
-  for (AUTO(it, x0_values.begin()); it != x0_values.end(); ++it) {
+  for (AUTO(it, mValues.begin()); it != mValues.end(); ++it) {
     if (rstl::operator==(rstl::istring(it->GetName().c_str()), rstl::istring(name.c_str()))) {
       return true;
     }
@@ -64,7 +64,7 @@ bool CInGameTweakManager::HasTweakValue(const rstl::string& name) const {
 }
 
 const CTweakValue* CInGameTweakManager::GetTweakValue(const rstl::string& name) const {
-  for (AUTO(it, x0_values.begin()); it != x0_values.end(); ++it) {
+  for (AUTO(it, mValues.begin()); it != mValues.end(); ++it) {
     if (rstl::operator==(rstl::istring(it->GetName().c_str()), rstl::istring(name.c_str()))) {
       return &*it;
     }
@@ -77,7 +77,7 @@ bool CInGameTweakManager::ReadFromMemoryCard(const rstl::string&) { return false
 
 rstl::vector< rstl::pair< rstl::string, SObjectTag > >
 CResFactory::GetResourceIdToNameList() const {
-  return x4_resLoader.GetResourceIdToNameList();
+  return mResLoader.GetResourceIdToNameList();
 }
 
 rstl::istring rstl::istring_l(const char* data) { return istring(istring::literal_t(), data); }
@@ -103,8 +103,8 @@ rstl::vector< CTweakValue > CInGameTweakManager::GetTweaksInWorld(CAssetId world
   values.reserve(8);
   const rstl::istring prefix(CBasics::Stringize("World %8.8x", world));
 
-  for (int i = 0; i < x0_values.size(); ++i) {
-    const CTweakValue& value = x0_values[i];
+  for (int i = 0; i < mValues.size(); ++i) {
+    const CTweakValue& value = mValues[i];
     if (rstl::istring(value.GetName().c_str()).find_first_of(prefix) != -1) {
       values.reserve(values.size() + 1);
       values.push_back(value);

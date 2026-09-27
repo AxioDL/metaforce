@@ -111,9 +111,9 @@ void do_sound_event(rstl::pair< u16, CSfxHandle >& sfxHandle, int& pitch, bool d
     useFlags |= 0x8; // Doppler effect
 
   CAudioSys::C3DEmitterParmData parms(maxDist, falloff, useFlags, maxVol, minVol);
-  parms.x0_pos = pos;
-  parms.xc_dir = CVector3f::Up();
-  parms.x24_sfxId = useSfxId;
+  parms.mPos = pos;
+  parms.mDir = CVector3f::Up();
+  parms.mSfxId = useSfxId;
 
   if (mgr.Random()->Float() <= weight) {
     if (looping) {
@@ -134,7 +134,7 @@ void do_sound_event(rstl::pair< u16, CSfxHandle >& sfxHandle, int& pitch, bool d
         }
       } else {
         if (currentId == useSfxId) {
-          CSfxManager::UpdateEmitter(currentHandle, parms.x0_pos, parms.xc_dir, maxVol);
+          CSfxManager::UpdateEmitter(currentHandle, parms.mPos, parms.mDir, maxVol);
         } else if ((flags & 0x4) != 0) // Pausable
         {
           CSfxManager::RemoveEmitter(currentHandle);

@@ -35,100 +35,100 @@ const char* const CBabygoth::skpPelvisDamageJoint = "Pelvis";
 const char* const CBabygoth::skpButtDamageJoint = "butt_LCTR";
 
 CBabygothData::CBabygothData(CInputStream& in, int propCount)
-: x0_fireballAttackTime(in.Get< float >())
-, x4_fireballAttackTimeVariance(in.Get< float >())
-, x8_fireballWeapon(in.Get< CAssetId >())
-, xc_fireballDamage(in)
-, x28_attackContactDamage(in)
-, x44_fireBreathWeapon(in.Get< CAssetId >())
-, x48_fireBreathRes(in.Get< CAssetId >())
-, x4c_fireBreathDamage(in)
-, x68_mouthVulnerabilities(in)
-, xd0_shellVulnerabilities(in)
-, x138_noShellModel(in.Get< CAssetId >())
-, x13c_noShellSkin(in.Get< CAssetId >())
-, x140_shellHitPoints(in.Get< float >())
-, x144_shellCrackSfx(CSfxManager::TranslateSFXID(in.ReadLong()))
-, x148_intermediateCrackParticle(in.Get< CAssetId >())
-, x14c_crackOneParticle(in.Get< CAssetId >())
-, x150_crackTwoParticle(in.Get< CAssetId >())
-, x154_destroyShellParticle(in.Get< CAssetId >())
-, x158_crackOneSfx(CSfxManager::TranslateSFXID(in.ReadLong()))
-, x15a_crackTwoSfx(CSfxManager::TranslateSFXID(in.ReadLong()))
-, x15c_destroyShellSfx(CSfxManager::TranslateSFXID(in.ReadLong()))
-, x160_timeUntilAttack(in.Get< float >())
-, x164_attackCooldownTime(in.Get< float >())
-, x168_interestTime(in.Get< float >())
-, x16c_flamePlayerSteamTxtr(in.Get< CAssetId >())
-, x170_flamePlayerHitSfx(CSfxManager::TranslateSFXID(in.ReadLong()))
-, x174_flamePlayerIceTxtr(in.Get< CAssetId >()) {}
+: mFireballAttackTime(in.Get< float >())
+, mFireballAttackTimeVariance(in.Get< float >())
+, mFireballWeapon(in.Get< CAssetId >())
+, mFireballDamage(in)
+, mAttackContactDamage(in)
+, mFireBreathWeapon(in.Get< CAssetId >())
+, mFireBreathRes(in.Get< CAssetId >())
+, mFireBreathDamage(in)
+, mMouthVulnerabilities(in)
+, mShellVulnerabilities(in)
+, mNoShellModel(in.Get< CAssetId >())
+, mNoShellSkin(in.Get< CAssetId >())
+, mShellHitPoints(in.Get< float >())
+, mShellCrackSfx(CSfxManager::TranslateSFXID(in.ReadLong()))
+, mIntermediateCrackParticle(in.Get< CAssetId >())
+, mCrackOneParticle(in.Get< CAssetId >())
+, mCrackTwoParticle(in.Get< CAssetId >())
+, mDestroyShellParticle(in.Get< CAssetId >())
+, mCrackOneSfx(CSfxManager::TranslateSFXID(in.ReadLong()))
+, mCrackTwoSfx(CSfxManager::TranslateSFXID(in.ReadLong()))
+, mDestroyShellSfx(CSfxManager::TranslateSFXID(in.ReadLong()))
+, mTimeUntilAttack(in.Get< float >())
+, mAttackCooldownTime(in.Get< float >())
+, mInterestTime(in.Get< float >())
+, mFlamePlayerSteamTxtr(in.Get< CAssetId >())
+, mFlamePlayerHitSfx(CSfxManager::TranslateSFXID(in.ReadLong()))
+, mFlamePlayerIceTxtr(in.Get< CAssetId >()) {}
 
 CBabygoth::CBabygoth(TUniqueId uid, const rstl::string& name, const CEntityInfo& info,
                      const CTransform4f& xf, const CModelData& mData, const CPatternedInfo& pInfo,
                      const CActorParameters& actParms, const CBabygothData& babyData)
 : CPatterned(kC_Babygoth, uid, name, kFT_Zero, info, xf, mData, pInfo, kMT_Ground, kCT_One,
              kBT_BiPedal, actParms, kCS_Medium)
-, x568_stateProg(-1)
-, x56c_shellState(kSCS_Default)
-, x570_babyData(babyData)
-, x6e8_teamMgr(kInvalidUniqueId)
-, x6ec_pathSearch(nullptr, 1, pInfo.GetPathfindingIndex(), 1.f, 1.f)
-, x7d0_approachPathSearch(nullptr, 1, pInfo.GetPathfindingIndex(), 1.f, 1.f)
-, x8b4_pathFindMode(kPFM_Normal)
-, x8b8_backupDestPos(CVector3f::Zero())
-, x8c4_initialFaceDir(CVector3f::Zero())
-, x8d0_initialSpeed(x3b4_speed)
-, x8d4_stepBackwardDist(0.f)
-, x8d8_attackTimeLeft(0.f)
-, x8dc_attackTimer(0.f)
-, x8e0_attackCooldownTimeLeft(0.f)
-, x8e4_fireballAttackTimeLeft(0.f)
-, x8e8_interestTimer(0.f)
-, x8ec_bodyHP(0.f)
-, x8f0_boneTracking(*GetAnimationData(), rstl::string_l("Head_1"), CMath::Deg2Rad(80.f),
+, mStateProg(-1)
+, mShellState(kSCS_Default)
+, mBabyData(babyData)
+, mTeamMgr(kInvalidUniqueId)
+, mPathSearch(nullptr, 1, pInfo.GetPathfindingIndex(), 1.f, 1.f)
+, mApproachPathSearch(nullptr, 1, pInfo.GetPathfindingIndex(), 1.f, 1.f)
+, mPathFindMode(kPFM_Normal)
+, mBackupDestPos(CVector3f::Zero())
+, mInitialFaceDir(CVector3f::Zero())
+, mInitialSpeed(mSpeed)
+, mStepBackwardDist(0.f)
+, mAttackTimeLeft(0.f)
+, mAttackTimer(0.f)
+, mAttackCooldownTimeLeft(0.f)
+, mFireballAttackTimeLeft(0.f)
+, mInterestTimer(0.f)
+, mBodyHP(0.f)
+, mBoneTracking(*GetAnimationData(), rstl::string_l("Head_1"), CMath::Deg2Rad(80.f),
                     CRelAngle::FromDegrees(180.f).AsRadians(), kBTF_None)
-, x928_colActMgr(nullptr)
-, x930_aabox(GetBoundingBox(), GetMaterialList())
-, x958_iceProjectile(babyData.GetFireballResID(), babyData.GetFireballDamage())
-, x980_flameThrower(kInvalidUniqueId)
-, x984_flameThrowerDesc(
+, mColActMgr(nullptr)
+, mAabox(GetBoundingBox(), GetMaterialList())
+, mIceProjectile(babyData.GetFireballResID(), babyData.GetFireballDamage())
+, mFlameThrower(kInvalidUniqueId)
+, mFlameThrowerDesc(
       babyData.GetFireBreathWeapon() != kInvalidAssetId
           ? gpSimplePool->GetObj(SObjectTag('WPSC', babyData.GetFireBreathWeapon()))
           : gpSimplePool->GetObj("FlameThrower"))
-, x98c_dVuln(pInfo.GetDamageVulnerability())
-, x9f4_mouthLocator(0xff)
-, x9f6_mouthCollisionActor(kInvalidUniqueId)
-, xa00_shellHitPoints(babyData.GetShellHitPoints())
-, xa04_drawMaterialIdx(0)
-, xa08_noShellModel(TLockedToken< CSkinnedModel >(rs_new CSkinnedModel(
+, mDVuln(pInfo.GetDamageVulnerability())
+, mMouthLocator(0xff)
+, mMouthCollisionActor(kInvalidUniqueId)
+, mShellHitPoints(babyData.GetShellHitPoints())
+, mDrawMaterialIdx(0)
+, mNoShellModel(TLockedToken< CSkinnedModel >(rs_new CSkinnedModel(
       gpSimplePool->GetObj(SObjectTag('CMDL', babyData.GetNoShellModel())),
       gpSimplePool->GetObj(SObjectTag('CSKR', babyData.GetNoShellSkin())),
       GetAnimationData()->GetModelData()->GetLayoutInfo(), CSkinnedModel::kDO_Owned)))
-, xa14_crackOneParticle(gpSimplePool->GetObj(SObjectTag('PART', babyData.GetCrackOneParticle())))
-, xa20_crackTwoParticle(gpSimplePool->GetObj(SObjectTag('PART', babyData.GetCrackTwoParticle())))
-, xa2c_destroyShellParticle(
+, mCrackOneParticle(gpSimplePool->GetObj(SObjectTag('PART', babyData.GetCrackOneParticle())))
+, mCrackTwoParticle(gpSimplePool->GetObj(SObjectTag('PART', babyData.GetCrackTwoParticle())))
+, mDestroyShellParticle(
       gpSimplePool->GetObj(SObjectTag('PART', babyData.GetDestroyShellParticle())))
-, xa38_intermediateCrackParticle(
+, mIntermediateCrackParticle(
       babyData.GetIntermediateCrackParticle() != kInvalidAssetId
           ? rstl::optional_object< TLockedToken< CGenDescription > >(
                 TLockedToken< CGenDescription >(gpSimplePool->GetObj(
                     SObjectTag('PART', babyData.GetIntermediateCrackParticle()))))
           : rstl::optional_object< TLockedToken< CGenDescription > >())
-, xa48_24_isAlert(false)
+, mIsAlert(false)
 , xa48_25_(false)
-, xa48_26_inProjectileAttack(false)
+, mInProjectileAttack(false)
 , xa48_27_(false)
-, xa48_28_pendingAttackContactDamage(false)
-, xa48_29_hasBeenEnraged(false)
-, xa48_30_heardPlayerFire(false)
-, xa48_31_approachNeedsPathSearch(true)
-, xa49_24_gettingUp(false)
-, xa49_25_shouldStepBackwards(false)
-, xa49_26_readyForTeam(false)
-, xa49_27_locomotionValid(false)
-, xa49_28_onApproachPath(false)
-, xa49_29_objectSpaceCollision(false) {
-  x958_iceProjectile.Token().Lock();
+, mPendingAttackContactDamage(false)
+, mHasBeenEnraged(false)
+, mHeardPlayerFire(false)
+, mApproachNeedsPathSearch(true)
+, mGettingUp(false)
+, mShouldStepBackwards(false)
+, mReadyForTeam(false)
+, mLocomotionValid(false)
+, mOnApproachPath(false)
+, mObjectSpaceCollision(false) {
+  mIceProjectile.Token().Lock();
   UpdateTouchBounds();
   KnockBackCtrl().SetEnableFreeze(false);
   KnockBackCtrl().SetX82_24(false);
@@ -136,8 +136,8 @@ CBabygoth::CBabygoth(TUniqueId uid, const rstl::string& name, const CEntityInfo&
   KnockBackCtrl().SetEnableExplodeDeath(false);
   const CPASAnimParmData stepParms(pas::kAS_Step, CPASAnimParm::FromEnum(1),
                                    CPASAnimParm::FromEnum(0));
-  x8d4_stepBackwardDist = GetAnimationDistance(stepParms) * GetModelData()->ScaleCopy().GetY();
-  xa08_noShellModel->SetLayoutInfo(GetAnimationData()->GetModelData()->GetLayoutInfo());
+  mStepBackwardDist = GetAnimationDistance(stepParms) * GetModelData()->ScaleCopy().GetY();
+  mNoShellModel->SetLayoutInfo(GetAnimationData()->GetModelData()->GetLayoutInfo());
   MakeThermalColdAndHot();
 }
 
@@ -147,27 +147,27 @@ ENTITY_ACCEPT_IMPL(CBabygoth)
 void CBabygoth::Think(float dt, CStateManager& mgr) {
   if (GetActive()) {
     PreventPlayerInterpenetration(mgr, dt);
-    if (xa49_26_readyForTeam && !CTeamAiMgr::GetTeamAiRole(mgr, x6e8_teamMgr, GetUniqueId())) {
+    if (mReadyForTeam && !CTeamAiMgr::GetTeamAiRole(mgr, mTeamMgr, GetUniqueId())) {
       AddToTeam(mgr);
     }
     CPatterned::Think(dt, mgr);
-    if (x450_bodyController->IsElectrocuting()) {
-      x8f0_boneTracking.SetActive(false);
+    if (mBodyController->IsElectrocuting()) {
+      mBoneTracking.SetActive(false);
     }
     UpdateAILogicTimers(dt);
     AnimationData()->PreRender();
-    x8f0_boneTracking.Update(dt);
-    x8f0_boneTracking.PreRender(mgr, *ModelData()->AnimationData(), GetTransform(),
-                                GetModelData()->ScaleCopy(), *x450_bodyController);
-    x928_colActMgr->Update(dt, mgr,
-                           xa49_29_objectSpaceCollision ? CCollisionActorManager::kUO_ObjectSpace
+    mBoneTracking.Update(dt);
+    mBoneTracking.PreRender(mgr, *ModelData()->AnimationData(), GetTransform(),
+                                GetModelData()->ScaleCopy(), *mBodyController);
+    mColActMgr->Update(dt, mgr,
+                           mObjectSpaceCollision ? CCollisionActorManager::kUO_ObjectSpace
                                                         : CCollisionActorManager::kUO_WorldSpace);
-    xa49_29_objectSpaceCollision = true;
+    mObjectSpaceCollision = true;
     UpdateHealthInfo(mgr);
     UpdateParticleEffects(dt, mgr);
     CheckShouldGetUp(mgr);
     CheckShouldWakeUp(mgr, dt);
-    if (!x400_25_alive && x450_bodyController->GetBodyStateInfo().GetCurrentState()->IsDying()) {
+    if (!mAlive && mBodyController->GetBodyStateInfo().GetCurrentState()->IsDying()) {
       SetShootThrough(mgr);
     }
   }
@@ -178,42 +178,42 @@ void CBabygoth::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateM
   switch (msg) {
   case kSM_Registered: {
     if (!HasPatrolPath(mgr, 0.f)) {
-      x450_bodyController->SetLocomotionType(pas::kLT_Crouch);
+      mBodyController->SetLocomotionType(pas::kLT_Crouch);
     }
-    x450_bodyController->Activate(mgr);
+    mBodyController->Activate(mgr);
     SetupCollisionManager(mgr);
     CreateFlameThrower(mgr);
-    const float maxSpeed = x450_bodyController->GetBodyStateInfo().GetMaxSpeed();
+    const float maxSpeed = mBodyController->GetBodyStateInfo().GetMaxSpeed();
     const float speed =
         maxSpeed > 0.f
-            ? x450_bodyController->GetBodyStateInfo().GetLocomotionSpeed(pas::kLA_Walk) / maxSpeed
+            ? mBodyController->GetBodyStateInfo().GetLocomotionSpeed(pas::kLA_Walk) / maxSpeed
             : 1.f;
-    x450_bodyController->CommandMgr().SetSteeringBlendMode(kSBM_Clamped);
-    x450_bodyController->CommandMgr().SetSteeringSpeedRange(0.f, speed);
-    x9f4_mouthLocator = GetAnimationData()->GetLocatorSegId(rstl::string_l(skpMouthDamageJoint));
+    mBodyController->CommandMgr().SetSteeringBlendMode(kSBM_Clamped);
+    mBodyController->CommandMgr().SetSteeringSpeedRange(0.f, speed);
+    mMouthLocator = GetAnimationData()->GetLocatorSegId(rstl::string_l(skpMouthDamageJoint));
     break;
   }
   case kSM_Activate:
-    x928_colActMgr->SetActive(mgr, true);
+    mColActMgr->SetActive(mgr, true);
     break;
   case kSM_Deactivate:
-    x928_colActMgr->SetActive(mgr, false);
-    xa49_29_objectSpaceCollision = false;
+    mColActMgr->SetActive(mgr, false);
+    mObjectSpaceCollision = false;
     RemoveFromTeam(mgr);
     break;
   case kSM_Deleted:
-    x928_colActMgr->Destroy(mgr);
-    if (x980_flameThrower != kInvalidUniqueId) {
-      mgr.DeleteObjectRequest(x980_flameThrower);
-      x980_flameThrower = kInvalidUniqueId;
+    mColActMgr->Destroy(mgr);
+    if (mFlameThrower != kInvalidUniqueId) {
+      mgr.DeleteObjectRequest(mFlameThrower);
+      mFlameThrower = kInvalidUniqueId;
     }
     RemoveFromTeam(mgr);
     break;
   case kSM_Falling: {
-    if (!x450_bodyController->IsFrozen()) {
+    if (!mBodyController->IsFrozen()) {
       const float weight = GetGravityConstant() * GetMass();
-      x150_momentum = CVector3f(0.f, 0.f, -weight);
-      x328_27_onGround = false;
+      mMomentum = CVector3f(0.f, 0.f, -weight);
+      mOnGround = false;
       RemoveMaterial(kMT_GroundCollider, mgr);
     }
     callBase = false;
@@ -221,20 +221,20 @@ void CBabygoth::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateM
   }
   case kSM_OnFloor:
     SetMomentumWR(CVector3f::Zero());
-    x328_27_onGround = true;
+    mOnGround = true;
     AddMaterial(kMT_GroundCollider, mgr);
     callBase = false;
     break;
   case kSM_Alert:
-    xa48_24_isAlert = true;
+    mIsAlert = true;
     break;
   case kSM_InitializedInArea: {
     const TAreaId areaId = GetCurrentAreaId();
     const CGameArea* area = mgr.GetWorld()->GetArea(areaId);
-    x6ec_pathSearch.SetArea(area->GetPostConstructed()->x10bc_pathArea);
-    x7d0_approachPathSearch.SetArea(area->GetPostConstructed()->x10bc_pathArea);
-    if (x6e8_teamMgr == kInvalidUniqueId) {
-      x6e8_teamMgr = CTeamAiMgr::GetTeamAiMgr(*this, mgr);
+    mPathSearch.SetArea(area->GetPostConstructed()->mPathArea);
+    mApproachPathSearch.SetArea(area->GetPostConstructed()->mPathArea);
+    if (mTeamMgr == kInvalidUniqueId) {
+      mTeamMgr = CTeamAiMgr::GetTeamAiMgr(*this, mgr);
     }
     break;
   }
@@ -244,7 +244,7 @@ void CBabygoth::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateM
       const TUniqueId touched = actor->GetLastTouchedObject();
       if (const CWeapon* const weapon = TCastToConstPtr< CWeapon >(mgr.GetObjectById(touched))) {
         if (weapon->GetOwnerId() == mgr.GetPlayer()->GetUniqueId()) {
-          xa48_24_isAlert = true;
+          mIsAlert = true;
         }
       }
     }
@@ -258,37 +258,37 @@ void CBabygoth::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateM
             TakeDamage(CVector3f::Zero(), 0.f);
           } else if (IsShellCollisionActor(uid)) {
             TakeDamage(CVector3f::Zero(), 0.f);
-            if (x56c_shellState != kSCS_Destroyed && xa38_intermediateCrackParticle) {
+            if (mShellState != kSCS_Destroyed && mIntermediateCrackParticle) {
               CTransform4f xf = weapon->GetTransform();
               xf.RotateLocalZ(CRelAngle::FromRadians(M_PIF));
-              StartCrackShellEffect(mgr, *xa38_intermediateCrackParticle, xf,
-                                    x570_babyData.GetShellCrackSfx(), false);
+              StartCrackShellEffect(mgr, *mIntermediateCrackParticle, xf,
+                                    mBabyData.GetShellCrackSfx(), false);
             }
           }
           KnockBack(weapon->GetTransform().GetForward(), mgr, weapon->GetCurrentDamageInfo(),
                     weapon->GetCurrentDamageInfo().GetKnockBackPower(), true, false);
         }
       }
-      xa48_24_isAlert = true;
-      x8e8_interestTimer = 0.f;
+      mIsAlert = true;
+      mInterestTimer = 0.f;
       mgr.InformListeners(GetTranslation(), kLNT_PlayerFire);
     } else {
       ReDirectDamage(mgr, uid);
     }
-    x400_24_hitByPlayerProjectile = true;
+    mHitByPlayerProjectile = true;
     break;
   case kSM_InvulnDamage:
     mgr.InformListeners(GetTranslation(), kLNT_PlayerFire);
-    x400_24_hitByPlayerProjectile = true;
-    xa48_24_isAlert = true;
-    x8e8_interestTimer = 0.f;
+    mHitByPlayerProjectile = true;
+    mIsAlert = true;
+    mInterestTimer = 0.f;
     if (!TCastToPtr< CCollisionActor >(mgr.ObjectById(uid))) {
       ReDirectDamage(mgr, uid);
     }
     break;
   case kSM_SuspendedMove:
-    if (x928_colActMgr.get()) {
-      x928_colActMgr->SetMovable(mgr, false);
+    if (mColActMgr.get()) {
+      mColActMgr->SetMovable(mgr, false);
     }
     break;
   }
@@ -302,38 +302,38 @@ void CBabygoth::Render(const CStateManager& mgr) const { CPatterned::Render(mgr)
 void CBabygoth::PreRender(CStateManager& mgr, const CFrustumPlanes& frustum) {
   CPatterned::PreRender(mgr, frustum);
   CModelFlags flags = GetModelFlags();
-  flags.x1_matSetIdx = xa04_drawMaterialIdx;
+  flags.mMatSetIdx = mDrawMaterialIdx;
   SetModelFlags(flags);
 }
 
-CProjectileInfo* CBabygoth::ProjectileInfo() { return &x958_iceProjectile; }
+CProjectileInfo* CBabygoth::ProjectileInfo() { return &mIceProjectile; }
 
 void CBabygoth::KnockBack(const CVector3f& direction, CStateManager& mgr, const CDamageInfo& damage,
                           float magnitude, bool direct, const bool deferred) {
-  KnockBackCtrl().EnableAnimReaction(kAR_Hurled, x56c_shellState == kSCS_Destroyed);
+  KnockBackCtrl().EnableAnimReaction(kAR_Hurled, mShellState == kSCS_Destroyed);
   CPatterned::KnockBack(direction, mgr, damage, magnitude, direct, deferred);
-  if (x400_25_alive) {
-    switch (KnockBackCtrl().GetActiveParms().x0_animState) {
+  if (mAlive) {
+    switch (KnockBackCtrl().GetActiveParms().mAnimState) {
     case kAR_Hurled:
-      x330_stateMachineState.SetState(mgr, *this, GetStateMachine(), rstl::string_l("GetUp"));
+      mStateMachineState.SetState(mgr, *this, GetStateMachine(), rstl::string_l("GetUp"));
       break;
     }
   }
 }
 
 void CBabygoth::Shock(CStateManager& mgr, float duration, float damage) {
-  if (!x9f8_shellIds.empty()) {
-    if (CCollisionActor* actor = TCastToPtr< CCollisionActor >(mgr.ObjectById(x9f8_shellIds[0]))) {
+  if (!mShellIds.empty()) {
+    if (CCollisionActor* actor = TCastToPtr< CCollisionActor >(mgr.ObjectById(mShellIds[0]))) {
       const CWeaponMode weapon(kWT_Wave);
       switch (
           actor->GetDamageVulnerability()->GetVulnerability(weapon, CDamageVulnerability::kRD_No)) {
       case kVN_Weak:
-        x450_bodyController->SetElectrocuting(1.5f * duration);
-        x3f0_pendingShockDamage = 1.5f * damage;
+        mBodyController->SetElectrocuting(1.5f * duration);
+        mPendingShockDamage = 1.5f * damage;
         break;
       case kVN_Normal:
-        x450_bodyController->SetElectrocuting(duration);
-        x3f0_pendingShockDamage = damage;
+        mBodyController->SetElectrocuting(duration);
+        mPendingShockDamage = damage;
         break;
       }
     }
@@ -341,8 +341,8 @@ void CBabygoth::Shock(CStateManager& mgr, float duration, float damage) {
 }
 
 void CBabygoth::TakeDamage(const CVector3f&, float) {
-  if (x400_25_alive) {
-    x428_damageCooldownTimer = skDamageHitTime;
+  if (mAlive) {
+    mDamageCooldownTimer = skDamageHitTime;
   }
 }
 
@@ -357,10 +357,10 @@ const CDamageVulnerability* CBabygoth::GetDamageVulnerability(const CVector3f&, 
 
 bool CBabygoth::Listen(const CVector3f& origin, EListenNoiseType noiseType) {
   bool heard = false;
-  if (x400_25_alive && noiseType == kLNT_PlayerFire) {
+  if (mAlive && noiseType == kLNT_PlayerFire) {
     const CVector3f delta = origin - GetTranslation();
     if (delta.MagSquared() < 1600.f) {
-      xa48_30_heardPlayerFire = heard = true;
+      mHeardPlayerFire = heard = true;
     }
   }
   const bool result = heard;
@@ -373,7 +373,7 @@ CVector3f CBabygoth::GetOrigin(const CStateManager&, const CTeamAiRole&,
   CVector3f delta = GetTranslation() - aimPos;
   delta[kDZ] = 0.f;
   if (delta.CanBeNormalized()) {
-    result = aimPos + delta.AsNormalized() * x2fc_minAttackRange;
+    result = aimPos + delta.AsNormalized() * mMinAttackRange;
   }
   return result;
 }
@@ -414,23 +414,23 @@ void CBabygoth::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, E
     handled = true;
     break;
   case kUE_DamageOn:
-    if (xa48_26_inProjectileAttack) {
-      if (CFlameThrower* flame = static_cast< CFlameThrower* >(mgr.ObjectById(x980_flameThrower))) {
+    if (mInProjectileAttack) {
+      if (CFlameThrower* flame = static_cast< CFlameThrower* >(mgr.ObjectById(mFlameThrower))) {
         flame->Fire(GetTransform(), mgr, false);
       }
     }
     break;
   case kUE_DamageOff:
-    if (xa48_26_inProjectileAttack) {
-      if (CFlameThrower* flame = static_cast< CFlameThrower* >(mgr.ObjectById(x980_flameThrower))) {
+    if (mInProjectileAttack) {
+      if (CFlameThrower* flame = static_cast< CFlameThrower* >(mgr.ObjectById(mFlameThrower))) {
         flame->Reset(mgr, false);
       }
     }
     break;
   case kUE_BeginAction:
-    if (xa48_26_inProjectileAttack) {
-      x8f0_boneTracking.SetTarget(mgr.GetPlayer()->GetUniqueId());
-      x8f0_boneTracking.SetActive(true);
+    if (mInProjectileAttack) {
+      mBoneTracking.SetTarget(mgr.GetPlayer()->GetUniqueId());
+      mBoneTracking.SetActive(true);
     }
     break;
   }
@@ -440,20 +440,20 @@ void CBabygoth::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, E
 }
 
 CVector3f CBabygoth::GetAimPosition(const CStateManager& mgr, float) const {
-  if (x450_bodyController->GetLocomotionType() != pas::kLT_Crouch && !x9f8_shellIds.empty()) {
+  if (mBodyController->GetLocomotionType() != pas::kLT_Crouch && !mShellIds.empty()) {
     CVector3f shellPos = CVector3f::Zero();
-    for (AUTO(it, x9f8_shellIds.begin()); it != x9f8_shellIds.end(); ++it) {
+    for (AUTO(it, mShellIds.begin()); it != mShellIds.end(); ++it) {
       if (const CCollisionActor* actor =
               TCastToConstPtr< CCollisionActor >(mgr.GetObjectById(*it))) {
         shellPos += actor->GetTranslation() + actor->GetSphereRadius() * CVector3f::Up();
       }
     }
     if (shellPos.IsNonZero()) {
-      shellPos /= static_cast< float >(x9f8_shellIds.size());
+      shellPos /= static_cast< float >(mShellIds.size());
     }
     CVector3f mouthPos = shellPos;
     if (const CCollisionActor* actor =
-            TCastToConstPtr< CCollisionActor >(mgr.GetObjectById(x9f6_mouthCollisionActor))) {
+            TCastToConstPtr< CCollisionActor >(mgr.GetObjectById(mMouthCollisionActor))) {
       mouthPos[kDZ] = actor->GetTranslation().GetZ();
     }
     const CVector2f forward = GetTransform().GetForward().ToVec2f();
@@ -466,16 +466,16 @@ CVector3f CBabygoth::GetAimPosition(const CStateManager& mgr, float) const {
 
 bool CBabygoth::TooClose(CStateManager& mgr, float) {
   const CAABox playerBounds = mgr.GetPlayer()->GetBoundingBox();
-  const CAABox bounds = x930_aabox.CalculateAABox(GetTransform());
+  const CAABox bounds = mAabox.CalculateAABox(GetTransform());
   if (bounds.DoBoundsOverlap(playerBounds)) {
-    xa49_25_shouldStepBackwards = true;
+    mShouldStepBackwards = true;
     return true;
   }
   return false;
 }
 
 bool CBabygoth::AggressionCheck(CStateManager&, float) {
-  if (x400_25_alive && !xa48_29_hasBeenEnraged && x56c_shellState == kSCS_Destroyed) {
+  if (mAlive && !mHasBeenEnraged && mShellState == kSCS_Destroyed) {
     return true;
   }
   return false;
@@ -483,10 +483,10 @@ bool CBabygoth::AggressionCheck(CStateManager&, float) {
 
 bool CBabygoth::InMaxRange(CStateManager& mgr, float) {
   return (mgr.GetPlayer()->GetTranslation() - GetTranslation()).MagSquared() <
-         (1.5f * x300_maxAttackRange) * (1.5f * x300_maxAttackRange);
+         (1.5f * mMaxAttackRange) * (1.5f * mMaxAttackRange);
 }
 
-bool CBabygoth::ShotAt(CStateManager&, float) { return x400_24_hitByPlayerProjectile; }
+bool CBabygoth::ShotAt(CStateManager&, float) { return mHitByPlayerProjectile; }
 
 bool CBabygoth::OffLine(CStateManager& mgr, float) {
   SetPathFindMode(kPFM_Normal);
@@ -494,25 +494,25 @@ bool CBabygoth::OffLine(CStateManager& mgr, float) {
 }
 
 bool CBabygoth::LostInterest(CStateManager&, float) {
-  if (x8e8_interestTimer >= x570_babyData.GetInterestTime()) {
-    return x6ec_pathSearch.OnPath(GetTranslation()) == CPathFindSearch::kR_Success;
+  if (mInterestTimer >= mBabyData.GetInterestTime()) {
+    return mPathSearch.OnPath(GetTranslation()) == CPathFindSearch::kR_Success;
   }
   return false;
 }
 
 bool CBabygoth::LineOfSight(CStateManager& mgr, float) {
   const CVector3f aimPos = mgr.GetPlayer()->GetAimPosition(mgr, 0.f);
-  const CTransform4f mouthXf = GetLctrTransform(x9f4_mouthLocator);
+  const CTransform4f mouthXf = GetLctrTransform(mMouthLocator);
   const CVector3f mouthPos = mouthXf.GetTranslation();
   return !IsPatternObstructed(mgr, mouthPos, aimPos);
 }
 
 bool CBabygoth::Leash(CStateManager& mgr, float) {
-  const CVector3f delta = x3a0_latestLeashPosition - GetTranslation();
-  if (delta.MagSquared() > x3c8_leashRadius * x3c8_leashRadius) {
+  const CVector3f delta = mLatestLeashPosition - GetTranslation();
+  if (delta.MagSquared() > mLeashRadius * mLeashRadius) {
     const CVector3f playerDelta = mgr.GetPlayer()->GetTranslation() - GetTranslation();
-    return playerDelta.MagSquared() > x3cc_playerLeashRadius * x3cc_playerLeashRadius &&
-           x3d4_curPlayerLeashTime > x3d0_playerLeashTime;
+    return playerDelta.MagSquared() > mPlayerLeashRadius * mPlayerLeashRadius &&
+           mCurPlayerLeashTime > mPlayerLeashTime;
   }
   return false;
 }
@@ -520,17 +520,17 @@ bool CBabygoth::Leash(CStateManager& mgr, float) {
 bool CBabygoth::ShouldAttack(CStateManager& mgr, float) {
   const CPlayer& player = *mgr.GetPlayer();
   if (GetCurrentAreaId() == player.GetCurrentAreaId() && !player.GetFrozenState() &&
-      x8d8_attackTimeLeft <= 0.f && x8e0_attackCooldownTimeLeft <= 0.f) {
+      mAttackTimeLeft <= 0.f && mAttackCooldownTimeLeft <= 0.f) {
     const CVector3f aimPos = player.GetAimPosition(mgr, 0.f);
     const CVector3f delta = aimPos - GetTranslation();
     const float distance = delta.Magnitude();
-    if (x450_bodyController->GetBodyStateInfo().GetMaxSpeed() * x570_babyData.GetTimeUntilAttack() >
+    if (mBodyController->GetBodyStateInfo().GetMaxSpeed() * mBabyData.GetTimeUntilAttack() >
             distance &&
         !ShouldTurn(mgr, CRelAngle::FromDegrees(25.f).AsRadians())) {
-      const CTransform4f mouthXf = GetLctrTransform(x9f4_mouthLocator);
+      const CTransform4f mouthXf = GetLctrTransform(mMouthLocator);
       const CVector3f mouthPos = mouthXf.GetTranslation();
       if (!IsPatternObstructed(mgr, mouthPos, aimPos)) {
-        if (CTeamAiMgr* team = TCastToPtr< CTeamAiMgr >(mgr.ObjectById(x6e8_teamMgr))) {
+        if (CTeamAiMgr* team = TCastToPtr< CTeamAiMgr >(mgr.ObjectById(mTeamMgr))) {
           if (team->IsPartOfTeam(GetUniqueId())) {
             return team->AddMeleeAttacker(GetUniqueId());
           }
@@ -544,12 +544,12 @@ bool CBabygoth::ShouldAttack(CStateManager& mgr, float) {
 
 bool CBabygoth::ShouldSpecialAttack(CStateManager& mgr, float) {
   if (GetCurrentAreaId() == mgr.GetPlayer()->GetCurrentAreaId() &&
-      x8e4_fireballAttackTimeLeft <= 0.f) {
+      mFireballAttackTimeLeft <= 0.f) {
     const CVector3f aimPos = mgr.GetPlayer()->GetAimPosition(mgr, 0.f);
-    const CTransform4f mouthXf = GetLctrTransform(x9f4_mouthLocator);
+    const CTransform4f mouthXf = GetLctrTransform(mMouthLocator);
     const CVector3f mouthPos = mouthXf.GetTranslation();
     const CVector3f delta = aimPos - mouthPos;
-    if (delta.MagSquared() >= x300_maxAttackRange * x300_maxAttackRange &&
+    if (delta.MagSquared() >= mMaxAttackRange * mMaxAttackRange &&
         !ShouldTurn(mgr, CRelAngle::FromDegrees(25.f).AsRadians()) &&
         !IsPatternObstructed(mgr, mouthPos, aimPos)) {
       return true;
@@ -559,12 +559,12 @@ bool CBabygoth::ShouldSpecialAttack(CStateManager& mgr, float) {
 }
 
 bool CBabygoth::ShouldFire(CStateManager& mgr, float) {
-  if (GetCurrentAreaId() == mgr.GetPlayer()->GetCurrentAreaId() && x8d8_attackTimeLeft <= 0.f) {
+  if (GetCurrentAreaId() == mgr.GetPlayer()->GetCurrentAreaId() && mAttackTimeLeft <= 0.f) {
     const CVector3f aimPos = mgr.GetPlayer()->GetAimPosition(mgr, 0.f);
-    const CTransform4f mouthXf = GetLctrTransform(x9f4_mouthLocator);
+    const CTransform4f mouthXf = GetLctrTransform(mMouthLocator);
     const CVector3f mouthPos = mouthXf.GetTranslation();
     const CVector3f delta = aimPos - mouthPos;
-    if (delta.MagSquared() <= x300_maxAttackRange * x300_maxAttackRange &&
+    if (delta.MagSquared() <= mMaxAttackRange * mMaxAttackRange &&
         !ShouldTurn(mgr, CMath::Deg2Rad(30.f))) {
       return !IsPatternObstructed(mgr, mouthPos, aimPos);
     }
@@ -582,19 +582,19 @@ bool CBabygoth::ShouldTurn(CStateManager& mgr, float arg) {
 }
 
 bool CBabygoth::InPosition(CStateManager&, float) {
-  const CVector3f delta = x8b8_backupDestPos - GetTranslation();
+  const CVector3f delta = mBackupDestPos - GetTranslation();
   return delta.MagSquared() < 9.f;
 }
 
 bool CBabygoth::InDetectionRange(CStateManager& mgr, float arg) {
-  bool result = xa48_24_isAlert;
+  bool result = mIsAlert;
   if (!result) {
     const CVector3f delta = mgr.GetPlayer()->GetTranslation() - GetTranslation();
     const float scale = arg > 0.f ? arg : 1.f;
-    const float range = scale * x3bc_detectionRange;
+    const float range = scale * mDetectionRange;
     if (delta.MagSquared() < range * range) {
-      if (x3c0_detectionHeightRange > 0.f) {
-        return delta.GetZ() * delta.GetZ() < x3c0_detectionHeightRange * x3c0_detectionHeightRange;
+      if (mDetectionHeightRange > 0.f) {
+        return delta.GetZ() * delta.GetZ() < mDetectionHeightRange * mDetectionHeightRange;
       }
       return true;
     }
@@ -603,51 +603,51 @@ bool CBabygoth::InDetectionRange(CStateManager& mgr, float arg) {
 }
 
 bool CBabygoth::SpotPlayer(CStateManager& mgr, float arg) {
-  return xa48_24_isAlert ? xa48_24_isAlert : CPatterned::SpotPlayer(mgr, arg);
+  return mIsAlert ? mIsAlert : CPatterned::SpotPlayer(mgr, arg);
 }
 
-bool CBabygoth::AnimOver(CStateManager&, float) { return x568_stateProg == 4; }
+bool CBabygoth::AnimOver(CStateManager&, float) { return mStateProg == 4; }
 
 void CBabygoth::ProjectileAttack(CStateManager& mgr, EStateMsg msg, float) {
   switch (msg) {
   case kStateMsg_Activate: {
-    xa48_26_inProjectileAttack = true;
-    x8e8_interestTimer = 0.f;
-    xa49_27_locomotionValid = false;
-    CTeamAiMgr* teamMgr = TCastToPtr< CTeamAiMgr >(mgr.ObjectById(x6e8_teamMgr));
+    mInProjectileAttack = true;
+    mInterestTimer = 0.f;
+    mLocomotionValid = false;
+    CTeamAiMgr* teamMgr = TCastToPtr< CTeamAiMgr >(mgr.ObjectById(mTeamMgr));
     if (teamMgr && teamMgr->HasTeamAiRole(GetUniqueId())) {
       const bool added = teamMgr->AddProjectileAttacker(GetUniqueId());
       int state = 4;
       if (added) {
         state = 0;
       }
-      x568_stateProg = state;
+      mStateProg = state;
     } else {
-      x568_stateProg = 0;
+      mStateProg = 0;
     }
     break;
   }
   case kStateMsg_Update: {
     const CVector3f aimPos = mgr.GetPlayer()->GetAimPosition(mgr, 0.f);
-    switch (x568_stateProg) {
+    switch (mStateProg) {
     case 0:
-      if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() ==
+      if (mBodyController->GetBodyStateInfo().GetCurrentStateId() ==
           pas::kAS_ProjectileAttack) {
-        x568_stateProg = 3;
-        x3b4_speed = 2.f * x8d0_initialSpeed;
+        mStateProg = 3;
+        mSpeed = 2.f * mInitialSpeed;
       } else {
-        x450_bodyController->CommandMgr().DeliverCmd(
+        mBodyController->CommandMgr().DeliverCmd(
             CBCProjectileAttackCmd(pas::kS_Two, aimPos, false));
       }
       break;
     case 3:
-      if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() !=
+      if (mBodyController->GetBodyStateInfo().GetCurrentStateId() !=
           pas::kAS_ProjectileAttack) {
-        x568_stateProg = 4;
-      } else if (!mgr.ObjectById(x980_flameThrower)) {
-        x450_bodyController->CommandMgr().DeliverTargetVector(aimPos - GetTranslation());
-        x8f0_boneTracking.UnsetTarget();
-        x8f0_boneTracking.SetTargetPosition(aimPos);
+        mStateProg = 4;
+      } else if (!mgr.ObjectById(mFlameThrower)) {
+        mBodyController->CommandMgr().DeliverTargetVector(aimPos - GetTranslation());
+        mBoneTracking.UnsetTarget();
+        mBoneTracking.SetTargetPosition(aimPos);
       }
       break;
     }
@@ -655,16 +655,16 @@ void CBabygoth::ProjectileAttack(CStateManager& mgr, EStateMsg msg, float) {
   }
   case kStateMsg_Deactivate:
     UpdateAttackTimeLeft(mgr);
-    if (CFlameThrower* flame = static_cast< CFlameThrower* >(mgr.ObjectById(x980_flameThrower))) {
+    if (CFlameThrower* flame = static_cast< CFlameThrower* >(mgr.ObjectById(mFlameThrower))) {
       flame->Reset(mgr, false);
     }
-    xa48_26_inProjectileAttack = false;
-    if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() == pas::kAS_ProjectileAttack) {
-      x450_bodyController->CommandMgr().DeliverCmd(CBodyStateCmd(kBSC_NextState));
+    mInProjectileAttack = false;
+    if (mBodyController->GetBodyStateInfo().GetCurrentStateId() == pas::kAS_ProjectileAttack) {
+      mBodyController->CommandMgr().DeliverCmd(CBodyStateCmd(kBSC_NextState));
     }
-    x8f0_boneTracking.SetActive(false);
-    x3b4_speed = x8d0_initialSpeed;
-    CTeamAiMgr::ResetTeamAiRole(kAT_Projectile, mgr, x6e8_teamMgr, GetUniqueId(), false);
+    mBoneTracking.SetActive(false);
+    mSpeed = mInitialSpeed;
+    CTeamAiMgr::ResetTeamAiRole(kAT_Projectile, mgr, mTeamMgr, GetUniqueId(), false);
     break;
   }
 }
@@ -672,16 +672,16 @@ void CBabygoth::ProjectileAttack(CStateManager& mgr, EStateMsg msg, float) {
 void CBabygoth::Attack(CStateManager& mgr, EStateMsg msg, float dt) {
   switch (msg) {
   case kStateMsg_Activate:
-    x568_stateProg = 0;
-    xa48_25_ = xa48_28_pendingAttackContactDamage = true;
-    x8e8_interestTimer = 0.f;
-    xa49_25_shouldStepBackwards = false;
-    x2e0_destPos = mgr.GetPlayer()->GetAimPosition(mgr, 0.f);
+    mStateProg = 0;
+    xa48_25_ = mPendingAttackContactDamage = true;
+    mInterestTimer = 0.f;
+    mShouldStepBackwards = false;
+    mDestPos = mgr.GetPlayer()->GetAimPosition(mgr, 0.f);
     SetPathFindMode(kPFM_Normal);
     CPatterned::PathFind(mgr, msg, dt);
-    x8dc_attackTimer = 0.f;
-    x450_bodyController->CommandMgr().SetSteeringBlendMode(kSBM_FullSpeed);
-    x450_bodyController->CommandMgr().SetSteeringSpeedRange(1.f, 1.f);
+    mAttackTimer = 0.f;
+    mBodyController->CommandMgr().SetSteeringBlendMode(kSBM_FullSpeed);
+    mBodyController->CommandMgr().SetSteeringSpeedRange(1.f, 1.f);
     ExtendTouchBounds(mgr, skAttackTouchBounds);
     break;
   case kStateMsg_Update:
@@ -689,18 +689,18 @@ void CBabygoth::Attack(CStateManager& mgr, EStateMsg msg, float dt) {
     break;
   case kStateMsg_Deactivate: {
     UpdateAttackTimeLeft(mgr);
-    xa48_25_ = xa48_28_pendingAttackContactDamage = false;
-    x8e0_attackCooldownTimeLeft = x570_babyData.GetAttackCooldownTime();
-    x8dc_attackTimer = 0.f;
-    const float maxSpeed = x450_bodyController->GetBodyStateInfo().GetMaxSpeed();
+    xa48_25_ = mPendingAttackContactDamage = false;
+    mAttackCooldownTimeLeft = mBabyData.GetAttackCooldownTime();
+    mAttackTimer = 0.f;
+    const float maxSpeed = mBodyController->GetBodyStateInfo().GetMaxSpeed();
     const float speed =
         maxSpeed > 0.f
-            ? x450_bodyController->GetBodyStateInfo().GetLocomotionSpeed(pas::kLA_Walk) / maxSpeed
+            ? mBodyController->GetBodyStateInfo().GetLocomotionSpeed(pas::kLA_Walk) / maxSpeed
             : 1.f;
-    x450_bodyController->CommandMgr().SetSteeringBlendMode(kSBM_Clamped);
-    x450_bodyController->CommandMgr().SetSteeringSpeedRange(0.f, speed);
+    mBodyController->CommandMgr().SetSteeringBlendMode(kSBM_Clamped);
+    mBodyController->CommandMgr().SetSteeringSpeedRange(0.f, speed);
     ExtendTouchBounds(mgr, CVector3f::Zero());
-    CTeamAiMgr::ResetTeamAiRole(kAT_Melee, mgr, x6e8_teamMgr, GetUniqueId(), true);
+    CTeamAiMgr::ResetTeamAiRole(kAT_Melee, mgr, mTeamMgr, GetUniqueId(), true);
     break;
   }
   }
@@ -710,38 +710,38 @@ void CBabygoth::SpecialAttack(CStateManager& mgr, EStateMsg msg, float) {
   switch (msg) {
   case kStateMsg_Activate: {
     xa48_27_ = true;
-    x8e8_interestTimer = 0.f;
-    xa49_27_locomotionValid = false;
-    CTeamAiMgr* const teamMgr = TCastToPtr< CTeamAiMgr >(mgr.ObjectById(x6e8_teamMgr));
+    mInterestTimer = 0.f;
+    mLocomotionValid = false;
+    CTeamAiMgr* const teamMgr = TCastToPtr< CTeamAiMgr >(mgr.ObjectById(mTeamMgr));
     if (teamMgr && teamMgr->HasTeamAiRole(GetUniqueId())) {
       const bool added = teamMgr->AddProjectileAttacker(GetUniqueId());
       int state = 4;
       if (added) {
         state = 0;
       }
-      x568_stateProg = state;
+      mStateProg = state;
     } else {
-      x568_stateProg = 0;
+      mStateProg = 0;
     }
     break;
   }
   case kStateMsg_Update: {
     const CVector3f target = mgr.GetPlayer()->GetTranslation();
-    switch (x568_stateProg) {
+    switch (mStateProg) {
     case 0:
-      if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() ==
+      if (mBodyController->GetBodyStateInfo().GetCurrentStateId() ==
           pas::kAS_ProjectileAttack) {
-        x568_stateProg = 3;
-        x3b4_speed = 2.f * x8d0_initialSpeed;
+        mStateProg = 3;
+        mSpeed = 2.f * mInitialSpeed;
       } else {
-        x450_bodyController->CommandMgr().DeliverCmd(
+        mBodyController->CommandMgr().DeliverCmd(
             CBCProjectileAttackCmd(pas::kS_One, target, false));
       }
       break;
     case 3:
-      if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() !=
+      if (mBodyController->GetBodyStateInfo().GetCurrentStateId() !=
           pas::kAS_ProjectileAttack) {
-        x568_stateProg = 4;
+        mStateProg = 4;
       }
       break;
     }
@@ -750,11 +750,11 @@ void CBabygoth::SpecialAttack(CStateManager& mgr, EStateMsg msg, float) {
   case kStateMsg_Deactivate:
     UpdateAttackTimeLeft(mgr);
     xa48_27_ = false;
-    x3b4_speed = x8d0_initialSpeed;
-    if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() == pas::kAS_ProjectileAttack) {
-      x450_bodyController->CommandMgr().DeliverCmd(CBodyStateCmd(kBSC_NextState));
+    mSpeed = mInitialSpeed;
+    if (mBodyController->GetBodyStateInfo().GetCurrentStateId() == pas::kAS_ProjectileAttack) {
+      mBodyController->CommandMgr().DeliverCmd(CBodyStateCmd(kBSC_NextState));
     }
-    CTeamAiMgr::ResetTeamAiRole(kAT_Projectile, mgr, x6e8_teamMgr, GetUniqueId(), false);
+    CTeamAiMgr::ResetTeamAiRole(kAT_Projectile, mgr, mTeamMgr, GetUniqueId(), false);
     break;
   }
 }
@@ -762,51 +762,51 @@ void CBabygoth::SpecialAttack(CStateManager& mgr, EStateMsg msg, float) {
 void CBabygoth::PathFind(CStateManager& mgr, EStateMsg msg, float dt) {
   switch (msg) {
   case kStateMsg_Activate:
-    xa49_28_onApproachPath = false;
-    xa49_26_readyForTeam = true;
-    xa48_24_isAlert = false;
-    x8e8_interestTimer = 0.f;
-    x450_bodyController->SetLocomotionType(pas::kLT_Relaxed);
-    x8f0_boneTracking.SetTarget(mgr.GetPlayer()->GetUniqueId());
-    x8f0_boneTracking.SetActive(true);
-    UpdateAttackPosition(mgr, x2e0_destPos);
-    x8b8_backupDestPos = x2e0_destPos;
+    mOnApproachPath = false;
+    mReadyForTeam = true;
+    mIsAlert = false;
+    mInterestTimer = 0.f;
+    mBodyController->SetLocomotionType(pas::kLT_Relaxed);
+    mBoneTracking.SetTarget(mgr.GetPlayer()->GetUniqueId());
+    mBoneTracking.SetActive(true);
+    UpdateAttackPosition(mgr, mDestPos);
+    mBackupDestPos = mDestPos;
     SetPathFindMode(kPFM_Normal);
     CPatterned::PathFind(mgr, msg, dt);
     break;
   case kStateMsg_Update:
     SetPathFindMode(kPFM_Normal);
     if (GetSearchPath() && !PathShagged(mgr, 0.f) &&
-        x6ec_pathSearch.GetCurrentWaypoint() < x6ec_pathSearch.GetWaypoints().size() - 1) {
+        mPathSearch.GetCurrentWaypoint() < mPathSearch.GetWaypoints().size() - 1) {
       CPatterned::PathFind(mgr, msg, dt);
-      x8e8_interestTimer = 0.f;
-      const CVector3f move = x450_bodyController->CommandMgr().GetMoveVector();
+      mInterestTimer = 0.f;
+      const CVector3f move = mBodyController->CommandMgr().GetMoveVector();
       if (move.CanBeNormalized()) {
         const CVector3f arrival =
-            x45c_steeringBehaviors.Arrival(*this, mgr.GetPlayer()->GetTranslation(), 15.f);
+            mSteeringBehaviors.Arrival(*this, mgr.GetPlayer()->GetTranslation(), 15.f);
         const float magnitude = arrival.Magnitude();
-        x450_bodyController->CommandMgr().ClearLocomotionCmds();
-        x450_bodyController->CommandMgr().DeliverCmd(
+        mBodyController->CommandMgr().ClearLocomotionCmds();
+        mBodyController->CommandMgr().DeliverCmd(
             CBCLocomotionCmd(magnitude * move.AsNormalized(), CVector3f::Zero(), 10.f));
       }
       ApplySeparationBehavior(mgr);
       const CVector3f forward = GetTransform().GetForward();
-      const CVector3f newMove = x450_bodyController->CommandMgr().GetMoveVector();
+      const CVector3f newMove = mBodyController->CommandMgr().GetMoveVector();
       if (CVector3f::Dot(forward, newMove) < 0.f && move.CanBeNormalized()) {
-        x450_bodyController->CommandMgr().ClearLocomotionCmds();
-        x450_bodyController->CommandMgr().DeliverCmd(
+        mBodyController->CommandMgr().ClearLocomotionCmds();
+        mBodyController->CommandMgr().DeliverCmd(
             CBCLocomotionCmd(CVector3f::Zero(), newMove.AsNormalized(), 1.f));
       }
     } else {
       const CVector3f delta = mgr.GetPlayer()->GetTranslation() - GetTranslation();
       if (delta.CanBeNormalized()) {
-        x450_bodyController->CommandMgr().DeliverCmd(
+        mBodyController->CommandMgr().DeliverCmd(
             CBCLocomotionCmd(CVector3f::Zero(), delta.AsNormalized(), 1.f));
       }
     }
     break;
   case kStateMsg_Deactivate:
-    x8f0_boneTracking.SetActive(false);
+    mBoneTracking.SetActive(false);
     break;
   }
 }
@@ -814,53 +814,53 @@ void CBabygoth::PathFind(CStateManager& mgr, EStateMsg msg, float dt) {
 void CBabygoth::Approach(CStateManager& mgr, EStateMsg msg, float dt) {
   switch (msg) {
   case kStateMsg_Activate:
-    x450_bodyController->SetLocomotionType(pas::kLT_Relaxed);
-    x8f0_boneTracking.SetTarget(mgr.GetPlayer()->GetUniqueId());
-    x8f0_boneTracking.SetActive(true);
-    UpdateAttackPosition(mgr, x2e0_destPos);
+    mBodyController->SetLocomotionType(pas::kLT_Relaxed);
+    mBoneTracking.SetTarget(mgr.GetPlayer()->GetUniqueId());
+    mBoneTracking.SetActive(true);
+    UpdateAttackPosition(mgr, mDestPos);
     SetPathFindMode(kPFM_Normal);
     CPatterned::PathFind(mgr, kStateMsg_Activate, dt);
-    if (!xa49_27_locomotionValid) {
-      x450_bodyController->CommandMgr().ClearLocomotionCmds();
+    if (!mLocomotionValid) {
+      mBodyController->CommandMgr().ClearLocomotionCmds();
     }
-    xa48_31_approachNeedsPathSearch = true;
-    xa49_28_onApproachPath = true;
+    mApproachNeedsPathSearch = true;
+    mOnApproachPath = true;
     break;
   case kStateMsg_Update:
     SetPathFindMode(kPFM_Approach);
-    if (xa48_31_approachNeedsPathSearch) {
-      x2e0_destPos = x8b8_backupDestPos;
-      if (x7d0_approachPathSearch.FindClosestReachablePoint(GetTranslation(), x2e0_destPos) ==
+    if (mApproachNeedsPathSearch) {
+      mDestPos = mBackupDestPos;
+      if (mApproachPathSearch.FindClosestReachablePoint(GetTranslation(), mDestPos) ==
           CPathFindSearch::kR_Success) {
-        const CVector3f delta = x2e0_destPos - GetTranslation();
+        const CVector3f delta = mDestPos - GetTranslation();
         if (delta.MagSquared() < 10.f) {
-          x2e0_destPos = GetTranslation();
+          mDestPos = GetTranslation();
         }
-        x8b8_backupDestPos = x2e0_destPos;
+        mBackupDestPos = mDestPos;
         CPatterned::PathFind(mgr, kStateMsg_Activate, dt);
-        if (!xa49_27_locomotionValid) {
-          x450_bodyController->CommandMgr().ClearLocomotionCmds();
+        if (!mLocomotionValid) {
+          mBodyController->CommandMgr().ClearLocomotionCmds();
         }
       }
-      xa48_31_approachNeedsPathSearch = false;
+      mApproachNeedsPathSearch = false;
     }
-    xa49_27_locomotionValid &= !IsOtherCharacterNearPathDest(mgr);
-    if (xa49_27_locomotionValid && GetSearchPath() && !PathShagged(mgr, 0.f) &&
-        x7d0_approachPathSearch.GetCurrentWaypoint() <
-            x7d0_approachPathSearch.GetWaypoints().size() - 1) {
+    mLocomotionValid &= !IsOtherCharacterNearPathDest(mgr);
+    if (mLocomotionValid && GetSearchPath() && !PathShagged(mgr, 0.f) &&
+        mApproachPathSearch.GetCurrentWaypoint() <
+            mApproachPathSearch.GetWaypoints().size() - 1) {
       CPatterned::PathFind(mgr, msg, dt);
       ApplySeparationBehavior(mgr);
     } else {
       const CVector3f delta = mgr.GetPlayer()->GetTranslation() - GetTranslation();
       if (ShouldTurn(mgr, CRelAngle::FromDegrees(25.f).AsRadians()) && delta.CanBeNormalized()) {
-        x450_bodyController->CommandMgr().DeliverCmd(
+        mBodyController->CommandMgr().DeliverCmd(
             CBCLocomotionCmd(CVector3f::Zero(), delta.AsNormalized(), 1.f));
       }
     }
-    xa49_27_locomotionValid = true;
+    mLocomotionValid = true;
     break;
   case kStateMsg_Deactivate:
-    x8f0_boneTracking.SetActive(false);
+    mBoneTracking.SetActive(false);
     SetPathFindMode(kPFM_Normal);
     break;
   }
@@ -876,17 +876,17 @@ void CBabygoth::Patrol(CStateManager& mgr, EStateMsg msg, float dt) {
 void CBabygoth::TargetPatrol(CStateManager& mgr, EStateMsg msg, float dt) {
   switch (msg) {
   case kStateMsg_Activate:
-    xa49_26_readyForTeam = false;
+    mReadyForTeam = false;
     RemoveFromTeam(mgr);
-    x400_24_hitByPlayerProjectile = false;
-    x450_bodyController->SetLocomotionType(pas::kLT_Relaxed);
+    mHitByPlayerProjectile = false;
+    mBodyController->SetLocomotionType(pas::kLT_Relaxed);
     if (HasPatrolPath(mgr, 0.f)) {
       CPatterned::Patrol(mgr, msg, dt);
       UpdateDest(mgr);
     } else {
-      SetDestPos(x3a0_latestLeashPosition);
+      SetDestPos(mLatestLeashPosition);
     }
-    x8b8_backupDestPos = x2e0_destPos;
+    mBackupDestPos = mDestPos;
     if (GetSearchPath()) {
       SetPathFindMode(kPFM_Normal);
       CPatterned::PathFind(mgr, msg, dt);
@@ -898,8 +898,8 @@ void CBabygoth::TargetPatrol(CStateManager& mgr, EStateMsg msg, float dt) {
       CPatterned::PathFind(mgr, msg, dt);
       ApplySeparationBehavior(mgr);
     } else {
-      const CVector3f arrival = x45c_steeringBehaviors.Arrival(*this, x8b8_backupDestPos, 9.f);
-      x450_bodyController->CommandMgr().DeliverCmd(
+      const CVector3f arrival = mSteeringBehaviors.Arrival(*this, mBackupDestPos, 9.f);
+      mBodyController->CommandMgr().DeliverCmd(
           CBCLocomotionCmd(arrival, CVector3f::Zero(), 1.f));
     }
     break;
@@ -909,24 +909,24 @@ void CBabygoth::TargetPatrol(CStateManager& mgr, EStateMsg msg, float dt) {
 void CBabygoth::Generate(CStateManager& mgr, EStateMsg msg, float) {
   switch (msg) {
   case kStateMsg_Activate:
-    x568_stateProg = 0;
-    x8c4_initialFaceDir = GetTransform().GetForward();
+    mStateProg = 0;
+    mInitialFaceDir = GetTransform().GetForward();
     break;
   case kStateMsg_Update:
-    switch (x568_stateProg) {
+    switch (mStateProg) {
     case 0:
-      if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() == pas::kAS_Generate) {
-        x450_bodyController->SetLocomotionType(pas::kLT_Relaxed);
-        x568_stateProg = 3;
+      if (mBodyController->GetBodyStateInfo().GetCurrentStateId() == pas::kAS_Generate) {
+        mBodyController->SetLocomotionType(pas::kLT_Relaxed);
+        mStateProg = 3;
         SendScriptMsgs(kSS_Attack, mgr, kSM_None);
       } else {
-        x450_bodyController->CommandMgr().DeliverCmd(
+        mBodyController->CommandMgr().DeliverCmd(
             CBCGenerateCmd(pas::kGType_Zero, CVector3f::Zero()));
       }
       break;
     case 3:
-      if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() != pas::kAS_Generate) {
-        x568_stateProg = 4;
+      if (mBodyController->GetBodyStateInfo().GetCurrentStateId() != pas::kAS_Generate) {
+        mStateProg = 4;
       }
       break;
     }
@@ -937,45 +937,45 @@ void CBabygoth::Generate(CStateManager& mgr, EStateMsg msg, float) {
 void CBabygoth::Deactivate(CStateManager&, EStateMsg msg, float) {
   switch (msg) {
   case kStateMsg_Activate:
-    x568_stateProg = 1;
+    mStateProg = 1;
     break;
   case kStateMsg_Update:
-    switch (x568_stateProg) {
+    switch (mStateProg) {
     case 1: {
-      const CVector3f& dest = x3a0_latestLeashPosition;
+      const CVector3f& dest = mLatestLeashPosition;
       const CVector3f delta = dest - GetTranslation();
       if (delta.MagSquared() <= 1.f) {
-        x568_stateProg = 2;
+        mStateProg = 2;
       } else {
-        const CVector3f arrival = x45c_steeringBehaviors.Arrival(*this, dest, 15.f);
-        x450_bodyController->CommandMgr().DeliverCmd(
+        const CVector3f arrival = mSteeringBehaviors.Arrival(*this, dest, 15.f);
+        mBodyController->CommandMgr().DeliverCmd(
             CBCLocomotionCmd(arrival, CVector3f::Zero(), 1.f));
       }
       break;
     }
     case 2: {
       const CVector3f forward = GetTransform().GetForward();
-      if (CVector3f::GetAngleDiff(forward, x8c4_initialFaceDir) >
+      if (CVector3f::GetAngleDiff(forward, mInitialFaceDir) >
           CRelAngle::FromDegrees(5.f).AsRadians()) {
-        x450_bodyController->CommandMgr().DeliverCmd(
-            CBCLocomotionCmd(CVector3f::Zero(), x8c4_initialFaceDir, 1.f));
+        mBodyController->CommandMgr().DeliverCmd(
+            CBCLocomotionCmd(CVector3f::Zero(), mInitialFaceDir, 1.f));
       } else {
-        x568_stateProg = 0;
+        mStateProg = 0;
       }
       break;
     }
     case 0:
-      if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() == pas::kAS_Generate) {
-        x568_stateProg = 3;
-        x450_bodyController->SetLocomotionType(pas::kLT_Crouch);
+      if (mBodyController->GetBodyStateInfo().GetCurrentStateId() == pas::kAS_Generate) {
+        mStateProg = 3;
+        mBodyController->SetLocomotionType(pas::kLT_Crouch);
       } else {
-        x450_bodyController->CommandMgr().DeliverCmd(
+        mBodyController->CommandMgr().DeliverCmd(
             CBCGenerateCmd(pas::kGType_One, CVector3f::Zero()));
       }
       break;
     case 3:
-      if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() != pas::kAS_Generate) {
-        x568_stateProg = 4;
+      if (mBodyController->GetBodyStateInfo().GetCurrentStateId() != pas::kAS_Generate) {
+        mStateProg = 4;
       }
       break;
     }
@@ -988,10 +988,10 @@ void CBabygoth::Crouch(CStateManager& mgr, EStateMsg msg, float) {
   case kStateMsg_Activate:
     RemoveMaterial(kMT_Orbit, kMT_Target, mgr);
     mgr.Player()->TryToBreakOrbit(GetUniqueId(), CPlayer::kOB_ActivateOrbitSource, mgr);
-    x450_bodyController->SetLocomotionType(pas::kLT_Crouch);
-    xa48_30_heardPlayerFire = xa48_24_isAlert = false;
-    x400_24_hitByPlayerProjectile = false;
-    x8e8_interestTimer = 0.f;
+    mBodyController->SetLocomotionType(pas::kLT_Crouch);
+    mHeardPlayerFire = mIsAlert = false;
+    mHitByPlayerProjectile = false;
+    mInterestTimer = 0.f;
     break;
   case kStateMsg_Update:
     break;
@@ -1004,12 +1004,12 @@ void CBabygoth::Crouch(CStateManager& mgr, EStateMsg msg, float) {
 void CBabygoth::Taunt(CStateManager&, EStateMsg msg, float) {
   switch (msg) {
   case kStateMsg_Activate:
-    x450_bodyController->CommandMgr().DeliverCmd(CBCTauntCmd(pas::kTT_One));
-    x568_stateProg = 3;
+    mBodyController->CommandMgr().DeliverCmd(CBCTauntCmd(pas::kTT_One));
+    mStateProg = 3;
     break;
   case kStateMsg_Update:
-    if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() != pas::kAS_Taunt) {
-      x568_stateProg = 4;
+    if (mBodyController->GetBodyStateInfo().GetCurrentStateId() != pas::kAS_Taunt) {
+      mStateProg = 4;
     }
     break;
   }
@@ -1019,34 +1019,34 @@ void CBabygoth::FollowPattern(CStateManager& mgr, EStateMsg msg, float) {
   switch (msg) {
   case kStateMsg_Activate: {
     int state = 4;
-    if (xa49_25_shouldStepBackwards) {
+    if (mShouldStepBackwards) {
       state = 0;
     }
-    x568_stateProg = state;
-    xa49_25_shouldStepBackwards = false;
-    x8f0_boneTracking.SetTarget(mgr.GetPlayer()->GetUniqueId());
-    x8f0_boneTracking.SetActive(true);
+    mStateProg = state;
+    mShouldStepBackwards = false;
+    mBoneTracking.SetTarget(mgr.GetPlayer()->GetUniqueId());
+    mBoneTracking.SetActive(true);
     break;
   }
   case kStateMsg_Update:
-    switch (x568_stateProg) {
+    switch (mStateProg) {
     case 0:
-      x450_bodyController->CommandMgr().DeliverCmd(
+      mBodyController->CommandMgr().DeliverCmd(
           CBCStepCmd(pas::kSD_Backward, pas::kStep_Normal));
-      x568_stateProg = 3;
+      mStateProg = 3;
       break;
     case 3:
-      if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() == pas::kAS_Step) {
-        x450_bodyController->CommandMgr().DeliverTargetVector(mgr.GetPlayer()->GetTranslation() -
+      if (mBodyController->GetBodyStateInfo().GetCurrentStateId() == pas::kAS_Step) {
+        mBodyController->CommandMgr().DeliverTargetVector(mgr.GetPlayer()->GetTranslation() -
                                                               GetTranslation());
       } else {
-        x568_stateProg = 4;
+        mStateProg = 4;
       }
       break;
     }
     break;
   case kStateMsg_Deactivate:
-    x8f0_boneTracking.SetActive(false);
+    mBoneTracking.SetActive(false);
     SetPathFindMode(kPFM_Normal);
     break;
   }
@@ -1055,22 +1055,22 @@ void CBabygoth::FollowPattern(CStateManager& mgr, EStateMsg msg, float) {
 void CBabygoth::Enraged(CStateManager&, EStateMsg msg, float) {
   switch (msg) {
   case kStateMsg_Activate:
-    xa48_29_hasBeenEnraged = true;
-    x568_stateProg = 0;
+    mHasBeenEnraged = true;
+    mStateProg = 0;
     break;
   case kStateMsg_Update:
-    switch (x568_stateProg) {
+    switch (mStateProg) {
     case 0:
-      if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() == pas::kAS_Generate) {
-        x568_stateProg = 3;
+      if (mBodyController->GetBodyStateInfo().GetCurrentStateId() == pas::kAS_Generate) {
+        mStateProg = 3;
       } else {
-        x450_bodyController->CommandMgr().DeliverCmd(
+        mBodyController->CommandMgr().DeliverCmd(
             CBCGenerateCmd(pas::kGType_Three, CVector3f::Zero()));
       }
       break;
     case 3:
-      if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() != pas::kAS_Generate) {
-        x568_stateProg = 4;
+      if (mBodyController->GetBodyStateInfo().GetCurrentStateId() != pas::kAS_Generate) {
+        mStateProg = 4;
       }
       break;
     }
@@ -1081,27 +1081,27 @@ void CBabygoth::Enraged(CStateManager&, EStateMsg msg, float) {
 void CBabygoth::GetUp(CStateManager&, EStateMsg msg, float) {
   switch (msg) {
   case kStateMsg_Activate:
-    x568_stateProg = 0;
-    xa49_24_gettingUp = true;
+    mStateProg = 0;
+    mGettingUp = true;
     break;
   case kStateMsg_Update:
-    switch (x568_stateProg) {
+    switch (mStateProg) {
     case 0:
-      if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() == pas::kAS_Getup) {
-        x568_stateProg = 3;
+      if (mBodyController->GetBodyStateInfo().GetCurrentStateId() == pas::kAS_Getup) {
+        mStateProg = 3;
       } else {
-        x450_bodyController->CommandMgr().DeliverCmd(CBCGetupCmd(pas::kGetup_Zero));
+        mBodyController->CommandMgr().DeliverCmd(CBCGetupCmd(pas::kGetup_Zero));
       }
       break;
     case 3:
-      if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() != pas::kAS_Getup) {
-        x568_stateProg = 4;
+      if (mBodyController->GetBodyStateInfo().GetCurrentStateId() != pas::kAS_Getup) {
+        mStateProg = 4;
       }
       break;
     }
     break;
   case kStateMsg_Deactivate:
-    xa49_24_gettingUp = false;
+    mGettingUp = false;
     break;
   }
 }
@@ -1109,12 +1109,12 @@ void CBabygoth::GetUp(CStateManager&, EStateMsg msg, float) {
 void CBabygoth::TurnAround(CStateManager& mgr, EStateMsg msg, float dt) {
   switch (msg) {
   case kStateMsg_Activate:
-    x8f0_boneTracking.SetTarget(mgr.GetPlayer()->GetUniqueId());
-    x8f0_boneTracking.SetActive(true);
-    UpdateAttackPosition(mgr, x2e0_destPos);
+    mBoneTracking.SetTarget(mgr.GetPlayer()->GetUniqueId());
+    mBoneTracking.SetActive(true);
+    UpdateAttackPosition(mgr, mDestPos);
     SetPathFindMode(kPFM_Normal);
     CPatterned::PathFind(mgr, kStateMsg_Activate, dt);
-    x450_bodyController->CommandMgr().ClearLocomotionCmds();
+    mBodyController->CommandMgr().ClearLocomotionCmds();
     break;
   case kStateMsg_Update:
     if (ShouldTurn(mgr, CRelAngle::FromDegrees(25.f).AsRadians())) {
@@ -1124,13 +1124,13 @@ void CBabygoth::TurnAround(CStateManager& mgr, EStateMsg msg, float dt) {
       CVector3f delta = aimPos - GetTranslation();
       delta[kDZ] = 0.f;
       if (delta.CanBeNormalized()) {
-        x450_bodyController->CommandMgr().DeliverCmd(
+        mBodyController->CommandMgr().DeliverCmd(
             CBCLocomotionCmd(CVector3f::Zero(), delta.AsNormalized(), 1.f));
       }
     }
     break;
   case kStateMsg_Deactivate:
-    x8f0_boneTracking.SetActive(false);
+    mBoneTracking.SetActive(false);
     break;
   }
 }
@@ -1138,17 +1138,17 @@ void CBabygoth::TurnAround(CStateManager& mgr, EStateMsg msg, float dt) {
 void CBabygoth::UpdateTouchBounds() {
   const CAABox bounds(CVector3f(-1.5f, -1.5f, 0.f), CVector3f(1.5f, 1.5f, 2.f));
   SetBoundingBox(bounds);
-  x930_aabox.Box() = bounds;
+  mAabox.Box() = bounds;
 }
 
 void CBabygoth::UpdateAttackPosition(CStateManager& mgr, CVector3f& attackPos) {
   attackPos = GetTranslation();
-  if (x8d8_attackTimeLeft <= 0.f) {
+  if (mAttackTimeLeft <= 0.f) {
     attackPos = mgr.GetPlayer()->GetAimPosition(mgr, 0.f);
     CVector3f delta = GetTranslation() - attackPos;
     delta[kDZ] = 0.f;
     if (delta.CanBeNormalized()) {
-      attackPos += delta.AsNormalized() * x2fc_minAttackRange;
+      attackPos += delta.AsNormalized() * mMinAttackRange;
     }
   }
 }
@@ -1158,20 +1158,20 @@ void CBabygoth::ApplyContactDamage(TUniqueId uid, CStateManager& mgr) {
     if (HealthInfo(mgr)->GetHP() > 0.f) {
       const TUniqueId touched = actor->GetLastTouchedObject();
       if (touched == mgr.GetPlayer()->GetUniqueId()) {
-        if (xa48_28_pendingAttackContactDamage) {
+        if (mPendingAttackContactDamage) {
           mgr.ApplyDamage(
               GetUniqueId(), mgr.GetPlayer()->GetUniqueId(), GetUniqueId(),
-              x570_babyData.GetAttackContactDamage(),
+              mBabyData.GetAttackContactDamage(),
               CMaterialFilter::MakeIncludeExclude(CMaterialList(kMT_Solid), CMaterialList()),
               CVector3f::Zero());
-          xa48_28_pendingAttackContactDamage = false;
-          x420_curDamageRemTime = x424_damageWaitTime;
-        } else if (x420_curDamageRemTime <= 0.f) {
+          mPendingAttackContactDamage = false;
+          mCurDamageRemTime = mDamageWaitTime;
+        } else if (mCurDamageRemTime <= 0.f) {
           mgr.ApplyDamage(
               GetUniqueId(), mgr.GetPlayer()->GetUniqueId(), GetUniqueId(), GetContactDamage(),
               CMaterialFilter::MakeIncludeExclude(CMaterialList(kMT_Solid), CMaterialList()),
               CVector3f::Zero());
-          x420_curDamageRemTime = x424_damageWaitTime;
+          mCurDamageRemTime = mDamageWaitTime;
         }
       }
     }
@@ -1182,19 +1182,19 @@ void CBabygoth::SetupCollisionManager(CStateManager& mgr) {
   rstl::vector< CJointCollisionDescription > joints;
   joints.reserve(5);
   AddSphereCollisionList(skSphereJointList, 5, joints);
-  x928_colActMgr =
+  mColActMgr =
       rs_new CCollisionActorManager(mgr, GetUniqueId(), GetCurrentAreaId(), joints, false);
-  x928_colActMgr->SetActive(mgr, GetActive());
-  for (uint i = 0; i < x928_colActMgr->GetNumCollisionActors(); ++i) {
-    const CJointCollisionDescription& desc = x928_colActMgr->GetCollisionDescFromIndex(i);
+  mColActMgr->SetActive(mgr, GetActive());
+  for (uint i = 0; i < mColActMgr->GetNumCollisionActors(); ++i) {
+    const CJointCollisionDescription& desc = mColActMgr->GetCollisionDescFromIndex(i);
     const TUniqueId uid = desc.GetCollisionActorId();
     if (CCollisionActor* const actor = TCastToPtr< CCollisionActor >(mgr.ObjectById(uid))) {
-      actor->SetDamageVulnerability(x570_babyData.GetMouthVulnerabilities());
+      actor->SetDamageVulnerability(mBabyData.GetMouthVulnerabilities());
       if (desc.GetName() == rstl::string_l(skpMouthDamageJoint)) {
-        x9f6_mouthCollisionActor = uid;
+        mMouthCollisionActor = uid;
       } else if (desc.GetName() == rstl::string_l(skpPelvisDamageJoint) ||
                  desc.GetName() == rstl::string_l(skpButtDamageJoint)) {
-        x9f8_shellIds.push_back(uid);
+        mShellIds.push_back(uid);
         actor->SetWeaponCollisionResponseType(kWCR_Unknown66);
       }
     }
@@ -1203,28 +1203,28 @@ void CBabygoth::SetupCollisionManager(CStateManager& mgr) {
   SetMaterialFilter(CMaterialFilter::MakeIncludeExclude(
       CMaterialList(kMT_Solid), CMaterialList(kMT_CollisionActor, kMT_AIPassthrough, kMT_Player)));
   AddMaterial(kMT_ProjectilePassthrough, mgr);
-  x928_colActMgr->AddMaterial(mgr, CMaterialList(kMT_AIJoint, kMT_CameraPassthrough));
+  mColActMgr->AddMaterial(mgr, CMaterialList(kMT_AIJoint, kMT_CameraPassthrough));
 }
 
 void CBabygoth::AddSphereCollisionList(const SSphereJointInfo* joints, int count,
                                        rstl::vector< CJointCollisionDescription >& list) {
   const CAnimData& animData = *GetModelData()->GetAnimationData();
   for (int i = 0; i < count; ++i) {
-    const CSegId seg = animData.GetLocatorSegId(rstl::string_l(joints[i].x0_name));
+    const CSegId seg = animData.GetLocatorSegId(rstl::string_l(joints[i].mName));
     if (seg != CSegId(0xff)) {
       const CJointCollisionDescription desc = CJointCollisionDescription::SphereCollision(
-          seg, joints[i].x4_radius, rstl::string_l(joints[i].x0_name), 1000.f);
+          seg, joints[i].mRadius, rstl::string_l(joints[i].mName), 1000.f);
       list.push_back(desc);
     }
   }
 }
 
 bool CBabygoth::IsMouthCollisionActor(const TUniqueId& uid) const {
-  return uid == x9f6_mouthCollisionActor;
+  return uid == mMouthCollisionActor;
 }
 
 bool CBabygoth::IsShellCollisionActor(const TUniqueId& uid) const {
-  for (AUTO(it, x9f8_shellIds.begin()); it != x9f8_shellIds.end(); ++it) {
+  for (AUTO(it, mShellIds.begin()); it != mShellIds.end(); ++it) {
     if (*it == uid) {
       return true;
     }
@@ -1233,8 +1233,8 @@ bool CBabygoth::IsShellCollisionActor(const TUniqueId& uid) const {
 }
 
 void CBabygoth::ExtendTouchBounds(CStateManager& mgr, const CVector3f& bounds) const {
-  for (uint i = 0; i < x928_colActMgr->GetNumCollisionActors(); ++i) {
-    const CJointCollisionDescription& desc = x928_colActMgr->GetCollisionDescFromIndex(i);
+  for (uint i = 0; i < mColActMgr->GetNumCollisionActors(); ++i) {
+    const CJointCollisionDescription& desc = mColActMgr->GetCollisionDescFromIndex(i);
     const TUniqueId uid = desc.GetCollisionActorId();
     if (CCollisionActor* actor = TCastToPtr< CCollisionActor >(mgr.ObjectById(uid))) {
       actor->SetExtendedTouchBounds(bounds);
@@ -1243,10 +1243,10 @@ void CBabygoth::ExtendTouchBounds(CStateManager& mgr, const CVector3f& bounds) c
 }
 
 void CBabygoth::PreventPlayerInterpenetration(CStateManager& mgr, float dt) {
-  if (x450_bodyController->GetLocomotionType() != pas::kLT_Crouch &&
-      x450_bodyController->GetCurrentStateId() != pas::kAS_Step) {
+  if (mBodyController->GetLocomotionType() != pas::kLT_Crouch &&
+      mBodyController->GetCurrentStateId() != pas::kAS_Step) {
     const rstl::optional_object< CVector3f > deviation =
-        x928_colActMgr->GetDeviation(mgr, x9f4_mouthLocator);
+        mColActMgr->GetDeviation(mgr, mMouthLocator);
     if (deviation) {
       const CPlayer& player = *mgr.GetPlayer();
       const CAABox bounds = GetModelData()->GetBounds(GetTransform());
@@ -1271,64 +1271,64 @@ void CBabygoth::PreventPlayerInterpenetration(CStateManager& mgr, float dt) {
 
 void CBabygoth::SetupHealthInfo(CStateManager& mgr) {
   const CHealthInfo& health = *HealthInfo(mgr);
-  x8ec_bodyHP = health.GetHP();
+  mBodyHP = health.GetHP();
   if (CCollisionActor* actor =
-          TCastToPtr< CCollisionActor >(mgr.ObjectById(x9f6_mouthCollisionActor))) {
-    actor->HealthInfo(mgr)->SetHP(x570_babyData.GetShellHitPoints());
+          TCastToPtr< CCollisionActor >(mgr.ObjectById(mMouthCollisionActor))) {
+    actor->HealthInfo(mgr)->SetHP(mBabyData.GetShellHitPoints());
   }
-  for (AUTO(it, x9f8_shellIds.begin()); it != x9f8_shellIds.end(); ++it) {
+  for (AUTO(it, mShellIds.begin()); it != mShellIds.end(); ++it) {
     if (CCollisionActor* const actor = TCastToPtr< CCollisionActor >(mgr.ObjectById(*it))) {
       *actor->HealthInfo(mgr) =
-          CHealthInfo(x570_babyData.GetShellHitPoints(), health.GetKnockBackResistance());
-      actor->SetDamageVulnerability(x570_babyData.GetShellDamageVulnerability());
+          CHealthInfo(mBabyData.GetShellHitPoints(), health.GetKnockBackResistance());
+      actor->SetDamageVulnerability(mBabyData.GetShellDamageVulnerability());
     }
   }
-  xa00_shellHitPoints = x570_babyData.GetShellHitPoints();
+  mShellHitPoints = mBabyData.GetShellHitPoints();
 }
 
 void CBabygoth::SetupShellDestroyedHealthInfo(CStateManager& mgr) {
   const CHealthInfo& health = *HealthInfo(mgr);
   if (CCollisionActor* actor =
-          TCastToPtr< CCollisionActor >(mgr.ObjectById(x9f6_mouthCollisionActor))) {
+          TCastToPtr< CCollisionActor >(mgr.ObjectById(mMouthCollisionActor))) {
     *actor->HealthInfo(mgr) = health;
-    actor->SetDamageVulnerability(x98c_dVuln);
+    actor->SetDamageVulnerability(mDVuln);
   }
-  for (AUTO(it, x9f8_shellIds.begin()); it != x9f8_shellIds.end(); ++it) {
+  for (AUTO(it, mShellIds.begin()); it != mShellIds.end(); ++it) {
     if (CCollisionActor* const actor = TCastToPtr< CCollisionActor >(mgr.ObjectById(*it))) {
       *actor->HealthInfo(mgr) = health;
-      actor->SetDamageVulnerability(x98c_dVuln);
+      actor->SetDamageVulnerability(mDVuln);
     }
   }
 }
 
 void CBabygoth::UpdateHealthInfo(CStateManager& mgr) {
-  if (x400_25_alive) {
-    if (x56c_shellState == kSCS_Destroyed) {
+  if (mAlive) {
+    if (mShellState == kSCS_Destroyed) {
       float damage = 0.f;
       if (CCollisionActor* actor =
-              TCastToPtr< CCollisionActor >(mgr.ObjectById(x9f6_mouthCollisionActor))) {
-        damage = CMath::Max(damage, x8ec_bodyHP - actor->GetHealthInfo(mgr)->GetHP());
+              TCastToPtr< CCollisionActor >(mgr.ObjectById(mMouthCollisionActor))) {
+        damage = CMath::Max(damage, mBodyHP - actor->GetHealthInfo(mgr)->GetHP());
       }
-      for (AUTO(it, x9f8_shellIds.begin()); it != x9f8_shellIds.end(); ++it) {
+      for (AUTO(it, mShellIds.begin()); it != mShellIds.end(); ++it) {
         if (CCollisionActor* const actor = TCastToPtr< CCollisionActor >(mgr.ObjectById(*it))) {
-          damage = CMath::Max(damage, x8ec_bodyHP - actor->GetHealthInfo(mgr)->GetHP());
+          damage = CMath::Max(damage, mBodyHP - actor->GetHealthInfo(mgr)->GetHP());
         }
       }
       HealthInfo(mgr)->SetHP(HealthInfo(mgr)->GetHP() - damage);
       if (HealthInfo(mgr)->GetHP() <= 0.f) {
         Death(mgr, CVector3f::Zero(), kSS_DeathRattle);
-        xa48_26_inProjectileAttack = true;
-        xa49_26_readyForTeam = false;
+        mInProjectileAttack = true;
+        mReadyForTeam = false;
         RemoveFromTeam(mgr);
         RemoveMaterial(kMT_Orbit, kMT_Target, mgr);
       } else {
         if (CCollisionActor* actor =
-                TCastToPtr< CCollisionActor >(mgr.ObjectById(x9f6_mouthCollisionActor))) {
-          actor->HealthInfo(mgr)->SetHP(x8ec_bodyHP);
+                TCastToPtr< CCollisionActor >(mgr.ObjectById(mMouthCollisionActor))) {
+          actor->HealthInfo(mgr)->SetHP(mBodyHP);
         }
-        for (AUTO(it, x9f8_shellIds.begin()); it != x9f8_shellIds.end(); ++it) {
+        for (AUTO(it, mShellIds.begin()); it != mShellIds.end(); ++it) {
           if (CCollisionActor* const actor = TCastToPtr< CCollisionActor >(mgr.ObjectById(*it))) {
-            actor->HealthInfo(mgr)->SetHP(x8ec_bodyHP);
+            actor->HealthInfo(mgr)->SetHP(mBodyHP);
           }
         }
       }
@@ -1339,49 +1339,49 @@ void CBabygoth::UpdateHealthInfo(CStateManager& mgr) {
 }
 
 void CBabygoth::UpdateShellHealthInfo(CStateManager& mgr) {
-  if (xa00_shellHitPoints > 0.f) {
+  if (mShellHitPoints > 0.f) {
     float damage = 0.f;
     if (CCollisionActor* actor =
-            TCastToPtr< CCollisionActor >(mgr.ObjectById(x9f6_mouthCollisionActor))) {
+            TCastToPtr< CCollisionActor >(mgr.ObjectById(mMouthCollisionActor))) {
       damage = CMath::Max(damage,
-                          x570_babyData.GetShellHitPoints() - actor->GetHealthInfo(mgr)->GetHP());
+                          mBabyData.GetShellHitPoints() - actor->GetHealthInfo(mgr)->GetHP());
     }
-    for (AUTO(it, x9f8_shellIds.begin()); it != x9f8_shellIds.end(); ++it) {
+    for (AUTO(it, mShellIds.begin()); it != mShellIds.end(); ++it) {
       if (CCollisionActor* const actor = TCastToPtr< CCollisionActor >(mgr.ObjectById(*it))) {
         damage = CMath::Max(damage,
-                            x570_babyData.GetShellHitPoints() - actor->GetHealthInfo(mgr)->GetHP());
+                            mBabyData.GetShellHitPoints() - actor->GetHealthInfo(mgr)->GetHP());
       }
     }
-    xa00_shellHitPoints -= damage;
-    if (xa00_shellHitPoints <= 0.f) {
-      x56c_shellState = kSCS_Destroyed;
+    mShellHitPoints -= damage;
+    if (mShellHitPoints <= 0.f) {
+      mShellState = kSCS_Destroyed;
       SwapSkinnedModel(mgr);
-      StartCrackShellEffect(mgr, xa2c_destroyShellParticle, GetTransform(),
-                            x570_babyData.GetDestroyShellSfx(), false);
+      StartCrackShellEffect(mgr, mDestroyShellParticle, GetTransform(),
+                            mBabyData.GetDestroyShellSfx(), false);
       SetupShellDestroyedHealthInfo(mgr);
     } else {
-      if (xa00_shellHitPoints < GetShellStateHP(kSCS_CrackTwo)) {
-        if (x56c_shellState != kSCS_CrackTwo) {
-          StartCrackShellEffect(mgr, xa20_crackTwoParticle, GetTransform(),
-                                x570_babyData.GetCrackTwoSfx(), false);
-          x56c_shellState = kSCS_CrackTwo;
-          xa04_drawMaterialIdx = 2;
+      if (mShellHitPoints < GetShellStateHP(kSCS_CrackTwo)) {
+        if (mShellState != kSCS_CrackTwo) {
+          StartCrackShellEffect(mgr, mCrackTwoParticle, GetTransform(),
+                                mBabyData.GetCrackTwoSfx(), false);
+          mShellState = kSCS_CrackTwo;
+          mDrawMaterialIdx = 2;
         }
-      } else if (xa00_shellHitPoints < GetShellStateHP(kSCS_CrackOne) &&
-                 x56c_shellState != kSCS_CrackOne) {
-        StartCrackShellEffect(mgr, xa14_crackOneParticle, GetTransform(),
-                              x570_babyData.GetCrackOneSfx(), false);
-        x56c_shellState = kSCS_CrackOne;
-        xa04_drawMaterialIdx = 1;
+      } else if (mShellHitPoints < GetShellStateHP(kSCS_CrackOne) &&
+                 mShellState != kSCS_CrackOne) {
+        StartCrackShellEffect(mgr, mCrackOneParticle, GetTransform(),
+                              mBabyData.GetCrackOneSfx(), false);
+        mShellState = kSCS_CrackOne;
+        mDrawMaterialIdx = 1;
       }
     }
     const float hp =
-        x56c_shellState != kSCS_Destroyed ? x570_babyData.GetShellHitPoints() : x8ec_bodyHP;
+        mShellState != kSCS_Destroyed ? mBabyData.GetShellHitPoints() : mBodyHP;
     if (CCollisionActor* actor =
-            TCastToPtr< CCollisionActor >(mgr.ObjectById(x9f6_mouthCollisionActor))) {
+            TCastToPtr< CCollisionActor >(mgr.ObjectById(mMouthCollisionActor))) {
       actor->HealthInfo(mgr)->SetHP(hp);
     }
-    for (AUTO(it, x9f8_shellIds.begin()); it != x9f8_shellIds.end(); ++it) {
+    for (AUTO(it, mShellIds.begin()); it != mShellIds.end(); ++it) {
       if (CCollisionActor* const actor = TCastToPtr< CCollisionActor >(mgr.ObjectById(*it))) {
         actor->HealthInfo(mgr)->SetHP(hp);
       }
@@ -1390,46 +1390,46 @@ void CBabygoth::UpdateShellHealthInfo(CStateManager& mgr) {
 }
 
 void CBabygoth::UpdateAttackTimeLeft(CStateManager& mgr) {
-  const float scale = x56c_shellState == kSCS_Destroyed ? 0.6f : 1.f;
-  x8d8_attackTimeLeft =
-      scale * (x308_attackTimeVariation * mgr.Random()->Float() + x304_averageAttackTime);
-  x8e4_fireballAttackTimeLeft =
-      scale * (mgr.Random()->Float() * x570_babyData.GetFireballAttackVariance() +
-               x570_babyData.GetFireballAttackTime());
+  const float scale = mShellState == kSCS_Destroyed ? 0.6f : 1.f;
+  mAttackTimeLeft =
+      scale * (mAttackTimeVariation * mgr.Random()->Float() + mAverageAttackTime);
+  mFireballAttackTimeLeft =
+      scale * (mgr.Random()->Float() * mBabyData.GetFireballAttackVariance() +
+               mBabyData.GetFireballAttackTime());
 }
 
 void CBabygoth::UpdateAILogicTimers(float dt) {
-  const float scale = xa49_28_onApproachPath ? 2.f : 1.f;
-  if (x8d8_attackTimeLeft > 0.f) {
-    x8d8_attackTimeLeft -= dt * scale;
+  const float scale = mOnApproachPath ? 2.f : 1.f;
+  if (mAttackTimeLeft > 0.f) {
+    mAttackTimeLeft -= dt * scale;
   }
-  if (x8e4_fireballAttackTimeLeft > 0.f) {
-    x8e4_fireballAttackTimeLeft -= dt * scale;
+  if (mFireballAttackTimeLeft > 0.f) {
+    mFireballAttackTimeLeft -= dt * scale;
   }
-  if (x8e0_attackCooldownTimeLeft > 0.f) {
-    x8e0_attackCooldownTimeLeft -= dt;
+  if (mAttackCooldownTimeLeft > 0.f) {
+    mAttackCooldownTimeLeft -= dt;
   }
-  if (x8e8_interestTimer < x570_babyData.GetInterestTime()) {
-    x8e8_interestTimer += dt;
+  if (mInterestTimer < mBabyData.GetInterestTime()) {
+    mInterestTimer += dt;
   }
 }
 
 void CBabygoth::CreateFlameThrower(CStateManager& mgr) {
-  if (x980_flameThrower == kInvalidUniqueId) {
-    const CFlameInfo info(6, 4, x570_babyData.GetFireBreathResId(), 15, 0.0625f, 20.f, 1.f);
-    x980_flameThrower = mgr.AllocateUniqueId();
+  if (mFlameThrower == kInvalidUniqueId) {
+    const CFlameInfo info(6, 4, mBabyData.GetFireBreathResId(), 15, 0.0625f, 20.f, 1.f);
+    mFlameThrower = mgr.AllocateUniqueId();
     CFlameThrower* const flame = rs_new CFlameThrower(
-        x984_flameThrowerDesc, rstl::string_l("IceSheegoth_Flame"), kWT_Plasma, info,
-        CTransform4f::Identity(), kMT_CollisionActor, x570_babyData.GetFireBreathDamage(),
-        x980_flameThrower, GetCurrentAreaId(), GetUniqueId(), CWeapon::kPA_None,
-        x570_babyData.GetFlamePlayerSteamTxtr(), x570_babyData.GetFlamePlayerHitSfx(),
-        x570_babyData.GetFlamePlayerIceTxtr());
+        mFlameThrowerDesc, rstl::string_l("IceSheegoth_Flame"), kWT_Plasma, info,
+        CTransform4f::Identity(), kMT_CollisionActor, mBabyData.GetFireBreathDamage(),
+        mFlameThrower, GetCurrentAreaId(), GetUniqueId(), CWeapon::kPA_None,
+        mBabyData.GetFlamePlayerSteamTxtr(), mBabyData.GetFlamePlayerHitSfx(),
+        mBabyData.GetFlamePlayerIceTxtr());
     mgr.AddObject(*flame);
   }
 }
 
 void CBabygoth::UpdateParticleEffects(float dt, CStateManager& mgr) {
-  if (CFlameThrower* flame = static_cast< CFlameThrower* >(mgr.ObjectById(x980_flameThrower))) {
+  if (CFlameThrower* flame = static_cast< CFlameThrower* >(mgr.ObjectById(mFlameThrower))) {
     if (flame->GetActive()) {
       const CTransform4f xf = GetLctrTransform(rstl::string_l("LCTR_SHEMOUTH"));
       flame->SetTransform(xf, mgr, dt);
@@ -1437,7 +1437,7 @@ void CBabygoth::UpdateParticleEffects(float dt, CStateManager& mgr) {
   }
 }
 
-void CBabygoth::SetPathFindMode(EPathFindMode mode) { x8b4_pathFindMode = mode; }
+void CBabygoth::SetPathFindMode(EPathFindMode mode) { mPathFindMode = mode; }
 
 EWeaponCollisionResponseTypes CBabygoth::GetCollisionResponseType(const CVector3f& pos,
                                                                   const CVector3f& dir,
@@ -1446,7 +1446,7 @@ EWeaponCollisionResponseTypes CBabygoth::GetCollisionResponseType(const CVector3
   if (weapon.GetType() == kWT_Ice) {
     return kWCR_None;
   }
-  if (x56c_shellState != kSCS_Destroyed) {
+  if (mShellState != kSCS_Destroyed) {
     return kWCR_Unknown66;
   }
   return CPatterned::GetCollisionResponseType(pos, dir, weapon, attrib);
@@ -1457,7 +1457,7 @@ bool CBabygoth::IsOtherCharacterNearPathDest(CStateManager& mgr) {
   for (int i = list.GetFirstObjectIndex(); i != -1; i = list.GetNextObjectIndex(i)) {
     if (const CPatterned* ai = TCastToConstPtr< CPatterned >(list[i])) {
       if (ai != this && ai->GetCurrentAreaId() == GetCurrentAreaId()) {
-        const CVector3f delta = x8b8_backupDestPos - ai->GetTranslation();
+        const CVector3f delta = mBackupDestPos - ai->GetTranslation();
         if (delta.MagSquared() <= 10.f) {
           return true;
         }
@@ -1473,9 +1473,9 @@ void CBabygoth::ApplySeparationBehavior(CStateManager& mgr) {
     if (const CPatterned* ai = TCastToConstPtr< CPatterned >(list[i])) {
       if (ai != this && ai->GetCurrentAreaId() == GetCurrentAreaId()) {
         const CVector3f separation =
-            x45c_steeringBehaviors.Separation(*this, ai->GetTranslation(), 15.f);
+            mSteeringBehaviors.Separation(*this, ai->GetTranslation(), 15.f);
         if (separation.IsNonZero()) {
-          x450_bodyController->CommandMgr().DeliverCmd(
+          mBodyController->CommandMgr().DeliverCmd(
               CBCLocomotionCmd(separation, CVector3f::Zero(), 1.f));
         }
       }
@@ -1484,15 +1484,15 @@ void CBabygoth::ApplySeparationBehavior(CStateManager& mgr) {
 }
 
 void CBabygoth::ProcessCharge(CStateManager& mgr, float dt) {
-  switch (x568_stateProg) {
+  switch (mStateProg) {
   case 0:
-    x8dc_attackTimer += dt;
-    if (x8dc_attackTimer < x570_babyData.GetTimeUntilAttack()) {
-      if (!xa48_28_pendingAttackContactDamage) {
-        x568_stateProg = 3;
-        x450_bodyController->CommandMgr().DeliverCmd(CBCMeleeAttackCmd(pas::kS_One));
+    mAttackTimer += dt;
+    if (mAttackTimer < mBabyData.GetTimeUntilAttack()) {
+      if (!mPendingAttackContactDamage) {
+        mStateProg = 3;
+        mBodyController->CommandMgr().DeliverCmd(CBCMeleeAttackCmd(pas::kS_One));
       } else {
-        const CTransform4f mouthXf = GetLctrTransform(x9f4_mouthLocator);
+        const CTransform4f mouthXf = GetLctrTransform(mMouthLocator);
         const CVector3f delta = mgr.GetPlayer()->GetTranslation() - mouthXf.GetTranslation();
         const CVector3f forward = GetTransform().GetForward();
         if (CVector3f::Dot(forward, delta) > 0.f) {
@@ -1501,49 +1501,49 @@ void CBabygoth::ProcessCharge(CStateManager& mgr, float dt) {
             CPatterned::PathFind(mgr, kStateMsg_Update, dt);
             ApplySeparationBehavior(mgr);
           } else {
-            x568_stateProg = 4;
+            mStateProg = 4;
           }
         } else {
-          x568_stateProg = 4;
+          mStateProg = 4;
         }
       }
     } else {
-      x568_stateProg = 4;
+      mStateProg = 4;
     }
     break;
   case 3:
-    if (x450_bodyController->GetCurrentStateId() != pas::kAS_MeleeAttack) {
-      x568_stateProg = 4;
+    if (mBodyController->GetCurrentStateId() != pas::kAS_MeleeAttack) {
+      mStateProg = 4;
     } else {
-      xa49_25_shouldStepBackwards = true;
+      mShouldStepBackwards = true;
     }
     break;
   }
 }
 
 bool CBabygoth::CheckShouldGetUp(CStateManager& mgr) {
-  if (x400_25_alive && x450_bodyController->GetFallState() != pas::kFS_Zero && !xa49_24_gettingUp) {
-    x330_stateMachineState.SetState(mgr, *this, GetStateMachine(), rstl::string_l("GetUp"));
+  if (mAlive && mBodyController->GetFallState() != pas::kFS_Zero && !mGettingUp) {
+    mStateMachineState.SetState(mgr, *this, GetStateMachine(), rstl::string_l("GetUp"));
   }
   return false;
 }
 
 bool CBabygoth::CheckShouldWakeUp(CStateManager& mgr, float dt) {
-  if (xa48_30_heardPlayerFire) {
-    xa48_24_isAlert = x400_24_hitByPlayerProjectile || mgr.Random()->Float() < 0.5f * dt;
-    return xa48_24_isAlert;
+  if (mHeardPlayerFire) {
+    mIsAlert = mHitByPlayerProjectile || mgr.Random()->Float() < 0.5f * dt;
+    return mIsAlert;
   }
   return false;
 }
 
 void CBabygoth::SwapSkinnedModel(CStateManager& mgr) {
-  AnimationData()->SubstituteModelData(xa08_noShellModel);
-  for (AUTO(it, x9f8_shellIds.begin()); it != x9f8_shellIds.end(); ++it) {
+  AnimationData()->SubstituteModelData(mNoShellModel);
+  for (AUTO(it, mShellIds.begin()); it != mShellIds.end(); ++it) {
     if (CCollisionActor* actor = TCastToPtr< CCollisionActor >(mgr.ObjectById(*it))) {
       actor->SetWeaponCollisionResponseType(kWCR_Unknown41);
     }
   }
-  xa04_drawMaterialIdx = 0;
+  mDrawMaterialIdx = 0;
 }
 
 void CBabygoth::StartCrackShellEffect(CStateManager& mgr,
@@ -1570,13 +1570,13 @@ float CBabygoth::GetShellStateHP(EShellCrackState state) const {
   float hp = 0.f;
   switch (state) {
   case kSCS_Default:
-    hp = x570_babyData.GetShellHitPoints();
+    hp = mBabyData.GetShellHitPoints();
     break;
   case kSCS_CrackOne:
-    hp = (2.f / 3.f) * x570_babyData.GetShellHitPoints();
+    hp = (2.f / 3.f) * mBabyData.GetShellHitPoints();
     break;
   case kSCS_CrackTwo:
-    hp = (1.f / 3.f) * x570_babyData.GetShellHitPoints();
+    hp = (1.f / 3.f) * mBabyData.GetShellHitPoints();
     break;
   case kSCS_Destroyed:
     hp = 0.f;
@@ -1586,8 +1586,8 @@ float CBabygoth::GetShellStateHP(EShellCrackState state) const {
 }
 
 void CBabygoth::AddToTeam(CStateManager& mgr) {
-  if (x6e8_teamMgr != kInvalidUniqueId) {
-    if (CTeamAiMgr* team = TCastToPtr< CTeamAiMgr >(mgr.ObjectById(x6e8_teamMgr))) {
+  if (mTeamMgr != kInvalidUniqueId) {
+    if (CTeamAiMgr* team = TCastToPtr< CTeamAiMgr >(mgr.ObjectById(mTeamMgr))) {
       if (!team->IsPartOfTeam(GetUniqueId())) {
         team->AssignTeamAiRole(*this, CTeamAiRole::kTAR_Melee, CTeamAiRole::kTAR_Projectile,
                                CTeamAiRole::kTAR_Invalid);
@@ -1597,8 +1597,8 @@ void CBabygoth::AddToTeam(CStateManager& mgr) {
 }
 
 void CBabygoth::RemoveFromTeam(CStateManager& mgr) {
-  if (x6e8_teamMgr != kInvalidUniqueId) {
-    if (CTeamAiMgr* team = TCastToPtr< CTeamAiMgr >(mgr.ObjectById(x6e8_teamMgr))) {
+  if (mTeamMgr != kInvalidUniqueId) {
+    if (CTeamAiMgr* team = TCastToPtr< CTeamAiMgr >(mgr.ObjectById(mTeamMgr))) {
       if (team->IsPartOfTeam(GetUniqueId())) {
         team->RemoveTeamAiRole(GetUniqueId());
       }
@@ -1607,8 +1607,8 @@ void CBabygoth::RemoveFromTeam(CStateManager& mgr) {
 }
 
 void CBabygoth::SetShootThrough(CStateManager& mgr) const {
-  for (uint i = 0; i < x928_colActMgr->GetNumCollisionActors(); ++i) {
-    const CJointCollisionDescription& desc = x928_colActMgr->GetCollisionDescFromIndex(i);
+  for (uint i = 0; i < mColActMgr->GetNumCollisionActors(); ++i) {
+    const CJointCollisionDescription& desc = mColActMgr->GetCollisionDescFromIndex(i);
     const TUniqueId uid = desc.GetCollisionActorId();
     if (CCollisionActor* actor = TCastToPtr< CCollisionActor >(mgr.ObjectById(uid))) {
       actor->AddMaterial(kMT_ProjectilePassthrough, mgr);
@@ -1618,11 +1618,11 @@ void CBabygoth::SetShootThrough(CStateManager& mgr) const {
 
 void CBabygoth::ReDirectDamage(CStateManager& mgr, TUniqueId uid) {
   if (const CWeapon* weapon = TCastToConstPtr< CWeapon >(mgr.GetObjectById(uid))) {
-    if (!x9f8_shellIds.empty()) {
+    if (!mShellIds.empty()) {
       CDamageInfo damage = weapon->GetCurrentDamageInfo();
       damage.SetRadius(0.f);
       mgr.ApplyDamage(
-          uid, x9f8_shellIds[0], weapon->GetOwnerId(), damage,
+          uid, mShellIds[0], weapon->GetOwnerId(), damage,
           CMaterialFilter::MakeIncludeExclude(CMaterialList(kMT_Solid), CMaterialList()),
           CVector3f::Zero());
     }
@@ -1631,8 +1631,8 @@ void CBabygoth::ReDirectDamage(CStateManager& mgr, TUniqueId uid) {
 
 float CBabygoth::GetGravityConstant() const { return 10.f * GravityConstant(); }
 
-const CCollisionPrimitive* CBabygoth::GetCollisionPrimitive() const { return &x930_aabox; }
+const CCollisionPrimitive* CBabygoth::GetCollisionPrimitive() const { return &mAabox; }
 bool CBabygoth::IsListening() const { return true; }
 CPathFindSearch* CBabygoth::GetSearchPath() {
-  return x8b4_pathFindMode == kPFM_Normal ? &x6ec_pathSearch : &x7d0_approachPathSearch;
+  return mPathFindMode == kPFM_Normal ? &mPathSearch : &mApproachPathSearch;
 }

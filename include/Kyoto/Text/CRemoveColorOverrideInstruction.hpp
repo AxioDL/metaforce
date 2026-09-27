@@ -5,12 +5,12 @@
 
 class CRemoveColorOverrideInstruction : public CInstruction {
 public:
-  explicit CRemoveColorOverrideInstruction(int idx) : x4_idx(idx) {}
+  explicit CRemoveColorOverrideInstruction(int idx) : mIdx(idx) {}
   void Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const;
   void PageInvoke(CFontRenderState& state, CTextRenderBuffer* buf) const;
 
 private:
-  int x4_idx;
+  int mIdx;
 };
 
 #endif // _CREMOVECOLOROVERRIDEINSTRUCTION

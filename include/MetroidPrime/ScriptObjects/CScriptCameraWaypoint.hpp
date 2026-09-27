@@ -4,7 +4,7 @@
 #include "MetroidPrime/CActor.hpp"
 
 class CScriptCameraWaypoint : public CActor {
-  float xe8_hfov;
+  float mHfov;
   uint xec_;
 
 public:
@@ -18,7 +18,7 @@ public:
   void Render(const CStateManager&) const override;
 
   TUniqueId NextWaypoint(CStateManager& mgr);
-  float GetHFov() const { return xe8_hfov; }
+  float GetHFov() const { return mHfov; }
 };
 
 #endif // _CSCRIPTCAMERAWAYPOINT

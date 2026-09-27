@@ -11,6 +11,8 @@
 #include "rstl/string.hpp"
 #include "rstl/vector.hpp"
 
+class CValidEntityPredicate;
+
 class CEntity {
 public:
   virtual ~CEntity();
@@ -28,38 +30,41 @@ public:
 
   void SendScriptMsgs(const EScriptObjectState state, CStateManager& mgr,
                       const EScriptObjectMessage msg);
-  const TUniqueId GetUniqueId() const { return x8_uid; }
-  const TEditorId GetEditorId() const { return xc_editorId; }
-  const rstl::string& GetDebugName() const { return x10_name; }
+  const TUniqueId GetUniqueId() const { return mUid; }
+  const TEditorId GetEditorId() const { return mEditorId; }
+  const rstl::string& GetDebugName() const { return mName; }
   const TAreaId GetAreaId() const;
-  const TAreaId GetCurrentAreaId() const { return x4_areaId; }
-  const bool GetActive() const { return x30_24_active; }
-  bool IsInGraveyard() const { return x30_25_inGraveyard; }
-  void SetIsInGraveyard() { x30_25_inGraveyard = true; }
-  bool IsScriptingBlocked() const { return x30_26_scriptingBlocked; }
+  TUniqueId CheckConnectedObject_if(const CStateManager& mgr, EScriptObjectState state,
+                                   EScriptObjectMessage msg,
+                                   const CValidEntityPredicate& predicate) const;
+  const TAreaId GetCurrentAreaId() const { return mAreaId; }
+  const bool GetActive() const { return mActive; }
+  bool IsInGraveyard() const { return mInGraveyard; }
+  void SetIsInGraveyard() { mInGraveyard = true; }
+  bool IsScriptingBlocked() const { return mScriptingBlocked; }
 
   // might be fake?
-  rstl::vector< SConnection >& ConnectionList() { return x20_conns; }
-  const rstl::vector< SConnection >& GetConnectionList() const { return x20_conns; }
+  rstl::vector< SConnection >& ConnectionList() { return mConns; }
+  const rstl::vector< SConnection >& GetConnectionList() const { return mConns; }
 
   static rstl::vector< SConnection > NullConnectionList;
 
 private:
   friend class CStateManager;
 
-  void __SetCurrentAreaId(TAreaId areaId) { x4_areaId = areaId; }
+  void __SetCurrentAreaId(TAreaId areaId) { mAreaId = areaId; }
 
-  TAreaId x4_areaId;
-  TUniqueId x8_uid;
-  TEditorId xc_editorId;
-  rstl::string x10_name;
-  rstl::vector< SConnection > x20_conns;
-  bool x30_24_active : 1;
-  bool x30_25_inGraveyard : 1;
-  bool x30_26_scriptingBlocked : 1;
-  bool x30_27_notInArea : 1;
+  TAreaId mAreaId;
+  TUniqueId mUid;
+  TEditorId mEditorId;
+  rstl::string mName;
+  rstl::vector< SConnection > mConns;
+  bool mActive : 1;
+  bool mInGraveyard : 1;
+  bool mScriptingBlocked : 1;
+  bool mNotInArea : 1;
 };
 
-CHECK_SIZEOF(CEntity, 0x34)
+CHECK_SIZEOF(CEntity, (VERSION >= VERSION_R3IJ_00 ? 0x2c : 0x34))
 
 #endif // _CENTITY

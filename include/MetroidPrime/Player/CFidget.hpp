@@ -21,34 +21,34 @@ public:
   };
 
 private:
-  EState x0_state;
-  SamusGun::EFidgetType x4_type;
-  int x8_delayTriggerBits;
+  EState mState;
+  SamusGun::EFidgetType mType;
+  int mDelayTriggerBits;
   // 0: panel, 1: panel reset, 2: adjust nozzle, 3: panel buttons
-  int xc_animSet;
-  int x10_delayTimerEnableBits;
-  float x14_timeSinceFire;
-  float x18_timeSinceStrikeCooldown;
-  float x1c_timeSinceUnmorph;
-  float x20_timeSinceBobbing;
-  float x24_minorDelayTimer;
-  float x28_majorDelayTimer;
-  float x2c_holsterTimeSinceFire;
-  float x30_timeUntilHolster;
-  bool x34_24_loading : 1;
+  int mAnimSet;
+  int mDelayTimerEnableBits;
+  float mTimeSinceFire;
+  float mTimeSinceStrikeCooldown;
+  float mTimeSinceUnmorph;
+  float mTimeSinceBobbing;
+  float mMinorDelayTimer;
+  float mMajorDelayTimer;
+  float mHolsterTimeSinceFire;
+  float mTimeUntilHolster;
+  bool mLoading : 1;
 
 public:
   CFidget();
 
-  EState GetState() const { return x0_state; }
-  SamusGun::EFidgetType GetType() const { return x4_type; }
-  int GetAnimSet() const { return xc_animSet; }
+  EState GetState() const { return mState; }
+  SamusGun::EFidgetType GetType() const { return mType; }
+  int GetAnimSet() const { return mAnimSet; }
   EState Update(int fireButtonStates, bool bobbing, bool inStrikeCooldown, float dt,
                 CStateManager& mgr);
   void ResetMinor();
   void ResetAll();
 
-  void DoneLoading() { x34_24_loading = false; }
+  void DoneLoading() { mLoading = false; }
 };
 CHECK_SIZEOF(CFidget, 0x38)
 

@@ -9,17 +9,17 @@
 class CParticleGlobals {
 public:
   struct SParticleSystem {
-    FourCC x0_type;
-    CElementGen* x4_system;
-    SParticleSystem* x8_prev;
+    FourCC mType;
+    CElementGen* mSystem;
+    SParticleSystem* mPrev;
 
     SParticleSystem(FourCC type, CElementGen* system)
-    : x0_type(type)
-    , x4_system(system)
-    , x8_prev(mCurrentParticleSystem) {
+    : mType(type)
+    , mSystem(system)
+    , mPrev(mCurrentParticleSystem) {
       mCurrentParticleSystem = this;
     }
-    ~SParticleSystem() { mCurrentParticleSystem = x8_prev; }
+    ~SParticleSystem() { mCurrentParticleSystem = mPrev; }
   };
 
   static void SetEmitterTime(int time);

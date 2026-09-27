@@ -10,21 +10,21 @@
 
 CBoneTracking::CBoneTracking(const CAnimData& animData, const rstl::string& bone,
                              float maxTrackingAngle, float angSpeed, EBoneTrackingFlags flags)
-: x0_rotation(CQuaternion::NoRotation())
+: mRotation(CQuaternion::NoRotation())
 , x10_(0.f)
-, x14_segId(animData.GetCharLayoutInfo()->GetSegIdFromString(bone))
-, x18_time(0.f)
-, x1c_maxTrackingAngle(maxTrackingAngle)
-, x20_angSpeed(angSpeed)
-, x34_target(kInvalidUniqueId)
-, x36_24_active(false)
-, x36_25_hasTrackedRotation(false)
-, x36_26_noParent(flags & kBTF_NoParent)
-, x36_27_noParentOrigin(flags & kBTF_NoParentOrigin)
-, x36_28_noHorizontalAim(flags & kBTF_NoHorizontalAim)
-, x36_29_parentIk(flags & kBTF_ParentIk) {}
+, mSegId(animData.GetCharLayoutInfo()->GetSegIdFromString(bone))
+, mTime(0.f)
+, mMaxTrackingAngle(maxTrackingAngle)
+, mAngSpeed(angSpeed)
+, mTarget(kInvalidUniqueId)
+, mActive(false)
+, mHasTrackedRotation(false)
+, mNoParent(flags & kBTF_NoParent)
+, mNoParentOrigin(flags & kBTF_NoParentOrigin)
+, mNoHorizontalAim(flags & kBTF_NoHorizontalAim)
+, mParentIk(flags & kBTF_ParentIk) {}
 
-void CBoneTracking::Update(float dt) { x18_time += dt; }
+void CBoneTracking::Update(float dt) { mTime += dt; }
 
 void CBoneTracking::PreRender(const CStateManager& mgr, CAnimData& animData, const CTransform4f& xf,
                               const CVector3f& scale, const CBodyController& controller) {
@@ -36,79 +36,79 @@ void CBoneTracking::PreRender(const CStateManager& mgr, CAnimData& animData, con
 
 void CBoneTracking::PreRender(const CStateManager& mgr, CAnimData& animData, const CTransform4f& xf,
                               const CVector3f& scale, const bool tracking) {
-  if (x14_segId != CSegId::Null()) {
+  if (mSegId != CSegId::Null()) {
     CHierarchyPoseBuilder& poseBuilder = animData.PoseBuilder();
-    const CActor* target = TCastToConstPtr< CActor >(mgr.GetObjectById(x34_target));
-    if (x36_24_active && tracking && (target || x24_targetPosition.valid())) {
-      x36_25_hasTrackedRotation = true;
+    const CActor* target = TCastToConstPtr< CActor >(mgr.GetObjectById(mTarget));
+    if (mActive && tracking && (target || mTargetPosition.valid())) {
+      mHasTrackedRotation = true;
       const CCharLayoutInfo* layout = *poseBuilder.CharLayoutInfo();
-      const CSegId bone = x36_26_noParent ? x14_segId : layout->GetOriginalParent(x14_segId);
+      const CSegId bone = mNoParent ? mSegId : layout->GetOriginalParent(mSegId);
       CTransform4f parentXf = CTransform4f::Identity();
       poseBuilder.BuildTransform(bone, parentXf);
       CVector3f position = parentXf.GetTranslation();
-      if (x36_27_noParentOrigin && !x36_26_noParent) {
+      if (mNoParentOrigin && !mNoParent) {
         CTransform4f boneXf = CTransform4f::Identity();
-        poseBuilder.BuildTransform(x14_segId, boneXf);
+        poseBuilder.BuildTransform(mSegId, boneXf);
         position = boneXf.GetTranslation();
       }
       parentXf.SetTranslation(CVector3f::ByElementMultiply(scale, position));
       CTransform4f finalXf = xf * parentXf;
       const CVector3f& targetPosition =
-          target ? target->GetAimPosition(mgr, 0.f) : *x24_targetPosition;
+          target ? target->GetAimPosition(mgr, 0.f) : *mTargetPosition;
       CVector3f localDir = finalXf.TransposeMultiply(targetPosition).AsNormalized();
-      if (x36_28_noHorizontalAim) {
+      if (mNoHorizontalAim) {
         const float horizontalMagnitude =
             CMath::SqrtF(localDir.GetX() * localDir.GetX() + localDir.GetY() * localDir.GetY());
         localDir = CVector3f(0.f, horizontalMagnitude, localDir.GetZ());
       }
-      if (x36_29_parentIk) {
+      if (mParentIk) {
         const float negativeElevation = -parentXf.GetForward().GetZ();
         const CVector3f ikBase(0.f, CMath::SqrtF(1.f - negativeElevation * negativeElevation),
                                negativeElevation);
         float angle = CVector3f::GetAngleDiff(ikBase, localDir);
-        angle = CMath::Min(angle, x1c_maxTrackingAngle);
+        angle = CMath::Min(angle, mMaxTrackingAngle);
         localDir = CVector3f::Slerp(ikBase, localDir, CRelAngle::FromRadians(angle));
       } else {
         float angle = CVector3f::GetAngleDiff(CVector3f::Forward(), localDir);
-        angle = CMath::Min(angle, x1c_maxTrackingAngle);
+        angle = CMath::Min(angle, mMaxTrackingAngle);
         localDir = CVector3f::Slerp(CVector3f::Forward(), localDir, CRelAngle::FromRadians(angle));
       }
-      const CVector3f currentDir = x0_rotation.Transform(CVector3f::Forward());
+      const CVector3f currentDir = mRotation.Transform(CVector3f::Forward());
       const float angle = CVector3f::GetAngleDiff(currentDir, localDir);
-      const float maxAngleDelta = x18_time * x20_angSpeed;
+      const float maxAngleDelta = mTime * mAngSpeed;
       const float clampedAngle = CMath::Min(angle, maxAngleDelta);
       if (clampedAngle > 1.e-5f) {
         const CVector3f& forward = CVector3f::Forward();
         const CQuaternion rotation =
             CQuaternion::LookAt(forward, localDir, CRelAngle::FromDegrees(360.f));
-        x0_rotation = CQuaternion::SlerpLocal(x0_rotation, rotation, clampedAngle / angle);
+        mRotation = CQuaternion::SlerpLocal(mRotation, rotation, clampedAngle / angle);
       }
-      poseBuilder.Insert(x14_segId, x0_rotation);
+      poseBuilder.Insert(mSegId, mRotation);
       animData.SetPoseBuilderValid(false);
-    } else if (x36_25_hasTrackedRotation) {
-      const CVector3f currentDir = x0_rotation.Transform(CVector3f::Forward());
-      const CQuaternion rotation = poseBuilder.GetSegRotation(x14_segId);
+    } else if (mHasTrackedRotation) {
+      const CVector3f currentDir = mRotation.Transform(CVector3f::Forward());
+      const CQuaternion rotation = poseBuilder.GetSegRotation(mSegId);
       const CVector3f animationDir = rotation.Transform(CVector3f::Forward());
       const float angle = CVector3f::GetAngleDiff(currentDir, animationDir);
-      const float maxAngleDelta = x18_time * x20_angSpeed;
+      const float maxAngleDelta = mTime * mAngSpeed;
       const float clampedAngle = CMath::Min(angle, maxAngleDelta);
       if (clampedAngle > 0.5f * maxAngleDelta) {
-        x0_rotation = CQuaternion::SlerpLocal(x0_rotation, rotation, clampedAngle / angle);
-        poseBuilder.Insert(x14_segId, x0_rotation);
+        mRotation = CQuaternion::SlerpLocal(mRotation, rotation, clampedAngle / angle);
+        poseBuilder.Insert(mSegId, mRotation);
         animData.SetPoseBuilderValid(false);
       } else {
-        x36_25_hasTrackedRotation = false;
-        x0_rotation = rotation;
+        mHasTrackedRotation = false;
+        mRotation = rotation;
       }
     } else {
-      x0_rotation = poseBuilder.GetSegRotation(x14_segId);
+      mRotation = poseBuilder.GetSegRotation(mSegId);
     }
   }
-  x18_time = 0.f;
+  mTime = 0.f;
 }
 
-void CBoneTracking::SetActive(bool v) { x36_24_active = v; }
-void CBoneTracking::SetTarget(const TUniqueId target) { x34_target = target; }
-void CBoneTracking::UnsetTarget() { x34_target = kInvalidUniqueId; }
-void CBoneTracking::SetTargetPosition(const CVector3f& target) { x24_targetPosition = target; }
-void CBoneTracking::SetNoHorizontalAim(const bool aim) { x36_28_noHorizontalAim = aim; }
+void CBoneTracking::SetActive(bool v) { mActive = v; }
+void CBoneTracking::SetTarget(const TUniqueId target) { mTarget = target; }
+void CBoneTracking::UnsetTarget() { mTarget = kInvalidUniqueId; }
+void CBoneTracking::SetTargetPosition(const CVector3f& target) { mTargetPosition = target; }
+void CBoneTracking::SetNoHorizontalAim(const bool aim) { mNoHorizontalAim = aim; }

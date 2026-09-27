@@ -57,105 +57,105 @@ public:
   void SetupGrid(bool recomputeClipping);
   void SetupGridClipping(CStateManager&, int computeVerts);
   int GetPatchRenderFlags(int x, int y) const;
-  int GetPatchDimensionX() const { return x2d0_patchDimX; }
-  int GetPatchDimensionY() const { return x2d4_patchDimY; }
+  int GetPatchDimensionX() const { return mPatchDimX; }
+  int GetPatchDimensionY() const { return mPatchDimY; }
   void SetMorphing(const bool m);
   const CScriptWater* GetNextConnectedWater(const CStateManager&) const;
   // RenderSurface__12CScriptWaterFv
 
-  CFluidPlaneCPU& FluidPlane() { return *x1b4_fluidPlane; }
-  const CFluidPlaneCPU& GetFluidPlane() const { return *x1b4_fluidPlane; }
+  CFluidPlaneCPU& FluidPlane() { return *mFluidPlane; }
+  const CFluidPlaneCPU& GetFluidPlane() const { return *mFluidPlane; }
   CPlane GetWRSurfacePlane() const {
     return CPlane(GetSurfaceZ(), CUnitVector3f(0.f, 0.f, 1.f, CUnitVector3f::kN_Yes));
   }
   float GetSurfaceZ() const { return GetTriggerBoundsWR().GetMaxPoint().GetZ(); }
-  const CColor& GetUnderwaterFogColor() const { return x2a8_insideFogColor; }
+  const CColor& GetUnderwaterFogColor() const { return mInsideFogColor; }
   const rstl::optional_object< TLockedToken< CGenDescription > >& GetVisorRunoffEffect() const {
-    return x23c_visorRunoffEffect;
+    return mVisorRunoffEffect;
   }
-  ushort GetVisorRunoffSfx() const { return x260_visorRunoffSfx; }
+  ushort GetVisorRunoffSfx() const { return mVisorRunoffSfx; }
   const rstl::optional_object< TLockedToken< CGenDescription > >&
   GetUnmorphVisorRunoffEffect() const {
-    return x250_unmorphVisorRunoffEffect;
+    return mUnmorphVisorRunoffEffect;
   }
-  ushort GetUnmorphVisorRunoffSfx() const { return x262_unmorphVisorRunoffSfx; }
+  ushort GetUnmorphVisorRunoffSfx() const { return mUnmorphVisorRunoffSfx; }
   // GetFluidType__12CScriptWaterCFv
-  bool IsMorphing() const { return x2e8_26_morphing; }
-  float GetMorphFactor() const { return x1f8_morphFactor; }
+  bool IsMorphing() const { return mMorphing; }
+  float GetMorphFactor() const { return mMorphFactor; }
   // GetFrustumPlanes__12CScriptWaterCFv
   int GetSplashIndex(float scale) const;
   const rstl::optional_object< TLockedToken< CGenDescription > >&
   GetSplashEffect(float scale) const;
   const ushort GetSplashSound(float scale) const;
   float GetSplashEffectScale(float scale) const;
-  const CColor& GetSplashColor() const { return x2a4_splashColor; }
+  const CColor& GetSplashColor() const { return mSplashColor; }
 
   static const float kSplashScales[6];
 
   static int CalculateIndex(const int x, const int y, const int stride) { return y * stride + x; }
   bool GetTileIntersects(const int x, const int y) const {
-    const int index = CalculateIndex(x, y, x2c4_gridDimX);
-    return x2d8_tileIntersects.get()[CalculateIndex(x, y, x2c4_gridDimX)] != false;
+    const int index = CalculateIndex(x, y, mGridDimX);
+    return mTileIntersects.get()[CalculateIndex(x, y, mGridDimX)] != false;
   }
 
 private:
-  CFrustumPlanes x150_frustum;
-  rstl::single_ptr< CFluidPlaneCPU > x1b4_fluidPlane;
-  CVector3f x1b8_positionMorphed;
-  CVector3f x1c4_extentMorphed;
-  float x1d0_morphInTime;
-  CVector3f x1d4_positionOrig;
-  CVector3f x1e0_extentOrig;
-  float x1ec_damageOrig;
-  float x1f0_damageMorphed;
-  float x1f4_morphOutTime;
-  float x1f8_morphFactor;
-  rstl::list< rstl::pair< TUniqueId, bool > > x1fc_waterInhabitants;
-  float x214_fogBias;
-  float x218_fogMagnitude;
-  float x21c_origFogBias;
-  float x220_origFogMagnitude;
-  float x224_fogSpeed;
-  CColor x228_fogColor;
-  CAssetId x22c_splashParticle1Id;
-  CAssetId x230_splashParticle2Id;
-  CAssetId x234_splashParticle3Id;
-  CAssetId x238_visorRunoffParticleId;
-  rstl::optional_object< TLockedToken< CGenDescription > > x23c_visorRunoffEffect;
-  CAssetId x24c_unmorphVisorRunoffParticleId;
-  rstl::optional_object< TLockedToken< CGenDescription > > x250_unmorphVisorRunoffEffect;
-  ushort x260_visorRunoffSfx;
-  ushort x262_unmorphVisorRunoffSfx;
+  CFrustumPlanes mFrustum;
+  rstl::single_ptr< CFluidPlaneCPU > mFluidPlane;
+  CVector3f mPositionMorphed;
+  CVector3f mExtentMorphed;
+  float mMorphInTime;
+  CVector3f mPositionOrig;
+  CVector3f mExtentOrig;
+  float mDamageOrig;
+  float mDamageMorphed;
+  float mMorphOutTime;
+  float mMorphFactor;
+  rstl::list< rstl::pair< TUniqueId, bool > > mWaterInhabitants;
+  float mFogBias;
+  float mFogMagnitude;
+  float mOrigFogBias;
+  float mOrigFogMagnitude;
+  float mFogSpeed;
+  CColor mFogColor;
+  CAssetId mSplashParticle1Id;
+  CAssetId mSplashParticle2Id;
+  CAssetId mSplashParticle3Id;
+  CAssetId mVisorRunoffParticleId;
+  rstl::optional_object< TLockedToken< CGenDescription > > mVisorRunoffEffect;
+  CAssetId mUnmorphVisorRunoffParticleId;
+  rstl::optional_object< TLockedToken< CGenDescription > > mUnmorphVisorRunoffEffect;
+  ushort mVisorRunoffSfx;
+  ushort mUnmorphVisorRunoffSfx;
   rstl::reserved_vector< rstl::optional_object< TLockedToken< CGenDescription > >, 3 >
-      x264_splashEffects;
-  rstl::reserved_vector< ushort, 3 > x298_splashSounds;
-  CColor x2a4_splashColor;
-  CColor x2a8_insideFogColor;
-  float x2ac_alphaInTime;
-  float x2b0_alphaOutTime;
-  float x2b4_alphaInRecip;
-  float x2b8_alphaOutRecip;
-  float x2bc_alpha;
-  float x2c0_tileSize;
-  int x2c4_gridDimX;
-  int x2c8_gridDimY;
-  int x2cc_gridCellCount;
-  int x2d0_patchDimX;
-  int x2d4_patchDimY;
-  rstl::single_ptr< char > x2d8_tileIntersects;
-  rstl::single_ptr< bool > x2dc_vertIntersects;
+      mSplashEffects;
+  rstl::reserved_vector< ushort, 3 > mSplashSounds;
+  CColor mSplashColor;
+  CColor mInsideFogColor;
+  float mAlphaInTime;
+  float mAlphaOutTime;
+  float mAlphaInRecip;
+  float mAlphaOutRecip;
+  float mAlpha;
+  float mTileSize;
+  int mGridDimX;
+  int mGridDimY;
+  int mGridCellCount;
+  int mPatchDimX;
+  int mPatchDimY;
+  rstl::single_ptr< char > mTileIntersects;
+  rstl::single_ptr< bool > mVertIntersects;
   // 0: all clear, 1: all intersect, 2: partial intersect
-  rstl::single_ptr< char > x2e0_patchIntersects;
-  int x2e4_computedGridCellCount;
-  bool x2e8_24_b4 : 1;
-  bool x2e8_25_morphIn : 1;
-  bool x2e8_26_morphing : 1;
-  bool x2e8_27_allowRender : 1;
-  bool x2e8_28_recomputeClipping : 1;
-  bool x2e8_29_alphaIn : 1;
-  bool x2e8_30_alphaOut : 1;
+  rstl::single_ptr< char > mPatchIntersects;
+  int mComputedGridCellCount;
+  bool mB4 : 1;
+  bool mMorphIn : 1;
+  bool mMorphing : 1;
+  bool mAllowRender : 1;
+  bool mRecomputeClipping : 1;
+  bool mAlphaIn : 1;
+  bool mAlphaOut : 1;
 };
 
-CHECK_SIZEOF(CScriptWater, (VERSION >= VERSION_GM8P_00 ? 0x300 : 0x2f0))
+CHECK_SIZEOF(CScriptWater, (VERSION >= VERSION_GM8E_02 ? 0x300 : 0x2f0))
 
 #endif // _CSCRIPTWATER

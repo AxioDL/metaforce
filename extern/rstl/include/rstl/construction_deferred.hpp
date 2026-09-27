@@ -25,7 +25,7 @@ public:
   }
   bool valid() const { return m_valid; }
 
-  T* get_ptr() { return reinterpret_cast< T* >(x0_data); }
+  T* get_ptr() { return reinterpret_cast< T* >(mData); }
   T& data() {
     // TODO ensureIsValid
     return *get_ptr();
@@ -33,7 +33,7 @@ public:
   T& operator*() { return data(); }
 
 private:
-  ALIGNAS(T) uchar x0_data[sizeof(T)];
+  ALIGNAS(T) uchar mData[sizeof(T)];
   ATTRIBUTE_ALIGN_DECL(4, bool m_valid);
 
   void makeValid() { m_valid = true; }

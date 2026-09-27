@@ -21,7 +21,7 @@ public:
     }
   }
   ~optional_object() {
-#if RSTL_VERSION >= RSTL_GM8P_00 && RSTL_VERSION != RSTL_GM8E_02
+#if RSTL_VERSION >= RSTL_GM8P_00
     if (m_valid) {
       rstl::destroy(get_ptr());
     }
@@ -66,8 +66,8 @@ public:
   const T* operator->() const { return &data(); }
 
 private:
-  ALIGNAS(T) uchar m_data[sizeof(T)];
-  ATTRIBUTE_ALIGN_DECL(4, bool m_valid);
+  ALIGNAS(T) uint m_data[(sizeof(T) + sizeof(uint) - 1) / sizeof(uint)];
+  bool m_valid;
 
   void assign(const T& item) {
     if (!m_valid) {

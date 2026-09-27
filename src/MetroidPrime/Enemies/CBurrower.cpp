@@ -24,48 +24,48 @@ CBurrower::CBurrower(const TUniqueId uid, const rstl::string& name, const CEntit
                     const uint visorSfx, const CAssetId deathExplosionParticle)
 : CPatterned(kC_Burrower, uid, name, kFT_Zero, info, xf, mData, pInfo, kMT_Ground, kCT_One,
              kBT_BiPedal, actParms, kCS_Small)
-, x568_pathFindSearch(nullptr, 1, pInfo.GetPathfindingIndex(), 1.f, 1.f)
-, x64c_projectileInfo(projectile, projectileDamage)
-, x69c_attackTime(0.f)
-, x6a0_lurkTimer(0.f)
-, x6a4_invulnDamageTime(0.f)
-, x6a8_lastDestObj(kInvalidUniqueId)
-, x6aa_visorSfx(CSfxManager::TranslateSFXID(visorSfx))
-, x6ac_24_doFacePlayer(false)
-, x6ac_25_inAir(false) {
+, mPathFindSearch(nullptr, 1, pInfo.GetPathfindingIndex(), 1.f, 1.f)
+, mProjectileInfo(projectile, projectileDamage)
+, mAttackTime(0.f)
+, mLurkTimer(0.f)
+, mInvulnDamageTime(0.f)
+, mLastDestObj(kInvalidUniqueId)
+, mVisorSfx(CSfxManager::TranslateSFXID(visorSfx))
+, mDoFacePlayer(false)
+, mInAir(false) {
   SetDrawShadow(false);
   MakeThermalColdAndHot();
-  x64c_projectileInfo.Token().Lock();
+  mProjectileInfo.Token().Lock();
 
   if (jumpParticle != kInvalidAssetId) {
     TLockedToken< CGenDescription > desc =
         TLockedToken< CGenDescription >(gpSimplePool->GetObj(SObjectTag('PART', jumpParticle)));
-    x674_jumpParticle = rs_new CElementGen(desc, CElementGen::kMOT_One);
-    if (x674_jumpParticle.get()) {
-      x674_jumpParticle->SetLeaveLightsEnabledForModelRender(true);
-      x674_jumpParticle->SetGlobalScale(GetModelScale());
-      x674_jumpParticle->SetParticleEmission(false);
+    mJumpParticle = rs_new CElementGen(desc, CElementGen::kMOT_One);
+    if (mJumpParticle.get()) {
+      mJumpParticle->SetLeaveLightsEnabledForModelRender(true);
+      mJumpParticle->SetGlobalScale(GetModelScale());
+      mJumpParticle->SetParticleEmission(false);
     }
   }
 
   if (trailParticle != kInvalidAssetId) {
     TLockedToken< CGenDescription > desc =
         TLockedToken< CGenDescription >(gpSimplePool->GetObj(SObjectTag('PART', trailParticle)));
-    x678_trailParticle = rs_new CElementGen(desc);
-    if (x678_trailParticle.get()) {
-      x678_trailParticle->SetGlobalScale(GetModelScale());
-      x678_trailParticle->SetParticleEmission(false);
+    mTrailParticle = rs_new CElementGen(desc);
+    if (mTrailParticle.get()) {
+      mTrailParticle->SetGlobalScale(GetModelScale());
+      mTrailParticle->SetParticleEmission(false);
     }
   }
 
   if (visorParticle != kInvalidAssetId) {
-    x67c_visorParticle = rstl::optional_object< TLockedToken< CGenDescription > >(
+    mVisorParticle = rstl::optional_object< TLockedToken< CGenDescription > >(
         gpSimplePool->GetObj(SObjectTag('PART', visorParticle)));
   }
 
   if (deathExplosionParticle != kInvalidAssetId) {
-    x68c_deathExplosionParticle = gpSimplePool->GetObj(SObjectTag('PART', deathExplosionParticle));
-    x68c_deathExplosionParticle->Lock();
+    mDeathExplosionParticle = gpSimplePool->GetObj(SObjectTag('PART', deathExplosionParticle));
+    mDeathExplosionParticle->Lock();
   }
 }
 
@@ -81,22 +81,22 @@ void CBurrower::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateM
     const TAreaId areaId = GetCurrentAreaId();
     const CGameArea::CPostConstructed* constructed =
         mgr.GetWorld()->GetAreaAlways(areaId).GetPostConstructed();
-    x568_pathFindSearch.SetArea(constructed->x10bc_pathArea);
+    mPathFindSearch.SetArea(constructed->mPathArea);
     if (!CPatterned::HasPatrolPath(mgr, 0.f)) {
-      x678_trailParticle = nullptr;
+      mTrailParticle = nullptr;
     }
     break;
   }
   case kSM_InvulnDamage:
-    x6a4_invulnDamageTime = 1.f;
+    mInvulnDamageTime = 1.f;
     break;
   }
 }
 
 void CBurrower::Render(const CStateManager& mgr) const {
-  if (GetActorLights() && x674_jumpParticle.get()) {
+  if (GetActorLights() && mJumpParticle.get()) {
     GetActorLights()->ActivateLights();
-    x674_jumpParticle->Render();
+    mJumpParticle->Render();
   }
   CPatterned::Render(mgr);
 }
@@ -106,10 +106,10 @@ void CBurrower::Think(float dt, CStateManager& mgr) {
     return;
   }
   CPatterned::Think(dt, mgr);
-  if (x6a4_invulnDamageTime > 0.f) {
-    x6a4_invulnDamageTime -= dt;
+  if (mInvulnDamageTime > 0.f) {
+    mInvulnDamageTime -= dt;
   }
-  if (x6ac_24_doFacePlayer) {
+  if (mDoFacePlayer) {
     CVector3f forward = GetTransform().GetForward();
     CVector3f toPlayer = mgr.GetPlayer()->GetTranslation() - GetTranslation();
     forward.SetZ(0.f);
@@ -123,44 +123,44 @@ void CBurrower::Think(float dt, CStateManager& mgr) {
       RotateToOR(CQuaternion(rotation.GetScalar(),
                              GetTransform().TransposeRotate(rotation.GetVector())), dt);
     }
-  } else if (x69c_attackTime > 0.f) {
-    x69c_attackTime -= dt;
+  } else if (mAttackTime > 0.f) {
+    mAttackTime -= dt;
   }
-  if (x674_jumpParticle.get()) {
-    x6a0_lurkTimer -= dt;
-    if (!x6ac_25_inAir && x6a0_lurkTimer <= 0.f) {
+  if (mJumpParticle.get()) {
+    mLurkTimer -= dt;
+    if (!mInAir && mLurkTimer <= 0.f) {
       if (IsAlive()) {
-        x674_jumpParticle->SetParticleEmission(true);
-        x674_jumpParticle->SetOrientation(GetTransform().GetRotation());
-        x674_jumpParticle->SetTranslation(GetTranslation());
-        x674_jumpParticle->ForceParticleCreation(1);
-        x674_jumpParticle->SetOrientation(CTransform4f::Identity());
-        x674_jumpParticle->SetParticleEmission(false);
+        mJumpParticle->SetParticleEmission(true);
+        mJumpParticle->SetOrientation(GetTransform().GetRotation());
+        mJumpParticle->SetTranslation(GetTranslation());
+        mJumpParticle->ForceParticleCreation(1);
+        mJumpParticle->SetOrientation(CTransform4f::Identity());
+        mJumpParticle->SetParticleEmission(false);
       }
-      x6a0_lurkTimer = 0.1875f;
+      mLurkTimer = 0.1875f;
     }
-    x674_jumpParticle->Update(dt);
+    mJumpParticle->Update(dt);
   }
-  if (x678_trailParticle.get()) {
-    if (IsAlive() && !x6ac_25_inAir) {
-      x678_trailParticle->SetTranslation(GetTranslation());
+  if (mTrailParticle.get()) {
+    if (IsAlive() && !mInAir) {
+      mTrailParticle->SetTranslation(GetTranslation());
     }
-    x678_trailParticle->Update(dt);
+    mTrailParticle->Update(dt);
   }
 }
 
 void CBurrower::Patrol(CStateManager& mgr, EStateMsg msg, float arg) {
   switch (msg) {
   case kStateMsg_Activate:
-    x6ac_25_inAir = false;
-    if (x678_trailParticle.get()) {
-      x678_trailParticle->SetParticleEmission(true);
+    mInAir = false;
+    if (mTrailParticle.get()) {
+      mTrailParticle->SetParticleEmission(true);
     }
     break;
   case kStateMsg_Update:
     break;
   case kStateMsg_Deactivate:
-    x6a8_lastDestObj = x2dc_destObj;
+    mLastDestObj = mDestObj;
     break;
   }
   CPatterned::Patrol(mgr, msg, arg);
@@ -169,16 +169,16 @@ void CBurrower::Patrol(CStateManager& mgr, EStateMsg msg, float arg) {
 void CBurrower::Active(CStateManager& mgr, EStateMsg msg, float arg) {
   switch (msg) {
   case kStateMsg_Activate:
-    x6ac_24_doFacePlayer = true;
-    x32c_animState = kAS_Ready;
+    mDoFacePlayer = true;
+    mAnimState = kAS_Ready;
     break;
   case kStateMsg_Update:
     TryCommand(mgr, pas::kAS_Generate, &CPatterned::TryGenerateDeactivate, 0);
     break;
   case kStateMsg_Deactivate:
-    x6ac_24_doFacePlayer = false;
-    x6ac_25_inAir = true;
-    x32c_animState = kAS_NotReady;
+    mDoFacePlayer = false;
+    mInAir = true;
+    mAnimState = kAS_NotReady;
     break;
   }
 }
@@ -186,23 +186,23 @@ void CBurrower::Active(CStateManager& mgr, EStateMsg msg, float arg) {
 void CBurrower::ProjectileAttack(CStateManager& mgr, EStateMsg msg, float arg) {
   switch (msg) {
   case kStateMsg_Activate:
-    x6ac_24_doFacePlayer = true;
-    x6ac_25_inAir = true;
-    if (x678_trailParticle.get()) {
-      x678_trailParticle->SetParticleEmission(false);
+    mDoFacePlayer = true;
+    mInAir = true;
+    if (mTrailParticle.get()) {
+      mTrailParticle->SetParticleEmission(false);
     }
-    x32c_animState = kAS_Ready;
+    mAnimState = kAS_Ready;
     break;
   case kStateMsg_Update:
     TryCommand(mgr, pas::kAS_ProjectileAttack, &CPatterned::TryProjectileAttack, 0);
     break;
   case kStateMsg_Deactivate:
-    x32c_animState = kAS_NotReady;
-    x69c_attackTime = mgr.Random()->Float() * x308_attackTimeVariation + x304_averageAttackTime;
-    x6ac_24_doFacePlayer = false;
-    x328_25_verticalMovement = false;
+    mAnimState = kAS_NotReady;
+    mAttackTime = mgr.Random()->Float() * mAttackTimeVariation + mAverageAttackTime;
+    mDoFacePlayer = false;
+    mVerticalMovement = false;
     AddMaterial(kMT_GroundCollider, mgr);
-    x55c_moveScale = CVector3f(1.f, 1.f, 1.f);
+    mMoveScale = CVector3f(1.f, 1.f, 1.f);
     break;
   }
 }
@@ -210,16 +210,16 @@ void CBurrower::ProjectileAttack(CStateManager& mgr, EStateMsg msg, float arg) {
 void CBurrower::Retreat(CStateManager& mgr, EStateMsg msg, float arg) {
   switch (msg) {
   case kStateMsg_Activate:
-    x32c_animState = kAS_Ready;
+    mAnimState = kAS_Ready;
     break;
   case kStateMsg_Update:
     TryCommand(mgr, pas::kAS_Generate, &CPatterned::TryGenerateDeactivate, 1);
     break;
   case kStateMsg_Deactivate:
-    x32c_animState = kAS_NotReady;
-    if (x678_trailParticle.get()) {
-      x6ac_25_inAir = false;
-      x678_trailParticle->SetParticleEmission(true);
+    mAnimState = kAS_NotReady;
+    if (mTrailParticle.get()) {
+      mInAir = false;
+      mTrailParticle->SetParticleEmission(true);
     }
     break;
   }
@@ -228,14 +228,14 @@ void CBurrower::Retreat(CStateManager& mgr, EStateMsg msg, float arg) {
 void CBurrower::TargetPatrol(CStateManager& mgr, EStateMsg msg, float arg) {
   switch (msg) {
   case kStateMsg_Activate: {
-    const TUniqueId dest = x6a8_lastDestObj != kInvalidUniqueId
-                               ? x6a8_lastDestObj
+    const TUniqueId dest = mLastDestObj != kInvalidUniqueId
+                               ? mLastDestObj
                                : GetConnectedObject(mgr, kSS_Patrol, kSM_Follow);
-    x2dc_destObj = dest;
+    mDestObj = dest;
     if (const CActor* actor = TCastToConstPtr< CActor >(mgr.GetObjectById(dest))) {
-      x2e0_destPos = actor->GetTranslation();
-      x328_24_inPosition = false;
-      x2ec_reflectedDestPos = GetTranslation();
+      mDestPos = actor->GetTranslation();
+      mInPosition = false;
+      mReflectedDestPos = GetTranslation();
     }
     break;
   }
@@ -248,8 +248,8 @@ void CBurrower::TargetPatrol(CStateManager& mgr, EStateMsg msg, float arg) {
 void CBurrower::Lurk(CStateManager& mgr, EStateMsg msg, float arg) {
   switch (msg) {
   case kStateMsg_Activate:
-    x6ac_25_inAir = false;
-    x6a0_lurkTimer = 0.1875f;
+    mInAir = false;
+    mLurkTimer = 0.1875f;
     break;
   case kStateMsg_Update:
   case kStateMsg_Deactivate:
@@ -257,7 +257,7 @@ void CBurrower::Lurk(CStateManager& mgr, EStateMsg msg, float arg) {
   }
 }
 
-CProjectileInfo* CBurrower::ProjectileInfo() { return &x64c_projectileInfo; }
+CProjectileInfo* CBurrower::ProjectileInfo() { return &mProjectileInfo; }
 
 void CBurrower::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node,
                                EUserEventType type, float dt) {
@@ -269,20 +269,20 @@ void CBurrower::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node,
     const CVector3f gunPos = GetLctrTransform(node.GetLocatorName()).GetTranslation();
     const CVector3f target = ProjectileInfo()->PredictInterceptPos(gunPos, aimPos, player, true, dt);
     LaunchProjectile(CTransform4f::LookAt(gunPos, target), mgr, 1, CWeapon::kPA_None, false,
-                     x67c_visorParticle, x6aa_visorSfx, false, GetModelScale());
+                     mVisorParticle, mVisorSfx, false, GetModelScale());
     handled = true;
     break;
   }
   case kUE_TakeOff:
     RemoveMaterial(kMT_GroundCollider, mgr);
-    x328_25_verticalMovement = true;
-    x55c_moveScale = GetModelScale();
+    mVerticalMovement = true;
+    mMoveScale = GetModelScale();
     handled = true;
     break;
   case kUE_Landing:
-    x328_25_verticalMovement = false;
+    mVerticalMovement = false;
     AddMaterial(kMT_GroundCollider, mgr);
-    x55c_moveScale = CVector3f(1.f, 1.f, 1.f);
+    mMoveScale = CVector3f(1.f, 1.f, 1.f);
     handled = true;
     break;
   }
@@ -292,7 +292,7 @@ void CBurrower::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node,
 }
 
 bool CBurrower::PathShagged(CStateManager& mgr, float arg) {
-  switch (x568_pathFindSearch.OnPath(GetTranslation())) {
+  switch (mPathFindSearch.OnPath(GetTranslation())) {
   case CPathFindSearch::kR_InvalidArea:
     return true;
   default:
@@ -301,14 +301,14 @@ bool CBurrower::PathShagged(CStateManager& mgr, float arg) {
 }
 
 bool CBurrower::ShouldAttack(CStateManager& mgr, float arg) {
-  if (x6a4_invulnDamageTime <= 0.f) {
-    return x69c_attackTime <= 0.f && mgr.CanCreateProjectile(GetUniqueId(), kWT_AI, 1);
+  if (mInvulnDamageTime <= 0.f) {
+    return mAttackTime <= 0.f && mgr.CanCreateProjectile(GetUniqueId(), kWT_AI, 1);
   }
   return false;
 }
 
 const CDamageVulnerability* CBurrower::GetDamageVulnerability() const {
-  if (x6ac_25_inAir != true) {
+  if (mInAir != true) {
     return &skBombVulnerability;
   }
   return CAi::GetDamageVulnerability();
@@ -316,15 +316,15 @@ const CDamageVulnerability* CBurrower::GetDamageVulnerability() const {
 
 const CDamageVulnerability* CBurrower::GetDamageVulnerability(
     const CVector3f&, const CVector3f&, const CDamageInfo&) const {
-  if (x6ac_25_inAir != true) {
+  if (mInAir != true) {
     return &skBombVulnerability;
   }
   return CAi::GetDamageVulnerability();
 }
 
 void CBurrower::AddToRenderer(const CFrustumPlanes& frustum, const CStateManager& mgr) const {
-  if (GetActive() && x678_trailParticle.get()) {
-    gpRender->AddParticleGen(*x678_trailParticle);
+  if (GetActive() && mTrailParticle.get()) {
+    gpRender->AddParticleGen(*mTrailParticle);
   }
   CPatterned::AddToRenderer(frustum, mgr);
 }
@@ -332,8 +332,8 @@ void CBurrower::AddToRenderer(const CFrustumPlanes& frustum, const CStateManager
 void CBurrower::Death(CStateManager& mgr, const CVector3f& direction, EScriptObjectState state) {
   if (IsAlive()) {
     CPatterned::Death(mgr, direction, state);
-    if (x678_trailParticle.get()) {
-      x678_trailParticle->SetParticleEmission(false);
+    if (mTrailParticle.get()) {
+      mTrailParticle->SetParticleEmission(false);
     }
   }
 }
@@ -353,5 +353,5 @@ void CBurrower::TurnAround(CStateManager& mgr, EStateMsg msg, float arg) {
 
 const rstl::optional_object< TCachedToken< CGenDescription > >&
 CBurrower::GetDeathExplosionParticle() const {
-  return x6ac_25_inAir ? x68c_deathExplosionParticle : x520_deathExplosionParticle;
+  return mInAir ? mDeathExplosionParticle : CPatterned::mDeathExplosionParticle;
 }

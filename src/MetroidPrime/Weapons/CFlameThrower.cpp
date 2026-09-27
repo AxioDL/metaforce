@@ -21,24 +21,24 @@ CFlameThrower::CFlameThrower(const TToken< CWeaponDescription >& wDesc, const rs
 : CGameProjectile(false, wDesc, name, wType, xf, matType, dInfo, uid, aId, owner, kInvalidUniqueId,
                   attribs, false, CVector3f(1.f, 1.f, 1.f), rstl::optional_object_null(),
                   CSfxManager::kInternalInvalidSfxId, false)
-, x2e8_flameXf(xf)
-, x318_flameBounds(CAABox::MakeNullBox())
-, x330_particleWaitDelayTimer(0.f)
-, x334_fireStopTimer(0.f)
-, x338_flame(flameInfo.GetX10())
-, x33c_flamethrowerDesc(gpSimplePool->GetObj(SObjectTag('PART', flameInfo.GetFlameFxId())))
-, x348_flameGen(rs_new CElementGen(x33c_flamethrowerDesc))
-, x34c_flameWarp(float(flameInfo.GetLength()), xf.GetTranslation(),
+, mFlameXf(xf)
+, mFlameBounds(CAABox::MakeNullBox())
+, mParticleWaitDelayTimer(0.f)
+, mFireStopTimer(0.f)
+, mFlame(flameInfo.GetX10())
+, mFlamethrowerDesc(gpSimplePool->GetObj(SObjectTag('PART', flameInfo.GetFlameFxId())))
+, mFlameGen(rs_new CElementGen(mFlamethrowerDesc))
+, mFlameWarp(float(flameInfo.GetLength()), xf.GetTranslation(),
                  (flameInfo.GetAttributes() & 4) != 0)
-, x3f0_flameState(kFS_Default)
-, x3f4_playerSteamTextureId(playerSteamTxtr)
-, x3f8_playerHitSfx(playerHitSfx)
-, x3fc_playerIceTextureId(playerIceTxtr)
-, x400_24_active(false)
-, x400_25_particlesActive(false)
-, x400_26_zTest((flameInfo.GetAttributes() & 1) == 0)
-, x400_27_coneCollision((flameInfo.GetAttributes() & 2) != 0)
-#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+, mFlameState(kFS_Default)
+, mPlayerSteamTextureId(playerSteamTxtr)
+, mPlayerHitSfx(playerHitSfx)
+, mPlayerIceTextureId(playerIceTxtr)
+, mActive(false)
+, mParticlesActive(false)
+, mZTest((flameInfo.GetAttributes() & 1) == 0)
+, mConeCollision((flameInfo.GetAttributes() & 2) != 0)
+#if VERSION >= VERSION_GM8P_00
 , x428_28_((flameInfo.GetAttributes() & 8) != 0)
 #endif
 {
@@ -46,7 +46,7 @@ CFlameThrower::CFlameThrower(const TToken< CWeaponDescription >& wDesc, const rs
 
 rstl::optional_object< CAABox > CFlameThrower::GetTouchBounds() const {
   // Retail retains this impossible state condition.
-  if (!GetActive() || x3f0_flameState != kFS_FireActive || x3f0_flameState != kFS_FireStopTimer) {
+  if (!GetActive() || mFlameState != kFS_FireActive || mFlameState != kFS_FireStopTimer) {
     return rstl::optional_object_null();
   }
   const CVector3f translation = GetTranslation();
@@ -64,30 +64,30 @@ void CFlameThrower::Think(float dt, CStateManager& mgr) {
   if (!GetActive()) {
     return;
   }
-  const CTransform4f& xf = x2e8_flameXf;
+  const CTransform4f& xf = mFlameXf;
   UpdateFlameState(dt, mgr);
 
   const CVector3f flamePoint = xf.GetTranslation();
-  const bool firing = x3f0_flameState == kFS_FireActive || x3f0_flameState == kFS_FireStopTimer;
-  switch (x3f0_flameState) {
+  const bool firing = mFlameState == kFS_FireActive || mFlameState == kFS_FireStopTimer;
+  switch (mFlameState) {
   case kFS_FireActive:
   case kFS_FireStopTimer:
-    x34c_flameWarp.Activate(true);
-    x34c_flameWarp.SetWarpPoint(flamePoint);
-    x34c_flameWarp.SetStateManager(mgr);
-    x348_flameGen->SetTranslation(flamePoint);
-    x348_flameGen->SetOrientation(xf.GetRotation());
+    mFlameWarp.Activate(true);
+    mFlameWarp.SetWarpPoint(flamePoint);
+    mFlameWarp.SetStateManager(mgr);
+    mFlameGen->SetTranslation(flamePoint);
+    mFlameGen->SetOrientation(xf.GetRotation());
     break;
   default:
-    x34c_flameWarp.Activate(false);
+    mFlameWarp.Activate(false);
     break;
   }
-  x348_flameGen->Update(dt);
-  x34c_flameWarp.SetMaxDistSq(0.f);
-  x34c_flameWarp.SetFloatingPoint(flamePoint);
+  mFlameGen->Update(dt);
+  mFlameWarp.SetMaxDistSq(0.f);
+  mFlameWarp.SetFloatingPoint(flamePoint);
 
-  if (firing && x34c_flameWarp.IsProcessed()) {
-    const rstl::reserved_vector< CVector3f, 9 >& points = x34c_flameWarp.GetCollisionPoints();
+  if (firing && mFlameWarp.IsProcessed()) {
+    const rstl::reserved_vector< CVector3f, 9 >& points = mFlameWarp.GetCollisionPoints();
     CVector3f min = points.front();
     CVector3f max = points.front();
     for (AUTO(it, points.begin() + 1); it != points.end(); ++it) {
@@ -105,20 +105,20 @@ void CFlameThrower::Think(float dt, CStateManager& mgr) {
         max.SetZ(it->GetZ());
     }
     TUniqueId id = kInvalidUniqueId;
-    x318_flameBounds = CAABox(min, max);
-    const CRayCastResult result = DoCollisionCheck(id, x318_flameBounds, mgr);
+    mFlameBounds = CAABox(min, max);
+    const CRayCastResult result = DoCollisionCheck(id, mFlameBounds, mgr);
     if (TCastToPtr< CActor >(mgr.ObjectById(id))) {
       ApplyFlameDamageToActors(mgr, id, dt);
     } else if (result.IsValid()) {
-#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
-      const CDamageInfo scaledDamage = x12c_curDamageInfo.MakeScaledForTime(dt);
+#if VERSION >= VERSION_GM8P_00
+      const CDamageInfo scaledDamage = mCurDamageInfo.MakeScaledForTime(dt);
       if (x428_28_ && !mgr.GetPlayer()->GetFrozenState()) {
         DoRadialFreeze(result.GetPoint(), scaledDamage, mgr);
       }
       ApplyDamageToWorld(mgr, GetOwnerId(), result.GetPoint(), scaledDamage, GetFilter());
 #else
       ApplyDamageToWorld(mgr, GetOwnerId(), result.GetPoint(),
-                         x12c_curDamageInfo.MakeScaledForTime(dt), GetFilter());
+                         mCurDamageInfo.MakeScaledForTime(dt), GetFilter());
 #endif
     }
   }
@@ -128,32 +128,32 @@ void CFlameThrower::Think(float dt, CStateManager& mgr) {
   if (GetProjectileLightId() != kInvalidUniqueId) {
     if (CGameLight* light = TCastToPtr< CGameLight >(mgr.ObjectById(GetProjectileLightId()))) {
       light->SetTransform(GetTransform());
-      light->SetTranslation(x34c_flameWarp.GetFloatingPoint());
-      if (x348_flameGen.get() && x348_flameGen->SystemHasLight()) {
-        light->SetLight(x348_flameGen->GetLight());
+      light->SetTranslation(mFlameWarp.GetFloatingPoint());
+      if (mFlameGen.get() && mFlameGen->SystemHasLight()) {
+        light->SetLight(mFlameGen->GetLight());
       }
     }
   }
 }
 
 float CFlameThrower::UpdateFlameState(float dt, CStateManager& mgr) {
-  switch (x3f0_flameState) {
+  switch (mFlameState) {
   case kFS_FireStart:
-    x3f0_flameState = kFS_FireActive;
+    mFlameState = kFS_FireActive;
     break;
   case kFS_FireStopTimer:
-    x334_fireStopTimer += 4.f * dt;
-    if (x334_fireStopTimer > 1.f) {
-      x334_fireStopTimer = 1.f;
-      x3f0_flameState = kFS_FireWaitForParticlesDone;
-      x400_24_active = false;
+    mFireStopTimer += 4.f * dt;
+    if (mFireStopTimer > 1.f) {
+      mFireStopTimer = 1.f;
+      mFlameState = kFS_FireWaitForParticlesDone;
+      mActive = false;
     }
     break;
   case kFS_FireWaitForParticlesDone:
-    x330_particleWaitDelayTimer += dt;
-    if (x330_particleWaitDelayTimer > 0.1f && x348_flameGen.get() &&
-        x348_flameGen->GetParticleCountAll() == 0) {
-      x3f0_flameState = kFS_Default;
+    mParticleWaitDelayTimer += dt;
+    if (mParticleWaitDelayTimer > 0.1f && mFlameGen.get() &&
+        mFlameGen->GetParticleCountAll() == 0) {
+      mFlameState = kFS_Default;
       Reset(mgr, true);
     }
     break;
@@ -164,12 +164,12 @@ float CFlameThrower::UpdateFlameState(float dt, CStateManager& mgr) {
 }
 
 void CFlameThrower::SetTransform(const CTransform4f& xf, CStateManager&, float) {
-  x2e8_flameXf = xf;
+  mFlameXf = xf;
 }
 
 void CFlameThrower::AddToRenderer(const CFrustumPlanes&, const CStateManager& mgr) const {
-  gpRender->AddParticleGen(*x348_flameGen);
-  EnsureRendered(mgr, x2e8_flameXf.GetTranslation(), GetSortingBounds(mgr));
+  gpRender->AddParticleGen(*mFlameGen);
+  EnsureRendered(mgr, mFlameXf.GetTranslation(), GetSortingBounds(mgr));
 }
 
 void CFlameThrower::Render(const CStateManager&) const {
@@ -180,9 +180,9 @@ void CFlameThrower::Render(const CStateManager&) const {
 
 void CFlameThrower::Fire(const CTransform4f&, CStateManager& mgr, bool) {
   SetActive(true);
-  x400_25_particlesActive = true;
-  x400_24_active = true;
-  x3f0_flameState = kFS_FireStart;
+  mParticlesActive = true;
+  mActive = true;
+  mFlameState = kFS_FireStart;
   CreateFlameParticles(mgr);
 }
 
@@ -190,28 +190,28 @@ void CFlameThrower::Reset(CStateManager& mgr, bool resetWarp) {
   SetFlameLightActive(false, mgr);
   if (resetWarp) {
     SetActive(false);
-    x400_25_particlesActive = false;
-    x3f0_flameState = kFS_Default;
-    x330_particleWaitDelayTimer = 0.f;
-    x334_fireStopTimer = 0.f;
-    x318_flameBounds = CAABox::MakeNullBox();
-    x348_flameGen->SetParticleEmission(false);
-    x34c_flameWarp.ResetPosition(x2e8_flameXf.GetTranslation());
+    mParticlesActive = false;
+    mFlameState = kFS_Default;
+    mParticleWaitDelayTimer = 0.f;
+    mFireStopTimer = 0.f;
+    mFlameBounds = CAABox::MakeNullBox();
+    mFlameGen->SetParticleEmission(false);
+    mFlameWarp.ResetPosition(mFlameXf.GetTranslation());
   } else {
-    x348_flameGen->SetParticleEmission(false);
-    x400_25_particlesActive = false;
-    x3f0_flameState = kFS_FireStopTimer;
+    mFlameGen->SetParticleEmission(false);
+    mParticlesActive = false;
+    mFlameState = kFS_FireStopTimer;
   }
 }
 
 void CFlameThrower::CreateFlameParticles(CStateManager& mgr) {
   DeleteProjectileLight(mgr);
-  x348_flameGen = rs_new CElementGen(x33c_flamethrowerDesc);
-  if (x348_flameGen.get()) {
-    x348_flameGen->SetZTest(x400_26_zTest);
-    x348_flameGen->AddModifier(&x34c_flameWarp);
-    if (x348_flameGen->SystemHasLight() && x2c8_projectileLight == kInvalidUniqueId) {
-      CreateProjectileLight(rstl::string_l("FlameThrower_Light"), x348_flameGen->GetLight(), mgr);
+  mFlameGen = rs_new CElementGen(mFlamethrowerDesc);
+  if (mFlameGen.get()) {
+    mFlameGen->SetZTest(mZTest);
+    mFlameGen->AddModifier(&mFlameWarp);
+    if (mFlameGen->SystemHasLight() && mProjectileLight == kInvalidUniqueId) {
+      CreateProjectileLight(rstl::string_l("FlameThrower_Light"), mFlameGen->GetLight(), mgr);
     }
   }
 }
@@ -237,10 +237,10 @@ CRayCastResult CFlameThrower::DoCollisionCheck(TUniqueId& idOut, const CAABox& b
   CRayCastResult result = CRayCastResult::MakeInvalid();
   TEntityList nearList;
   mgr.BuildNearList(nearList, bounds, CMaterialFilter::skPassEverything, this);
-  const rstl::reserved_vector< CVector3f, 9 >& points = x34c_flameWarp.GetCollisionPoints();
-  if (x400_27_coneCollision && points.size() > 0) {
+  const rstl::reserved_vector< CVector3f, 9 >& points = mFlameWarp.GetCollisionPoints();
+  if (mConeCollision && points.size() > 0) {
     const float radiusPitch =
-        (x34c_flameWarp.GetMaxSize() - x34c_flameWarp.GetMinSize()) / float(points.size()) * 0.5f;
+        (mFlameWarp.GetMaxSize() - mFlameWarp.GetMinSize()) / float(points.size()) * 0.5f;
     float radius = radiusPitch;
     for (int i = 1; i < points.size(); ++i) {
       const CVector3f delta = points[i] - points[i - 1];
@@ -259,9 +259,9 @@ CRayCastResult CFlameThrower::DoCollisionCheck(TUniqueId& idOut, const CAABox& b
           }
           if (obb.AABoxIntersectsBox(*touchBounds)) {
             const CCollidableAABox box = CCollidableAABox(*touchBounds, actor->GetMaterialList());
-            const CVector3f delta = actor->GetAimPosition(mgr, 0.f) - x2e8_flameXf.GetTranslation();
+            const CVector3f delta = actor->GetAimPosition(mgr, 0.f) - mFlameXf.GetTranslation();
             result =
-                box.CastRay(x2e8_flameXf.GetTranslation(), delta.AsNormalized(), delta.Magnitude(),
+                box.CastRay(mFlameXf.GetTranslation(), delta.AsNormalized(), delta.Magnitude(),
                             CMaterialFilter::skPassEverything, CTransform4f::Identity());
             if (result.IsInvalid()) {
               continue;
@@ -299,23 +299,23 @@ void CFlameThrower::SetFlameLightActive(bool active, CStateManager& mgr) {
 
 void CFlameThrower::ApplyFlameDamageToActors(CStateManager& mgr, TUniqueId id, float dt) {
 
-#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+#if VERSION >= VERSION_GM8P_00
   ApplyFlameDamageToActor(id, mgr);
 #else
-  if (id == mgr.GetPlayer()->GetUniqueId() && x3f4_playerSteamTextureId != kInvalidAssetId &&
-      x3fc_playerIceTextureId != kInvalidAssetId) {
-    mgr.Player()->SetFrozenState(mgr, x3f4_playerSteamTextureId, x3f8_playerHitSfx,
-                                 x3fc_playerIceTextureId);
+  if (id == mgr.GetPlayer()->GetUniqueId() && mPlayerSteamTextureId != kInvalidAssetId &&
+      mPlayerIceTextureId != kInvalidAssetId) {
+    mgr.Player()->SetFrozenState(mgr, mPlayerSteamTextureId, mPlayerHitSfx,
+                                 mPlayerIceTextureId);
   }
 #endif
-  ApplyDamageToActors(mgr, x12c_curDamageInfo.MakeScaledForTime(dt));
+  ApplyDamageToActors(mgr, mCurDamageInfo.MakeScaledForTime(dt));
 }
-#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+#if VERSION >= VERSION_GM8P_00
 void CFlameThrower::ApplyFlameDamageToActor(TUniqueId id, CStateManager& mgr) {
-  if (id == mgr.GetPlayer()->GetUniqueId() && x3f4_playerSteamTextureId != kInvalidAssetId &&
-      x3fc_playerIceTextureId != kInvalidAssetId) {
-    mgr.Player()->SetFrozenState(mgr, x3f4_playerSteamTextureId, x3f8_playerHitSfx,
-                                 x3fc_playerIceTextureId);
+  if (id == mgr.GetPlayer()->GetUniqueId() && mPlayerSteamTextureId != kInvalidAssetId &&
+      mPlayerIceTextureId != kInvalidAssetId) {
+    mgr.Player()->SetFrozenState(mgr, mPlayerSteamTextureId, mPlayerHitSfx,
+                                 mPlayerIceTextureId);
   }
 }
 #endif
@@ -326,7 +326,7 @@ inline void CFlameThrower::ApplyDamageToWorld(CStateManager& mgr, TUniqueId id,
   mgr.ApplyDamageToWorld(id, *this, point, dInfo, filter);
 }
 
-#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+#if VERSION >= VERSION_GM8P_00
 void CFlameThrower::DoRadialFreeze(const CVector3f&, const CDamageInfo&, CStateManager& mgr) {}
 
 // Needed to force destructor generation;

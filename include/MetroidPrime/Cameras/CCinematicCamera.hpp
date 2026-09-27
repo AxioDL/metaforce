@@ -22,10 +22,10 @@ public:
   void Reset(const CTransform4f&, CStateManager& mgr) override;
 
   // CCinematicCamera
-  u32 GetFlags() const { return x21c_flags; }
+  u32 GetFlags() const { return mFlags; }
   void WasDeactivated(CStateManager& mgr);
   void SendArrivedMsg(TUniqueId reciever, CStateManager& mgr) const;
-  float GetDuration() const { return x1e8_duration; }
+  float GetDuration() const { return mDuration; }
   CVector3f GetInterpolatedSplinePoint(const rstl::vector< CVector3f >& points, int& idxOut,
                                        float t) const;
   CQuaternion GetInterpolatedOrientation(const rstl::vector< CQuaternion >& rotations,
@@ -40,21 +40,21 @@ public:
   void CalculateWaypoints(CStateManager& mgr);
 
 private:
-  rstl::vector< CVector3f > x188_viewPoints;
-  rstl::vector< CQuaternion > x198_viewOrientations;
-  rstl::vector< TUniqueId > x1a8_viewPointArrivals;
-  rstl::vector< CVector3f > x1b8_targets;
-  rstl::vector< TUniqueId > x1c8_targetArrivals;
-  rstl::vector< float > x1d8_viewHFovs;
-  float x1e8_duration;
-  float x1ec_t;
-  float x1f0_origFovy;
-  int x1f4_passedViewPoint;
-  int x1f8_passedTarget;
-  CQuaternion x1fc_origOrientation;
-  TUniqueId x20c_lookAtId;
-  CVector3f x210_moveIntoEyePos;
-  u32 x21c_flags; // 0x1: look at player
+  rstl::vector< CVector3f > mViewPoints;
+  rstl::vector< CQuaternion > mViewOrientations;
+  rstl::vector< TUniqueId > mViewPointArrivals;
+  rstl::vector< CVector3f > mTargets;
+  rstl::vector< TUniqueId > mTargetArrivals;
+  rstl::vector< float > mViewHFovs;
+  float mDuration;
+  float mT;
+  float mOrigFovy;
+  int mPassedViewPoint;
+  int mPassedTarget;
+  CQuaternion mOrigOrientation;
+  TUniqueId mLookAtId;
+  CVector3f mMoveIntoEyePos;
+  u32 mFlags; // 0x1: look at player
                   // 0x2: out of player eye
                   // 0x4: into player eye
                   // 0x10: finish cine skip
@@ -65,6 +65,6 @@ private:
                   // 0x200: disable out of into
   bool x220_24_ : 1;
 };
-CHECK_SIZEOF(CCinematicCamera, (VERSION >= VERSION_GM8P_00 ? 0x238 : 0x228))
+CHECK_SIZEOF(CCinematicCamera, (VERSION >= VERSION_GM8E_02 ? 0x238 : 0x228))
 
 #endif // _CCINEMATICCAMERA

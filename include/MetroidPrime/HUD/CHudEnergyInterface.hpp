@@ -31,21 +31,21 @@ public:
   static rstl::pair< CVector3f, CVector3f > XRayEnergyCoordFunc(float t);
 
 private:
-  EHudType x0_hudType;
-  float x4_energyLowFader;
-  float x8_flashMag;
-  float xc_tankEnergy;
-  int x10_totalEnergyTanks;
-  int x14_numTanksFilled;
-  float x18_cachedBarEnergy;
+  EHudType mHudType;
+  float mEnergyLowFader;
+  float mFlashMag;
+  float mTankEnergy;
+  int mTotalEnergyTanks;
+  int mNumTanksFilled;
+  float mCachedBarEnergy;
   bool x1c_24_ : 1;
   bool x1c_25_ : 1;
-  bool x1c_26_barDirty : 1;
-  bool x1c_27_energyLow : 1;
-  CGuiTextPane* x20_textpane_energydigits;
-  CAuiMeter* x24_meter_energytanks;
-  CGuiTextPane* x28_textpane_energywarning;
-  CAuiEnergyBarT01* x2c_energybart01_energybar;
+  bool mBarDirty : 1;
+  bool mEnergyLow : 1;
+  CGuiTextPane* mTextpane_energydigits;
+  CAuiMeter* mMeter_energytanks;
+  CGuiTextPane* mTextpane_energywarning;
+  CAuiEnergyBarT01* mEnergybart01_energybar;
 };
 CHECK_SIZEOF(CHudEnergyInterface, 0x30)
 

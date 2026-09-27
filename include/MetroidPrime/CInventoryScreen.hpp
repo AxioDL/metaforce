@@ -43,12 +43,12 @@ private:
 
   enum EState { kS_Active, kS_Leaving, kS_Inactive };
 
-  rstl::single_ptr< CSamusDoll > x19c_samusDoll;
+  rstl::single_ptr< CSamusDoll > mSamusDoll;
   float x1a0_;
-  float x1a4_textBodyAlpha;
-  EState x1a8_state;
-  bool x1ac_textLeaveRequested;
-  bool x1ad_textViewing;
+  float mTextBodyAlpha;
+  EState mState;
+  bool mTextLeaveRequested;
+  bool mTextViewing;
 };
 CHECK_SIZEOF(CInventoryScreen, 0x1b0)
 

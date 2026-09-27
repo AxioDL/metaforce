@@ -27,19 +27,19 @@ public:
 private:
   void UpdateVisibility();
 
-  CMatrix3f x0_hudLagRotation;
-  CVector3f x24_pivotPosition;
-  CVector3f x30_hudLagPosition;
-  bool x3c_24_helmetVisibleDebug : 1;
-  bool x3c_25_helmetVisibleGame : 1;
-  bool x3c_26_glowVisibleDebug : 1;
-  bool x3c_27_glowVisibleGame : 1;
-  bool x3c_28_hudLagDirty : 1;
-  CGuiCamera* x40_camera;
-  CGuiWidget* x44_BaseWidget_Pivot;
-  CGuiWidget* x48_BaseWidget_Helmet;
-  CGuiWidget* x4c_BaseWidget_Glow;
-  CGuiWidget* x50_BaseWidget_HelmetLight;
+  CMatrix3f mHudLagRotation;
+  CVector3f mPivotPosition;
+  CVector3f mHudLagPosition;
+  bool mHelmetVisibleDebug : 1;
+  bool mHelmetVisibleGame : 1;
+  bool mGlowVisibleDebug : 1;
+  bool mGlowVisibleGame : 1;
+  bool mHudLagDirty : 1;
+  CGuiCamera* mCamera;
+  CGuiWidget* mBaseWidget_Pivot;
+  CGuiWidget* mBaseWidget_Helmet;
+  CGuiWidget* mBaseWidget_Glow;
+  CGuiWidget* mBaseWidget_HelmetLight;
 };
 CHECK_SIZEOF(CHudHelmetInterface, 0x54)
 

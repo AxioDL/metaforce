@@ -122,13 +122,13 @@ CPlayer::EOrbitValidationResult CPlayer::ValidateCurrentOrbitTargetId(CStateMana
   if (eyeToOrbitFlat.CanBeNormalized()) {
     const float angle = acosf(CMath::Limit(
         CVector3f::Dot(eyeToOrbitFlat.AsNormalized(), GetTransform().GetForward()), 1.f));
-    if (x374_orbitLockEstablished) {
+    if (mOrbitLockEstablished) {
       if (angle >= gpTweakPlayer->GetOrbitHorizAngle()) {
         return kOVR_BrokenLookAngle;
       }
     } else {
       if (angle <= M_PIF / 180.f) {
-        x374_orbitLockEstablished = true;
+        mOrbitLockEstablished = true;
       }
     }
   } else {
@@ -206,10 +206,10 @@ void CPlayer::UpdateOrbitTarget(CStateManager& mgr) {
   if (!ValidateOrbitTargetIdAndPointer(GetOrbitNextTargetId(), mgr)) {
     SetOrbitNextTargetId(kInvalidUniqueId);
   }
-  CVector3f playerToPoint = x314_orbitPoint - GetTranslation();
+  CVector3f playerToPoint = mOrbitPoint - GetTranslation();
   playerToPoint.SetZ(0.f);
   const float distance = playerToPoint.Magnitude();
-  switch (x304_orbitState) {
+  switch (mOrbitState) {
   case kOS_OrbitObject: {
     const CActor* const act = static_cast< const CActor* >(mgr.GetObjectById(GetOrbitTargetId()));
     if (act && act->GetDoTargetDistanceTest() &&
@@ -220,27 +220,27 @@ void CPlayer::UpdateOrbitTarget(CStateManager& mgr) {
         ActivateOrbitSource(mgr);
       }
     } else {
-      UpdateOrbitPosition(gpTweakPlayer->GetOrbitNormalDistance(x308_orbitType), mgr);
+      UpdateOrbitPosition(gpTweakPlayer->GetOrbitNormalDistance(mOrbitType), mgr);
     }
     break;
   }
   case kOS_OrbitPoint: {
     if (gpTweakPlayer->GetOrbitFixedOffset() &&
-        CMath::AbsF(x320_orbitVector.GetZ()) > gpTweakPlayer->GetOrbitFixedOffsetZDiff()) {
+        CMath::AbsF(mOrbitVector.GetZ()) > gpTweakPlayer->GetOrbitFixedOffsetZDiff()) {
       UpdateOrbitFixedPosition();
       return;
     }
-    if (distance < CalculateOrbitZBasedDistance(x308_orbitType)) {
-      UpdateOrbitPosition(CalculateOrbitZBasedDistance(x308_orbitType), mgr);
+    if (distance < CalculateOrbitZBasedDistance(mOrbitType)) {
+      UpdateOrbitPosition(CalculateOrbitZBasedDistance(mOrbitType), mgr);
     }
-    const float maxDistance = gpTweakPlayer->GetOrbitMaxDistance(x308_orbitType);
+    const float maxDistance = gpTweakPlayer->GetOrbitMaxDistance(mOrbitType);
     if (distance > maxDistance) {
       UpdateOrbitPosition(maxDistance, mgr);
     }
-    if (x3dd_lookButtonHeld) {
-      SetOrbitPosition(gpTweakPlayer->GetOrbitNormalDistance(x308_orbitType), mgr);
+    if (mLookButtonHeld) {
+      SetOrbitPosition(gpTweakPlayer->GetOrbitNormalDistance(mOrbitType), mgr);
     }
-    const CVector3f eyeToPoint = x314_orbitPoint - GetEyePosition();
+    const CVector3f eyeToPoint = mOrbitPoint - GetEyePosition();
     const float angle = static_cast< float >(
         asin(CMath::Limit(CMath::AbsF(eyeToPoint.GetZ()) / eyeToPoint.Magnitude(), 1.f)));
     if ((eyeToPoint.GetZ() >= 0.f && angle >= gpTweakPlayer->GetOrbitUpperAngle()) ||
@@ -250,17 +250,17 @@ void CPlayer::UpdateOrbitTarget(CStateManager& mgr) {
     break;
   }
   case kOS_OrbitCarcass: {
-    if (x3dd_lookButtonHeld) {
+    if (mLookButtonHeld) {
       SetOrbitPosition(x340_, mgr);
     }
-    if (distance < CalculateOrbitZBasedDistance(x308_orbitType)) {
-      UpdateOrbitPosition(CalculateOrbitZBasedDistance(x308_orbitType), mgr);
-      x340_ = CalculateOrbitZBasedDistance(x308_orbitType);
+    if (distance < CalculateOrbitZBasedDistance(mOrbitType)) {
+      UpdateOrbitPosition(CalculateOrbitZBasedDistance(mOrbitType), mgr);
+      x340_ = CalculateOrbitZBasedDistance(mOrbitType);
     }
-    const float maxDistance = gpTweakPlayer->GetOrbitMaxDistance(x308_orbitType);
+    const float maxDistance = gpTweakPlayer->GetOrbitMaxDistance(mOrbitType);
     if (distance > maxDistance) {
       UpdateOrbitPosition(maxDistance, mgr);
-      x340_ = gpTweakPlayer->GetOrbitMaxDistance(x308_orbitType);
+      x340_ = gpTweakPlayer->GetOrbitMaxDistance(mOrbitType);
     }
     break;
   }
@@ -276,21 +276,21 @@ void CPlayer::UpdateOrbitTarget(CStateManager& mgr) {
 }
 
 void CPlayer::UpdateOrbitOrientation(CStateManager& mgr) {
-  if (x2f8_morphBallState != kMS_Unmorphed) {
+  if (mMorphBallState != kMS_Unmorphed) {
     return;
   }
-  switch (x304_orbitState) {
+  switch (mOrbitState) {
   case kOS_NoOrbit:
     return;
   case kOS_OrbitPoint:
-    if (x3dc_inFreeLook) {
+    if (mInFreeLook) {
       return;
     }
   case kOS_OrbitObject:
   case kOS_OrbitCarcass:
   case kOS_ForcedOrbitObject: {
-    CVector3f playerToPoint = x314_orbitPoint - GetTranslation();
-    if (!x374_orbitLockEstablished) {
+    CVector3f playerToPoint = mOrbitPoint - GetTranslation();
+    if (!mOrbitLockEstablished) {
       playerToPoint = mgr.GetCameraManager()->GetFirstPersonCamera()->GetTransform().GetForward();
     }
     playerToPoint.SetZ(0.f);
@@ -308,28 +308,28 @@ void CPlayer::UpdateOrbitOrientation(CStateManager& mgr) {
 }
 
 void CPlayer::UpdateOrbitSelection(const CFinalInput& input, CStateManager& mgr) {
-  x33c_orbitNextTargetId = FindOrbitTargetId(mgr);
+  mOrbitNextTargetId = FindOrbitTargetId(mgr);
   const CScriptGrapplePoint* const curPoint =
-      TCastToConstPtr< CScriptGrapplePoint >(mgr.GetObjectById(x310_orbitTargetId));
+      TCastToConstPtr< CScriptGrapplePoint >(mgr.GetObjectById(mOrbitTargetId));
   const CScriptGrapplePoint* const nextPoint =
-      TCastToConstPtr< CScriptGrapplePoint >(mgr.GetObjectById(x33c_orbitNextTargetId));
-  if (curPoint || (x304_orbitState == kOS_Grapple && !nextPoint)) {
-    x33c_orbitNextTargetId = kInvalidUniqueId;
+      TCastToConstPtr< CScriptGrapplePoint >(mgr.GetObjectById(mOrbitNextTargetId));
+  if (curPoint || (mOrbitState == kOS_Grapple && !nextPoint)) {
+    mOrbitNextTargetId = kInvalidUniqueId;
     return;
   }
   if (ControlMapper::GetPressInput(ControlMapper::kC_OrbitObject, input) &&
-      x33c_orbitNextTargetId != kInvalidUniqueId) {
-    SetOrbitTargetId(x33c_orbitNextTargetId, mgr);
+      mOrbitNextTargetId != kInvalidUniqueId) {
+    SetOrbitTargetId(mOrbitNextTargetId, mgr);
     if (ValidateAimTargetId(GetOrbitTargetId(), mgr)) {
       SetAimTargetId(GetOrbitTargetId());
     }
     SetOrbitState(kOS_OrbitObject, mgr);
-    UpdateOrbitPosition(gpTweakPlayer->GetOrbitNormalDistance(x308_orbitType), mgr);
+    UpdateOrbitPosition(gpTweakPlayer->GetOrbitNormalDistance(mOrbitType), mgr);
   }
 }
 
 void CPlayer::ActivateOrbitSource(CStateManager& mgr) {
-  switch (x390_orbitSource) {
+  switch (mOrbitSource) {
   case 0:
   default:
     OrbitCarcass(mgr);
@@ -338,7 +338,7 @@ void CPlayer::ActivateOrbitSource(CStateManager& mgr) {
     BreakOrbit(kOB_InvalidateTarget, mgr);
     break;
   case 2:
-    if (x394_orbitingEnemy) {
+    if (mOrbitingEnemy) {
       OrbitPoint(kOT_Far, mgr);
     } else {
       OrbitCarcass(mgr);
@@ -348,29 +348,29 @@ void CPlayer::ActivateOrbitSource(CStateManager& mgr) {
 }
 
 void CPlayer::UpdateOrbitInput(const CFinalInput& input, CStateManager& mgr) {
-  if (x2f8_morphBallState != kMS_Unmorphed) {
+  if (mMorphBallState != kMS_Unmorphed) {
     return;
   }
-  if (x378_orbitPreventionTimer > 0.f) {
+  if (mOrbitPreventionTimer > 0.f) {
     return;
   }
   UpdateOrbitableObjects(mgr);
-  if (x304_orbitState == kOS_NoOrbit) {
+  if (mOrbitState == kOS_NoOrbit) {
     SetOrbitNextTargetId(FindOrbitTargetId(mgr));
   }
   if (ControlMapper::GetDigitalInput(ControlMapper::kC_OrbitClose, input) ||
       ControlMapper::GetDigitalInput(ControlMapper::kC_OrbitFar, input) ||
       ControlMapper::GetDigitalInput(ControlMapper::kC_OrbitObject, input)) {
-    switch (x304_orbitState) {
+    switch (mOrbitState) {
     case kOS_NoOrbit:
       if (ControlMapper::GetPressInput(ControlMapper::kC_OrbitObject, input)) {
         SetOrbitTargetId(GetOrbitNextTargetId(), mgr);
-        if (x310_orbitTargetId != kInvalidUniqueId) {
+        if (mOrbitTargetId != kInvalidUniqueId) {
           if (ValidateAimTargetId(GetOrbitTargetId(), mgr)) {
             SetAimTargetId(GetOrbitTargetId());
           }
           SetOrbitState(kOS_OrbitObject, mgr);
-          UpdateOrbitPosition(gpTweakPlayer->GetOrbitNormalDistance(x308_orbitType), mgr);
+          UpdateOrbitPosition(gpTweakPlayer->GetOrbitNormalDistance(mOrbitType), mgr);
         }
       } else {
         if (ControlMapper::GetPressInput(ControlMapper::kC_OrbitFar, input)) {
@@ -382,21 +382,21 @@ void CPlayer::UpdateOrbitInput(const CFinalInput& input, CStateManager& mgr) {
       }
       break;
     case kOS_Grapple:
-      if (x310_orbitTargetId == kInvalidUniqueId) {
+      if (mOrbitTargetId == kInvalidUniqueId) {
         BreakGrapple(kOB_StopOrbit, mgr);
       }
       break;
     case kOS_OrbitObject:
       if (TCastToConstPtr< CScriptGrapplePoint >(mgr.GetObjectById(GetOrbitTargetId()))) {
         if (ValidateCurrentOrbitTargetId(mgr) == kOVR_OK) {
-          UpdateOrbitPosition(gpTweakPlayer->GetOrbitNormalDistance(x308_orbitType), mgr);
+          UpdateOrbitPosition(gpTweakPlayer->GetOrbitNormalDistance(mOrbitType), mgr);
         } else {
           BreakGrapple(kOB_InvalidateTarget, mgr);
         }
       } else {
         const EOrbitValidationResult result = ValidateCurrentOrbitTargetId(mgr);
         if (result == kOVR_OK) {
-          UpdateOrbitPosition(gpTweakPlayer->GetOrbitNormalDistance(x308_orbitType), mgr);
+          UpdateOrbitPosition(gpTweakPlayer->GetOrbitNormalDistance(mOrbitType), mgr);
         } else if (result == kOVR_BrokenLookAngle) {
           OrbitPoint(kOT_Far, mgr);
         } else if (result == kOVR_ExtremeHorizonAngle) {
@@ -410,62 +410,62 @@ void CPlayer::UpdateOrbitInput(const CFinalInput& input, CStateManager& mgr) {
     case kOS_OrbitPoint:
       if (ControlMapper::GetPressInput(ControlMapper::kC_OrbitObject, input)) {
         SetOrbitTargetId(FindOrbitTargetId(mgr), mgr);
-        if (x310_orbitTargetId != kInvalidUniqueId) {
+        if (mOrbitTargetId != kInvalidUniqueId) {
           if (ValidateAimTargetId(GetOrbitTargetId(), mgr)) {
             SetAimTargetId(GetOrbitTargetId());
           }
           SetOrbitState(kOS_OrbitObject, mgr);
-          UpdateOrbitPosition(gpTweakPlayer->GetOrbitNormalDistance(x308_orbitType), mgr);
+          UpdateOrbitPosition(gpTweakPlayer->GetOrbitNormalDistance(mOrbitType), mgr);
         }
       } else {
-        switch (x308_orbitType) {
+        switch (mOrbitType) {
         case kOT_Default:
           break;
         case kOT_Far:
           if (ControlMapper::GetDigitalInput(ControlMapper::kC_OrbitClose, input)) {
-            x308_orbitType = kOT_Close;
-            SetOrbitPosition(gpTweakPlayer->GetOrbitNormalDistance(x308_orbitType), mgr);
+            mOrbitType = kOT_Close;
+            SetOrbitPosition(gpTweakPlayer->GetOrbitNormalDistance(mOrbitType), mgr);
           }
           break;
         case kOT_Close:
           if (ControlMapper::GetDigitalInput(ControlMapper::kC_OrbitFar, input) &&
               !ControlMapper::GetDigitalInput(ControlMapper::kC_OrbitClose, input)) {
-            x308_orbitType = kOT_Far;
-            SetOrbitPosition(gpTweakPlayer->GetOrbitNormalDistance(x308_orbitType), mgr);
+            mOrbitType = kOT_Far;
+            SetOrbitPosition(gpTweakPlayer->GetOrbitNormalDistance(mOrbitType), mgr);
           }
           break;
         default:
           break;
         }
       }
-      UpdateOrbitPosition(gpTweakPlayer->GetOrbitNormalDistance(x308_orbitType), mgr);
+      UpdateOrbitPosition(gpTweakPlayer->GetOrbitNormalDistance(mOrbitType), mgr);
       break;
     case kOS_OrbitCarcass:
       if (ControlMapper::GetPressInput(ControlMapper::kC_OrbitObject, input)) {
         SetOrbitTargetId(FindOrbitTargetId(mgr), mgr);
-        if (x310_orbitTargetId != kInvalidUniqueId) {
+        if (mOrbitTargetId != kInvalidUniqueId) {
           if (ValidateAimTargetId(GetOrbitTargetId(), mgr)) {
             SetAimTargetId(GetOrbitTargetId());
           }
           SetOrbitState(kOS_OrbitObject, mgr);
-          UpdateOrbitPosition(gpTweakPlayer->GetOrbitNormalDistance(x308_orbitType), mgr);
+          UpdateOrbitPosition(gpTweakPlayer->GetOrbitNormalDistance(mOrbitType), mgr);
         }
       }
       UpdateOrbitSelection(input, mgr);
       break;
     case kOS_ForcedOrbitObject:
-      UpdateOrbitPosition(gpTweakPlayer->GetOrbitNormalDistance(x308_orbitType), mgr);
+      UpdateOrbitPosition(gpTweakPlayer->GetOrbitNormalDistance(mOrbitType), mgr);
       UpdateOrbitSelection(input, mgr);
       break;
     }
-    if (x304_orbitState == kOS_Grapple) {
-      x33c_orbitNextTargetId = FindOrbitTargetId(mgr);
-      if (x33c_orbitNextTargetId == x310_orbitTargetId) {
-        x33c_orbitNextTargetId = kInvalidUniqueId;
+    if (mOrbitState == kOS_Grapple) {
+      mOrbitNextTargetId = FindOrbitTargetId(mgr);
+      if (mOrbitNextTargetId == mOrbitTargetId) {
+        mOrbitNextTargetId = kInvalidUniqueId;
       }
     }
   } else {
-    switch (x304_orbitState) {
+    switch (mOrbitState) {
     case kOS_NoOrbit:
       break;
     case kOS_OrbitObject:
@@ -477,16 +477,16 @@ void CPlayer::UpdateOrbitInput(const CFinalInput& input, CStateManager& mgr) {
       break;
     case kOS_Grapple:
       if (!gpTweakPlayer->GetOrbitReleaseBreaksGrapple()) {
-        x33c_orbitNextTargetId = FindOrbitTargetId(mgr);
-        if (x33c_orbitNextTargetId == x310_orbitTargetId) {
-          x33c_orbitNextTargetId = kInvalidUniqueId;
+        mOrbitNextTargetId = FindOrbitTargetId(mgr);
+        if (mOrbitNextTargetId == mOrbitTargetId) {
+          mOrbitNextTargetId = kInvalidUniqueId;
         }
       } else {
         BreakGrapple(kOB_StopOrbit, mgr);
       }
       break;
     case kOS_ForcedOrbitObject:
-      UpdateOrbitPosition(gpTweakPlayer->GetOrbitNormalDistance(x308_orbitType), mgr);
+      UpdateOrbitPosition(gpTweakPlayer->GetOrbitNormalDistance(mOrbitType), mgr);
       UpdateOrbitSelection(input, mgr);
       break;
     default:
@@ -498,40 +498,40 @@ void CPlayer::UpdateOrbitInput(const CFinalInput& input, CStateManager& mgr) {
 
 void CPlayer::UpdateOrbitZone(CStateManager& mgr) {
   if (mgr.GetPlayerState()->GetCurrentVisor() != CPlayerState::kPV_Scan) {
-    x334_orbitType = kZT_Ellipse;
+    mOrbitZoneType = kZT_Ellipse;
     x338_ = 1;
-    x330_orbitZoneMode = kZI_Targeting;
+    mOrbitZoneMode = kZI_Targeting;
   } else {
-    x334_orbitType = kZT_Box;
+    mOrbitZoneType = kZT_Box;
     x338_ = 2;
-    x330_orbitZoneMode = kZI_Scan;
+    mOrbitZoneMode = kZI_Scan;
   }
 }
 
 void CPlayer::UpdateOrbitModeTimer(float dt) {
-  if (x304_orbitState == kOS_NoOrbit && x32c_orbitModeTimer > 0.f) {
-    x32c_orbitModeTimer -= dt;
+  if (mOrbitState == kOS_NoOrbit && mOrbitModeTimer > 0.f) {
+    mOrbitModeTimer -= dt;
     return;
   }
-  x32c_orbitModeTimer = 0.f;
+  mOrbitModeTimer = 0.f;
 }
 
 void CPlayer::UpdateOrbitPreventionTimer(float dt) {
-  if (x378_orbitPreventionTimer > 0.f) {
-    x378_orbitPreventionTimer -= dt;
+  if (mOrbitPreventionTimer > 0.f) {
+    mOrbitPreventionTimer -= dt;
   }
 }
 
 void CPlayer::AddOrbitDisableSource(CStateManager& mgr, TUniqueId id) {
-  if (x9e4_orbitDisableList.size() >= 5) {
+  if (mOrbitDisableList.size() >= 5) {
     return;
   }
-  for (AUTO(it, x9e4_orbitDisableList.begin()); it != x9e4_orbitDisableList.end(); ++it) {
+  for (AUTO(it, mOrbitDisableList.begin()); it != mOrbitDisableList.end(); ++it) {
     if (*it == id) {
       return;
     }
   }
-  x9e4_orbitDisableList.push_back(id);
+  mOrbitDisableList.push_back(id);
   SetAimTargetId(kInvalidUniqueId);
   const TUniqueId orbitTarget = GetOrbitTargetId();
   if (!TCastToConstPtr< CScriptGrapplePoint >(mgr.GetObjectById(orbitTarget))) {
@@ -540,26 +540,26 @@ void CPlayer::AddOrbitDisableSource(CStateManager& mgr, TUniqueId id) {
 }
 
 void CPlayer::RemoveOrbitDisableSource(TUniqueId id) {
-  for (AUTO(it, x9e4_orbitDisableList.begin()); it != x9e4_orbitDisableList.end(); ++it) {
+  for (AUTO(it, mOrbitDisableList.begin()); it != mOrbitDisableList.end(); ++it) {
     if (*it == id) {
-      x9e4_orbitDisableList.erase(it);
+      mOrbitDisableList.erase(it);
       return;
     }
   }
 }
 
-bool CPlayer::CheckOrbitDisableSourceList() const { return !x9e4_orbitDisableList.empty(); }
+bool CPlayer::CheckOrbitDisableSourceList() const { return !mOrbitDisableList.empty(); }
 
 bool CPlayer::CheckOrbitDisableSourceList(const CStateManager& mgr) {
-  for (AUTO(it, x9e4_orbitDisableList.begin()); it != x9e4_orbitDisableList.end();) {
+  for (AUTO(it, mOrbitDisableList.begin()); it != mOrbitDisableList.end();) {
     if (!mgr.GetObjectById(*it)) {
-      x9e4_orbitDisableList.erase(it);
-      it = x9e4_orbitDisableList.begin();
+      mOrbitDisableList.erase(it);
+      it = mOrbitDisableList.begin();
     } else {
       ++it;
     }
   }
-  return !x9e4_orbitDisableList.empty();
+  return !mOrbitDisableList.empty();
 }
 
 bool CPlayer::WithinOrbitScreenEllipse(const CVector3f& screenCoords, EPlayerZoneInfo zone) const {
@@ -677,9 +677,9 @@ TUniqueId CPlayer::FindBestOrbitableObject(const rstl::vector< TUniqueId >& ids,
       const float distance = eyeToOrbit.Magnitude();
       const CVector3f screenPosition = fpCamera->ConvertToScreenSpace(orbitPosition);
       if (screenPosition.GetZ() >= 0.f) {
-        if (*it != x310_orbitTargetId) {
+        if (*it != mOrbitTargetId) {
           const CScriptGrapplePoint* const point = TCastToConstPtr< CScriptGrapplePoint >(act);
-          if (point && point->GetUniqueId() != x310_orbitTargetId) {
+          if (point && point->GetUniqueId() != mOrbitTargetId) {
             if (mgr.GetPlayerState()->HasPowerUp(CPlayerState::kIT_GrappleBeam) &&
                 distance < minDistance && distance < gpTweakPlayer->GetOrbitDistanceMax()) {
               TUniqueId intersectId = kInvalidUniqueId;
@@ -789,15 +789,15 @@ TUniqueId CPlayer::FindBestOrbitableObject(const rstl::vector< TUniqueId >& ids,
 }
 
 void CPlayer::UpdateOrbitableObjects(CStateManager& mgr) {
-  x354_onScreenOrbitObjects.clear();
-  x344_nearbyOrbitObjects.clear();
-  x364_offScreenOrbitObjects.clear();
+  mOnScreenOrbitObjects.clear();
+  mNearbyOrbitObjects.clear();
+  mOffScreenOrbitObjects.clear();
   if (CheckOrbitDisableSourceList(mgr)) {
     return;
   }
   const CTransform4f& cameraXf = GetFirstPersonCameraTransform(mgr);
   float distance = GetOrbitMaxTargetDistance(mgr);
-  if (x9c6_24_extendTargetDistance) {
+  if (mExtendTargetDistance) {
     distance *= 5.f;
   }
   const CAABox nearBounds = BuildNearListBox(true, cameraXf, gpTweakPlayer->GetOrbitNearX(),
@@ -809,16 +809,16 @@ void CPlayer::UpdateOrbitableObjects(CStateManager& mgr) {
   }
   TEntityList nearList;
   mgr.BuildNearList(nearList, nearBounds, filter, nullptr);
-  FindOrbitableObjects(nearList, x344_nearbyOrbitObjects, x330_orbitZoneMode, kZT_Always, mgr,
+  FindOrbitableObjects(nearList, mNearbyOrbitObjects, mOrbitZoneMode, kZT_Always, mgr,
                        true);
-  FindOrbitableObjects(nearList, x354_onScreenOrbitObjects, x330_orbitZoneMode, x334_orbitType, mgr,
+  FindOrbitableObjects(nearList, mOnScreenOrbitObjects, mOrbitZoneMode, mOrbitZoneType, mgr,
                        true);
-  FindOrbitableObjects(nearList, x364_offScreenOrbitObjects, x330_orbitZoneMode, x334_orbitType,
+  FindOrbitableObjects(nearList, mOffScreenOrbitObjects, mOrbitZoneMode, mOrbitZoneType,
                        mgr, false);
 }
 
 TUniqueId CPlayer::FindOrbitTargetId(CStateManager& mgr) {
-  return FindBestOrbitableObject(x354_onScreenOrbitObjects, x330_orbitZoneMode, mgr);
+  return FindBestOrbitableObject(mOnScreenOrbitObjects, mOrbitZoneMode, mgr);
 }
 
 TUniqueId CPlayer::CheckEnemiesAgainstOrbitZone(const rstl::reserved_vector< TUniqueId, 1024 >& ids,
@@ -902,7 +902,7 @@ TUniqueId CPlayer::CheckEnemiesAgainstOrbitZone(const rstl::reserved_vector< TUn
 TUniqueId CPlayer::FindAimTargetId(CStateManager& mgr) {
   const CTransform4f& cameraXf = GetFirstPersonCameraTransform(mgr);
   float distance = gpTweakPlayer->GetAimMaxDistance();
-  if (x9c6_24_extendTargetDistance) {
+  if (mExtendTargetDistance) {
     distance *= 5.f;
   }
   const CAABox bounds = BuildNearListBox(true, cameraXf, gpTweakPlayer->GetAimBoxWidth(),
@@ -962,18 +962,18 @@ bool CPlayer::ValidateObjectForMode(const TUniqueId id, CStateManager& mgr) cons
 
 bool CPlayer::ValidateAimTargetId(const TUniqueId id, CStateManager& mgr) {
   if (id == kInvalidUniqueId) {
-    x404_aimTargetAverage.clear();
-    x48c_aimTargetTimer = 0.f;
+    mAimTargetAverage.clear();
+    mAimTargetTimer = 0.f;
     return false;
   }
   const CActor* act = TCastToConstPtr< CActor >(mgr.GetObjectById(id));
   if (!act || !act->GetMaterialList().HasMaterial(kMT_Target) || !act->GetTargetable()) {
     return false;
   }
-  if (x304_orbitState == kOS_OrbitObject || x304_orbitState == kOS_ForcedOrbitObject) {
+  if (mOrbitState == kOS_OrbitObject || mOrbitState == kOS_ForcedOrbitObject) {
     if (ValidateOrbitTargetId(GetOrbitTargetId(), mgr) != kOVR_OK) {
       SetAimTargetId(kInvalidUniqueId);
-      x48c_aimTargetTimer = 0.f;
+      mAimTargetTimer = 0.f;
       return false;
     }
     return true;
@@ -990,9 +990,9 @@ bool CPlayer::ValidateAimTargetId(const TUniqueId id, CStateManager& mgr) {
                        CCast::LtoF(CGraphics::GetViewportWidth()) / 2.f);
     positionInBox.SetY(positionInBox.GetY() * CCast::LtoF(CGraphics::GetViewportHeight()) / 2.f +
                        CCast::LtoF(CGraphics::GetViewportHeight()) / 2.f);
-    if (WithinOrbitScreenBox(positionInBox, x330_orbitZoneMode, x334_orbitType) ||
-        (x330_orbitZoneMode != kZI_Targeting &&
-         WithinOrbitScreenBox(positionInBox, kZI_Targeting, x334_orbitType))) {
+    if (WithinOrbitScreenBox(positionInBox, mOrbitZoneMode, mOrbitZoneType) ||
+        (mOrbitZoneMode != kZI_Targeting &&
+         WithinOrbitScreenBox(positionInBox, kZI_Targeting, mOrbitZoneType))) {
       const float distance = eyeToAim.Magnitude();
       if (distance <= gpTweakPlayer->GetAimMaxDistance()) {
         TEntityList nearList;
@@ -1002,17 +1002,17 @@ bool CPlayer::ValidateAimTargetId(const TUniqueId id, CStateManager& mgr) {
         const CRayCastResult result = mgr.RayWorldIntersection(
             intersectId, eyePosition, eyeToAim.Normalize(), distance, kLineOfSightFilter, nearList);
         if (result.IsInvalid()) {
-          x48c_aimTargetTimer = gpTweakPlayer->GetAimTargetTimer();
+          mAimTargetTimer = gpTweakPlayer->GetAimTargetTimer();
           return true;
         }
       }
     }
-    if (x48c_aimTargetTimer > 0.f) {
+    if (mAimTargetTimer > 0.f) {
       return true;
     }
   }
   SetAimTargetId(kInvalidUniqueId);
-  x48c_aimTargetTimer = 0.f;
+  mAimTargetTimer = 0.f;
   return false;
 }
 
@@ -1020,8 +1020,8 @@ void CPlayer::UpdateAimTargetTimer(float dt) {
   if (GetAimTargetId() == kInvalidUniqueId) {
     return;
   }
-  if (x48c_aimTargetTimer > 0.f) {
-    x48c_aimTargetTimer -= dt;
+  if (mAimTargetTimer > 0.f) {
+    mAimTargetTimer -= dt;
   }
 }
 
@@ -1031,13 +1031,13 @@ void CPlayer::UpdateAimTarget(CStateManager& mgr) {
   }
   if (!GetCombatMode()) {
     SetAimTargetId(kInvalidUniqueId);
-    x48c_aimTargetTimer = 0.f;
+    mAimTargetTimer = 0.f;
     return;
   }
   if (!gkAutoAim && gkAutoAimAtOrbitedObject) {
     SetAimTargetId(kInvalidUniqueId);
-    x48c_aimTargetTimer = 0.f;
-    if (x304_orbitState == kOS_OrbitObject || x304_orbitState == kOS_ForcedOrbitObject) {
+    mAimTargetTimer = 0.f;
+    if (mOrbitState == kOS_OrbitObject || mOrbitState == kOS_ForcedOrbitObject) {
       if (ValidateOrbitTargetId(GetOrbitTargetId(), mgr) == kOVR_OK) {
         SetAimTargetId(GetOrbitTargetId());
       }
@@ -1050,7 +1050,7 @@ void CPlayer::UpdateAimTarget(CStateManager& mgr) {
     act = nullptr;
   }
   if (gpTweakPlayer->GetAimWhenOrbitingPoint()) {
-    switch (x304_orbitState) {
+    switch (mOrbitState) {
     case kOS_OrbitObject:
     case kOS_ForcedOrbitObject:
       if (ValidateOrbitTargetId(GetOrbitTargetId(), mgr) == kOVR_OK) {
@@ -1063,7 +1063,7 @@ void CPlayer::UpdateAimTarget(CStateManager& mgr) {
       needsReset = true;
       break;
     }
-  } else if (x304_orbitState == kOS_NoOrbit) {
+  } else if (mOrbitState == kOS_NoOrbit) {
     needsReset = true;
   }
   if (needsReset && !ValidateAimTargetId(GetAimTargetId(), mgr)) {
@@ -1077,7 +1077,7 @@ void CPlayer::UpdateAimTarget(CStateManager& mgr) {
 
 void CPlayer::SetOrbitPosition(float distance, CStateManager& mgr) {
   CTransform4f cameraXf = GetFirstPersonCameraTransform(mgr);
-  if (x304_orbitState == kOS_OrbitPoint && x30c_orbitBrokenType == kOB_BadVerticalAngle) {
+  if (mOrbitState == kOS_OrbitPoint && mOrbitBrokenType == kOB_BadVerticalAngle) {
     cameraXf = GetTransform();
   }
   CVector3f flatForward = cameraXf.GetForward();
@@ -1085,21 +1085,21 @@ void CPlayer::SetOrbitPosition(float distance, CStateManager& mgr) {
   float dot = CVector3f::Dot(flatForward.AsNormalized(), cameraXf.GetForward());
   dot = CMath::Limit(dot, 1.f);
   const CVector3f orbitVector(0.f, distance / dot, 0.f);
-  x314_orbitPoint = cameraXf.GetTranslation() + cameraXf.Rotate(orbitVector);
-  x320_orbitVector =
-      CVector3f(0.f, distance, x314_orbitPoint.GetZ() - cameraXf.GetTranslation().GetZ());
+  mOrbitPoint = cameraXf.GetTranslation() + cameraXf.Rotate(orbitVector);
+  mOrbitVector =
+      CVector3f(0.f, distance, mOrbitPoint.GetZ() - cameraXf.GetTranslation().GetZ());
 }
 
 void CPlayer::UpdateOrbitFixedPosition() {
   const CVector3f eyePosition = GetEyePosition();
-  x314_orbitPoint = eyePosition + GetTransform().Rotate(x320_orbitVector);
+  mOrbitPoint = eyePosition + GetTransform().Rotate(mOrbitVector);
 }
 
 void CPlayer::UpdateOrbitZPosition() {
-  switch (x304_orbitState) {
+  switch (mOrbitState) {
   case kOS_OrbitPoint:
-    if (CMath::AbsF(x320_orbitVector.GetZ()) < gpTweakPlayer->GetOrbitZRange()) {
-      x314_orbitPoint.SetZ(x320_orbitVector[kDZ] + (GetTranslation().GetZ() + GetEyeHeight()));
+    if (CMath::AbsF(mOrbitVector.GetZ()) < gpTweakPlayer->GetOrbitZRange()) {
+      mOrbitPoint.SetZ(mOrbitVector[kDZ] + (GetTranslation().GetZ() + GetEyeHeight()));
     }
     break;
   default:
@@ -1108,7 +1108,7 @@ void CPlayer::UpdateOrbitZPosition() {
 }
 
 void CPlayer::UpdateOrbitPosition(float distance, CStateManager& mgr) {
-  switch (x304_orbitState) {
+  switch (mOrbitState) {
   case kOS_NoOrbit:
     break;
   case kOS_OrbitPoint:
@@ -1119,8 +1119,8 @@ void CPlayer::UpdateOrbitPosition(float distance, CStateManager& mgr) {
   case kOS_Grapple:
   case kOS_OrbitObject:
     if (const CActor* act = TCastToConstPtr< CActor >(mgr.GetObjectById(GetOrbitTargetId()))) {
-      if (x310_orbitTargetId != kInvalidUniqueId) {
-        x314_orbitPoint = act->GetOrbitPosition(mgr);
+      if (mOrbitTargetId != kInvalidUniqueId) {
+        mOrbitPoint = act->GetOrbitPosition(mgr);
       }
     }
     break;
@@ -1136,27 +1136,27 @@ void CPlayer::SetOrbitTargetId(TUniqueId id, CStateManager& mgr) {
     const CThardusRockProjectile* rock = PATTERNED_CAST_TO(CThardusRockProjectile, const_cast< CEntity* >(mgr.GetObjectById(id)));
     const CScriptGunTurret* turret = TCastToConstPtr< CScriptGunTurret >(mgr.GetObjectById(id));
     if (patterned || swarm || rock || turret) {
-      x394_orbitingEnemy = true;
+      mOrbitingEnemy = true;
     } else {
-      x394_orbitingEnemy = false;
+      mOrbitingEnemy = false;
     }
   }
-  x310_orbitTargetId = id;
-  if (x310_orbitTargetId == kInvalidUniqueId) {
-    x374_orbitLockEstablished = false;
+  mOrbitTargetId = id;
+  if (mOrbitTargetId == kInvalidUniqueId) {
+    mOrbitLockEstablished = false;
   }
 }
 
 void CPlayer::SetOrbitState(EPlayerOrbitState state, CStateManager& mgr) {
-  x304_orbitState = state;
+  mOrbitState = state;
   CFirstPersonCamera* camera = mgr.CameraManager()->FirstPersonCamera();
-  switch (x304_orbitState) {
+  switch (mOrbitState) {
   case kOS_OrbitObject:
     camera->SetLockCamera(false);
     break;
   case kOS_OrbitCarcass: {
     camera->SetLockCamera(true);
-    CVector3f playerToPoint = x314_orbitPoint - GetTranslation();
+    CVector3f playerToPoint = mOrbitPoint - GetTranslation();
     playerToPoint.SetZ(0.f);
     if (playerToPoint.CanBeNormalized()) {
       x340_ = playerToPoint.Magnitude();
@@ -1168,8 +1168,8 @@ void CPlayer::SetOrbitState(EPlayerOrbitState state, CStateManager& mgr) {
     break;
   }
   case kOS_NoOrbit:
-    x32c_orbitModeTimer = gpTweakPlayer->GetOrbitModeTimer();
-    x32c_orbitModeTimer = 0.28f;
+    mOrbitModeTimer = gpTweakPlayer->GetOrbitModeTimer();
+    mOrbitModeTimer = 0.28f;
     SetOrbitTargetId(kInvalidUniqueId, mgr);
     SetOrbitNextTargetId(kInvalidUniqueId);
     break;
@@ -1183,62 +1183,62 @@ void CPlayer::SetOrbitState(EPlayerOrbitState state, CStateManager& mgr) {
 }
 
 CVector3f CPlayer::GetHUDOrbitTargetPosition() const {
-  return x314_orbitPoint + x76c_cameraBob->GetCameraBobTransformation().GetTranslation();
+  return mOrbitPoint + mCameraBob->GetCameraBobTransformation().GetTranslation();
 }
 
 float CPlayer::CalculateOrbitZBasedDistance(EPlayerOrbitType type) {
   static const float maxScale = 4.f;
   float distance = gpTweakPlayer->GetOrbitMinDistance(type);
   distance *= CMath::Clamp(
-      1.f, CMath::AbsF(x314_orbitPoint.GetZ() - GetTranslation().GetZ()) / 20.f, maxScale);
+      1.f, CMath::AbsF(mOrbitPoint.GetZ() - GetTranslation().GetZ()) / 20.f, maxScale);
   return distance;
 }
 
 void CPlayer::OrbitPoint(EPlayerOrbitType type, CStateManager& mgr) {
-  x308_orbitType = type;
+  mOrbitType = type;
   SetOrbitState(kOS_OrbitPoint, mgr);
-  SetOrbitPosition(gpTweakPlayer->GetOrbitNormalDistance(x308_orbitType), mgr);
+  SetOrbitPosition(gpTweakPlayer->GetOrbitNormalDistance(mOrbitType), mgr);
 }
 
 void CPlayer::OrbitCarcass(CStateManager& mgr) {
-  if (x304_orbitState == kOS_OrbitObject) {
-    x308_orbitType = kOT_Default;
+  if (mOrbitState == kOS_OrbitObject) {
+    mOrbitType = kOT_Default;
     SetOrbitState(kOS_OrbitCarcass, mgr);
   }
 }
 
 void CPlayer::PreventFallingCameraPitch() {
-  x294_jumpCameraTimer = 0.f;
-  x29c_fallCameraTimer = 0.01f;
-  x2a4_cancelCameraPitch = true;
+  mJumpCameraTimer = 0.f;
+  mFallCameraTimer = 0.01f;
+  mCancelCameraPitch = true;
 }
 
 bool CPlayer::CheckPostGrapple() const {
-  if (x258_movementState != NPlayer::kMS_OnGround &&
-      (x3d8_grappleJumpTimeout > 0.f || x294_jumpCameraTimer == 0.f)) {
+  if (mMovementState != NPlayer::kMS_OnGround &&
+      (mGrappleJumpTimeout > 0.f || mJumpCameraTimer == 0.f)) {
     return true;
   }
   return false;
 }
 
 void CPlayer::TryToBreakOrbit(TUniqueId id, EOrbitBrokenType type, CStateManager& mgr) {
-  if (x304_orbitState == kOS_OrbitObject || x304_orbitState == kOS_Grapple ||
-      x304_orbitState == kOS_ForcedOrbitObject) {
-    if (id == x310_orbitTargetId) {
+  if (mOrbitState == kOS_OrbitObject || mOrbitState == kOS_Grapple ||
+      mOrbitState == kOS_ForcedOrbitObject) {
+    if (id == mOrbitTargetId) {
       BreakOrbit(type, mgr);
     }
   }
 }
 
 void CPlayer::BreakOrbit(EOrbitBrokenType type, CStateManager& mgr) {
-  x30c_orbitBrokenType = type;
+  mOrbitBrokenType = type;
   switch (type) {
   case kOB_ActivateOrbitSource:
     ActivateOrbitSource(mgr);
     break;
   case kOB_BadVerticalAngle:
     SetOrbitState(kOS_OrbitPoint, mgr);
-    x314_orbitPoint = GetTranslation() + gpTweakPlayer->GetOrbitNormalDistance(x308_orbitType) *
+    mOrbitPoint = GetTranslation() + gpTweakPlayer->GetOrbitNormalDistance(mOrbitType) *
                                              GetTransform().GetForward();
     break;
   default:
@@ -1248,18 +1248,18 @@ void CPlayer::BreakOrbit(EOrbitBrokenType type, CStateManager& mgr) {
 }
 
 void CPlayer::BreakGrapple(EOrbitBrokenType type, CStateManager& mgr) {
-  x294_jumpCameraTimer = 0.f;
-  x29c_fallCameraTimer = 0.f;
+  mJumpCameraTimer = 0.f;
+  mFallCameraTimer = 0.f;
   if (static_cast< int >(gpTweakPlayer->GetGrappleJumpMode()) == 2 &&
-      x3b8_grappleState == kGS_Swinging) {
+      mGrappleState == kGS_Swinging) {
     ApplyGrappleJump(mgr);
     PreventFallingCameraPitch();
   }
   BreakOrbit(type, mgr);
-  x3b8_grappleState = kGS_None;
+  mGrappleState = kGS_None;
   AddMaterial(kMT_GroundCollider, mgr);
-  x490_gun->GrappleArm().SetAnimState(CGrappleArm::kAS_OutOfGrapple);
-  if (!CheckPostGrapple() && x3b8_grappleState != kGS_JumpOff) {
+  mGun->GrappleArm().SetAnimState(CGrappleArm::kAS_OutOfGrapple);
+  if (!CheckPostGrapple() && mGrappleState != kGS_JumpOff) {
     DrawGun(mgr);
   }
 }
@@ -1267,12 +1267,12 @@ void CPlayer::BreakGrapple(EOrbitBrokenType type, CStateManager& mgr) {
 void CPlayer::BeginGrapple(CVector3f& direction, CStateManager& mgr) {
   direction.SetZ(0.f);
   if (direction.CanBeNormalized()) {
-    x3c0_grappleSwingAxis.SetX(direction.GetY());
-    x3c0_grappleSwingAxis.SetY(-direction.GetX());
-    x3c0_grappleSwingAxis.Normalize();
-    x3bc_grappleSwingTimer = 0.f;
+    mGrappleSwingAxis.SetX(direction.GetY());
+    mGrappleSwingAxis.SetY(-direction.GetX());
+    mGrappleSwingAxis.Normalize();
+    mGrappleSwingTimer = 0.f;
     SetOrbitState(kOS_Grapple, mgr);
-    x3b8_grappleState = kGS_Pull;
+    mGrappleState = kGS_Pull;
     RemoveMaterial(kMT_GroundCollider, mgr);
   }
 }
@@ -1283,8 +1283,8 @@ void CPlayer::ApplyGrappleJump(CStateManager& mgr) {
   if (!point) {
     return;
   }
-  CVector3f swingAxis = x3c0_grappleSwingAxis;
-  if (x3bc_grappleSwingTimer < 0.5f * gpTweakPlayer->GetGrappleSwingPeriod()) {
+  CVector3f swingAxis = mGrappleSwingAxis;
+  if (mGrappleSwingTimer < 0.5f * gpTweakPlayer->GetGrappleSwingPeriod()) {
     swingAxis *= -1.f;
   }
   const CVector3f pointToPlayer = GetTranslation() - point->GetTranslation();
@@ -1304,13 +1304,13 @@ void CPlayer::ApplyGrappleJump(CStateManager& mgr) {
 
 void CPlayer::UpdateGrappleState(const CFinalInput& input, CStateManager& mgr) {
   if (!mgr.GetPlayerState()->HasPowerUp(CPlayerState::kIT_GrappleBeam) ||
-      x2f8_morphBallState == kMS_Morphed ||
+      mMorphBallState == kMS_Morphed ||
       mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::kPV_Scan ||
       mgr.GetPlayerState()->GetTransitioningVisor() == CPlayerState::kPV_Scan) {
     return;
   }
   if (GetOrbitTargetId() == kInvalidUniqueId) {
-    x3b8_grappleState = kGS_None;
+    mGrappleState = kGS_None;
     AddMaterial(kMT_GroundCollider, mgr);
     return;
   }
@@ -1323,30 +1323,30 @@ void CPlayer::UpdateGrappleState(const CFinalInput& input, CStateManager& mgr) {
     playerToPointFlat.SetZ(0.f);
     if (playerToPoint.CanBeNormalized() && playerToPointFlat.CanBeNormalized() &&
         playerToPointFlat.Magnitude() > 2.f) {
-      switch (x304_orbitState) {
+      switch (mOrbitState) {
       case kOS_Grapple:
         switch (static_cast< int >(gpTweakPlayer->GetGrappleJumpMode())) {
         case 0:
         case 1:
           if (ControlMapper::GetPressInput(ControlMapper::kC_FireOrBomb, input)) {
             if (const CScriptGrapplePoint* nextPoint = TCastToConstPtr< CScriptGrapplePoint >(
-                    mgr.GetObjectById(x33c_orbitNextTargetId))) {
+                    mgr.GetObjectById(mOrbitNextTargetId))) {
               playerToPoint = nextPoint->GetTranslation() - eyePosition;
               playerToPoint.SetZ(0.f);
               if (playerToPoint.CanBeNormalized()) {
-                x490_gun->GrappleArm().GrappleBeamDisconnected();
-                x3c0_grappleSwingAxis.SetX(playerToPoint.GetY());
-                x3c0_grappleSwingAxis.SetY(-playerToPoint.GetX());
-                x3c0_grappleSwingAxis.Normalize();
-                x3bc_grappleSwingTimer = 0.f;
-                SetOrbitTargetId(x33c_orbitNextTargetId, mgr);
-                x3b8_grappleState = kGS_Pull;
+                mGun->GrappleArm().GrappleBeamDisconnected();
+                mGrappleSwingAxis.SetX(playerToPoint.GetY());
+                mGrappleSwingAxis.SetY(-playerToPoint.GetX());
+                mGrappleSwingAxis.Normalize();
+                mGrappleSwingTimer = 0.f;
+                SetOrbitTargetId(mOrbitNextTargetId, mgr);
+                mGrappleState = kGS_Pull;
                 SetOrbitNextTargetId(kInvalidUniqueId);
-                x490_gun->GrappleArm().GrappleBeamConnected();
+                mGun->GrappleArm().GrappleBeamConnected();
               }
             } else {
               if (static_cast< int >(gpTweakPlayer->GetGrappleJumpMode()) == 0 &&
-                  x3d8_grappleJumpTimeout <= 0.f) {
+                  mGrappleJumpTimeout <= 0.f) {
                 ApplyGrappleJump(mgr);
               }
               BreakGrapple(kOB_StopOrbit, mgr);
@@ -1366,15 +1366,15 @@ void CPlayer::UpdateGrappleState(const CFinalInput& input, CStateManager& mgr) {
                                         playerToPoint.Magnitude(), kLineOfSightFilter);
           if (result.IsInvalid()) {
             HolsterGun(mgr);
-            switch (x3b8_grappleState) {
+            switch (mGrappleState) {
             case kGS_Firing:
             case kGS_Swinging:
               switch (static_cast< int >(gpTweakPlayer->GetGrappleJumpMode())) {
               case 0:
-                switch (x490_gun->GrappleArm().GetAnimState()) {
+                switch (mGun->GrappleArm().GetAnimState()) {
                 case CGrappleArm::kAS_IntoGrappleIdle:
                   if (ControlMapper::GetDigitalInput(ControlMapper::kC_FireOrBomb, input)) {
-                    x490_gun->GrappleArm().SetAnimState(CGrappleArm::kAS_FireGrapple);
+                    mGun->GrappleArm().SetAnimState(CGrappleArm::kAS_FireGrapple);
                   }
                   break;
                 case CGrappleArm::kAS_Connected:
@@ -1386,9 +1386,9 @@ void CPlayer::UpdateGrappleState(const CFinalInput& input, CStateManager& mgr) {
                 break;
               case 1:
                 if (ControlMapper::GetDigitalInput(ControlMapper::kC_FireOrBomb, input)) {
-                  switch (x490_gun->GrappleArm().GetAnimState()) {
+                  switch (mGun->GrappleArm().GetAnimState()) {
                   case CGrappleArm::kAS_IntoGrappleIdle:
-                    x490_gun->GrappleArm().SetAnimState(CGrappleArm::kAS_FireGrapple);
+                    mGun->GrappleArm().SetAnimState(CGrappleArm::kAS_FireGrapple);
                     break;
                   case CGrappleArm::kAS_Connected:
                     BeginGrapple(playerToPoint, mgr);
@@ -1399,9 +1399,9 @@ void CPlayer::UpdateGrappleState(const CFinalInput& input, CStateManager& mgr) {
                 }
                 break;
               case 2:
-                switch (x490_gun->GrappleArm().GetAnimState()) {
+                switch (mGun->GrappleArm().GetAnimState()) {
                 case CGrappleArm::kAS_IntoGrappleIdle:
-                  x490_gun->GrappleArm().SetAnimState(CGrappleArm::kAS_FireGrapple);
+                  mGun->GrappleArm().SetAnimState(CGrappleArm::kAS_FireGrapple);
                   break;
                 case CGrappleArm::kAS_Connected:
                   BeginGrapple(playerToPoint, mgr);
@@ -1415,8 +1415,8 @@ void CPlayer::UpdateGrappleState(const CFinalInput& input, CStateManager& mgr) {
               }
               break;
             case kGS_None:
-              x3b8_grappleState = kGS_Firing;
-              x490_gun->GrappleArm().Activate(true);
+              mGrappleState = kGS_Firing;
+              mGun->GrappleArm().Activate(true);
               break;
             default:
               break;
@@ -1430,7 +1430,7 @@ void CPlayer::UpdateGrappleState(const CFinalInput& input, CStateManager& mgr) {
     }
   }
   const int jumpMode = static_cast< int >(gpTweakPlayer->GetGrappleJumpMode());
-  switch (x304_orbitState) {
+  switch (mOrbitState) {
   case kOS_Grapple: {
     if (!point) {
       BreakGrapple(kOB_Default, mgr);
@@ -1439,10 +1439,10 @@ void CPlayer::UpdateGrappleState(const CFinalInput& input, CStateManager& mgr) {
     switch (jumpMode) {
     case 0:
     case 2:
-      switch (x3b8_grappleState) {
+      switch (mGrappleState) {
       case kGS_JumpOff:
-        x3d8_grappleJumpTimeout -= input.Time();
-        if (x3d8_grappleJumpTimeout <= 0.f) {
+        mGrappleJumpTimeout -= input.Time();
+        if (mGrappleJumpTimeout <= 0.f) {
           BreakGrapple(kOB_StopOrbit, mgr);
           SetMoveState(NPlayer::kMS_ApplyJump, mgr);
           ComputeMovement(input, mgr, input.Time());
@@ -1454,18 +1454,18 @@ void CPlayer::UpdateGrappleState(const CFinalInput& input, CStateManager& mgr) {
       }
       break;
     case 1:
-      switch (x3b8_grappleState) {
+      switch (mGrappleState) {
       case kGS_Swinging:
         if (!ControlMapper::GetDigitalInput(ControlMapper::kC_FireOrBomb, input) &&
-            x3d8_grappleJumpTimeout <= 0.f) {
-          x3d8_grappleJumpTimeout = gpTweakPlayer->GetGrappleReleaseTime();
-          x3b8_grappleState = kGS_JumpOff;
+            mGrappleJumpTimeout <= 0.f) {
+          mGrappleJumpTimeout = gpTweakPlayer->GetGrappleReleaseTime();
+          mGrappleState = kGS_JumpOff;
           ApplyGrappleJump(mgr);
         }
         break;
       case kGS_JumpOff:
-        x3d8_grappleJumpTimeout -= input.Time();
-        if (x3d8_grappleJumpTimeout <= 0.f) {
+        mGrappleJumpTimeout -= input.Time();
+        if (mGrappleJumpTimeout <= 0.f) {
           SetMoveState(NPlayer::kMS_ApplyJump, mgr);
           ComputeMovement(input, mgr, input.Time());
           BreakGrapple(kOB_StopOrbit, mgr);
@@ -1497,7 +1497,7 @@ void CPlayer::UpdateGrappleState(const CFinalInput& input, CStateManager& mgr) {
     break;
   }
   case kOS_OrbitObject:
-    if (x490_gun->GrappleArm().BeamActive() && jumpMode == 1 &&
+    if (mGun->GrappleArm().BeamActive() && jumpMode == 1 &&
         !ControlMapper::GetDigitalInput(ControlMapper::kC_FireOrBomb, input)) {
       BreakGrapple(kOB_StopOrbit, mgr);
     }
@@ -1512,8 +1512,8 @@ bool CPlayer::ValidateFPPosition(CVector3f position, CStateManager& mgr) {
   const CMaterialFilter solidFilter = CMaterialFilter::MakeInclude(CMaterialList(kMT_Solid));
   const CVector3f margin(1.f, 1.f, 1.f);
   mgr.BuildColliderList(nearList, *this,
-                        CAABox(x2d8_fpBounds.GetMinPoint() - margin + position,
-                               x2d8_fpBounds.GetMaxPoint() + margin + position));
+                        CAABox(mFpBounds.GetMinPoint() - margin + position,
+                               mFpBounds.GetMaxPoint() + margin + position));
   const CAABox& baseBounds = GetBaseBoundingBox();
   const CCollidableAABox collisionBounds(
       CAABox(baseBounds.GetMinPoint() + position, baseBounds.GetMaxPoint() + position),
@@ -1530,7 +1530,7 @@ void CPlayer::ApplyGrappleForces(const CFinalInput& input, CStateManager& mgr, f
   if (const CScriptGrapplePoint* point =
           TCastToConstPtr< CScriptGrapplePoint >(mgr.GetObjectById(GetOrbitTargetId()))) {
     const CVector3f pointPosition = point->GetTranslation();
-    switch (x3b8_grappleState) {
+    switch (mGrappleState) {
     case kGS_Pull: {
       const CVector3f swingLow =
           pointPosition + CVector3f(0.f, 0.f, -gpTweakPlayer->GetGrappleSwingLength());
@@ -1548,10 +1548,10 @@ void CPlayer::ApplyGrappleForces(const CFinalInput& input, CStateManager& mgr, f
           const CVector3f pullVelocity = pullSpeed * playerToSwingLow;
           SetVelocityWR(pullVelocity);
           if (distanceToLow < gpTweakPlayer->GetMaxGrappleLockedTurnAlignDistance()) {
-            x3b8_grappleState = kGS_Swinging;
-            x3bc_grappleSwingTimer = 0.25f * gpTweakPlayer->GetGrappleSwingPeriod();
-            x3d8_grappleJumpTimeout = 0.f;
-            x9c6_28_aligningGrappleSwingTurn = point->GetGrappleParameters().GetLockSwingTurn();
+            mGrappleState = kGS_Swinging;
+            mGrappleSwingTimer = 0.25f * gpTweakPlayer->GetGrappleSwingPeriod();
+            mGrappleJumpTimeout = 0.f;
+            mAligningGrappleSwingTurn = point->GetGrappleParameters().GetLockSwingTurn();
           } else {
             const CMotionState& motion = PredictMotion(dt);
             CVector3f lookDirectionFlat = GetTransform().GetForward();
@@ -1592,9 +1592,9 @@ void CPlayer::ApplyGrappleForces(const CFinalInput& input, CStateManager& mgr, f
             }
           }
         } else {
-          x3b8_grappleState = kGS_Swinging;
-          x3bc_grappleSwingTimer = 0.25f * gpTweakPlayer->GetGrappleSwingPeriod();
-          x3d8_grappleJumpTimeout = 0.f;
+          mGrappleState = kGS_Swinging;
+          mGrappleSwingTimer = 0.25f * gpTweakPlayer->GetGrappleSwingPeriod();
+          mGrappleJumpTimeout = 0.f;
         }
       }
       break;
@@ -1617,19 +1617,19 @@ void CPlayer::ApplyGrappleForces(const CFinalInput& input, CStateManager& mgr, f
           enableTurn = true;
           turnAngleSpeed *= ControlMapper::GetAnalogInput(ControlMapper::kC_TurnRight, input);
         }
-      } else if (x9c6_28_aligningGrappleSwingTurn) {
+      } else if (mAligningGrappleSwingTurn) {
         enableTurn = true;
       }
-      x3bc_grappleSwingTimer += dt;
-      if (x3bc_grappleSwingTimer > gpTweakPlayer->GetGrappleSwingPeriod()) {
-        x3bc_grappleSwingTimer -= gpTweakPlayer->GetGrappleSwingPeriod();
+      mGrappleSwingTimer += dt;
+      if (mGrappleSwingTimer > gpTweakPlayer->GetGrappleSwingPeriod()) {
+        mGrappleSwingTimer -= gpTweakPlayer->GetGrappleSwingPeriod();
       }
-      CVector3f swingAxis = x3c0_grappleSwingAxis;
-      if (x3bc_grappleSwingTimer < 0.5f * gpTweakPlayer->GetGrappleSwingPeriod()) {
+      CVector3f swingAxis = mGrappleSwingAxis;
+      if (mGrappleSwingTimer < 0.5f * gpTweakPlayer->GetGrappleSwingPeriod()) {
         swingAxis *= -1.f;
       }
       float swingCos =
-          cosf(2.f * M_PIF * (x3bc_grappleSwingTimer / gpTweakPlayer->GetGrappleSwingPeriod()) +
+          cosf(2.f * M_PIF * (mGrappleSwingTimer / gpTweakPlayer->GetGrappleSwingPeriod()) +
                M_PIF / 2.f);
       swingCos = CMath::Limit(swingCos, 1.f);
       const float pullSpeed = CMath::AbsF(swingCos) * gpTweakPlayer->GetGrapplePullSpeedMin();
@@ -1647,14 +1647,14 @@ void CPlayer::ApplyGrappleForces(const CFinalInput& input, CStateManager& mgr, f
         if (enableTurn) {
           CQuaternion turnRotation = CQuaternion::ZRotation(CRelAngle(turnAngleSpeed * dt));
           if (point->GetGrappleParameters().GetLockSwingTurn() &&
-              x9c6_28_aligningGrappleSwingTurn) {
+              mAligningGrappleSwingTurn) {
             CVector3f playerDirection = GetTransform().GetForward();
             CVector3f pointDirection = point->GetTransform().GetForward().AsNormalized();
             float playerPointProjection =
                 CVector3f::Dot(playerDirection.AsNormalized(), pointDirection);
             playerPointProjection = CMath::Limit(playerPointProjection, 1.f);
             if (CMath::AbsF(playerPointProjection) == 1.f) {
-              x9c6_28_aligningGrappleSwingTurn = false;
+              mAligningGrappleSwingTurn = false;
             }
             if (playerPointProjection < 0.f) {
               playerPointProjection = -playerPointProjection;
@@ -1676,16 +1676,16 @@ void CPlayer::ApplyGrappleForces(const CFinalInput& input, CStateManager& mgr, f
               pullVector += (1.f / dt) * playerToGrapplePlane;
             }
           }
-          const CVector3f backupSwingAxis = x3c0_grappleSwingAxis;
-          x3c0_grappleSwingAxis = turnRotation.Transform(x3c0_grappleSwingAxis);
-          x3c0_grappleSwingAxis.Normalize();
-          const CVector3f swingForward(-x3c0_grappleSwingAxis.GetY(), x3c0_grappleSwingAxis.GetX(),
+          const CVector3f backupSwingAxis = mGrappleSwingAxis;
+          mGrappleSwingAxis = turnRotation.Transform(mGrappleSwingAxis);
+          mGrappleSwingAxis.Normalize();
+          const CVector3f swingForward(-mGrappleSwingAxis.GetY(), mGrappleSwingAxis.GetX(),
                                        0.f);
-          SetTransform(CTransform4f::FromColumns(x3c0_grappleSwingAxis, swingForward,
+          SetTransform(CTransform4f::FromColumns(mGrappleSwingAxis, swingForward,
                                                  CVector3f(0.f, 0.f, 1.f), GetTranslation()));
           SetVelocityWR(pullVector);
           if (!ValidateFPPosition(GetTranslation(), mgr)) {
-            x3c0_grappleSwingAxis = backupSwingAxis;
+            mGrappleSwingAxis = backupSwingAxis;
             SetTransform(backupTransform);
             SetVelocityWR(backupVelocity);
           }
@@ -1711,14 +1711,14 @@ void CPlayer::UpdateGrappleArmTransform(const CVector3f& offset, CStateManager& 
   CTransform4f armXf = GetTransform();
   const CVector3f armPosition = GetTransform().Rotate(offset) + GetTranslation();
   armXf.SetTranslation(armPosition);
-  if (x2f8_morphBallState != kMS_Unmorphed) {
-    x490_gun->GrappleArm().SetTransform(armXf);
-  } else if (!x490_gun->GrappleArm().IsArmMoving()) {
+  if (mMorphBallState != kMS_Unmorphed) {
+    mGun->GrappleArm().SetTransform(armXf);
+  } else if (!mGun->GrappleArm().IsArmMoving()) {
     CVector3f lookDirection = GetTransform().GetForward();
-    CVector3f armToTarget = x490_gun->GrappleArm().GetTransform().GetForward();
+    CVector3f armToTarget = mGun->GrappleArm().GetTransform().GetForward();
     if (lookDirection.CanBeNormalized()) {
       lookDirection.Normalize();
-      if (x3b8_grappleState != kGS_None) {
+      if (mGrappleState != kGS_None) {
         if (const CActor* target =
                 TCastToConstPtr< CActor >(mgr.GetObjectById(GetOrbitTargetId()))) {
           armToTarget = target->GetTranslation() - armPosition;
@@ -1727,20 +1727,20 @@ void CPlayer::UpdateGrappleArmTransform(const CVector3f& offset, CStateManager& 
           if (armToTarget.CanBeNormalized()) {
             armToTarget.Normalize();
           }
-          if (armToTargetFlat.CanBeNormalized() && x3b8_grappleState != kGS_Firing) {
+          if (armToTargetFlat.CanBeNormalized() && mGrappleState != kGS_Firing) {
             const CQuaternion adjustment = CQuaternion::LookAt(
                 armToTargetFlat.AsNormalized(), lookDirection, CRelAngle(2.f * M_PIF));
             armToTarget = adjustment.Transform(armToTarget);
-            if (x3bc_grappleSwingTimer >= 0.25f * gpTweakPlayer->GetGrappleSwingPeriod() &&
-                x3bc_grappleSwingTimer < 0.75f * gpTweakPlayer->GetGrappleSwingPeriod()) {
-              armToTarget = x490_gun->GrappleArm().GetTransform().GetForward();
+            if (mGrappleSwingTimer >= 0.25f * gpTweakPlayer->GetGrappleSwingPeriod() &&
+                mGrappleSwingTimer < 0.75f * gpTweakPlayer->GetGrappleSwingPeriod()) {
+              armToTarget = mGun->GrappleArm().GetTransform().GetForward();
             }
           }
         }
       }
       armXf = CTransform4f::LookAt(CVector3f::Zero(), armToTarget, CVector3f::Up());
       armXf.SetTranslation(armPosition);
-      x490_gun->GrappleArm().SetTransform(armXf);
+      mGun->GrappleArm().SetTransform(armXf);
     }
   }
 }

@@ -34,44 +34,44 @@ public:
   virtual void ResetBeam(CStateManager&, bool);
   virtual void Fire(const CTransform4f&, CStateManager&, bool) = 0;
   
-  void CauseDamage(const bool b) { x464_25_enableTouchDamage = b; }
-  EDamageType GetDamageType() const { return x2f8_damageType; }
-  const CVector3f& GetCurrentPos() const { return x318_collisionPoint; }
-  const CVector3f& GetSurfaceNormal() const { return x30c_collisionNormal; }
-  const CTransform4f& GetBeamTransform() const { return x324_xf; }
-  float GetCurrentLength() const { return x304_beamLength; }
-  float GetMaxLength() const { return x2ec_maxLength; }
-  float GetInvMaxLength() const { return x2f0_invMaxLength; }
-  float GetMaxRadius() const { return x2f4_beamRadius; }
-  TUniqueId GetCollisionActorId() const { return x2fe_collisionActorId; }
-  const rstl::reserved_vector< CVector3f, 8 >& GetPointCache() const { return x400_pointCache; }
-  rstl::reserved_vector< CVector3f, 8 >& PointCache() { return x400_pointCache; }
+  void CauseDamage(const bool b) { mEnableTouchDamage = b; }
+  EDamageType GetDamageType() const { return mDamageType; }
+  const CVector3f& GetCurrentPos() const { return mCollisionPoint; }
+  const CVector3f& GetSurfaceNormal() const { return mCollisionNormal; }
+  const CTransform4f& GetBeamTransform() const { return mXf; }
+  float GetCurrentLength() const { return mBeamLength; }
+  float GetMaxLength() const { return mMaxLength; }
+  float GetInvMaxLength() const { return mInvMaxLength; }
+  float GetMaxRadius() const { return mBeamRadius; }
+  TUniqueId GetCollisionActorId() const { return mCollisionActorId; }
+  const rstl::reserved_vector< CVector3f, 8 >& GetPointCache() const { return mPointCache; }
+  rstl::reserved_vector< CVector3f, 8 >& PointCache() { return mPointCache; }
 
 private:
-  int x2e8_intMaxLength;
-  float x2ec_maxLength;
-  float x2f0_invMaxLength;
-  float x2f4_beamRadius;
-  EDamageType x2f8_damageType;
+  int mIntMaxLength;
+  float mMaxLength;
+  float mInvMaxLength;
+  float mBeamRadius;
+  EDamageType mDamageType;
   TUniqueId x2fc_;
-  TUniqueId x2fe_collisionActorId;
-  float x300_intBeamLength;
-  float x304_beamLength;
-  float x308_travelSpeed;
-  CVector3f x30c_collisionNormal;
-  CVector3f x318_collisionPoint;
-  CTransform4f x324_xf;
+  TUniqueId mCollisionActorId;
+  float mIntBeamLength;
+  float mBeamLength;
+  float mTravelSpeed;
+  CVector3f mCollisionNormal;
+  CVector3f mCollisionPoint;
+  CTransform4f mXf;
   CAABox x354_;
   CAABox x36c_;
   rstl::reserved_vector< CVector3f, 10 > x384_;
-  rstl::reserved_vector< CVector3f, 8 > x400_pointCache;
-  bool x464_24_growingBeam : 1;
-  bool x464_25_enableTouchDamage : 1;
+  rstl::reserved_vector< CVector3f, 8 > mPointCache;
+  bool mGrowingBeam : 1;
+  bool mEnableTouchDamage : 1;
 
   void SetCollisionResultData(EDamageType dType, CRayCastResult& res, TUniqueId id);
 };
-CHECK_SIZEOF(CBeamProjectile, (VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02 ? 0x490
-                               : VERSION >= VERSION_GM8P_00                             ? 0x478
+CHECK_SIZEOF(CBeamProjectile, (VERSION >= VERSION_GM8P_00 ? 0x490
+                               : VERSION >= VERSION_GM8E_02                             ? 0x478
                                                                                         : 0x468))
 
 #endif // _CBEAMPROJECTILE

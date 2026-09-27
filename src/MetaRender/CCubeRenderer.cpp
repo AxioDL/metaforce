@@ -264,23 +264,23 @@ CCubeRenderer::CAreaListItem::CAreaListItem(
     const rstl::vector< CMetroidModelInstance >* geometry, const CAreaRenderOctTree* octTree,
     const rstl::auto_ptr< rstl::vector< TCachedToken< CTexture > > >& textures,
     const rstl::auto_ptr< rstl::vector< rstl::auto_ptr< CCubeModel > > >& models, int areaIdx)
-: x0_geometry(geometry)
-, x4_octTree(octTree)
-, x8_textures(textures)
-, x10_models(models)
-, x18_areaIdx(areaIdx)
-, x1c_lightOctreeWords() {}
+: mGeometry(geometry)
+, mOctTree(octTree)
+, mTextures(textures)
+, mModels(models)
+, mAreaIdx(areaIdx)
+, mLightOctreeWords() {}
 
 CCubeRenderer::CFogVolumeListItem::CFogVolumeListItem(const CTransform4f& xf, CColor color,
                                                       const CAABox& aabb,
                                                       const TLockedToken< CModel >* model,
                                                       const CSkinnedModel* skinnedModel)
-: x0_xf(xf)
-, x30_color(color)
-, x34_aabb(aabb)
-, x4c_model(model ? rstl::optional_object< TLockedToken< CModel > >(*model)
+: mXf(xf)
+, mColor(color)
+, mAabb(aabb)
+, mModel(model ? rstl::optional_object< TLockedToken< CModel > >(*model)
                   : rstl::optional_object_null())
-, x5c_skinnedModel(skinnedModel) {}
+, mSkinnedModel(skinnedModel) {}
 
 #if defined(TARGET_PC)
 CCubeRenderer::CCubeRenderer(IObjectStore& objStore, CResFactory& resFactory)
@@ -288,54 +288,54 @@ CCubeRenderer::CCubeRenderer(IObjectStore& objStore, CResFactory& resFactory)
 CCubeRenderer::CCubeRenderer(IObjectStore& objStore, COsContext& osContext, CMemorySys& memorySys,
                              CResFactory& resFactory)
 #endif
-: x8_factory(resFactory)
-, xc_objStore(objStore)
-, x10_font(1.f)
-, x18_primVertCount(0)
-, x1c_areaListItems()
-, x34_surfaces()
-, x44_frustumPlanes(CTransform4f::Identity(), 1.5707964f, 1.f, 1.f, false, 100.f)
-, xa8_drawableCallback(nullptr)
+: mFactory(resFactory)
+, mObjStore(objStore)
+, mFont(1.f)
+, mPrimVertCount(0)
+, mAreaListItems()
+, mSurfaces()
+, mFrustumPlanes(CTransform4f::Identity(), 1.5707964f, 1.f, 1.f, false, 100.f)
+, mDrawableCallback(nullptr)
 #if NONMATCHING
-, xac_drawableCallbackUserData(nullptr)
+, mDrawableCallbackUserData(nullptr)
 #endif
-, xb0_viewPlane(0.f, CUnitVector3f(CVector3f(0.f, 1.f, 0.f), CUnitVector3f::kN_Yes))
-, xc0_pvsMode(0)
+, mViewPlane(0.f, CUnitVector3f(CVector3f(0.f, 1.f, 0.f), CUnitVector3f::kN_Yes))
+, mPvsMode(0)
 #if NONMATCHING
-, xc4_pvsState(0)
+, mPvsState(0)
 #endif
-, xc8_pvsVisSet()
-, xe0_pvsAreaIdx(-1)
-, xe4_blackTex(kTF_RGB565, 4, 4, 1)
-, x14c_reflectionTex()
-, x150_reflectionTex(kTF_IA8, 32, 32, 1)
-, x1b8_fogVolumeRamp(kTF_I8, 256, 256, 1)
-, x220_sphereRamp(kTF_I8, 32, 32, 1)
-, x288_thermalPalette(kPF_RGB565, 16)
-, x2a8_thermalRand(20)
-, x2ac_fogVolumes()
-, x2c4_spaceWarps()
-, x2dc_reflectionAge(2)
-, x2e0_primColor(CColor::White())
-, x2e4_primNormal(CVector3f::Forward())
-, x2f0_thermalVisorLevel(1.f)
-, x2f4_thermalColor(static_cast< uchar >(255), static_cast< uchar >(0), static_cast< uchar >(255))
-, x2f8_thermalColdScale(0)
-, x2fc_tevReg1Color(static_cast< uchar >(255), static_cast< uchar >(0), static_cast< uchar >(255))
-, x300_dynamicLights()
-, x310_phazonSuitMaskCountdown(0)
-, x314_phazonSuitMask()
-, x318_24_reflectionDirty(false)
-, x318_25_drawWireframe(false)
-, x318_26_requestRGBA6(false)
-, x318_27_currentRGBA6(false)
-, x318_28_disableFog(false)
-, x318_29_thermalVisor(false)
-, x318_30_inAreaDraw(false)
-, x318_31_persistRGBA6(false) {
-  void* data = xe4_blackTex.Lock();
+, mPvsVisSet()
+, mPvsAreaIdx(-1)
+, mBlackTex(kTF_RGB565, 4, 4, 1)
+, mReflectionTexPtr()
+, mReflectionTex(kTF_IA8, 32, 32, 1)
+, mFogVolumeRamp(kTF_I8, 256, 256, 1)
+, mSphereRamp(kTF_I8, 32, 32, 1)
+, mThermalPalette(kPF_RGB565, 16)
+, mThermalRand(20)
+, mFogVolumes()
+, mSpaceWarps()
+, mReflectionAge(2)
+, mPrimColor(CColor::White())
+, mPrimNormal(CVector3f::Forward())
+, mThermalVisorLevel(1.f)
+, mThermalColor(static_cast< uchar >(255), static_cast< uchar >(0), static_cast< uchar >(255))
+, mThermalColdScale(0)
+, mTevReg1Color(static_cast< uchar >(255), static_cast< uchar >(0), static_cast< uchar >(255))
+, mDynamicLights()
+, mPhazonSuitMaskCountdown(0)
+, mPhazonSuitMask()
+, mReflectionDirty(false)
+, mDrawWireframe(false)
+, mRequestRGBA6(false)
+, mCurrentRGBA6(false)
+, mDisableFog(false)
+, mThermalVisor(false)
+, mInAreaDraw(false)
+, mPersistRGBA6(false) {
+  void* data = mBlackTex.Lock();
   memset(data, 0, 32);
-  xe4_blackTex.UnLock();
+  mBlackTex.UnLock();
   GenerateReflectionTex();
   GenerateFogVolumeRampTex();
   GenerateSphereRampTex();
@@ -349,7 +349,7 @@ void CCubeRenderer::GenerateReflectionTex() {
   float threshold = 14.f;
   float halfScale = 128.f;
 
-  ushort* base = static_cast< ushort* >(x150_reflectionTex.Lock());
+  ushort* base = static_cast< ushort* >(mReflectionTex.Lock());
   int texel = 0;
   for (int yBlock = 0; yBlock < 8; ++yBlock) {
     for (int xBlock = 0; xBlock < 8; ++xBlock) {
@@ -386,11 +386,11 @@ void CCubeRenderer::GenerateReflectionTex() {
       }
     }
   }
-  x150_reflectionTex.UnLock();
+  mReflectionTex.UnLock();
 }
 
 void CCubeRenderer::GenerateFogVolumeRampTex() {
-  uchar* data = static_cast< uchar* >(x1b8_fogVolumeRamp.Lock());
+  uchar* data = static_cast< uchar* >(mFogVolumeRamp.Lock());
   memset(data, 0xFF, 0x10000);
   for (int y = 0, yOff = 0; y < 2048; ++y, yOff += 32) {
     int tileXBase = (y % 32) * 8;
@@ -406,7 +406,7 @@ void CCubeRenderer::GenerateFogVolumeRampTex() {
       *ptr++ = CCast::ToUint8((0.5f * (cf * cf + cf)) * 255.f);
     }
   }
-  x1b8_fogVolumeRamp.UnLock();
+  mFogVolumeRamp.UnLock();
 }
 
 void CCubeRenderer::GenerateSphereRampTex() {
@@ -414,7 +414,7 @@ void CCubeRenderer::GenerateSphereRampTex() {
   const int width = 32;
   const float halfRes = (height - 1) / 2.f;
 
-  uchar* data = static_cast< uchar* >(x220_sphereRamp.Lock());
+  uchar* data = static_cast< uchar* >(mSphereRamp.Lock());
   for (int y = 0; y < height; ++y) {
     int start = y * width;
     for (int x = 0; x < width; ++x) {
@@ -429,43 +429,43 @@ void CCubeRenderer::GenerateSphereRampTex() {
       data[start + x] = static_cast< uchar >(value * 255.f);
     }
   }
-  x220_sphereRamp.UnLock();
+  mSphereRamp.UnLock();
 }
 
 void CCubeRenderer::LoadThermoPalette() {
-  x288_thermalPalette.Lock();
-  TLockedToken< CTexture > token = xc_objStore.GetObj("TXTR_ThermoPalette");
+  mThermalPalette.Lock();
+  TLockedToken< CTexture > token = mObjStore.GetObj("TXTR_ThermoPalette");
   const CGraphicsPalette* pal = token->GetPalette();
   for (int i = 0; i < 16; ++i) {
-    ushort& dst = x288_thermalPalette.GetPaletteData()[i];
+    ushort& dst = mThermalPalette.GetPaletteData()[i];
     dst = pal ? pal->GetPaletteData()[i] : 0;
   }
-  x288_thermalPalette.UnLock();
+  mThermalPalette.UnLock();
 }
 
 CCubeRenderer::~CCubeRenderer() {
   sRenderer = nullptr;
   Buckets::Shutdown();
   CSkinnedModel::RemoveDummySkinnedModelRef();
-  if (!x314_phazonSuitMask.null()) {
-    x314_phazonSuitMask->ScheduleDeletion();
+  if (!mPhazonSuitMask.null()) {
+    mPhazonSuitMask->ScheduleDeletion();
   }
 }
 
 void CCubeRenderer::AddStaticGeometry(const rstl::vector< CMetroidModelInstance >* geometry,
                                       const CAreaRenderOctTree* octTree, int areaIdx) {
-  if (FindStaticGeometry(geometry) == x1c_areaListItems.end()) {
+  if (FindStaticGeometry(geometry) == mAreaListItems.end()) {
     rstl::auto_ptr< rstl::vector< rstl::auto_ptr< CCubeModel > > > models =
         rs_new rstl::vector< rstl::auto_ptr< CCubeModel > >();
     rstl::auto_ptr< rstl::vector< TCachedToken< CTexture > > > textures =
         rs_new rstl::vector< TCachedToken< CTexture > >();
     if (!geometry->empty()) {
 #if defined(TARGET_PC)
-      CCubeModel::MakeTexturesFromMats(geometry->front().GetMaterialData(), *textures, xc_objStore,
+      CCubeModel::MakeTexturesFromMats(geometry->front().GetMaterialData(), *textures, mObjStore,
                                        false);
 #else
       CCubeModel::MakeTexturesFromMats(geometry->front().GetMaterialPointer(), *textures,
-                                       xc_objStore, false);
+                                       mObjStore, false);
 #endif
       models->reserve(geometry->size());
       for (int i = 0; i < geometry->size(); ++i) {
@@ -483,29 +483,29 @@ void CCubeRenderer::AddStaticGeometry(const rstl::vector< CMetroidModelInstance 
 #endif
       }
     }
-    x1c_areaListItems.push_back(CAreaListItem(geometry, octTree, textures, models, areaIdx));
+    mAreaListItems.push_back(CAreaListItem(geometry, octTree, textures, models, areaIdx));
     GXInvalidateVtxCache();
   }
 }
 
 rstl::list< CCubeRenderer::CAreaListItem >::iterator
 CCubeRenderer::FindStaticGeometry(const rstl::vector< CMetroidModelInstance >* geometry) {
-  for (AUTO(it, x1c_areaListItems.begin()); it != x1c_areaListItems.end(); ++it) {
-    if (it->x0_geometry == geometry) {
+  for (AUTO(it, mAreaListItems.begin()); it != mAreaListItems.end(); ++it) {
+    if (it->mGeometry == geometry) {
       return it;
     }
   }
-  return x1c_areaListItems.end();
+  return mAreaListItems.end();
 }
 
 void CCubeRenderer::RemoveStaticGeometry(const rstl::vector< CMetroidModelInstance >* geometry) {
   AUTO(search, FindStaticGeometry(geometry));
-  if (search != x1c_areaListItems.end()) {
+  if (search != mAreaListItems.end()) {
 #if defined(TARGET_PC)
     // The caller may release the MREA buffers as soon as geometry is removed.
     AuroraGXSync();
 #endif
-    x1c_areaListItems.erase(search);
+    mAreaListItems.erase(search);
   }
 }
 
@@ -514,7 +514,7 @@ void CCubeRenderer::SetModelMatrix(const CTransform4f& xf) { CGraphics::SetModel
 void CCubeRenderer::SetWorldViewpoint(const CTransform4f& xf) {
   CGraphics::SetViewPointMatrix(xf);
   CVector3f normal = xf.GetForward();
-  xb0_viewPlane.SetFrom((normal.GetX() * xf.Get03()) + (normal.GetY() * xf.Get13()) +
+  mViewPlane.SetFrom((normal.GetX() * xf.Get03()) + (normal.GetY() * xf.Get13()) +
                             (normal.GetZ() * xf.Get23()),
                         normal);
 }
@@ -537,32 +537,32 @@ void CCubeRenderer::BeginScene() {
   CGraphics::SetPerspective(75.f, aspect, 1.f, 4096.f);
   CGraphics::SetModelMatrix(CTransform4f::Identity());
   CGraphics::TickRenderTimings();
-  if (x310_phazonSuitMaskCountdown != 0) {
-    --x310_phazonSuitMaskCountdown;
-    if (x310_phazonSuitMaskCountdown == 0) {
-      x314_phazonSuitMask->ScheduleDeletion();
-      x314_phazonSuitMask = nullptr;
+  if (mPhazonSuitMaskCountdown != 0) {
+    --mPhazonSuitMaskCountdown;
+    if (mPhazonSuitMaskCountdown == 0) {
+      mPhazonSuitMask->ScheduleDeletion();
+      mPhazonSuitMask = nullptr;
     }
   }
 
-  x318_27_currentRGBA6 = x318_26_requestRGBA6;
-  if (!x318_31_persistRGBA6) {
-    x318_26_requestRGBA6 = false;
+  mCurrentRGBA6 = mRequestRGBA6;
+  if (!mPersistRGBA6) {
+    mRequestRGBA6 = false;
   }
 
-  GXSetPixelFmt(x318_27_currentRGBA6 ? GX_PF_RGBA6_Z24 : GX_PF_RGB8_Z24, GX_ZC_LINEAR);
+  GXSetPixelFmt(mCurrentRGBA6 ? GX_PF_RGBA6_Z24 : GX_PF_RGB8_Z24, GX_ZC_LINEAR);
   GXSetAlphaUpdate(GX_TRUE);
   GXSetDstAlpha(GX_TRUE, 0);
   CGraphics::BeginScene();
 }
 
 void CCubeRenderer::EndScene() {
-  x318_31_persistRGBA6 = !CGraphics::IsBeginSceneClearFb();
+  mPersistRGBA6 = !CGraphics::IsBeginSceneClearFb();
   CGraphics::EndScene();
-  if (x2dc_reflectionAge >= 2) {
-    x14c_reflectionTex = nullptr;
+  if (mReflectionAge >= 2) {
+    mReflectionTexPtr = nullptr;
   } else {
-    ++x2dc_reflectionAge;
+    ++mReflectionAge;
   }
 }
 
@@ -619,7 +619,7 @@ void CCubeRenderer::AddPlaneObject(const void* obj, const CAABox& aabb, const CP
 void CCubeRenderer::AddDrawable(const void* obj, const CVector3f& pos, const CAABox& aabb, int mode,
                                 IRenderer::EDrawableSorting sorting) {
   if (sorting == IRenderer::kDS_UnsortedCallback) {
-    xa8_drawableCallback(obj, xac_drawableCallbackUserData, mode);
+    mDrawableCallback(obj, mDrawableCallbackUserData, mode);
   } else {
     Buckets::Insert(pos, aabb, EDrawableType(mode + 2), obj, GetViewPlane(), 0);
   }
@@ -631,7 +631,7 @@ void CCubeRenderer::SetupRendererStates(bool depthWrite) {
   CGraphics::SetAmbientColor(CColor(0));
   CGraphics::SetDepthWriteMode(true, kE_LEqual, depthWrite);
   CCubeMaterial::ResetCachedMaterials();
-  GXSetTevColor(GX_TEVREG1, x2fc_tevReg1Color.GetGXColor());
+  GXSetTevColor(GX_TEVREG1, mTevReg1Color.GetGXColor());
 }
 
 void CCubeRenderer::SetupCGraphicsStates() {
@@ -648,11 +648,11 @@ void CCubeRenderer::SetupCGraphicsStates() {
 }
 
 void CCubeRenderer::AddWorldSurfaces(CCubeModel& model) {
-  const CPlane& viewPlane = xb0_viewPlane;
+  const CPlane& viewPlane = mViewPlane;
   for (CCubeSurface it = model.GetAlphaSurfaces(); it.IsValid(); it = it.GetNextSurface()) {
     uint blend = model.GetMaterialByIndex(it.GetMaterialIndex()).GetCompressedBlend();
     const CAABox bounds = it.GetBounds();
-    void* surfData = it.x0_data;
+    void* surfData = it.mData;
     Buckets::Insert(bounds.ClosestPointAlongVector(viewPlane.GetNormal()), bounds, kDT_WorldSurface,
                     surfData, viewPlane, blend == 0x50004 ? 1 : 0);
   }
@@ -687,7 +687,7 @@ void CCubeRenderer::RenderBucketItems(const CAreaListItem* areaListItem) {
           currentModel = nullptr;
         }
         CCubeSurface surface(drawable->GetData());
-        CCubeModel* model = surface.x0_data->mParent;
+        CCubeModel* model = surface.mData->mParent;
         if (model != currentModel) {
           model->SetArraysCurrent();
           currentModel = model;
@@ -700,8 +700,8 @@ void CCubeRenderer::RenderBucketItems(const CAreaListItem* areaListItem) {
         if (lastType != drawType) {
           CCubeMaterial::EnsureTevsDirect();
         }
-        if (xa8_drawableCallback != nullptr) {
-          xa8_drawableCallback(drawable->GetData(), xac_drawableCallbackUserData,
+        if (mDrawableCallback != nullptr) {
+          mDrawableCallback(drawable->GetData(), mDrawableCallbackUserData,
                                drawable->GetType() - kDT_Actor);
         }
         break;
@@ -713,7 +713,7 @@ void CCubeRenderer::RenderBucketItems(const CAreaListItem* areaListItem) {
 }
 
 void CCubeRenderer::HandleUnsortedModel(const CAreaListItem* areaListItem, CCubeModel& model) {
-  void* surfPtr = model.GetNormalSurfaces().x0_rawdata;
+  void* surfPtr = model.GetNormalSurfaces().mRawdata;
   if (surfPtr == nullptr) {
     return;
   }
@@ -730,8 +730,8 @@ void CCubeRenderer::HandleUnsortedModel(const CAreaListItem* areaListItem, CCube
 
 void CCubeRenderer::HandleUnsortedModelWireframe(const CAreaListItem* areaListItem,
                                                  CCubeModel& model) {
-  void* unsortedPtr = model.GetNormalSurfaces().x0_rawdata;
-  void* sortedPtr = model.GetAlphaSurfaces().x0_rawdata;
+  void* unsortedPtr = model.GetNormalSurfaces().mRawdata;
+  void* sortedPtr = model.GetAlphaSurfaces().mRawdata;
 
   model.SetArraysCurrent();
   ActivateLightsForModel(areaListItem, model);
@@ -752,20 +752,20 @@ void CCubeRenderer::DrawUnsortedGeometry(int areaIdx, uint mask, uint targetMask
 
   SetupRendererStates(true);
 
-  for (AUTO(it, x1c_areaListItems.begin()); it != x1c_areaListItems.end(); ++it) {
+  for (AUTO(it, mAreaListItems.begin()); it != mAreaListItems.end(); ++it) {
     CAreaListItem& item = *it;
     if (areaIdx != -1 && areaIdx != item.GetAreaId()) {
       continue;
     }
 
-    if (item.x4_octTree != nullptr) {
+    if (item.mOctTree != nullptr) {
       areaListItem = &item;
     }
 
     AUTO_REF(models, *item.GetModelList());
 
-    const CPVSVisSet* pvs = xc8_pvsVisSet ? xc8_pvsVisSet.get_ptr() : nullptr;
-    if (xe0_pvsAreaIdx != item.GetAreaId()) {
+    const CPVSVisSet* pvs = mPvsVisSet ? mPvsVisSet.get_ptr() : nullptr;
+    if (mPvsAreaIdx != item.GetAreaId()) {
       pvs = nullptr;
     }
 
@@ -775,7 +775,7 @@ void CCubeRenderer::DrawUnsortedGeometry(int areaIdx, uint mask, uint targetMask
 
       if (pvs != nullptr) {
         const bool visible = pvs->GetVisible(modelIdx) != kVSS_EndOfTree;
-        if ((xc4_pvsState == 1 && !visible) || (xc4_pvsState == 2 && visible)) {
+        if ((mPvsState == 1 && !visible) || (mPvsState == 2 && visible)) {
           model.SetShouldDrawWorldFlag(false);
           continue;
         }
@@ -786,12 +786,12 @@ void CCubeRenderer::DrawUnsortedGeometry(int areaIdx, uint mask, uint targetMask
         continue;
       }
 
-      if (!x44_frustumPlanes.BoxInFrustumPlanes(model.GetBoundingBox())) {
+      if (!mFrustumPlanes.BoxInFrustumPlanes(model.GetBoundingBox())) {
         model.SetShouldDrawWorldFlag(false);
         continue;
       }
 
-      if (x318_25_drawWireframe) {
+      if (mDrawWireframe) {
         model.SetShouldDrawWorldFlag(false);
         HandleUnsortedModelWireframe(areaListItem, model);
       } else {
@@ -811,13 +811,13 @@ void CCubeRenderer::DrawSortedGeometry(int areaIdx, uint mask, uint targetMask) 
   SetupRendererStates(true);
 
   const CAreaListItem* areaListItem = nullptr;
-  for (AUTO(it, x1c_areaListItems.begin()); it != x1c_areaListItems.end(); ++it) {
+  for (AUTO(it, mAreaListItems.begin()); it != mAreaListItems.end(); ++it) {
     CAreaListItem& item = *it;
     if (areaIdx != -1 && areaIdx != item.GetAreaId()) {
       continue;
     }
 
-    if (item.x4_octTree != nullptr) {
+    if (item.mOctTree != nullptr) {
       areaListItem = &item;
     }
 
@@ -846,7 +846,7 @@ void CCubeRenderer::ActivateLightsForModel(const CAreaListItem* areaListItem,
                                            const CCubeModel& model) {
   uchar lightState = 0;
 
-  if (!x300_dynamicLights.empty()) {
+  if (!mDynamicLights.empty()) {
     int addedLights[4];
     float distances[4] = {-1.f, -1.f, -1.f, -1.f};
 
@@ -856,14 +856,14 @@ void CCubeRenderer::ActivateLightsForModel(const CAreaListItem* areaListItem,
     const uint* octreeWords = nullptr;
     int loadedLightCount = 0;
     if (areaListItem != nullptr && model.GetModelIndex() != -1) {
-      octreeWords = areaListItem->x1c_lightOctreeWords.data();
-      octreeWordCount = areaListItem->x4_octTree->x14_bitmapWordCount;
+      octreeWords = areaListItem->mLightOctreeWords.data();
+      octreeWordCount = areaListItem->mOctTree->mBitmapWordCount;
     }
 
     const uint* curOctreeWords = octreeWords;
-    for (int i = 0; i < x300_dynamicLights.size() && loadedLightCount < 4;
+    for (int i = 0; i < mDynamicLights.size() && loadedLightCount < 4;
          ++i, curOctreeWords += octreeWordCount) {
-      const CLight& light = x300_dynamicLights[i];
+      const CLight& light = mDynamicLights[i];
       if (octreeWords == nullptr ||
           CAreaRenderOctTree::TestBit(curOctreeWords, model.GetModelIndex())) {
         bool replacedLight = false;
@@ -922,10 +922,10 @@ IRenderer* AllocateRenderer(IObjectStore& objStore, COsContext& osContext, CMemo
 } // namespace Renderer
 
 void CCubeRenderer::PrimColor(float r, float g, float b, float a) {
-  x2e0_primColor.Set(r, g, b, a);
+  mPrimColor.Set(r, g, b, a);
 }
 
-void CCubeRenderer::PrimColor(const CColor& color) { x2e0_primColor = color; }
+void CCubeRenderer::PrimColor(const CColor& color) { mPrimColor = color; }
 
 void CCubeRenderer::BeginPrimitive(IRenderer::EPrimitiveType type, int nverts) {
   const GXVtxDescList vtxDescList[4] = {
@@ -943,7 +943,7 @@ void CCubeRenderer::BeginPrimitive(IRenderer::EPrimitiveType type, int nverts) {
   CGX::SetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_ZERO, GX_CC_ZERO, GX_CC_RASC);
   CGX::SetTevAlphaIn(GX_TEVSTAGE0, GX_CA_ZERO, GX_CA_ZERO, GX_CA_ZERO, GX_CA_RASA);
   CGX::SetStandardTevColorAlphaOp(GX_TEVSTAGE0);
-  x18_primVertCount = nverts;
+  mPrimVertCount = nverts;
   CGX::SetVtxDescv(vtxDescList);
   CGX::Begin(GXPrimitive(type), GX_VTXFMT0, nverts);
 }
@@ -969,16 +969,16 @@ void CCubeRenderer::BeginTriangleFan(int nverts) {
 }
 
 void CCubeRenderer::PrimVertex(const CVector3f& vtx) {
-  --x18_primVertCount;
+  --mPrimVertCount;
   GXPosition3f32(vtx.GetX(), vtx.GetY(), vtx.GetZ());
-  GXNormal3f32(x2e4_primNormal.GetX(), x2e4_primNormal.GetY(), x2e4_primNormal.GetZ());
-  GXColor1u32(x2e0_primColor.GetColor_u32());
+  GXNormal3f32(mPrimNormal.GetX(), mPrimNormal.GetY(), mPrimNormal.GetZ());
+  GXColor1u32(mPrimColor.GetColor_u32());
 }
 
-void CCubeRenderer::PrimNormal(const CVector3f& nrm) { x2e4_primNormal = nrm; }
+void CCubeRenderer::PrimNormal(const CVector3f& nrm) { mPrimNormal = nrm; }
 
 void CCubeRenderer::EndPrimitive() {
-  while (x18_primVertCount != 0) {
+  while (mPrimVertCount != 0) {
     PrimVertex(CVector3f::Zero());
   }
   CGX::End();
@@ -1053,26 +1053,26 @@ void CCubeRenderer::SetBlendMode_AdditiveDestColor() {
 }
 
 void CCubeRenderer::SetClippingPlanes(const CFrustumPlanes& frustum) {
-  x44_frustumPlanes = frustum;
+  mFrustumPlanes = frustum;
 }
 
 float CCubeRenderer::GetFPS() { return CGraphics::GetFPS(); }
 
 void CCubeRenderer::SetDrawableCallback(IRenderer::TDrawableCallback cb, const void* ctx) {
-  xa8_drawableCallback = cb;
-  xac_drawableCallbackUserData = ctx;
+  mDrawableCallback = cb;
+  mDrawableCallbackUserData = ctx;
 }
 
 void CCubeRenderer::SetDebugOption(IRenderer::EDebugOption option, int value) {
   switch (option) {
   case IRenderer::kDO_PVSMode:
-    xc0_pvsMode = value != 0 ? 1 : 0;
+    mPvsMode = value != 0 ? 1 : 0;
     break;
   case IRenderer::kDO_PVSState:
-    xc4_pvsState = value;
+    mPvsState = value;
     break;
   case IRenderer::kDO_FogDisabled:
-    x318_28_disableFog = value != 0;
+    mDisableFog = value != 0;
     break;
   default:
     break;
@@ -1080,21 +1080,21 @@ void CCubeRenderer::SetDebugOption(IRenderer::EDebugOption option, int value) {
 }
 
 CTexture* CCubeRenderer::GetRealReflection() {
-  x2dc_reflectionAge = 0;
-  if (!x14c_reflectionTex.null()) {
-    return x14c_reflectionTex.get();
+  mReflectionAge = 0;
+  if (!mReflectionTexPtr.null()) {
+    return mReflectionTexPtr.get();
   }
-  return &xe4_blackTex;
+  return &mBlackTex;
 }
 
 void CCubeRenderer::CacheReflection(void (*cb)(void*, const CVector3f&), void* ctx,
                                     bool clearAfter) {
-  if (x318_24_reflectionDirty) {
-    x318_24_reflectionDirty = false;
-    x2dc_reflectionAge = 0;
+  if (mReflectionDirty) {
+    mReflectionDirty = false;
+    mReflectionAge = 0;
 
-    if (x14c_reflectionTex.null()) {
-      x14c_reflectionTex = rs_new CTexture(kTF_RGB565, 0x80, 0x80, 1);
+    if (mReflectionTexPtr.null()) {
+      mReflectionTexPtr = rs_new CTexture(kTF_RGB565, 0x80, 0x80, 1);
     }
 
     const CViewport& vp = CGraphics::GetViewport();
@@ -1122,7 +1122,7 @@ void CCubeRenderer::CacheReflection(void (*cb)(void*, const CVector3f&), void* c
 
     cb(ctx, CCubeMaterial::GetViewingReflection());
 
-    void* reflectionData = const_cast< void* >(x14c_reflectionTex->GetConstBitMapData(0));
+    void* reflectionData = const_cast< void* >(mReflectionTexPtr->GetConstBitMapData(0));
     CGX::SetZMode(true, GX_LEQUAL, true);
     GXCopyTex(reflectionData, clearAfter);
 
@@ -1218,7 +1218,7 @@ void CCubeRenderer::_DrawSpaceWarp(const CVector3f& point, float strength) {
 
   CGraphics::LoadDolphinSpareTexture(sizeX, sizeY, GX_TF_RGBA8, 0, CGraphics::kSpareBufferTexMapID);
 
-  x150_reflectionTex.Load(GX_TEXMAP1, CTexture::kCM_Clamp);
+  mReflectionTex.Load(GX_TEXMAP1, CTexture::kCM_Clamp);
   CGX::SetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_ZERO, GX_CC_ZERO, GX_CC_TEXC);
   CGX::SetTevColorOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, true, GX_TEVPREV);
   CGX::SetTexCoordGen(GX_TEXCOORD0, GX_TG_MTX3x4, GX_TG_TEX0, GX_IDENTITY, false, GX_PTIDENTITY);
@@ -1296,11 +1296,11 @@ void CCubeRenderer::_DrawSpaceWarp(const CVector3f& point, float strength) {
 
 void CCubeRenderer::SetWireframeFlags(int flags) {
   CCubeModel::SetModelWireframe((flags & 1) == 1);
-  x318_25_drawWireframe = (flags & 2) == 2;
+  mDrawWireframe = (flags & 2) == 2;
 }
 
 void CCubeRenderer::SetWorldFog(ERglFogMode mode, float startz, float endz, const CColor& color) {
-  if (x318_28_disableFog) {
+  if (mDisableFog) {
     mode = static_cast< ERglFogMode >(0);
   }
   CGraphics::SetFog(mode, startz, endz, color);
@@ -1308,10 +1308,10 @@ void CCubeRenderer::SetWorldFog(ERglFogMode mode, float startz, float endz, cons
 
 int CCubeRenderer::GetStaticWorldDataSize() {
   int size = 0;
-  rstl::list< CAreaListItem >::const_iterator it = x1c_areaListItems.begin();
-  rstl::list< CAreaListItem >::const_iterator end = x1c_areaListItems.end();
+  rstl::list< CAreaListItem >::const_iterator it = mAreaListItems.begin();
+  rstl::list< CAreaListItem >::const_iterator end = mAreaListItems.end();
   for (; it != end; ++it) {
-    const rstl::vector< TCachedToken< CTexture > >* const textures = it->x8_textures.get();
+    const rstl::vector< TCachedToken< CTexture > >* const textures = it->mTextures.get();
     if (textures) {
       size += textures->size() * 0xc;
     }
@@ -1469,8 +1469,8 @@ static void draw_box_or_model(const CAABox& aabb, const CModel* model, const CTr
 }
 
 void CCubeRenderer::DoThermalBlendCold() {
-  const float coldScale = 0.003921569f * static_cast< float >(x2f8_thermalColdScale);
-  x318_26_requestRGBA6 = true;
+  const float coldScale = 0.003921569f * static_cast< float >(mThermalColdScale);
+  mRequestRGBA6 = true;
 
   GXSetAlphaUpdate(true);
   GXSetDstAlpha(false, 0);
@@ -1489,7 +1489,7 @@ void CCubeRenderer::DoThermalBlendCold() {
 
   CGraphics::LoadDolphinSpareTexture(width, height, GX_TF_I4, 0, CGraphics::kSpareBufferTexMapID);
 
-  const uint rand = x2a8_thermalRand.Next();
+  const uint rand = mThermalRand.Next();
 #if defined(TARGET_PC)
   int dolSize = 0;
   const uchar* dolData = DVDGetDOLLocation(&dolSize);
@@ -1509,7 +1509,7 @@ void CCubeRenderer::DoThermalBlendCold() {
   CGraphics::LoadDolphinSpareTexture(width, height, GX_TF_IA4, randTexData, GX_TEXMAP0);
   CGraphics::LoadDolphinSpareTexture(width, height, GX_TF_IA4, randTexData, GX_TEXMAP1);
 
-  const float& thermalVisorLevel = 0.5f * x2f0_thermalVisorLevel;
+  const float& thermalVisorLevel = 0.5f * mThermalVisorLevel;
   CMath::Clamp(0.f, thermalVisorLevel, 0.5f);
 
   float indMtx[2][3] = {
@@ -1524,7 +1524,7 @@ void CCubeRenderer::DoThermalBlendCold() {
                       GX_ITW_OFF, false, false, GX_ITBA_OFF);
   GXSetIndTexOrder(GX_INDTEXSTAGE0, GX_TEXCOORD0, GX_TEXMAP0);
 
-  const uint scale = x2f8_thermalColdScale;
+  const uint scale = mThermalColdScale;
   int tr1Alpha = 0xff;
   if (scale < 0x80) {
     tr1Alpha = (scale & 0x7f) << 1;
@@ -1555,7 +1555,7 @@ void CCubeRenderer::DoThermalBlendCold() {
   tr2Clr.a = tr2;
 
   const CColor lerpedColor =
-      CColor::Lerp(x2f4_thermalColor, CColor::White(), static_cast< float >(scale) / 255.f);
+      CColor::Lerp(mThermalColor, CColor::White(), static_cast< float >(scale) / 255.f);
   const CColor lerpedColorCopyA = lerpedColor;
   const CColor lerpedColorCopyB = lerpedColorCopyA;
   GXSetTevColor(GX_TEVREG0, lerpedColorCopyB.GetGXColor());
@@ -1640,7 +1640,7 @@ void CCubeRenderer::DoThermalBlendHot() {
   GXSetTexCopyDst(static_cast< u16 >(width), static_cast< u16 >(height), GX_TF_I4, false);
   GXCopyTex(dest, false);
 
-  x288_thermalPalette.Load();
+  mThermalPalette.Load();
   CGraphics::LoadDolphinSpareTexture(width, height, GX_TF_C4, GX_TLUT0, 0,
                                      CGraphics::kSpareBufferTexMapID);
 
@@ -1695,8 +1695,8 @@ void CCubeRenderer::DoThermalBlendHot() {
 void CCubeRenderer::RenderFogVolume(const CColor& color, const CAABox& aabb,
                                     const TLockedToken< CModel >* model,
                                     const CSkinnedModel* skinnedModel) {
-  if (!x318_28_disableFog) {
-    x2ac_fogVolumes.push_back(
+  if (!mDisableFog) {
+    mFogVolumes.push_back(
         CFogVolumeListItem(CGraphics::mModelMatrix, color, aabb, model, skinnedModel));
   }
 }
@@ -1833,8 +1833,8 @@ void CCubeRenderer::ReallyRenderFogVolume(const CColor& color, const CAABox& aab
   bool oldVideoFilter = CGraphics::GetUseVideoFilter();
   CGraphics::SetUseVideoFilter(false);
 
-  const float texOffsetX = 0.5f / static_cast< float >(x1b8_fogVolumeRamp.GetWidth());
-  const float texOffsetY = 0.5f / static_cast< float >(x1b8_fogVolumeRamp.GetHeight());
+  const float texOffsetX = 0.5f / static_cast< float >(mFogVolumeRamp.GetWidth());
+  const float texOffsetY = 0.5f / static_cast< float >(mFogVolumeRamp.GetHeight());
   float fogTexMtx[2][4] = {
       {0.f, 0.f, 0.f, 0.f},
       {0.f, 0.f, 0.f, 0.f},
@@ -1849,8 +1849,8 @@ void CCubeRenderer::ReallyRenderFogVolume(const CColor& color, const CAABox& aab
   bool doDoublePass = modelAabb.PointInside(CGraphics::mViewMatrix.GetTranslation()) &&
                       (model != nullptr || skinnedModel != nullptr);
   if (doDoublePass) {
-    x318_26_requestRGBA6 = true;
-    if (!x318_27_currentRGBA6) {
+    mRequestRGBA6 = true;
+    if (!mCurrentRGBA6) {
       doDoublePass = false;
     }
   }
@@ -1900,7 +1900,7 @@ void CCubeRenderer::ReallyRenderFogVolume(const CColor& color, const CAABox& aab
       CGX::SetNumTexGens(1);
       CGX::SetNumChans(0);
       CGX::SetBlendMode(GX_BM_BLEND, GX_BL_ZERO, GX_BL_ONE, GX_LO_CLEAR);
-      x1b8_fogVolumeRamp.Load(GX_TEXMAP2, CTexture::kCM_Clamp);
+      mFogVolumeRamp.Load(GX_TEXMAP2, CTexture::kCM_Clamp);
       GXSetCullMode(GX_CULL_BACK);
       GXSetDstAlpha(GX_TRUE, 0xff);
 #if defined(TARGET_PC)
@@ -2037,19 +2037,19 @@ void CCubeRenderer::ReallyRenderFogVolume(const CColor& color, const CAABox& aab
 }
 
 void CCubeRenderer::SetThermal(bool thermal, float level, const CColor& color) {
-  x318_29_thermalVisor = thermal;
-  x2f0_thermalVisorLevel = level;
-  x2f4_thermalColor = color;
+  mThermalVisor = thermal;
+  mThermalVisorLevel = level;
+  mThermalColor = color;
   CDecal::SetMoveRedToAlphaBuffer(false);
   CElementGen::SetMoveRedToAlphaBuffer(false);
 }
 
 void CCubeRenderer::EnablePVS(const CPVSVisSet* set, int areaIdx) {
-  xc8_pvsVisSet = *set;
-  xe0_pvsAreaIdx = areaIdx;
+  mPvsVisSet = *set;
+  mPvsAreaIdx = areaIdx;
 }
 
-void CCubeRenderer::DisablePVS() { xc8_pvsVisSet = rstl::optional_object_null(); }
+void CCubeRenderer::DisablePVS() { mPvsVisSet = rstl::optional_object_null(); }
 
 namespace {
 struct fog_sorter {
@@ -2058,8 +2058,8 @@ struct fog_sorter {
     const CTransform4f& viewXf = CGraphics::GetViewMatrix();
     const CVector3f pos = viewXf.GetTranslation();
 
-    const CAABox boxA = xfA.x34_aabb.GetTransformedAABox(xfA.x0_xf);
-    const CAABox boxB = xfB.x34_aabb.GetTransformedAABox(xfB.x0_xf);
+    const CAABox boxA = xfA.mAabb.GetTransformedAABox(xfA.mXf);
+    const CAABox boxB = xfB.mAabb.GetTransformedAABox(xfB.mXf);
 
     bool insideA = boxA.PointInside(CVector3f(pos.GetX(), pos.GetY(), boxA.GetMinPoint().GetZ()));
     bool insideB = boxB.PointInside(CVector3f(pos.GetX(), pos.GetY(), boxB.GetMinPoint().GetZ()));
@@ -2076,21 +2076,21 @@ struct fog_sorter {
 } // namespace
 
 void CCubeRenderer::PostRenderFogs() {
-  for (AUTO(warpIt, x2c4_spaceWarps.begin()); warpIt != x2c4_spaceWarps.end(); ++warpIt) {
+  for (AUTO(warpIt, mSpaceWarps.begin()); warpIt != mSpaceWarps.end(); ++warpIt) {
     _DrawSpaceWarp(warpIt->first, warpIt->second);
   }
-  x2c4_spaceWarps.clear();
+  mSpaceWarps.clear();
 
-  x2ac_fogVolumes.sort(fog_sorter());
+  mFogVolumes.sort(fog_sorter());
 
-  for (AUTO(fogIt, x2ac_fogVolumes.begin()); fogIt != x2ac_fogVolumes.end(); ++fogIt) {
+  for (AUTO(fogIt, mFogVolumes.begin()); fogIt != mFogVolumes.end(); ++fogIt) {
     CFogVolumeListItem& fog = *fogIt;
-    CGraphics::SetModelMatrix(fog.x0_xf);
-    ReallyRenderFogVolume(fog.x30_color, fog.x34_aabb, fog.x4c_model ? **fog.x4c_model : nullptr,
-                          fog.x5c_skinnedModel);
+    CGraphics::SetModelMatrix(fog.mXf);
+    ReallyRenderFogVolume(fog.mColor, fog.mAabb, fog.mModel ? **fog.mModel : nullptr,
+                          fog.mSkinnedModel);
   }
 
-  x2ac_fogVolumes.clear();
+  mFogVolumes.clear();
 }
 
 void CCubeRenderer::DoThermalModelDraw(const CCubeModel& model, const CColor& mulCol,
@@ -2099,7 +2099,7 @@ void CCubeRenderer::DoThermalModelDraw(const CCubeModel& model, const CColor& mu
   CGX::SetTexCoordGen(GX_TEXCOORD0, GX_TG_MTX3x4, GX_TG_NRM, GX_TEXMTX0, true, GX_PTTEXMTX0);
   CGX::SetNumTexGens(1);
   CGX::SetNumChans(0);
-  x220_sphereRamp.Load(GX_TEXMAP0, CTexture::kCM_Clamp);
+  mSphereRamp.Load(GX_TEXMAP0, CTexture::kCM_Clamp);
 
   CTransform4f texXf =
       CGraphics::mViewMatrix.GetQuickInverse().MultiplyIgnoreTranslation(CGraphics::mModelMatrix);
@@ -2251,10 +2251,10 @@ void CCubeRenderer::DrawModelFlat(const CModel& model, const CModelFlags& flags,
 }
 
 void CCubeRenderer::DrawAreaGeometry(int areaIdx, uint mask, uint targetMask) {
-  x318_30_inAreaDraw = true;
+  mInAreaDraw = true;
   SetupRendererStates(true);
 
-  for (AUTO(it, x1c_areaListItems.begin()); it != x1c_areaListItems.end(); ++it) {
+  for (AUTO(it, mAreaListItems.begin()); it != mAreaListItems.end(); ++it) {
     CAreaListItem& item = *it;
     if (areaIdx != -1 && areaIdx != item.GetAreaId()) {
       continue;
@@ -2263,12 +2263,12 @@ void CCubeRenderer::DrawAreaGeometry(int areaIdx, uint mask, uint targetMask) {
     rstl::vector< rstl::auto_ptr< CCubeModel > >& models = *item.GetModelList();
 
     const CPVSVisSet* pvs = 0;
-    if (xc8_pvsVisSet) {
-      pvs = xc8_pvsVisSet.get_ptr();
+    if (mPvsVisSet) {
+      pvs = mPvsVisSet.get_ptr();
     } else {
       pvs = 0;
     }
-    if (xe0_pvsAreaIdx != item.GetAreaId()) {
+    if (mPvsAreaIdx != item.GetAreaId()) {
       pvs = 0;
     }
 
@@ -2278,7 +2278,7 @@ void CCubeRenderer::DrawAreaGeometry(int areaIdx, uint mask, uint targetMask) {
 
       if (pvs != 0) {
         const bool visible = pvs->GetVisible(modelIdx) != kVSS_EndOfTree;
-        if ((xc4_pvsState == 1 && !visible) || (xc4_pvsState == 2 && visible)) {
+        if ((mPvsState == 1 && !visible) || (mPvsState == 2 && visible)) {
           continue;
         }
       }
@@ -2287,7 +2287,7 @@ void CCubeRenderer::DrawAreaGeometry(int areaIdx, uint mask, uint targetMask) {
         continue;
       }
 
-      if (!x44_frustumPlanes.BoxInFrustumPlanes(model.GetBoundingBox())) {
+      if (!mFrustumPlanes.BoxInFrustumPlanes(model.GetBoundingBox())) {
         continue;
       }
 
@@ -2310,12 +2310,12 @@ void CCubeRenderer::DrawAreaGeometry(int areaIdx, uint mask, uint targetMask) {
   }
 
   SetupCGraphicsStates();
-  x318_30_inAreaDraw = false;
+  mInAreaDraw = false;
 }
 
 void CCubeRenderer::SetThermalColdScale(float scale) {
   const float clampedScale = CMath::Clamp(0.f, scale, 1.f);
-  x2f8_thermalColdScale = CCast::ToUint8(clampedScale * 255.f);
+  mThermalColdScale = CCast::ToUint8(clampedScale * 255.f);
 }
 
 void CCubeRenderer::SetGXRegister1Color(const CColor& color) {
@@ -2324,12 +2324,12 @@ void CCubeRenderer::SetGXRegister1Color(const CColor& color) {
 
 void CCubeRenderer::SetWorldLightFadeLevel(float level) {
   const uchar val = CCast::ToUint8(level * 255.f);
-  x2fc_tevReg1Color = CColor(val, val, val, 255);
+  mTevReg1Color = CColor(val, val, val, 255);
 }
 
 CAABox CCubeRenderer::GetAreaModelBounds(int areaIdx, int modelIdx) {
   if (areaIdx != -1) {
-    for (AUTO(areaIt, x1c_areaListItems.begin()); areaIt != x1c_areaListItems.end(); ++areaIt) {
+    for (AUTO(areaIt, mAreaListItems.begin()); areaIt != mAreaListItems.end(); ++areaIt) {
       if (areaIdx != areaIt->GetAreaId()) {
         continue;
       }
@@ -2348,23 +2348,23 @@ CAABox CCubeRenderer::GetAreaModelBounds(int areaIdx, int modelIdx) {
 }
 
 void CCubeRenderer::PrepareDynamicLights(const rstl::vector< CLight >& lights) {
-  if (lights.size() != x300_dynamicLights.size()) {
-    x300_dynamicLights = rstl::vector< CLight >();
+  if (lights.size() != mDynamicLights.size()) {
+    mDynamicLights = rstl::vector< CLight >();
   }
 
-  x300_dynamicLights = lights;
+  mDynamicLights = lights;
 
-  for (AUTO(it, x1c_areaListItems.begin()); it != x1c_areaListItems.end(); ++it) {
+  for (AUTO(it, mAreaListItems.begin()); it != mAreaListItems.end(); ++it) {
     OSGetTime();
 
-    const CAreaRenderOctTree* octTree = it->x4_octTree;
+    const CAreaRenderOctTree* octTree = it->mOctTree;
     if (octTree != 0) {
-      const uint octreeWordCount = octTree->x14_bitmapWordCount;
-      rstl::vector< uint >& octWords = it->x1c_lightOctreeWords;
+      const uint octreeWordCount = octTree->mBitmapWordCount;
+      rstl::vector< uint >& octWords = it->mLightOctreeWords;
       octWords = rstl::vector< uint >();
 
       if (!lights.empty()) {
-        octWords.resize(octreeWordCount * x300_dynamicLights.size(), 0);
+        octWords.resize(octreeWordCount * mDynamicLights.size(), 0);
 
         int wordOffset = 0;
         for (int i = 0; i < lights.size(); ++i) {
@@ -2385,9 +2385,9 @@ void CCubeRenderer::PrepareDynamicLights(const rstl::vector< CLight >& lights) {
 void CCubeRenderer::FindOverlappingWorldModels(rstl::vector< uint >& modelBits,
                                                const CAABox& aabb) {
   int wordCount = 0;
-  for (AUTO(it, x1c_areaListItems.begin()); it != x1c_areaListItems.end(); ++it) {
-    if (it->x4_octTree != 0) {
-      wordCount += it->x4_octTree->x14_bitmapWordCount;
+  for (AUTO(it, mAreaListItems.begin()); it != mAreaListItems.end(); ++it) {
+    if (it->mOctTree != 0) {
+      wordCount += it->mOctTree->mBitmapWordCount;
     }
   }
 
@@ -2405,15 +2405,15 @@ void CCubeRenderer::FindOverlappingWorldModels(rstl::vector< uint >& modelBits,
   modelBits.resize(wordCount);
 
   int curWord = 0;
-  for (AUTO(it, x1c_areaListItems.begin()); it != x1c_areaListItems.end(); ++it) {
-    const CAreaRenderOctTree* octTree = it->x4_octTree;
+  for (AUTO(it, mAreaListItems.begin()); it != mAreaListItems.end(); ++it) {
+    const CAreaRenderOctTree* octTree = it->mOctTree;
     if (octTree == nullptr) {
       continue;
     }
 
     octTree->FindOverlappingModels(modelBits.data() + curWord, aabb);
 
-    for (int i = 0, wordModel = 0; i < octTree->x14_bitmapWordCount; ++i, wordModel += 0x20) {
+    for (int i = 0, wordModel = 0; i < octTree->mBitmapWordCount; ++i, wordModel += 0x20) {
       uint& word = modelBits[curWord + i];
       if (word == 0) {
         continue;
@@ -2428,7 +2428,7 @@ void CCubeRenderer::FindOverlappingWorldModels(rstl::vector< uint >& modelBits,
       }
     }
 
-    curWord += octTree->x14_bitmapWordCount;
+    curWord += octTree->mBitmapWordCount;
   }
 }
 
@@ -2441,13 +2441,13 @@ int CCubeRenderer::DrawOverlappingWorldModelIDs(int alphaVal, rstl::vector< uint
   int curWord = 0;
   int alpha = alphaVal;
 
-  for (AUTO(it, x1c_areaListItems.begin()); it != x1c_areaListItems.end(); ++it) {
-    const CAreaRenderOctTree* octTree = it->x4_octTree;
+  for (AUTO(it, mAreaListItems.begin()); it != mAreaListItems.end(); ++it) {
+    const CAreaRenderOctTree* octTree = it->mOctTree;
     if (octTree == nullptr) {
       continue;
     }
 
-    for (int i = 0, wordModel = 0; i < octTree->x14_bitmapWordCount; ++i, wordModel += 0x20) {
+    for (int i = 0, wordModel = 0; i < octTree->mBitmapWordCount; ++i, wordModel += 0x20) {
       const uint word = modelBits[curWord + i];
       if (word == 0) {
         continue;
@@ -2478,7 +2478,7 @@ int CCubeRenderer::DrawOverlappingWorldModelIDs(int alphaVal, rstl::vector< uint
       }
     }
 
-    curWord += octTree->x14_bitmapWordCount;
+    curWord += octTree->mBitmapWordCount;
   }
 
   SetupCGraphicsStates();
@@ -2493,13 +2493,13 @@ void CCubeRenderer::DrawOverlappingWorldModelShadows(int alphaVal, rstl::vector<
   int curWord = 0;
   int alpha = alphaVal;
 
-  for (AUTO(it, x1c_areaListItems.begin()); it != x1c_areaListItems.end(); ++it) {
-    const CAreaRenderOctTree* octTree = it->x4_octTree;
+  for (AUTO(it, mAreaListItems.begin()); it != mAreaListItems.end(); ++it) {
+    const CAreaRenderOctTree* octTree = it->mOctTree;
     if (octTree == 0) {
       continue;
     }
 
-    for (int i = 0, wordModel = 0; i < octTree->x14_bitmapWordCount; ++i, wordModel += 0x20) {
+    for (int i = 0, wordModel = 0; i < octTree->mBitmapWordCount; ++i, wordModel += 0x20) {
       const uint word = modelBits[curWord + i];
       if (word == 0) {
         continue;
@@ -2531,7 +2531,7 @@ void CCubeRenderer::DrawOverlappingWorldModelShadows(int alphaVal, rstl::vector<
       }
     }
 
-    curWord += octTree->x14_bitmapWordCount;
+    curWord += octTree->mBitmapWordCount;
   }
 }
 
@@ -2937,13 +2937,13 @@ void CCubeRenderer::DrawPhazonSuitIndirectEffect(
     const CColor& nonIndirectColor,
     const rstl::optional_object< TCachedToken< CTexture > >& indirectTex, float blurRadius,
     float scale, float offX, float offY, const CColor& indirectColor) {
-  if (x318_27_currentRGBA6 && x310_phazonSuitMaskCountdown != 0) {
+  if (mCurrentRGBA6 && mPhazonSuitMaskCountdown != 0) {
     const CTransform4f backupView(CGraphics::mViewMatrix);
     const CGraphics::CProjectionState backupProjection = CGraphics::GetProjectionState();
 
-    if (x314_phazonSuitMask.null() ||
-        x314_phazonSuitMask->GetWidth() != (CGraphics::GetViewport().mWidth >> 2) ||
-        x314_phazonSuitMask->GetHeight() != (CGraphics::GetViewport().mHeight >> 2)) {
+    if (mPhazonSuitMask.null() ||
+        mPhazonSuitMask->GetWidth() != (CGraphics::GetViewport().mWidth >> 2) ||
+        mPhazonSuitMask->GetHeight() != (CGraphics::GetViewport().mHeight >> 2)) {
       return;
     }
 
@@ -2951,8 +2951,8 @@ void CCubeRenderer::DrawPhazonSuitIndirectEffect(
     const CViewport backupViewport = CGraphics::GetViewport();
 #endif
     DoPhazonSuitIndirectAlphaBlur(blurRadius, blurRadius);
-    x314_phazonSuitMask->SetFlag1(true);
-    CopyTex(4, false, x314_phazonSuitMask->GetBitMapData(0), GX_TF_A8, true);
+    mPhazonSuitMask->SetFlag1(true);
+    CopyTex(4, false, mPhazonSuitMask->GetBitMapData(0), GX_TF_A8, true);
 #if defined(TARGET_PC)
     GXRestoreFrameBuffer();
     SetViewport(backupViewport.mLeft,
@@ -2962,35 +2962,35 @@ void CCubeRenderer::DrawPhazonSuitIndirectEffect(
 
     CTexture* indTex = 0;
     if (indirectTex && (indTex = indirectTex->GetObject())) {
-      ReallyDrawPhazonSuitIndirectEffect(CColor(1.f, 1.f, 1.f, 1.f), *x314_phazonSuitMask, *indTex,
+      ReallyDrawPhazonSuitIndirectEffect(CColor(1.f, 1.f, 1.f, 1.f), *mPhazonSuitMask, *indTex,
                                          indirectColor, scale, offX, offY);
     } else {
-      ReallyDrawPhazonSuitEffect(nonIndirectColor, *x314_phazonSuitMask);
+      ReallyDrawPhazonSuitEffect(nonIndirectColor, *mPhazonSuitMask);
     }
 
-    x314_phazonSuitMask->UnLock();
+    mPhazonSuitMask->UnLock();
     CGraphics::SetViewPointMatrix(backupView);
     CGraphics::SetProjectionState(backupProjection);
-    x310_phazonSuitMaskCountdown = 2;
+    mPhazonSuitMaskCountdown = 2;
   }
 
   GXSetDstAlpha(GX_FALSE, 0);
 }
 
 void CCubeRenderer::AllocatePhazonSuitMaskTexture() {
-  x318_26_requestRGBA6 = true;
+  mRequestRGBA6 = true;
 
-  if (x314_phazonSuitMask.null()) {
-    x314_phazonSuitMask = rs_new CTexture(kTF_I8, CGraphics::GetViewport().mWidth >> 2,
+  if (mPhazonSuitMask.null()) {
+    mPhazonSuitMask = rs_new CTexture(kTF_I8, CGraphics::GetViewport().mWidth >> 2,
                                           CGraphics::GetViewport().mHeight >> 2, 1);
   }
 
-  x310_phazonSuitMaskCountdown = 2;
+  mPhazonSuitMaskCountdown = 2;
 }
 
 void CCubeRenderer::DrawXRayOutline(const CAABox& bounds, const float*, const float*) {
-  for (AUTO(it, x1c_areaListItems.begin()); it != x1c_areaListItems.end(); ++it) {
-    const CAreaRenderOctTree* octTree = it->x4_octTree;
+  for (AUTO(it, mAreaListItems.begin()); it != mAreaListItems.end(); ++it) {
+    const CAreaRenderOctTree* octTree = it->mOctTree;
     if (octTree == 0) {
       continue;
     }
@@ -2998,7 +2998,7 @@ void CCubeRenderer::DrawXRayOutline(const CAABox& bounds, const float*, const fl
     rstl::vector< uint > modelBits;
     octTree->FindOverlappingModels(modelBits, bounds);
 
-    for (int i = 0, wordModel = 0; i < octTree->x14_bitmapWordCount; ++i, wordModel += 0x20) {
+    for (int i = 0, wordModel = 0; i < octTree->mBitmapWordCount; ++i, wordModel += 0x20) {
       const uint word = modelBits[i];
       if (word == 0) {
         continue;
@@ -3026,5 +3026,5 @@ void CCubeRenderer::DrawXRayOutline(const CAABox& bounds, const float*, const fl
 }
 
 void CCubeRenderer::DrawString(const char* string, int x, int y) {
-  x10_font.DrawString(string, x, y, CColor::White());
+  mFont.DrawString(string, x, y, CColor::White());
 }

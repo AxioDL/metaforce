@@ -17,13 +17,13 @@ public:
                  const rstl::ncrc_ptr< CAnimTreeNode >& b, float blendWeight,
                  const rstl::string& name)
   : CAnimTreeTweenBase(characterSpaceBlend, a, b, kBlendRoot_Offset | kBlendRoot_Rotation, name)
-  , x24_blendWeight(blendWeight) {}
+  , mBlendWeight(blendWeight) {}
 
   static rstl::string CreatePrimitiveName(const rstl::ncrc_ptr< CAnimTreeNode >& a,
                                           const rstl::ncrc_ptr< CAnimTreeNode >& b, float weight);
 
 private:
-  float x24_blendWeight;
+  float mBlendWeight;
 };
 CHECK_SIZEOF(CAnimTreeBlend, 0x28)
 

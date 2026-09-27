@@ -63,23 +63,23 @@ public:
       kE_InOut,
     };
 
-    CVector2i x0_viewportSize;
-    CQuaternion x8_camOrientation;
-    float x18_camDist;
-    float x1c_camAngle;
-    CVector3f x20_areaPoint;
-    float x2c_drawDepth1;
-    float x30_drawDepth2;
-    float x34_alphaSurfaceVisited;
-    float x38_alphaOutlineVisited;
-    float x3c_alphaSurfaceUnvisited;
-    float x40_alphaOutlineUnvisited;
-    Ease x44_viewportEase;
-    Ease x48_camEase;
-    Ease x4c_pointEase;
-    Ease x50_depth1Ease;
-    Ease x54_depth2Ease;
-    Ease x58_alphaEase;
+    CVector2i mViewportSize;
+    CQuaternion mCamOrientation;
+    float mCamDist;
+    float mCamAngle;
+    CVector3f mAreaPoint;
+    float mDrawDepth1;
+    float mDrawDepth2;
+    float mAlphaSurfaceVisited;
+    float mAlphaOutlineVisited;
+    float mAlphaSurfaceUnvisited;
+    float mAlphaOutlineUnvisited;
+    Ease mViewportEase;
+    Ease mCamEase;
+    Ease mPointEase;
+    Ease mDepth1Ease;
+    Ease mDepth2Ease;
+    Ease mAlphaEase;
 
     SAutoMapperRenderState(const SAutoMapperRenderState& other);
     SAutoMapperRenderState(const CVector2i& viewportSize, const CQuaternion& camOrientation,
@@ -105,30 +105,30 @@ public:
     };
 
     union Data {
-      CAssetId x0_worldId;
-      int x0_areaId;
-      float x0_float;
+      CAssetId mWorldId;
+      int mAreaId;
+      float mFloat;
 
-      Data(int value) : x0_areaId(value) {}
+      Data(int value) : mAreaId(value) {}
 
-      Data(float value) : x0_float(value) {}
+      Data(float value) : mFloat(value) {}
     };
 
-    Type x0_type;
-    Data x4_data;
-    bool x8_processing;
+    Type mType;
+    Data mData;
+    bool mProcessing;
 
-    SAutoMapperHintStep(Type type, int data) : x0_type(type), x4_data(data), x8_processing(false) {}
+    SAutoMapperHintStep(Type type, int data) : mType(type), mData(data), mProcessing(false) {}
 
     SAutoMapperHintStep(Type type, const float& data)
-    : x0_type(type), x4_data(data), x8_processing(false) {}
+    : mType(type), mData(data), mProcessing(false) {}
   };
 
   struct SAutoMapperHintLocation {
-    int x0_showBeacon;
-    float x4_beaconAlpha;
-    CAssetId x8_worldId;
-    TAreaId xc_areaId;
+    int mShowBeacon;
+    float mBeaconAlpha;
+    CAssetId mWorldId;
+    TAreaId mAreaId;
 
     SAutoMapperHintLocation(uint showBeacon, float beaconAlpha, CAssetId worldId, int areaId);
   };
@@ -140,8 +140,8 @@ public:
   explicit CAutoMapper(const CStateManager& stateMgr);
   bool CheckLoadComplete();
   bool CanLeaveMapScreen(const CStateManager& mgr) const;
-  float GetMapRotationX() const { return xa8_renderState0.x1c_camAngle; }
-  TAreaId GetFocusAreaIndex() const { return xa0_curAreaId; }
+  float GetMapRotationX() const { return mRenderState0.mCamAngle; }
+  TAreaId GetFocusAreaIndex() const { return mCurAreaId; }
   void SetCurWorldAssetId(int mlvlId);
   void MuteAllLoopedSounds();
   void UnmuteAllLoopedSounds();
@@ -151,7 +151,7 @@ public:
   }
   void Update(float dt, const CStateManager& mgr);
   void Draw(const CStateManager& mgr, const CTransform4f& xf, float alpha) const;
-  float GetTimeIntoInterpolation() const { return x1c8_interpTime; }
+  float GetTimeIntoInterpolation() const { return mInterpTime; }
   void BeginMapperStateTransition(EAutoMapperState state, const CStateManager& mgr);
   void CompleteMapperStateTransition(const CStateManager& mgr);
   void ResetInterpolationTimer(float duration);
@@ -173,19 +173,19 @@ public:
   rstl::pair< int, int > FindClosestVisibleWorld(const CVector3f& point,
                                                  const CUnitVector3f& camDir,
                                                  const CStateManager& mgr) const;
-  EAutoMapperState GetCurrentState() const { return x1bc_state; }
-  EAutoMapperState GetNextState() const { return x1c0_nextState; }
+  EAutoMapperState GetCurrentState() const { return mState; }
+  EAutoMapperState GetNextState() const { return mNextState; }
   bool IsInMapperState(EAutoMapperState state) const;
   bool IsInMapperStateTransition() const;
   bool IsRenderStateInterpolating() const;
   bool IsFullyInMiniMapState() const { return IsInMapperState(kAMS_MiniMap); }
   bool IsFullyOutOfMiniMapState() const {
-    return x1bc_state != kAMS_MiniMap && x1c0_nextState != kAMS_MiniMap;
+    return mState != kAMS_MiniMap && mNextState != kAMS_MiniMap;
   }
   void OnNewInGameGuiState(EInGameGuiState state, const CStateManager& mgr);
   float GetInterp() const {
-    if (x1c4_interpDur > 0.f)
-      return x1c8_interpTime / x1c4_interpDur;
+    if (mInterpDur > 0.f)
+      return mInterpTime / mInterpDur;
     return 0.f;
   }
 
@@ -224,60 +224,60 @@ private:
   template < class T >
   void SetResLockState(T& list, bool lock);
 
-  ELoadPhase x4_loadPhase;
-  TCachedToken< CMapUniverse > x8_mapu;
-  rstl::vector< rstl::auto_ptr< IWorld > > x14_dummyWorlds;
-  IWorld* x24_world;
-  rstl::single_ptr< TCachedToken< CGuiFrame > > x28_frmeMapScreen;
-  CGuiFrame* x2c_frmeInitialized;
-  TCachedToken< CModel > x30_miniMapSamus;
-  TCachedToken< CTexture > x3c_hintBeacon;
-  rstl::reserved_vector< CToken, 5 > x48_mapIcons;
-  CAssetId x74_areaHintDescId;
-  rstl::optional_object< TCachedToken< CStringTable > > x78_areaHintDesc;
-  CAssetId x88_mapAreaStringId;
-  rstl::optional_object< TCachedToken< CStringTable > > x8c_mapAreaString;
-  int x9c_worldIdx;
-  TAreaId xa0_curAreaId;
-  TAreaId xa4_otherAreaId;
-  SAutoMapperRenderState xa8_renderState0;
-  SAutoMapperRenderState x104_renderState1;
-  SAutoMapperRenderState x160_renderState2;
-  EAutoMapperState x1bc_state;
-  EAutoMapperState x1c0_nextState;
-  float x1c4_interpDur;
-  float x1c8_interpTime;
-  CSfxHandle x1cc_panningSfx;
-  CSfxHandle x1d0_rotatingSfx;
-  CSfxHandle x1d4_zoomingSfx;
-  float x1d8_flashTimer;
-  float x1dc_playerFlashPulse;
-  rstl::list< SAutoMapperHintStep > x1e0_hintSteps;
-  rstl::list< SAutoMapperHintLocation > x1f8_hintLocations;
-  rstl::reserved_vector< CToken, 9 > x210_lstick;
-  rstl::reserved_vector< CToken, 9 > x25c_cstick;
-  rstl::reserved_vector< CToken, 2 > x2a8_ltrigger;
-  rstl::reserved_vector< CToken, 2 > x2bc_rtrigger;
-  rstl::reserved_vector< CToken, 2 > x2d0_abutton;
-  uint x2e4_lStickPos;
-  uint x2e8_rStickPos;
-  uint x2ec_lTriggerPos;
-  uint x2f0_rTriggerPos;
-  uint x2f4_aButtonPos;
-  CGuiTextPane* x2f8_textpane_areaname;
-  CGuiTextPane* x2fc_textpane_hint;
-  CGuiTextPane* x300_textpane_instructions;
-  CGuiTextPane* x304_textpane_instructions1;
-  CGuiTextPane* x308_textpane_instructions2;
-  CGuiWidget* x30c_basewidget_leftPane;
-  CGuiWidget* x310_basewidget_yButtonPane;
-  CGuiWidget* x314_basewidget_bottomPane;
-  float x318_leftPanePos;
-  float x31c_yButtonPanePos;
-  float x320_bottomPanePos;
-  EZoomState x324_zoomState;
+  ELoadPhase mLoadPhase;
+  TCachedToken< CMapUniverse > mMapu;
+  rstl::vector< rstl::auto_ptr< IWorld > > mDummyWorlds;
+  IWorld* mWorld;
+  rstl::single_ptr< TCachedToken< CGuiFrame > > mFrmeMapScreen;
+  CGuiFrame* mFrmeInitialized;
+  TCachedToken< CModel > mMiniMapSamus;
+  TCachedToken< CTexture > mHintBeacon;
+  rstl::reserved_vector< CToken, 5 > mMapIcons;
+  CAssetId mAreaHintDescId;
+  rstl::optional_object< TCachedToken< CStringTable > > mAreaHintDesc;
+  CAssetId mMapAreaStringId;
+  rstl::optional_object< TCachedToken< CStringTable > > mMapAreaString;
+  int mWorldIdx;
+  TAreaId mCurAreaId;
+  TAreaId mOtherAreaId;
+  SAutoMapperRenderState mRenderState0;
+  SAutoMapperRenderState mRenderState1;
+  SAutoMapperRenderState mRenderState2;
+  EAutoMapperState mState;
+  EAutoMapperState mNextState;
+  float mInterpDur;
+  float mInterpTime;
+  CSfxHandle mPanningSfx;
+  CSfxHandle mRotatingSfx;
+  CSfxHandle mZoomingSfx;
+  float mFlashTimer;
+  float mPlayerFlashPulse;
+  rstl::list< SAutoMapperHintStep > mHintSteps;
+  rstl::list< SAutoMapperHintLocation > mHintLocations;
+  rstl::reserved_vector< CToken, 9 > mLstick;
+  rstl::reserved_vector< CToken, 9 > mCstick;
+  rstl::reserved_vector< CToken, 2 > mLtrigger;
+  rstl::reserved_vector< CToken, 2 > mRtrigger;
+  rstl::reserved_vector< CToken, 2 > mAbutton;
+  uint mLStickPos;
+  uint mRStickPos;
+  uint mLTriggerPos;
+  uint mRTriggerPos;
+  uint mAButtonPos;
+  CGuiTextPane* mTextpane_areaname;
+  CGuiTextPane* mTextpane_hint;
+  CGuiTextPane* mTextpane_instructions;
+  CGuiTextPane* mTextpane_instructions1;
+  CGuiTextPane* mTextpane_instructions2;
+  CGuiWidget* mBasewidget_leftPane;
+  CGuiWidget* mBasewidget_yButtonPane;
+  CGuiWidget* mBasewidget_bottomPane;
+  float mLeftPanePos;
+  float mYButtonPanePos;
+  float mBottomPanePos;
+  EZoomState mZoomState;
   int x328_;
-  bool x32c_loadingDummyWorld;
+  bool mLoadingDummyWorld;
 };
 NESTED_CHECK_SIZEOF(CAutoMapper, SAutoMapperHintStep, 0xc)
 NESTED_CHECK_SIZEOF(CAutoMapper, SAutoMapperHintLocation, 0x10)

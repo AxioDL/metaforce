@@ -24,14 +24,14 @@ public:
   static rstl::pair< CVector3f, CVector3f > BossEnergyCoordFunc(float t);
 
 private:
-  float x0_alpha;
-  float x4_fader;
-  float x8_curEnergy;
-  float xc_maxEnergy;
-  bool x10_24_visible : 1;
-  CGuiWidget* x14_basewidget_bossenergystuff;
-  CAuiEnergyBarT01* x18_energybart01_bossbar;
-  CGuiTextPane* x1c_textpane_boss;
+  float mAlpha;
+  float mFader;
+  float mCurEnergy;
+  float mMaxEnergy;
+  bool mVisible : 1;
+  CGuiWidget* mBasewidget_bossenergystuff;
+  CAuiEnergyBarT01* mEnergybart01_bossbar;
+  CGuiTextPane* mTextpane_boss;
 };
 CHECK_SIZEOF(CHudBossEnergyInterface, 0x20)
 

@@ -17,12 +17,12 @@ public:
   void Shutdown(CBodyController&) override;
 
 private:
-  pas::EAnimationState x4_nextState; // = pas::kAS_Invalid;
-  CBCSlideCmd x8_slide;
-  CVector3f x20_targetPos;
-  float x2c_alignTargetPosStartTime; // = -1.f;
-  float x30_alignTargetPosTime;      // = -1.f;
-  float x34_curTime;                 // = 0.f;
+  pas::EAnimationState mNextState; // = pas::kAS_Invalid;
+  CBCSlideCmd mSlide;
+  CVector3f mTargetPos;
+  float mAlignTargetPosStartTime; // = -1.f;
+  float mAlignTargetPosTime;      // = -1.f;
+  float mCurTime;                 // = 0.f;
 
   pas::EAnimationState GetBodyStateTransition(float dt, CBodyController& bc);
   void UpdatePhysicsActor(CBodyController& bc, float dt);

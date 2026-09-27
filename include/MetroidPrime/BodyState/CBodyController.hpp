@@ -17,9 +17,9 @@ class CBodyController {
 public:
   CBodyController(CActor& actor, float turnSpeed, EBodyType bodyType);
 
-  CActor& GetOwner() const { return *x0_actor; }
-  CBodyStateCmdMgr& CommandMgr() { return x4_cmdMgr; }
-  const CBodyStateCmdMgr& GetCommandMgr() const { return x4_cmdMgr; }
+  CActor& GetOwner() const { return *mActor; }
+  CBodyStateCmdMgr& CommandMgr() { return mCmdMgr; }
+  const CBodyStateCmdMgr& GetCommandMgr() const { return mCmdMgr; }
 
   const CPASDatabase& GetPASDatabase() const;
   float GetAnimTimeRemaining() const;
@@ -42,19 +42,19 @@ public:
   void SetPlaybackRate(float rate);
   void SetFallState(pas::EFallState state); // { x2f0_fallState = state; }
   pas::EFallState GetFallState() const;     // { return x2f0_fallState; }
-  const CBodyStateInfo& GetBodyStateInfo() const { return x2a4_bodyStateInfo; }
-  CBodyStateInfo& BodyStateInfo() { return x2a4_bodyStateInfo; }
-  pas::ELocomotionType GetLocomotionType() const { return x2ec_locomotionType; }
-  EBodyType GetBodyType() const { return x2f4_bodyType; }
-  int GetCurrentAnimId() const { return x2f8_curAnim; }
+  const CBodyStateInfo& GetBodyStateInfo() const { return mBodyStateInfo; }
+  CBodyStateInfo& BodyStateInfo() { return mBodyStateInfo; }
+  pas::ELocomotionType GetLocomotionType() const { return mLocomotionType; }
+  EBodyType GetBodyType() const { return mBodyType; }
+  int GetCurrentAnimId() const { return mCurAnim; }
   void SetTurnSpeed(float speed);
-  float GetTurnSpeed() const { return x2fc_turnSpeed; }
-  bool IsAnimationOver() const { return x300_24_animationOver; }
-  bool GetIsActive() const { return x300_25_active; }
-  bool ShouldPlayDeathAnims() const { return x300_28_playDeathAnims; }
-  pas::EAnimationState GetCurrentStateId() const { return x2a4_bodyStateInfo.GetCurrentStateId(); }
-  float GetRestrictedFlyerMoveSpeed() const { return x330_restrictedFlyerMoveSpeed; }
-  void SetRestrictedFlyerMoveSpeed(float speed) { x330_restrictedFlyerMoveSpeed = speed; }
+  float GetTurnSpeed() const { return mTurnSpeed; }
+  bool IsAnimationOver() const { return mAnimationOver; }
+  bool GetIsActive() const { return mActive; }
+  bool ShouldPlayDeathAnims() const { return mPlayDeathAnims; }
+  pas::EAnimationState GetCurrentStateId() const { return mBodyStateInfo.GetCurrentStateId(); }
+  float GetRestrictedFlyerMoveSpeed() const { return mRestrictedFlyerMoveSpeed; }
+  void SetRestrictedFlyerMoveSpeed(float speed) { mRestrictedFlyerMoveSpeed = speed; }
 
   void Freeze(float intoFreezeDur, float frozenDur, float breakoutDur);
   void UnFreeze();
@@ -62,38 +62,38 @@ public:
   void MultiplyPlaybackRate(float scale);
   void SetOnFire(float duration);
   void DouseFlames();
-  bool HasBeenFrozen() const { return x300_27_hasBeenFrozen; }
-  bool IsFrozen() const { return x300_26_frozen; }
+  bool HasBeenFrozen() const { return mHasBeenFrozen; }
+  bool IsFrozen() const { return mFrozen; }
   void SetElectrocuting(float duration);
-  bool IsElectrocuting() const { return x324_electrocutionDur > 0.f; }
-  bool IsOnFire() const { return x320_fireDur > 0.f; }
+  bool IsElectrocuting() const { return mElectrocutionDur > 0.f; }
+  bool IsOnFire() const { return mFireDur > 0.f; }
   void StopElectrocution();
 
 private:
-  CActor* x0_actor;
-  CBodyStateCmdMgr x4_cmdMgr;
-  CBodyStateInfo x2a4_bodyStateInfo;
-  CQuaternion x2dc_rot;
-  pas::ELocomotionType x2ec_locomotionType;
-  pas::EFallState x2f0_fallState;
-  EBodyType x2f4_bodyType;
-  int x2f8_curAnim;
-  float x2fc_turnSpeed;
-  bool x300_24_animationOver : 1;
-  bool x300_25_active : 1;
-  bool x300_26_frozen : 1;
-  bool x300_27_hasBeenFrozen : 1;
-  bool x300_28_playDeathAnims : 1;
-  float x304_intoFreezeDur;
-  float x308_frozenDur;
-  float x30c_breakoutDur;
-  float x310_timeFrozen;
-  CVector3f x314_backedUpForce;
-  float x320_fireDur;
-  float x324_electrocutionDur;
-  float x328_timeOnFire;
-  float x32c_timeElectrocuting;
-  float x330_restrictedFlyerMoveSpeed;
+  CActor* mActor;
+  CBodyStateCmdMgr mCmdMgr;
+  CBodyStateInfo mBodyStateInfo;
+  CQuaternion mRot;
+  pas::ELocomotionType mLocomotionType;
+  pas::EFallState mFallState;
+  EBodyType mBodyType;
+  int mCurAnim;
+  float mTurnSpeed;
+  bool mAnimationOver : 1;
+  bool mActive : 1;
+  bool mFrozen : 1;
+  bool mHasBeenFrozen : 1;
+  bool mPlayDeathAnims : 1;
+  float mIntoFreezeDur;
+  float mFrozenDur;
+  float mBreakoutDur;
+  float mTimeFrozen;
+  CVector3f mBackedUpForce;
+  float mFireDur;
+  float mElectrocutionDur;
+  float mTimeOnFire;
+  float mTimeElectrocuting;
+  float mRestrictedFlyerMoveSpeed;
 };
 CHECK_SIZEOF(CBodyController, 0x334)
 

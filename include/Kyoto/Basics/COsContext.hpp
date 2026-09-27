@@ -17,17 +17,17 @@ enum EConsoleType {
 class COsKeyState {
 public:
   COsKeyState(int key, bool down, bool released, bool repeat, bool unk)
-  : x0_key(key), x4_down(down), x4_released(released), x4_repeat(repeat), x4_unk(unk) {}
+  : mKey(key), mDown(down), mReleased(released), mRepeat(repeat), mUnk(unk) {}
 
-  bool IsPressed() const { return x4_down; }
-  bool JustPressed() const { return x4_unk && x4_down; }
+  bool IsPressed() const { return mDown; }
+  bool JustPressed() const { return mUnk && mDown; }
 
 private:
-  int x0_key;
-  short x4_down : 1;
-  short x4_released : 1;
-  short x4_repeat : 1;
-  short x4_unk : 1;
+  int mKey;
+  short mDown : 1;
+  short mReleased : 1;
+  short mRepeat : 1;
+  short mUnk : 1;
 };
 
 class COsContext {
@@ -46,32 +46,32 @@ public:
   void* AllocFromArena(size_t sz);
 
   uint GetBaseFreeRam() const {
-    size_t hiAddr = reinterpret_cast< size_t >(x1c_arenaHi);
-    size_t loAddr = reinterpret_cast< size_t >(x20_arenaLo2);
+    size_t hiAddr = reinterpret_cast< size_t >(mArenaHi);
+    size_t loAddr = reinterpret_cast< size_t >(mArenaLo2);
     return ((hiAddr & ~31) - ((loAddr + 31) & ~31));
   }
 
-  void* GetFramebuf1() const { return x24_frameBuffer1; }
-  void* GetFramebuf2() const { return x28_frameBuffer2; }
-  const GXRenderModeObj& GetRenderModeObj() const { return x30_renderMode; }
+  void* GetFramebuf1() const { return mFrameBuffer1; }
+  void* GetFramebuf2() const { return mFrameBuffer2; }
+  const GXRenderModeObj& GetRenderModeObj() const { return mRenderMode; }
 
   static void SetProgressiveMode(bool progressive) { mProgressiveMode = progressive; }
   static bool GetProgressiveMode() { return mProgressiveMode; }
 
 private:
-  int x0_right;
-  int x4_bottom;
-  int x8_left;
-  int xc_top;
-  int x10_format;
-  int x14_consoleType;
-  void* x18_arenaLo1;
-  void* x1c_arenaHi;
-  void* x20_arenaLo2;
-  void* x24_frameBuffer1;
-  void* x28_frameBuffer2;
-  int x2c_frameBufferSize;
-  GXRenderModeObj x30_renderMode;
+  int mRight;
+  int mBottom;
+  int mLeft;
+  int mTop;
+  int mFormat;
+  int mConsoleType;
+  void* mArenaLo1;
+  void* mArenaHi;
+  void* mArenaLo2;
+  void* mFrameBuffer1;
+  void* mFrameBuffer2;
+  int mFrameBufferSize;
+  GXRenderModeObj mRenderMode;
 };
 CHECK_SIZEOF(COsContext, 0x6c)
 

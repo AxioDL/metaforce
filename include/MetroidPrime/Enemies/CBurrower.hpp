@@ -52,28 +52,28 @@ public:
   bool PathShagged(CStateManager& mgr, float arg) override;
 
   // CPatterned
-  CPathFindSearch* GetSearchPath() override { return &x568_pathFindSearch; }
+  CPathFindSearch* GetSearchPath() override { return &mPathFindSearch; }
   CProjectileInfo* ProjectileInfo() override;
   const rstl::optional_object< TCachedToken< CGenDescription > >&
   GetDeathExplosionParticle() const override;
 
 private:
-  CPathFindSearch x568_pathFindSearch;
-  CProjectileInfo x64c_projectileInfo;
-  rstl::single_ptr< CElementGen > x674_jumpParticle;
-  rstl::single_ptr< CElementGen > x678_trailParticle;
-  rstl::optional_object< TLockedToken< CGenDescription > > x67c_visorParticle;
-  rstl::optional_object< TCachedToken< CGenDescription > > x68c_deathExplosionParticle;
-  float x69c_attackTime;
-  float x6a0_lurkTimer;
-  float x6a4_invulnDamageTime;
-  TUniqueId x6a8_lastDestObj;
-  ushort x6aa_visorSfx;
-  bool x6ac_24_doFacePlayer : 1;
-  bool x6ac_25_inAir : 1;
+  CPathFindSearch mPathFindSearch;
+  CProjectileInfo mProjectileInfo;
+  rstl::single_ptr< CElementGen > mJumpParticle;
+  rstl::single_ptr< CElementGen > mTrailParticle;
+  rstl::optional_object< TLockedToken< CGenDescription > > mVisorParticle;
+  rstl::optional_object< TCachedToken< CGenDescription > > mDeathExplosionParticle;
+  float mAttackTime;
+  float mLurkTimer;
+  float mInvulnDamageTime;
+  TUniqueId mLastDestObj;
+  ushort mVisorSfx;
+  bool mDoFacePlayer : 1;
+  bool mInAir : 1;
 
   static const CDamageVulnerability skBombVulnerability;
 };
-CHECK_SIZEOF(CBurrower, (VERSION >= VERSION_GM8P_00 ? 0x6c0 : 0x6B0))
+CHECK_SIZEOF(CBurrower, (VERSION >= VERSION_GM8E_02 ? 0x6c0 : 0x6B0))
 
 #endif // _CBURROWER

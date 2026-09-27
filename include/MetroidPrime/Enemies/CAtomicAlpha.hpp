@@ -47,40 +47,40 @@ public:
   bool AggressionCheck(CStateManager& mgr, float arg) override;
 
   // CPatterned
-  CProjectileInfo* ProjectileInfo() override { return &x668_bombProjectile; }
-  CPathFindSearch* GetSearchPath() override { return &x580_pathFind; }
+  CProjectileInfo* ProjectileInfo() override { return &mBombProjectile; }
+  CPathFindSearch* GetSearchPath() override { return &mPathFind; }
 
   bool CanDropBomb() const {
-    return x578_bombTime >= x56c_bombDropDelay &&
-           x6dc_bombLocators[0].x14_scaleTime > (x570_bombReappearDelay + x574_bombRappearTime);
+    return mBombTime >= mBombDropDelay &&
+           mBombLocators[0].mScaleTime > (mBombReappearDelay + mBombRappearTime);
   }
 
 private:
   enum { kBombCount = 4 };
 
   struct SBomb {
-    rstl::string x0_locatorName;
-    pas::ELocomotionType x10_locomotionType;
-    float x14_scaleTime;
+    rstl::string mLocatorName;
+    pas::ELocomotionType mLocomotionType;
+    float mScaleTime;
 
     SBomb(const rstl::string& name, pas::ELocomotionType loco, float scale)
-    : x0_locatorName(name), x10_locomotionType(loco), x14_scaleTime(scale) {}
+    : mLocatorName(name), mLocomotionType(loco), mScaleTime(scale) {}
   };
 
-  bool x568_24_inRange : 1;
-  bool x568_25_invisible : 1;
-  bool x568_26_applyBeamAttraction : 1;
-  float x56c_bombDropDelay;
-  float x570_bombReappearDelay;
-  float x574_bombRappearTime;
-  float x578_bombTime;
-  int x57c_curBomb;
-  CPathFindSearch x580_pathFind;
-  CSteeringBehaviors x664_steeringBehaviors;
-  CProjectileInfo x668_bombProjectile;
-  CModelData x690_bombModel;
-  rstl::reserved_vector< SBomb, kBombCount > x6dc_bombLocators;
+  bool mInRange : 1;
+  bool mInvisible : 1;
+  bool mApplyBeamAttraction : 1;
+  float mBombDropDelay;
+  float mBombReappearDelay;
+  float mBombRappearTime;
+  float mBombTime;
+  int mCurBomb;
+  CPathFindSearch mPathFind;
+  CSteeringBehaviors mSteeringBehaviors;
+  CProjectileInfo mBombProjectile;
+  CModelData mBombModel;
+  rstl::reserved_vector< SBomb, kBombCount > mBombLocators;
 };
-CHECK_SIZEOF(CAtomicAlpha, (VERSION >= VERSION_GM8P_00 ? 0x750 : 0x740))
+CHECK_SIZEOF(CAtomicAlpha, (VERSION >= VERSION_GM8E_02 ? 0x750 : 0x740))
 
 #endif // _CATOMICALPHA

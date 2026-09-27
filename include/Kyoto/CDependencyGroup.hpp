@@ -14,10 +14,10 @@ public:
   void ReadFromStream(CInputStream& in);
   int GetCountForResType(FourCC type) const;
 
-  const rstl::vector< SObjectTag >& GetObjectTagVector() const { return x0_objectTags; }
+  const rstl::vector< SObjectTag >& GetObjectTagVector() const { return mObjectTags; }
 
 private:
-  rstl::vector< SObjectTag > x0_objectTags;
+  rstl::vector< SObjectTag > mObjectTags;
 };
 
 #endif // _CDEPENDENCYGROUP

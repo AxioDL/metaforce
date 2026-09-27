@@ -20,14 +20,14 @@ public:
   static bool IsAudioTrackNameSoftware(const rstl::string& fileName);
 
 private:
-  rstl::string x34_fileName;
-  bool x44_noStopOnDeactivate;
-  bool x45_fileIsDsp; // As opposed to .adp for DTK streaming
-  bool x46_loop;
-  bool x47_music;
-  float x48_fadeIn;
-  float x4c_fadeOut;
-  uint x50_volume;
+  rstl::string mFileName;
+  bool mNoStopOnDeactivate;
+  bool mFileIsDsp; // As opposed to .adp for DTK streaming
+  bool mLoop;
+  bool mMusic;
+  float mFadeIn;
+  float mFadeOut;
+  uint mVolume;
 
   static CStreamAudioManager::ESoftwareChannel IsOneShot(bool);
   void StopStream(CStateManager& mgr);

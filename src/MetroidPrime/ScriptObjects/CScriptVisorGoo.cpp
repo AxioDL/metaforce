@@ -18,22 +18,22 @@ CScriptVisorGoo::CScriptVisorGoo(TUniqueId uid, const rstl::string& name, const 
                                  bool noViewCheck, const bool active)
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(),
          CActorParameters::None(), kInvalidUniqueId)
-, xe8_particleDesc(nullptr)
-, xf0_electricDesc(nullptr)
-, xf8_sfx(CSfxManager::TranslateSFXID(sfx))
-, xfc_particleId(particle)
-, x100_electricId(electric)
-, x104_minRange(minRange)
-, x108_maxRange(rstl::max_val(maxRange, minRange + 0.01f))
-, x10c_chanceMinRange(chanceMinRange)
-, x110_chanceMaxRange(chanceMaxRange)
-, x114_color(color) {
-  x118_24_viewCheck = !noViewCheck;
+, mParticleDesc(nullptr)
+, mElectricDesc(nullptr)
+, mSfx(CSfxManager::TranslateSFXID(sfx))
+, mParticleId(particle)
+, mElectricId(electric)
+, mMinRange(minRange)
+, mMaxRange(rstl::max_val(maxRange, minRange + 0.01f))
+, mChanceMinRange(chanceMinRange)
+, mChanceMaxRange(chanceMaxRange)
+, mColor(color) {
+  mViewCheck = !noViewCheck;
   if (particle != kInvalidAssetId) {
-    xe8_particleDesc = gpSimplePool->GetObj(SObjectTag('PART', particle));
+    mParticleDesc = gpSimplePool->GetObj(SObjectTag('PART', particle));
   }
   if (electric != kInvalidAssetId) {
-    xf0_electricDesc = gpSimplePool->GetObj(SObjectTag('ELSC', electric));
+    mElectricDesc = gpSimplePool->GetObj(SObjectTag('ELSC', electric));
   }
 }
 
@@ -44,9 +44,9 @@ void CScriptVisorGoo::Think(float, CStateManager& mgr) {
     bool loaded = false;
     // MPR has IsElectricLoaded()/IsElectricValid(),
     // but no IsParticleLoaded()/IsParticleValid()?
-    if (xfc_particleId != kInvalidAssetId) {
+    if (mParticleId != kInvalidAssetId) {
       if (GetParticleDesc().IsLoaded()) {
-        if (x100_electricId != kInvalidAssetId) {
+        if (mElectricId != kInvalidAssetId) {
           if (GetElectricDesc().IsLoaded()) {
             loaded = true;
           }
@@ -90,17 +90,17 @@ void CScriptVisorGoo::Think(float, CStateManager& mgr) {
             float prob = t * GetChanceMinRange() + (1.0f - t) * GetChanceMaxRange();
             if (mgr.Random()->Float() * 100.f <= prob) {
               mgr.AddObject(rs_new CHUDBillboardEffect(
-                  xfc_particleId != kInvalidAssetId
+                  mParticleId != kInvalidAssetId
                       ? rstl::optional_object< TToken< CGenDescription > >(GetParticleDesc())
                       : rstl::optional_object_null(),
-                  x100_electricId != kInvalidAssetId
+                  mElectricId != kInvalidAssetId
                       ? rstl::optional_object< TToken< CElectricDescription > >(GetElectricDesc())
                       : rstl::optional_object_null(),
                   mgr.AllocateUniqueId(), true, rstl::string_l("VisorGoo"),
                   CHUDBillboardEffect::GetNearClipDistance(mgr),
                   CHUDBillboardEffect::GetScaleForPOV(mgr), GetColor(), CVector3f(1.f, 1.f, 1.f),
                   CVector3f(0.f, 0.f, 0.f)));
-              CSfxManager::SfxStart(CCast::ToUint16(xf8_sfx), 0x7f, 0x40, false,
+              CSfxManager::SfxStart(CCast::ToUint16(mSfx), 0x7f, 0x40, false,
                                     CSfxManager::kMedPriority);
             }
           }
@@ -123,11 +123,11 @@ void CScriptVisorGoo::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId,
                                       CStateManager& mgr) {
   switch (msg) {
   case kSM_Activate:
-    if (xfc_particleId != kInvalidAssetId) {
-      xe8_particleDesc.Lock();
+    if (mParticleId != kInvalidAssetId) {
+      mParticleDesc.Lock();
     }
-    if (x100_electricId != kInvalidAssetId) {
-      xf0_electricDesc.Lock();
+    if (mElectricId != kInvalidAssetId) {
+      mElectricDesc.Lock();
     }
     break;
   default:

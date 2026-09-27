@@ -10,7 +10,7 @@
 class CInputStream;
 
 class CIEConstant : public CIntElement {
-  int x4_val;
+  int mVal;
 
 public:
   CIEConstant(int val);
@@ -19,8 +19,8 @@ public:
 };
 
 class CIEDeath : public CIntElement {
-  CIntElement* x4_a;
-  CIntElement* x8_b;
+  CIntElement* mA;
+  CIntElement* mB;
 
 public:
   CIEDeath(CIntElement* a, CIntElement* b);
@@ -29,8 +29,8 @@ public:
 };
 
 class CIEAdd : public CIntElement {
-  CIntElement* x4_a;
-  CIntElement* x8_b;
+  CIntElement* mA;
+  CIntElement* mB;
 
 public:
   CIEAdd(CIntElement* a, CIntElement* b);
@@ -39,8 +39,8 @@ public:
 };
 
 class CIEMultiply : public CIntElement {
-  CIntElement* x4_a;
-  CIntElement* x8_b;
+  CIntElement* mA;
+  CIntElement* mB;
 
 public:
   CIEMultiply(CIntElement* a, CIntElement* b);
@@ -49,8 +49,8 @@ public:
 };
 
 class CIEModulo : public CIntElement {
-  CIntElement* x4_a;
-  CIntElement* x8_b;
+  CIntElement* mA;
+  CIntElement* mB;
 
 public:
   CIEModulo(CIntElement* a, CIntElement* b);
@@ -59,8 +59,8 @@ public:
 };
 
 class CIERandom : public CIntElement {
-  CIntElement* x4_a;
-  CIntElement* x8_b;
+  CIntElement* mA;
+  CIntElement* mB;
 
 public:
   CIERandom(CIntElement* a, CIntElement* b);
@@ -69,11 +69,11 @@ public:
 };
 
 class CIESampleAndHold : public CIntElement {
-  CIntElement* x4_sampleSource;
-  mutable int x8_nextSampleFrame;
-  CIntElement* xc_waitFramesMin;
-  CIntElement* x10_waitFramesMax;
-  mutable int x14_holdVal;
+  CIntElement* mSampleSource;
+  mutable int mNextSampleFrame;
+  CIntElement* mWaitFramesMin;
+  CIntElement* mWaitFramesMax;
+  mutable int mHoldVal;
 
 public:
   CIESampleAndHold(CIntElement* a, CIntElement* b, CIntElement* c);
@@ -82,7 +82,7 @@ public:
 };
 
 class CIEImpulse : public CIntElement {
-  CIntElement* x4_a;
+  CIntElement* mA;
 
 public:
   CIEImpulse(CIntElement* a);
@@ -91,7 +91,7 @@ public:
 };
 
 class CIETimescale : public CIntElement {
-  CRealElement* x4_a;
+  CRealElement* mA;
 
 public:
   CIETimescale(CRealElement* a);
@@ -100,8 +100,8 @@ public:
 };
 
 class CIEInitialRandom : public CIntElement {
-  CIntElement* x4_a;
-  CIntElement* x8_b;
+  CIntElement* mA;
+  CIntElement* mB;
 
 public:
   CIEInitialRandom(CIntElement* a, CIntElement* b);
@@ -110,9 +110,9 @@ public:
 };
 
 class CIETimeChain : public CIntElement {
-  CIntElement* x4_a;
-  CIntElement* x8_b;
-  CIntElement* xc_swFrame;
+  CIntElement* mA;
+  CIntElement* mB;
+  CIntElement* mSwFrame;
 
 public:
   CIETimeChain(CIntElement* a, CIntElement* b, CIntElement* c);
@@ -121,9 +121,9 @@ public:
 };
 
 class CIEClamp : public CIntElement {
-  CIntElement* x4_min;
-  CIntElement* x8_max;
-  CIntElement* xc_val;
+  CIntElement* mMin;
+  CIntElement* mMax;
+  CIntElement* mVal;
 
 public:
   CIEClamp(CIntElement* a, CIntElement* b, CIntElement* c);
@@ -132,10 +132,10 @@ public:
 };
 
 class CIEPulse : public CIntElement {
-  CIntElement* x4_aDuration;
-  CIntElement* x8_bDuration;
-  CIntElement* xc_aVal;
-  CIntElement* x10_bVal;
+  CIntElement* mADuration;
+  CIntElement* mBDuration;
+  CIntElement* mAVal;
+  CIntElement* mBVal;
 
 public:
   CIEPulse(CIntElement* a, CIntElement* b, CIntElement* c, CIntElement* d);
@@ -144,7 +144,7 @@ public:
 };
 
 class CIELifetimePercent : public CIntElement {
-  CIntElement* x4_percentVal;
+  CIntElement* mPercentVal;
 
 public:
   CIELifetimePercent(CIntElement* a);
@@ -153,13 +153,13 @@ public:
 };
 
 class CIEKeyframeEmitter : public CIntElement {
-  int x4_percent;
-  int x8_unk1;
-  bool xc_loop;
-  bool xd_unk2;
-  int x10_loopEnd;
-  int x14_loopStart;
-  rstl::vector< int > x18_keys;
+  int mPercent;
+  int mUnk1;
+  bool mLoop;
+  bool mUnk2;
+  int mLoopEnd;
+  int mLoopStart;
+  rstl::vector< int > mKeys;
 
 public:
   CIEKeyframeEmitter(CInputStream& in);
@@ -168,8 +168,8 @@ public:
 };
 
 class CIESubtract : public CIntElement {
-  CIntElement* x4_a;
-  CIntElement* x8_b;
+  CIntElement* mA;
+  CIntElement* mB;
 
 public:
   CIESubtract(CIntElement* a, CIntElement* b);
@@ -178,8 +178,8 @@ public:
 };
 
 class CIERealToInt : public CIntElement {
-  CRealElement* x4_a;
-  CRealElement* x8_b;
+  CRealElement* mA;
+  CRealElement* mB;
 
 public:
   CIERealToInt(CRealElement* a, CRealElement* b);

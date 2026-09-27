@@ -52,7 +52,7 @@ void CPhazonBeam::ReInitVariables() {
   mLoaded = false;
   mClipWipeActive = true;
   mVeinsAlphaActive = false;
-  x1cc_enabledSecondaryEffect = kSFT_None;
+  mEnabledSecondaryEffect = kSFT_None;
 }
 
 bool CPhazonBeam::IsFiring(const CStateManager& mgr) const { return mFireTime < 0.16667f; }
@@ -116,7 +116,7 @@ void CPhazonBeam::Draw(const bool drawSuitArm, const CStateManager& mgr, const C
     return;
   }
   CTransform4f modelXf =
-      xf * x10_solidModelData->GetScaledLocatorTransform(rstl::string_l(skElbowLocator));
+      xf * mSolidModelData->GetScaledLocatorTransform(rstl::string_l(skElbowLocator));
 
   if (mClipWipeActive) {
     const float wipeFactor = 1.f - mClipWipeScale;
@@ -188,7 +188,7 @@ void CPhazonBeam::Update(const float dt, CStateManager& mgr) {
         CreateBeam(mgr);
         mVeinsData = rs_new CModelData(CStaticRes(
             NWeaponTypes::get_asset_id_from_name(mPhazonVeinsIdx ? skPhazonVeins2 : skPhazonVeins),
-            x4_scale));
+            mScale));
         mVeins.Unlock();
         mClipWipeActive = true;
       }
@@ -209,7 +209,7 @@ void CPhazonBeam::Update(const float dt, CStateManager& mgr) {
     }
   } else if (mVeinsAlphaActive) {
     const CTransform4f scaleXf =
-        x10_solidModelData->GetLocatorTransform(rstl::string_l(skScaleLocator));
+        mSolidModelData->GetLocatorTransform(rstl::string_l(skScaleLocator));
     mIndirectAlpha = scaleXf.GetTranslation().GetY();
   }
 }
@@ -219,7 +219,7 @@ void CPhazonBeam::UpdateBeam(const float dt, const CTransform4f& xf, const CVect
   if (!mChargeFxGen.null()) {
     mChargeFxGen->SetParticleEmission(IsFiring(mgr));
   }
-  UpdateMuzzleFx(dt, x4_scale, localBeamPos, IsFiring(mgr));
+  UpdateMuzzleFx(dt, mScale, localBeamPos, IsFiring(mgr));
 }
 
 void CPhazonBeam::StopBeam(CStateManager& mgr, bool reset) {
@@ -249,7 +249,7 @@ bool CPhazonBeam::IsLoaded() const { return CGunWeapon::IsLoaded() && mLoaded; }
 void CPhazonBeam::CreateBeam(CStateManager& mgr) {
   mChargeFxGen = rs_new CElementGen(mPhazon2nd1);
   if (!mChargeFxGen.null()) {
-    mChargeFxGen->SetGlobalScale(x4_scale);
+    mChargeFxGen->SetGlobalScale(mScale);
     mChargeFxGen->SetParticleEmission(false);
   }
 }

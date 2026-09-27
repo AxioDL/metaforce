@@ -19,7 +19,7 @@ public:
 
 private:
   static rstl::vector< rstl::rc_ptr< IMetaAnim > > CreateSequence(CInputStream& in);
-  rstl::vector< rstl::rc_ptr< IMetaAnim > > x4_sequence;
+  rstl::vector< rstl::rc_ptr< IMetaAnim > > mSequence;
 };
 CHECK_SIZEOF(CMetaAnimSequence, 0x14)
 

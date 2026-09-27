@@ -26,7 +26,7 @@ public:
   bool PointInFrustumPlanes(const CVector3f& point) const;
 
 private:
-  rstl::reserved_vector< CPlane, 6 > x0_planes;
+  rstl::reserved_vector< CPlane, 6 > mPlanes;
 };
 
 CHECK_SIZEOF(CFrustumPlanes, 0x64)

@@ -13,13 +13,13 @@
 CAnimTreeDoubleChild::CAnimTreeDoubleChild(const rstl::ncrc_ptr< CAnimTreeNode >& a,
                                            const rstl::ncrc_ptr< CAnimTreeNode >& b,
                                            const rstl::string& name)
-: CAnimTreeNode(name), x14_a(a), x18_b(b) {
+: CAnimTreeNode(name), mA(a), mB(b) {
   CCharAnimMemoryMetrics::AddToTotalSize(8, CCharAnimMemoryMetrics::kASS_Two);
 }
 
 CAdvancementResults CAnimTreeDoubleChild::VAdvanceView(const CCharAnimTime& dt) {
-  CAdvancementResults resA = x14_a->AdvanceView(dt);
-  CAdvancementResults resB = x18_b->AdvanceView(dt);
+  CAdvancementResults resA = mA->AdvanceView(dt);
+  CAdvancementResults resB = mB->AdvanceView(dt);
   return resA.GetRemainder() > resB.GetRemainder() ? resA : resB;
 }
 
@@ -29,8 +29,8 @@ CAnimTreeDoubleChild::~CAnimTreeDoubleChild() {
 
 uint CAnimTreeDoubleChild::VGetBoolPOIList(const CCharAnimTime& time, CBoolPOINode* listOut,
                                            uint capacity, uint iterator, int unk) const {
-  int x = x14_a->GetBoolPOIList(time, listOut, capacity, iterator, unk);
-  x += x18_b->GetBoolPOIList(time, listOut, capacity, x + iterator, unk);
+  int x = mA->GetBoolPOIList(time, listOut, capacity, iterator, unk);
+  x += mB->GetBoolPOIList(time, listOut, capacity, x + iterator, unk);
   if (x > capacity)
     x = capacity;
   qsort(listOut, x, sizeof(CBoolPOINode), CPOINode::compare);
@@ -39,8 +39,8 @@ uint CAnimTreeDoubleChild::VGetBoolPOIList(const CCharAnimTime& time, CBoolPOINo
 
 uint CAnimTreeDoubleChild::VGetInt32POIList(const CCharAnimTime& time, CInt32POINode* listOut,
                                             uint capacity, uint iterator, int unk) const {
-  int x = x14_a->GetInt32POIList(time, listOut, capacity, iterator, unk);
-  x += x18_b->GetInt32POIList(time, listOut, capacity, x + iterator, unk);
+  int x = mA->GetInt32POIList(time, listOut, capacity, iterator, unk);
+  x += mB->GetInt32POIList(time, listOut, capacity, x + iterator, unk);
   if (x > capacity)
     x = capacity;
   qsort(listOut, x, sizeof(CInt32POINode), CPOINode::compare);
@@ -49,8 +49,8 @@ uint CAnimTreeDoubleChild::VGetInt32POIList(const CCharAnimTime& time, CInt32POI
 
 uint CAnimTreeDoubleChild::VGetParticlePOIList(const CCharAnimTime& time, CParticlePOINode* listOut,
                                                uint capacity, uint iterator, int unk) const {
-  int x = x14_a->GetParticlePOIList(time, listOut, capacity, iterator, unk);
-  x += x18_b->GetParticlePOIList(time, listOut, capacity, x + iterator, unk);
+  int x = mA->GetParticlePOIList(time, listOut, capacity, iterator, unk);
+  x += mB->GetParticlePOIList(time, listOut, capacity, x + iterator, unk);
   if (x > capacity)
     x = capacity;
   qsort(listOut, x, sizeof(CParticlePOINode), CPOINode::compare);
@@ -59,8 +59,8 @@ uint CAnimTreeDoubleChild::VGetParticlePOIList(const CCharAnimTime& time, CParti
 
 uint CAnimTreeDoubleChild::VGetSoundPOIList(const CCharAnimTime& time, CSoundPOINode* listOut,
                                             uint capacity, uint iterator, int unk) const {
-  int x = x14_a->GetSoundPOIList(time, listOut, capacity, iterator, unk);
-  x += x18_b->GetSoundPOIList(time, listOut, capacity, x + iterator, unk);
+  int x = mA->GetSoundPOIList(time, listOut, capacity, iterator, unk);
+  x += mB->GetSoundPOIList(time, listOut, capacity, x + iterator, unk);
   if (x > capacity)
     x = capacity;
   qsort(listOut, x, sizeof(CSoundPOINode), CPOINode::compare);
@@ -68,20 +68,20 @@ uint CAnimTreeDoubleChild::VGetSoundPOIList(const CCharAnimTime& time, CSoundPOI
 }
 
 bool CAnimTreeDoubleChild::VGetBoolPOIState(const char* name) const {
-  return x18_b->VGetBoolPOIState(name);
+  return mB->VGetBoolPOIState(name);
 }
 
 s32 CAnimTreeDoubleChild::VGetInt32POIState(const char* name) const {
-  return x18_b->VGetInt32POIState(name);
+  return mB->VGetInt32POIState(name);
 }
 
 CParticleData::EParentedMode CAnimTreeDoubleChild::VGetParticlePOIState(const char* name) const {
-  return x18_b->VGetParticlePOIState(name);
+  return mB->VGetParticlePOIState(name);
 }
 
 CAnimTreeEffectiveContribution CAnimTreeDoubleChild::VGetContributionOfHighestInfluence() const {
-  CAnimTreeEffectiveContribution a = x14_a->GetContributionOfHighestInfluence();
-  CAnimTreeEffectiveContribution b = x18_b->GetContributionOfHighestInfluence();
+  CAnimTreeEffectiveContribution a = mA->GetContributionOfHighestInfluence();
+  CAnimTreeEffectiveContribution b = mB->GetContributionOfHighestInfluence();
   float leftWeight = a.GetContributionWeight() * GetLeftChildWeight();
   float rightWeight = b.GetContributionWeight() * GetRightChildWeight();
   return leftWeight > rightWeight
@@ -94,15 +94,15 @@ CAnimTreeEffectiveContribution CAnimTreeDoubleChild::VGetContributionOfHighestIn
 }
 
 uint CAnimTreeDoubleChild::VGetNumChildren() const {
-  int num_children = x18_b->VGetNumChildren();
-  num_children += x14_a->VGetNumChildren() + 2;
+  int num_children = mB->VGetNumChildren();
+  num_children += mA->VGetNumChildren() + 2;
   return num_children;
 }
 
 CAnimTreeDoubleChild::CDoubleChildAdvancementResult::CDoubleChildAdvancementResult(
     const CCharAnimTime& trueAdvancement, const CAdvancementDeltas& leftDeltas,
     const CAdvancementDeltas& rightDeltas)
-: x0_trueAdvancement(trueAdvancement), x8_leftDeltas(leftDeltas), x24_rightDeltas(rightDeltas) {}
+: mTrueAdvancement(trueAdvancement), mLeftDeltas(leftDeltas), mRightDeltas(rightDeltas) {}
 
 CAnimTreeDoubleChild::CDoubleChildAdvancementResult
 CAnimTreeDoubleChild::AdvanceViewBothChildren(const CCharAnimTime& time, bool runLeft,
@@ -110,7 +110,7 @@ CAnimTreeDoubleChild::AdvanceViewBothChildren(const CCharAnimTime& time, bool ru
   CCharAnimTime leftRemaining = time;
   CCharAnimTime totalTime = !runLeft   ? CCharAnimTime::ZeroFlat()
                             : loopLeft ? CCharAnimTime::Infinity()
-                                       : x14_a->GetTimeRemaining();
+                                       : mA->GetTimeRemaining();
   CVector3f leftOffset(0.f, 0.f, 0.f);
   CQuaternion leftRotation = CQuaternion::NoRotation();
   CCharAnimTime rightRemaining = time;
@@ -120,25 +120,25 @@ CAnimTreeDoubleChild::AdvanceViewBothChildren(const CCharAnimTime& time, bool ru
     while (leftRemaining.GreaterThanZero() && !close_enough(leftRemaining.GetSeconds(), 0.f) &&
            totalTime.GreaterThanZero() &&
            (loopLeft || !close_enough(totalTime.GetSeconds(), 0.f))) {
-      CAdvancementResults result = x14_a->AdvanceView(leftRemaining);
+      CAdvancementResults result = mA->AdvanceView(leftRemaining);
       rstl::optional_object< rstl::ownership_transfer< IAnimReader > > simplified =
-          x14_a->Simplified();
+          mA->Simplified();
       if (simplified.valid())
-        x14_a = Cast(*simplified);
+        mA = Cast(*simplified);
       CAdvancementDeltas deltas = result.GetAdvancementDeltas();
       leftOffset += deltas.GetOffsetDelta();
       CQuaternion rotation = deltas.GetOrientationDelta();
       leftRotation *= rotation;
       if (!loopLeft)
-        totalTime = x14_a->GetTimeRemaining();
+        totalTime = mA->GetTimeRemaining();
       leftRemaining = result.GetRemainder();
     }
     while (rightRemaining.GreaterThanZero() && !close_enough(rightRemaining.GetSeconds(), 0.f)) {
-      CAdvancementResults result = x18_b->AdvanceView(rightRemaining);
+      CAdvancementResults result = mB->AdvanceView(rightRemaining);
       rstl::optional_object< rstl::ownership_transfer< IAnimReader > > simplified =
-          x18_b->Simplified();
+          mB->Simplified();
       if (simplified.valid())
-        x18_b = Cast(*simplified);
+        mB = Cast(*simplified);
       CAdvancementDeltas deltas = result.GetAdvancementDeltas();
       rightOffset += deltas.GetOffsetDelta();
       CQuaternion rotation = deltas.GetOrientationDelta();
@@ -151,19 +151,19 @@ CAnimTreeDoubleChild::AdvanceViewBothChildren(const CCharAnimTime& time, bool ru
 }
 
 void CAnimTreeDoubleChild::VSetPhase(float phase) {
-  x14_a->VSetPhase(phase);
-  x18_b->VSetPhase(phase);
+  mA->VSetPhase(phase);
+  mB->VSetPhase(phase);
 }
 
 CAdvancementResults CAnimTreeDoubleChild::VGetAdvancementResults(const CCharAnimTime& a,
                                                                  const CCharAnimTime& b) const {
-  CAdvancementResults resA = x14_a->GetAdvancementResults(a, b);
-  CAdvancementResults resB = x18_b->GetAdvancementResults(a, b);
+  CAdvancementResults resA = mA->GetAdvancementResults(a, b);
+  CAdvancementResults resB = mB->GetAdvancementResults(a, b);
   return resA.GetRemainder() > resB.GetRemainder() ? resA : resB;
 }
 
 rstl::rc_ptr< CAnimTreeNode > CAnimTreeDoubleChild::VGetBestUnblendedChild() const {
-  rstl::rc_ptr< CAnimTreeNode > child = GetRightChildWeight() > 0.5f ? x18_b : x14_a;
+  rstl::rc_ptr< CAnimTreeNode > child = GetRightChildWeight() > 0.5f ? mB : mA;
   if (!child)
     return child;
   rstl::rc_ptr< CAnimTreeNode > best = child->GetBestUnblendedChild();
@@ -174,6 +174,6 @@ rstl::rc_ptr< CAnimTreeNode > CAnimTreeDoubleChild::VGetBestUnblendedChild() con
 
 void CAnimTreeDoubleChild::VGetWeightedReaders(
     float w, rstl::reserved_vector< rstl::pair< float, IAnimReader* >, 16 >& out) const {
-  x14_a->VGetWeightedReaders(w, out);
-  x18_b->VGetWeightedReaders(w, out);
+  mA->VGetWeightedReaders(w, out);
+  mB->VGetWeightedReaders(w, out);
 }

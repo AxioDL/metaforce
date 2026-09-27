@@ -7,7 +7,7 @@ class CScannableParameters;
 
 class CScriptPointOfInterest : public CActor {
 private:
-  float xe8_pointSize;
+  float mPointSize;
 
 public:
   CScriptPointOfInterest(TUniqueId, const rstl::string&, const CEntityInfo&, const CTransform4f&, bool,

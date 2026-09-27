@@ -28,14 +28,14 @@ public:
 
 private:
   enum ESmokeState { kSS_Inactive, kSS_Active, kSS_Done };
-  TCachedToken< CGenDescription > x21c_shotSmoke;
-  TCachedToken< CGenDescription > x228_power2nd1;
-  rstl::single_ptr< CElementGen > x234_shotSmokeGen;
-  rstl::single_ptr< CElementGen > x238_power2ndGen;
-  float x23c_smokeTimer;
-  ESmokeState x240_smokeState;
+  TCachedToken< CGenDescription > mShotSmoke;
+  TCachedToken< CGenDescription > mPower2nd1;
+  rstl::single_ptr< CElementGen > mShotSmokeGen;
+  rstl::single_ptr< CElementGen > mPower2ndGen;
+  float mSmokeTimer;
+  ESmokeState mSmokeState;
   bool x244_24 : 1;
-  bool x244_25_loaded : 1;
+  bool mLoaded : 1;
 
   void ReInitVariables();
 };

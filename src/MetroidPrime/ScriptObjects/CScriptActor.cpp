@@ -21,24 +21,24 @@ CScriptActor::CScriptActor(TUniqueId uid, const rstl::string& name, const CEntit
                            const bool materialFlag54)
 : CPhysicsActor(uid, active, name, info, xf, mData, matList, aabb, SMoverData(mass), actParms, 0.3f,
                 0.1f)
-, x258_initialHealth(hInfo)
-, x260_currentHealth(hInfo)
-, x268_damageVulnerability(dVuln)
-, x2d0_fadeInTime(actParms.GetFadeInTime())
-, x2d4_fadeOutTime(actParms.GetFadeOutTime())
-, x2d8_shaderIdx(shaderIdx)
-, x2dc_xrayAlpha(xrayAlpha)
-, x2e0_triggerId(kInvalidUniqueId)
-, x2e2_24_noThermalHotZ(noThermalHotZ)
-, x2e2_25_dead(false)
-, x2e2_26_animating(true)
-, x2e2_27_xrayAlphaEnabled(!close_enough(xrayAlpha, 1.f))
-, x2e2_28_inXrayAlpha(false)
-, x2e2_29_processModelFlags(x2e2_27_xrayAlphaEnabled || x2e2_24_noThermalHotZ ||
-                            x2d8_shaderIdx != 0)
-, x2e2_30_scaleAdvancementDelta(scaleAdvancementDelta)
-, x2e2_31_materialFlag54(materialFlag54)
-, x2e3_24_isPlayerActor(false) {
+, mInitialHealth(hInfo)
+, mCurrentHealth(hInfo)
+, mDamageVulnerability(dVuln)
+, mFadeInTime(actParms.GetFadeInTime())
+, mFadeOutTime(actParms.GetFadeOutTime())
+, mShaderIdx(shaderIdx)
+, mXrayAlpha(xrayAlpha)
+, mTriggerId(kInvalidUniqueId)
+, mNoThermalHotZ(noThermalHotZ)
+, mDead(false)
+, mAnimating(true)
+, mXrayAlphaEnabled(!close_enough(xrayAlpha, 1.f))
+, mInXrayAlpha(false)
+, mProcessModelFlags(mXrayAlphaEnabled || mNoThermalHotZ ||
+                            mShaderIdx != 0)
+, mScaleAdvancementDelta(scaleAdvancementDelta)
+, mMaterialFlag54(materialFlag54)
+, mIsPlayerActor(false) {
   if (HasModelData()) {
     if (castsShadow) {
       SetDrawShadow(true);
@@ -54,10 +54,10 @@ CScriptActor::CScriptActor(TUniqueId uid, const rstl::string& name, const CEntit
 
 CScriptActor::~CScriptActor() {}
 
-CHealthInfo* CScriptActor::HealthInfo(CStateManager&) { return &x260_currentHealth; }
+CHealthInfo* CScriptActor::HealthInfo(CStateManager&) { return &mCurrentHealth; }
 
 const CDamageVulnerability* CScriptActor::GetDamageVulnerability() const {
-  return &x268_damageVulnerability;
+  return &mDamageVulnerability;
 }
 
 void CScriptActor::Touch(CActor&, CStateManager&) {}
@@ -82,9 +82,9 @@ void CScriptActor::Think(float dt, CStateManager& mgr) {
     CAdvancementDeltas deltas = CActor::UpdateAnimation(dt, mgr, true);
 
     if (timeRemaining || loop) {
-      x2e2_26_animating = true;
+      mAnimating = true;
 
-      if (x2e2_30_scaleAdvancementDelta) {
+      if (mScaleAdvancementDelta) {
         CVector3f pos = GetTransform().TransposeRotate(deltas.GetOffsetDelta());
         CVector3f scale = GetModelData()->GetScale();
         pos = CVector3f(scale.GetX() * pos.GetX(), scale.GetY() * pos.GetY(),
@@ -98,14 +98,14 @@ void CScriptActor::Think(float dt, CStateManager& mgr) {
       RotateToOR(deltas.GetOrientationDelta(), dt);
     }
 
-    if (!timeRemaining && x2e2_26_animating && !loop) {
+    if (!timeRemaining && mAnimating && !loop) {
       SendScriptMsgs(kSS_MaxReached, mgr, kSM_None);
-      x2e2_26_animating = false;
+      mAnimating = false;
     }
   }
 
-  if (!x2e2_25_dead && HealthInfo(mgr)->GetHP() <= 0.f) {
-    x2e2_25_dead = true;
+  if (!mDead && HealthInfo(mgr)->GetHP() <= 0.f) {
+    mDead = true;
     SendScriptMsgs(kSS_Dead, mgr, kSM_None);
   }
 }
@@ -115,40 +115,40 @@ void CScriptActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
   case kSM_InitializedInArea: {
     rstl::vector< SConnection >::const_iterator conn = GetConnectionList().begin();
     for (; conn != GetConnectionList().end(); ++conn) {
-      if (conn->x0_state != kSS_InheritBounds || conn->x4_msg != kSM_Activate) {
+      if (conn->mState != kSS_InheritBounds || conn->mMsg != kSM_Activate) {
         continue;
       }
 
-      CStateManager::TIdListResult search = mgr.GetIdListForScript(conn->x8_objId);
+      CStateManager::TIdListResult search = mgr.GetIdListForScript(conn->mObjId);
       CStateManager::TIdList::const_iterator current = search.first;
       CStateManager::TIdList::const_iterator end = search.second;
       while (current != end) {
         if (TCastToConstPtr< CScriptTrigger >(mgr.GetObjectById(current->second))) {
-          x2e0_triggerId = current->second;
+          mTriggerId = current->second;
         }
         current++;
       }
     }
 
-    if (x2e2_31_materialFlag54) {
+    if (mMaterialFlag54) {
       CActor::AddMaterial(kMT_Unknown54, mgr);
     }
     break;
   }
   case kSM_Reset: {
-    x2e2_25_dead = false;
-    x260_currentHealth = x258_initialHealth;
+    mDead = false;
+    mCurrentHealth = mInitialHealth;
     break;
   }
   case kSM_Increment: {
     if (!GetActive()) {
       mgr.DeliverScriptMsg(this, GetUniqueId(), kSM_Activate);
-      CScriptColorModulate::FadeInHelper(mgr, GetUniqueId(), x2d0_fadeInTime);
+      CScriptColorModulate::FadeInHelper(mgr, GetUniqueId(), mFadeInTime);
     }
     break;
   }
   case kSM_Decrement: {
-    CScriptColorModulate::FadeOutHelper(mgr, GetUniqueId(), x2d4_fadeOutTime);
+    CScriptColorModulate::FadeOutHelper(mgr, GetUniqueId(), mFadeOutTime);
     break;
   }
   default:
@@ -166,21 +166,21 @@ void CScriptActor::PreRender(CStateManager& mgr, const CFrustumPlanes& frustum) 
     SetPreRenderClipped(false);
   }
 
-  if (!GetPreRenderClipped() && x2e2_29_processModelFlags) {
-    if (x2e2_27_xrayAlphaEnabled) {
-      CModelFlags xrayFlags = CModelFlags::AlphaBlended(x2dc_xrayAlpha);
+  if (!GetPreRenderClipped() && mProcessModelFlags) {
+    if (mXrayAlphaEnabled) {
+      CModelFlags xrayFlags = CModelFlags::AlphaBlended(mXrayAlpha);
       if (mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::kPV_XRay) {
         SetModelFlags(xrayFlags);
-        x2e2_28_inXrayAlpha = true;
-      } else if (x2e2_28_inXrayAlpha) {
-        x2e2_28_inXrayAlpha = false;
+        mInXrayAlpha = true;
+      } else if (mInXrayAlpha) {
+        mInXrayAlpha = false;
         if (GetModelFlags() == xrayFlags) {
           SetModelFlags(CModelFlags::Normal());
         }
       }
     }
 
-    if (x2e2_24_noThermalHotZ && GetThermalFlags() == kTF_Hot) {
+    if (mNoThermalHotZ && GetThermalFlags() == kTF_Hot) {
       if (mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::kPV_Thermal) {
         SetModelFlags(GetModelFlags().DepthCompareUpdate(false, false));
       } else {
@@ -188,13 +188,13 @@ void CScriptActor::PreRender(CStateManager& mgr, const CFrustumPlanes& frustum) 
       }
     }
 
-    if (x2d8_shaderIdx != 0) {
-      SetModelFlags(GetModelFlags().UseShaderSet(x2d8_shaderIdx));
+    if (mShaderIdx != 0) {
+      SetModelFlags(GetModelFlags().UseShaderSet(mShaderIdx));
     }
   }
 
-  if (mgr.GetObjectById(x2e0_triggerId) == nullptr) {
-    x2e0_triggerId = kInvalidUniqueId;
+  if (mgr.GetObjectById(mTriggerId) == nullptr) {
+    mTriggerId = kInvalidUniqueId;
   }
 }
 
@@ -221,9 +221,9 @@ EWeaponCollisionResponseTypes CScriptActor::GetCollisionResponseType(const CVect
 }
 
 CAABox CScriptActor::GetSortingBounds(const CStateManager& mgr) const {
-  if (x2e0_triggerId != kInvalidUniqueId) {
+  if (mTriggerId != kInvalidUniqueId) {
     const CScriptTrigger* trigger =
-        static_cast< const CScriptTrigger* >(mgr.GetObjectById(x2e0_triggerId));
+        static_cast< const CScriptTrigger* >(mgr.GetObjectById(mTriggerId));
     if (trigger) {
       return trigger->GetTriggerBoundsWR();
     }

@@ -31,8 +31,8 @@ static CAABox BoxFromIndex(int index, const CVector3f& a, const CVector3f& b, co
 
 CAreaOctTree::Node CAreaOctTree::Node::GetChild(int index) const {
   ETreeType type = GetChildType(index);
-  const uint* offsets = reinterpret_cast< const uint* >(x18_ptr + sizeof(uint));
-  const void* node = x18_ptr + 9 * sizeof(uint) + CBasics::SwapBytes(offsets[index]);
+  const uint* offsets = reinterpret_cast< const uint* >(mPtr + sizeof(uint));
+  const void* node = mPtr + 9 * sizeof(uint) + CBasics::SwapBytes(offsets[index]);
   if (type == kTT_Leaf) {
 #if TARGET_LITTLE_ENDIAN
     CMemoryInStream in(node, sizeof(CAABox));
@@ -42,8 +42,8 @@ CAreaOctTree::Node CAreaOctTree::Node::GetChild(int index) const {
 #endif
     return Node(node, bounds, GetOwner(), type);
   }
-  const CVector3f center = 0.5f * (x0_aabb.GetMinPoint() + x0_aabb.GetMaxPoint());
-  CAABox bounds = BoxFromIndex(index, x0_aabb.GetMinPoint(), center, x0_aabb.GetMaxPoint());
+  const CVector3f center = 0.5f * (mAabb.GetMinPoint() + mAabb.GetMaxPoint());
+  CAABox bounds = BoxFromIndex(index, mAabb.GetMinPoint(), center, mAabb.GetMaxPoint());
   return Node(node, bounds, GetOwner(), type);
 }
 
@@ -57,7 +57,7 @@ CAreaOctTree::TriListReference CAreaOctTree::Node::GetTriangleArray() const {
     return TriListReference(skDeadArray);
   }
 
-  return TriListReference(x18_ptr);
+  return TriListReference(mPtr);
 }
 
 CAreaOctTree::CAreaOctTree(const CAABox& bounds, Node::ETreeType treeType, uchar* buf,
@@ -65,21 +65,21 @@ CAreaOctTree::CAreaOctTree(const CAABox& bounds, Node::ETreeType treeType, uchar
                            uchar* vertexMaterials, uchar* edgeMaterials, uchar* polyMaterials,
                            uint edgeCount, CCollisionEdge* edges, uint polyCount, ushort* polyEdges,
                            uint vertexCount, CVector3f* vertices)
-: x0_aabb(bounds)
-, x18_treeType(treeType)
-, x1c_buf(buf)
-, x20_treeBuf(treeBuf)
-, x24_matCount(materialCount)
-, x28_materials(materials)
-, x2c_vertMats(vertexMaterials)
-, x30_edgeMats(edgeMaterials)
-, x34_polyMats(polyMaterials)
-, x38_edgeCount(edgeCount)
-, x3c_edges(edges)
-, x40_polyCount(polyCount)
-, x44_polyEdges(polyEdges)
-, x48_vertCount(vertexCount)
-, x4c_verts(vertices) {}
+: mAabb(bounds)
+, mTreeType(treeType)
+, mBuf(buf)
+, mTreeBuf(treeBuf)
+, mMatCount(materialCount)
+, mMaterials(materials)
+, mVertMats(vertexMaterials)
+, mEdgeMats(edgeMaterials)
+, mPolyMats(polyMaterials)
+, mEdgeCount(edgeCount)
+, mEdges(edges)
+, mPolyCount(polyCount)
+, mPolyEdges(polyEdges)
+, mVertCount(vertexCount)
+, mVerts(vertices) {}
 
 #if TARGET_LITTLE_ENDIAN
 template < typename T >
@@ -117,17 +117,17 @@ void CAreaOctTree::MakeFromMemory(void* buf, const uint bufLen, CAreaOctTree** t
   ReadCollisionArray(tree->mNativeTriangleEdges, data);
   ReadCollisionArray(tree->mNativeVertices, data);
 
-  tree->x24_matCount = tree->mNativeMaterials.size();
-  tree->x28_materials = tree->mNativeMaterials.data();
-  tree->x2c_vertMats = tree->mNativeVertexMaterials.data();
-  tree->x30_edgeMats = tree->mNativeEdgeMaterials.data();
-  tree->x34_polyMats = tree->mNativeTriangleMaterials.data();
-  tree->x38_edgeCount = tree->mNativeEdges.size();
-  tree->x3c_edges = tree->mNativeEdges.data();
-  tree->x40_polyCount = tree->mNativeTriangleEdges.size() / 3;
-  tree->x44_polyEdges = tree->mNativeTriangleEdges.data();
-  tree->x48_vertCount = tree->mNativeVertices.size();
-  tree->x4c_verts = tree->mNativeVertices.data();
+  tree->mMatCount = tree->mNativeMaterials.size();
+  tree->mMaterials = tree->mNativeMaterials.data();
+  tree->mVertMats = tree->mNativeVertexMaterials.data();
+  tree->mEdgeMats = tree->mNativeEdgeMaterials.data();
+  tree->mPolyMats = tree->mNativeTriangleMaterials.data();
+  tree->mEdgeCount = tree->mNativeEdges.size();
+  tree->mEdges = tree->mNativeEdges.data();
+  tree->mPolyCount = tree->mNativeTriangleEdges.size() / 3;
+  tree->mPolyEdges = tree->mNativeTriangleEdges.data();
+  tree->mVertCount = tree->mNativeVertices.size();
+  tree->mVerts = tree->mNativeVertices.data();
   *treeOut = tree.release();
 #else
   uint* materialHeader = reinterpret_cast< uint* >(treeBuf + treeSize);
@@ -160,36 +160,36 @@ void CAreaOctTree::MakeFromMemory(void* buf, const uint bufLen, CAreaOctTree** t
 
 CCollisionSurface CAreaOctTree::GetMasterListTriangle(ushort idx) const {
   int start = idx * 3;
-  ushort edgeIndex0 = x44_polyEdges[start];
-  ushort edgeIndex1 = x44_polyEdges[start + 1];
-  const CCollisionEdge& edge0 = x3c_edges[edgeIndex0];
-  const CCollisionEdge& edge1 = x3c_edges[edgeIndex1];
+  ushort edgeIndex0 = mPolyEdges[start];
+  ushort edgeIndex1 = mPolyEdges[start + 1];
+  const CCollisionEdge& edge0 = mEdges[edgeIndex0];
+  const CCollisionEdge& edge1 = mEdges[edgeIndex1];
   ushort vert2 = edge1.GetVertIndex1() != edge0.GetVertIndex1() &&
                          edge1.GetVertIndex1() != edge0.GetVertIndex2()
                      ? edge1.GetVertIndex1()
                      : edge1.GetVertIndex2();
-  uint material = x28_materials[x34_polyMats[idx]];
+  uint material = mMaterials[mPolyMats[idx]];
   if ((material & 0x2000000) != 0) {
-    const CVector3f& thirdVertex = x4c_verts[vert2];
-    return CCollisionSurface(x4c_verts[edge0.GetVertIndex2()], x4c_verts[edge0.GetVertIndex1()],
+    const CVector3f& thirdVertex = mVerts[vert2];
+    return CCollisionSurface(mVerts[edge0.GetVertIndex2()], mVerts[edge0.GetVertIndex1()],
                              thirdVertex, material);
   }
-  const CVector3f& thirdVertex = x4c_verts[vert2];
-  return CCollisionSurface(x4c_verts[edge0.GetVertIndex1()], x4c_verts[edge0.GetVertIndex2()],
+  const CVector3f& thirdVertex = mVerts[vert2];
+  return CCollisionSurface(mVerts[edge0.GetVertIndex1()], mVerts[edge0.GetVertIndex2()],
                            thirdVertex, material);
 }
 
 void CAreaOctTree::GetTriangleVertexIndices(ushort idx, ushort indicesOut[3]) const {
   int start = idx * 3;
-  ushort edgeIndex0 = x44_polyEdges[start];
-  ushort edgeIndex1 = x44_polyEdges[start + 1];
-  const CCollisionEdge& edge0 = x3c_edges[edgeIndex0];
-  const CCollisionEdge& edge1 = x3c_edges[edgeIndex1];
+  ushort edgeIndex0 = mPolyEdges[start];
+  ushort edgeIndex1 = mPolyEdges[start + 1];
+  const CCollisionEdge& edge0 = mEdges[edgeIndex0];
+  const CCollisionEdge& edge1 = mEdges[edgeIndex1];
   indicesOut[2] = edge1.GetVertIndex1() != edge0.GetVertIndex1() &&
                           edge1.GetVertIndex1() != edge0.GetVertIndex2()
                       ? edge1.GetVertIndex1()
                       : edge1.GetVertIndex2();
-  uint material = x28_materials[x34_polyMats[idx]];
+  uint material = mMaterials[mPolyMats[idx]];
   if ((material & 0x2000000) != 0) {
     indicesOut[0] = edge0.GetVertIndex2();
     indicesOut[1] = edge0.GetVertIndex1();
@@ -200,5 +200,5 @@ void CAreaOctTree::GetTriangleVertexIndices(ushort idx, ushort indicesOut[3]) co
 }
 
 const ushort* CAreaOctTree::GetTriangleEdgeIndices(ushort idx) const {
-  return &x44_polyEdges[idx * 3];
+  return &mPolyEdges[idx * 3];
 }

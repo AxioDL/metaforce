@@ -76,87 +76,87 @@ CFluidPlaneCPU::CFluidPlaneCPU(uint patternMap1, uint patternMap2, uint colorMap
                                float turbAmplitudeMin, float specularMin, float specularMax,
                                float reflectionBlend, float reflectionSize, float rippleIntensity)
 : CFluidPlane(patternMap1, patternMap2, colorMap, alpha, fluidType, rippleIntensity, uvMotion)
-, xa0_texIdBumpMap(bumpMap)
-, xa4_texIdEnvMap(envMap)
-, xa8_texIdEnvBumpMap(envBumpMap)
-, xac_texIdLightmap(lightmap)
-, xb0_bumpMap()
-, xc0_envMap()
-, xd0_envBumpMap()
-, xe0_lightmap()
-, xf0_bumpLightDir(bumpLightDir.AsNormalized())
-, xfc_bumpScale(bumpScale)
-, x100_tileSize(tileSize)
-, x104_tileSubdivisions(tileSubdivisions & ~1u)
-, x108_rippleResolution(tileSize / static_cast< float >(x104_tileSubdivisions))
-, x10c_specularMin(specularMin)
-, x110_specularMax(specularMax)
-, x114_reflectionBlend(reflectionBlend)
-, x118_reflectionSize(reflectionSize)
-, x11c_unitsPerLightmapTexel(unitsPerLightmapTexel)
-, x120_turbulence(turbSpeed, turbDistance, turbFreqMax, turbFreqMin, turbPhaseMax, turbPhaseMin,
+, mTexIdBumpMap(bumpMap)
+, mTexIdEnvMap(envMap)
+, mTexIdEnvBumpMap(envBumpMap)
+, mTexIdLightmap(lightmap)
+, mBumpMap()
+, mEnvMap()
+, mEnvBumpMap()
+, mLightmap()
+, mBumpLightDir(bumpLightDir.AsNormalized())
+, mBumpScale(bumpScale)
+, mTileSize(tileSize)
+, mTileSubdivisions(tileSubdivisions & ~1u)
+, mRippleResolution(tileSize / static_cast< float >(mTileSubdivisions))
+, mSpecularMin(specularMin)
+, mSpecularMax(specularMax)
+, mReflectionBlend(reflectionBlend)
+, mReflectionSize(reflectionSize)
+, mUnitsPerLightmapTexel(unitsPerLightmapTexel)
+, mTurbulence(turbSpeed, turbDistance, turbFreqMax, turbFreqMin, turbPhaseMax, turbPhaseMin,
                   turbAmplitudeMax, turbAmplitudeMin) {
-  if (gpResourceFactory->GetResourceTypeById(xa0_texIdBumpMap) == 'TXTR' &&
+  if (gpResourceFactory->GetResourceTypeById(mTexIdBumpMap) == 'TXTR' &&
       (fluidType == kFT_Lava || fluidType == kFT_ThickLava)) {
-    xb0_bumpMap = gpSimplePool->GetObj(SObjectTag('TXTR', xa0_texIdBumpMap));
+    mBumpMap = gpSimplePool->GetObj(SObjectTag('TXTR', mTexIdBumpMap));
   }
-  if (gpResourceFactory->GetResourceTypeById(xa4_texIdEnvMap) == 'TXTR' &&
+  if (gpResourceFactory->GetResourceTypeById(mTexIdEnvMap) == 'TXTR' &&
       fluidType == kFT_NormalWater) {
-    xc0_envMap = gpSimplePool->GetObj(SObjectTag('TXTR', xa4_texIdEnvMap));
+    mEnvMap = gpSimplePool->GetObj(SObjectTag('TXTR', mTexIdEnvMap));
   }
-  if (gpResourceFactory->GetResourceTypeById(xa8_texIdEnvBumpMap) == 'TXTR') {
-    xd0_envBumpMap = gpSimplePool->GetObj(SObjectTag('TXTR', xa8_texIdEnvBumpMap));
+  if (gpResourceFactory->GetResourceTypeById(mTexIdEnvBumpMap) == 'TXTR') {
+    mEnvBumpMap = gpSimplePool->GetObj(SObjectTag('TXTR', mTexIdEnvBumpMap));
   }
-  if (gpResourceFactory->GetResourceTypeById(xac_texIdLightmap) == 'TXTR' &&
+  if (gpResourceFactory->GetResourceTypeById(mTexIdLightmap) == 'TXTR' &&
       fluidType != kFT_Lava && fluidType != kFT_ThickLava) {
-    xe0_lightmap = gpSimplePool->GetObj(SObjectTag('TXTR', xac_texIdLightmap));
+    mLightmap = gpSimplePool->GetObj(SObjectTag('TXTR', mTexIdLightmap));
   }
 }
 
 CFluidPlaneCPU::CTurbulence::CTurbulence(float speed, float distance, float freqMax, float freqMin,
                                          float phaseMax, float phaseMin, float amplitudeMax,
                                          float amplitudeMin)
-: x0_speed(speed)
-, x4_distance(distance)
-, x8_freqMax(freqMax)
-, xc_freqMin(freqMin)
-, x10_phaseMax(phaseMax)
-, x14_phaseMin(phaseMin)
-, x18_amplitudeMax(amplitudeMax)
-, x1c_amplitudeMin(amplitudeMin)
-, x20_table(nullptr)
-, x24_tableCount(0)
-, x28_heightSelPitch(0.f)
-, x2c_ooTurbSpeed(1.f / x0_speed)
-, x30_ooTurbDistance(1.f / x4_distance)
-, x34_hasTurbulence(false) {
-  if (x18_amplitudeMax == 0.f && x1c_amplitudeMin == 0.f) {
+: mSpeed(speed)
+, mDistance(distance)
+, mFreqMax(freqMax)
+, mFreqMin(freqMin)
+, mPhaseMax(phaseMax)
+, mPhaseMin(phaseMin)
+, mAmplitudeMax(amplitudeMax)
+, mAmplitudeMin(amplitudeMin)
+, mTable(nullptr)
+, mTableCount(0)
+, mHeightSelPitch(0.f)
+, mOoTurbSpeed(1.f / mSpeed)
+, mOoTurbDistance(1.f / mDistance)
+, mHasTurbulence(false) {
+  if (mAmplitudeMax == 0.f && mAmplitudeMin == 0.f) {
     return;
   }
 
-  x24_tableCount = kTableSize;
-  x28_heightSelPitch = static_cast< float >(x24_tableCount);
-  x20_table = rs_new float[x24_tableCount];
+  mTableCount = kTableSize;
+  mHeightSelPitch = static_cast< float >(mTableCount);
+  mTable = rs_new float[mTableCount];
 
-  float freqConstant = 0.5f * (x8_freqMax + xc_freqMin);
-  float freqLinear = 0.5f * (x8_freqMax - xc_freqMin);
-  float phaseConstant = 0.5f * (x10_phaseMax + x14_phaseMin);
-  float phaseLinear = 0.5f * (x10_phaseMax - x14_phaseMin);
-  float amplitudeConstant = 0.5f * (x18_amplitudeMax + x1c_amplitudeMin);
-  float amplitudeLinear = 0.5f * (x18_amplitudeMax - x1c_amplitudeMin);
+  float freqConstant = 0.5f * (mFreqMax + mFreqMin);
+  float freqLinear = 0.5f * (mFreqMax - mFreqMin);
+  float phaseConstant = 0.5f * (mPhaseMax + mPhaseMin);
+  float phaseLinear = 0.5f * (mPhaseMax - mPhaseMin);
+  float amplitudeConstant = 0.5f * (mAmplitudeMax + mAmplitudeMin);
+  float amplitudeLinear = 0.5f * (mAmplitudeMax - mAmplitudeMin);
 
   float curAng = 0.f;
-  const float anglePitch = M_2PIF / x28_heightSelPitch;
-  for (int i = 0; i < x24_tableCount; ++i, curAng += anglePitch) {
+  const float anglePitch = M_2PIF / mHeightSelPitch;
+  for (int i = 0; i < mTableCount; ++i, curAng += anglePitch) {
     float angCos = CMath::FastCosR(curAng);
     float freq = freqLinear * angCos + freqConstant;
-    x20_table[i] = (amplitudeLinear * angCos + amplitudeConstant) *
+    mTable[i] = (amplitudeLinear * angCos + amplitudeConstant) *
                    CMath::FastSinR(freq * curAng + (phaseLinear * angCos + phaseConstant));
   }
-  x34_hasTurbulence = true;
+  mHasTurbulence = true;
 }
 
-CFluidPlaneCPU::CTurbulence::~CTurbulence() { delete[] x20_table; }
+CFluidPlaneCPU::CTurbulence::~CTurbulence() { delete[] mTable; }
 
 static inline uchar CalculateWavecapIntensity(float scale, float height) {
   int intensity = 0;
@@ -179,7 +179,7 @@ static inline void Normal(CFluidPlaneCPURender::SHFieldSample* sample, float res
   sample->ny = static_cast< signed char >(CCast::FtoL(n * dy));
   sample->nz = static_cast< signed char >(CCast::FtoL(n * nz));
   int intensity = 0;
-  float wavecapScale = info.x38_wavecapIntensityScale;
+  float wavecapScale = info.mWavecapIntensityScale;
   if (sample->height > 0.f) {
     intensity = CCast::FtoL(sample->height * wavecapScale);
     if (intensity > 255)
@@ -192,24 +192,24 @@ void UpdatePatchWithNormals(CFluidPlaneCPURender::SHFieldSample (&heights)[45][4
                             const unsigned char (&flags)[9][9],
                             const CFluidPlaneCPURender::SPatchInfo& info) {
   typedef CFluidPlaneCPURender::SHFieldSample SHFieldSample;
-  float resolution = 2.f * info.x18_rippleResolution;
-  int curGridY = info.x2e_tileY * info.x2a_gridDimX - 1;
-  curGridY += info.x28_tileX;
+  float resolution = 2.f * info.mRippleResolution;
+  int curGridY = info.mTileY * info.mGridDimX - 1;
+  curGridY += info.mTileX;
   SHFieldSample* rowBase = &heights[1][1];
 
-  for (int i = 1; i <= (info.x1_ySubdivs - 1 + CFluidPlaneCPURender::numSubdivisionsInTile - 1) /
+  for (int i = 1; i <= (info.mYSubdivs - 1 + CFluidPlaneCPURender::numSubdivisionsInTile - 1) /
                            CFluidPlaneCPURender::numSubdivisionsInTile;
        ++i) {
     int yEnd = i * CFluidPlaneCPURender::numSubdivisionsInTile + 1;
     int yStart = rstl::max_val(0, yEnd - CFluidPlaneCPURender::numSubdivisionsInTile);
-    yEnd = rstl::min_val(info.x1_ySubdivs + 1, yEnd);
+    yEnd = rstl::min_val(info.mYSubdivs + 1, yEnd);
     SHFieldSample* tileBase = rowBase;
-    for (int j = 1; j <= (info.x0_xSubdivs - 1 + CFluidPlaneCPURender::numSubdivisionsInTile - 1) /
+    for (int j = 1; j <= (info.mXSubdivs - 1 + CFluidPlaneCPURender::numSubdivisionsInTile - 1) /
                              CFluidPlaneCPURender::numSubdivisionsInTile;
          ++j, tileBase += CFluidPlaneCPURender::numSubdivisionsInTile) {
       int xEnd = j * CFluidPlaneCPURender::numSubdivisionsInTile + 1;
       int xStart = xEnd - CFluidPlaneCPURender::numSubdivisionsInTile;
-      xEnd = rstl::min_val(info.x0_xSubdivs + 1, xEnd);
+      xEnd = rstl::min_val(info.mXSubdivs + 1, xEnd);
       if ((flags[i][j] & 0x1f) == 0x1f) {
         SHFieldSample* row = tileBase;
         for (int k = yStart; k < yEnd; ++k, row += 45) {
@@ -221,13 +221,13 @@ void UpdatePatchWithNormals(CFluidPlaneCPURender::SHFieldSample (&heights)[45][4
       } else {
 #if NONMATCHING
         // Border samples and partial patches can extend beyond the shoreline grid.
-        const int gridX = info.x28_tileX + j - 1;
-        const int gridY = info.x2e_tileY + i - 1;
-        if (!info.x30_gridFlags ||
-            (gridX >= 0 && gridX < info.x2a_gridDimX && gridY >= 0 && gridY < info.x2c_gridDimY &&
-             info.x30_gridFlags[curGridY + j])) {
+        const int gridX = info.mTileX + j - 1;
+        const int gridY = info.mTileY + i - 1;
+        if (!info.mGridFlags ||
+            (gridX >= 0 && gridX < info.mGridDimX && gridY >= 0 && gridY < info.mGridDimY &&
+             info.mGridFlags[curGridY + j])) {
 #else
-        if (!info.x30_gridFlags || (info.x30_gridFlags && info.x30_gridFlags[curGridY + j])) {
+        if (!info.mGridFlags || (info.mGridFlags && info.mGridFlags[curGridY + j])) {
 #endif
           if (i > 0 && i < CFluidPlaneCPURender::numTilesInHField + 1 && j > 0 &&
               j < CFluidPlaneCPURender::numTilesInHField + 1) {
@@ -254,7 +254,7 @@ void UpdatePatchWithNormals(CFluidPlaneCPURender::SHFieldSample (&heights)[45][4
         }
       }
     }
-    curGridY += info.x2a_gridDimX;
+    curGridY += info.mGridDimX;
     rowBase += CFluidPlaneCPURender::numSubdivisionsInTile * 45;
   }
 }
@@ -263,24 +263,24 @@ void UpdatePatchNoNormals(CFluidPlaneCPURender::SHFieldSample (&heights)[45][45]
                           const unsigned char (&flags)[9][9],
                           const CFluidPlaneCPURender::SPatchInfo& info) {
   typedef CFluidPlaneCPURender::SHFieldSample SHFieldSample;
-  for (int i = 1; i <= (info.x1_ySubdivs - 1 + CFluidPlaneCPURender::numSubdivisionsInTile - 1) /
+  for (int i = 1; i <= (info.mYSubdivs - 1 + CFluidPlaneCPURender::numSubdivisionsInTile - 1) /
                            CFluidPlaneCPURender::numSubdivisionsInTile;
        ++i) {
     int yEnd = i * CFluidPlaneCPURender::numSubdivisionsInTile + 1;
     int yStart = rstl::max_val(0, yEnd - CFluidPlaneCPURender::numSubdivisionsInTile);
-    yEnd = rstl::min_val(info.x1_ySubdivs + 1, yEnd);
-    for (int j = 1; j <= (info.x0_xSubdivs - 1 + CFluidPlaneCPURender::numSubdivisionsInTile - 1) /
+    yEnd = rstl::min_val(info.mYSubdivs + 1, yEnd);
+    for (int j = 1; j <= (info.mXSubdivs - 1 + CFluidPlaneCPURender::numSubdivisionsInTile - 1) /
                              CFluidPlaneCPURender::numSubdivisionsInTile;
          ++j) {
       int xEnd = j * CFluidPlaneCPURender::numSubdivisionsInTile + 1;
       int xStart = rstl::max_val(0, xEnd - CFluidPlaneCPURender::numSubdivisionsInTile);
-      xEnd = rstl::min_val(info.x0_xSubdivs + 1, xEnd);
+      xEnd = rstl::min_val(info.mXSubdivs + 1, xEnd);
       if ((flags[i][j] & 0x1f) == 0x1f) {
         for (int k = yStart; k < yEnd; ++k) {
           for (int l = xStart; l < xEnd; ++l) {
             SHFieldSample& sample = heights[k][l];
             sample.wavecapIntensity =
-                CalculateWavecapIntensity(info.x38_wavecapIntensityScale, sample.height);
+                CalculateWavecapIntensity(info.mWavecapIntensityScale, sample.height);
           }
         }
       } else {
@@ -289,13 +289,13 @@ void UpdatePatchNoNormals(CFluidPlaneCPURender::SHFieldSample (&heights)[45][45]
           SHFieldSample& sample = heights[yStart + CFluidPlaneCPURender::numSubdivisionsInTile / 2]
                                          [xStart + CFluidPlaneCPURender::numSubdivisionsInTile / 2];
           sample.wavecapIntensity =
-              CalculateWavecapIntensity(info.x38_wavecapIntensityScale, sample.height);
+              CalculateWavecapIntensity(info.mWavecapIntensityScale, sample.height);
         }
         if (i != 0) {
           for (int l = xStart; l < xEnd; ++l) {
             SHFieldSample& sample = heights[yStart][l];
             sample.wavecapIntensity =
-                CalculateWavecapIntensity(info.x38_wavecapIntensityScale, sample.height);
+                CalculateWavecapIntensity(info.mWavecapIntensityScale, sample.height);
           }
         }
         if (j != 0) {
@@ -303,7 +303,7 @@ void UpdatePatchNoNormals(CFluidPlaneCPURender::SHFieldSample (&heights)[45][45]
           for (int k = yStart + 1; k < yEnd; ++k) {
             SHFieldSample& sample = col[k * 45];
             sample.wavecapIntensity =
-                CalculateWavecapIntensity(info.x38_wavecapIntensityScale, sample.height);
+                CalculateWavecapIntensity(info.mWavecapIntensityScale, sample.height);
           }
         }
       }
@@ -321,29 +321,29 @@ void ApplyTurbulence(float time, CFluidPlaneCPURender::SHFieldSample (&heights)[
     return;
   }
 
-  float rippleRes = info.x18_rippleResolution * CCast::LtoF(1);
-  float curY = (info.x8_localMinY - rippleRes) - areaCenter.GetY();
+  float rippleRes = info.mRippleResolution * CCast::LtoF(1);
+  float curY = (info.mLocalMinY - rippleRes) - areaCenter.GetY();
   time *= fluidPlane.GetOOTurbulenceSpeed();
   const float ooDist = fluidPlane.GetOOTurbulenceDistance();
-  int xDivs = (info.x0_xSubdivs - 2 + CFluidPlaneCPURender::numSubdivisionsInTile - 2) /
+  int xDivs = (info.mXSubdivs - 2 + CFluidPlaneCPURender::numSubdivisionsInTile - 2) /
                   CFluidPlaneCPURender::numSubdivisionsInTile *
                   CFluidPlaneCPURender::numSubdivisionsInTile +
               2;
-  int yDivs = (info.x1_ySubdivs - 2 + CFluidPlaneCPURender::numSubdivisionsInTile - 2) /
+  int yDivs = (info.mYSubdivs - 2 + CFluidPlaneCPURender::numSubdivisionsInTile - 2) /
                   CFluidPlaneCPURender::numSubdivisionsInTile *
                   CFluidPlaneCPURender::numSubdivisionsInTile +
               2;
   for (int i = 0; i <= yDivs; ++i) {
     float curYSq = curY * curY;
-    float curX = (info.x4_localMinX - rippleRes) - areaCenter.GetX();
+    float curX = (info.mLocalMinX - rippleRes) - areaCenter.GetX();
     for (int j = 0; j <= xDivs; ++j) {
       float dist = fast_sqrt(curX * curX + curYSq);
       float sel = ooDist * dist;
       sel += time;
       heights[i][j].height = fluidPlane.GetTurbulenceHeight(sel);
-      curX += info.x18_rippleResolution;
+      curX += info.mRippleResolution;
     }
-    curY += info.x18_rippleResolution;
+    curY += info.mRippleResolution;
   }
 }
 
@@ -387,7 +387,7 @@ const bool UpdatePatch(float time, CFluidPlaneCPURender::SPatchInfo& info,
   ApplyRipples(rippleInfos, heights, *reinterpret_cast< unsigned char (*)[9][9] >(static_cast< uchar* >(LCGetBase()) + 0x40),
                sineTable, info);
 
-  if (static_cast< int >(info.x37_normalMode) ==
+  if (static_cast< int >(info.mNormalMode) ==
       static_cast< int >(CFluidPlaneCPURender::kNM_NoNormals)) {
     UpdatePatchNoNormals(heights, *reinterpret_cast< const unsigned char (*)[9][9] >(static_cast< uchar* >(LCGetBase()) + 0x40),
                          info);
@@ -408,20 +408,20 @@ void CFluidPlaneCPU::CalculateLightmapMtx(const CTransform4f& areaXf, const CTra
   CTransform4f toLocal = areaXf.GetRotation().GetQuickInverse();
   CAABox areaLocalAABB = aabb.GetTransformedAABox(toLocal);
 
-  float scaleU = areaLocalAABB.GetWidth() / (width * x11c_unitsPerLightmapTexel);
-  float scaleV = areaLocalAABB.GetHeight() / (height * x11c_unitsPerLightmapTexel);
+  float scaleU = areaLocalAABB.GetWidth() / (width * mUnitsPerLightmapTexel);
+  float scaleV = areaLocalAABB.GetHeight() / (height * mUnitsPerLightmapTexel);
 
   float leftBorder = (1.f + fmod(areaLocalAABB.GetMinPoint().GetX() + xf.GetTranslation().GetX(),
-                                 x11c_unitsPerLightmapTexel)) /
+                                 mUnitsPerLightmapTexel)) /
                      width;
   float rightBorder = (2.f - fmod(areaLocalAABB.GetMaxPoint().GetX() + xf.GetTranslation().GetX(),
-                                  x11c_unitsPerLightmapTexel)) /
+                                  mUnitsPerLightmapTexel)) /
                       width;
   float bottomBorder = (1.f + fmod(areaLocalAABB.GetMinPoint().GetY() + xf.GetTranslation().GetY(),
-                                   x11c_unitsPerLightmapTexel)) /
+                                   mUnitsPerLightmapTexel)) /
                        height;
   float topBorder = (2.f - fmod(areaLocalAABB.GetMaxPoint().GetY() + xf.GetTranslation().GetY(),
-                                x11c_unitsPerLightmapTexel)) /
+                                mUnitsPerLightmapTexel)) /
                     height;
 
   CTransform4f texMtx(
@@ -533,7 +533,7 @@ void CFluidPlaneCPU::RenderSetup(const CStateManager& mgr, float alpha, const CT
   GetUVMotion().CalculateFluidTextureOffset(uvT, uvOffsets);
 
   const float pattern1Scale =
-      x4c_uvMotion.GetFluidLayerMotion(CFluidUVMotion::kFL_Pattern1).x14_uvScale;
+      mUvMotion.GetFluidLayerMotion(CFluidUVMotion::kFL_Pattern1).mUvScale;
   float pattern1Mtx[2][4] = {};
   pattern1Mtx[0][0] = pattern1Scale;
   pattern1Mtx[0][3] = uvOffsets[1][0];
@@ -541,14 +541,14 @@ void CFluidPlaneCPU::RenderSetup(const CStateManager& mgr, float alpha, const CT
   pattern1Mtx[1][3] = uvOffsets[1][1];
 
   const float pattern2Scale =
-      x4c_uvMotion.GetFluidLayerMotion(CFluidUVMotion::kFL_Pattern2).x14_uvScale;
+      mUvMotion.GetFluidLayerMotion(CFluidUVMotion::kFL_Pattern2).mUvScale;
   float pattern2Mtx[2][4] = {};
   pattern2Mtx[0][0] = pattern2Scale;
   pattern2Mtx[0][3] = uvOffsets[2][0];
   pattern2Mtx[1][1] = pattern2Scale;
   pattern2Mtx[1][3] = uvOffsets[2][1];
 
-  const float colorScale = x4c_uvMotion.GetFluidLayerMotion(CFluidUVMotion::kFL_Color).x14_uvScale;
+  const float colorScale = mUvMotion.GetFluidLayerMotion(CFluidUVMotion::kFL_Color).mUvScale;
   float colorMtx[2][4] = {};
   colorMtx[0][0] = colorScale;
   colorMtx[0][3] = uvOffsets[0][0];
@@ -600,9 +600,9 @@ void CFluidPlaneCPU::RenderSetup(const CStateManager& mgr, float alpha, const CT
   if (hasEnvBumpMap) {
     const float envBumpScale =
         envMapType != 0
-            ? 0.5f * (1.f - x118_reflectionSize)
+            ? 0.5f * (1.f - mReflectionSize)
             : gpTweakGame->GetFluidEnvBumpScale() *
-                  GetUVMotion().GetFluidLayerMotion(CFluidUVMotion::kFL_Color).x14_uvScale;
+                  GetUVMotion().GetFluidLayerMotion(CFluidUVMotion::kFL_Color).mUvScale;
 
     Mtx envBumpMtx;
     if (envMapType == 0) {
@@ -624,7 +624,7 @@ void CFluidPlaneCPU::RenderSetup(const CStateManager& mgr, float alpha, const CT
                         GX_TEXMTX3, true, GX_PTTEXMTX0);
     texMtx = GX_TEXMTX4;
 
-    float indScale = 0.5f * (envMapType != 0 ? x118_reflectionSize : 1.f);
+    float indScale = 0.5f * (envMapType != 0 ? mReflectionSize : 1.f);
     float indMtx[2][3] = {};
     indMtx[0][0] = indScale;
     indMtx[1][1] = -indScale;
@@ -657,7 +657,7 @@ void CFluidPlaneCPU::RenderSetup(const CStateManager& mgr, float alpha, const CT
     float darkLevel = mgr.GetWorld()
                           ->GetArea(mgr.GetNextAreaId())
                           ->GetPostConstructed()
-                          ->x1128_worldLightingLevel;
+                          ->mWorldLightingLevel;
 
     const CScriptWater* nextWater = water->GetNextConnectedWater(mgr);
 
@@ -905,31 +905,31 @@ CFluidPlaneCPURender::SPatchInfo::SPatchInfo(const CVector3f& localMin, const CV
   short xSubs =
       CCast::FtoS(1.f + (localMax.GetX() - localMin.GetX()) / rippleResolution - FLT_EPSILON) + 2;
   maxSubsX = (short)(numSubdivisionsInHField + 2);
-  x0_xSubdivs = rstl::min_val< short >(maxSubsX, xSubs);
+  mXSubdivs = rstl::min_val< short >(maxSubsX, xSubs);
   short maxSubsY;
   short ySubs =
       CCast::FtoS(1.f + (localMax.GetY() - localMin.GetY()) / rippleResolution - FLT_EPSILON) + 2;
   maxSubsY = (short)(numSubdivisionsInHField + 2);
-  x1_ySubdivs = rstl::min_val< short >(maxSubsY, ySubs);
-  x4_localMinX = localMin.GetX();
-  x8_localMinY = localMin.GetY();
-  xc_globalMinX = x4_localMinX + pos.GetX();
-  x10_globalMinY = x8_localMinY + pos.GetY();
-  x14_tileSize = tileSize;
-  x18_rippleResolution = rippleResolution;
-  x1c_tileHypRadius = fast_sqrt(0.25f * (tileSize * tileSize + tileSize * tileSize));
-  x20_ooTileSize = 1.f / x14_tileSize;
-  x24_ooRippleResolution = 1.f / x18_rippleResolution;
-  x28_tileX = (short)tileX;
-  x2a_gridDimX = (short)gridDimX;
-  x2c_gridDimY = (short)gridDimY;
-  x2e_tileY = (short)tileY;
-  x30_gridFlags = gridFlags;
-  x34_redShift = static_cast< uchar >(redShift);
-  x35_greenShift = static_cast< uchar >(greenShift);
-  x36_blueShift = static_cast< uchar >(blueShift);
-  x37_normalMode = static_cast< uchar >(normalMode);
-  x38_wavecapIntensityScale = wavecapIntensityScale;
+  mYSubdivs = rstl::min_val< short >(maxSubsY, ySubs);
+  mLocalMinX = localMin.GetX();
+  mLocalMinY = localMin.GetY();
+  mGlobalMinX = mLocalMinX + pos.GetX();
+  mGlobalMinY = mLocalMinY + pos.GetY();
+  mTileSize = tileSize;
+  mRippleResolution = rippleResolution;
+  mTileHypRadius = fast_sqrt(0.25f * (tileSize * tileSize + tileSize * tileSize));
+  mOoTileSize = 1.f / mTileSize;
+  mOoRippleResolution = 1.f / mRippleResolution;
+  mTileX = (short)tileX;
+  mGridDimX = (short)gridDimX;
+  mGridDimY = (short)gridDimY;
+  mTileY = (short)tileY;
+  mGridFlags = gridFlags;
+  mRedShift = static_cast< uchar >(redShift);
+  mGreenShift = static_cast< uchar >(greenShift);
+  mBlueShift = static_cast< uchar >(blueShift);
+  mNormalMode = static_cast< uchar >(normalMode);
+  mWavecapIntensityScale = wavecapIntensityScale;
 }
 
 extern void RenderPatch(const CFluidPlaneCPURender::SPatchInfo& info, bool noRipples,
@@ -981,8 +981,8 @@ void CFluidPlaneCPU::Render(const CStateManager& mgr, float alpha, const CAABox&
     break;
   }
 
-  CFluidPlaneCPURender::numSubdivisionsInTile = x104_tileSubdivisions;
-  float rippleResolution = x108_rippleResolution;
+  CFluidPlaneCPURender::numSubdivisionsInTile = mTileSubdivisions;
+  float rippleResolution = mRippleResolution;
   float rippleResolutionRecip = 1.f / rippleResolution;
   int numTiles = 42 / CFluidPlaneCPURender::numSubdivisionsInTile;
   CFluidPlaneCPURender::numTilesInHField = rstl::min_val(numTiles, kMaxTilesInHField);
@@ -1007,7 +1007,7 @@ void CFluidPlaneCPU::Render(const CStateManager& mgr, float alpha, const CAABox&
   int blueShift = 0;
   float wavecapIntensityScale = gpTweakGame->GetWavecapIntensityNormal();
 
-  switch (x44_fluidType) {
+  switch (mFluidType) {
   case kFT_PoisonWater:
     wavecapIntensityScale = gpTweakGame->GetWavecapIntensityPoison();
     redShift = 1;
@@ -1081,7 +1081,7 @@ void CFluidPlaneCPU::Render(const CStateManager& mgr, float alpha, const CAABox&
           CVector3f patchMin(curX, curY, aabbMinZ);
 
           CFluidPlaneCPURender::SPatchInfo info(
-              patchMin, patchMax, pos, rippleResolution, x100_tileSize, wavecapIntensityScale,
+              patchMin, patchMax, pos, rippleResolution, mTileSize, wavecapIntensityScale,
               CFluidPlaneCPURender::numSubdivisionsInHField, normalMode, redShiftU, greenShiftU,
               blueShiftU, tileX, gridDimX, gridDimY, tileY, gridFlags);
 
@@ -1092,17 +1092,17 @@ void CFluidPlaneCPU::Render(const CStateManager& mgr, float alpha, const CAABox&
           int fromX = tileX != 0 ? 2 - CFluidPlaneCPURender::numSubdivisionsInTile : 0;
           int toX;
           if (tileX != gridDimX - 1) {
-            toX = lcInfo.x0_xSubdivs + CFluidPlaneCPURender::numSubdivisionsInTile - 2;
+            toX = lcInfo.mXSubdivs + CFluidPlaneCPURender::numSubdivisionsInTile - 2;
           } else {
-            toX = lcInfo.x0_xSubdivs;
+            toX = lcInfo.mXSubdivs;
           }
 
           int fromY = tileY != 0 ? 2 - CFluidPlaneCPURender::numSubdivisionsInTile : 0;
           int toY;
           if (tileY != gridDimY - 1) {
-            toY = lcInfo.x1_ySubdivs + CFluidPlaneCPURender::numSubdivisionsInTile - 2;
+            toY = lcInfo.mYSubdivs + CFluidPlaneCPURender::numSubdivisionsInTile - 2;
           } else {
-            toY = lcInfo.x1_ySubdivs;
+            toY = lcInfo.mYSubdivs;
           }
 
           bool noRipples =

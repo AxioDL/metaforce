@@ -18,21 +18,21 @@ static inline T& GetParticleField(T* base, int stripe, int index) {
 }
 
 CFlameWarp::CFlameWarp(float maxInfluenceDist, const CVector3f& warpPoint, bool collisionWarp)
-: x4_collisionPoints(warpPoint)
-, x74_warpPoint(warpPoint)
-, x80_floatingPoint(warpPoint)
-, x8c_maxDistSq(0.f)
-, x90_minSize(FLT_MAX)
-, x94_maxSize(FLT_MIN)
-, x98_maxInfluenceDistSq(maxInfluenceDist * maxInfluenceDist)
-, x9c_stateMgr(nullptr)
-, xa0_24_activated(false)
-, xa0_25_collisionWarp(collisionWarp)
-, xa0_26_processed(false) {}
+: mCollisionPoints(warpPoint)
+, mWarpPoint(warpPoint)
+, mFloatingPoint(warpPoint)
+, mMaxDistSq(0.f)
+, mMinSize(FLT_MAX)
+, mMaxSize(FLT_MIN)
+, mMaxInfluenceDistSq(maxInfluenceDist * maxInfluenceDist)
+, mStateMgr(nullptr)
+, mActivated(false)
+, mCollisionWarp(collisionWarp)
+, mProcessed(false) {}
 
 CFlameWarp::~CFlameWarp() {}
 
-bool CFlameWarp::UpdateWarp() { return xa0_24_activated; }
+bool CFlameWarp::UpdateWarp() { return mActivated; }
 
 struct SFlameParticleSortKey {
   float transp;
@@ -47,15 +47,15 @@ CHECK_SIZEOF(SFlameParticleSortKey, 8)
 void CFlameWarp::ModifyParticles(int particleCount, int stripe, int*, CVector3f* particlePrevPos,
                                  CVector3f* particlePos, CVector3f* particleVelocity, CColor* color,
                                  float* lineLengthOrSize, float* lineWidthOrRota) {
-  if (x9c_stateMgr == nullptr || particleCount < 9) {
+  if (mStateMgr == nullptr || particleCount < 9) {
     return;
   }
 
   rstl::vector< SFlameParticleSortKey > vec;
   vec.reserve(particleCount);
 
-  x90_minSize = FLT_MAX;
-  x94_maxSize = FLT_MIN;
+  mMinSize = FLT_MAX;
+  mMaxSize = FLT_MIN;
   float maxTransp = 0.f;
 
   for (int i = 0; i < particleCount; ++i) {
@@ -63,24 +63,24 @@ void CFlameWarp::ModifyParticles(int particleCount, int stripe, int*, CVector3f*
     const float transp = 1.f - GetParticleField(color, stripe, i).GetAlpha();
 
     if (transp > maxTransp) {
-      const CVector3f warpDelta = partPos - x74_warpPoint;
+      const CVector3f warpDelta = partPos - mWarpPoint;
       const float distSq = CVector3f::Dot(warpDelta, warpDelta);
-      if (distSq > x8c_maxDistSq && distSq < x98_maxInfluenceDistSq) {
-        x8c_maxDistSq = distSq;
+      if (distSq > mMaxDistSq && distSq < mMaxInfluenceDistSq) {
+        mMaxDistSq = distSq;
         maxTransp = transp;
-        x80_floatingPoint = partPos;
+        mFloatingPoint = partPos;
       }
     }
 
-    if (GetParticleField(lineLengthOrSize, stripe, i) < x90_minSize) {
-      x90_minSize = GetParticleField(lineLengthOrSize, stripe, i);
+    if (GetParticleField(lineLengthOrSize, stripe, i) < mMinSize) {
+      mMinSize = GetParticleField(lineLengthOrSize, stripe, i);
     }
-    if (GetParticleField(lineLengthOrSize, stripe, i) > x94_maxSize) {
-      x94_maxSize = GetParticleField(lineLengthOrSize, stripe, i);
+    if (GetParticleField(lineLengthOrSize, stripe, i) > mMaxSize) {
+      mMaxSize = GetParticleField(lineLengthOrSize, stripe, i);
     }
 
     vec.push_back(SFlameParticleSortKey(transp, i));
-    if (xa0_25_collisionWarp) {
+    if (mCollisionWarp) {
       CVector3f& partVel = GetParticleField(particleVelocity, stripe, i);
       const CVector3f delta = partPos - GetParticleField(particlePrevPos, stripe, i);
 
@@ -89,7 +89,7 @@ void CFlameWarp::ModifyParticles(int particleCount, int stripe, int*, CVector3f*
         const CVector3f behindPos = GetParticleField(particlePrevPos, stripe, i) - deltaNorm * 5.f;
         float fullDeltaMag = (partPos - behindPos).Magnitude();
 
-        const CRayCastResult result = x9c_stateMgr->RayStaticIntersection(
+        const CRayCastResult result = mStateMgr->RayStaticIntersection(
             behindPos, deltaNorm, fullDeltaMag,
             CMaterialFilter::MakeIncludeExclude(CMaterialList(SolidMaterial),
                                                 CMaterialList(ProjectilePassthroughMaterial)));
@@ -119,31 +119,31 @@ void CFlameWarp::ModifyParticles(int particleCount, int stripe, int*, CVector3f*
   int vecIdx = 0;
   const int pitch = particleCount / 9;
 
-  for (int i = 0; i < x4_collisionPoints.capacity(); ++i) {
+  for (int i = 0; i < mCollisionPoints.capacity(); ++i) {
     CVector3f& partPos = GetParticleField(particlePos, stripe, vec[vecIdx].index);
-    x4_collisionPoints[i] = partPos;
+    mCollisionPoints[i] = partPos;
     if (i > 0) {
-      const CVector3f delta = x4_collisionPoints[i] - x4_collisionPoints[i - 1];
+      const CVector3f delta = mCollisionPoints[i] - mCollisionPoints[i - 1];
       if (delta.Magnitude() < 0.0011920929f) {
-        x4_collisionPoints[i] += delta.AsNormalized() * 0.0011920929f;
+        mCollisionPoints[i] += delta.AsNormalized() * 0.0011920929f;
       }
     }
     vecIdx += pitch;
   }
 
-  x4_collisionPoints[0] = x74_warpPoint;
-  x80_floatingPoint = x4_collisionPoints[8];
-  xa0_26_processed = true;
+  mCollisionPoints[0] = mWarpPoint;
+  mFloatingPoint = mCollisionPoints[8];
+  mProcessed = true;
 }
 
 void CFlameWarp::ResetPosition(const CVector3f& pos) {
   rstl::reserved_vector< CVector3f, 9 >::iterator it;
-  for (it = x4_collisionPoints.begin(); it != x4_collisionPoints.end(); ++it) {
+  for (it = mCollisionPoints.begin(); it != mCollisionPoints.end(); ++it) {
     *it = pos;
   }
-  xa0_26_processed = false;
+  mProcessed = false;
 }
 
-bool CFlameWarp::IsActivated() { return xa0_24_activated; }
+bool CFlameWarp::IsActivated() { return mActivated; }
 
 FourCC CFlameWarp::Get4CharID() { return 'FWRP'; }

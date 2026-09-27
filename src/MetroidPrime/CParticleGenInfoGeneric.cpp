@@ -15,119 +15,119 @@ CParticleGenInfoGeneric::CParticleGenInfoGeneric(const SObjectTag& part,
                                                  int lightId, EParticleGenType state)
 
 : CParticleGenInfo(part, frames, boneName, scale, parentMode, flags, state)
-, x84_system(system)
-, x88_lightId(lightId == 0xffffffff ? kInvalidUniqueId
+, mSystem(system)
+, mLightId(lightId == 0xffffffff ? kInvalidUniqueId
                                     : _initializeLight(system, stateMgr, areaId, lightId)) {}
 
 CParticleGenInfoGeneric::~CParticleGenInfoGeneric() {}
 
-void CParticleGenInfoGeneric::AddToRenderer() { gpRender->AddParticleGen(*x84_system.GetPtr()); }
+void CParticleGenInfoGeneric::AddToRenderer() { gpRender->AddParticleGen(*mSystem.GetPtr()); }
 
-void CParticleGenInfoGeneric::Render() { x84_system->Render(); }
+void CParticleGenInfoGeneric::Render() { mSystem->Render(); }
 
 void CParticleGenInfoGeneric::Update(float dt, CStateManager& stateMgr) {
-  x84_system->Update(dt);
+  mSystem->Update(dt);
 
-  if (x88_lightId == kInvalidUniqueId) {
+  if (mLightId == kInvalidUniqueId) {
     return;
   }
 
-  if (CGameLight* gl = TCastToPtr< CGameLight >(stateMgr.ObjectById(x88_lightId))) {
-    gl->SetLight(x84_system->GetLight());
+  if (CGameLight* gl = TCastToPtr< CGameLight >(stateMgr.ObjectById(mLightId))) {
+    gl->SetLight(mSystem->GetLight());
   }
 }
 
 void CParticleGenInfoGeneric::SetOrientation(const CTransform4f& xf, CStateManager& stateMgr) {
-  x84_system->SetOrientation(xf);
+  mSystem->SetOrientation(xf);
 
-  if (x88_lightId == kInvalidUniqueId) {
+  if (mLightId == kInvalidUniqueId) {
     return;
   }
 
-  if (CGameLight* gl = TCastToPtr< CGameLight >(stateMgr.ObjectById(x88_lightId))) {
+  if (CGameLight* gl = TCastToPtr< CGameLight >(stateMgr.ObjectById(mLightId))) {
     CMatrix3f m1 = xf.BuildMatrix3f();
     gl->SetRotation(CQuaternion::FromMatrix(m1.Orthonormalized()));
   }
 }
 
 void CParticleGenInfoGeneric::SetTranslation(const CVector3f& vec, CStateManager& stateMgr) {
-  x84_system->SetTranslation(vec);
+  mSystem->SetTranslation(vec);
 
-  if (x88_lightId == kInvalidUniqueId) {
+  if (mLightId == kInvalidUniqueId) {
     return;
   }
 
-  if (CGameLight* gl = TCastToPtr< CGameLight >(stateMgr.ObjectById(x88_lightId))) {
+  if (CGameLight* gl = TCastToPtr< CGameLight >(stateMgr.ObjectById(mLightId))) {
     gl->SetTranslation(vec);
   }
 }
 
 void CParticleGenInfoGeneric::SetGlobalOrientation(const CTransform4f& xf,
                                                    CStateManager& stateMgr) {
-  x84_system->SetGlobalOrientation(xf);
+  mSystem->SetGlobalOrientation(xf);
 
-  if (x88_lightId == kInvalidUniqueId) {
+  if (mLightId == kInvalidUniqueId) {
     return;
   }
 
-  if (CGameLight* gl = TCastToPtr< CGameLight >(stateMgr.ObjectById(x88_lightId))) {
+  if (CGameLight* gl = TCastToPtr< CGameLight >(stateMgr.ObjectById(mLightId))) {
     gl->SetRotation(CQuaternion::FromMatrix(xf));
   }
 }
 
 void CParticleGenInfoGeneric::SetGlobalTranslation(const CVector3f& vec, CStateManager& stateMgr) {
-  x84_system->SetGlobalTranslation(vec);
+  mSystem->SetGlobalTranslation(vec);
 
-  if (x88_lightId == kInvalidUniqueId) {
+  if (mLightId == kInvalidUniqueId) {
     return;
   }
 
-  if (CGameLight* gl = TCastToPtr< CGameLight >(stateMgr.ObjectById(x88_lightId))) {
+  if (CGameLight* gl = TCastToPtr< CGameLight >(stateMgr.ObjectById(mLightId))) {
     gl->SetTranslation(vec);
   }
 }
 
 void CParticleGenInfoGeneric::SetGlobalScale(const CVector3f& vec) {
-  x84_system->SetGlobalScale(vec);
+  mSystem->SetGlobalScale(vec);
 }
 
 void CParticleGenInfoGeneric::SetParticleEmission(bool isActive, CStateManager& stateMgr) {
-  x84_system->SetParticleEmission(isActive);
+  mSystem->SetParticleEmission(isActive);
 
-  if (x88_lightId == kInvalidUniqueId) {
+  if (mLightId == kInvalidUniqueId) {
     return;
   }
 
-  if (CGameLight* gl = TCastToPtr< CGameLight >(stateMgr.ObjectById(x88_lightId))) {
+  if (CGameLight* gl = TCastToPtr< CGameLight >(stateMgr.ObjectById(mLightId))) {
     gl->SetActive(isActive);
   }
 }
 
 void CParticleGenInfoGeneric::DeleteLight(CStateManager& stateMgr) {
-  if (x88_lightId == kInvalidUniqueId) {
+  if (mLightId == kInvalidUniqueId) {
     return;
   }
 
-  stateMgr.DeleteObjectRequest(x88_lightId);
-  x88_lightId = kInvalidUniqueId;
+  stateMgr.DeleteObjectRequest(mLightId);
+  mLightId = kInvalidUniqueId;
 }
 
-TUniqueId CParticleGenInfoGeneric::GetLightId() const { return x88_lightId; }
+TUniqueId CParticleGenInfoGeneric::GetLightId() const { return mLightId; }
 
 void CParticleGenInfoGeneric::SetModulationColor(const CColor& color) {
-  x84_system->SetModulationColor(color);
+  mSystem->SetModulationColor(color);
 }
 
-bool CParticleGenInfoGeneric::HasLight() const { return x84_system->SystemHasLight(); }
+bool CParticleGenInfoGeneric::HasLight() const { return mSystem->SystemHasLight(); }
 
-void CParticleGenInfoGeneric::DestroyParticles() { x84_system->DestroyParticles(); }
+void CParticleGenInfoGeneric::DestroyParticles() { mSystem->DestroyParticles(); }
 
 bool CParticleGenInfoGeneric::HasActiveParticles() const {
-  return x84_system->GetParticleCount() > 0;
+  return mSystem->GetParticleCount() > 0;
 }
 
 rstl::optional_object< CAABox > CParticleGenInfoGeneric::GetBounds() const {
-  return x84_system->GetBounds();
+  return mSystem->GetBounds();
 }
 
-bool CParticleGenInfoGeneric::IsSystemDeletable() const { return x84_system->IsSystemDeletable(); }
+bool CParticleGenInfoGeneric::IsSystemDeletable() const { return mSystem->IsSystemDeletable(); }

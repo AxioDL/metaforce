@@ -28,31 +28,31 @@ CPuddleSpore::CPuddleSpore(const TUniqueId uid, const rstl::string& name, const 
                            const CAssetId weapon, const CDamageInfo& dInfo)
 : CPatterned(kC_PuddleSpore, uid, name, flavor, info, xf, mData, pInfo, kMT_Flyer, colType,
              kBT_Restricted, actParms, kCS_Medium)
-, x568_stateTime(0.f)
-, x56c_glowTime(0.f)
-, x570_glowDuration(f1)
-, x574_attackDelay(f2)
-, x578_turnDelay(f3)
+, mStateTime(0.f)
+, mGlowTime(0.f)
+, mGlowDuration(f1)
+, mAttackDelay(f2)
+, mTurnDelay(f3)
 , x57c_(f4)
-, x580_knockPlayerImpulse(f5)
-, x584_bodyOrigin(pInfo.xcc_bodyOrigin)
-, x590_halfExtent(pInfo.xc4_halfExtent)
-, x594_height(pInfo.xc8_height)
-, x598_heightOffset(0.f)
-, x59c_heightScale(1.f)
-, x5a0_collisionPrimitive(CalculateBoundingBox(), GetMaterialList())
-, x5c8_collisionState(0)
-, x5cc_animProgress(0)
-, x5d0_glowDescription(gpSimplePool->GetObj(SObjectTag('PART', glowFx)))
-, x5ec_projectileInfo(weapon, dInfo)
-, x614_24_updateStateTime(false)
-, x614_25_updateGlowTime(false) {
-  x5dc_particles.reserve(kEyeCount);
+, mKnockPlayerImpulse(f5)
+, mBodyOrigin(pInfo.mBodyOrigin)
+, mHalfExtent(pInfo.mHalfExtent)
+, mHeight(pInfo.mHeight)
+, mHeightOffset(0.f)
+, mHeightScale(1.f)
+, mCollisionPrimitive(CalculateBoundingBox(), GetMaterialList())
+, mCollisionState(0)
+, mAnimProgress(0)
+, mGlowDescription(gpSimplePool->GetObj(SObjectTag('PART', glowFx)))
+, mProjectileInfo(weapon, dInfo)
+, mUpdateStateTime(false)
+, mUpdateGlowTime(false) {
+  mParticles.reserve(kEyeCount);
   for (int i = 0; i < kEyeCount; ++i) {
-    x5dc_particles.push_back(x5d0_glowDescription);
+    mParticles.push_back(mGlowDescription);
   }
 
-  x5ec_projectileInfo.Token().Lock();
+  mProjectileInfo.Token().Lock();
   KnockBackCtrl().SetAutoResetImpulse(false);
 }
 
@@ -60,7 +60,7 @@ ENTITY_ACCEPT_IMPL(CPuddleSpore)
 
 void CPuddleSpore::PreThink(float dt, CStateManager& mgr) {
   const CAABox box = CalculateBoundingBox();
-  if (x5c8_collisionState == 2) {
+  if (mCollisionState == 2) {
     AddMaterial(kMT_SolidCharacter, mgr);
   } else {
     RemoveMaterial(kMT_SolidCharacter, mgr);
@@ -70,28 +70,28 @@ void CPuddleSpore::PreThink(float dt, CStateManager& mgr) {
 }
 
 void CPuddleSpore::Think(float dt, CStateManager& mgr) {
-  if (x614_25_updateGlowTime) {
-    x56c_glowTime += dt;
+  if (mUpdateGlowTime) {
+    mGlowTime += dt;
   }
-  if (x614_24_updateStateTime) {
-    x568_stateTime += dt;
+  if (mUpdateStateTime) {
+    mStateTime += dt;
   }
   HealthInfo(mgr)->SetHP(1000000.f);
   const CColor color = CColor::Lerp(CColor(1.f, 1.f, 1.f, 0.f), CColor(1.f, 1.f, 1.f, 1.f),
-                                    CMath::FastMin(x56c_glowTime / x570_glowDuration, 1.f));
+                                    CMath::FastMin(mGlowTime / mGlowDuration, 1.f));
   for (int i = 0; i < kEyeCount; ++i) {
     const CTransform4f xf = GetLctrTransform(rstl::string(kEyeLocators[i]));
-    x5dc_particles[i].SetModulationColor(color);
-    x5dc_particles[i].SetGlobalTranslation(xf.GetTranslation());
-    x5dc_particles[i].Update(dt);
+    mParticles[i].SetModulationColor(color);
+    mParticles[i].SetGlobalTranslation(xf.GetTranslation());
+    mParticles[i].Update(dt);
   }
   CPatterned::Think(dt, mgr);
 }
 
 void CPuddleSpore::Render(const CStateManager& mgr) const {
   CPatterned::Render(mgr);
-  if (x56c_glowTime > 0.01f) {
-    for (AUTO(it, x5dc_particles.begin()); it != x5dc_particles.end(); it++) {
+  if (mGlowTime > 0.01f) {
+    for (AUTO(it, mParticles.begin()); it != mParticles.end(); it++) {
       const_cast< CElementGen& >(*it).Render();
     }
   }
@@ -122,10 +122,10 @@ void CPuddleSpore::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
   }
 }
 
-CProjectileInfo* CPuddleSpore::ProjectileInfo() { return &x5ec_projectileInfo; }
+CProjectileInfo* CPuddleSpore::ProjectileInfo() { return &mProjectileInfo; }
 
 bool CPuddleSpore::HitShell(const CVector3f& point) const {
-  if (x5c8_collisionState == 1) {
+  if (mCollisionState == 1) {
     const CUnitVector3f direction(point - GetBoundingBox().GetCenterPoint());
     const CVector3f up = GetTransform().GetUp();
     const float distance = CVector3f::Dot(up, direction);
@@ -160,7 +160,7 @@ void CPuddleSpore::Touch(CActor& actor, CStateManager& mgr) {
 void CPuddleSpore::KnockBack(const CVector3f& direction, CStateManager& mgr,
                              const CDamageInfo& info, float magnitude, bool direct,
                              const bool inDeferred) {
-  if (x5c8_collisionState != 1) {
+  if (mCollisionState != 1) {
     CPatterned::KnockBack(direction, mgr, info, magnitude, direct, inDeferred);
   }
 }
@@ -170,7 +170,7 @@ void CPuddleSpore::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node
   bool handled = false;
   switch (type) {
   case kUE_Projectile: {
-    x56c_glowTime = 0.f;
+    mGlowTime = 0.f;
     if (ProjectileInfo()->Token().TryCache() &&
         mgr.CanCreateProjectile(GetUniqueId(), kWT_AI, kEyeCount)) {
       const CTransform4f xf = GetLctrTransform(node.GetLocatorName());
@@ -194,7 +194,7 @@ void CPuddleSpore::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node
 
 void CPuddleSpore::CollidedWith(const TUniqueId& uid, const CCollisionInfoList& list,
                                 CStateManager& mgr) {
-  if (x5c8_collisionState != 2) {
+  if (mCollisionState != 2) {
     CPatterned::CollidedWith(uid, list, mgr);
   }
 }
@@ -222,23 +222,23 @@ void CPuddleSpore::KnockPlayer(CStateManager& mgr, float magnitude) {
 }
 
 const CCollisionPrimitive* CPuddleSpore::GetCollisionPrimitive() const {
-  return &x5a0_collisionPrimitive;
+  return &mCollisionPrimitive;
 }
 
 const CAABox CPuddleSpore::CalculateBoundingBox() const {
-  const float offset = x598_heightOffset;
-  const CVector3f min(-x590_halfExtent + x584_bodyOrigin.GetX(),
-                      -x590_halfExtent + x584_bodyOrigin.GetY(), offset + x584_bodyOrigin.GetZ());
-  const CVector3f max(x590_halfExtent + x584_bodyOrigin.GetX(),
-                      x590_halfExtent + x584_bodyOrigin.GetY(),
-                      x594_height * x59c_heightScale + offset + x584_bodyOrigin.GetZ());
+  const float offset = mHeightOffset;
+  const CVector3f min(-mHalfExtent + mBodyOrigin.GetX(),
+                      -mHalfExtent + mBodyOrigin.GetY(), offset + mBodyOrigin.GetZ());
+  const CVector3f max(mHalfExtent + mBodyOrigin.GetX(),
+                      mHalfExtent + mBodyOrigin.GetY(),
+                      mHeight * mHeightScale + offset + mBodyOrigin.GetZ());
   return CAABox(CVector3f::Lerp(min, GetBaseBoundingBox().GetMinPoint(), 0.95f),
                 CVector3f::Lerp(max, GetBaseBoundingBox().GetMaxPoint(), 0.95f));
 }
 
 void CPuddleSpore::UpdateBoundingState(const CAABox& box, CStateManager& mgr, float dt) {
   SetBoundingBox(box);
-  x5a0_collisionPrimitive = CCollidableAABox(box, GetMaterialList());
+  mCollisionPrimitive = CCollidableAABox(box, GetMaterialList());
   CPlayer& player = *mgr.Player();
   CAABox playerBox(CVector3f::Zero(), CVector3f::Zero());
   const CAABox& selfBox = GetBoundingBox();
@@ -252,7 +252,7 @@ void CPuddleSpore::UpdateBoundingState(const CAABox& box, CStateManager& mgr, fl
     playerBox = player.GetBoundingBox();
   }
   if (selfBox.DoBoundsOverlap(playerBox)) {
-    const float epsilon = x5c8_collisionState == 2 ? 0.001f : -0.0001f;
+    const float epsilon = mCollisionState == 2 ? 0.001f : -0.0001f;
     const float bias = epsilon + (selfBox.GetMaxPoint().GetZ() - playerBox.GetMinPoint().GetZ());
     if (bias > 0.f && selfBox.GetMaxPoint().GetZ() < playerBox.GetMaxPoint().GetZ()) {
       const bool hadGroundCollider = player.GetMaterialList().HasMaterial(kMT_GroundCollider);
@@ -274,11 +274,11 @@ void CPuddleSpore::UpdateBoundingState(const CAABox& box, CStateManager& mgr, fl
 }
 
 bool CPuddleSpore::InAttackPosition(CStateManager&, float) {
-  return x568_stateTime >= x570_glowDuration;
+  return mStateTime >= mGlowDuration;
 }
 
 bool CPuddleSpore::ShouldAttack(CStateManager&, float) {
-  return x568_stateTime >= x574_attackDelay;
+  return mStateTime >= mAttackDelay;
 }
 
 bool CPuddleSpore::ShouldTurn(CStateManager& mgr, float) {
@@ -294,10 +294,10 @@ bool CPuddleSpore::ShouldTurn(CStateManager& mgr, float) {
       player.GetMorphballTransitionState() == CPlayer::kMS_Morphed) {
     return true;
   }
-  return x568_stateTime >= x578_turnDelay;
+  return mStateTime >= mTurnDelay;
 }
 
-bool CPuddleSpore::AnimOver(CStateManager&, float) { return x5cc_animProgress == 2; }
+bool CPuddleSpore::AnimOver(CStateManager&, float) { return mAnimProgress == 2; }
 
 void CPuddleSpore::InActive(CStateManager&, EStateMsg msg, float) {
   switch (msg) {
@@ -305,8 +305,8 @@ void CPuddleSpore::InActive(CStateManager&, EStateMsg msg, float) {
     return;
   case kStateMsg_Activate:
     BodyCtrl()->SetLocomotionType(pas::kLT_Relaxed);
-    x56c_glowTime = 0.f;
-    x598_heightOffset = -1.f;
+    mGlowTime = 0.f;
+    mHeightOffset = -1.f;
     break;
   }
 }
@@ -315,17 +315,17 @@ void CPuddleSpore::Active(CStateManager&, EStateMsg msg, float) {
   switch (msg) {
   case kStateMsg_Activate:
     BodyCtrl()->SetLocomotionType(pas::kLT_Lurk);
-    x568_stateTime = 0.f;
-    x56c_glowTime = 0.f;
-    x598_heightOffset = 0.f;
-    x614_24_updateStateTime = true;
-    x614_25_updateGlowTime = true;
+    mStateTime = 0.f;
+    mGlowTime = 0.f;
+    mHeightOffset = 0.f;
+    mUpdateStateTime = true;
+    mUpdateGlowTime = true;
     break;
   case kStateMsg_Update:
     break;
   case kStateMsg_Deactivate:
-    x614_24_updateStateTime = false;
-    x614_25_updateGlowTime = false;
+    mUpdateStateTime = false;
+    mUpdateGlowTime = false;
     break;
   }
 }
@@ -333,37 +333,37 @@ void CPuddleSpore::Active(CStateManager&, EStateMsg msg, float) {
 void CPuddleSpore::Run(CStateManager&, EStateMsg msg, float) {
   switch (msg) {
   case kStateMsg_Activate:
-    x5c8_collisionState = 1;
-    x5cc_animProgress = 0;
-    x568_stateTime = 0.f;
-    x614_24_updateStateTime = false;
-    x598_heightOffset = 0.f;
-    x59c_heightScale = 1.5f;
+    mCollisionState = 1;
+    mAnimProgress = 0;
+    mStateTime = 0.f;
+    mUpdateStateTime = false;
+    mHeightOffset = 0.f;
+    mHeightScale = 1.5f;
     break;
   case kStateMsg_Update:
-    switch (x5cc_animProgress) {
+    switch (mAnimProgress) {
     case 2:
       break;
     case 0:
       if (GetBodyCtrl()->GetCurrentStateId() == pas::kAS_LoopReaction) {
-        x5cc_animProgress = 1;
-        x614_24_updateStateTime = true;
+        mAnimProgress = 1;
+        mUpdateStateTime = true;
       } else {
         BodyCtrl()->CommandMgr().DeliverCmd(CBCLoopReactionCmd(pas::kRT_Zero));
       }
       break;
     case 1:
       if (GetBodyCtrl()->GetCurrentStateId() != pas::kAS_LoopReaction) {
-        x5cc_animProgress = 2;
+        mAnimProgress = 2;
       }
       break;
     }
     break;
   case kStateMsg_Deactivate:
     BodyCtrl()->CommandMgr().DeliverCmd(CBodyStateCmd(kBSC_ExitState));
-    x5c8_collisionState = 0;
-    x59c_heightScale = 1.f;
-    x614_24_updateStateTime = false;
+    mCollisionState = 0;
+    mHeightScale = 1.f;
+    mUpdateStateTime = false;
     break;
   }
 }
@@ -371,35 +371,35 @@ void CPuddleSpore::Run(CStateManager&, EStateMsg msg, float) {
 void CPuddleSpore::TurnAround(CStateManager&, EStateMsg msg, float) {
   switch (msg) {
   case kStateMsg_Activate:
-    x568_stateTime = 0.f;
-    x56c_glowTime = 0.f;
+    mStateTime = 0.f;
+    mGlowTime = 0.f;
     SetWasHit(false);
-    x598_heightOffset = -2.5f;
-    x5c8_collisionState = 2;
-    x5cc_animProgress = 0;
-    x614_24_updateStateTime = false;
+    mHeightOffset = -2.5f;
+    mCollisionState = 2;
+    mAnimProgress = 0;
+    mUpdateStateTime = false;
     break;
   case kStateMsg_Update:
-    switch (x5cc_animProgress) {
+    switch (mAnimProgress) {
     case 2:
       break;
     case 0:
       if (GetBodyCtrl()->GetCurrentStateId() == pas::kAS_LieOnGround) {
-        x5cc_animProgress = 1;
-        x614_24_updateStateTime = true;
+        mAnimProgress = 1;
+        mUpdateStateTime = true;
       } else {
         BodyCtrl()->CommandMgr().DeliverCmd(CBCKnockDownCmd(CVector3f(1.f, 0.f, 0.f), pas::kS_One));
       }
       break;
     case 1:
       if (GetBodyCtrl()->GetCurrentStateId() != pas::kAS_LieOnGround) {
-        x5cc_animProgress = 2;
+        mAnimProgress = 2;
       }
       break;
     }
     break;
   case kStateMsg_Deactivate:
-    x614_24_updateStateTime = false;
+    mUpdateStateTime = false;
     break;
   }
 }
@@ -408,29 +408,29 @@ void CPuddleSpore::GetUp(CStateManager& mgr, EStateMsg msg, float) {
   switch (msg) {
   case kStateMsg_Activate:
     BodyCtrl()->CommandMgr().DeliverCmd(CBCGetupCmd(pas::kGetup_Zero));
-    KnockPlayer(mgr, x580_knockPlayerImpulse);
-    x56c_glowTime = 0.f;
-    x598_heightOffset = -1.f;
-    x5cc_animProgress = 0;
+    KnockPlayer(mgr, mKnockPlayerImpulse);
+    mGlowTime = 0.f;
+    mHeightOffset = -1.f;
+    mAnimProgress = 0;
     break;
   case kStateMsg_Update:
-    KnockPlayer(mgr, x580_knockPlayerImpulse / 4.f);
-    switch (x5cc_animProgress) {
+    KnockPlayer(mgr, mKnockPlayerImpulse / 4.f);
+    switch (mAnimProgress) {
     case 0:
       BodyCtrl()->CommandMgr().DeliverCmd(CBCGetupCmd(pas::kGetup_Zero));
       if (GetBodyCtrl()->GetCurrentStateId() == pas::kAS_Getup) {
-        x5cc_animProgress = 1;
+        mAnimProgress = 1;
       }
       break;
     case 1:
       if (GetBodyCtrl()->GetCurrentStateId() != pas::kAS_Getup) {
-        x5cc_animProgress = 1;
+        mAnimProgress = 1;
       }
       break;
     }
     break;
   case kStateMsg_Deactivate:
-    x5c8_collisionState = 0;
+    mCollisionState = 0;
     break;
   }
 }
@@ -438,14 +438,14 @@ void CPuddleSpore::GetUp(CStateManager& mgr, EStateMsg msg, float) {
 void CPuddleSpore::Attack(CStateManager& mgr, EStateMsg msg, float) {
   switch (msg) {
   case kStateMsg_Activate:
-    x32c_animState = kAS_Ready;
-    x598_heightOffset = 0.f;
+    mAnimState = kAS_Ready;
+    mHeightOffset = 0.f;
     break;
   case kStateMsg_Update:
     TryCommand(mgr, pas::kAS_MeleeAttack, &CPatterned::TryMeleeAttack, 1);
     break;
   case kStateMsg_Deactivate:
-    x32c_animState = kAS_NotReady;
+    mAnimState = kAS_NotReady;
     break;
   }
 }

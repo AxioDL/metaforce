@@ -72,10 +72,10 @@ class CKnockBackMgr {
 
 public:
   struct KnockBackParms {
-    EAnimReaction x0_animState;
-    EKnockBackAnimationFollowUp x4_animFollowup;
-    float x8_followupDuration;
-    float xc_intoFreezeDur;
+    EAnimReaction mAnimState;
+    EKnockBackAnimationFollowUp mAnimFollowup;
+    float mFollowupDuration;
+    float mIntoFreezeDur;
   };
 
   explicit CKnockBackMgr(ECreatureSize variant);
@@ -103,53 +103,53 @@ public:
   void SelectDamageState(CPatterned& parent, const CDamageInfo& info, EWeaponType wType,
                          bool direct);
 
-  void SetSeverity(pas::ESeverity v) { x7c_severity = v; }
-  void SetEnableFreeze(bool b) { x81_25_enableFreeze = b; }
-  bool GetEnableFreeze() const { return x81_25_enableFreeze; }
-  void SetEnableShock(bool b) { x81_26_enableShock = b; }
-  void SetEnableBurn(bool b) { x81_27_enableBurn = b; }
-  void SetEnableBurnDeath(bool b) { x81_28_enableBurnDeath = b; }
-  void SetEnableExplodeDeath(bool b) { x81_29_enableExplodeDeath = b; }
-  void SetEnableLaggedBurnDeath(bool b) { x81_30_enableLaggedBurnDeath = b; }
+  void SetSeverity(pas::ESeverity v) { mSeverity = v; }
+  void SetEnableFreeze(bool b) { mEnableFreeze = b; }
+  bool GetEnableFreeze() const { return mEnableFreeze; }
+  void SetEnableShock(bool b) { mEnableShock = b; }
+  void SetEnableBurn(bool b) { mEnableBurn = b; }
+  void SetEnableBurnDeath(bool b) { mEnableBurnDeath = b; }
+  void SetEnableExplodeDeath(bool b) { mEnableExplodeDeath = b; }
+  void SetEnableLaggedBurnDeath(bool b) { mEnableLaggedBurnDeath = b; }
   void SetX81_31(bool b) { x81_31_ = b; }
   void SetX82_24(bool b) { x82_24_ = b; }
-  void SetLocomotionDuringElectrocution(bool b) { x82_26_locomotionDuringElectrocution = b; }
-  const KnockBackParms& GetActiveParms() const { return x4_activeParms; }
-  ECreatureSize GetCreatureSize() const { return x0_size; }
-  float GetFlinchRemTime() const { return x64_flinchRemTime; }
+  void SetLocomotionDuringElectrocution(bool b) { mLocomotionDuringElectrocution = b; }
+  const KnockBackParms& GetActiveParms() const { return mActiveParms; }
+  ECreatureSize GetCreatureSize() const { return mSize; }
+  float GetFlinchRemTime() const { return mFlinchRemTime; }
   void EnableAnimReaction(EAnimReaction s, bool b);
   bool TestAvailableState(int s) const;
 
 private:
-  ECreatureSize x0_size;
-  KnockBackParms x4_activeParms;
-  EWeaponType x14_deferWeaponType;
-  EAnimReaction x18_minAnimState;
-  EAnimReaction x1c_maxAnimState;
-  int x20_impulseDurationIdx;
+  ECreatureSize mSize;
+  KnockBackParms mActiveParms;
+  EWeaponType mDeferWeaponType;
+  EAnimReaction mMinAnimState;
+  EAnimReaction mMaxAnimState;
+  int mImpulseDurationIdx;
   rstl::reserved_vector< rstl::pair< float, float >, 5 > x24_;
-  CVector3f x50_impulseDir;
-  float x5c_impulseMag;
-  float x60_impulseRemTime;
-  float x64_flinchRemTime;
-  float x68_deferRemTime;
+  CVector3f mImpulseDir;
+  float mImpulseMag;
+  float mImpulseRemTime;
+  float mFlinchRemTime;
+  float mDeferRemTime;
   uint x6c_;
   uint x70_;
   uint x74_;
   uint x78_;
-  pas::ESeverity x7c_severity;
-  uchar x80_availableStates;
-  bool x81_24_autoResetImpulse : 1;
-  bool x81_25_enableFreeze : 1;
-  bool x81_26_enableShock : 1;
-  bool x81_27_enableBurn : 1;
-  bool x81_28_enableBurnDeath : 1;
-  bool x81_29_enableExplodeDeath : 1;
-  bool x81_30_enableLaggedBurnDeath : 1;
+  pas::ESeverity mSeverity;
+  uchar mAvailableStates;
+  bool mAutoResetImpulse : 1;
+  bool mEnableFreeze : 1;
+  bool mEnableShock : 1;
+  bool mEnableBurn : 1;
+  bool mEnableBurnDeath : 1;
+  bool mEnableExplodeDeath : 1;
+  bool mEnableLaggedBurnDeath : 1;
   bool x81_31_ : 1;
   bool x82_24_ : 1;
-  bool x82_25_inDeferredKnockBack : 1;
-  bool x82_26_locomotionDuringElectrocution : 1;
+  bool mInDeferredKnockBack : 1;
+  bool mLocomotionDuringElectrocution : 1;
   static const KnockBackParms skDefaultParameters;
   static const KnockBackParms skKnockBackParameters[3][19][4];
 };

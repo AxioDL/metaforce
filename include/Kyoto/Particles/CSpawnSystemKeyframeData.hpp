@@ -15,20 +15,20 @@ public:
   public:
     CSpawnSystemKeyframeInfo(CInputStream& in);
     ~CSpawnSystemKeyframeInfo() {
-      if (x10_token) {
-        CToken& token = *x10_token;
+      if (mToken) {
+        CToken& token = *mToken;
         token.Unlock();
       }
     }
     void LoadToken(CSimplePool* pool);
-    rstl::optional_object< CToken > GetToken() const { return x10_token; }
+    rstl::optional_object< CToken > GetToken() const { return mToken; }
 
   private:
-    uint x0_id;
+    uint mId;
     uint x4;
     uint x8;
     uint xc;
-    rstl::optional_object< CToken > x10_token;
+    rstl::optional_object< CToken > mToken;
   };
 
   CSpawnSystemKeyframeData(CInputStream& in);

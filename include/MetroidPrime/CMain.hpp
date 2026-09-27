@@ -53,7 +53,7 @@ public:
   void UpdateStreamedAudio();
   void RegisterResourceTweaks();
   void ResetGameState();
-  void ReloadStringTables();
+  static void ReloadStringTables();
   void StreamNewGameState(CInputStream& in, int saveIdx);
   void RefreshGameState();
   void AddWorldPaks();
@@ -71,63 +71,63 @@ public:
   COsContext& OpenWindow();
   int GetLanguage();
   static void SetTiming();
-  void SetRestartMode(const ERestartMode s) { x12c_restartMode = s; }
-  ERestartMode GetRestartMode() const { return x12c_restartMode; }
-  void SetCardBusy(bool v) { x160_31_cardBusy = v; }
-  void SetManageCard(bool v) { x160_28_manageCard = v; }
-  bool GetCardBusy() const { return x160_31_cardBusy; }
+  void SetRestartMode(const ERestartMode s) { mRestartMode = s; }
+  ERestartMode GetRestartMode() const { return mRestartMode; }
+  void SetCardBusy(bool v) { mCardBusy = v; }
+  void SetManageCard(bool v) { mManageCard = v; }
+  bool GetCardBusy() const { return mCardBusy; }
 
   void SetMaxSpeed(bool v) {
     // ?
-    x160_26_screenFading = v;
+    mScreenFading = v;
   }
 
-  void SetGameFlowBuilt(const bool built) { x160_25_mfGameBuilt = built; }
-  float GetAverageTickTime() const { return x118_averageTickTime; }
-  float GetAverageDrawTime() const { return x11c_averageDrawTime; }
-  bool GetScreenFading() const { return x160_26_screenFading; }
-  void SetScreenFading(const bool fading) { x160_26_screenFading = fading; }
-  void SetGameFrameDrawn(const bool drawn) { x161_24_gameFrameDrawn = drawn; }
+  void SetGameFlowBuilt(const bool built) { mMfGameBuilt = built; }
+  float GetAverageTickTime() const { return mAverageTickTime; }
+  float GetAverageDrawTime() const { return mAverageDrawTime; }
+  bool GetScreenFading() const { return mScreenFading; }
+  void SetScreenFading(const bool fading) { mScreenFading = fading; }
+  void SetGameFrameDrawn(const bool drawn) { mGameFrameDrawn = drawn; }
 
-  void SetX30(bool v) { x160_30_gameExitReset = v; }
+  void SetX30(bool v) { mGameExitReset = v; }
 
   static void EnsureWorldPaksReady();
   static void EnsureWorldPakReady(CAssetId id);
 
-  COsContext& OsContext() { return x0_osContext; }
-  const COsContext& GetOsContext() const { return x0_osContext; }
+  COsContext& OsContext() { return mOsContext; }
+  const COsContext& GetOsContext() const { return mOsContext; }
 
-  CGameArchitectureSupport* GetArchitectureSupport() const { return x164_archSupport; }
+  CGameArchitectureSupport* GetArchitectureSupport() const { return mArchSupport; }
 
 private:
-  COsContext x0_osContext;
-  CSaveRegion x6c_saveRegion;
+  COsContext mOsContext;
+  CSaveRegion mSaveRegion;
 #if !defined(TARGET_PC)
-  CMemorySys x6d_memorySys;
+  CMemorySys mMemorySys;
 #endif
-  CDvdRequestSys x6e_dvdRequestSys;
-  CTweaks x70_tweaks;
-  double xe8_unknown;
-  TReservedAverage< float, 4 > xf0_tickTimes;
-  TReservedAverage< float, 4 > x104_drawTimes;
-  float x118_averageTickTime;
-  float x11c_averageDrawTime;
-  float x120_softResetHoldTime;
-  float x124_resetInputDelay;
-  CGameGlobalObjects* x128_gameGlobalObjects;
-  ERestartMode x12c_restartMode;
-  rstl::reserved_vector< uint, 10 > x130_frameTimes;
-  int x15c_frameTimeIdx;
-  bool x160_24_finished : 1;
-  bool x160_25_mfGameBuilt : 1;
-  bool x160_26_screenFading : 1;
-  bool x160_27_resetButtonHeld : 1;
-  bool x160_28_manageCard : 1;
-  bool x160_29_resetRequested : 1;
-  bool x160_30_gameExitReset : 1;
-  bool x160_31_cardBusy : 1;
-  bool x161_24_gameFrameDrawn : 1;
-  CGameArchitectureSupport* x164_archSupport;
+  CDvdRequestSys mDvdRequestSys;
+  CTweaks mTweaks;
+  double mUnknown;
+  TReservedAverage< float, 4 > mTickTimes;
+  TReservedAverage< float, 4 > mDrawTimes;
+  float mAverageTickTime;
+  float mAverageDrawTime;
+  float mSoftResetHoldTime;
+  float mResetInputDelay;
+  CGameGlobalObjects* mGameGlobalObjects;
+  ERestartMode mRestartMode;
+  rstl::reserved_vector< uint, 10 > mFrameTimes;
+  int mFrameTimeIdx;
+  bool mFinished : 1;
+  bool mMfGameBuilt : 1;
+  bool mScreenFading : 1;
+  bool mResetButtonHeld : 1;
+  bool mManageCard : 1;
+  bool mResetRequested : 1;
+  bool mGameExitReset : 1;
+  bool mCardBusy : 1;
+  bool mGameFrameDrawn : 1;
+  CGameArchitectureSupport* mArchSupport;
 };
 CHECK_SIZEOF(CMain, 0x168)
 

@@ -16,23 +16,23 @@ class CSaveWorldMemory {
 
 public:
   CSaveWorldMemory()
-  : x0_worldNameId(kInvalidAssetId)
-  , x4_saveWorldId(kInvalidAssetId)
-  , x8_areaCount(0) {}
-  int GetAreaCount() const { return x8_areaCount; }
-  CAssetId GetWorldNameId() const { return x0_worldNameId; }
-  CAssetId GetSaveWorldAssetId() const { return x4_saveWorldId; }
-  const rstl::vector< CWorldLayers::Area >& GetDefaultLayerStates() const { return x1c_defaultLayerStates; }
+  : mWorldNameId(kInvalidAssetId)
+  , mSaveWorldId(kInvalidAssetId)
+  , mAreaCount(0) {}
+  int GetAreaCount() const { return mAreaCount; }
+  CAssetId GetWorldNameId() const { return mWorldNameId; }
+  CAssetId GetSaveWorldAssetId() const { return mSaveWorldId; }
+  const rstl::vector< CWorldLayers::Area >& GetDefaultLayerStates() const { return mDefaultLayerStates; }
   const wchar_t* GetFrontEndName() const;
 
 private:
-  CAssetId x0_worldNameId;
-  CAssetId x4_saveWorldId;
-  int x8_areaCount;
-  rstl::vector< uint > xc_areaIds;
-  rstl::vector< CWorldLayers::Area > x1c_defaultLayerStates;
-  rstl::optional_object< TCachedToken< CStringTable > > x2c_worldName;
-  rstl::optional_object< CToken > x3c_saveWorld;
+  CAssetId mWorldNameId;
+  CAssetId mSaveWorldId;
+  int mAreaCount;
+  rstl::vector< uint > mAreaIds;
+  rstl::vector< CWorldLayers::Area > mDefaultLayerStates;
+  rstl::optional_object< TCachedToken< CStringTable > > mWorldName;
+  rstl::optional_object< CToken > mSaveWorld;
 };
 CHECK_SIZEOF(CSaveWorldMemory, 0x48)
 

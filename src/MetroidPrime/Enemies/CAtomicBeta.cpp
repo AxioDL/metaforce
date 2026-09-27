@@ -27,36 +27,36 @@ CAtomicBeta::CAtomicBeta(TUniqueId uid, const rstl::string& name, const CEntityI
                          float maxSpeed, ushort sId1, ushort sId2, ushort sId3, float speedStep)
 : CPatterned(kC_AtomicBeta, uid, name, kFT_Zero, info, xf, mData, pInfo, kMT_Flyer, kCT_One,
              kBT_RestrictedFlyer, actParms, kCS_Small)
-, x568_projectileIds()
-, x574_beamFired(false)
-, x578_minSpeed(minSpeed)
-, x57c_maxSpeed(maxSpeed)
-, x580_speedStep(speedStep)
-, x584_currentSpeed(x578_minSpeed)
-, x588_frozenDamage(frozenDVuln)
-, x5f0_moveSpeed(moveSpeed)
-, x5f4_direction(xf.GetColumn(kDY))
-, x600_electricWeapon(gpSimplePool->GetObj(SObjectTag('ELSC', electricId)))
-, x608_weaponDesc(gpSimplePool->GetObj(SObjectTag('WPSC', weaponId)))
-, x610_projectileDamage(dInfo)
-, x62c_beamParticle(particleId)
-, x630_beamFadeSpeed(beamFadeSpeed)
-, x634_beamRadius(beamRadius)
-, x638_beamDamageInterval(beamDamageInterval)
+, mProjectileIds()
+, mBeamFired(false)
+, mMinSpeed(minSpeed)
+, mMaxSpeed(maxSpeed)
+, mSpeedStep(speedStep)
+, mCurrentSpeed(mMinSpeed)
+, mFrozenDamage(frozenDVuln)
+, mMoveSpeed(moveSpeed)
+, mDirection(xf.GetColumn(kDY))
+, mElectricWeapon(gpSimplePool->GetObj(SObjectTag('ELSC', electricId)))
+, mWeaponDesc(gpSimplePool->GetObj(SObjectTag('WPSC', weaponId)))
+, mProjectileDamage(dInfo)
+, mBeamParticle(particleId)
+, mBeamFadeSpeed(beamFadeSpeed)
+, mBeamRadius(beamRadius)
+, mBeamDamageInterval(beamDamageInterval)
 , x63c_(1.f)
 , x640_(10.f)
-, x644_sfxId1(CSfxManager::TranslateSFXID(sId1))
-, x646_sfxId2(CSfxManager::TranslateSFXID(sId2))
-, x648_sfxId3(CSfxManager::TranslateSFXID(sId3)) {
-  x460_knockBackController.SetAutoResetImpulse(false);
-  x460_knockBackController.SetEnableFreeze(false);
-  x460_knockBackController.SetX82_24(false);
+, mSfxId1(CSfxManager::TranslateSFXID(sId1))
+, mSfxId2(CSfxManager::TranslateSFXID(sId2))
+, mSfxId3(CSfxManager::TranslateSFXID(sId3)) {
+  mKnockBackController.SetAutoResetImpulse(false);
+  mKnockBackController.SetEnableFreeze(false);
+  mKnockBackController.SetX82_24(false);
 }
 
 CAtomicBeta::~CAtomicBeta() {
-  StopLoopedSound(x650_sfxHandle2);
-  StopLoopedSound(x654_sfxHandle3);
-  StopLoopedSound(x64c_sfxHandle1);
+  StopLoopedSound(mSfxHandle2);
+  StopLoopedSound(mSfxHandle3);
+  StopLoopedSound(mSfxHandle1);
 }
 
 ENTITY_ACCEPT_IMPL(CAtomicBeta)
@@ -69,9 +69,9 @@ void CAtomicBeta::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStat
     break;
   case kSM_Deactivate:
     UpdateBeams(mgr, false);
-    StopLoopedSound(x650_sfxHandle2);
-    StopLoopedSound(x654_sfxHandle3);
-    StopLoopedSound(x64c_sfxHandle1);
+    StopLoopedSound(mSfxHandle2);
+    StopLoopedSound(mSfxHandle3);
+    StopLoopedSound(mSfxHandle1);
     break;
   case kSM_Deleted:
     DestroyBeams(mgr);
@@ -82,21 +82,21 @@ void CAtomicBeta::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStat
 }
 
 void CAtomicBeta::CreateBeams(CStateManager& mgr) {
-  const SElectricBeamInfo beamInfo(x600_electricWeapon, 50.f, x634_beamRadius, 10.f,
-                                   x62c_beamParticle, x630_beamFadeSpeed, x638_beamDamageInterval);
+  const SElectricBeamInfo beamInfo(mElectricWeapon, 50.f, mBeamRadius, 10.f,
+                                   mBeamParticle, mBeamFadeSpeed, mBeamDamageInterval);
 
   for (int i = 0; i < ARRAY_SIZE(skBombLocators); ++i) {
     TUniqueId beamId = mgr.AllocateUniqueId();
-    x568_projectileIds.push_back(beamId);
+    mProjectileIds.push_back(beamId);
 
     mgr.AddObject(rs_new CElectricBeamProjectile(
-        x608_weaponDesc, kWT_AI, beamInfo, CTransform4f::Identity(), kMT_Character,
-        x610_projectileDamage, beamId, GetCurrentAreaId(), GetUniqueId(), CWeapon::kPA_None));
+        mWeaponDesc, kWT_AI, beamInfo, CTransform4f::Identity(), kMT_Character,
+        mProjectileDamage, beamId, GetCurrentAreaId(), GetUniqueId(), CWeapon::kPA_None));
   }
 }
 
 void CAtomicBeta::UpdateBeams(CStateManager& mgr, bool fire) {
-  if (x574_beamFired == fire) {
+  if (mBeamFired == fire) {
     return;
   }
 
@@ -106,7 +106,7 @@ void CAtomicBeta::UpdateBeams(CStateManager& mgr, bool fire) {
                                                locatorXf.GetTranslation() + locatorXf.GetForward());
 
     if (CElectricBeamProjectile* ent =
-            static_cast< CElectricBeamProjectile* >(mgr.ObjectById(x568_projectileIds[i]))) {
+            static_cast< CElectricBeamProjectile* >(mgr.ObjectById(mProjectileIds[i]))) {
       if (fire) {
         ent->Fire(GetTransform() * GetScaledLocatorTransform(skBombLocators[i]), mgr, false);
       } else {
@@ -115,15 +115,15 @@ void CAtomicBeta::UpdateBeams(CStateManager& mgr, bool fire) {
     }
   }
 
-  x574_beamFired = fire;
+  mBeamFired = fire;
 }
 
 void CAtomicBeta::DestroyBeams(CStateManager& mgr) {
-  for (int i = 0; i < x568_projectileIds.size(); ++i) {
-    mgr.DeleteObjectRequest(x568_projectileIds[i]);
+  for (int i = 0; i < mProjectileIds.size(); ++i) {
+    mgr.DeleteObjectRequest(mProjectileIds[i]);
   }
 
-  x568_projectileIds.clear();
+  mProjectileIds.clear();
 }
 
 void CAtomicBeta::Think(const float dt, CStateManager& mgr) {
@@ -131,7 +131,7 @@ void CAtomicBeta::Think(const float dt, CStateManager& mgr) {
   const CVector3f moveVec = BodyCtrl()->CommandMgr().GetMoveVector();
   BodyCtrl()->CommandMgr().ClearLocomotionCmds();
   if (moveVec.IsNonZero()) {
-    BodyCtrl()->CommandMgr().DeliverCmd(CBCLocomotionCmd(moveVec, x5f4_direction, 1.f));
+    BodyCtrl()->CommandMgr().DeliverCmd(CBCLocomotionCmd(moveVec, mDirection, 1.f));
   }
 
   const CVector3f diffVec = (mgr.GetPlayer()->GetTranslation() - GetTranslation());
@@ -143,19 +143,19 @@ void CAtomicBeta::Think(const float dt, CStateManager& mgr) {
 
   if (InMaxRange(mgr, dt)) {
     UpdateBeams(mgr, true);
-    PlayLoopedSound(x650_sfxHandle2, x646_sfxId2, GetTranslation(), 96);
-    PlayLoopedSound(x654_sfxHandle3, x648_sfxId3, GetTranslation(), 96);
-    StopLoopedSound(x64c_sfxHandle1);
+    PlayLoopedSound(mSfxHandle2, mSfxId2, GetTranslation(), 96);
+    PlayLoopedSound(mSfxHandle3, mSfxId3, GetTranslation(), 96);
+    StopLoopedSound(mSfxHandle1);
   } else {
     UpdateBeams(mgr, false);
-    StopLoopedSound(x650_sfxHandle2);
-    StopLoopedSound(x654_sfxHandle3);
-    PlayLoopedSound(x64c_sfxHandle1, x644_sfxId1, GetTranslation(), 96);
+    StopLoopedSound(mSfxHandle2);
+    StopLoopedSound(mSfxHandle3);
+    PlayLoopedSound(mSfxHandle1, mSfxId1, GetTranslation(), 96);
   }
 
   for (int i = 0; i < ARRAY_SIZE(skBombLocators); ++i) {
     CElectricBeamProjectile* beam =
-        static_cast< CElectricBeamProjectile* >(mgr.ObjectById(x568_projectileIds[i]));
+        static_cast< CElectricBeamProjectile* >(mgr.ObjectById(mProjectileIds[i]));
     if (beam && beam->GetActive()) {
       const CTransform4f locatorXf = GetTransform() * GetScaledLocatorTransform(skBombLocators[i]);
       CTransform4f lookXf = CTransform4f::LookAt(
@@ -164,11 +164,11 @@ void CAtomicBeta::Think(const float dt, CStateManager& mgr) {
     }
   }
 
-  x584_currentSpeed = CMath::Clamp(
-      x578_minSpeed, x580_speedStep * (dt * (IsCharging(mgr) ? 1.f : -1.f)) + x584_currentSpeed,
-      x57c_maxSpeed);
-  x3b4_speed = x584_currentSpeed;
-  BodyCtrl()->SetRestrictedFlyerMoveSpeed(x5f0_moveSpeed * x584_currentSpeed);
+  mCurrentSpeed = CMath::Clamp(
+      mMinSpeed, mSpeedStep * (dt * (IsCharging(mgr) ? 1.f : -1.f)) + mCurrentSpeed,
+      mMaxSpeed);
+  mSpeed = mCurrentSpeed;
+  BodyCtrl()->SetRestrictedFlyerMoveSpeed(mMoveSpeed * mCurrentSpeed);
 }
 
 void CAtomicBeta::PlayLoopedSound(CSfxHandle& handle, const ushort sfxId, const CVector3f pos,
@@ -200,7 +200,7 @@ const CDamageVulnerability* CAtomicBeta::GetDamageVulnerability() const {
   if (close_enough(GetBodyCtrl()->GetPercentageFrozen(), 0.f)) {
     return CPatterned::GetDamageVulnerability();
   }
-  return &x588_frozenDamage;
+  return &mFrozenDamage;
 }
 
 void CAtomicBeta::Touch(CActor& other, CStateManager& mgr) {
@@ -229,8 +229,8 @@ EWeaponCollisionResponseTypes CAtomicBeta::GetCollisionResponseType(const CVecto
 
 void CAtomicBeta::Death(CStateManager& mgr, const CVector3f& direction, EScriptObjectState state) {
   UpdateBeams(mgr, false);
-  StopLoopedSound(x650_sfxHandle2);
-  StopLoopedSound(x654_sfxHandle3);
-  StopLoopedSound(x64c_sfxHandle1);
+  StopLoopedSound(mSfxHandle2);
+  StopLoopedSound(mSfxHandle3);
+  StopLoopedSound(mSfxHandle1);
   CPatterned::Death(mgr, direction, state);
 }

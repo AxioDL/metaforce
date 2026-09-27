@@ -12,8 +12,8 @@
 typedef rstl::pair< CVector3f, rstl::list< uint > > TPosToVertListPair;
 
 CSkinnedModelWithAvgNormals::CSkinnedModelWithAvgNormals(const CSkinnedModel& skinnedModel)
-: x0_skinnedModel(skinnedModel), x3c_avgNormals(rs_new float[skinnedModel.GetNumPoints() * 12]) {
-#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+: mSkinnedModel(skinnedModel), mAvgNormals(rs_new float[skinnedModel.GetNumPoints() * 12]) {
+#if VERSION >= VERSION_GM8P_00
   const uint vertexCount = skinnedModel.GetNumPoints();
 #else
   int vertexCount = skinnedModel.GetNumPoints();
@@ -47,14 +47,14 @@ CSkinnedModelWithAvgNormals::CSkinnedModelWithAvgNormals(const CSkinnedModel& sk
 
   const CVector3f* normals =
       reinterpret_cast< const CVector3f* >(skinnedModel.GetModel()->GetNormals());
-#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
-  CVector3f* avgNormals = reinterpret_cast< CVector3f* >(x3c_avgNormals.get());
+#if VERSION >= VERSION_GM8P_00
+  CVector3f* avgNormals = reinterpret_cast< CVector3f* >(mAvgNormals.get());
   AUTO(mapCur, vertMap.begin());
   AUTO(mapEnd, vertMap.end());
 #else
-  float* avgNormals = x3c_avgNormals.get();
-  TPosToVertListPair* mapCur = vertMap.xc_items;
-  TPosToVertListPair* mapEnd = mapCur + vertMap.x4_count;
+  float* avgNormals = mAvgNormals.get();
+  TPosToVertListPair* mapCur = vertMap.mItems;
+  TPosToVertListPair* mapEnd = mapCur + vertMap.mCount;
 #endif
   for (; mapCur != mapEnd; ++mapCur) {
     CVector3f accum(0.f, 0.f, 0.f);

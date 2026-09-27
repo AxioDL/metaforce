@@ -43,24 +43,24 @@ public:
 
   // CPatterned
   void MassiveDeath(CStateManager& mgr) override;
-  CPathFindSearch* GetSearchPath() override { return &x5d8_searchPath; }
+  CPathFindSearch* GetSearchPath() override { return &mSearchPath; }
   CProjectileInfo* ProjectileInfo() override;
 
 private:
   void FireSpikes(CStateManager& mgr);
   
-  CPathFindSearch x5d8_searchPath;
-  rstl::single_ptr< CModelData > x6bc_spikeData;
-  CProjectileInfo x6c0_projectileInfo;
-  CDamageInfo x6e8_deathDamage;
-  CAABox x704_modelBounds;
-  float x71c_attackCoolOff;
-  TUniqueId x720_prevObj;
-  bool x722_24_renderOnlyClusterA : 1;
-  bool x722_25_curNeedleCluster : 1;
+  CPathFindSearch mSearchPath;
+  rstl::single_ptr< CModelData > mSpikeData;
+  CProjectileInfo mProjectileInfo;
+  CDamageInfo mDeathDamage;
+  CAABox mModelBounds;
+  float mAttackCoolOff;
+  TUniqueId mPrevObj;
+  bool mRenderOnlyClusterA : 1;
+  bool mCurNeedleCluster : 1;
 
   static const char* const skSpikeLocators[12];
 };
-CHECK_SIZEOF(CSeedling, (VERSION >= VERSION_GM8P_00 ? 0x738 : 0x728))
+CHECK_SIZEOF(CSeedling, (VERSION >= VERSION_GM8E_02 ? 0x738 : 0x728))
 
 #endif // _CSEEDLING

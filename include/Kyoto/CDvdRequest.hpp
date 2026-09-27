@@ -36,14 +36,14 @@ private:
 #if !defined(TARGET_PC)
 class CARAMDvdRequest : public CDvdRequest {
 public:
-  CARAMDvdRequest(uint i) : x4_dmaReq(i) {}
+  CARAMDvdRequest(uint i) : mDmaReq(i) {}
   void WaitUntilComplete();
   bool IsComplete();
   void PostCancelRequest();
   int GetMediaType() const;
 
 private:
-  uint x4_dmaReq;
+  uint mDmaReq;
 };
 #endif
 

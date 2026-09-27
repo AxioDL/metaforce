@@ -50,43 +50,43 @@ private:
   void SetupOnlineModelData();
   void TouchModels_Internal(const CStateManager& mgr) const;
   bool HasGunModelData() const {
-    return !x314_beamModelData.null() && !x314_beamModelData->IsNull();
+    return !mBeamModelData.null() && !mBeamModelData->IsNull();
   }
   bool HasSuitModelData() const {
-    return !x318_suitModelData.null() &&
-           (x318_suitModelData->HasAnimation() || x318_suitModelData->HasNormalModel());
+    return !mSuitModelData.null() &&
+           (mSuitModelData->HasAnimation() || mSuitModelData->HasNormalModel());
   }
   void SetupEnvFx(CStateManager& mgr, bool set);
-  TUniqueId GetNextPlayerActor() const { return x356_nextPlayerActor; }
-  void SetNextPlayerActor(TUniqueId id) { x356_nextPlayerActor = id; }
+  TUniqueId GetNextPlayerActor() const { return mNextPlayerActor; }
+  void SetNextPlayerActor(TUniqueId id) { mNextPlayerActor = id; }
   void SetIntoStateManager(CStateManager& mgr, bool set);
 
-  CAnimRes x2e8_suitRes;
-  CPlayerState::EBeamId x304_beam;
-  CPlayerState::EPlayerSuit x308_suit;
-  CPlayerState::EBeamId x30c_setBeamId;
-  int x310_loadedCharIdx;
-  rstl::single_ptr< CModelData > x314_beamModelData;
-  rstl::single_ptr< CModelData > x318_suitModelData;
-  rstl::single_ptr< TToken< CModel > > x31c_beamModel;
-  rstl::single_ptr< TCachedToken< CModel > > x320_suitModel;
-  rstl::single_ptr< TToken< CSkinRules > > x324_suitSkin;
-  rstl::optional_object< TLockedToken< CSkinnedModel > > x328_backupModelData;
-  rstl::optional_object< TCachedToken< CTexture > > x338_phazonIndirectTexture;
-  int x348_deallocateBackupCountdown;
-  float x34c_phazonOffsetAngle;
-  uint x350_flags;
-  bool x354_24_setBoundingBox : 1;
-  bool x354_25_deferOnlineModelData : 1;
-  bool x354_26_deferOfflineModelData : 1;
-  bool x354_27_beamModelLoading : 1;
-  bool x354_28_suitModelLoading : 1;
-  bool x354_29_loading : 1;
-  bool x354_30_enableLoading : 1;
-  bool x354_31_deferOnlineLoad : 1;
-  bool x355_24_areaTrackingLoad : 1;
-  TUniqueId x356_nextPlayerActor;
+  CAnimRes mSuitRes;
+  CPlayerState::EBeamId mBeam;
+  CPlayerState::EPlayerSuit mSuit;
+  CPlayerState::EBeamId mSetBeamId;
+  int mLoadedCharIdx;
+  rstl::single_ptr< CModelData > mBeamModelData;
+  rstl::single_ptr< CModelData > mSuitModelData;
+  rstl::single_ptr< TToken< CModel > > mBeamModel;
+  rstl::single_ptr< TCachedToken< CModel > > mSuitModel;
+  rstl::single_ptr< TToken< CSkinRules > > mSuitSkin;
+  rstl::optional_object< TLockedToken< CSkinnedModel > > mBackupModelData;
+  rstl::optional_object< TCachedToken< CTexture > > mPhazonIndirectTexture;
+  int mDeallocateBackupCountdown;
+  float mPhazonOffsetAngle;
+  uint mFlags;
+  bool mSetBoundingBox : 1;
+  bool mDeferOnlineModelData : 1;
+  bool mDeferOfflineModelData : 1;
+  bool mBeamModelLoading : 1;
+  bool mSuitModelLoading : 1;
+  bool mLoading : 1;
+  bool mEnableLoading : 1;
+  bool mDeferOnlineLoad : 1;
+  bool mAreaTrackingLoad : 1;
+  TUniqueId mNextPlayerActor;
 };
-CHECK_SIZEOF(CScriptPlayerActor, (VERSION >= VERSION_GM8P_00 ? 0x368 : 0x358))
+CHECK_SIZEOF(CScriptPlayerActor, (VERSION >= VERSION_GM8E_02 ? 0x368 : 0x358))
 
 #endif // _CSCRIPTPLAYERACTOR

@@ -26,13 +26,13 @@ public:
                   const CMaterialList& material, CCollisionInfoList& collisionList);
 
 private:
-  const CAABox& x0_aabb;
-  const CPlane* x4_planes;
-  const CMaterialFilter& x8_filter;
-  const CMaterialList& xc_material;
-  CCollisionInfoList& x10_collisionList;
-  CVector3f x14_center;
-  CVector3f x20_halfExtent;
+  const CAABox& mAabb;
+  const CPlane* mPlanes;
+  const CMaterialFilter& mFilter;
+  const CMaterialList& mMaterial;
+  CCollisionInfoList& mCollisionList;
+  CVector3f mCenter;
+  CVector3f mHalfExtent;
 };
 
 CHECK_SIZEOF(CAABoxAreaCache, 0x2c)
@@ -44,10 +44,10 @@ public:
   CBooleanAABoxAreaCache(const CAABox& aabb, const CMaterialFilter& filter);
 
 private:
-  const CAABox& x0_aabb;
-  const CMaterialFilter& x4_filter;
-  CVector3f x8_center;
-  CVector3f x14_halfExtent;
+  const CAABox& mAabb;
+  const CMaterialFilter& mFilter;
+  CVector3f mCenter;
+  CVector3f mHalfExtent;
 };
 
 CHECK_SIZEOF(CBooleanAABoxAreaCache, 0x20)
@@ -58,18 +58,18 @@ public:
 
   CSphereAreaCache(const CAABox& aabb, const CSphere& sphere, const CMaterialFilter& filter,
                    const CMaterialList& material, CCollisionInfoList& collisionList)
-  : x0_aabb(aabb)
-  , x4_sphere(sphere)
-  , x8_filter(filter)
-  , xc_material(material)
-  , x10_collisionList(collisionList) {}
+  : mAabb(aabb)
+  , mSphere(sphere)
+  , mFilter(filter)
+  , mMaterial(material)
+  , mCollisionList(collisionList) {}
 
 private:
-  const CAABox& x0_aabb;
-  const CSphere& x4_sphere;
-  const CMaterialFilter& x8_filter;
-  const CMaterialList& xc_material;
-  CCollisionInfoList& x10_collisionList;
+  const CAABox& mAabb;
+  const CSphere& mSphere;
+  const CMaterialFilter& mFilter;
+  const CMaterialList& mMaterial;
+  CCollisionInfoList& mCollisionList;
 };
 
 CHECK_SIZEOF(CSphereAreaCache, 0x14)
@@ -79,12 +79,12 @@ public:
   friend class CMetroidAreaCollider;
 
   CBooleanSphereAreaCache(const CAABox& aabb, const CSphere& sphere, const CMaterialFilter& filter)
-  : x0_aabb(aabb), x4_sphere(sphere), x8_filter(filter) {}
+  : mAabb(aabb), mSphere(sphere), mFilter(filter) {}
 
 private:
-  const CAABox& x0_aabb;
-  const CSphere& x4_sphere;
-  const CMaterialFilter& x8_filter;
+  const CAABox& mAabb;
+  const CSphere& mSphere;
+  const CMaterialFilter& mFilter;
 };
 
 CHECK_SIZEOF(CBooleanSphereAreaCache, 0xc)
@@ -92,12 +92,12 @@ CHECK_SIZEOF(CBooleanSphereAreaCache, 0xc)
 class CMetroidAreaCollider {
 public:
   struct SBoxEdge {
-    CLineSeg x0_seg;
-    CVector3d x28_start;
-    CVector3d x40_end;
-    CVector3d x58_delta;
-    CVector3d x70_coDir;
-    double x88_dirCoDirDot;
+    CLineSeg mSeg;
+    CVector3d mStart;
+    CVector3d mEnd;
+    CVector3d mDelta;
+    CVector3d mCoDir;
+    double mDirCoDirDot;
     SBoxEdge(const CAABox& aabb, int idx, const CVector3f& dir);
   };
 
@@ -108,31 +108,31 @@ public:
   private:
     friend class CMetroidAreaCollider;
     friend class CCollidableOBBTree;
-    rstl::reserved_vector< SBoxEdge, 12 > x0_edges;
-    rstl::reserved_vector< uint, 8 > x6c4_vertIdxs;
-    CAABox x6e8_aabb;
+    rstl::reserved_vector< SBoxEdge, 12 > mEdges;
+    rstl::reserved_vector< uint, 8 > mVertIdxs;
+    CAABox mAabb;
   };
 
   class COctreeLeafCache {
   public:
     COctreeLeafCache(const CAreaOctTree& octTree);
     void AddLeaf(const CAreaOctTree::Node& node);
-    const CAreaOctTree::Node& GetLeaf(int i) const { return x4_nodeCache[i]; }
-    int GetNumLeaves() const { return x4_nodeCache.size(); }
-    bool HasCacheOverflowed() const { return x908_24_overflow; }
-    const CAreaOctTree& GetOctTree() const { return x0_octTree; }
+    const CAreaOctTree::Node& GetLeaf(int i) const { return mNodeCache[i]; }
+    int GetNumLeaves() const { return mNodeCache.size(); }
+    bool HasCacheOverflowed() const { return mOverflow; }
+    const CAreaOctTree& GetOctTree() const { return mOctTree; }
     rstl::reserved_vector< CAreaOctTree::Node, 64 >::const_iterator begin() const {
-      return x4_nodeCache.begin();
+      return mNodeCache.begin();
     }
     rstl::reserved_vector< CAreaOctTree::Node, 64 >::const_iterator end() const {
-      return x4_nodeCache.end();
+      return mNodeCache.end();
     }
 
   private:
     friend class CMetroidAreaCollider;
-    const CAreaOctTree& x0_octTree;
-    rstl::reserved_vector< CAreaOctTree::Node, 64 > x4_nodeCache;
-    bool x908_24_overflow : 1;
+    const CAreaOctTree& mOctTree;
+    rstl::reserved_vector< CAreaOctTree::Node, 64 > mNodeCache;
+    bool mOverflow : 1;
   };
 
   static bool ConvexPolyCollision(const CPlane* planes, const CVector3f* verts, CAABox& aabb);
@@ -206,29 +206,29 @@ public:
   CAreaCollisionCache(const CAABox& aabb);
 
   void ClearCache();
-  const CAABox& GetCacheBounds() const { return x0_aabb; }
+  const CAABox& GetCacheBounds() const { return mAabb; }
   void SetCacheBounds(const CAABox& aabb);
   void AddOctreeLeafCache(const CMetroidAreaCollider::COctreeLeafCache& leafCache);
-  uint GetNumCaches() const { return x18_leafCaches.size(); }
+  uint GetNumCaches() const { return mLeafCaches.size(); }
   const CMetroidAreaCollider::COctreeLeafCache& GetOctreeLeafCache(int idx) {
-    return x18_leafCaches[idx];
+    return mLeafCaches[idx];
   }
   const CMetroidAreaCollider::COctreeLeafCache& GetOctreeLeafCache(int idx) const {
-    return x18_leafCaches[idx];
+    return mLeafCaches[idx];
   }
-  bool HasCacheOverflowed() const { return x1b40_24_leafOverflow; }
+  bool HasCacheOverflowed() const { return mLeafOverflow; }
   rstl::reserved_vector< CMetroidAreaCollider::COctreeLeafCache, 3 >::const_iterator begin() const {
-    return x18_leafCaches.begin();
+    return mLeafCaches.begin();
   }
   rstl::reserved_vector< CMetroidAreaCollider::COctreeLeafCache, 3 >::const_iterator end() const {
-    return x18_leafCaches.end();
+    return mLeafCaches.end();
   }
 
 private:
-  CAABox x0_aabb;
-  rstl::reserved_vector< CMetroidAreaCollider::COctreeLeafCache, 3 > x18_leafCaches;
-  bool x1b40_24_leafOverflow : 1;
-  bool x1b40_25_cacheOverflow : 1;
+  CAABox mAabb;
+  rstl::reserved_vector< CMetroidAreaCollider::COctreeLeafCache, 3 > mLeafCaches;
+  bool mLeafOverflow : 1;
+  bool mCacheOverflow : 1;
 };
 CHECK_SIZEOF(CAreaCollisionCache, 0x1b44)
 

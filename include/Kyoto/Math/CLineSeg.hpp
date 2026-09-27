@@ -10,12 +10,12 @@
 class CLineSeg : public CLine {
 public:
   CLineSeg(const CVector3f& start, const CVector3f& end)
-  : CLine(start, CUnitVector3f((end - start).AsNormalized())), x18_end(end) {}
+  : CLine(start, CUnitVector3f((end - start).AsNormalized())), mEnd(end) {}
 
-  const CVector3f& GetEndPoint() const { return x18_end; }
+  const CVector3f& GetEndPoint() const { return mEnd; }
 
 private:
-  CVector3f x18_end;
+  CVector3f mEnd;
 };
 CHECK_SIZEOF(CLineSeg, 0x24)
 

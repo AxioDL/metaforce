@@ -25,18 +25,18 @@ class CWeaponMode {
 public:
   CWeaponMode(const EWeaponType type = kWT_None, const bool charged = false,
               const bool comboed = false, const bool instaKill = false)
-  : x0_weaponType(type)
-  , x4_24_charged(charged)
-  , x4_25_comboed(comboed)
-  , x4_26_instantKill(instaKill) {}
+  : mWeaponType(type)
+  , mCharged(charged)
+  , mComboed(comboed)
+  , mInstantKill(instaKill) {}
 
-  CWeaponMode(int type, int flags) : x0_weaponType(EWeaponType(type)) {}
+  CWeaponMode(int type, int flags) : mWeaponType(EWeaponType(type)) {}
 
-  EWeaponType GetType() const { return x0_weaponType; }
+  EWeaponType GetType() const { return mWeaponType; }
 
-  bool IsCharged() const { return x4_24_charged; }
-  bool IsComboed() const { return x4_25_comboed; }
-  bool IsInstantKill() const { return x4_26_instantKill; }
+  bool IsCharged() const { return mCharged; }
+  bool IsComboed() const { return mComboed; }
+  bool IsInstantKill() const { return mInstantKill; }
 
   static CWeaponMode Invalid() { return CWeaponMode(kWT_None); }
   static CWeaponMode Phazon() { return CWeaponMode(kWT_Phazon); }
@@ -49,10 +49,10 @@ public:
   static CWeaponMode PowerBomb() { return CWeaponMode(kWT_PowerBomb); }
 
 private:
-  EWeaponType x0_weaponType;
-  bool x4_24_charged : 1;
-  bool x4_25_comboed : 1;
-  bool x4_26_instantKill : 1;
+  EWeaponType mWeaponType;
+  bool mCharged : 1;
+  bool mComboed : 1;
+  bool mInstantKill : 1;
 };
 
 #endif // _WEAPONTYPES

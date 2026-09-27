@@ -12,34 +12,34 @@ CScriptPlayerHint::CScriptPlayerHint(TUniqueId uid, const rstl::string& name,
                                      const bool active, int priority, int overrideFlags)
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(kMT_NoStepLogic),
          CActorParameters::None(), kInvalidUniqueId)
-, xfc_deactivated(false)
-, x100_priority(priority)
-, x104_overrideFlags(overrideFlags)
-, x108_mpId(kInvalidUniqueId) {}
+, mDeactivated(false)
+, mPriority(priority)
+, mOverrideFlags(overrideFlags)
+, mMpId(kInvalidUniqueId) {}
 
-void CScriptPlayerHint::ClearObjectList() { xe8_objectList.clear(); }
+void CScriptPlayerHint::ClearObjectList() { mObjectList.clear(); }
 
 void CScriptPlayerHint::AddToObjectList(TUniqueId uid) {
   rstl::reserved_vector< TUniqueId, 8 >::iterator it =
-      rstl::find(xe8_objectList.begin(), xe8_objectList.end(), uid);
-  if (it != xe8_objectList.end()) {
+      rstl::find(mObjectList.begin(), mObjectList.end(), uid);
+  if (it != mObjectList.end()) {
     return;
   }
-  xe8_objectList.push_back(uid);
+  mObjectList.push_back(uid);
 }
 
 void CScriptPlayerHint::RemoveFromObjectList(TUniqueId uid, CStateManager& mgr) {
-  if (xe8_objectList.empty()) {
+  if (mObjectList.empty()) {
     return;
   }
 
   rstl::reserved_vector< TUniqueId, 8 >::iterator it =
-      rstl::find(xe8_objectList.begin(), xe8_objectList.end(), uid);
+      rstl::find(mObjectList.begin(), mObjectList.end(), uid);
 
-  if (it == xe8_objectList.end()) {
-    xe8_objectList.erase(xe8_objectList.begin());
+  if (it == mObjectList.end()) {
+    mObjectList.erase(mObjectList.begin());
   } else {
-    xe8_objectList.erase(it);
+    mObjectList.erase(it);
   }
 }
 
@@ -52,21 +52,21 @@ void CScriptPlayerHint::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId send
     RemoveFromObjectList(sender, mgr);
     CPlayer* player = mgr.Player();
     player->AddToPlayerHintRemoveList(GetUniqueId(), mgr);
-    xfc_deactivated = true;
+    mDeactivated = true;
     break;
   }
   case kSM_Increment:
-    x108_mpId = kInvalidUniqueId;
-    if ((x104_overrideFlags & 0x4000) != 0) {
+    mMpId = kInvalidUniqueId;
+    if ((mOverrideFlags & 0x4000) != 0) {
       rstl::vector< SConnection >::const_iterator it = GetConnectionList().begin();
       for (; it != GetConnectionList().end(); ++it) {
-        if (it->x0_state != kSS_Play) {
+        if (it->mState != kSS_Play) {
           continue;
         }
-        x108_mpId = mgr.GetIdForScript(it->x8_objId);
+        mMpId = mgr.GetIdForScript(it->mObjId);
         if (const CMetroidPrimeRelay* mpRelay =
-                TCastToConstPtr< CMetroidPrimeRelay >(mgr.GetObjectById(x108_mpId))) {
-          x108_mpId = mpRelay->GetMetroidPrimeExoId();
+                TCastToConstPtr< CMetroidPrimeRelay >(mgr.GetObjectById(mMpId))) {
+          mMpId = mpRelay->GetMetroidPrimeExoId();
           break;
         }
       }
@@ -82,7 +82,7 @@ void CScriptPlayerHint::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId send
     case kSM_Increment:
       AddToObjectList(sender);
       player->AddToPlayerHintAddList(GetUniqueId(), mgr);
-      xfc_deactivated = false;
+      mDeactivated = false;
       break;
 
     case kSM_Decrement:

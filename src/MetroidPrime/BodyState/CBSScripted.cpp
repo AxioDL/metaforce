@@ -7,13 +7,13 @@
 #include "Kyoto/Animation/CPASAnimParmData.hpp"
 #include "Kyoto/Animation/CPASDatabase.hpp"
 
-CBSScripted::CBSScripted() : x4_24_loopAnim(false), x4_25_timedLoop(false), x8_remTime(0.f) {}
+CBSScripted::CBSScripted() : mLoopAnim(false), mTimedLoop(false), mRemTime(0.f) {}
 
 void CBSScripted::Start(CBodyController& bc, CStateManager& mgr) {
   const CBCScriptedCmd* cmd = static_cast<const CBCScriptedCmd*>(bc.CommandMgr().GetCmd(kBSC_Scripted));
-  x4_24_loopAnim = cmd->IsLooped();
-  x4_25_timedLoop = cmd->GetUseLoopDuration();
-  x8_remTime = cmd->GetLoopDuration();
+  mLoopAnim = cmd->IsLooped();
+  mTimedLoop = cmd->GetUseLoopDuration();
+  mRemTime = cmd->GetLoopDuration();
   const CAnimPlaybackParms playParms(cmd->GetAnimId(), -1, 1.f, true);
   bc.SetCurrentAnimation(playParms, cmd->IsLooped(), false);
 }
@@ -25,9 +25,9 @@ pas::EAnimationState CBSScripted::UpdateBody(float dt, CBodyController& bc, CSta
     if (commandMgr.GetTargetVector().IsNonZero()) {
       bc.FaceDirection(commandMgr.GetTargetVector(), dt);
     }
-    if (x4_24_loopAnim && x4_25_timedLoop) {
-      x8_remTime -= dt;
-      if (x8_remTime <= 0.f) {
+    if (mLoopAnim && mTimedLoop) {
+      mRemTime -= dt;
+      if (mRemTime <= 0.f) {
         st = pas::kAS_Locomotion;
       }
     }
@@ -55,7 +55,7 @@ pas::EAnimationState CBSScripted::GetBodyStateTransition(float dt, CBodyControll
   if (commandMgr.GetCmd(kBSC_Scripted)) {
     return pas::kAS_Scripted;
   }
-  if (x4_24_loopAnim) {
+  if (mLoopAnim) {
     if (commandMgr.GetCmd(kBSC_ExitState)) {
       return pas::kAS_Locomotion;
     }

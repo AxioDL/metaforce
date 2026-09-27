@@ -31,10 +31,10 @@ CFishCloudModifier::CFishCloudModifier(TUniqueId uid, const bool active, const r
                                        bool isRepulsor, bool swirl, float radius, float priority)
 : CActor(uid, active, name, info, CTransform4f::Translate(pos), CModelData::CModelDataNull(),
          CMaterialList(kMT_NoStepLogic), CActorParameters::None(), kInvalidUniqueId)
-, xe8_radius(radius)
-, xec_priority(priority)
-, xf0_isRepulsor(isRepulsor)
-, xf1_swirl(swirl) {}
+, mRadius(radius)
+, mPriority(priority)
+, mIsRepulsor(isRepulsor)
+, mSwirl(swirl) {}
 
 ENTITY_ACCEPT_IMPL(CFishCloudModifier)
 
@@ -58,18 +58,18 @@ void CFishCloudModifier::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sen
 void CFishCloudModifier::AddSelf(CStateManager& mgr) {
   const rstl::vector< SConnection >& connections = GetConnectionList();
   for (AUTO(it, connections.begin()); it != connections.end(); ++it) {
-    if (it->x0_state != kSS_Modify || it->x4_msg != kSM_Follow) {
+    if (it->mState != kSS_Modify || it->mMsg != kSM_Follow) {
       continue;
     }
-    const TUniqueId uid = mgr.GetIdForScript(it->x8_objId);
+    const TUniqueId uid = mgr.GetIdForScript(it->mObjId);
     if (uid == kInvalidUniqueId) {
       continue;
     }
     if (CFishCloud* cloud = TCastToPtr< CFishCloud >(mgr.ObjectById(uid))) {
-      if (xf0_isRepulsor) {
-        cloud->AddRepulsor(GetUniqueId(), xf1_swirl, xe8_radius, xec_priority);
+      if (mIsRepulsor) {
+        cloud->AddRepulsor(GetUniqueId(), mSwirl, mRadius, mPriority);
       } else {
-        cloud->AddAttractor(GetUniqueId(), xf1_swirl, xe8_radius, xec_priority);
+        cloud->AddAttractor(GetUniqueId(), mSwirl, mRadius, mPriority);
       }
     }
   }
@@ -78,15 +78,15 @@ void CFishCloudModifier::AddSelf(CStateManager& mgr) {
 void CFishCloudModifier::RemoveSelf(CStateManager& mgr) {
   const rstl::vector< SConnection >& connections = GetConnectionList();
   for (AUTO(it, connections.begin()); it != connections.end(); ++it) {
-    if (it->x0_state != kSS_Modify || it->x4_msg != kSM_Follow) {
+    if (it->mState != kSS_Modify || it->mMsg != kSM_Follow) {
       continue;
     }
-    const TUniqueId uid = mgr.GetIdForScript(it->x8_objId);
+    const TUniqueId uid = mgr.GetIdForScript(it->mObjId);
     if (uid == kInvalidUniqueId) {
       continue;
     }
     if (CFishCloud* cloud = TCastToPtr< CFishCloud >(mgr.ObjectById(uid))) {
-      if (xf0_isRepulsor) {
+      if (mIsRepulsor) {
         cloud->RemoveRepulsor(GetUniqueId());
       } else {
         cloud->RemoveAttractor(GetUniqueId());
@@ -97,21 +97,21 @@ void CFishCloudModifier::RemoveSelf(CStateManager& mgr) {
 
 CFishCloud::CModifierSource::CModifierSource(const TUniqueId& source, bool repulsor, bool swirl,
                                              float radius, float priority)
-: x0_source(source)
-, x4_radius(radius)
-, x8_priority(priority)
-, xc_isRepulsor(repulsor)
-, xd_isSwirl(swirl) {}
+: mSource(source)
+, mRadius(radius)
+, mPriority(priority)
+, mIsRepulsor(repulsor)
+, mIsSwirl(swirl) {}
 
 bool CFishCloud::CModifierSource::operator<(const CModifierSource& other) const {
-  if (x0_source == other.x0_source) {
-    return xc_isRepulsor < other.xc_isRepulsor;
+  if (mSource == other.mSource) {
+    return mIsRepulsor < other.mIsRepulsor;
   }
-  return x0_source < other.x0_source;
+  return mSource < other.mSource;
 }
 
 CFishCloud::CBoid::CBoid(const CVector3f& pos, const CVector3f& vel, float scale)
-: x0_pos(pos), xc_vel(vel), x18_scale(scale), x1c_next(nullptr), x20_active(true) {}
+: mPos(pos), mVel(vel), mScale(scale), mNext(nullptr), mActive(true) {}
 
 CFishCloud::CFishCloud(TUniqueId uid, const bool active, const rstl::string& name,
                        const CEntityInfo& info, const CVector3f& scale, const CTransform4f& xf,
@@ -127,97 +127,97 @@ CFishCloud::CFishCloud(TUniqueId uid, const bool active, const rstl::string& nam
                        bool repelFromThreats, bool hotInThermal)
 : CActor(uid, active, name, info, xf, mData, CMaterialList(kMT_NoStepLogic),
          CActorParameters::None().HotInThermal(hotInThermal), kInvalidUniqueId)
-, x11c_updateMask((1 << updateShift) - 1)
-, x120_scale(scale)
-, x12c_randomMovementTimer(0.f)
-, x130_speed(speed)
-, x134_numBoids(numBoids)
-, x138_separationRadius(separationRadius)
-, x13c_cohesionMagnitude(cohesionMagnitude)
-, x140_alignmentWeight(alignmentWeight)
-, x144_separationMagnitude(separationMagnitude)
-, x148_weaponRepelMagnitude(weaponRepelMagnitude)
-, x14c_playerRepelMagnitude(playerRepelMagnitude)
-, x150_scatterVel(scatterVel)
-, x154_maxScatterAngle(maxScatterAngle)
-, x158_containmentMagnitude(containmentMagnitude)
-, x15c_playerRepelDampingSpeed(playerRepelDampingSpeed)
-, x160_weaponRepelDampingSpeed(weaponRepelDampingSpeed)
-, x164_playerRepelDamping(playerRepelDampingSpeed)
-, x168_weaponRepelDamping(weaponRepelDampingSpeed)
-, x16c_color(color)
-, x170_weaponKillRadius(weaponKillRadius)
-, x174_containmentRadius(containmentRadius)
-, x234_deathSfx(
+, mUpdateMask((1 << updateShift) - 1)
+, mScale(scale)
+, mRandomMovementTimer(0.f)
+, mSpeed(speed)
+, mNumBoids(numBoids)
+, mSeparationRadius(separationRadius)
+, mCohesionMagnitude(cohesionMagnitude)
+, mAlignmentWeight(alignmentWeight)
+, mSeparationMagnitude(separationMagnitude)
+, mWeaponRepelMagnitude(weaponRepelMagnitude)
+, mPlayerRepelMagnitude(playerRepelMagnitude)
+, mScatterVel(scatterVel)
+, mMaxScatterAngle(maxScatterAngle)
+, mContainmentMagnitude(containmentMagnitude)
+, mPlayerRepelDampingSpeed(playerRepelDampingSpeed)
+, mWeaponRepelDampingSpeed(weaponRepelDampingSpeed)
+, mPlayerRepelDamping(playerRepelDampingSpeed)
+, mWeaponRepelDamping(weaponRepelDampingSpeed)
+, mColor(color)
+, mWeaponKillRadius(weaponKillRadius)
+, mContainmentRadius(containmentRadius)
+, mDeathSfx(
       CSfxManager::TranslateSFXID(deathSfx == -1 ? CSfxManager::kInternalInvalidSfxId : deathSfx))
-, x238_partitionPitch(CVector3f::Zero())
-, x244_ooPartitionPitch(CVector3f::Zero())
-, x250_24_randomMovement(false)
-, x250_25_worldSpace(false)
-, x250_26_enableWeaponRepelDamping(false)
-, x250_27_validModel(false)
-, x250_28_killable(killable)
-, x250_29_repelFromThreats(repelFromThreats)
-, x250_30_enablePlayerRepelDamping(false)
-, x250_31_updateWithoutPartitions(false) {
-  x108_modifierSources.reserve(10);
+, mPartitionPitch(CVector3f::Zero())
+, mOoPartitionPitch(CVector3f::Zero())
+, mRandomMovement(false)
+, mWorldSpace(false)
+, mEnableWeaponRepelDamping(false)
+, mValidModel(false)
+, mKillable(killable)
+, mRepelFromThreats(repelFromThreats)
+, mEnablePlayerRepelDamping(false)
+, mUpdateWithoutPartitions(false) {
+  mModifierSources.reserve(10);
   const CVector3f& forward = GetTransform().GetForward();
   const CVector3f& up = GetTransform().GetUp();
   const CVector3f& right = GetTransform().GetRight();
-  x250_25_worldSpace = !(close_enough(right.GetX(), 1.f) && close_enough(right.GetX(), 0.f) &&
+  mWorldSpace = !(close_enough(right.GetX(), 1.f) && close_enough(right.GetX(), 0.f) &&
                          close_enough(right.GetX(), 0.f) && close_enough(forward.GetX(), 0.f) &&
                          close_enough(forward.GetX(), 1.f) && close_enough(forward.GetX(), 0.f) &&
                          close_enough(up.GetX(), 0.f) && close_enough(up.GetX(), 0.f) &&
                          close_enough(up.GetX(), 1.f));
   if (aRes.GetId() != kInvalidAssetId) {
-    x1b0_models.push_back(rs_new CModelData(aRes));
-    x1b0_models.push_back(rs_new CModelData(aRes));
-    x1b0_models.push_back(rs_new CModelData(aRes));
-    x1b0_models.push_back(rs_new CModelData(aRes));
-    x250_27_validModel = true;
+    mModels.push_back(rs_new CModelData(aRes));
+    mModels.push_back(rs_new CModelData(aRes));
+    mModels.push_back(rs_new CModelData(aRes));
+    mModels.push_back(rs_new CModelData(aRes));
+    mValidModel = true;
   }
   if (part1 != kInvalidAssetId) {
-    x1c4_particleDescs.push_back(gpSimplePool->GetObj(SObjectTag('PART', part1)));
+    mParticleDescs.push_back(gpSimplePool->GetObj(SObjectTag('PART', part1)));
   }
   if (part2 != kInvalidAssetId) {
-    x1c4_particleDescs.push_back(gpSimplePool->GetObj(SObjectTag('PART', part2)));
+    mParticleDescs.push_back(gpSimplePool->GetObj(SObjectTag('PART', part2)));
   }
   if (part3 != kInvalidAssetId) {
-    x1c4_particleDescs.push_back(gpSimplePool->GetObj(SObjectTag('PART', part3)));
+    mParticleDescs.push_back(gpSimplePool->GetObj(SObjectTag('PART', part3)));
   }
   if (part4 != kInvalidAssetId) {
-    x1c4_particleDescs.push_back(gpSimplePool->GetObj(SObjectTag('PART', part4)));
+    mParticleDescs.push_back(gpSimplePool->GetObj(SObjectTag('PART', part4)));
   }
-  for (int i = 0; i < x1c4_particleDescs.size(); ++i) {
-    x1f8_particleGens.push_back(rs_new CElementGen(x1c4_particleDescs[i]));
-    x1f8_particleGens[i]->SetParticleEmission(false);
+  for (int i = 0; i < mParticleDescs.size(); ++i) {
+    mParticleGens.push_back(rs_new CElementGen(mParticleDescs[i]));
+    mParticleGens[i]->SetParticleEmission(false);
   }
-  x21c_deathParticleCounts.push_back(partCount1);
-  x21c_deathParticleCounts.push_back(partCount2);
-  x21c_deathParticleCounts.push_back(partCount3);
-  x21c_deathParticleCounts.push_back(partCount4);
+  mDeathParticleCounts.push_back(partCount1);
+  mDeathParticleCounts.push_back(partCount2);
+  mDeathParticleCounts.push_back(partCount3);
+  mDeathParticleCounts.push_back(partCount4);
   const CAABox& aabb = GetBoundingBox();
-  x238_partitionPitch = (aabb.GetMaxPoint() - aabb.GetMinPoint()) / 7.f;
-  x244_ooPartitionPitch =
-      CVector3f(1.f / x238_partitionPitch.GetX(), 1.f / x238_partitionPitch.GetY(),
-                1.f / x238_partitionPitch.GetZ());
+  mPartitionPitch = (aabb.GetMaxPoint() - aabb.GetMinPoint()) / 7.f;
+  mOoPartitionPitch =
+      CVector3f(1.f / mPartitionPitch.GetX(), 1.f / mPartitionPitch.GetY(),
+                1.f / mPartitionPitch.GetZ());
 }
 
 void CFishCloud::InitAnimBoids(CStateManager& mgr, CModelData::EWhichModel which) {
-  x178_posWorkspaces.clear();
-  x19c_nrmWorkspaces.clear();
+  mPosWorkspaces.clear();
+  mNrmWorkspaces.clear();
   for (int i = 0; i < 4; ++i) {
     float* normals;
-    x178_posWorkspaces.push_back(
-        x1b0_models[i]->PickAnimatedModel(which).AllocateNewWorkspace(&normals));
-    x19c_nrmWorkspaces.push_back(normals);
-    x1b0_models[i]->EnableLooping(true);
-    x1b0_models[i]->AdvanceAnimation(
+    mPosWorkspaces.push_back(
+        mModels[i]->PickAnimatedModel(which).AllocateNewWorkspace(&normals));
+    mNrmWorkspaces.push_back(normals);
+    mModels[i]->EnableLooping(true);
+    mModels[i]->AdvanceAnimation(
         (float(i) / 4.f) *
-            x1b0_models[i]->GetAnimationData()->GetAnimTimeRemaining(rstl::string_l("Whole Body")),
+            mModels[i]->GetAnimationData()->GetAnimTimeRemaining(rstl::string_l("Whole Body")),
         mgr, GetCurrentAreaId(), true);
   }
-  x230_whichModel = which;
+  mWhichModel = which;
 }
 
 ENTITY_ACCEPT_IMPL(CFishCloud)
@@ -233,13 +233,13 @@ CAABox CFishCloud::GetBoundingBox() const {
 }
 
 CAABox CFishCloud::GetUntransformedBoundingBox() const {
-  const CVector3f extent(0.75f * x120_scale.GetX(), 0.75f * x120_scale.GetY(),
-                         0.75f * x120_scale.GetZ());
+  const CVector3f extent(0.75f * mScale.GetX(), 0.75f * mScale.GetY(),
+                         0.75f * mScale.GetZ());
   return CAABox(-extent, extent);
 }
 
 bool CFishCloud::PointInBox(const CAABox& aabb, const CVector3f& point) const {
-  if (!x250_25_worldSpace) {
+  if (!mWorldSpace) {
     return aabb.PointInside(point);
   }
   const CVector3f localPoint = GetTransform().TransposeRotate(point - GetTranslation());
@@ -247,7 +247,7 @@ bool CFishCloud::PointInBox(const CAABox& aabb, const CVector3f& point) const {
 }
 
 CPlane CFishCloud::FindClosestPlane(const CAABox& aabb, const CVector3f& point) const {
-  if (!x250_25_worldSpace) {
+  if (!mWorldSpace) {
     float minDistance = FLT_MAX;
     CAABox::EBoxFaceId minFace = CAABox::kF_YMin;
     for (int i = 0; i < 6; ++i) {
@@ -282,23 +282,23 @@ CPlane CFishCloud::FindClosestPlane(const CAABox& aabb, const CVector3f& point) 
 
 void CFishCloud::PlaceBoid(CStateManager& mgr, CBoid& boid, const CAABox& aabb) {
   CRandom16& random = *mgr.Random();
-  const CPlane plane = FindClosestPlane(aabb, boid.x0_pos);
-  boid.x0_pos -= plane.GetHeight(boid.x0_pos) * plane.GetNormal() + 0.0001f * plane.GetNormal();
-  boid.xc_vel = CVector3f(random.Float() - 0.5f, random.Float() - 0.5f, 0.f);
-  if (!x250_25_worldSpace) {
-    if (!aabb.PointInside(boid.x0_pos)) {
+  const CPlane plane = FindClosestPlane(aabb, boid.mPos);
+  boid.mPos -= plane.GetHeight(boid.mPos) * plane.GetNormal() + 0.0001f * plane.GetNormal();
+  boid.mVel = CVector3f(random.Float() - 0.5f, random.Float() - 0.5f, 0.f);
+  if (!mWorldSpace) {
+    if (!aabb.PointInside(boid.mPos)) {
       const CVector3f min = aabb.GetMinPoint();
-      boid.x0_pos = CVector3f(random.Float() * aabb.GetWidth() + min.GetX(),
+      boid.mPos = CVector3f(random.Float() * aabb.GetWidth() + min.GetX(),
                               random.Float() * aabb.GetHeight() + min.GetY(),
                               random.Float() * aabb.GetDepth() + min.GetZ());
     }
-  } else if (!PointInBox(aabb, boid.x0_pos)) {
+  } else if (!PointInBox(aabb, boid.mPos)) {
     const CAABox localBounds = GetUntransformedBoundingBox();
     const CVector3f min = localBounds.GetMinPoint();
     const CVector3f pos(random.Float() * localBounds.GetWidth() + min.GetX(),
                         random.Float() * localBounds.GetHeight() + min.GetY(),
                         random.Float() * localBounds.GetDepth() + min.GetZ());
-    boid.x0_pos = GetTransform() * pos;
+    boid.mPos = GetTransform() * pos;
   }
 }
 
@@ -310,20 +310,20 @@ void CFishCloud::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CSt
   case kSM_Deleted:
     break;
   case kSM_Registered: {
-    xe8_boids.reserve(x134_numBoids);
+    mBoids.reserve(mNumBoids);
     const CAABox bounds = GetUntransformedBoundingBox();
     CRandom16& random = *mgr.Random();
     const CVector3f& min = bounds.GetMinPoint();
-    for (int i = 0; i < xe8_boids.capacity(); ++i) {
+    for (int i = 0; i < mBoids.capacity(); ++i) {
       const CVector3f pos(random.Float() * bounds.GetWidth() + min[kDX],
                           random.Float() * bounds.GetHeight() + min[kDY],
                           random.Float() * bounds.GetDepth() + min[kDZ]);
-      xe8_boids.push_back(CBoid(GetTransform() * pos,
+      mBoids.push_back(CBoid(GetTransform() * pos,
                                 CVector3f(random.Float() - 0.5f, random.Float() - 0.5f, 0.f),
                                 0.2f * CMath::PowF(random.Float(), 7.f) + 0.9f));
     }
     CreatePartitionList();
-    if (x250_27_validModel) {
+    if (mValidModel) {
       InitAnimBoids(mgr, CModelData::kWM_Normal);
     }
     break;
@@ -335,16 +335,16 @@ void CFishCloud::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CSt
 
 bool CFishCloud::AddAttractor(TUniqueId source, bool swirl, float radius, float priority) {
   const CModifierSource modifier(source, false, swirl, radius, priority);
-  AUTO(it, rstl::binary_find(x108_modifierSources.begin(), x108_modifierSources.end(), modifier));
-  if (it != x108_modifierSources.end()) {
+  AUTO(it, rstl::binary_find(mModifierSources.begin(), mModifierSources.end(), modifier));
+  if (it != mModifierSources.end()) {
     it->SetAffectRadius(radius);
     it->SetAffectPriority(priority);
     return true;
   }
-  if (x108_modifierSources.size() < x108_modifierSources.capacity()) {
+  if (mModifierSources.size() < mModifierSources.capacity()) {
     AUTO(insertIt,
-         rstl::lower_bound(x108_modifierSources.begin(), x108_modifierSources.end(), modifier));
-    x108_modifierSources.insert(insertIt, modifier);
+         rstl::lower_bound(mModifierSources.begin(), mModifierSources.end(), modifier));
+    mModifierSources.insert(insertIt, modifier);
     return true;
   }
   return false;
@@ -352,16 +352,16 @@ bool CFishCloud::AddAttractor(TUniqueId source, bool swirl, float radius, float 
 
 bool CFishCloud::AddRepulsor(TUniqueId source, bool swirl, float radius, float priority) {
   const CModifierSource modifier(source, true, swirl, radius, priority);
-  AUTO(it, rstl::binary_find(x108_modifierSources.begin(), x108_modifierSources.end(), modifier));
-  if (it != x108_modifierSources.end()) {
+  AUTO(it, rstl::binary_find(mModifierSources.begin(), mModifierSources.end(), modifier));
+  if (it != mModifierSources.end()) {
     it->SetAffectRadius(radius);
     it->SetAffectPriority(priority);
     return true;
   }
-  if (x108_modifierSources.size() < x108_modifierSources.capacity()) {
+  if (mModifierSources.size() < mModifierSources.capacity()) {
     AUTO(insertIt,
-         rstl::lower_bound(x108_modifierSources.begin(), x108_modifierSources.end(), modifier));
-    x108_modifierSources.insert(insertIt, modifier);
+         rstl::lower_bound(mModifierSources.begin(), mModifierSources.end(), modifier));
+    mModifierSources.insert(insertIt, modifier);
     return true;
   }
   return false;
@@ -369,17 +369,17 @@ bool CFishCloud::AddRepulsor(TUniqueId source, bool swirl, float radius, float p
 
 void CFishCloud::RemoveAttractor(TUniqueId source) {
   const CModifierSource modifier(source, false, false, 0.f, 0.f);
-  AUTO(it, rstl::binary_find(x108_modifierSources.begin(), x108_modifierSources.end(), modifier));
-  if (it != x108_modifierSources.end()) {
-    x108_modifierSources.erase(it);
+  AUTO(it, rstl::binary_find(mModifierSources.begin(), mModifierSources.end(), modifier));
+  if (it != mModifierSources.end()) {
+    mModifierSources.erase(it);
   }
 }
 
 void CFishCloud::RemoveRepulsor(TUniqueId source) {
   const CModifierSource modifier(source, true, false, 0.f, 0.f);
-  AUTO(it, rstl::binary_find(x108_modifierSources.begin(), x108_modifierSources.end(), modifier));
-  if (it != x108_modifierSources.end()) {
-    x108_modifierSources.erase(it);
+  AUTO(it, rstl::binary_find(mModifierSources.begin(), mModifierSources.end(), modifier));
+  if (it != mModifierSources.end()) {
+    mModifierSources.erase(it);
   }
 }
 
@@ -393,34 +393,34 @@ void CFishCloud::Think(float dt, CStateManager& mgr) {
   if (area.GetOcclusionState() != CGameArea::kOS_Visible) {
     return;
   }
-  x168_weaponRepelDamping =
-      rstl::max_val(0.f, x168_weaponRepelDamping - x160_weaponRepelDampingSpeed * dt * 0.1f);
-  if (x250_26_enableWeaponRepelDamping) {
-    x168_weaponRepelDamping = rstl::min_val(
-        x148_weaponRepelMagnitude, x160_weaponRepelDampingSpeed * dt + x168_weaponRepelDamping);
+  mWeaponRepelDamping =
+      rstl::max_val(0.f, mWeaponRepelDamping - mWeaponRepelDampingSpeed * dt * 0.1f);
+  if (mEnableWeaponRepelDamping) {
+    mWeaponRepelDamping = rstl::min_val(
+        mWeaponRepelMagnitude, mWeaponRepelDampingSpeed * dt + mWeaponRepelDamping);
   }
-  x164_playerRepelDamping =
-      rstl::max_val(0.f, x164_playerRepelDamping - x15c_playerRepelDampingSpeed * dt * 0.1f);
-  if (x250_30_enablePlayerRepelDamping) {
-    x164_playerRepelDamping = rstl::min_val(
-        x14c_playerRepelMagnitude, x15c_playerRepelDampingSpeed * dt + x164_playerRepelDamping);
+  mPlayerRepelDamping =
+      rstl::max_val(0.f, mPlayerRepelDamping - mPlayerRepelDampingSpeed * dt * 0.1f);
+  if (mEnablePlayerRepelDamping) {
+    mPlayerRepelDamping = rstl::min_val(
+        mPlayerRepelMagnitude, mPlayerRepelDampingSpeed * dt + mPlayerRepelDamping);
   }
-  x250_26_enableWeaponRepelDamping = false;
-  x250_30_enablePlayerRepelDamping = false;
-  ++x118_thinkCounter;
+  mEnableWeaponRepelDamping = false;
+  mEnablePlayerRepelDamping = false;
+  ++mThinkCounter;
   UpdateParticles(dt);
   rstl::reserved_vector< CBoid*, 25 > nearList;
   UpdatePartitionList();
   CRandom16& random = *mgr.Random();
   const CAABox bounds = GetBoundingBox();
   int index = 0;
-  for (AUTO(it, xe8_boids.begin()); it != xe8_boids.end(); ++it, ++index) {
-    if (it->x20_active && (index & x11c_updateMask) == (x118_thinkCounter & x11c_updateMask)) {
+  for (AUTO(it, mBoids.begin()); it != mBoids.end(); ++it, ++index) {
+    if (it->mActive && (index & mUpdateMask) == (mThinkCounter & mUpdateMask)) {
       nearList.clear();
-      if (x250_31_updateWithoutPartitions) {
-        OldBuildBoidNearList(it->x0_pos, x138_separationRadius, nearList);
+      if (mUpdateWithoutPartitions) {
+        OldBuildBoidNearList(it->mPos, mSeparationRadius, nearList);
       } else {
-        BuildBoidNearList(it->x0_pos, x138_separationRadius, nearList);
+        BuildBoidNearList(it->mPos, mSeparationRadius, nearList);
       }
       for (int i = 0; i != 5; ++i) {
         switch (i) {
@@ -428,12 +428,12 @@ void CFishCloud::Think(float dt, CStateManager& mgr) {
           ApplySeparation(*it, nearList);
           break;
         case 2:
-          if (!x250_24_randomMovement || random.Float() > x12c_randomMovementTimer) {
+          if (!mRandomMovement || random.Float() > mRandomMovementTimer) {
             ApplyCohesion(*it, nearList);
           }
           break;
         case 3:
-          if (!x250_24_randomMovement || random.Float() > x12c_randomMovementTimer) {
+          if (!mRandomMovement || random.Float() > mRandomMovementTimer) {
             ApplyAlignment(*it, nearList);
           }
           break;
@@ -441,12 +441,12 @@ void CFishCloud::Think(float dt, CStateManager& mgr) {
           ApplyWander(mgr, *it);
           break;
         }
-        if (it->xc_vel.MagSquared() > 3.2f) {
+        if (it->mVel.MagSquared() > 3.2f) {
           break;
         }
       }
-      if (!x250_24_randomMovement && it->xc_vel.MagSquared() < 3.2f) {
-        for (AUTO(mod, x108_modifierSources.begin()); mod != x108_modifierSources.end(); ++mod) {
+      if (!mRandomMovement && it->mVel.MagSquared() < 3.2f) {
+        for (AUTO(mod, mModifierSources.begin()); mod != mModifierSources.end(); ++mod) {
           if (CActor* actor = TCastToPtr< CActor >(mgr.ObjectById(mod->GetSource()))) {
             if (mod->IsSwirl()) {
               ApplyRotation(*it, mod->GetAffectPriority(), actor->GetTranslation(),
@@ -470,10 +470,10 @@ void CFishCloud::Think(float dt, CStateManager& mgr) {
       }
     }
   }
-  for (AUTO(it, xe8_boids.begin()); it != xe8_boids.end(); ++it) {
-    if (it->x20_active) {
+  for (AUTO(it, mBoids.begin()); it != mBoids.end(); ++it) {
+    if (it->mActive) {
       ApplyContainment(*it, bounds);
-      CVector3f& velocity = it->xc_vel;
+      CVector3f& velocity = it->mVel;
       const float speed = velocity.Magnitude();
       if (!close_enough(speed, 0.f)) {
         const float inverseSpeed = 1.f / speed;
@@ -482,33 +482,33 @@ void CFishCloud::Think(float dt, CStateManager& mgr) {
       velocity.SetZ(0.99f * velocity.GetZ());
     }
   }
-  if (x12c_randomMovementTimer > 0.f) {
-    x12c_randomMovementTimer -= dt;
+  if (mRandomMovementTimer > 0.f) {
+    mRandomMovementTimer -= dt;
   } else {
-    x12c_randomMovementTimer = 0.f;
-    x250_24_randomMovement = false;
+    mRandomMovementTimer = 0.f;
+    mRandomMovement = false;
   }
-  for (AUTO(it, xe8_boids.begin()); it != xe8_boids.end(); ++it) {
-    if (it->x20_active) {
-      it->x0_pos += x130_speed * (dt * it->xc_vel);
-      if (!PointInBox(bounds, it->x0_pos)) {
+  for (AUTO(it, mBoids.begin()); it != mBoids.end(); ++it) {
+    if (it->mActive) {
+      it->mPos += mSpeed * (dt * it->mVel);
+      if (!PointInBox(bounds, it->mPos)) {
         PlaceBoid(mgr, *it, bounds);
       }
     }
   }
-  if (x250_27_validModel) {
+  if (mValidModel) {
     for (int i = 0; i < 4; ++i) {
-      x1b0_models[i]->AnimationData()->SetPlaybackRate(1.f);
-      x1b0_models[i]->AdvanceAnimation(dt, mgr, GetCurrentAreaId(), true);
+      mModels[i]->AnimationData()->SetPlaybackRate(1.f);
+      mModels[i]->AdvanceAnimation(dt, mgr, GetCurrentAreaId(), true);
     }
   }
 }
 
 void CFishCloud::PreRender(CStateManager& mgr, const CFrustumPlanes& frustum) {
   CActor::PreRender(mgr, frustum);
-  if (x250_27_validModel) {
+  if (mValidModel) {
     for (int i = 0; i < 4; ++i) {
-      x1b0_models[i]->AnimationData()->PreRender();
+      mModels[i]->AnimationData()->PreRender();
     }
   }
   SetPreRenderClipped(false);
@@ -518,7 +518,7 @@ void CFishCloud::RenderBoid(int idx, const CBoid& boid, uint& drawMask, const bo
                             const CModelFlags& flags) const {
   const uint modelIndex = idx & 3;
   uint mask = drawMask;
-  CModelData& modelData = *x1b0_models[modelIndex];
+  CModelData& modelData = *mModels[modelIndex];
   CAnimData& animData = *modelData.AnimationData();
   CSkinnedModel& model = modelData.PickAnimatedModel(CModelData::kWM_Normal);
   const uint bit = 1 << modelIndex;
@@ -526,11 +526,11 @@ void CFishCloud::RenderBoid(int idx, const CBoid& boid, uint& drawMask, const bo
     mask &= ~bit;
     animData.BuildPose();
     model.Calculate(animData.GetPose(), rstl::optional_object< CVertexMorphEffect >(), nullptr,
-                    x178_posWorkspaces[modelIndex].get());
+                    mPosWorkspaces[modelIndex].get());
   }
-  gpRender->SetModelMatrix(CTransform4f::LookAt(boid.x0_pos, boid.x0_pos + boid.xc_vel));
-  const float* const positions = x178_posWorkspaces[modelIndex].get();
-  const float* const normals = x19c_nrmWorkspaces[modelIndex];
+  gpRender->SetModelMatrix(CTransform4f::LookAt(boid.mPos, boid.mPos + boid.mVel));
+  const float* const positions = mPosWorkspaces[modelIndex].get();
+  const float* const normals = mNrmWorkspaces[modelIndex];
   if (thermalHot) {
     const CModelFlags thermalFlags = CModelFlags::Normal().DepthCompareUpdate(true, false);
     CModelData::ThermalDraw(model, positions, normals, CColor(0xffffffff),
@@ -550,20 +550,20 @@ void CFishCloud::Render(const CStateManager& mgr) const {
   const bool thermalHot = mgr.GetThermalDrawFlag() == kTD_Hot;
   CModelFlags flags = CModelFlags::Normal();
   if (mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::kPV_XRay) {
-    CColor color = x16c_color;
+    CColor color = mColor;
     color.SetAlpha(static_cast< uchar >(76));
     flags = CModelFlags(CModelFlags::kT_Blend, color);
   } else {
-    flags = CModelFlags(CModelFlags::kT_One, x16c_color);
+    flags = CModelFlags(CModelFlags::kT_One, mColor);
   }
   RenderParticles();
-  if (x250_27_validModel) {
+  if (mValidModel) {
     gpRender->SetAmbientColor(CColor::White());
     CGraphics::DisableAllLights();
     uint drawMask = ~0;
     int index = 0;
-    for (AUTO(it, xe8_boids.begin()); it != xe8_boids.end(); ++it, ++index) {
-      if (it->x20_active) {
+    for (AUTO(it, mBoids.begin()); it != mBoids.end(); ++it, ++index) {
+      if (it->mActive) {
         RenderBoid(index, *it, drawMask, thermalHot, flags);
       }
     }
@@ -572,10 +572,10 @@ void CFishCloud::Render(const CStateManager& mgr) const {
     gpRender->SetAmbientColor(CColor::White());
     CGraphics::DisableAllLights();
     gpRender->SetModelMatrix(CTransform4f::Identity());
-    for (AUTO(it, xe8_boids.begin()); it != xe8_boids.end(); ++it) {
-      if (it->x20_active) {
-        modelData.SetScale(CVector3f(it->x18_scale, it->x18_scale, it->x18_scale));
-        modelData.Render(mgr, CTransform4f::LookAt(it->x0_pos, it->x0_pos + it->xc_vel), nullptr,
+    for (AUTO(it, mBoids.begin()); it != mBoids.end(); ++it) {
+      if (it->mActive) {
+        modelData.SetScale(CVector3f(it->mScale, it->mScale, it->mScale));
+        modelData.Render(mgr, CTransform4f::LookAt(it->mPos, it->mPos + it->mVel), nullptr,
                          flags);
       }
     }
@@ -583,38 +583,38 @@ void CFishCloud::Render(const CStateManager& mgr) const {
 }
 
 void CFishCloud::KillBoid(CBoid& boid) {
-  boid.x20_active = false;
-  AddParticles(boid.x0_pos);
+  boid.mActive = false;
+  AddParticles(boid.mPos);
   const int areaId = GetCurrentAreaId().Value();
   CAudioSys::C3DEmitterParmData parms(250.f, 0.1f, 1, 127, 20);
-  parms.x0_pos = boid.x0_pos;
-  parms.xc_dir = CVector3f::Up();
-  parms.x24_sfxId = x234_deathSfx;
+  parms.mPos = boid.mPos;
+  parms.mDir = CVector3f::Up();
+  parms.mSfxId = mDeathSfx;
   CSfxManager::AddEmitter(parms, true, CSfxManager::kMedPriority, false, areaId);
 }
 
 void CFishCloud::Touch(CActor& other, CStateManager& mgr) {
   CActor::Touch(other, mgr);
   if (CWeapon* weapon = TCastToPtr< CWeapon >(other)) {
-    if (!x250_26_enableWeaponRepelDamping && x250_29_repelFromThreats) {
+    if (!mEnableWeaponRepelDamping && mRepelFromThreats) {
       int index = 0;
-      for (AUTO(it, xe8_boids.begin()); it != xe8_boids.end(); ++it, ++index) {
-        if ((index & 3) == (x118_thinkCounter & 3)) {
+      for (AUTO(it, mBoids.begin()); it != mBoids.end(); ++it, ++index) {
+        if ((index & 3) == (mThinkCounter & 3)) {
           ApplyRepulsion(*it, weapon->GetTranslation(), 8.f,
-                         x148_weaponRepelMagnitude - x168_weaponRepelDamping);
+                         mWeaponRepelMagnitude - mWeaponRepelDamping);
         }
       }
     }
-    x250_26_enableWeaponRepelDamping = true;
-    if (x250_28_killable) {
+    mEnableWeaponRepelDamping = true;
+    if (mKillable) {
       const rstl::optional_object< CAABox > touchBounds = weapon->GetTouchBounds();
       if (touchBounds.valid()) {
         const CAABox bounds = *touchBounds;
-        const float radius = x170_weaponKillRadius;
-        for (AUTO(it, xe8_boids.begin()); it != xe8_boids.end(); ++it) {
-          if (it->x20_active) {
+        const float radius = mWeaponKillRadius;
+        for (AUTO(it, mBoids.begin()); it != mBoids.end(); ++it) {
+          if (it->mActive) {
             const CVector3f extent(radius, radius, radius);
-            const CAABox boidBounds(it->x0_pos - extent, it->x0_pos + extent);
+            const CAABox boidBounds(it->mPos - extent, it->mPos + extent);
             if (bounds.DoBoundsOverlap(boidBounds)) {
               KillBoid(*it);
             }
@@ -623,11 +623,11 @@ void CFishCloud::Touch(CActor& other, CStateManager& mgr) {
       }
     }
   }
-  if (x250_29_repelFromThreats) {
+  if (mRepelFromThreats) {
     if (CPlayer* player = TCastToPtr< CPlayer >(other)) {
       CRandom16& random = *mgr.Random();
       const CVector3f playerPos = player->GetTranslation();
-      for (AUTO(it, xe8_boids.begin()); it != xe8_boids.end(); ++it) {
+      for (AUTO(it, mBoids.begin()); it != mBoids.end(); ++it) {
         CVector3f adjustedPos = playerPos;
         const CVector3f delta = it->GetTranslation() - adjustedPos;
         const float dz = delta.GetZ();
@@ -636,32 +636,32 @@ void CFishCloud::Touch(CActor& other, CStateManager& mgr) {
         }
         adjustedPos[kDX] += 0.2f * random.Float() - 0.1f;
         adjustedPos[kDY] += 0.2f * random.Float() - 0.1f;
-        ApplyRepulsion(*it, adjustedPos, 8.f, x14c_playerRepelMagnitude - x164_playerRepelDamping);
+        ApplyRepulsion(*it, adjustedPos, 8.f, mPlayerRepelMagnitude - mPlayerRepelDamping);
       }
     }
-    x250_30_enablePlayerRepelDamping = true;
+    mEnablePlayerRepelDamping = true;
   }
 }
 
 void CFishCloud::CreatePartitionList() {
   const CAABox bounds = GetBoundingBox();
-  xf8_boidPartitionLists.reserve(343);
+  mBoidPartitionLists.reserve(343);
 }
 
 void CFishCloud::UpdatePartitionList() {
-  xf8_boidPartitionLists.clear();
-  for (int i = 0; i < xf8_boidPartitionLists.capacity(); ++i) {
-    xf8_boidPartitionLists.push_back(nullptr);
+  mBoidPartitionLists.clear();
+  for (int i = 0; i < mBoidPartitionLists.capacity(); ++i) {
+    mBoidPartitionLists.push_back(nullptr);
   }
   const CAABox bounds = GetBoundingBox();
   const CVector3f& min = bounds.GetMinPoint();
-  for (AUTO(it, xe8_boids.begin()); it != xe8_boids.end(); ++it) {
+  for (AUTO(it, mBoids.begin()); it != mBoids.end(); ++it) {
     const CVector3f indices =
-        CVector3f::ByElementMultiply(x244_ooPartitionPitch, it->GetTranslation() - min);
+        CVector3f::ByElementMultiply(mOoPartitionPitch, it->GetTranslation() - min);
     const int index = int(indices.GetX()) + int(indices.GetY()) * 7 + int(indices.GetZ()) * 49;
     if (index >= 0 && index < 343) {
-      it->x1c_next = xf8_boidPartitionLists[index];
-      xf8_boidPartitionLists[index] = &*it;
+      it->mNext = mBoidPartitionLists[index];
+      mBoidPartitionLists[index] = &*it;
     }
   }
 }
@@ -669,12 +669,12 @@ void CFishCloud::UpdatePartitionList() {
 CFishCloud::CBoid* CFishCloud::GetListAt(const CVector3f& pos) {
   const CAABox bounds = GetBoundingBox();
   const CVector3f indices =
-      CVector3f::ByElementMultiply(x244_ooPartitionPitch, pos - bounds.GetMinPoint());
+      CVector3f::ByElementMultiply(mOoPartitionPitch, pos - bounds.GetMinPoint());
   const int index = int(indices.GetX()) + int(indices.GetY()) * 7 + int(indices.GetZ()) * 49;
   if (index < 0 || index >= 343) {
     return nullptr;
   }
-  return xf8_boidPartitionLists[index];
+  return mBoidPartitionLists[index];
 }
 
 void CFishCloud::BuildBoidNearList(const CVector3f& pos, float radius,
@@ -683,11 +683,11 @@ void CFishCloud::BuildBoidNearList(const CVector3f& pos, float radius,
   const CAABox bounds = GetBoundingBox();
   const CVector3f& min = bounds.GetMinPoint();
   const CVector3f& max = bounds.GetMaxPoint();
-  const float x = rstl::max_val(radius * x244_ooPartitionPitch.GetX(), x238_partitionPitch.GetX());
-  const float y = rstl::max_val(radius * x244_ooPartitionPitch.GetY(), x238_partitionPitch.GetY());
-  const float z = rstl::max_val(radius * x244_ooPartitionPitch.GetZ(), x238_partitionPitch.GetZ());
+  const float x = rstl::max_val(radius * mOoPartitionPitch.GetX(), mPartitionPitch.GetX());
+  const float y = rstl::max_val(radius * mOoPartitionPitch.GetY(), mPartitionPitch.GetY());
+  const float z = rstl::max_val(radius * mOoPartitionPitch.GetZ(), mPartitionPitch.GetZ());
   int remaining = 25;
-  for (float ox = 0.01f - x; ox < x; ox += x238_partitionPitch.GetX()) {
+  for (float ox = 0.01f - x; ox < x; ox += mPartitionPitch.GetX()) {
     const float px = ox + pos.GetX();
     if (px < min.GetX()) {
       continue;
@@ -695,7 +695,7 @@ void CFishCloud::BuildBoidNearList(const CVector3f& pos, float radius,
     if (px >= max.GetX()) {
       break;
     }
-    for (float oy = 0.01f - y; oy < y; oy += x238_partitionPitch.GetY()) {
+    for (float oy = 0.01f - y; oy < y; oy += mPartitionPitch.GetY()) {
       const float py = oy + pos.GetY();
       if (py < min.GetY()) {
         continue;
@@ -703,7 +703,7 @@ void CFishCloud::BuildBoidNearList(const CVector3f& pos, float radius,
       if (py >= max.GetY()) {
         break;
       }
-      for (float oz = 0.01f - z; oz < z; oz += x238_partitionPitch.GetZ()) {
+      for (float oz = 0.01f - z; oz < z; oz += mPartitionPitch.GetZ()) {
         const float pz = oz + pos.GetZ();
         if (pz < min.GetZ()) {
           continue;
@@ -712,7 +712,7 @@ void CFishCloud::BuildBoidNearList(const CVector3f& pos, float radius,
           break;
         }
         const CVector3f indices =
-            CVector3f::ByElementMultiply(x244_ooPartitionPitch, CVector3f(px, py, pz) - min);
+            CVector3f::ByElementMultiply(mOoPartitionPitch, CVector3f(px, py, pz) - min);
         const int index = int(indices.GetX()) + int(indices.GetY()) * 7 + int(indices.GetZ()) * 49;
         if (index < 0) {
           continue;
@@ -720,9 +720,9 @@ void CFishCloud::BuildBoidNearList(const CVector3f& pos, float radius,
         if (index >= 343) {
           break;
         }
-        for (CBoid* boid = xf8_boidPartitionLists[index]; boid != nullptr; boid = boid->x1c_next) {
-          if (boid->x20_active) {
-            const CVector3f delta = boid->x0_pos - pos;
+        for (CBoid* boid = mBoidPartitionLists[index]; boid != nullptr; boid = boid->mNext) {
+          if (boid->mActive) {
+            const CVector3f delta = boid->mPos - pos;
             const float distanceSquared = delta.MagSquared();
             if (distanceSquared != 0.f && distanceSquared < radiusSquared) {
               nearList.push_back(boid);
@@ -741,8 +741,8 @@ void CFishCloud::OldBuildBoidNearList(const CVector3f& pos, float radius,
                                       rstl::reserved_vector< CBoid*, 25 >& nearList) {
   const float radiusSquared = radius * radius;
   int remaining = 25;
-  for (CBoid* boid = GetListAt(pos); boid != nullptr && remaining != 0; boid = boid->x1c_next) {
-    if (boid->x20_active) {
+  for (CBoid* boid = GetListAt(pos); boid != nullptr && remaining != 0; boid = boid->mNext) {
+    if (boid->mActive) {
       const CVector3f delta = boid->GetTranslation() - pos;
       const float distanceSquared = delta.MagSquared();
       if (distanceSquared != 0.f && distanceSquared < radiusSquared) {
@@ -768,38 +768,38 @@ static inline CVector3f FishCloudCross(const CVector3f& lhs, const CVector3f& rh
 
 void CFishCloud::ApplyRotation(CBoid& boid, float magnitude, const CVector3f& point, float radius,
                                bool clockwise) {
-  CVector3f delta = boid.x0_pos - point;
+  CVector3f delta = boid.mPos - point;
   delta[kDZ] = 0.f;
   const float distance = delta.Magnitude();
   const CVector3f align = clockwise ? FishCloudCross(delta.AsNormalized(), CVector3f::Up())
                                     : FishCloudCross(CVector3f::Up(), delta / distance);
-  const CVector3f velocity = boid.xc_vel;
+  const CVector3f velocity = boid.mVel;
   const float weight = distance > radius ? 0.f : 1.f - distance / radius;
   const float angle = CVector3f::GetAngleDiff(velocity, align) / M_PIF;
   const float weightedAngle = angle * weight;
-  boid.xc_vel += weightedAngle * (magnitude * align);
+  boid.mVel += weightedAngle * (magnitude * align);
 }
 
 void CFishCloud::ApplyAlignment(CBoid& boid, const rstl::reserved_vector< CBoid*, 25 >& nearList) {
   if (nearList.size() > 0) {
     CVector3f average(0.f, 0.f, 0.f);
     for (AUTO(it, nearList.begin()); it != nearList.end(); ++it) {
-      average += (*it)->xc_vel;
+      average += (*it)->mVel;
     }
     average = average / float(nearList.size());
-    const CVector3f velocity = boid.xc_vel;
+    const CVector3f velocity = boid.mVel;
     const float angle = CVector3f::GetAngleDiff(velocity, average) / M_PIF;
-    boid.xc_vel += angle * (x140_alignmentWeight * average);
+    boid.mVel += angle * (mAlignmentWeight * average);
   }
 }
 
 void CFishCloud::ApplyWander(CStateManager& mgr, CBoid& boid) {
-  const float x = boid.xc_vel.GetX();
-  const float y = boid.xc_vel.GetY();
-  const float angle = x154_maxScatterAngle * (M_PIF * (mgr.Random()->Float() - 0.5f));
+  const float x = boid.mVel.GetX();
+  const float y = boid.mVel.GetY();
+  const float angle = mMaxScatterAngle * (M_PIF * (mgr.Random()->Float() - 0.5f));
   const CVector3f scatter(x * CMath::FastCosR(angle) - y * CMath::FastSinR(angle),
                           x * CMath::FastSinR(angle) + y * CMath::FastCosR(angle), 0.f);
-  boid.xc_vel += x150_scatterVel * scatter;
+  boid.mVel += mScatterVel * scatter;
 }
 
 void CFishCloud::ApplyCohesion(CBoid& boid, const rstl::reserved_vector< CBoid*, 25 >& nearList) {
@@ -809,7 +809,7 @@ void CFishCloud::ApplyCohesion(CBoid& boid, const rstl::reserved_vector< CBoid*,
       average += (*it)->GetTranslation();
     }
     average = average / float(nearList.size());
-    ApplyCohesion(boid, average, x138_separationRadius, x13c_cohesionMagnitude);
+    ApplyCohesion(boid, average, mSeparationRadius, mCohesionMagnitude);
   }
 }
 
@@ -818,7 +818,7 @@ void CFishCloud::ApplyCohesion(CBoid& boid, const CVector3f& point, float radius
   if (delta.CanBeNormalized()) {
     const float distanceSquared = delta.MagSquared();
     const float weight = distanceSquared > radius ? 1.f : distanceSquared / radius;
-    boid.xc_vel += weight * delta.AsNormalized() * magnitude;
+    boid.mVel += weight * delta.AsNormalized() * magnitude;
   }
 }
 
@@ -834,7 +834,7 @@ void CFishCloud::ApplySeparation(CBoid& boid, const rstl::reserved_vector< CBoid
         nearest = (*it)->GetTranslation();
       }
     }
-    ApplySeparation(boid, nearest, x138_separationRadius, x144_separationMagnitude);
+    ApplySeparation(boid, nearest, mSeparationRadius, mSeparationMagnitude);
   }
 }
 
@@ -846,7 +846,7 @@ void CFishCloud::ApplySeparation(CBoid& boid, const CVector3f& point, float radi
     const float radiusSquared = radius * radius;
     if (distanceSquared < radiusSquared) {
       const float weight = 1.f - distanceSquared / radiusSquared;
-      boid.xc_vel += weight * delta.AsNormalized() * magnitude;
+      boid.mVel += weight * delta.AsNormalized() * magnitude;
     }
   }
 }
@@ -859,7 +859,7 @@ void CFishCloud::ApplyAttraction(CBoid& boid, const CVector3f& point, float radi
     const float radiusSquared = radius * radius;
     if (distanceSquared < radiusSquared) {
       const float weight = 1.f - distanceSquared / radiusSquared;
-      boid.xc_vel += weight * delta.AsNormalized() * magnitude;
+      boid.mVel += weight * delta.AsNormalized() * magnitude;
     }
   }
 }
@@ -870,33 +870,33 @@ void CFishCloud::ApplyRepulsion(CBoid& boid, const CVector3f& point, float radiu
 }
 
 void CFishCloud::ApplyContainment(CBoid& boid, const CAABox& aabb) {
-  const float radius = x174_containmentRadius;
-  if (boid.xc_vel.CanBeNormalized()) {
-    const CVector3f futurePos = boid.x0_pos + radius * (x130_speed * boid.xc_vel.AsNormalized());
+  const float radius = mContainmentRadius;
+  if (boid.mVel.CanBeNormalized()) {
+    const CVector3f futurePos = boid.mPos + radius * (mSpeed * boid.mVel.AsNormalized());
     if (!PointInBox(aabb, futurePos)) {
-      ApplyAttraction(boid, aabb.GetCenterPoint(), 100000.f, x158_containmentMagnitude);
+      ApplyAttraction(boid, aabb.GetCenterPoint(), 100000.f, mContainmentMagnitude);
     }
   }
 }
 
 void CFishCloud::AddParticles(const CVector3f& pos) {
-  for (int i = 0; i < x1f8_particleGens.size(); ++i) {
-    x1f8_particleGens[i]->SetParticleEmission(true);
-    x1f8_particleGens[i]->SetTranslation(pos);
-    x1f8_particleGens[i]->ForceParticleCreation(x21c_deathParticleCounts[i]);
-    x1f8_particleGens[i]->SetParticleEmission(false);
+  for (int i = 0; i < mParticleGens.size(); ++i) {
+    mParticleGens[i]->SetParticleEmission(true);
+    mParticleGens[i]->SetTranslation(pos);
+    mParticleGens[i]->ForceParticleCreation(mDeathParticleCounts[i]);
+    mParticleGens[i]->SetParticleEmission(false);
   }
 }
 
 void CFishCloud::UpdateParticles(float dt) {
-  for (int i = 0; i < x1f8_particleGens.size(); ++i) {
-    x1f8_particleGens[i]->Update(dt);
+  for (int i = 0; i < mParticleGens.size(); ++i) {
+    mParticleGens[i]->Update(dt);
   }
 }
 
 void CFishCloud::RenderParticles() const {
-  for (int i = 0; i < x1f8_particleGens.size(); ++i) {
-    gpRender->AddParticleGen(*x1f8_particleGens[i]);
+  for (int i = 0; i < mParticleGens.size(); ++i) {
+    gpRender->AddParticleGen(*mParticleGens[i]);
   }
 }
 

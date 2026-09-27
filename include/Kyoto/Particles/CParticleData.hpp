@@ -20,48 +20,48 @@ public:
   CParticleData(int duration = 0, const SObjectTag& tag = SObjectTag(0, 0),
                 const rstl::string& boneName = rstl::string_l("root"), float scale = 1.f,
                 EParentedMode mode = kPM_Initial)
-  : x0_duration(duration)
-  , x4_particle(tag)
-  , xc_boneName(boneName)
-  , x1c_scale(scale)
-  , x20_parentMode(mode) {}
+  : mDuration(duration)
+  , mParticle(tag)
+  , mBoneName(boneName)
+  , mScale(scale)
+  , mParentMode(mode) {}
 
   CParticleData(CInputStream& in);
 
-  int GetDuration() const { return x0_duration; }
+  int GetDuration() const { return mDuration; }
   SObjectTag GetParticleAssetInfo() const {
-    return SObjectTag(x4_particle.GetType(), x4_particle.GetId());
+    return SObjectTag(mParticle.GetType(), mParticle.GetId());
   }
-  const rstl::string& GetLocatorName() const { return xc_boneName; }
-  float GetScale() const { return x1c_scale; }
-  EParentedMode GetParentedMode() const { return static_cast< EParentedMode >(x20_parentMode); }
+  const rstl::string& GetLocatorName() const { return mBoneName; }
+  float GetScale() const { return mScale; }
+  EParentedMode GetParentedMode() const { return static_cast< EParentedMode >(mParentMode); }
 
 private:
-  int x0_duration;
-  SObjectTag x4_particle;
-  rstl::string xc_boneName;
-  float x1c_scale;
-  int x20_parentMode;
+  int mDuration;
+  SObjectTag mParticle;
+  rstl::string mBoneName;
+  float mScale;
+  int mParentMode;
 };
 
 class CAuxiliaryParticleData {
 public:
   CAuxiliaryParticleData(uint duration, const SObjectTag& tag, const CVector3f& translation,
                          float scale)
-  : x0_duration(duration), x4_particle(tag), xc_translation(translation), x18_scale(scale) {}
+  : mDuration(duration), mParticle(tag), mTranslation(translation), mScale(scale) {}
 
-  uint GetDuration() const { return x0_duration; }
+  uint GetDuration() const { return mDuration; }
   SObjectTag GetParticleAssetInfo() const {
-    return SObjectTag(x4_particle.GetType(), x4_particle.GetId());
+    return SObjectTag(mParticle.GetType(), mParticle.GetId());
   }
-  const CVector3f& GetTranslation() const { return xc_translation; }
-  float GetScale() const { return x18_scale; }
+  const CVector3f& GetTranslation() const { return mTranslation; }
+  float GetScale() const { return mScale; }
 
 private:
-  uint x0_duration;
-  SObjectTag x4_particle;
-  CVector3f xc_translation;
-  float x18_scale;
+  uint mDuration;
+  SObjectTag mParticle;
+  CVector3f mTranslation;
+  float mScale;
 };
 
 #endif // _CPARTICLEDATA

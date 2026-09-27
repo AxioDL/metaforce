@@ -18,28 +18,28 @@ constexpr borealis::Log Log{"CMidiManager"};
 rstl::reserved_vector< CMidiManager::CMidiWrapper, 3 > CMidiManager::mMidiWrappers;
 
 CMidiManager::CMidiWrapper::CMidiWrapper()
-: x0_sysHandle(0)
+: mSysHandle(0)
 #if defined(TARGET_PC)
-, x8_songId(-1)
+, mSongId(-1)
 #endif
-, xa_available(true) {
+, mAvailable(true) {
 }
 
-const CSfxHandle& CMidiManager::CMidiWrapper::GetManagerHandle() const { return x4_midiHandle; }
+const CSfxHandle& CMidiManager::CMidiWrapper::GetManagerHandle() const { return mMidiHandle; }
 
-const u32 CMidiManager::CMidiWrapper::GetAudioSysHandle() const { return x0_sysHandle; }
+const u32 CMidiManager::CMidiWrapper::GetAudioSysHandle() const { return mSysHandle; }
 
-const bool CMidiManager::CMidiWrapper::IsAvailable() const { return xa_available; }
+const bool CMidiManager::CMidiWrapper::IsAvailable() const { return mAvailable; }
 
-const short CMidiManager::CMidiWrapper::GetSongId() const { return x8_songId; }
+const short CMidiManager::CMidiWrapper::GetSongId() const { return mSongId; }
 
-void CMidiManager::CMidiWrapper::SetAvailable(const bool v) { xa_available = v; }
+void CMidiManager::CMidiWrapper::SetAvailable(const bool v) { mAvailable = v; }
 
-void CMidiManager::CMidiWrapper::SetAudioSysHandle(const u32 handle) { x0_sysHandle = handle; }
+void CMidiManager::CMidiWrapper::SetAudioSysHandle(const u32 handle) { mSysHandle = handle; }
 
-void CMidiManager::CMidiWrapper::SetMidiHandle(const CSfxHandle& handle) { x4_midiHandle = handle; }
+void CMidiManager::CMidiWrapper::SetMidiHandle(const CSfxHandle& handle) { mMidiHandle = handle; }
 
-void CMidiManager::CMidiWrapper::SetSongId(const short id) { x8_songId = id; }
+void CMidiManager::CMidiWrapper::SetSongId(const short id) { mSongId = id; }
 
 CSfxHandle CMidiManager::Play(const CMidiData& data, unsigned short fadeTime, bool stopExisting,
                               short volume) {
@@ -138,31 +138,30 @@ CSfxHandle CMidiManager::LocateHandle() {
   return CSfxHandle(mMidiWrappers.size() - 1);
 }
 
-CMidiManager::CMidiData::CMidiData(CInputStream& in)
-: x0_songId(-1), x2_groupId(-1), x4_agscId(-1) {
+CMidiManager::CMidiData::CMidiData(CInputStream& in) : mSongId(-1), mGroupId(-1), mAgscId(-1) {
 #if defined(TARGET_PC)
   u8 bytes[20];
   metaforce::AudioSongHeader header{};
   REQUIRE(in.ReadBytes(bytes, sizeof(bytes)) == sizeof(bytes) &&
               metaforce::ReadAudioSongHeader(bytes, header),
           "Invalid CSNG header");
-  x0_songId = header.song;
-  x2_groupId = header.group;
-  x4_agscId = header.audioGroup;
-  x8_data = rs_new uchar[header.length];
-  REQUIRE(in.ReadBytes(x8_data.get(), header.length) == header.length,
+  mSongId = header.song;
+  mGroupId = header.group;
+  mAgscId = header.audioGroup;
+  mData = rs_new uchar[header.length];
+  REQUIRE(in.ReadBytes(mData.get(), header.length) == header.length,
           "Truncated CSNG arrangement");
   SND_PC_ASSET_ERROR error{};
-  REQUIRE(sndPCValidateArrangement({x8_data.get(), header.length}, &error),
+  REQUIRE(sndPCValidateArrangement({mData.get(), header.length}, &error),
           "Invalid CSNG arrangement at {}: {}", error.offset, error.reason ? error.reason : "");
 #else
   in.ReadLong();
-  x0_songId = in.ReadLong();
-  x2_groupId = in.ReadLong();
-  x4_agscId = in.ReadLong();
+  mSongId = in.ReadLong();
+  mGroupId = in.ReadLong();
+  mAgscId = in.ReadLong();
   int len = in.ReadInt32();
-  x8_data = rs_new uchar[len];
-  in.Get(x8_data.get(), len);
+  mData = rs_new uchar[len];
+  in.Get(mData.get(), len);
 #endif
 }
 

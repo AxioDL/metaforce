@@ -20,7 +20,7 @@ public:
 private:
   typedef rstl::vector< rstl::pair< rstl::rc_ptr< IMetaAnim >, int > > RandomData;
   static RandomData CreateRandomData(CInputStream& in);
-  RandomData x4_randomData;
+  RandomData mRandomData;
 };
 CHECK_SIZEOF(CMetaAnimRandom, 0x14)
 

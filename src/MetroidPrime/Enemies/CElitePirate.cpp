@@ -49,38 +49,38 @@ const CVector3f CElitePirate::skExtendedClawBounds(2.f, 2.f, 2.f);
 const CVector3f CElitePirate::skLocalShieldBounds(4.f, 4.f, 2.f);
 
 CElitePirateData::CElitePirateData(CInputStream& in, int propCount)
-: x0_tauntInterval(in.ReadFloat())
-, x4_tauntVariance(in.ReadFloat())
+: mTauntInterval(in.ReadFloat())
+, mTauntVariance(in.ReadFloat())
 , x8_(in.ReadFloat())
 , xc_(in.ReadFloat())
-, x10_attackChance(in.ReadFloat())
-, x14_shotAtTime(in.ReadFloat())
-, x18_shotAtTimeVariance(in.ReadFloat())
-, x1c_projectileAttractionRadius(in.ReadFloat())
-, x20_energyAbsorbParticleDescId(in.ReadLong())
-, x24_energyAbsorbSfxId(CSfxManager::TranslateSFXID(in.ReadLong()))
-, x28_launcherActParams(LoadActorParameters(in))
-, x90_launcherAnimParams(LoadAnimationParameters(in))
-, x9c_launcherParticleGenDescId(in.ReadLong())
-, xa0_launcherSfxId(CSfxManager::TranslateSFXID(in.ReadLong()))
-, xa4_grenadeModelId(in.ReadLong())
-, xa8_grenadeDamageInfo(in)
-, xc4_launcherHp(in.ReadFloat())
-, xc8_grenadeElementGenDescId1(in.ReadLong())
-, xcc_grenadeElementGenDescId2(in.ReadLong())
-, xd0_grenadeElementGenDescId3(in.ReadLong())
-, xd4_grenadeElementGenDescId4(in.ReadLong())
-, xd8_grenadeVelocityInfo(in)
-, xe0_grenadeTrajectoryInfo(in)
-, xf0_grenadeNumBounces(in.ReadLong())
-, xf4_grenadeBounceSfxId(CSfxManager::TranslateSFXID(in.ReadLong()))
-, xf6_grenadeExplodeSfxId(CSfxManager::TranslateSFXID(in.ReadLong()))
-, xf8_shockwaveParticleDescId(in.ReadLong())
-, xfc_shockwaveDamageInfo(in)
-, x118_shockwaveWeaponDescId(in.ReadLong())
-, x11c_shockwaveElectrocuteSfxId(CSfxManager::TranslateSFXID(in.ReadLong()))
-, x11e_canCallForBackup(in.ReadBool())
-, x11f_fastWhenAttractingEnergy(propCount >= 42 ? in.ReadBool() : true) {}
+, mAttackChance(in.ReadFloat())
+, mShotAtTime(in.ReadFloat())
+, mShotAtTimeVariance(in.ReadFloat())
+, mProjectileAttractionRadius(in.ReadFloat())
+, mEnergyAbsorbParticleDescId(in.ReadLong())
+, mEnergyAbsorbSfxId(CSfxManager::TranslateSFXID(in.ReadLong()))
+, mLauncherActParams(LoadActorParameters(in))
+, mLauncherAnimParams(LoadAnimationParameters(in))
+, mLauncherParticleGenDescId(in.ReadLong())
+, mLauncherSfxId(CSfxManager::TranslateSFXID(in.ReadLong()))
+, mGrenadeModelId(in.ReadLong())
+, mGrenadeDamageInfo(in)
+, mLauncherHp(in.ReadFloat())
+, mGrenadeElementGenDescId1(in.ReadLong())
+, mGrenadeElementGenDescId2(in.ReadLong())
+, mGrenadeElementGenDescId3(in.ReadLong())
+, mGrenadeElementGenDescId4(in.ReadLong())
+, mGrenadeVelocityInfo(in)
+, mGrenadeTrajectoryInfo(in)
+, mGrenadeNumBounces(in.ReadLong())
+, mGrenadeBounceSfxId(CSfxManager::TranslateSFXID(in.ReadLong()))
+, mGrenadeExplodeSfxId(CSfxManager::TranslateSFXID(in.ReadLong()))
+, mShockwaveParticleDescId(in.ReadLong())
+, mShockwaveDamageInfo(in)
+, mShockwaveWeaponDescId(in.ReadLong())
+, mShockwaveElectrocuteSfxId(CSfxManager::TranslateSFXID(in.ReadLong()))
+, mCanCallForBackup(in.ReadBool())
+, mFastWhenAttractingEnergy(propCount >= 42 ? in.ReadBool() : true) {}
 
 CElitePirate::CElitePirate(TUniqueId uid, const rstl::string& name, const CEntityInfo& info,
                            const CTransform4f& xf, const CModelData& mData,
@@ -88,46 +88,46 @@ CElitePirate::CElitePirate(TUniqueId uid, const rstl::string& name, const CEntit
                            const CElitePirateData& data)
 : CPatterned(kC_ElitePirate, uid, name, kFT_Zero, info, xf, mData, pInfo, kMT_Ground, kCT_One,
              kBT_BiPedal, actParms, kCS_Large)
-, x568_state(kState_Invalid)
-, x56c_vulnerability(pInfo.GetDamageVulnerability())
-, x5d4_collisionActorMgr(nullptr)
-, x5d8_data(data)
-, x6f8_boneTracking(*GetAnimationData(), rstl::string_l("Head_1"), 80.f * M_PIF / 180.f,
+, mState(kState_Invalid)
+, mVulnerability(pInfo.GetDamageVulnerability())
+, mCollisionActorMgr(nullptr)
+, mData(data)
+, mBoneTracking(*GetAnimationData(), rstl::string_l("Head_1"), 80.f * M_PIF / 180.f,
                     CRelAngle::FromDegrees(180.f).AsRadians(), kBTF_None)
-, x730_collisionActorMgrHead(nullptr)
-, x738_collisionAabb(GetBoundingBox(), GetMaterialList())
-, x760_energyAbsorbDesc(data.GetEnergyAbsorbParticleDescId() != kInvalidAssetId
+, mCollisionActorMgrHead(nullptr)
+, mCollisionAabb(GetBoundingBox(), GetMaterialList())
+, mEnergyAbsorbDesc(data.GetEnergyAbsorbParticleDescId() != kInvalidAssetId
                             ? rstl::optional_object< TLockedToken< CGenDescription > >(
                                   TLockedToken< CGenDescription >(gpSimplePool->GetObj(
                                       SObjectTag('PART', data.GetEnergyAbsorbParticleDescId()))))
                             : rstl::optional_object< TLockedToken< CGenDescription > >())
-, x770_collisionHeadId(kInvalidUniqueId)
-, x772_launcherId(kInvalidUniqueId)
-, x79c_energyAttractorId(kInvalidUniqueId)
-, x7a0_initialSpeed(x3b4_speed)
-, x7a4_steeringSpeed(1.f)
-, x7a8_pathShaggedTime(0.f)
-, x7ac_energyAbsorbCooldown(0.f)
+, mCollisionHeadId(kInvalidUniqueId)
+, mLauncherId(kInvalidUniqueId)
+, mEnergyAttractorId(kInvalidUniqueId)
+, mInitialSpeed(mSpeed)
+, mSteeringSpeed(1.f)
+, mPathShaggedTime(0.f)
+, mEnergyAbsorbCooldown(0.f)
 , x7b0_(1.f)
-, x7b4_hp(0.f)
-, x7b8_attackTimer(0.f)
-, x7bc_tauntTimer(0.f)
-, x7c0_shotAtTimer(0.f)
-, x7c4_absorbUpdateTimer(0.f)
-, x7c8_currAnimId(-1)
-, x7cc_activeMaterialSet(0)
-, x7d0_pathFindSearch(nullptr, 1, pInfo.GetPathfindingIndex(), 1.f, 1.f)
-, x8b4_targetDestPos(CVector3f::Zero())
-, x8c0_positionHistory(5.f)
-, x988_24_damageOn(false)
-, x988_25_attackingRightClaw(false)
-, x988_26_attackingLeftClaw(false)
-, x988_27_shotAt(false)
-, x988_28_alert(false)
-, x988_29_shockWaveAnim(false)
-, x988_30_calledForBackup(false)
-, x988_31_running(false)
-, x989_24_onPath(false) {
+, mHp(0.f)
+, mAttackTimer(0.f)
+, mTauntTimer(0.f)
+, mShotAtTimer(0.f)
+, mAbsorbUpdateTimer(0.f)
+, mCurrAnimId(-1)
+, mActiveMaterialSet(0)
+, mPathFindSearch(nullptr, 1, pInfo.GetPathfindingIndex(), 1.f, 1.f)
+, mTargetDestPos(CVector3f::Zero())
+, mPositionHistory(5.f)
+, mDamageOn(false)
+, mAttackingRightClaw(false)
+, mAttackingLeftClaw(false)
+, mShotAt(false)
+, mAlert(false)
+, mShockWaveAnim(false)
+, mCalledForBackup(false)
+, mRunning(false)
+, mOnPath(false) {
   KnockBackCtrl().SetEnableFreeze(false);
   KnockBackCtrl().SetX82_24(false);
   KnockBackCtrl().SetEnableBurnDeath(false);
@@ -143,21 +143,21 @@ ENTITY_ACCEPT_IMPL(CElitePirate)
 void CElitePirate::Think(float dt, CStateManager& mgr) {
   if (GetActive()) {
     CPatterned::Think(dt, mgr);
-    x6f8_boneTracking.Update(dt);
+    mBoneTracking.Update(dt);
     if (IsUsingBaseCollisionActors()) {
-      x730_collisionActorMgrHead->Update(dt, mgr, CCollisionActorManager::kUO_ObjectSpace);
+      mCollisionActorMgrHead->Update(dt, mgr, CCollisionActorManager::kUO_ObjectSpace);
     }
-    x5d4_collisionActorMgr->Update(dt, mgr, CCollisionActorManager::kUO_ObjectSpace);
-    if (IsShieldActive() && x5d8_data.IsFastWhenAttractingEnergy()) {
-      x3b4_speed = 2.f * x7a0_initialSpeed;
+    mCollisionActorMgr->Update(dt, mgr, CCollisionActorManager::kUO_ObjectSpace);
+    if (IsShieldActive() && mData.IsFastWhenAttractingEnergy()) {
+      mSpeed = 2.f * mInitialSpeed;
     } else {
-      x3b4_speed = x7a0_initialSpeed;
+      mSpeed = mInitialSpeed;
     }
     UpdateAILogicTimers(dt);
     UpdateBreadCrumbTrail();
-    UpdateGrenadeLauncher(mgr, x772_launcherId, rstl::string_l(skpLauncherLCTR));
+    UpdateGrenadeLauncher(mgr, mLauncherId, rstl::string_l(skpLauncherLCTR));
     UpdateHealthInfo(mgr);
-    x328_31_energyAttractor = IsShieldActive();
+    mEnergyAttractor = IsShieldActive();
   }
 }
 
@@ -165,51 +165,51 @@ void CElitePirate::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
   bool shouldPass = true;
   switch (msg) {
   case kSM_Registered: {
-    x450_bodyController->Activate(mgr);
+    mBodyController->Activate(mgr);
     SetupCollisionManager(mgr);
-    x772_launcherId = mgr.AllocateUniqueId();
-    CreateGrenadeLauncher(mgr, x772_launcherId);
-    const float maxSpeed = x450_bodyController->GetBodyStateInfo().GetMaxSpeed();
+    mLauncherId = mgr.AllocateUniqueId();
+    CreateGrenadeLauncher(mgr, mLauncherId);
+    const float maxSpeed = mBodyController->GetBodyStateInfo().GetMaxSpeed();
     if (maxSpeed > 0.f) {
-      x7a4_steeringSpeed =
-          (0.99f * x450_bodyController->GetBodyStateInfo().GetLocomotionSpeed(pas::kLA_Walk)) /
+      mSteeringSpeed =
+          (0.99f * mBodyController->GetBodyStateInfo().GetLocomotionSpeed(pas::kLA_Walk)) /
           maxSpeed;
     }
-    x450_bodyController->CommandMgr().SetSteeringBlendMode(kSBM_FullSpeed);
-    x450_bodyController->CommandMgr().SetSteeringSpeedRange(x7a4_steeringSpeed, x7a4_steeringSpeed);
+    mBodyController->CommandMgr().SetSteeringBlendMode(kSBM_FullSpeed);
+    mBodyController->CommandMgr().SetSteeringSpeedRange(mSteeringSpeed, mSteeringSpeed);
     break;
   }
   case kSM_Activate:
     if (IsUsingBaseCollisionActors()) {
-      x730_collisionActorMgrHead->SetActive(mgr, true);
+      mCollisionActorMgrHead->SetActive(mgr, true);
     }
-    if (CEntity* entity = mgr.ObjectById(x772_launcherId)) {
+    if (CEntity* entity = mgr.ObjectById(mLauncherId)) {
       entity->SetActive(true);
     }
     break;
   case kSM_Deactivate:
     if (IsUsingBaseCollisionActors()) {
-      x730_collisionActorMgrHead->SetActive(mgr, false);
+      mCollisionActorMgrHead->SetActive(mgr, false);
     }
-    x5d4_collisionActorMgr->SetActive(mgr, false);
-    if (CEntity* entity = mgr.ObjectById(x772_launcherId)) {
+    mCollisionActorMgr->SetActive(mgr, false);
+    if (CEntity* entity = mgr.ObjectById(mLauncherId)) {
       entity->SetActive(false);
     }
     break;
   case kSM_Deleted:
     if (IsUsingBaseCollisionActors()) {
-      x730_collisionActorMgrHead->Destroy(mgr);
+      mCollisionActorMgrHead->Destroy(mgr);
     }
-    x5d4_collisionActorMgr->Destroy(mgr);
-    mgr.DeleteObjectRequest(x772_launcherId);
+    mCollisionActorMgr->Destroy(mgr);
+    mgr.DeleteObjectRequest(mLauncherId);
     break;
   case kSM_Alert:
-    x988_28_alert = true;
+    mAlert = true;
     break;
   case kSM_InitializedInArea: {
     const TAreaId areaId = GetCurrentAreaId();
-    x7d0_pathFindSearch.SetArea(
-        mgr.GetWorld()->GetAreaAlways(areaId).GetPostConstructed()->x10bc_pathArea);
+    mPathFindSearch.SetArea(
+        mgr.GetWorld()->GetAreaAlways(areaId).GetPostConstructed()->mPathArea);
     break;
   }
   case kSM_Touched: {
@@ -220,29 +220,29 @@ void CElitePirate::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
     if (actor) {
       const TUniqueId touchedUid = actor->GetLastTouchedObject();
       if (touchedUid == mgr.GetPlayer()->GetUniqueId()) {
-        if (x988_24_damageOn) {
-          if ((x988_25_attackingRightClaw && IsArmClawCollider(uid, x774_collisionRJointIds)) ||
-              (x988_26_attackingLeftClaw && IsArmClawCollider(uid, x788_collisionLJointIds))) {
+        if (mDamageOn) {
+          if ((mAttackingRightClaw && IsArmClawCollider(uid, mCollisionRJointIds)) ||
+              (mAttackingLeftClaw && IsArmClawCollider(uid, mCollisionLJointIds))) {
             mgr.ApplyDamage(
                 GetUniqueId(), mgr.GetPlayer()->GetUniqueId(), GetUniqueId(), GetContactDamage(),
                 CMaterialFilter::MakeIncludeExclude(CMaterialList(kMT_Solid), CMaterialList()),
                 CVector3f::Zero());
-            x420_curDamageRemTime = x424_damageWaitTime;
-            x988_24_damageOn = false;
+            mCurDamageRemTime = mDamageWaitTime;
+            mDamageOn = false;
           }
-        } else if (x420_curDamageRemTime <= 0.f) {
+        } else if (mCurDamageRemTime <= 0.f) {
           CDamageInfo info = GetContactDamage();
           info.SetDamage(0.5f * info.GetDamage());
           mgr.ApplyDamage(
               GetUniqueId(), mgr.GetPlayer()->GetUniqueId(), GetUniqueId(), info,
               CMaterialFilter::MakeIncludeExclude(CMaterialList(kMT_Solid), CMaterialList()),
               CVector3f::Zero());
-          x420_curDamageRemTime = x424_damageWaitTime;
+          mCurDamageRemTime = mDamageWaitTime;
         }
       } else if (TCastToConstPtr< CGameProjectile >(mgr.GetObjectById(touchedUid))) {
         SetShotAt(true, mgr);
       }
-    } else if (uid == x772_launcherId && x772_launcherId != kInvalidUniqueId) {
+    } else if (uid == mLauncherId && mLauncherId != kInvalidUniqueId) {
       SetShotAt(true, mgr);
     }
     break;
@@ -254,18 +254,18 @@ void CElitePirate::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
       const TUniqueId touchedUid = actor->GetLastTouchedObject();
       if (const CGameProjectile* projectile =
               TCastToConstPtr< CGameProjectile >(mgr.GetObjectById(touchedUid))) {
-        if (uid == x770_collisionHeadId) {
-          x428_damageCooldownTimer = skDamageHitTime;
+        if (uid == mCollisionHeadId) {
+          mDamageCooldownTimer = skDamageHitTime;
           KnockBack(projectile->GetVelocity(), mgr, projectile->GetCurrentDamageInfo(),
                     projectile->GetCurrentDamageInfo().GetKnockBackPower(), true, false);
           CPatterned::AcceptScriptMsg(msg, touchedUid, mgr);
-        } else if (uid == x79c_energyAttractorId && x760_energyAbsorbDesc) {
+        } else if (uid == mEnergyAttractorId && mEnergyAbsorbDesc) {
           StartAbsorbEnergyEffects(mgr, projectile->GetTransform());
         }
         SetShotAt(true, mgr);
       }
-    } else if (uid == x772_launcherId && x772_launcherId != kInvalidUniqueId) {
-      x450_bodyController->CommandMgr().DeliverCmd(
+    } else if (uid == mLauncherId && mLauncherId != kInvalidUniqueId) {
+      mBodyController->CommandMgr().DeliverCmd(
           CBCKnockBackCmd(GetTransform().GetForward(), pas::kS_Eight));
     } else {
       ReDirectDamage(mgr, uid);
@@ -287,11 +287,11 @@ void CElitePirate::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
 // TODO: The scale copy still misses a model-pointer reload; shader-set register allocation differs.
 void CElitePirate::PreRender(CStateManager& mgr, const CFrustumPlanes& frustum) {
   CPatterned::PreRender(mgr, frustum);
-  x6f8_boneTracking.PreRender(mgr, *AnimationData(), GetTransform(), ModelData()->ScaleCopy(),
-                              *x450_bodyController);
+  mBoneTracking.PreRender(mgr, *AnimationData(), GetTransform(), ModelData()->ScaleCopy(),
+                              *mBodyController);
   const int numSets = GetModelData()->GetNumMaterialSets();
   SetModelFlags(GetModelFlags().UseShaderSet(
-      rstl::min_val(static_cast< int >(x7cc_activeMaterialSet), numSets - 1)));
+      rstl::min_val(static_cast< int >(mActiveMaterialSet), numSets - 1)));
 }
 
 void CElitePirate::KnockBack(const CVector3f& dir, CStateManager& mgr, const CDamageInfo& info,
@@ -308,10 +308,10 @@ void CElitePirate::KnockBack(const CVector3f& dir, CStateManager& mgr, const CDa
 
 CVector3f CElitePirate::GetAimPosition(const CStateManager& mgr, float) const {
   const CPlayerState* playerState = mgr.GetPlayerState();
-  if (x5d4_collisionActorMgr->GetActive() && playerState->IsFiringComboBeam() &&
+  if (mCollisionActorMgr->GetActive() && playerState->IsFiringComboBeam() &&
       playerState->GetCurrentBeam() == CPlayerState::kBI_Wave) {
     if (const CCollisionActor* actor =
-            TCastToConstPtr< CCollisionActor >(mgr.GetObjectById(x79c_energyAttractorId))) {
+            TCastToConstPtr< CCollisionActor >(mgr.GetObjectById(mEnergyAttractorId))) {
       return actor->GetTranslation();
     }
   }
@@ -319,15 +319,15 @@ CVector3f CElitePirate::GetAimPosition(const CStateManager& mgr, float) const {
 }
 
 CVector3f CElitePirate::GetOrbitPosition(const CStateManager& mgr) const {
-  if (x772_launcherId != kInvalidUniqueId &&
+  if (mLauncherId != kInvalidUniqueId &&
       mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::kPV_Thermal) {
-    if (const CActor* actor = static_cast< const CActor* >(mgr.GetObjectById(x772_launcherId))) {
+    if (const CActor* actor = static_cast< const CActor* >(mgr.GetObjectById(mLauncherId))) {
       return GetGrenadeLaunchPos(*actor);
     }
   }
   if (IsUsingBaseCollisionActors()) {
     if (const CCollisionActor* actor =
-            TCastToConstPtr< CCollisionActor >(mgr.GetObjectById(x770_collisionHeadId))) {
+            TCastToConstPtr< CCollisionActor >(mgr.GetObjectById(mCollisionHeadId))) {
       return actor->GetTranslation();
     }
   }
@@ -350,8 +350,8 @@ void CElitePirate::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node
   bool handled = false;
   switch (type) {
   case kUE_Projectile:
-    if (x772_launcherId != kInvalidUniqueId) {
-      if (CEntity* launcher = mgr.ObjectById(x772_launcherId)) {
+    if (mLauncherId != kInvalidUniqueId) {
+      if (CEntity* launcher = mgr.ObjectById(mLauncherId)) {
         mgr.DeliverScriptMsg(launcher, GetUniqueId(), kSM_Action);
       }
     }
@@ -376,11 +376,11 @@ void CElitePirate::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node
     break;
   }
   case kUE_DamageOn:
-    x988_24_damageOn = true;
+    mDamageOn = true;
     handled = true;
     break;
   case kUE_DamageOff:
-    x988_24_damageOn = false;
+    mDamageOn = false;
     handled = true;
     break;
   case kUE_ScreenShake:
@@ -389,9 +389,9 @@ void CElitePirate::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node
     break;
   case kUE_BecomeShootThrough:
     if (IsUsingBaseCollisionActors()) {
-      for (uint i = 0; i < x730_collisionActorMgrHead->GetNumCollisionActors(); ++i) {
+      for (uint i = 0; i < mCollisionActorMgrHead->GetNumCollisionActors(); ++i) {
         const CJointCollisionDescription& desc =
-            x730_collisionActorMgrHead->GetCollisionDescFromIndex(i);
+            mCollisionActorMgrHead->GetCollisionDescFromIndex(i);
         const TUniqueId uid = desc.GetCollisionActorId();
         if (CCollisionActor* actor = TCastToPtr< CCollisionActor >(mgr.ObjectById(uid))) {
           actor->AddMaterial(kMT_ProjectilePassthrough, mgr);
@@ -407,14 +407,14 @@ void CElitePirate::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node
 }
 
 bool CElitePirate::SpotPlayer(CStateManager& mgr, float arg) {
-  if (x988_28_alert) {
+  if (mAlert) {
     return true;
   }
   return CPatterned::SpotPlayer(mgr, arg);
 }
 
 bool CElitePirate::InDetectionRange(CStateManager& mgr, float arg) {
-  if (x988_28_alert) {
+  if (mAlert) {
     return true;
   }
   return CPatterned::InDetectionRange(mgr, arg);
@@ -426,24 +426,24 @@ bool CElitePirate::ShouldTurn(CStateManager& mgr, float) {
   return CVector2f::GetAngleDiff(forward, dist) > CRelAngle::FromDegrees(15.f).AsRadians();
 }
 
-bool CElitePirate::ShouldTaunt(CStateManager&, float) { return x7bc_tauntTimer <= 0.f; }
+bool CElitePirate::ShouldTaunt(CStateManager&, float) { return mTauntTimer <= 0.f; }
 
 bool CElitePirate::ShouldFire(CStateManager& mgr, float) {
-  return ShouldFireLauncher(mgr, x772_launcherId);
+  return ShouldFireLauncher(mgr, mLauncherId);
 }
 
 bool CElitePirate::ShouldFireLauncher(CStateManager& mgr, const TUniqueId uid) {
-  if (x7b8_attackTimer <= 0.f && uid != kInvalidUniqueId) {
+  if (mAttackTimer <= 0.f && uid != kInvalidUniqueId) {
     if (const CActor* actor = static_cast< const CActor* >(mgr.GetObjectById(uid))) {
       const CVector3f aim = mgr.GetPlayer()->GetAimPosition(mgr, 0.f);
       const CVector3f delta = aim - GetTranslation();
-      if (delta.MagSquared() >= x300_maxAttackRange * x300_maxAttackRange &&
+      if (delta.MagSquared() >= mMaxAttackRange * mMaxAttackRange &&
           !ShouldTurn(mgr, 0.f)) {
         const CVector3f origin = GetGrenadeLaunchPos(*actor);
         if (!IsPatternObstructed(mgr, origin, aim)) {
-          float angle = x5d8_data.GetGrenadeTrajectoryInfo().GetAngleMin();
-          float velocity = x5d8_data.GetGrenadeTrajectoryInfo().GetVelocityMin();
-          const CEPGrenadeLaunchParms& launchInfo = x5d8_data.GetGrenadeTrajectoryInfo();
+          float angle = mData.GetGrenadeTrajectoryInfo().GetAngleMin();
+          float velocity = mData.GetGrenadeTrajectoryInfo().GetVelocityMin();
+          const CEPGrenadeLaunchParms& launchInfo = mData.GetGrenadeTrajectoryInfo();
           const CEPGrenadeLaunchParms parms(launchInfo.GetVelocityMin(),
                                             launchInfo.GetVelocityMax(), launchInfo.GetAngleMin(),
                                             launchInfo.GetAngleMax());
@@ -461,19 +461,19 @@ bool CElitePirate::ShouldFireLauncher(CStateManager& mgr, const TUniqueId uid) {
 
 bool CElitePirate::ShouldAttack(CStateManager& mgr, float) {
   const CVector3f dist = mgr.GetPlayer()->GetTranslation() - GetTranslation();
-  if (dist.MagSquared() <= x2fc_minAttackRange * x2fc_minAttackRange) {
+  if (dist.MagSquared() <= mMinAttackRange * mMinAttackRange) {
     return !ShouldTurn(mgr, 0.f);
   }
   return false;
 }
 
 bool CElitePirate::ShouldSpecialAttack(CStateManager& mgr, float) {
-  if (x7b8_attackTimer <= 0.f && GetCurrentAreaId() == mgr.GetPlayer()->GetCurrentAreaId()) {
+  if (mAttackTimer <= 0.f && GetCurrentAreaId() == mgr.GetPlayer()->GetCurrentAreaId()) {
     const CVector3f aimPos = mgr.GetPlayer()->GetAimPosition(mgr, 0.f);
     const CVector3f dist = aimPos - GetTranslation();
     const float magSquared = dist.MagSquared();
-    if (magSquared >= x2fc_minAttackRange * x2fc_minAttackRange &&
-        magSquared <= x300_maxAttackRange * x300_maxAttackRange) {
+    if (magSquared >= mMinAttackRange * mMinAttackRange &&
+        magSquared <= mMaxAttackRange * mMaxAttackRange) {
       return CMath::AbsF(dist.GetZ()) < 3.f;
     }
   }
@@ -481,49 +481,49 @@ bool CElitePirate::ShouldSpecialAttack(CStateManager& mgr, float) {
 }
 
 bool CElitePirate::ShouldCallForBackup(CStateManager& mgr, float arg) {
-  return ShouldCallForBackupForLauncher(mgr, arg, x772_launcherId);
+  return ShouldCallForBackupForLauncher(mgr, arg, mLauncherId);
 }
 
 bool CElitePirate::ShouldCallForBackupForLauncher(CStateManager&, float, TUniqueId uid) const {
-  if (!x988_30_calledForBackup && uid == kInvalidUniqueId && x5d8_data.CanCallForBackup()) {
-    return x7a8_pathShaggedTime >= 3.f;
+  if (!mCalledForBackup && uid == kInvalidUniqueId && mData.CanCallForBackup()) {
+    return mPathShaggedTime >= 3.f;
   }
   return false;
 }
 
-bool CElitePirate::ShotAt(CStateManager&, float) { return x988_27_shotAt; }
+bool CElitePirate::ShotAt(CStateManager&, float) { return mShotAt; }
 
 bool CElitePirate::InPosition(CStateManager&, float) {
-  const CVector3f dist = x8b4_targetDestPos - GetTranslation();
+  const CVector3f dist = mTargetDestPos - GetTranslation();
   return dist.MagSquared() < 25.f;
 }
 
 bool CElitePirate::TooClose(CStateManager& mgr, float) {
   const CVector3f dist = GetTranslation() - mgr.GetPlayer()->GetTranslation();
-  return dist.MagSquared() < x2fc_minAttackRange * x2fc_minAttackRange;
+  return dist.MagSquared() < mMinAttackRange * mMinAttackRange;
 }
 
 bool CElitePirate::AggressionCheck(CStateManager& mgr, float arg) {
-  if (x772_launcherId == kInvalidUniqueId && !PathShagged(mgr, arg)) {
-    if (!x988_31_running) {
+  if (mLauncherId == kInvalidUniqueId && !PathShagged(mgr, arg)) {
+    if (!mRunning) {
       const CVector3f dist = mgr.GetPlayer()->GetTranslation() - GetTranslation();
-      return dist.MagSquared() > 4.f * x300_maxAttackRange * x300_maxAttackRange;
+      return dist.MagSquared() > 4.f * mMaxAttackRange * mMaxAttackRange;
     }
     return true;
   }
   return false;
 }
 
-bool CElitePirate::AnimOver(CStateManager&, float) { return x568_state == kState_Over; }
+bool CElitePirate::AnimOver(CStateManager&, float) { return mState == kState_Over; }
 
 void CElitePirate::Run(CStateManager& mgr, EStateMsg msg, float dt) {
   switch (msg) {
   case kStateMsg_Activate:
-    x988_31_running = true;
-    x450_bodyController->SetLocomotionType(pas::kLT_Relaxed);
-    x450_bodyController->CommandMgr().SetSteeringSpeedRange(1.f, 1.f);
-    x6f8_boneTracking.SetTarget(mgr.GetPlayer()->GetUniqueId());
-    x6f8_boneTracking.SetActive(true);
+    mRunning = true;
+    mBodyController->SetLocomotionType(pas::kLT_Relaxed);
+    mBodyController->CommandMgr().SetSteeringSpeedRange(1.f, 1.f);
+    mBoneTracking.SetTarget(mgr.GetPlayer()->GetUniqueId());
+    mBoneTracking.SetActive(true);
     UpdatePathDestination(mgr);
     CPatterned::PathFind(mgr, msg, dt);
     break;
@@ -532,25 +532,25 @@ void CElitePirate::Run(CStateManager& mgr, EStateMsg msg, float dt) {
       CPatterned::PathFind(mgr, msg, dt);
     } else {
       const CVector3f move =
-          x8c0_positionHistory.GetValue(GetTranslation(), GetTransform().GetForward());
+          mPositionHistory.GetValue(GetTranslation(), GetTransform().GetForward());
       if (move.IsNonZero()) {
-        x450_bodyController->CommandMgr().DeliverCmd(
+        mBodyController->CommandMgr().DeliverCmd(
             CBCLocomotionCmd(move, CVector3f::Zero(), 1.f));
       } else if (ShouldTurn(mgr, 0.f)) {
         const CVector3f aim =
             mgr.GetPlayer()->GetAimPosition(mgr, 0.5f * GetAnimationData()->GetPlaybackRate());
         const CVector3f face = aim - GetTranslation();
         if (face.CanBeNormalized()) {
-          x450_bodyController->CommandMgr().DeliverCmd(
+          mBodyController->CommandMgr().DeliverCmd(
               CBCLocomotionCmd(CVector3f::Zero(), face.AsNormalized(), 1.f));
         }
       }
     }
     break;
   case kStateMsg_Deactivate:
-    x988_31_running = false;
-    x6f8_boneTracking.SetActive(false);
-    x450_bodyController->CommandMgr().SetSteeringSpeedRange(x7a4_steeringSpeed, x7a4_steeringSpeed);
+    mRunning = false;
+    mBoneTracking.SetActive(false);
+    mBodyController->CommandMgr().SetSteeringSpeedRange(mSteeringSpeed, mSteeringSpeed);
     break;
   }
 }
@@ -558,8 +558,8 @@ void CElitePirate::Run(CStateManager& mgr, EStateMsg msg, float dt) {
 void CElitePirate::Halt(CStateManager& mgr, EStateMsg msg, float) {
   switch (msg) {
   case kStateMsg_Activate: {
-    x450_bodyController->SetLocomotionType(pas::kLT_Lurk);
-    x989_24_onPath = false;
+    mBodyController->SetLocomotionType(pas::kLT_Lurk);
+    mOnPath = false;
     CMaterialFilter filter = GetMaterialFilter();
     filter.ExcludeList().Add(CMaterialList(kMT_Wall, kMT_Ceiling, kMT_AIBlock, kMT_Character));
     SetMaterialFilter(filter);
@@ -577,30 +577,30 @@ void CElitePirate::Halt(CStateManager& mgr, EStateMsg msg, float) {
 void CElitePirate::PathFind(CStateManager& mgr, EStateMsg msg, float dt) {
   switch (msg) {
   case kStateMsg_Activate:
-    x989_24_onPath = true;
-    x988_28_alert = false;
-    x450_bodyController->SetLocomotionType(pas::kLT_Relaxed);
-    x6f8_boneTracking.SetTarget(mgr.GetPlayer()->GetUniqueId());
-    x6f8_boneTracking.SetActive(true);
+    mOnPath = true;
+    mAlert = false;
+    mBodyController->SetLocomotionType(pas::kLT_Relaxed);
+    mBoneTracking.SetTarget(mgr.GetPlayer()->GetUniqueId());
+    mBoneTracking.SetActive(true);
     UpdatePathDestination(mgr);
     CPatterned::PathFind(mgr, msg, dt);
-    x7bc_tauntTimer =
-        mgr.Random()->Float() * x5d8_data.GetTauntVariance() + x5d8_data.GetTauntInterval();
+    mTauntTimer =
+        mgr.Random()->Float() * mData.GetTauntVariance() + mData.GetTauntInterval();
     if (TooClose(mgr, 0.f)) {
-      x450_bodyController->CommandMgr().ClearLocomotionCmds();
+      mBodyController->CommandMgr().ClearLocomotionCmds();
     }
     break;
   case kStateMsg_Update:
-    if (x7bc_tauntTimer > 0.f) {
-      x7bc_tauntTimer -= dt;
+    if (mTauntTimer > 0.f) {
+      mTauntTimer -= dt;
     }
     if (!TooClose(mgr, 0.f) && !PathShagged(mgr, 0.f)) {
       CPatterned::PathFind(mgr, msg, dt);
     } else if (PathShagged(mgr, 0.f)) {
       const CVector3f move =
-          x8c0_positionHistory.GetValue(GetTranslation(), GetTransform().GetForward());
+          mPositionHistory.GetValue(GetTranslation(), GetTransform().GetForward());
       if (move.IsNonZero()) {
-        x450_bodyController->CommandMgr().DeliverCmd(
+        mBodyController->CommandMgr().DeliverCmd(
             CBCLocomotionCmd(move, CVector3f::Zero(), 1.f));
       }
     } else if (ShouldTurn(mgr, 0.f)) {
@@ -608,13 +608,13 @@ void CElitePirate::PathFind(CStateManager& mgr, EStateMsg msg, float dt) {
           mgr, 0.5f * GetModelData()->GetAnimationData()->GetPlaybackRate());
       const CVector3f face = aim - GetTranslation();
       if (face.CanBeNormalized()) {
-        x450_bodyController->CommandMgr().DeliverCmd(
+        mBodyController->CommandMgr().DeliverCmd(
             CBCLocomotionCmd(CVector3f::Zero(), face.AsNormalized(), 1.f));
       }
     }
     break;
   case kStateMsg_Deactivate:
-    x6f8_boneTracking.SetActive(false);
+    mBoneTracking.SetActive(false);
     break;
   }
 }
@@ -622,22 +622,22 @@ void CElitePirate::PathFind(CStateManager& mgr, EStateMsg msg, float dt) {
 void CElitePirate::Taunt(CStateManager& mgr, EStateMsg msg, float) {
   switch (msg) {
   case kStateMsg_Activate:
-    x568_state = kState_Zero;
+    mState = kState_Zero;
     break;
   case kStateMsg_Update:
-    switch (x568_state) {
+    switch (mState) {
     case kState_Zero:
-      if (x450_bodyController->GetCurrentStateId() == pas::kAS_Taunt) {
-        x568_state = kState_Two;
+      if (mBodyController->GetCurrentStateId() == pas::kAS_Taunt) {
+        mState = kState_Two;
       } else {
-        x450_bodyController->CommandMgr().DeliverCmd(CBCTauntCmd(pas::kTT_Zero));
+        mBodyController->CommandMgr().DeliverCmd(CBCTauntCmd(pas::kTT_Zero));
       }
       break;
     case kState_Two:
-      if (x450_bodyController->GetCurrentStateId() != pas::kAS_Taunt) {
-        x568_state = kState_Over;
+      if (mBodyController->GetCurrentStateId() != pas::kAS_Taunt) {
+        mState = kState_Over;
       } else {
-        x450_bodyController->CommandMgr().DeliverTargetVector(mgr.GetPlayer()->GetTranslation() -
+        mBodyController->CommandMgr().DeliverTargetVector(mgr.GetPlayer()->GetTranslation() -
                                                               GetTranslation());
       }
       break;
@@ -649,14 +649,14 @@ void CElitePirate::Taunt(CStateManager& mgr, EStateMsg msg, float) {
 void CElitePirate::TargetPatrol(CStateManager& mgr, EStateMsg msg, float dt) {
   switch (msg) {
   case kStateMsg_Activate:
-    x450_bodyController->SetLocomotionType(pas::kLT_Relaxed);
+    mBodyController->SetLocomotionType(pas::kLT_Relaxed);
     if (HasPatrolPath(mgr, 0.f)) {
       CPatterned::Patrol(mgr, msg, dt);
       UpdateDest(mgr);
     } else {
-      SetDestPos(x3a0_latestLeashPosition);
+      SetDestPos(mLatestLeashPosition);
     }
-    x8b4_targetDestPos = x2e0_destPos;
+    mTargetDestPos = mDestPos;
     if (GetSearchPath()) {
       CPatterned::PathFind(mgr, msg, dt);
     }
@@ -665,12 +665,12 @@ void CElitePirate::TargetPatrol(CStateManager& mgr, EStateMsg msg, float dt) {
     if (!PathShagged(mgr, 0.f)) {
       CPatterned::PathFind(mgr, msg, dt);
     } else {
-      x450_bodyController->CommandMgr().DeliverCmd(CBCLocomotionCmd(
-          x45c_steeringBehaviors.Arrival(*this, x8b4_targetDestPos, 25.f), CVector3f::Zero(), 1.f));
+      mBodyController->CommandMgr().DeliverCmd(CBCLocomotionCmd(
+          mSteeringBehaviors.Arrival(*this, mTargetDestPos, 25.f), CVector3f::Zero(), 1.f));
     }
     break;
   case kStateMsg_Deactivate:
-    x988_28_alert = false;
+    mAlert = false;
     break;
   }
 }
@@ -678,9 +678,9 @@ void CElitePirate::TargetPatrol(CStateManager& mgr, EStateMsg msg, float dt) {
 void CElitePirate::Patrol(CStateManager& mgr, EStateMsg msg, float dt) {
   switch (msg) {
   case kStateMsg_Activate:
-    x450_bodyController->SetLocomotionType(pas::kLT_Relaxed);
-    x400_24_hitByPlayerProjectile = false;
-    x989_24_onPath = false;
+    mBodyController->SetLocomotionType(pas::kLT_Relaxed);
+    mHitByPlayerProjectile = false;
+    mOnPath = false;
     break;
   }
   CPatterned::Patrol(mgr, msg, dt);
@@ -689,31 +689,31 @@ void CElitePirate::Patrol(CStateManager& mgr, EStateMsg msg, float dt) {
 void CElitePirate::Generate(CStateManager& mgr, EStateMsg msg, float) {
   switch (msg) {
   case kStateMsg_Activate:
-    x568_state = kState_One;
+    mState = kState_One;
     break;
   case kStateMsg_Update:
-    switch (x568_state) {
+    switch (mState) {
     case kState_One:
       if (ShouldTurn(mgr, 0.f)) {
         const CVector3f face = mgr.GetPlayer()->GetTranslation() - GetTranslation();
         if (face.CanBeNormalized()) {
-          x450_bodyController->CommandMgr().DeliverCmd(
+          mBodyController->CommandMgr().DeliverCmd(
               CBCLocomotionCmd(CVector3f::Zero(), face.AsNormalized(), 1.f));
         }
       } else {
-        x568_state = kState_Zero;
+        mState = kState_Zero;
       }
       break;
     case kState_Zero:
-      if (x450_bodyController->GetCurrentStateId() == pas::kAS_Generate) {
-        x568_state = kState_Two;
+      if (mBodyController->GetCurrentStateId() == pas::kAS_Generate) {
+        mState = kState_Two;
       } else {
-        x450_bodyController->CommandMgr().DeliverCmd(CBCGenerateCmd(pas::kGType_Zero, -1));
+        mBodyController->CommandMgr().DeliverCmd(CBCGenerateCmd(pas::kGType_Zero, -1));
       }
       break;
     case kState_Two:
-      if (x450_bodyController->GetCurrentStateId() != pas::kAS_Generate) {
-        x568_state = kState_Over;
+      if (mBodyController->GetCurrentStateId() != pas::kAS_Generate) {
+        mState = kState_Over;
       }
       break;
     }
@@ -728,24 +728,24 @@ void CElitePirate::Generate(CStateManager& mgr, EStateMsg msg, float) {
 void CElitePirate::ProjectileAttack(CStateManager& mgr, EStateMsg msg, float) {
   switch (msg) {
   case kStateMsg_Activate:
-    x568_state = kState_Zero;
+    mState = kState_Zero;
     break;
   case kStateMsg_Update: {
     const CVector3f playerPos = mgr.GetPlayer()->GetTranslation();
-    switch (x568_state) {
+    switch (mState) {
     case kState_Zero:
-      if (x450_bodyController->GetCurrentStateId() == pas::kAS_ProjectileAttack) {
-        x568_state = kState_Two;
+      if (mBodyController->GetCurrentStateId() == pas::kAS_ProjectileAttack) {
+        mState = kState_Two;
       } else {
-        x450_bodyController->CommandMgr().DeliverCmd(
+        mBodyController->CommandMgr().DeliverCmd(
             CBCProjectileAttackCmd(pas::kS_One, playerPos, false));
       }
       break;
     case kState_Two:
-      if (x450_bodyController->GetCurrentStateId() != pas::kAS_ProjectileAttack) {
-        x568_state = kState_Over;
+      if (mBodyController->GetCurrentStateId() != pas::kAS_ProjectileAttack) {
+        mState = kState_Over;
       } else {
-        x450_bodyController->CommandMgr().DeliverTargetVector(playerPos - GetTranslation());
+        mBodyController->CommandMgr().DeliverTargetVector(playerPos - GetTranslation());
       }
       break;
     }
@@ -760,25 +760,25 @@ void CElitePirate::ProjectileAttack(CStateManager& mgr, EStateMsg msg, float) {
 void CElitePirate::SpecialAttack(CStateManager& mgr, EStateMsg msg, float) {
   switch (msg) {
   case kStateMsg_Activate:
-    x568_state = kState_Zero;
+    mState = kState_Zero;
     break;
   case kStateMsg_Update: {
     const CVector3f playerPos = mgr.GetPlayer()->GetTranslation();
-    switch (x568_state) {
+    switch (mState) {
     case kState_Zero:
-      if (x450_bodyController->GetCurrentStateId() == pas::kAS_ProjectileAttack) {
-        x568_state = kState_Two;
-        x988_29_shockWaveAnim = true;
+      if (mBodyController->GetCurrentStateId() == pas::kAS_ProjectileAttack) {
+        mState = kState_Two;
+        mShockWaveAnim = true;
       } else {
-        x450_bodyController->CommandMgr().DeliverCmd(
+        mBodyController->CommandMgr().DeliverCmd(
             CBCProjectileAttackCmd(pas::kS_Two, playerPos, false));
       }
       break;
     case kState_Two:
-      if (x450_bodyController->GetCurrentStateId() != pas::kAS_ProjectileAttack) {
-        x568_state = kState_Over;
+      if (mBodyController->GetCurrentStateId() != pas::kAS_ProjectileAttack) {
+        mState = kState_Over;
       } else {
-        x450_bodyController->CommandMgr().DeliverTargetVector(playerPos - GetTranslation());
+        mBodyController->CommandMgr().DeliverTargetVector(playerPos - GetTranslation());
       }
       break;
     }
@@ -786,7 +786,7 @@ void CElitePirate::SpecialAttack(CStateManager& mgr, EStateMsg msg, float) {
   }
   case kStateMsg_Deactivate:
     UpdateAttackTimeLeft(mgr);
-    x988_29_shockWaveAnim = false;
+    mShockWaveAnim = false;
     break;
   }
 }
@@ -794,45 +794,45 @@ void CElitePirate::SpecialAttack(CStateManager& mgr, EStateMsg msg, float) {
 void CElitePirate::Attack(CStateManager& mgr, EStateMsg msg, float) {
   switch (msg) {
   case kStateMsg_Activate:
-    x568_state = kState_Zero;
-    ExtendTouchBounds(mgr, x774_collisionRJointIds, skExtendedClawBounds);
+    mState = kState_Zero;
+    ExtendTouchBounds(mgr, mCollisionRJointIds, skExtendedClawBounds);
     if (GetModelData()->GetNumMaterialSets() > 1) {
-      x7cc_activeMaterialSet = 1;
+      mActiveMaterialSet = 1;
     }
     break;
   case kStateMsg_Update:
-    switch (x568_state) {
+    switch (mState) {
     case kState_Zero:
-      if (x450_bodyController->GetCurrentStateId() == pas::kAS_MeleeAttack) {
-        x568_state = kState_One;
-        x988_25_attackingRightClaw = true;
-        x7c8_currAnimId = x450_bodyController->GetCurrentAnimId();
+      if (mBodyController->GetCurrentStateId() == pas::kAS_MeleeAttack) {
+        mState = kState_One;
+        mAttackingRightClaw = true;
+        mCurrAnimId = mBodyController->GetCurrentAnimId();
       } else {
-        x450_bodyController->CommandMgr().DeliverCmd(CBCMeleeAttackCmd(pas::kS_One));
+        mBodyController->CommandMgr().DeliverCmd(CBCMeleeAttackCmd(pas::kS_One));
       }
       break;
     case kState_One:
-      if (x450_bodyController->GetCurrentStateId() != pas::kAS_MeleeAttack) {
-        x568_state = kState_Over;
-      } else if (x7c8_currAnimId != x450_bodyController->GetCurrentAnimId()) {
-        x568_state = kState_Two;
-        x988_25_attackingRightClaw = false;
-        x988_26_attackingLeftClaw = true;
-        ExtendTouchBounds(mgr, x774_collisionRJointIds, CVector3f::Zero());
-        ExtendTouchBounds(mgr, x788_collisionLJointIds, skExtendedClawBounds);
+      if (mBodyController->GetCurrentStateId() != pas::kAS_MeleeAttack) {
+        mState = kState_Over;
+      } else if (mCurrAnimId != mBodyController->GetCurrentAnimId()) {
+        mState = kState_Two;
+        mAttackingRightClaw = false;
+        mAttackingLeftClaw = true;
+        ExtendTouchBounds(mgr, mCollisionRJointIds, CVector3f::Zero());
+        ExtendTouchBounds(mgr, mCollisionLJointIds, skExtendedClawBounds);
       } else {
-        x450_bodyController->CommandMgr().DeliverTargetVector(mgr.GetPlayer()->GetTranslation() -
+        mBodyController->CommandMgr().DeliverTargetVector(mgr.GetPlayer()->GetTranslation() -
                                                               GetTranslation());
         if (ShouldAttack(mgr, 0.f)) {
-          x450_bodyController->CommandMgr().DeliverCmd(CBCMeleeAttackCmd(pas::kS_Two));
+          mBodyController->CommandMgr().DeliverCmd(CBCMeleeAttackCmd(pas::kS_Two));
         }
       }
       break;
     case kState_Two:
-      if (x450_bodyController->GetCurrentStateId() != pas::kAS_MeleeAttack) {
-        x568_state = kState_Over;
+      if (mBodyController->GetCurrentStateId() != pas::kAS_MeleeAttack) {
+        mState = kState_Over;
       } else {
-        x450_bodyController->CommandMgr().DeliverTargetVector(mgr.GetPlayer()->GetTranslation() -
+        mBodyController->CommandMgr().DeliverTargetVector(mgr.GetPlayer()->GetTranslation() -
                                                               GetTranslation());
       }
       break;
@@ -840,11 +840,11 @@ void CElitePirate::Attack(CStateManager& mgr, EStateMsg msg, float) {
     break;
   case kStateMsg_Deactivate:
     UpdateAttackTimeLeft(mgr);
-    x988_25_attackingRightClaw = x988_26_attackingLeftClaw = x988_24_damageOn = false;
-    x7c8_currAnimId = -1;
-    ExtendTouchBounds(mgr, x774_collisionRJointIds, CVector3f::Zero());
-    ExtendTouchBounds(mgr, x788_collisionLJointIds, CVector3f::Zero());
-    x7cc_activeMaterialSet = 0;
+    mAttackingRightClaw = mAttackingLeftClaw = mDamageOn = false;
+    mCurrAnimId = -1;
+    ExtendTouchBounds(mgr, mCollisionRJointIds, CVector3f::Zero());
+    ExtendTouchBounds(mgr, mCollisionLJointIds, CVector3f::Zero());
+    mActiveMaterialSet = 0;
     break;
   }
 }
@@ -852,37 +852,37 @@ void CElitePirate::Attack(CStateManager& mgr, EStateMsg msg, float) {
 void CElitePirate::Cover(CStateManager& mgr, EStateMsg msg, float dt) {
   switch (msg) {
   case kStateMsg_Activate:
-    x450_bodyController->SetLocomotionType(pas::kLT_Crouch);
+    mBodyController->SetLocomotionType(pas::kLT_Crouch);
     if (IsUsingBaseCollisionActors()) {
       if (CCollisionActor* actor =
-              TCastToPtr< CCollisionActor >(mgr.ObjectById(x770_collisionHeadId))) {
+              TCastToPtr< CCollisionActor >(mgr.ObjectById(mCollisionHeadId))) {
         actor->SetDamageVulnerability(CDamageVulnerability::ImmuneVulnerability());
       }
     }
-    x5d4_collisionActorMgr->SetActive(mgr, true);
-    x6f8_boneTracking.SetTarget(mgr.GetPlayer()->GetUniqueId());
-    x6f8_boneTracking.SetActive(true);
+    mCollisionActorMgr->SetActive(mgr, true);
+    mBoneTracking.SetTarget(mgr.GetPlayer()->GetUniqueId());
+    mBoneTracking.SetActive(true);
     UpdatePathDestination(mgr);
     CPatterned::PathFind(mgr, msg, dt);
     if (TooClose(mgr, 0.f)) {
-      x450_bodyController->CommandMgr().ClearLocomotionCmds();
+      mBodyController->CommandMgr().ClearLocomotionCmds();
     }
     break;
   case kStateMsg_Update:
-    if (x988_27_shotAt) {
-      x7c0_shotAtTimer -= dt;
-      if (x7c0_shotAtTimer <= 0.f) {
-        x988_27_shotAt = false;
+    if (mShotAt) {
+      mShotAtTimer -= dt;
+      if (mShotAtTimer <= 0.f) {
+        mShotAt = false;
       }
     }
-    x7a8_pathShaggedTime = PathShagged(mgr, 0.f) ? x7a8_pathShaggedTime + dt : 0.f;
+    mPathShaggedTime = PathShagged(mgr, 0.f) ? mPathShaggedTime + dt : 0.f;
     if (!TooClose(mgr, 0.f) && !PathShagged(mgr, 0.f)) {
       CPatterned::PathFind(mgr, msg, dt);
     } else if (PathShagged(mgr, 0.f)) {
       const CVector3f move =
-          x8c0_positionHistory.GetValue(GetTranslation(), GetTransform().GetForward());
+          mPositionHistory.GetValue(GetTranslation(), GetTransform().GetForward());
       if (move.IsNonZero()) {
-        x450_bodyController->CommandMgr().DeliverCmd(
+        mBodyController->CommandMgr().DeliverCmd(
             CBCLocomotionCmd(move, CVector3f::Zero(), 1.f));
       }
     } else if (ShouldTurn(mgr, 0.f)) {
@@ -890,7 +890,7 @@ void CElitePirate::Cover(CStateManager& mgr, EStateMsg msg, float dt) {
           mgr, 0.5f * GetModelData()->GetAnimationData()->GetPlaybackRate());
       const CVector3f face = aim - GetTranslation();
       if (face.CanBeNormalized()) {
-        x450_bodyController->CommandMgr().DeliverCmd(
+        mBodyController->CommandMgr().DeliverCmd(
             CBCLocomotionCmd(CVector3f::Zero(), face.AsNormalized(), 1.f));
       }
     }
@@ -898,15 +898,15 @@ void CElitePirate::Cover(CStateManager& mgr, EStateMsg msg, float dt) {
     UpdateBlockPose(dt, mgr);
     break;
   case kStateMsg_Deactivate:
-    x450_bodyController->SetLocomotionType(pas::kLT_Relaxed);
-    x6f8_boneTracking.SetActive(false);
+    mBodyController->SetLocomotionType(pas::kLT_Relaxed);
+    mBoneTracking.SetActive(false);
     if (IsUsingBaseCollisionActors()) {
       if (CCollisionActor* actor =
-              TCastToPtr< CCollisionActor >(mgr.ObjectById(x770_collisionHeadId))) {
-        actor->SetDamageVulnerability(x56c_vulnerability);
+              TCastToPtr< CCollisionActor >(mgr.ObjectById(mCollisionHeadId))) {
+        actor->SetDamageVulnerability(mVulnerability);
       }
     }
-    x5d4_collisionActorMgr->SetActive(mgr, false);
+    mCollisionActorMgr->SetActive(mgr, false);
     break;
   }
 }
@@ -914,23 +914,23 @@ void CElitePirate::Cover(CStateManager& mgr, EStateMsg msg, float dt) {
 void CElitePirate::CallForBackup(CStateManager& mgr, EStateMsg msg, float) {
   switch (msg) {
   case kStateMsg_Activate:
-    x568_state = kState_Zero;
-    x988_30_calledForBackup = true;
+    mState = kState_Zero;
+    mCalledForBackup = true;
     SetShotAt(false, mgr);
     break;
   case kStateMsg_Update:
-    switch (x568_state) {
+    switch (mState) {
     case kState_Zero:
-      if (x450_bodyController->GetCurrentStateId() == pas::kAS_Generate) {
-        x568_state = kState_Two;
+      if (mBodyController->GetCurrentStateId() == pas::kAS_Generate) {
+        mState = kState_Two;
       } else {
-        x450_bodyController->CommandMgr().DeliverCmd(
+        mBodyController->CommandMgr().DeliverCmd(
             CBCGenerateCmd(pas::kGType_Five, CVector3f::Zero()));
       }
       break;
     case kState_Two:
-      if (x450_bodyController->GetCurrentStateId() != pas::kAS_Generate) {
-        x568_state = kState_Over;
+      if (mBodyController->GetCurrentStateId() != pas::kAS_Generate) {
+        mState = kState_Over;
       }
       break;
     }
@@ -949,18 +949,18 @@ void CElitePirate::SetupCollisionManager(CStateManager& mgr) {
   AddCollisionList(skRightArmJointList, 3, joints);
   AddSphereCollisionList(skSphereJointList, 7, joints);
   if (IsUsingBaseCollisionActors()) {
-    x730_collisionActorMgrHead =
+    mCollisionActorMgrHead =
         rs_new CCollisionActorManager(mgr, GetUniqueId(), GetCurrentAreaId(), joints, true);
-    x730_collisionActorMgrHead->SetActive(mgr, GetActive());
+    mCollisionActorMgrHead->SetActive(mgr, GetActive());
   }
-  x774_collisionRJointIds.clear();
-  x788_collisionLJointIds.clear();
+  mCollisionRJointIds.clear();
+  mCollisionLJointIds.clear();
   const CSegId segId = GetAnimationData()->GetLocatorSegId(rstl::string_l(skpLeftClawLCTR));
   const CJointCollisionDescription shield = CJointCollisionDescription::OBBCollision(
       segId, skLocalShieldBounds, CVector3f::Zero(), rstl::string_l("Shield"), 10.f);
   joints.clear();
   joints.push_back(shield);
-  x5d4_collisionActorMgr =
+  mCollisionActorMgr =
       rs_new CCollisionActorManager(mgr, GetUniqueId(), GetCurrentAreaId(), joints, false);
   SetupCollisionActorInfo(mgr);
   SetupHealthInfo(mgr);
@@ -973,45 +973,45 @@ void CElitePirate::SetupCollisionManager(CStateManager& mgr) {
 void CElitePirate::SetupCollisionActorInfo(CStateManager& mgr) {
   const CDamageVulnerability vulnerability = CDamageVulnerability::ReflectVulnerability();
   if (IsUsingBaseCollisionActors()) {
-    for (uint i = 0; i < x730_collisionActorMgrHead->GetNumCollisionActors(); ++i) {
+    for (uint i = 0; i < mCollisionActorMgrHead->GetNumCollisionActors(); ++i) {
       const CJointCollisionDescription& desc =
-          x730_collisionActorMgrHead->GetCollisionDescFromIndex(i);
+          mCollisionActorMgrHead->GetCollisionDescFromIndex(i);
       const TUniqueId uid = desc.GetCollisionActorId();
       if (CCollisionActor* const actor = TCastToPtr< CCollisionActor >(mgr.ObjectById(uid))) {
         if (desc.GetName() == rstl::string_l(skpHeadLCTR)) {
-          x770_collisionHeadId = uid;
+          mCollisionHeadId = uid;
         } else if (IsArmClawCollider(desc.GetName(), skpRightClawLCTR, skRightArmJointList, 3)) {
-          x774_collisionRJointIds.push_back(uid);
+          mCollisionRJointIds.push_back(uid);
         } else if (IsArmClawCollider(desc.GetName(), skpLeftClawLCTR, skLeftArmJointList, 3)) {
-          x788_collisionLJointIds.push_back(uid);
+          mCollisionLJointIds.push_back(uid);
         }
-        if (uid != x770_collisionHeadId) {
+        if (uid != mCollisionHeadId) {
           actor->SetDamageVulnerability(vulnerability);
         }
       }
     }
-    x730_collisionActorMgrHead->AddMaterial(
+    mCollisionActorMgrHead->AddMaterial(
         mgr, CMaterialList(kMT_AIJoint, kMT_CameraPassthrough, kMT_Immovable));
   }
-  x79c_energyAttractorId =
-      x5d4_collisionActorMgr->GetCollisionDescFromIndex(0).GetCollisionActorId();
+  mEnergyAttractorId =
+      mCollisionActorMgr->GetCollisionDescFromIndex(0).GetCollisionActorId();
   if (CCollisionActor* const actor =
-          TCastToPtr< CCollisionActor >(mgr.ObjectById(x79c_energyAttractorId))) {
+          TCastToPtr< CCollisionActor >(mgr.ObjectById(mEnergyAttractorId))) {
     actor->SetWeaponCollisionResponseType(kWCR_None);
   }
-  x5d4_collisionActorMgr->AddMaterial(mgr, CMaterialList(kMT_AIJoint, kMT_CameraPassthrough));
+  mCollisionActorMgr->AddMaterial(mgr, CMaterialList(kMT_AIJoint, kMT_CameraPassthrough));
 }
 
 void CElitePirate::AddCollisionList(const SJointInfo* joints, int count,
                                     rstl::vector< CJointCollisionDescription >& list) {
   const CAnimData& animData = *GetAnimationData();
   for (int i = 0; i < count; ++i) {
-    const CSegId from = animData.GetLocatorSegId(rstl::string_l(joints[i].x0_from));
-    const CSegId to = animData.GetLocatorSegId(rstl::string_l(joints[i].x4_to));
+    const CSegId from = animData.GetLocatorSegId(rstl::string_l(joints[i].mFrom));
+    const CSegId to = animData.GetLocatorSegId(rstl::string_l(joints[i].mTo));
     if (from.val() != 0xff && to.val() != 0xff) {
       const CJointCollisionDescription desc = CJointCollisionDescription::SphereSubdivideCollision(
-          from, to, joints[i].x8_radius, joints[i].xc_separation,
-          CJointCollisionDescription::kOT_One, rstl::string_l(joints[i].x0_from), 10.f);
+          from, to, joints[i].mRadius, joints[i].mSeparation,
+          CJointCollisionDescription::kOT_One, rstl::string_l(joints[i].mFrom), 10.f);
       list.push_back(desc);
     }
   }
@@ -1021,10 +1021,10 @@ void CElitePirate::AddSphereCollisionList(const SSphereJointInfo* joints, int co
                                           rstl::vector< CJointCollisionDescription >& list) {
   const CAnimData& animData = *GetAnimationData();
   for (int i = 0; i < count; ++i) {
-    const CSegId id = animData.GetLocatorSegId(rstl::string_l(joints[i].x0_name));
+    const CSegId id = animData.GetLocatorSegId(rstl::string_l(joints[i].mName));
     if (id.val() != 0xff) {
       const CJointCollisionDescription desc = CJointCollisionDescription::SphereCollision(
-          id, joints[i].x4_radius, rstl::string_l(joints[i].x0_name), 10.f);
+          id, joints[i].mRadius, rstl::string_l(joints[i].mName), 10.f);
       list.push_back(desc);
     }
   }
@@ -1036,7 +1036,7 @@ bool CElitePirate::IsArmClawCollider(const rstl::string& name, const char* locat
     return true;
   }
   for (int i = 0; i < count; ++i) {
-    if (name == rstl::string_l(joints[i].x0_from)) {
+    if (name == rstl::string_l(joints[i].mFrom)) {
       return true;
     }
   }
@@ -1068,28 +1068,28 @@ void CElitePirate::SetupPathFindSearch() {
   const float heightScale = IsElitePirate() ? 5.f : 1.f;
   const CAABox box(CVector3f(-scale, -scale, 0.f), CVector3f(scale, scale, heightScale * scale));
   SetBoundingBox(box);
-  x738_collisionAabb.Box() = box;
-  x7d0_pathFindSearch.SetCharacterRadius(scale);
-  x7d0_pathFindSearch.SetCharacterHeight(3.f * scale);
+  mCollisionAabb.Box() = box;
+  mPathFindSearch.SetCharacterRadius(scale);
+  mPathFindSearch.SetCharacterHeight(3.f * scale);
 }
 
 bool CElitePirate::IsShieldActive() const {
-  return x450_bodyController->GetLocomotionType() == pas::kLT_Crouch &&
-         (x450_bodyController->GetCurrentStateId() == pas::kAS_Locomotion ||
-          x450_bodyController->GetCurrentStateId() == pas::kAS_Turn);
+  return mBodyController->GetLocomotionType() == pas::kLT_Crouch &&
+         (mBodyController->GetCurrentStateId() == pas::kAS_Locomotion ||
+          mBodyController->GetCurrentStateId() == pas::kAS_Turn);
 }
 
 void CElitePirate::SetupHealthInfo(CStateManager& mgr) {
   const CHealthInfo* health = HealthInfo(mgr);
-  x7b4_hp = health->GetHP();
+  mHp = health->GetHP();
   if (IsUsingBaseCollisionActors()) {
     if (CCollisionActor* actor =
-            TCastToPtr< CCollisionActor >(mgr.ObjectById(x770_collisionHeadId))) {
+            TCastToPtr< CCollisionActor >(mgr.ObjectById(mCollisionHeadId))) {
       *actor->HealthInfo(mgr) = *health;
-      actor->SetDamageVulnerability(x56c_vulnerability);
+      actor->SetDamageVulnerability(mVulnerability);
     }
   }
-  SetupHealthInfoForLauncher(mgr, x772_launcherId);
+  SetupHealthInfoForLauncher(mgr, mLauncherId);
 }
 
 void CElitePirate::SetupHealthInfoForLauncher(CStateManager& mgr, const TUniqueId uid) const {
@@ -1097,8 +1097,8 @@ void CElitePirate::SetupHealthInfoForLauncher(CStateManager& mgr, const TUniqueI
   if (uid != kInvalidUniqueId) {
     if (CCollisionActor* actor = TCastToPtr< CCollisionActor >(mgr.ObjectById(uid))) {
       *actor->HealthInfo(mgr) =
-          CHealthInfo(x5d8_data.GetLauncherHP(), health->GetKnockBackResistance());
-      actor->SetDamageVulnerability(x56c_vulnerability);
+          CHealthInfo(mData.GetLauncherHP(), health->GetKnockBackResistance());
+      actor->SetDamageVulnerability(mVulnerability);
     }
   }
 }
@@ -1107,7 +1107,7 @@ void CElitePirate::UpdateHealthInfo(CStateManager& mgr) {
   const float hp = HealthInfo(mgr)->GetHP();
   if (IsUsingBaseCollisionActors()) {
     if (CCollisionActor* actor =
-            TCastToPtr< CCollisionActor >(mgr.ObjectById(x770_collisionHeadId))) {
+            TCastToPtr< CCollisionActor >(mgr.ObjectById(mCollisionHeadId))) {
       const float damage = hp - actor->HealthInfo(mgr)->GetHP();
       HealthInfo(mgr)->SetHP(hp - damage);
       *actor->HealthInfo(mgr) = *HealthInfo(mgr);
@@ -1120,38 +1120,38 @@ void CElitePirate::UpdateHealthInfo(CStateManager& mgr) {
 }
 
 void CElitePirate::UpdateAILogicTimers(float dt) {
-  if (x7b8_attackTimer > 0.f) {
-    x7b8_attackTimer -= dt;
+  if (mAttackTimer > 0.f) {
+    mAttackTimer -= dt;
   }
-  if (x7ac_energyAbsorbCooldown > 0.f) {
-    x7ac_energyAbsorbCooldown -= dt;
+  if (mEnergyAbsorbCooldown > 0.f) {
+    mEnergyAbsorbCooldown -= dt;
   }
 }
 
 // TODO: Resource loads and damage-copy stores still differ in scheduling.
 void CElitePirate::CreateGrenadeLauncher(CStateManager& mgr, TUniqueId uid) {
-  const CAnimationParameters& params = x5d8_data.GetLauncherAnimParams();
+  const CAnimationParameters& params = mData.GetLauncherAnimParams();
   if (params.GetACSFile() != kInvalidAssetId) {
     CModelData model(CAnimRes(params.GetACSFile(), params.GetCharacter(),
                               GetModelData()->ScaleCopy(), params.GetInitialAnimation(), true));
     CBouncyGrenadeData grenadeData(
-        SGrenadeVelocityInfo(x5d8_data.GetGrenadeVelocityInfo().GetMass(),
-                             x5d8_data.GetGrenadeVelocityInfo().GetSpeed()),
-        x5d8_data.GetGrenadeDamageInfo(), x5d8_data.GetGrenadeElementGenDescId1(),
-        x5d8_data.GetGrenadeElementGenDescId2(), x5d8_data.GetGrenadeElementGenDescId3(),
-        x5d8_data.GetGrenadeElementGenDescId4(), x5d8_data.GetGrenadeNumBounces(),
-        x5d8_data.GetGrenadeBounceSfxId(), x5d8_data.GetGrenadeExplodeSfxId());
-    const CEPGrenadeLaunchParms& launchInfo = x5d8_data.GetGrenadeTrajectoryInfo();
+        SGrenadeVelocityInfo(mData.GetGrenadeVelocityInfo().GetMass(),
+                             mData.GetGrenadeVelocityInfo().GetSpeed()),
+        mData.GetGrenadeDamageInfo(), mData.GetGrenadeElementGenDescId1(),
+        mData.GetGrenadeElementGenDescId2(), mData.GetGrenadeElementGenDescId3(),
+        mData.GetGrenadeElementGenDescId4(), mData.GetGrenadeNumBounces(),
+        mData.GetGrenadeBounceSfxId(), mData.GetGrenadeExplodeSfxId());
+    const CEPGrenadeLaunchParms& launchInfo = mData.GetGrenadeTrajectoryInfo();
     CEPGrenadeLaunchParms launchParms(launchInfo.GetVelocityMin(), launchInfo.GetVelocityMax(),
                                       launchInfo.GetAngleMin(), launchInfo.GetAngleMax());
-    const CEPGrenadeLauncherData data(grenadeData, x5d8_data.GetGrenadeModelId(),
-                                      x5d8_data.GetLauncherParticleGenDescId(),
-                                      x5d8_data.GetLauncherSfxId(), launchParms);
+    const CEPGrenadeLauncherData data(grenadeData, mData.GetGrenadeModelId(),
+                                      mData.GetLauncherParticleGenDescId(),
+                                      mData.GetLauncherSfxId(), launchParms);
     CGrenadeLauncher* const launcher = rs_new CGrenadeLauncher(
         uid, rstl::string_l("Grenade Launcher"),
         CEntityInfo(GetCurrentAreaId(), NullConnectionList), GetTransform(), model,
-        model.GetBounds(GetTransform().GetRotation()), CHealthInfo(x5d8_data.GetLauncherHP(), 10.f),
-        x56c_vulnerability, x5d8_data.GetLauncherActParams(), GetUniqueId(), data, 0.f);
+        model.GetBounds(GetTransform().GetRotation()), CHealthInfo(mData.GetLauncherHP(), 10.f),
+        mVulnerability, mData.GetLauncherActParams(), GetUniqueId(), data, 0.f);
     if (launcher) {
       mgr.AddObject(launcher);
     }
@@ -1170,7 +1170,7 @@ void CElitePirate::UpdateGrenadeLauncher(CStateManager& mgr, TUniqueId& uid,
 }
 
 void CElitePirate::ActivateGrenadeLauncher(CStateManager& mgr, bool active) {
-  ActivateGrenadeLauncherById(mgr, active, x772_launcherId);
+  ActivateGrenadeLauncherById(mgr, active, mLauncherId);
 }
 
 void CElitePirate::ActivateGrenadeLauncherById(CStateManager& mgr, bool active,
@@ -1191,27 +1191,27 @@ CVector3f CElitePirate::GetGrenadeLaunchPos(const CActor& actor) const {
 
 void CElitePirate::UpdateBreadCrumbTrail() {
   const CVector3f pos = GetTranslation();
-  if (x7d0_pathFindSearch.OnPath(pos) == CPathFindSearch::kR_Success) {
-    x8c0_positionHistory.Clear();
+  if (mPathFindSearch.OnPath(pos) == CPathFindSearch::kR_Success) {
+    mPositionHistory.Clear();
   }
-  x8c0_positionHistory.AddValue(pos);
+  mPositionHistory.AddValue(pos);
 }
 
 void CElitePirate::UpdatePathDestination(CStateManager& mgr) {
-  x8b4_targetDestPos = GetTranslation();
+  mTargetDestPos = GetTranslation();
   const CVector3f playerPos = mgr.GetPlayer()->GetTranslation();
   const CVector3f dist = GetTranslation() - playerPos;
-  const float minRangeSquared = x2fc_minAttackRange * x2fc_minAttackRange;
+  const float minRangeSquared = mMinAttackRange * mMinAttackRange;
   if (dist.CanBeNormalized() && dist.MagSquared() > minRangeSquared) {
-    const CVector3f& dest = playerPos + dist.AsNormalized() * x2fc_minAttackRange;
-    x2e0_destPos = dest;
-    x8b4_targetDestPos = x2e0_destPos;
+    const CVector3f& dest = playerPos + dist.AsNormalized() * mMinAttackRange;
+    mDestPos = dest;
+    mTargetDestPos = mDestPos;
   }
 }
 
 void CElitePirate::UpdateAttackTimeLeft(CStateManager& mgr) {
-  if (mgr.Random()->Float() > x5d8_data.GetAttackChance()) {
-    x7b8_attackTimer = x304_averageAttackTime + x308_attackTimeVariation * mgr.Random()->Float();
+  if (mgr.Random()->Float() > mData.GetAttackChance()) {
+    mAttackTimer = mAverageAttackTime + mAttackTimeVariation * mgr.Random()->Float();
   }
 }
 
@@ -1219,7 +1219,7 @@ void CElitePirate::ProcessStompGround(CStateManager& mgr) {
   CPlayer& player = *mgr.Player();
   const CVector3f delta = GetTranslation() - player.GetTranslation();
   const float distance = delta.Magnitude();
-  const float scale = x988_29_shockWaveAnim ? 1.f : 0.25f;
+  const float scale = mShockWaveAnim ? 1.f : 0.25f;
   const CVector3f modelScale(GetModelData()->GetScale());
   float magnitude = scale * modelScale.Magnitude();
   magnitude -= 0.005f * distance;
@@ -1231,7 +1231,7 @@ void CElitePirate::ProcessStompGround(CStateManager& mgr) {
         mgr.CameraManager()->AddCameraShaker(CCameraShakeData::HardVertShake(0.5f, magnitude), true);
       }
     } else {
-      const float intensity = x988_29_shockWaveAnim ? 20.f : 10.f;
+      const float intensity = mShockWaveAnim ? 20.f : 10.f;
       const CVector3f impulse = player.GetMass() * (intensity * CVector3f::Up());
       player.ApplyImpulseWR(impulse, CAxisAngle::Identity());
       player.SetMoveState(NPlayer::kMS_ApplyJump, mgr);
@@ -1240,16 +1240,16 @@ void CElitePirate::ProcessStompGround(CStateManager& mgr) {
 }
 
 void CElitePirate::StartAbsorbEnergyEffects(CStateManager& mgr, const CTransform4f& xf) {
-  if (x7ac_energyAbsorbCooldown <= 0.f) {
-    CExplosion* effect = rs_new CExplosion(*x760_energyAbsorbDesc, mgr.AllocateUniqueId(), true,
+  if (mEnergyAbsorbCooldown <= 0.f) {
+    CExplosion* effect = rs_new CExplosion(*mEnergyAbsorbDesc, mgr.AllocateUniqueId(), true,
                                            CEntityInfo(GetCurrentAreaId(), NullConnectionList),
                                            rstl::string_l("Absorb energy Fx"), xf, 0,
                                            GetModelData()->ScaleCopy(), CColor::White());
     if (effect) {
       mgr.AddObject(effect);
-      CSfxManager::AddEmitter(x5d8_data.GetEnergyAbsorbSfxId(), GetTranslation(), CVector3f::Up(),
+      CSfxManager::AddEmitter(mData.GetEnergyAbsorbSfxId(), GetTranslation(), CVector3f::Up(),
                               false, false, CSfxManager::kMedPriority, GetCurrentAreaId().Value());
-      x7ac_energyAbsorbCooldown = 0.25f;
+      mEnergyAbsorbCooldown = 0.25f;
     }
   }
 }
@@ -1258,9 +1258,9 @@ void CElitePirate::StartAbsorbEnergyEffects(CStateManager& mgr, const CTransform
 void CElitePirate::AttractProjectiles(CStateManager& mgr) {
   if (IsAlive()) {
     if (const CCollisionActor* actor =
-            TCastToConstPtr< CCollisionActor >(mgr.GetObjectById(x79c_energyAttractorId))) {
+            TCastToConstPtr< CCollisionActor >(mgr.GetObjectById(mEnergyAttractorId))) {
       const CVector3f actorPos = actor->GetTranslation();
-      const float radius = x5d8_data.GetProjectileAttractionRadius();
+      const float radius = mData.GetProjectileAttractionRadius();
       const CVector3f pos = GetTranslation();
       const CVector3f max = pos + CVector3f(radius, radius, radius);
       CVector3f min = pos;
@@ -1324,15 +1324,15 @@ void CElitePirate::AttractProjectiles(CStateManager& mgr) {
 }
 
 void CElitePirate::UpdateBlockPose(float dt, CStateManager& mgr) {
-  if (x988_27_shotAt && !x450_bodyController->IsFrozen()) {
-    x7c4_absorbUpdateTimer += dt;
-    if (x7c4_absorbUpdateTimer >= 3.f) {
-      if (x450_bodyController->GetCurrentStateId() == pas::kAS_Turn ||
-          !x450_bodyController->GetBodyStateInfo().GetCurrentState()->IsMoving()) {
+  if (mShotAt && !mBodyController->IsFrozen()) {
+    mAbsorbUpdateTimer += dt;
+    if (mAbsorbUpdateTimer >= 3.f) {
+      if (mBodyController->GetCurrentStateId() == pas::kAS_Turn ||
+          !mBodyController->GetBodyStateInfo().GetCurrentState()->IsMoving()) {
         bool playerAbove = false;
         if (IsUsingBaseCollisionActors()) {
           if (const CCollisionActor* head =
-                  TCastToConstPtr< CCollisionActor >(mgr.GetObjectById(x770_collisionHeadId))) {
+                  TCastToConstPtr< CCollisionActor >(mgr.GetObjectById(mCollisionHeadId))) {
             const CVector3f& headPos = head->GetTranslation();
             const CVector3f& pos = GetTranslation();
             const CVector3f& playerPos = mgr.GetPlayer()->GetTranslation();
@@ -1341,13 +1341,13 @@ void CElitePirate::UpdateBlockPose(float dt, CStateManager& mgr) {
             playerAbove = playerPos[kDZ] >= headPos[kDZ] - height * 0.5f;
           }
         }
-        x450_bodyController->CommandMgr().DeliverCmd(CBCAdditiveReactionCmd(
+        mBodyController->CommandMgr().DeliverCmd(CBCAdditiveReactionCmd(
             playerAbove || TooClose(mgr, 0.f) ? pas::kART_Seven : pas::kART_Five, 1.f, false));
       } else {
-        x450_bodyController->CommandMgr().DeliverCmd(
+        mBodyController->CommandMgr().DeliverCmd(
             CBCAdditiveReactionCmd(pas::kART_Six, 1.f, false));
       }
-      x7c4_absorbUpdateTimer = 0.f;
+      mAbsorbUpdateTimer = 0.f;
     }
   }
 }
@@ -1371,19 +1371,19 @@ bool CElitePirate::IsClosestEnergyAttractor(
 }
 
 void CElitePirate::SetShotAt(bool shotAt, CStateManager& mgr) {
-  if (IsElitePirate() && x7b4_hp > 0.f && shotAt) {
-    if (HealthInfo(mgr)->GetHP() / x7b4_hp <= x7b0_) {
+  if (IsElitePirate() && mHp > 0.f && shotAt) {
+    if (HealthInfo(mgr)->GetHP() / mHp <= x7b0_) {
       x7b0_ -= 0.2f;
-      x988_27_shotAt = true;
+      mShotAt = true;
     }
   } else {
-    x988_27_shotAt = shotAt;
+    mShotAt = shotAt;
   }
-  if (x988_27_shotAt) {
-    x7c0_shotAtTimer =
-        mgr.Random()->Float() * x5d8_data.GetShotAtTimeVariance() + x5d8_data.GetShotAtTime();
+  if (mShotAt) {
+    mShotAtTimer =
+        mgr.Random()->Float() * mData.GetShotAtTimeVariance() + mData.GetShotAtTime();
   } else {
-    x7c0_shotAtTimer = 0.f;
+    mShotAtTimer = 0.f;
   }
 }
 
@@ -1393,7 +1393,7 @@ void CElitePirate::ReDirectDamage(CStateManager& mgr, TUniqueId uid) {
       CDamageInfo damage = weapon->GetCurrentDamageInfo();
       damage.SetRadius(0.f);
       mgr.ApplyDamage(
-          uid, x770_collisionHeadId, weapon->GetOwnerId(), damage,
+          uid, mCollisionHeadId, weapon->GetOwnerId(), damage,
           CMaterialFilter::MakeIncludeExclude(CMaterialList(kMT_Solid), CMaterialList()),
           CVector3f::Zero());
     }

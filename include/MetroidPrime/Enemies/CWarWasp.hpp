@@ -100,36 +100,36 @@ private:
   CVector3f CalcShuffleDest(const CStateManager& mgr) const;
   void UpdateTouchBounds();
 
-  int x568_stateProg;
-  CCollidableSphere x570_cSphere;
-  CPathFindSearch x590_pfSearch;
-  TUniqueId x674_aiMgr;
-  CVector3f x678_targetPos;
-  CDamageInfo x684_contactDamage;
-  CQuaternion x6a0_initialRot;
-  CVector3f x6b0_circleBurstPos;
-  CVector3f x6bc_circleBurstDir;
-  CVector3f x6c8_circleBurstRight;
-  CProjectileInfo x6d4_projectileInfo;
-  float x6fc_initialSpeed;
-  float x700_attackRemTime;
-  pas::EStepDirection x704_dodgeDir;
-  int x708_circleAttackTeam;
-  int x70c_initialCircleAttackTeam;
-  int x710_initialCircleAttackTeamUnit;
-  float x714_circleTelegraphSeekHeight;
-  float x718_circleBurstOffTotemAngle;
-  rstl::optional_object< TLockedToken< CGenDescription > > x71c_projectileVisorParticle;
-  u16 x72c_projectileVisorSfx;
-  bool x72e_24_jumpBackRepeat : 1;
-  bool x72e_25_canApplyDamage : 1;
-  bool x72e_26_initiallyInactive : 1;
-  bool x72e_27_teamMatesMelee : 1;
-  bool x72e_28_inProjectileAttack : 1;
-  bool x72e_29_pathObstructed : 1;
-  bool x72e_30_isRetreating : 1;
-  bool x72e_31_heardNoise : 1;
+  int mStateProg;
+  CCollidableSphere mCSphere;
+  CPathFindSearch mPfSearch;
+  TUniqueId mAiMgr;
+  CVector3f mTargetPos;
+  CDamageInfo mContactDamage;
+  CQuaternion mInitialRot;
+  CVector3f mCircleBurstPos;
+  CVector3f mCircleBurstDir;
+  CVector3f mCircleBurstRight;
+  CProjectileInfo mProjectileInfo;
+  float mInitialSpeed;
+  float mAttackRemTime;
+  pas::EStepDirection mDodgeDir;
+  int mCircleAttackTeam;
+  int mInitialCircleAttackTeam;
+  int mInitialCircleAttackTeamUnit;
+  float mCircleTelegraphSeekHeight;
+  float mCircleBurstOffTotemAngle;
+  rstl::optional_object< TLockedToken< CGenDescription > > mProjectileVisorParticle;
+  u16 mProjectileVisorSfx;
+  bool mJumpBackRepeat : 1;
+  bool mCanApplyDamage : 1;
+  bool mInitiallyInactive : 1;
+  bool mTeamMatesMelee : 1;
+  bool mInProjectileAttack : 1;
+  bool mPathObstructed : 1;
+  bool mIsRetreating : 1;
+  bool mHeardNoise : 1;
 };
-CHECK_SIZEOF(CWarWasp, (VERSION >= VERSION_GM8P_00 ? 0x740 : 0x730))
+CHECK_SIZEOF(CWarWasp, (VERSION >= VERSION_GM8E_02 ? 0x740 : 0x730))
 
 #endif // _CWARWASP

@@ -7,21 +7,21 @@ class CGSComboFire {
 public:
   CGSComboFire();
 
-  bool IsComboOver() const { return x10_24_over; }
-  int GetLoopState() const { return x4_loopState; }
-  void SetLoopState(const int l) { x4_loopState = l; }
-  void SetIdle(const bool i) { x10_25_idle = i; }
-  int GetGunId() const { return xc_gunId; }
+  bool IsComboOver() const { return mOver; }
+  int GetLoopState() const { return mLoopState; }
+  void SetLoopState(const int l) { mLoopState = l; }
+  void SetIdle(const bool i) { mIdle = i; }
+  int GetGunId() const { return mGunId; }
   bool Update(CAnimData& data, float dt, CStateManager& mgr);
   int SetAnim(CAnimData& data, int gunId, int loopState, CStateManager& mgr, float delay);
 
 private:
-  float x0_delay;
-  int x4_loopState; // In, loop, out
-  int x8_cueAnimId;
-  int xc_gunId;
-  bool x10_24_over : 1;
-  bool x10_25_idle : 1;
+  float mDelay;
+  int mLoopState; // In, loop, out
+  int mCueAnimId;
+  int mGunId;
+  bool mOver : 1;
+  bool mIdle : 1;
 };
 
 #endif // _CGSCOMBOFIRE

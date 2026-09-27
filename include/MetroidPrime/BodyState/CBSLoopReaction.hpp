@@ -12,9 +12,9 @@ public:
   void Shutdown(CBodyController&) override;
 
 private:
-  pas::ELoopState x4_state;
-  pas::EReactionType x8_reactionType;
-  bool xc_24_loopHit : 1;
+  pas::ELoopState mState;
+  pas::EReactionType mReactionType;
+  bool mLoopHit : 1;
 
   pas::EAnimationState GetBodyStateTransition(float dt, CBodyController& bc);
   bool PlayExitAnimation(CBodyController& bc, CStateManager& mgr) const;

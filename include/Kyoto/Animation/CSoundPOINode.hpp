@@ -11,19 +11,19 @@ public:
                 float weight = 1.f, int charIdx = -1, int flags = 0, int sfxId = 0,
                 float fallOff = 0.f, float maxDist = 0.f)
   : CPOINode(name, type, time, index, unique, weight, charIdx, flags)
-  , x38_sfxId(sfxId)
-  , x3c_falloff(fallOff)
-  , x40_maxDist(maxDist) {}
+  , mSfxId(sfxId)
+  , mFalloff(fallOff)
+  , mMaxDist(maxDist) {}
 
   CSoundPOINode(CInputStream& in)
   : CPOINode(in)
-  , x38_sfxId(in.ReadInt32())
-  , x3c_falloff(in.ReadFloat())
-  , x40_maxDist(in.ReadFloat()) {}
+  , mSfxId(in.ReadInt32())
+  , mFalloff(in.ReadFloat())
+  , mMaxDist(in.ReadFloat()) {}
 
-  uint GetSoundId() const { return x38_sfxId; }
-  float GetFallOff() const { return x3c_falloff; }
-  float GetMaxDistance() const { return x40_maxDist; }
+  uint GetSoundId() const { return mSfxId; }
+  float GetFallOff() const { return mFalloff; }
+  float GetMaxDistance() const { return mMaxDist; }
 
   static CSoundPOINode CopyNodeMinusStartTime(const CSoundPOINode& node,
                                               const CCharAnimTime& startTime) {
@@ -34,9 +34,9 @@ public:
   }
 
 private:
-  uint x38_sfxId;
-  float x3c_falloff;
-  float x40_maxDist;
+  uint mSfxId;
+  float mFalloff;
+  float mMaxDist;
 };
 
 #endif // _CSOUNDPOINODE

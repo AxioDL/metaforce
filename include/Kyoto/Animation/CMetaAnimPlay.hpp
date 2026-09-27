@@ -16,11 +16,11 @@ public:
 
   void WriteAnimData(COutputStream& out) const override;
 
-  explicit CMetaAnimPlay(CInputStream& in) : x4_primitive(in), x1c_startTime(in) {}
+  explicit CMetaAnimPlay(CInputStream& in) : mPrimitive(in), mStartTime(in) {}
 
 private:
-  CPrimitive x4_primitive;
-  CCharAnimTime x1c_startTime;
+  CPrimitive mPrimitive;
+  CCharAnimTime mStartTime;
 };
 CHECK_SIZEOF(CMetaAnimPlay, 0x24)
 

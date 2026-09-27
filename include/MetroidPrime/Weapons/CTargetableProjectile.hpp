@@ -31,8 +31,8 @@ public:
                const CDamageVulnerability& dVuln, const TUniqueId hitActor) override;
 
 private:
-  TToken< CWeaponDescription > x3d8_weaponDesc;
-  CDamageInfo x3e0_damage;
+  TToken< CWeaponDescription > mWeaponDesc;
+  CDamageInfo mDamage;
 };
 
 #endif // _CTARGETABLEPROJECTILE

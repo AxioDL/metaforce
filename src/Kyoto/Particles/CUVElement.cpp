@@ -4,7 +4,7 @@
 
 #include "rstl/math.hpp"
 
-CUVEConstant::CUVEConstant(TToken< CTexture > tex) : x4_tex(tex) {}
+CUVEConstant::CUVEConstant(TToken< CTexture > tex) : mTex(tex) {}
 
 CUVEConstant::~CUVEConstant() {}
 
@@ -15,75 +15,75 @@ void CUVEConstant::GetValueUV(int frame, SUVElementSet& valOut) const {
   valOut.yMax = 1.f;
 }
 
-TLockedToken< CTexture > CUVEConstant::GetValueTexture(int frame) const { return x4_tex; }
+TLockedToken< CTexture > CUVEConstant::GetValueTexture(int frame) const { return mTex; }
 
 CUVEAnimTexture::CUVEAnimTexture(TToken< CTexture > tex, CIntElement* tileW, CIntElement* tileH,
                                  CIntElement* strideW, CIntElement* strideH,
                                  CIntElement* cycleFrames, const bool loop)
-: x4_tex(tex), x24_loop(loop) {
+: mTex(tex), mLoop(loop) {
   int result = 0;
   tileW->GetValue(0, result);
-  x10_tileW = result;
+  mTileW = result;
   delete tileW;
 
   tileH->GetValue(0, result);
-  x14_tileH = result;
+  mTileH = result;
   delete tileH;
 
   strideW->GetValue(0, result);
-  x18_strideW = result;
+  mStrideW = result;
   delete strideW;
 
   strideH->GetValue(0, result);
-  x1c_strideH = result;
+  mStrideH = result;
   delete strideH;
 
-  x28_cycleFrames = cycleFrames;
+  mCycleFrames = cycleFrames;
 
-  const int width = x4_tex->GetWidth();
-  const int height = x4_tex->GetHeight();
-  const int xTiles = rstl::max_val(1, width / x18_strideW);
-  const int yTiles = rstl::max_val(1, height / x1c_strideH);
+  const int width = mTex->GetWidth();
+  const int height = mTex->GetHeight();
+  const int xTiles = rstl::max_val(1, width / mStrideW);
+  const int yTiles = rstl::max_val(1, height / mStrideH);
 
-  x20_tiles = xTiles * yTiles;
-  x2c_uvElems.reserve(xTiles * yTiles);
+  mTiles = xTiles * yTiles;
+  mUvElems.reserve(xTiles * yTiles);
 
   int x;
   int y;
   for (y = yTiles - 1; y >= 0; --y) {
     for (x = 0; x < xTiles; ++x) {
       SUVElementSet uvs;
-      uvs.xMin = static_cast< float >(x18_strideW * x) / static_cast< float >(width);
-      uvs.yMin = static_cast< float >(x1c_strideH * y) / static_cast< float >(height);
-      uvs.xMax = static_cast< float >((x18_strideW * x) + x10_tileW) / static_cast< float >(width);
-      uvs.yMax = static_cast< float >((x1c_strideH * y) + x14_tileH) / static_cast< float >(height);
-      x2c_uvElems.push_back(uvs);
+      uvs.xMin = static_cast< float >(mStrideW * x) / static_cast< float >(width);
+      uvs.yMin = static_cast< float >(mStrideH * y) / static_cast< float >(height);
+      uvs.xMax = static_cast< float >((mStrideW * x) + mTileW) / static_cast< float >(width);
+      uvs.yMax = static_cast< float >((mStrideH * y) + mTileH) / static_cast< float >(height);
+      mUvElems.push_back(uvs);
     }
   }
 }
 
-CUVEAnimTexture::~CUVEAnimTexture() { delete x28_cycleFrames; }
+CUVEAnimTexture::~CUVEAnimTexture() { delete mCycleFrames; }
 
 void CUVEAnimTexture::GetValueUV(int frame, SUVElementSet& valOut) const {
   int cv = 1;
-  x28_cycleFrames->GetValue(frame, cv);
+  mCycleFrames->GetValue(frame, cv);
   float cvf =
-      static_cast< float >(frame) / (static_cast< float >(cv) / static_cast< float >(x20_tiles));
+      static_cast< float >(frame) / (static_cast< float >(cv) / static_cast< float >(mTiles));
 
   int tile;
-  if (x24_loop) {
+  if (mLoop) {
     tile = rstl::max_val(static_cast< int >(cvf), 0);
-    if (tile >= x20_tiles) {
-      tile = tile % x20_tiles;
+    if (tile >= mTiles) {
+      tile = tile % mTiles;
     }
   } else {
     tile = static_cast< int >(cvf);
-    if (static_cast< int >(cvf) >= x20_tiles) {
-      tile = x20_tiles - 1;
+    if (static_cast< int >(cvf) >= mTiles) {
+      tile = mTiles - 1;
     }
   }
 
-  valOut = x2c_uvElems[tile];
+  valOut = mUvElems[tile];
 }
 
-TLockedToken< CTexture > CUVEAnimTexture::GetValueTexture(int frame) const { return x4_tex; }
+TLockedToken< CTexture > CUVEAnimTexture::GetValueTexture(int frame) const { return mTex; }

@@ -15,16 +15,16 @@ CScriptSteam::CScriptSteam(TUniqueId uid, const rstl::string& name, const CEntit
                            CAssetId texture, float f1, float f2, float f3, const float f4, bool b1)
 : CScriptTrigger(uid, name, info, pos, aabb, dInfo, orientedForce, flags, active, false, false)
 , x150_(b1)
-, x154_texture(texture)
-, x158_strength(f1)
-, x15c_alphaInDur(f2 / f1)
-, x160_alphaOutDur(f3 / f1)
-, x164_maxDist(0.f)
-, x168_ooMaxDist(0.f) {
+, mTexture(texture)
+, mStrength(f1)
+, mAlphaInDur(f2 / f1)
+, mAlphaOutDur(f3 / f1)
+, mMaxDist(0.f)
+, mOoMaxDist(0.f) {
   float r3 = rstl::min_val(aabb.GetMaxPoint().GetX(),
                            rstl::min_val(aabb.GetMaxPoint().GetY(), aabb.GetMaxPoint().GetZ()));
-  x164_maxDist = close_enough(f4, 0.f) ? r3 : rstl::min_val(f4, r3);
-  x168_ooMaxDist = 1.f / x164_maxDist;
+  mMaxDist = close_enough(f4, 0.f) ? r3 : rstl::min_val(f4, r3);
+  mOoMaxDist = 1.f / mMaxDist;
 }
 
 CScriptSteam::~CScriptSteam() {}
@@ -32,7 +32,7 @@ CScriptSteam::~CScriptSteam() {}
 void CScriptSteam::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
   switch (msg) {
   case kSM_Deactivate:
-    mgr.Player()->SetVisorSteam(0.f, x15c_alphaInDur, x160_alphaOutDur, kInvalidAssetId, !x150_);
+    mgr.Player()->SetVisorSteam(0.f, mAlphaInDur, mAlphaOutDur, kInvalidAssetId, !x150_);
     break;
   }
 
@@ -46,7 +46,7 @@ void CScriptSteam::Think(float dt, CStateManager& mgr) {
 
   CScriptTrigger::Think(dt, mgr);
 
-  if (x148_28_playerTriggerProc && mgr.GetCameraManager()->GetFluidCounter() == 0) {
+  if (mPlayerTriggerProc && mgr.GetCameraManager()->GetFluidCounter() == 0) {
     CVector3f eyePos = mgr.GetPlayer()->GetEyePosition();
     const float mag = (GetTranslation() - eyePos).Magnitude();
     float distance;

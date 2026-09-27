@@ -22,29 +22,29 @@ CGuiWidget* CAuiImagePane::Create(CGuiFrame* frame, CInputStream& in, CSimplePoo
 }
 
 void CAuiImagePane::WriteData(COutputStream& out, bool) const {
-  out.Put(xc8_tex0);
-  out.Put(xcc_tex1);
+  out.Put(mTex0);
+  out.Put(mTex1);
   out.Put(static_cast< int >(GetDrawFlags()));
-  xe0_coords.PutTo(out);
-  x114_uvs.PutTo(out);
+  mCoords.PutTo(out);
+  mUvs.PutTo(out);
 }
 
 CAuiImagePane::CAuiImagePane(const CGuiWidgetParms& parms, CSimplePool* sp, CAssetId tex0,
                              CAssetId tex1, const rstl::reserved_vector< CVector3f, 4 >& coords,
                              const rstl::reserved_vector< CVector2f, 4 >& uvs, bool initTex)
 : CGuiWidget(parms)
-, xc8_tex0(tex0)
-, xcc_tex1(tex1)
-, xd0_uvBias0(0.f, 0.f)
-, xd8_uvBias1(0.f, 0.f)
-, xe0_coords(coords)
-, x114_uvs(uvs)
-, x138_tileSize(CVector2f::Zero())
-, x140_interval(0.f)
-, x144_frameTimer(0.f)
-, x148_fadeDuration(0.f)
-, x14c_deResFactor(0.f)
-, x150_flashFactor(0.f) {
+, mTex0(tex0)
+, mTex1(tex1)
+, mUvBias0(0.f, 0.f)
+, mUvBias1(0.f, 0.f)
+, mCoords(coords)
+, mUvs(uvs)
+, mTileSize(CVector2f::Zero())
+, mInterval(0.f)
+, mFrameTimer(0.f)
+, mFadeDuration(0.f)
+, mDeResFactor(0.f)
+, mFlashFactor(0.f) {
   if (initTex) {
     SetTextureID0(tex0, sp);
   }
@@ -52,31 +52,31 @@ CAuiImagePane::CAuiImagePane(const CGuiWidgetParms& parms, CSimplePool* sp, CAss
 
 void CAuiImagePane::SetAnimationParms(const CVector2f& tileSize, float interval,
                                       float fadeDuration) {
-  x138_tileSize = tileSize;
-  x140_interval = interval;
-  x144_frameTimer = 0.f;
-  x148_fadeDuration = fadeDuration;
+  mTileSize = tileSize;
+  mInterval = interval;
+  mFrameTimer = 0.f;
+  mFadeDuration = fadeDuration;
 }
 
 void CAuiImagePane::Update(float dt) {
-  xd0_uvBias0[0] = CMath::ModF(xd0_uvBias0.GetX(), 1.f);
-  xd0_uvBias0[1] = CMath::ModF(xd0_uvBias0.GetY(), 1.f);
-  if (!(x138_tileSize == CVector2f::Zero()) && xb8_tex0Tok && xb8_tex0Tok->GetObject()) {
-    const CTexture& texture = *xb8_tex0Tok->GetObject();
-    const int columns = static_cast< int >(texture.GetWidth() / x138_tileSize.GetX());
-    const int rows = static_cast< int >(texture.GetHeight() / x138_tileSize.GetY());
-    x144_frameTimer = CMath::ModF(x144_frameTimer + dt * x140_interval, columns * rows);
+  mUvBias0[0] = CMath::ModF(mUvBias0.GetX(), 1.f);
+  mUvBias0[1] = CMath::ModF(mUvBias0.GetY(), 1.f);
+  if (!(mTileSize == CVector2f::Zero()) && mTex0Tok && mTex0Tok->GetObject()) {
+    const CTexture& texture = *mTex0Tok->GetObject();
+    const int columns = static_cast< int >(texture.GetWidth() / mTileSize.GetX());
+    const int rows = static_cast< int >(texture.GetHeight() / mTileSize.GetY());
+    mFrameTimer = CMath::ModF(mFrameTimer + dt * mInterval, columns * rows);
   }
   CGuiWidget::Update(dt);
 }
 
 void CAuiImagePane::Draw(const CGuiWidgetDrawParms& parms) const {
   CGraphics::SetModelMatrix(GetWorldTransform());
-  if (!GetIsVisible() || !xb8_tex0Tok) {
+  if (!GetIsVisible() || !mTex0Tok) {
     return;
   }
   GetIsFinishedLoadingWidgetSpecific();
-  const CTexture* texture = xb8_tex0Tok->GetObject();
+  const CTexture* texture = mTex0Tok->GetObject();
   if (!texture) {
     return;
   }
@@ -88,17 +88,17 @@ void CAuiImagePane::Draw(const CGuiWidgetDrawParms& parms) const {
   float alpha1 = 0.f;
   int frame0 = 0;
   int frame1 = 0;
-  if (x140_interval < 1.f && x140_interval > 0.f) {
-    frame0 = CCast::ToInt(x144_frameTimer);
-    const float columns = texture->GetWidth() / x138_tileSize.GetX();
-    const float rows = texture->GetHeight() / x138_tileSize.GetY();
+  if (mInterval < 1.f && mInterval > 0.f) {
+    frame0 = CCast::ToInt(mFrameTimer);
+    const float columns = texture->GetWidth() / mTileSize.GetX();
+    const float rows = texture->GetHeight() / mTileSize.GetY();
     frame1 = (frame0 + 1) % CCast::ToInt(columns * rows);
-    const float fraction = x144_frameTimer - CCast::ToReal32(frame0);
+    const float fraction = mFrameTimer - CCast::ToReal32(frame0);
     float blend;
-    if (x148_fadeDuration == 0.f) {
+    if (mFadeDuration == 0.f) {
       blend = 1.f;
     } else {
-      blend = rstl::min_val(1.f, fraction / x148_fadeDuration);
+      blend = rstl::min_val(1.f, fraction / mFadeDuration);
     }
     alpha1 = blend;
     alpha0 = 1.f - blend;
@@ -107,9 +107,9 @@ void CAuiImagePane::Draw(const CGuiWidgetDrawParms& parms) const {
   CGraphics::SetBlendMode(kBM_Blend, kBF_SrcAlpha, kBF_InvSrcAlpha, kLO_Clear);
   DoDrawImagePane(CColor::Modulate(color, CColor::Black().WithAlphaOf(0.5f)), *texture, frame0, 1.f,
                   true);
-  if (x150_flashFactor > 0.f) {
+  if (mFlashFactor > 0.f) {
     CGraphics::SetBlendMode(kBM_Blend, kBF_SrcAlpha, kBF_One, kLO_Clear);
-    CColor flashColor = GetModifiedColor().WithAlphaOf(x150_flashFactor);
+    CColor flashColor = GetModifiedColor().WithAlphaOf(mFlashFactor);
     DoDrawImagePane(flashColor, *texture, frame0, alpha0, false);
     if (alpha1 > 0.f) {
       DoDrawImagePane(flashColor, *texture, frame1, alpha1, false);
@@ -159,14 +159,14 @@ void CAuiImagePane::DoDrawImagePane(CColor color, const CTexture& texture, int f
   const CColor useColor = color.WithAlphaModulatedBy(alpha);
   rstl::reserved_vector< CVector2f, 4 > frameUVs;
   const CVector2f* uvs;
-  if (!(x138_tileSize == CVector2f::Zero())) {
-    const CTexture& tileTexture = *xb8_tex0Tok->GetObject();
+  if (!(mTileSize == CVector2f::Zero())) {
+    const CTexture& tileTexture = *mTex0Tok->GetObject();
     const int width = tileTexture.GetWidth();
     const int height = tileTexture.GetHeight();
-    const int columns = CCast::ToInt(width / x138_tileSize.GetX());
-    const int rows = CCast::ToInt(height / x138_tileSize.GetY());
-    const float tileWidth = x138_tileSize.GetX() / width;
-    const float tileHeight = x138_tileSize.GetY() / height;
+    const int columns = CCast::ToInt(width / mTileSize.GetX());
+    const int rows = CCast::ToInt(height / mTileSize.GetY());
+    const float tileWidth = mTileSize.GetX() / width;
+    const float tileHeight = mTileSize.GetY() / height;
     const float x0 = tileWidth * (frame % columns);
     const float y0 = tileHeight * (rows - frame / rows);
     const float x1 = x0 + tileWidth;
@@ -177,7 +177,7 @@ void CAuiImagePane::DoDrawImagePane(CColor color, const CTexture& texture, int f
     frameUVs.push_back(CVector2f(x1, y1));
     uvs = frameUVs.data();
   } else {
-    uvs = x114_uvs.data();
+    uvs = mUvs.data();
   }
 
   if (noBlur) {
@@ -187,27 +187,27 @@ void CAuiImagePane::DoDrawImagePane(CColor color, const CTexture& texture, int f
     CGraphics::StreamBegin(kP_TriangleStrip);
     CGraphics::StreamColor(useColor);
     for (int i = 0; i < 4; ++i) {
-      CGraphics::StreamTexcoord(uvs[i] + xd0_uvBias0);
-      CGraphics::StreamVertex(xe0_coords[i]);
+      CGraphics::StreamTexcoord(uvs[i] + mUvBias0);
+      CGraphics::StreamVertex(mCoords[i]);
     }
     CGraphics::StreamEnd();
     return;
   }
   const int numMips = texture.GetNumberOfMipMaps();
-  if ((x14c_deResFactor == 0.f && alpha == 1.f) || numMips == 1) {
+  if ((mDeResFactor == 0.f && alpha == 1.f) || numMips == 1) {
     CGraphics::SetTevOp(kTS_Stage0, CGraphics::kEnvModulate);
     CGraphics::SetTevOp(kTS_Stage1, CGraphics::kEnvPassthru);
     texture.LoadMipLevel(0, GX_TEXMAP0, CTexture::kCM_Repeat);
     CGraphics::StreamBegin(kP_TriangleStrip);
     CGraphics::StreamColor(useColor);
     for (int i = 0; i < 4; ++i) {
-      CGraphics::StreamTexcoord(uvs[i] + xd0_uvBias0);
-      CGraphics::StreamVertex(xe0_coords[i]);
+      CGraphics::StreamTexcoord(uvs[i] + mUvBias0);
+      CGraphics::StreamVertex(mCoords[i]);
     }
     CGraphics::StreamEnd();
   } else {
     const int mipCount = numMips - 1;
-    float fadeFactor = (1.f - x14c_deResFactor) * alpha;
+    float fadeFactor = (1.f - mDeResFactor) * alpha;
     const float fadeQ = -(fadeFactor * fadeFactor * fadeFactor - 1.f);
     fadeFactor = fadeQ * mipCount;
     const int mip1 = static_cast< int >(fadeFactor);
@@ -247,8 +247,8 @@ void CAuiImagePane::DoDrawImagePane(CColor color, const CTexture& texture, int f
     CGX::SetTexCoordGen(GX_TEXCOORD1, GX_TG_MTX2x4, GX_TG_TEX0, GX_IDENTITY, false, GX_PTIDENTITY);
     CGX::Begin(GX_TRIANGLESTRIP, GX_VTXFMT0, 4);
     for (int i = 0; i < 4; ++i) {
-      CVector2f uv = uvs[i] + xd0_uvBias0;
-      const CVector3f& pos = xe0_coords[i];
+      CVector2f uv = uvs[i] + mUvBias0;
+      const CVector3f& pos = mCoords[i];
       GXPosition3f32(pos.GetX(), pos.GetY(), pos.GetZ());
       GXTexCoord2f32(uv[0], uv[1]);
     }
@@ -257,20 +257,20 @@ void CAuiImagePane::DoDrawImagePane(CColor color, const CTexture& texture, int f
 }
 
 void CAuiImagePane::SetTextureID0(CAssetId tex, CSimplePool* sp) {
-  xc8_tex0 = tex;
+  mTex0 = tex;
   if (sp) {
-    if (xc8_tex0 != kInvalidAssetId) {
-      xb8_tex0Tok = TCachedToken< CTexture >(sp->GetObj(SObjectTag('TXTR', xc8_tex0)));
-      xb8_tex0Tok->Lock();
+    if (mTex0 != kInvalidAssetId) {
+      mTex0Tok = TCachedToken< CTexture >(sp->GetObj(SObjectTag('TXTR', mTex0)));
+      mTex0Tok->Lock();
     } else {
-      xb8_tex0Tok = rstl::optional_object_null();
+      mTex0Tok = rstl::optional_object_null();
     }
   }
 }
 
 bool CAuiImagePane::GetIsFinishedLoadingWidgetSpecific() const {
-  if (!xb8_tex0Tok) {
+  if (!mTex0Tok) {
     return true;
   }
-  return xb8_tex0Tok->TryCache();
+  return mTex0Tok->TryCache();
 }

@@ -51,13 +51,13 @@ public:
   CPakFile* GetPakFile(int idx) const;
 
 private:
-  rstl::list< rstl::auto_ptr< CPakFile > > x0_aramList;
-  rstl::list< rstl::auto_ptr< CPakFile > > x18_pakLoadedList;
-  rstl::list< rstl::auto_ptr< CPakFile > > x30_pakLoadingList;
-  rstl::list< rstl::auto_ptr< CPakFile > >::iterator x48_curPak;
-  mutable CAssetId x4c_cachedResId;
-  mutable const CPakFile::SResInfo* x50_cachedResInfo;
-  bool x54_forwardSeek;
+  rstl::list< rstl::auto_ptr< CPakFile > > mAramList;
+  rstl::list< rstl::auto_ptr< CPakFile > > mPakLoadedList;
+  rstl::list< rstl::auto_ptr< CPakFile > > mPakLoadingList;
+  rstl::list< rstl::auto_ptr< CPakFile > >::iterator mCurPak;
+  mutable CAssetId mCachedResId;
+  mutable const CPakFile::SResInfo* mCachedResInfo;
+  bool mForwardSeek;
 };
 
 #endif // _CRESLOADER

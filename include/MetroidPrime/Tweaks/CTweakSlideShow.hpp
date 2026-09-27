@@ -12,11 +12,11 @@ class CInputStream;
 class CTweakSlideShow;
 
 class CTweakSlideShow : public ITweakObject, public TOneStatic< CTweakSlideShow > {
-  rstl::string x4_pakName;
-  rstl::string x14_fontAssetName;
-  CColor x24_fontColor;
-  CColor x28_outlineColor;
-  float x2c_scanPercentInterval;
+  rstl::string mPakName;
+  rstl::string mFontAssetName;
+  CColor mFontColor;
+  CColor mOutlineColor;
+  float mScanPercentInterval;
   float x30_;
   float x34_;
   float x38_;
@@ -28,15 +28,21 @@ class CTweakSlideShow : public ITweakObject, public TOneStatic< CTweakSlideShow 
   float x50_;
   float x54_;
   float x58_;
+#if VERSION >= VERSION_GM8P_00
+  rstl::string mGalleryNames;
+#endif
 
 public:
   CTweakSlideShow(CInputStream&);
   ~CTweakSlideShow();
-  const rstl::string& GetPakName() const { return x4_pakName; }
-  const rstl::string& GetFont() const { return x14_fontAssetName; }
-  const CColor& GetFontColor() const { return x24_fontColor; }
-  const CColor& GetOutlineColor() const { return x28_outlineColor; }
-  float GetScanPercentInterval() const { return x2c_scanPercentInterval; }
+  const rstl::string& GetPakName() const { return mPakName; }
+#if VERSION >= VERSION_GM8P_00
+  const rstl::string& GetGalleryNames() const { return mGalleryNames; }
+#endif
+  const rstl::string& GetFont() const { return mFontAssetName; }
+  const CColor& GetFontColor() const { return mFontColor; }
+  const CColor& GetOutlineColor() const { return mOutlineColor; }
+  float GetScanPercentInterval() const { return mScanPercentInterval; }
   float GetPanSpeed() const { return x34_; }
   float GetZoomSpeed() const { return x38_; }
   float GetSlideRepeatTime() const { return x3c_; }

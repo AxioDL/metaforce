@@ -12,7 +12,7 @@ public:
                                                     const rstl::ncrc_ptr< CAnimTreeNode >& b) const;
 
 private:
-  CAnimSysContext x0_context;
+  CAnimSysContext mContext;
 };
 
 CHECK_SIZEOF(CTransitionManager, 0x10)

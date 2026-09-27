@@ -142,30 +142,30 @@ public:
   };
 
   class CPatternNode {
-    CVector3f x0_pos;
-    CVector3f xc_forward;
-    float x18_speed;
-    uchar x1c_behaviour;
-    uchar x1d_behaviourOrient;
-    ushort x1e_behaviourModifiers;
-    uint x20_animation;
+    CVector3f mPos;
+    CVector3f mForward;
+    float mSpeed;
+    uchar mBehaviour;
+    uchar mBehaviourOrient;
+    ushort mBehaviourModifiers;
+    uint mAnimation;
 
   public:
     CPatternNode(const CVector3f& pos, const CVector3f& forward, float speed, uint behaviour,
                  uint behaviourOrient, uint behaviourModifiers, uint animation)
-    : x0_pos(pos)
-    , xc_forward(forward)
-    , x18_speed(speed)
-    , x1c_behaviour(behaviour)
-    , x1d_behaviourOrient(behaviourOrient)
-    , x1e_behaviourModifiers(behaviourModifiers)
-    , x20_animation(animation) {}
-    const CVector3f& GetPos() const { return x0_pos; }
-    const CVector3f& GetForward() const { return xc_forward; }
-    float GetSpeed() const { return x18_speed; }
-    uchar GetBehaviour() const { return x1c_behaviour; }
-    uchar GetBehaviourOrient() const { return x1d_behaviourOrient; }
-    ushort GetBehaviourModifiers() const { return x1e_behaviourModifiers; }
+    : mPos(pos)
+    , mForward(forward)
+    , mSpeed(speed)
+    , mBehaviour(behaviour)
+    , mBehaviourOrient(behaviourOrient)
+    , mBehaviourModifiers(behaviourModifiers)
+    , mAnimation(animation) {}
+    const CVector3f& GetPos() const { return mPos; }
+    const CVector3f& GetForward() const { return mForward; }
+    float GetSpeed() const { return mSpeed; }
+    uchar GetBehaviour() const { return mBehaviour; }
+    uchar GetBehaviourOrient() const { return mBehaviourOrient; }
+    ushort GetBehaviourModifiers() const { return mBehaviourModifiers; }
   };
 
   CPatterned(const EPatternedAI character, const TUniqueId uid, const rstl::string& name,
@@ -252,14 +252,14 @@ public:
   virtual void ThinkAboutMove(float);
   virtual CPathFindSearch* GetSearchPath() { return nullptr; }
   virtual CDamageInfo GetContactDamage() const;
-  virtual u8 GetModelAlphau8(const CStateManager&) const { return x42c_color.GetAlphau8(); }
-  virtual bool IsOnGround() const { return x328_27_onGround; }
+  virtual u8 GetModelAlphau8(const CStateManager&) const { return mColor.GetAlphau8(); }
+  virtual bool IsOnGround() const { return mOnGround; }
   virtual float GetGravityConstant() const { return CPhysicsActor::GravityConstant(); }
   virtual CProjectileInfo* ProjectileInfo() { return nullptr; }
   virtual void PhazeOut(CStateManager&);
   virtual const rstl::optional_object< TCachedToken< CGenDescription > >&
   GetDeathExplosionParticle() const {
-    return x520_deathExplosionParticle;
+    return mDeathExplosionParticle;
   }
 
   void GenerateIceDeathExplosion(CStateManager& mgr);
@@ -269,42 +269,42 @@ public:
   CTransform4f GetLctrTransform(const CSegId&) const;
   CTransform4f GetLctrTransform(const rstl::string&) const;
 
-  EPatrolState GetPatrolState() const { return x2d8_patrolState; }
-  TUniqueId GetDestObj() const { return x2dc_destObj; } // TODO: name?
-  float GetAverageAttackTime() const { return x304_averageAttackTime; }
-  float GetAttackTimeVariation() const { return x308_attackTimeVariation; }
-  const bool GetVerticalMovement() const { return x328_25_verticalMovement; }
-  bool IsEnergyAttractor() const { return x328_31_energyAttractor; }
-  const bool IsInCollision() const { return x328_26_solidCollision; }
-  void SetVerticalMovement(const bool v) { x328_25_verticalMovement = v; }
-  EAnimState GetAnimationState() const { return x32c_animState; }
-  void SetAnimationState(const EAnimState state) { x32c_animState = state; }
+  EPatrolState GetPatrolState() const { return mPatrolState; }
+  TUniqueId GetDestObj() const { return mDestObj; } // TODO: name?
+  float GetAverageAttackTime() const { return mAverageAttackTime; }
+  float GetAttackTimeVariation() const { return mAttackTimeVariation; }
+  const bool GetVerticalMovement() const { return mVerticalMovement; }
+  bool IsEnergyAttractor() const { return mEnergyAttractor; }
+  const bool IsInCollision() const { return mSolidCollision; }
+  void SetVerticalMovement(const bool v) { mVerticalMovement = v; }
+  EAnimState GetAnimationState() const { return mAnimState; }
+  void SetAnimationState(const EAnimState state) { mAnimState = state; }
   float GetStateMachineTime() const { return GetStateMachineState().GetTime(); }
-  CStateMachineState& StateMachineState() { return x330_stateMachineState; }
-  const CStateMachineState& GetStateMachineState() const { return x330_stateMachineState; }
-  EPatternedAI GetCharacterType() const { return x34c_characterType; }
-  float GetDetectionRange() const { return x3bc_detectionRange; }
-  float GetPlayerLeashRadius() const { return x3c8_leashRadius; }
-  float GetPlayerLeashTime() const { return x3d0_playerLeashTime; }
-  EFlavorType GetFlavorType() const { return x3fc_flavor; }
-  const bool IsAlive() const { return x400_25_alive; }
-  void SetWasHit(const bool v) { x400_24_hitByPlayerProjectile = v; }
-  bool GetWasHit() const { return x400_24_hitByPlayerProjectile; }
-  void SetPendingDeath(const bool v) { x401_30_pendingDeath = v; }
-  bool GetFadeToDeath() const { return x400_27_fadeToDeath; }
-  void SetFadeToDeath(bool fade) { x400_27_fadeToDeath = fade; }
-  CBodyController* BodyCtrl() { return x450_bodyController.get(); }
-  const CBodyController* GetBodyCtrl() const { return x450_bodyController.get(); }
-  CKnockBackMgr& KnockBackCtrl() { return x460_knockBackController; }
-  const CKnockBackMgr& GetKnockBackCtrl() const { return x460_knockBackController; }
+  CStateMachineState& StateMachineState() { return mStateMachineState; }
+  const CStateMachineState& GetStateMachineState() const { return mStateMachineState; }
+  EPatternedAI GetCharacterType() const { return mCharacterType; }
+  float GetDetectionRange() const { return mDetectionRange; }
+  float GetPlayerLeashRadius() const { return mLeashRadius; }
+  float GetPlayerLeashTime() const { return mPlayerLeashTime; }
+  EFlavorType GetFlavorType() const { return mFlavor; }
+  const bool IsAlive() const { return mAlive; }
+  void SetWasHit(const bool v) { mHitByPlayerProjectile = v; }
+  bool GetWasHit() const { return mHitByPlayerProjectile; }
+  void SetPendingDeath(const bool v) { mPendingDeath = v; }
+  bool GetFadeToDeath() const { return mFadeToDeath; }
+  void SetFadeToDeath(bool fade) { mFadeToDeath = fade; }
+  CBodyController* BodyCtrl() { return mBodyController.get(); }
+  const CBodyController* GetBodyCtrl() const { return mBodyController.get(); }
+  CKnockBackMgr& KnockBackCtrl() { return mKnockBackController; }
+  const CKnockBackMgr& GetKnockBackCtrl() const { return mKnockBackController; }
 
-  CVector3f& MoveVector() { return x310_moveVec; }
-  const CVector3f& GetMoveVector() const { return x310_moveVec; }
-  void SetMoveVector(const CVector3f& vec) { x310_moveVec = vec; }
+  CVector3f& MoveVector() { return mMoveVec; }
+  const CVector3f& GetMoveVector() const { return mMoveVec; }
+  void SetMoveVector(const CVector3f& vec) { mMoveVec = vec; }
 
-  float GetFreezeDuration() const { return x4fc_freezeDur; }
+  float GetFreezeDuration() const { return mFreezeDur; }
 
-  void SetBaseDamageMag(const float mag) { x50c_baseDamageMag = mag; }
+  void SetBaseDamageMag(const float mag) { mBaseDamageMag = mag; }
 
   u8 ApplyBoneTracking() const;
   CVector3f GetGunEyePos() const;
@@ -375,9 +375,9 @@ public:
                                EScriptObjectMessage msg);
 
   // TODO: names?
-  bool IsMakingBigStrike() const { return x402_28_isMakingBigStrike; }
-  float GetXDamageThreshold() const { return x3d8_xDamageThreshold; }
-  float GetDamageDuration() const { return x504_damageDur; }
+  bool IsMakingBigStrike() const { return mIsMakingBigStrike; }
+  float GetXDamageThreshold() const { return mXDamageThreshold; }
+  float GetDamageDuration() const { return mDamageDur; }
 
   static const float skDamageHitTime;
   static const float skActorApproachDistance;
@@ -385,121 +385,121 @@ public:
   static const CColor skFrozenDamageColor;
 
 protected:
-  EPatrolState x2d8_patrolState;
-  TUniqueId x2dc_destObj;
-  CVector3f x2e0_destPos;
-  CVector3f x2ec_reflectedDestPos;
-  float x2f8_waypointPauseRemTime;
-  float x2fc_minAttackRange;
-  float x300_maxAttackRange;
-  float x304_averageAttackTime;
-  float x308_attackTimeVariation;
-  uint x30c_behaviourOrient;
-  CVector3f x310_moveVec;
-  CVector3f x31c_faceVec;
-  bool x328_24_inPosition : 1;
-  bool x328_25_verticalMovement : 1;
-  bool x328_26_solidCollision : 1;
-  bool x328_27_onGround : 1;
-  bool x328_28_prevOnGround : 1;
-  bool x328_29_noPatternShagging : 1;
-  bool x328_30_lookAtDeathDir : 1;
-  bool x328_31_energyAttractor : 1;
+  EPatrolState mPatrolState;
+  TUniqueId mDestObj;
+  CVector3f mDestPos;
+  CVector3f mReflectedDestPos;
+  float mWaypointPauseRemTime;
+  float mMinAttackRange;
+  float mMaxAttackRange;
+  float mAverageAttackTime;
+  float mAttackTimeVariation;
+  uint mBehaviourOrient;
+  CVector3f mMoveVec;
+  CVector3f mFaceVec;
+  bool mInPosition : 1;
+  bool mVerticalMovement : 1;
+  bool mSolidCollision : 1;
+  bool mOnGround : 1;
+  bool mPrevOnGround : 1;
+  bool mNoPatternShagging : 1;
+  bool mLookAtDeathDir : 1;
+  bool mEnergyAttractor : 1;
   bool x329_24_ : 1;
-  EAnimState x32c_animState;
-  CStateMachineState x330_stateMachineState;
-  EPatternedAI x34c_characterType;
-  CVector3f x350_patternStartPos;
-  CVector3f x35c_patternStartPlayerPos;
-  CVector3f x368_destWPDelta;
-  EPatternTranslate x374_patternTranslate;
-  EPatternOrient x378_patternOrient;
-  EPatternFit x37c_patternFit;
-  EBehaviour x380_behaviour;
-  EBehaviourModifiers x384_behaviourModifiers;
-  int x388_anim;
-  rstl::vector< CPatternNode > x38c_patterns;
-  int x39c_curPattern;
-  CVector3f x3a0_latestLeashPosition;
-  TUniqueId x3ac_lastPatrolDest;
-  float x3b0_moveSpeed;
-  float x3b4_speed;
-  float x3b8_turnSpeed;
-  float x3bc_detectionRange;
-  float x3c0_detectionHeightRange;
-  float x3c4_detectionAngle;
-  float x3c8_leashRadius;
-  float x3cc_playerLeashRadius;
-  float x3d0_playerLeashTime;
-  float x3d4_curPlayerLeashTime;
-  float x3d8_xDamageThreshold;
-  float x3dc_frozenXDamageThreshold;
-  float x3e0_xDamageDelay;
-  float x3e4_lastHP;
-  float x3e8_alphaDelta;
-  float x3ec_pendingFireDamage;
-  float x3f0_pendingShockDamage;
-  float x3f4_burnThinkRateTimer;
-  EMoveState x3f8_moveState;
-  EFlavorType x3fc_flavor;
-  uint x400_24_hitByPlayerProjectile : 1;
-  uint x400_25_alive : 1;
+  EAnimState mAnimState;
+  CStateMachineState mStateMachineState;
+  EPatternedAI mCharacterType;
+  CVector3f mPatternStartPos;
+  CVector3f mPatternStartPlayerPos;
+  CVector3f mDestWPDelta;
+  EPatternTranslate mPatternTranslate;
+  EPatternOrient mPatternOrient;
+  EPatternFit mPatternFit;
+  EBehaviour mBehaviour;
+  EBehaviourModifiers mBehaviourModifiers;
+  int mAnim;
+  rstl::vector< CPatternNode > mPatterns;
+  int mCurPattern;
+  CVector3f mLatestLeashPosition;
+  TUniqueId mLastPatrolDest;
+  float mMoveSpeed;
+  float mSpeed;
+  float mTurnSpeed;
+  float mDetectionRange;
+  float mDetectionHeightRange;
+  float mDetectionAngle;
+  float mLeashRadius;
+  float mPlayerLeashRadius;
+  float mPlayerLeashTime;
+  float mCurPlayerLeashTime;
+  float mXDamageThreshold;
+  float mFrozenXDamageThreshold;
+  float mXDamageDelay;
+  float mLastHP;
+  float mAlphaDelta;
+  float mPendingFireDamage;
+  float mPendingShockDamage;
+  float mBurnThinkRateTimer;
+  EMoveState mMoveState;
+  EFlavorType mFlavor;
+  uint mHitByPlayerProjectile : 1;
+  uint mAlive : 1;
   uint x400_26_ : 1;
-  uint x400_27_fadeToDeath : 1;
-  uint x400_28_pendingMassiveDeath : 1;
-  uint x400_29_pendingMassiveFrozenDeath : 1;
-  uint x400_30_patternShagged : 1;
-  uint x400_31_isFlyer : 1;
-  uint x401_24_pathOverCount : 2;
-  uint x401_26_disableMove : 1;
-  uint x401_27_phazingOut : 1;
-  uint x401_28_burning : 1;
-  uint x401_29_laggedBurnDeath : 1;
-  uint x401_30_pendingDeath : 1;
-  uint x401_31_nextPendingShock : 1;
-  uint x402_24_pendingShock : 1;
-  uint x402_25_lostMassiveFrozenHP : 1;
-  uint x402_26_dieIf80PercFrozen : 1;
-  uint x402_27_noXrayModel : 1;
-  uint x402_28_isMakingBigStrike : 1;
-  uint x402_29_drawParticles : 1;
-  uint x402_30_updateThermalFrozenState : 1;
-  uint x402_31_thawed : 1;
-  uint x403_24_keepThermalVisorState : 1;
-  uint x403_25_enableStateMachine : 1;
-  uint x403_26_stateControlledMassiveDeath : 1;
-  CDamageInfo x404_contactDamage;
-  float x420_curDamageRemTime;
-  float x424_damageWaitTime;
-  float x428_damageCooldownTimer;
-  CColor x42c_color;
-  CColor x430_damageColor;
-  CVector3f x434_posDelta;
-  CQuaternion x440_rotDelta;
-  rstl::single_ptr< CBodyController > x450_bodyController;
-  u32 x454_deathSfx;
-  u32 x458_iceShatterSfx;
-  CSteeringBehaviors x45c_steeringBehaviors;
-  CKnockBackMgr x460_knockBackController;
-  CVector3f x4e4_latestPredictedTranslation;
-  float x4f0_predictedLeashTime;
-  float x4f4_intoFreezeDur;
-  float x4f8_outofFreezeDur;
-  float x4fc_freezeDur;
-  float x500_preThinkDt;
-  float x504_damageDur;
-  EColliderType x508_colliderType;
-  float x50c_baseDamageMag;
-  rstl::ncrc_ptr< CVertexMorphEffect > x510_vertexMorph;
-  CVector3f x514_deathExplosionOffset;
-  rstl::optional_object< TCachedToken< CGenDescription > > x520_deathExplosionParticle;
-  rstl::optional_object< TCachedToken< CElectricDescription > > x530_deathExplosionElectric;
-  CVector3f x540_iceDeathExplosionOffset;
-  rstl::optional_object< TCachedToken< CGenDescription > > x54c_iceDeathExplosionParticle;
-  CVector3f x55c_moveScale;
+  uint mFadeToDeath : 1;
+  uint mPendingMassiveDeath : 1;
+  uint mPendingMassiveFrozenDeath : 1;
+  uint mPatternShagged : 1;
+  uint mIsFlyer : 1;
+  uint mPathOverCount : 2;
+  uint mDisableMove : 1;
+  uint mPhazingOut : 1;
+  uint mBurning : 1;
+  uint mLaggedBurnDeath : 1;
+  uint mPendingDeath : 1;
+  uint mNextPendingShock : 1;
+  uint mPendingShock : 1;
+  uint mLostMassiveFrozenHP : 1;
+  uint mDieIf80PercFrozen : 1;
+  uint mNoXrayModel : 1;
+  uint mIsMakingBigStrike : 1;
+  uint mDrawParticles : 1;
+  uint mUpdateThermalFrozenState : 1;
+  uint mThawed : 1;
+  uint mKeepThermalVisorState : 1;
+  uint mEnableStateMachine : 1;
+  uint mStateControlledMassiveDeath : 1;
+  CDamageInfo mContactDamage;
+  float mCurDamageRemTime;
+  float mDamageWaitTime;
+  float mDamageCooldownTimer;
+  CColor mColor;
+  CColor mDamageColor;
+  CVector3f mPosDelta;
+  CQuaternion mRotDelta;
+  rstl::single_ptr< CBodyController > mBodyController;
+  u32 mDeathSfx;
+  u32 mIceShatterSfx;
+  CSteeringBehaviors mSteeringBehaviors;
+  CKnockBackMgr mKnockBackController;
+  CVector3f mLatestPredictedTranslation;
+  float mPredictedLeashTime;
+  float mIntoFreezeDur;
+  float mOutofFreezeDur;
+  float mFreezeDur;
+  float mPreThinkDt;
+  float mDamageDur;
+  EColliderType mColliderType;
+  float mBaseDamageMag;
+  rstl::ncrc_ptr< CVertexMorphEffect > mVertexMorph;
+  CVector3f mDeathExplosionOffset;
+  rstl::optional_object< TCachedToken< CGenDescription > > mDeathExplosionParticle;
+  rstl::optional_object< TCachedToken< CElectricDescription > > mDeathExplosionElectric;
+  CVector3f mIceDeathExplosionOffset;
+  rstl::optional_object< TCachedToken< CGenDescription > > mIceDeathExplosionParticle;
+  CVector3f mMoveScale;
 };
 NESTED_CHECK_SIZEOF(CPatterned, CPatternNode, 0x24)
-CHECK_SIZEOF(CPatterned, (VERSION >= VERSION_GM8P_00 ? 0x578 : 0x568))
+CHECK_SIZEOF(CPatterned, (VERSION >= VERSION_GM8E_02 ? 0x578 : 0x568))
 
 #ifdef HAS_TYPES_MATCH
 #define PATTERNED_CAST_TO(CLS, obj) TCastToPtr< CLS >(obj)

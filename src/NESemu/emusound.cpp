@@ -3,7 +3,7 @@
 #include "dolphin/vi.h"
 #include "types.h"
 
-#if VERSION != 3
+#if VERSION != VERSION_GM8P_00
 #define NES_CLOCK_SPEED 1789773
 #define NES_CLOCK_RATE (NES_CLOCK_SPEED - 0.25f)
 #define SOUND_SAMPLE_RATE 2.038168f

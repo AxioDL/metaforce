@@ -44,20 +44,20 @@ public:
   void ThinkAboutMove(float) override;
 
 private:
-  float x568_delay;
-  float x56c_haltDelay;
-  float x570_dropHeight;
-  CVector3f x574_offset;
-  float x580_attackSpeed;
-  CVector3f x584_lookPos;
-  CVector3f x590_projectileDelta;
-  CVector3f x59c_velocity;
+  float mDelay;
+  float mHaltDelay;
+  float mDropHeight;
+  CVector3f mOffset;
+  float mAttackSpeed;
+  CVector3f mLookPos;
+  CVector3f mProjectileDelta;
+  CVector3f mVelocity;
   int x5a8_;
-  CDamageInfo x5ac_damageInfo;
-  ushort x5c8_attackSfx;
+  CDamageInfo mDamageInfo;
+  ushort mAttackSfx;
   bool x5ca_24_ : 1;
-  bool x5ca_25_started : 1;
-  bool x5ca_26_deactivated : 1;
+  bool mStarted : 1;
+  bool mDeactivated : 1;
   uint x5cc_;
 };
 

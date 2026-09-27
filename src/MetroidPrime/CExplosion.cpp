@@ -16,19 +16,19 @@ CExplosion::CExplosion(const TLockedToken< CGenDescription >& particle, TUniqueI
                        const CEntityInfo& info, const rstl::string& name, const CTransform4f& xf,
                        const uint flags, const CVector3f& scale, const CColor& color)
 : CEffect(uid, info, active, name, xf)
-, xe8_particleGen(rs_new CElementGen(TToken< CGenDescription >(particle), CElementGen::kMOT_Normal,
+, mParticleGen(rs_new CElementGen(TToken< CGenDescription >(particle), CElementGen::kMOT_Normal,
                                      flags & 0x2 ? CElementGen::kOSF_Two : CElementGen::kOSF_One))
-, xec_explosionLight(kInvalidUniqueId)
-, xf0_sourceId(CToken(particle).GetTag().GetId())
-, xf4_24_renderThermalHot(flags & 0x4)
-, xf4_25_hasRenderBounds(true)
-, xf4_26_renderXray(flags & 0x8)
-, xf8_time(0.0f) {
+, mExplosionLight(kInvalidUniqueId)
+, mSourceId(CToken(particle).GetTag().GetId())
+, mRenderThermalHot(flags & 0x4)
+, mHasRenderBounds(true)
+, mRenderXray(flags & 0x8)
+, mTime(0.0f) {
   SetThermalFlags(flags & 0x1 ? kTF_Cold : kTF_Hot);
-  xe8_particleGen->SetGlobalTranslation(xf.GetTranslation());
-  xe8_particleGen->SetOrientation(xf.GetRotation());
-  xe8_particleGen->SetGlobalScale(scale);
-  xe8_particleGen->SetModulationColor(color);
+  mParticleGen->SetGlobalTranslation(xf.GetTranslation());
+  mParticleGen->SetOrientation(xf.GetRotation());
+  mParticleGen->SetGlobalScale(scale);
+  mParticleGen->SetModulationColor(color);
 }
 
 CExplosion::CExplosion(const TLockedToken< CElectricDescription >& electric, TUniqueId uid,
@@ -36,21 +36,21 @@ CExplosion::CExplosion(const TLockedToken< CElectricDescription >& electric, TUn
                        const CTransform4f& xf, uint flags, const CVector3f& scale,
                        const CColor& color)
 : CEffect(uid, info, active, name, xf)
-, xe8_particleGen(rs_new CParticleElectric(electric))
-, xec_explosionLight(kInvalidUniqueId)
-, xf0_sourceId(CToken(electric).GetTag().GetId())
-, xf4_24_renderThermalHot(flags & 0x4)
-, xf4_25_hasRenderBounds(true)
-, xf4_26_renderXray(flags & 0x8)
+, mParticleGen(rs_new CParticleElectric(electric))
+, mExplosionLight(kInvalidUniqueId)
+, mSourceId(CToken(electric).GetTag().GetId())
+, mRenderThermalHot(flags & 0x4)
+, mHasRenderBounds(true)
+, mRenderXray(flags & 0x8)
 #if NONMATCHING
-, xf8_time(0.0f)
+, mTime(0.0f)
 #endif
 {
   SetThermalFlags(flags & 0x1 ? kTF_Cold : kTF_Hot);
-  xe8_particleGen->SetGlobalTranslation(xf.GetTranslation());
-  xe8_particleGen->SetOrientation(xf.GetRotation());
-  xe8_particleGen->SetGlobalScale(scale);
-  xe8_particleGen->SetModulationColor(color);
+  mParticleGen->SetGlobalTranslation(xf.GetTranslation());
+  mParticleGen->SetOrientation(xf.GetRotation());
+  mParticleGen->SetGlobalScale(scale);
+  mParticleGen->SetModulationColor(color);
 }
 
 CExplosion::~CExplosion() {}
@@ -60,38 +60,38 @@ void CExplosion::AddToRenderer(const CFrustumPlanes& frustum, const CStateManage
     return;
   }
 
-  if ((xf4_24_renderThermalHot && mgr.GetThermalDrawFlag() == kTD_Hot) ||
-      (xf4_26_renderXray && mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::kPV_XRay)) {
+  if ((mRenderThermalHot && mgr.GetThermalDrawFlag() == kTD_Hot) ||
+      (mRenderXray && mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::kPV_XRay)) {
     EnsureRendered(mgr);
   } else {
-    gpRender->AddParticleGen(*xe8_particleGen);
+    gpRender->AddParticleGen(*mParticleGen);
   }
 }
 
 void CExplosion::PreRender(CStateManager& mgr, const CFrustumPlanes& frustum) {
   CActor::PreRender(mgr, frustum);
-  SetPreRenderClipped(!xf4_25_hasRenderBounds || !frustum.BoxInFrustumPlanes(GetRenderBoundsCached()));
+  SetPreRenderClipped(!mHasRenderBounds || !frustum.BoxInFrustumPlanes(GetRenderBoundsCached()));
 }
 
 void CExplosion::Think(float dt, CStateManager& mgr) {
   if (GetTransformDirtySpare()) {
-    xe8_particleGen->SetGlobalTranslation(GetTranslation());
-    xe8_particleGen->SetOrientation(GetTransform().GetRotation());
+    mParticleGen->SetGlobalTranslation(GetTranslation());
+    mParticleGen->SetOrientation(GetTransform().GetRotation());
     SetTransformDirtySpare(false);
   }
-  xe8_particleGen->Update(dt);
+  mParticleGen->Update(dt);
 
-  if (xec_explosionLight != kInvalidUniqueId) {
-    CGameLight* light = TCastToPtr< CGameLight >(mgr.ObjectById(xec_explosionLight));
+  if (mExplosionLight != kInvalidUniqueId) {
+    CGameLight* light = TCastToPtr< CGameLight >(mgr.ObjectById(mExplosionLight));
     if (light && GetActive())
-      light->SetLight(xe8_particleGen->GetLight());
+      light->SetLight(mParticleGen->GetLight());
   }
 
-  xf8_time += dt;
+  mTime += dt;
 
-  if (xf8_time > 15.f) {
+  if (mTime > 15.f) {
     mgr.DeleteObjectRequest(GetUniqueId());
-  } else if (xe8_particleGen->IsSystemDeletable()) {
+  } else if (mParticleGen->IsSystemDeletable()) {
     mgr.DeleteObjectRequest(GetUniqueId());
   }
 }
@@ -101,19 +101,19 @@ ENTITY_ACCEPT_IMPL(CExplosion)
 void CExplosion::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) {
   switch (msg) {
   case kSM_Registered:
-    if (xe8_particleGen->SystemHasLight()) {
-      xec_explosionLight = mgr.AllocateUniqueId();
-      uint sourceId = xf0_sourceId;
-      mgr.AddObject(rs_new CGameLight(xec_explosionLight, GetCurrentAreaId(), GetActive(),
+    if (mParticleGen->SystemHasLight()) {
+      mExplosionLight = mgr.AllocateUniqueId();
+      uint sourceId = mSourceId;
+      mgr.AddObject(rs_new CGameLight(mExplosionLight, GetCurrentAreaId(), GetActive(),
                                       rstl::string_l("ExplodePLight_") + GetDebugName(),
-                                      GetTransform(), GetUniqueId(), xe8_particleGen->GetLight(),
+                                      GetTransform(), GetUniqueId(), mParticleGen->GetLight(),
                                       sourceId, 1, 0.f));
     }
     break;
   case kSM_Deleted:
-    if (xec_explosionLight != kInvalidUniqueId) {
-      mgr.DeleteObjectRequest(xec_explosionLight);
-      xec_explosionLight = kInvalidUniqueId;
+    if (mExplosionLight != kInvalidUniqueId) {
+      mgr.DeleteObjectRequest(mExplosionLight);
+      mExplosionLight = kInvalidUniqueId;
     }
     break;
 
@@ -122,35 +122,35 @@ void CExplosion::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CSt
   }
   CActor::AcceptScriptMsg(msg, sender, mgr);
 
-  if (xec_explosionLight != kInvalidUniqueId)
-    mgr.SendScriptMsgAlways(xec_explosionLight, sender, msg);
+  if (mExplosionLight != kInvalidUniqueId)
+    mgr.SendScriptMsgAlways(mExplosionLight, sender, msg);
 }
 
 void CExplosion::CalculateRenderBounds() {
-  rstl::optional_object< CAABox > bounds = xe8_particleGen->GetBounds();
+  rstl::optional_object< CAABox > bounds = mParticleGen->GetBounds();
   if (bounds) {
     SetRenderBounds(*bounds);
-    xf4_25_hasRenderBounds = true;
+    mHasRenderBounds = true;
   } else {
-    xf4_25_hasRenderBounds = false;
+    mHasRenderBounds = false;
     CVector3f pos = GetTransform().GetTranslation();
     SetRenderBounds(CAABox(pos, pos));
   }
 }
 
 void CExplosion::Render(const CStateManager& mgr) const {
-  if (mgr.GetThermalDrawFlag() == kTD_Hot && xf4_24_renderThermalHot) {
+  if (mgr.GetThermalDrawFlag() == kTD_Hot && mRenderThermalHot) {
     CElementGen::SetSubtractBlend(true);
     CCubeModel::SetRenderModelBlack(true);
-    xe8_particleGen->Render();
+    mParticleGen->Render();
     CCubeModel::SetRenderModelBlack(false);
     CElementGen::SetSubtractBlend(false);
     return;
   }
 
-  CElementGen::SetSubtractBlend(!xf4_24_renderThermalHot);
+  CElementGen::SetSubtractBlend(!mRenderThermalHot);
   CGraphics::SetFog(kRFM_PerspLin, 0.f, 75.f, CColor::Black());
-  xe8_particleGen->Render();
+  mParticleGen->Render();
   mgr.SetupFogForArea(GetCurrentAreaId());
   CElementGen::SetSubtractBlend(false);
 }

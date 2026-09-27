@@ -4,9 +4,9 @@
 CWeaponMgr::CWeaponMgr() {}
 
 void CWeaponMgr::Remove(TUniqueId uid) {
-  rstl::map< TUniqueId, Vec >::iterator iter = x0_weapons.find(uid);
-  if (iter != x0_weapons.end()) {
-    x0_weapons.erase(iter);
+  rstl::map< TUniqueId, Vec >::iterator iter = mWeapons.find(uid);
+  if (iter != mWeapons.end()) {
+    mWeapons.erase(iter);
   }
 }
 

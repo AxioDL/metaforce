@@ -63,58 +63,58 @@ public:
   enum ERingState { kRS_Scramble, kRS_Rotate, kRS_Stopped, kRS_Breakup };
 
   struct SRingController {
-    TUniqueId x0_id;
-    float x4_rotateSpeed;
-    bool x8_reachedTarget;
+    TUniqueId mId;
+    float mRotateSpeed;
+    bool mReachedTarget;
     CVector3f xc_;
 
     SRingController(TUniqueId uid, float rotateSpeed, bool reachedTarget)
-    : x0_id(uid)
-    , x4_rotateSpeed(rotateSpeed)
-    , x8_reachedTarget(reachedTarget)
+    : mId(uid)
+    , mRotateSpeed(rotateSpeed)
+    , mReachedTarget(reachedTarget)
     , xc_(CVector3f::Zero()) {}
   };
 
 private:
-  ESpecialFunction xe8_function;
-  rstl::string xec_locatorName;
-  float xfc_float1;
-  float x100_float2;
-  float x104_float3;
-  float x108_float4;
-  CVector3f x10c_vector3f;
-  CColor x118_color;
-  CDamageInfo x11c_damageInfo;
+  ESpecialFunction mFunction;
+  rstl::string mLocatorName;
+  float mFloat1;
+  float mFloat2;
+  float mFloat3;
+  float mFloat4;
+  CVector3f mVector3f;
+  CColor mColor;
+  CDamageInfo mDamageInfo;
   float x138_;
-  CTransform4f x13c_spinnerInitialXf;
+  CTransform4f mSpinnerInitialXf;
   float x16c_;
-  ushort x170_sfx1;
-  ushort x172_sfx2;
-  ushort x174_sfx3;
-  CSfxHandle x178_sfxHandle;
+  ushort mSfx1;
+  ushort mSfx2;
+  ushort mSfx3;
+  CSfxHandle mSfxHandle;
   uint x17c_;
   float x180_;
   TAverage< float > x184_;
   float x194_;
-  rstl::vector< SRingController > x198_ringControllers;
-  ERingState x1a8_ringState;
-  CVector3f x1ac_ringRotateTarget;
-  bool x1b8_ringReverse;
-  int x1bc_areaSaveId;
-  int x1c0_layerIdx;
-  CPlayerState::EItemType x1c4_item;
-  rstl::optional_object< CAABox > x1c8_touchBounds;
-  bool x1e4_24_spinnerInitializedXf : 1;
-  bool x1e4_25_spinnerCanMove : 1;
-  bool x1e4_26_sfx2Played : 1;
-  bool x1e4_27_sfx3Played : 1;
-  bool x1e4_28_frustumEntered : 1;
-  bool x1e4_29_frustumExited : 1;
+  rstl::vector< SRingController > mRingControllers;
+  ERingState mRingState;
+  CVector3f mRingRotateTarget;
+  bool mRingReverse;
+  int mAreaSaveId;
+  int mLayerIdx;
+  CPlayerState::EItemType mItem;
+  rstl::optional_object< CAABox > mTouchBounds;
+  bool mSpinnerInitializedXf : 1;
+  bool mSpinnerCanMove : 1;
+  bool mSfx2Played : 1;
+  bool mSfx3Played : 1;
+  bool mFrustumEntered : 1;
+  bool mFrustumExited : 1;
   bool x1e4_30_ : 1;
-  bool x1e4_31_inAreaDamage : 1;
-  bool x1e5_24_doSave : 1;
-  bool x1e5_25_playerInArea : 1;
-  bool x1e5_26_displayBillboard : 1;
+  bool mInAreaDamage : 1;
+  bool mDoSave : 1;
+  bool mPlayerInArea : 1;
+  bool mDisplayBillboard : 1;
   rstl::optional_object< CToken > x1e8_;
 
 public:
@@ -129,7 +129,7 @@ public:
   void PreRender(CStateManager&, const CFrustumPlanes&) override;
   void AddToRenderer(const CFrustumPlanes&, const CStateManager&) const override;
   void Render(const CStateManager&) const override;
-  rstl::optional_object< CAABox > GetTouchBounds() const override { return x1c8_touchBounds; }
+  rstl::optional_object< CAABox > GetTouchBounds() const override { return mTouchBounds; }
 
   void SkipCinematic(CStateManager&);
   void RingScramble(CStateManager&);
@@ -151,6 +151,6 @@ public:
   int GetSpecialEnding(const CStateManager&) const;
   void AddOrUpdateEmitter(float pitch, CSfxHandle& handle, ushort id, CVector3f pos, uchar vol);
 };
-CHECK_SIZEOF(CScriptSpecialFunction, (VERSION >= VERSION_GM8P_00 ? 0x208 : 0x1f8))
+CHECK_SIZEOF(CScriptSpecialFunction, (VERSION >= VERSION_GM8E_02 ? 0x208 : 0x1f8))
 
 #endif // _CSCRIPTSPECIALFUNCTION

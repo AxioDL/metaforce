@@ -32,27 +32,27 @@ enum ETriggerFlags {
 class CScriptTrigger : public CActor {
 public:
   class CObjectTracker {
-    TUniqueId x0_id;
+    TUniqueId mId;
 
   public:
-    explicit CObjectTracker(TUniqueId id) : x0_id(id) {}
+    explicit CObjectTracker(TUniqueId id) : mId(id) {}
 
-    TUniqueId GetObjectId() const { return x0_id; }
-    bool operator==(const CObjectTracker& other) const { return x0_id == other.x0_id; }
+    TUniqueId GetObjectId() const { return mId; }
+    bool operator==(const CObjectTracker& other) const { return mId == other.mId; }
   };
 
-  rstl::list< CObjectTracker > xe8_inhabitants;
-  CDamageInfo x100_damageInfo;
-  CVector3f x11c_forceField;
-  float x128_forceMagnitude;
-  uint x12c_flags;
-  CAABox x130_bounds;
-  bool x148_24_detectCamera : 1;
-  bool x148_25_camSubmerged : 1;
-  bool x148_26_deactivateOnEntered : 1;
-  bool x148_27_deactivateOnExited : 1;
-  bool x148_28_playerTriggerProc : 1;
-  bool x148_29_didPhazonDamage : 1;
+  rstl::list< CObjectTracker > mInhabitants;
+  CDamageInfo mDamageInfo;
+  CVector3f mForceField;
+  float mForceMagnitude;
+  uint mFlags;
+  CAABox mBounds;
+  bool mDetectCamera : 1;
+  bool mCamSubmerged : 1;
+  bool mDeactivateOnEntered : 1;
+  bool mDeactivateOnExited : 1;
+  bool mPlayerTriggerProc : 1;
+  bool mDidPhazonDamage : 1;
 
 public:
   CScriptTrigger(const TUniqueId, const rstl::string& name, const CEntityInfo& info,
@@ -63,18 +63,18 @@ public:
 
   void Touch(CActor&, CStateManager&) override;
   CAABox GetTriggerBoundsWR() const;
-  const CAABox& GetTriggerBounds() const { return x130_bounds; }
-  uint GetTriggerFlags() const { return x12c_flags; }
-  const CDamageInfo& GetDamageInfo() const { return x100_damageInfo; }
-  float GetForceMagnitude() const { return x128_forceMagnitude; }
-  const CVector3f& GetForceField() const { return x11c_forceField; }
+  const CAABox& GetTriggerBounds() const { return mBounds; }
+  uint GetTriggerFlags() const { return mFlags; }
+  const CDamageInfo& GetDamageInfo() const { return mDamageInfo; }
+  float GetForceMagnitude() const { return mForceMagnitude; }
+  const CVector3f& GetForceField() const { return mForceField; }
   void SetForceField(const CVector3f& force) {
-    x11c_forceField = force;
-    x128_forceMagnitude = force.Magnitude();
+    mForceField = force;
+    mForceMagnitude = force.Magnitude();
   }
-  bool GetPlayerInside() const { return x148_28_playerTriggerProc; }
-  void SetTriggerBounds(const CAABox& bounds) { x130_bounds = bounds; }
-  bool CameraInside() const { return x148_25_camSubmerged; }
+  bool GetPlayerInside() const { return mPlayerTriggerProc; }
+  void SetTriggerBounds(const CAABox& bounds) { mBounds = bounds; }
+  bool CameraInside() const { return mCamSubmerged; }
   rstl::optional_object< CAABox > GetTouchBounds() const override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   void Think(float, CStateManager&) override;

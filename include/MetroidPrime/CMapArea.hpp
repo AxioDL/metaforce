@@ -26,10 +26,10 @@ class CMapArea {
 public:
   class CMapAreaSurface {
     friend class CMapArea;
-    CVector3f x0_normal;
-    CVector3f xc_centroid;
-    const int* x18_surfOffset;
-    const int* x1c_outlineOffset;
+    CVector3f mNormal;
+    CVector3f mCentroid;
+    const int* mSurfOffset;
+    const int* mOutlineOffset;
 
   public:
 #if defined(TARGET_PC)
@@ -42,8 +42,8 @@ public:
 
     static void SetupGXMaterial();
 
-    CVector3f GetNormal() const { return x0_normal; }
-    CVector3f GetCenterPosition() const { return xc_centroid; }
+    CVector3f GetNormal() const { return mNormal; }
+    CVector3f GetCenterPosition() const { return mCentroid; }
   };
   enum EVisMode { kVM_Always, kVM_MapStationOrVisit, kVM_Visit, kVM_Never };
 
@@ -54,15 +54,15 @@ public:
 #endif
   ~CMapArea();
 
-  int GetNumMappableObjects() const { return x28_mappableObjCount; }
-  const CMappableObject& GetMappableObject(int idx) const { return x38_moStart[idx]; }
-  int GetNumSurfaces() const { return x30_surfaceCount; }
-  const CMapAreaSurface& GetSurface(int idx) const { return x40_surfaceStart[idx]; }
+  int GetNumMappableObjects() const { return mMappableObjCount; }
+  const CMappableObject& GetMappableObject(int idx) const { return mMoStart[idx]; }
+  int GetNumSurfaces() const { return mSurfaceCount; }
+  const CMapAreaSurface& GetSurface(int idx) const { return mSurfaceStart[idx]; }
   TMapVertices GetVertices() const {
 #if defined(TARGET_PC)
-    return {x3c_vertexStart, static_cast< size_t >(x2c_vertexCount)};
+    return {mVertexStart, static_cast< size_t >(mVertexCount)};
 #else
-    return x3c_vertexStart;
+    return mVertexStart;
 #endif
   }
 
@@ -71,24 +71,24 @@ public:
 #endif
   bool GetIsVisibleToAutoMapper(bool worldVis, bool areaVis) const;
   CVector3f GetAreaCenterPoint() const;
-  const CAABox& GetBoundingBox() const { return x10_box; }
+  const CAABox& GetBoundingBox() const { return mBox; }
   CTransform4f GetAreaPostTransform(const IWorld&, int);
   static const CVector3f& GetAreaPostTranslate(const IWorld&, int);
 
 private:
-  uint x0_magic;
-  uint x4_version;
+  uint mMagic;
+  uint mVersion;
   uint x8_;
-  EVisMode xc_visibilityMode;
-  CAABox x10_box;
-  int x28_mappableObjCount;
-  int x2c_vertexCount;
-  int x30_surfaceCount;
-  uint x34_size;
-  CMappableObject* x38_moStart;
-  CVector3f* x3c_vertexStart;
-  CMapAreaSurface* x40_surfaceStart;
-  rstl::single_ptr< uchar > x44_buf;
+  EVisMode mVisibilityMode;
+  CAABox mBox;
+  int mMappableObjCount;
+  int mVertexCount;
+  int mSurfaceCount;
+  uint mSize;
+  CMappableObject* mMoStart;
+  CVector3f* mVertexStart;
+  CMapAreaSurface* mSurfaceStart;
+  rstl::single_ptr< uchar > mBuf;
 
 #if defined(TARGET_PC)
   rstl::vector< CMappableObject > mObjects;

@@ -22,14 +22,14 @@ class CParasite : public CWallWalker {
 public:
   class CRepulsor {
   public:
-    CRepulsor(CVector3f pos, float radius) : x0_pos(pos), xc_radius(radius) {}
+    CRepulsor(CVector3f pos, float radius) : mPos(pos), mRadius(radius) {}
 
-    const CVector3f& GetPos() const { return x0_pos; }
-    float GetRadius() const { return xc_radius; }
+    const CVector3f& GetPos() const { return mPos; }
+    float GetRadius() const { return mRadius; }
 
   private:
-    CVector3f x0_pos;
-    float xc_radius;
+    CVector3f mPos;
+    float mRadius;
   };
 
   CParasite(TUniqueId uid, const rstl::string& name, CPatterned::EFlavorType flavor,
@@ -116,40 +116,40 @@ private:
   static float skAttackTime;
   static float skRetreatTime;
 
-  rstl::vector< CRepulsor > x5d8_doorRepulsors;
-  int x5e8_stateProgress;
+  rstl::vector< CRepulsor > mDoorRepulsors;
+  int mStateProgress;
   CVector3f x5ec_;
-  CVector3f x5f8_targetPos;
-  float x604_activeSpeed;
-  float x608_telegraphRemTime;
-  float x60c_stuckTime;
+  CVector3f mTargetPos;
+  float mActiveSpeed;
+  float mTelegraphRemTime;
+  float mStuckTime;
   float x610_;
-  CVector3f x614_lastStuckPos;
-  rstl::single_ptr< CCollisionActorManager > x620_collisionActorManager;
-  rstl::single_ptr< TLockedToken< CSkinnedModel > > x624_extraModel;
-  CVector3f x628_parasiteSeparationMove;
-  CVector3f x634_parasiteCohesionMove;
-  CVector3f x640_parasiteAlignmentMove;
-  CDamageVulnerability x64c_oculusHaltDVuln;
-  CDamageInfo x6b4_oculusHaltDInfo;
-  float x6d0_maxTelegraphReactDist;
+  CVector3f mLastStuckPos;
+  rstl::single_ptr< CCollisionActorManager > mCollisionActorManager;
+  rstl::single_ptr< TLockedToken< CSkinnedModel > > mExtraModel;
+  CVector3f mParasiteSeparationMove;
+  CVector3f mParasiteCohesionMove;
+  CVector3f mParasiteAlignmentMove;
+  CDamageVulnerability mOculusHaltDVuln;
+  CDamageInfo mOculusHaltDInfo;
+  float mMaxTelegraphReactDist;
   float x6d4_;
   float x6d8_;
   float x6dc_;
-  float x6e0_stuckTimeThreshold;
-  float x6e4_parasiteSearchRadius;
-  float x6e8_parasiteSeparationDist;
-  float x6ec_parasiteSeparationWeight;
-  float x6f0_parasiteAlignmentWeight;
-  float x6f4_parasiteCohesionWeight;
-  float x6f8_destinationSeekWeight;
-  float x6fc_forwardMoveWeight;
-  float x700_playerSeparationDist;
-  float x704_playerSeparationWeight;
-  float x708_unmorphedRadius;
+  float mStuckTimeThreshold;
+  float mParasiteSearchRadius;
+  float mParasiteSeparationDist;
+  float mParasiteSeparationWeight;
+  float mParasiteAlignmentWeight;
+  float mParasiteCohesionWeight;
+  float mDestinationSeekWeight;
+  float mForwardMoveWeight;
+  float mPlayerSeparationDist;
+  float mPlayerSeparationWeight;
+  float mUnmorphedRadius;
   float x70c_;
-  float x710_haltDelay;
-  float x714_iceZoomerJointHP;
+  float mHaltDelay;
+  float mIceZoomerJointHP;
   float x718_;
   float x71c_;
   float x720_;
@@ -159,22 +159,22 @@ private:
   float x730_;
   float x734_;
   float x738_;
-  ushort x73c_haltSfx;
-  ushort x73e_getUpSfx;
-  ushort x740_crouchSfx;
-  bool x742_24_receivedTelegraph : 1;
-  bool x742_25_jumpVelDirty : 1;
+  ushort mHaltSfx;
+  ushort mGetUpSfx;
+  ushort mCrouchSfx;
+  bool mReceivedTelegraph : 1;
+  bool mJumpVelDirty : 1;
   bool x742_26_ : 1;
-  bool x742_27_landed : 1;
-  bool x742_28_onGround : 1;
+  bool mLanded : 1;
+  bool mOnGround : 1;
   bool x742_29_ : 1;
-  bool x742_30_attackOver : 1;
+  bool mAttackOver : 1;
   bool x742_31_ : 1;
-  bool x743_24_halted : 1;
-  bool x743_25_vulnerable : 1;
-  bool x743_26_oculusShotAt : 1;
-  bool x743_27_inJump : 1;
+  bool mHalted : 1;
+  bool mVulnerable : 1;
+  bool mOculusShotAt : 1;
+  bool mInJump : 1;
 };
-CHECK_SIZEOF(CParasite, (VERSION >= VERSION_GM8P_00 ? 0x758 : 0x748))
+CHECK_SIZEOF(CParasite, (VERSION >= VERSION_GM8E_02 ? 0x758 : 0x748))
 
 #endif // _CPARASITE

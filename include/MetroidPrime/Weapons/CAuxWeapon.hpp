@@ -36,7 +36,7 @@ public:
   void RenderMuzzleFx() const;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
 
-  bool IsLoaded() const { return x80_24_isLoaded; }
+  bool IsLoaded() const { return mIsLoaded; }
 
 private:
   void FreeComboVoiceId();
@@ -50,19 +50,19 @@ private:
   void InitComboData();
   static const ushort skSoundId[5];
 
-  TLockedToken< CWeaponDescription > x0_missile;
-  TLockedToken< CGenDescription > xc_flameMuzzle;
-  TLockedToken< CGenDescription > x18_busterMuzzle;
-  rstl::single_ptr< CElementGen > x24_muzzleFxGen;
-  rstl::reserved_vector< TCachedToken< CWeaponDescription >, 5 > x28_combos;
-  float x68_ammoConsumeTimer;
-  TUniqueId x6c_playerId;
-  TUniqueId x6e_flameThrowerId;
-  TUniqueId x70_waveBusterId;
-  CPlayerState::EBeamId x74_firingBeamId;
-  int x78_loadBeamId;
-  CSfxHandle x7c_comboSfx;
-  bool x80_24_isLoaded : 1;
+  TLockedToken< CWeaponDescription > mMissile;
+  TLockedToken< CGenDescription > mFlameMuzzle;
+  TLockedToken< CGenDescription > mBusterMuzzle;
+  rstl::single_ptr< CElementGen > mMuzzleFxGen;
+  rstl::reserved_vector< TCachedToken< CWeaponDescription >, 5 > mCombos;
+  float mAmmoConsumeTimer;
+  TUniqueId mPlayerId;
+  TUniqueId mFlameThrowerId;
+  TUniqueId mWaveBusterId;
+  CPlayerState::EBeamId mFiringBeamId;
+  int mLoadBeamId;
+  CSfxHandle mComboSfx;
+  bool mIsLoaded : 1;
 };
 CHECK_SIZEOF(CAuxWeapon, 0x84)
 

@@ -26,15 +26,15 @@ public:
   CPOINode(CInputStream& in);
   virtual ~CPOINode() {}
 
-  const rstl::string& GetString() const { return x8_name; }
-  const EPOIType GetPoiType() const { return static_cast< EPOIType >(x18_type); }
-  const CCharAnimTime& GetTime() const { return x1c_time; }
-  void SetTime(const CCharAnimTime& time) { x1c_time = time; }
-  const int GetIndex() const { return x24_index; }
-  const bool GetSaveState() const { return x28_unique; }
-  const float GetWeight() const { return x2c_weight; }
-  const int GetCharacterIndex() const { return x30_charIdx; }
-  const int GetFlags() const { return x34_flags; }
+  const rstl::string& GetString() const { return mName; }
+  const EPOIType GetPoiType() const { return static_cast< EPOIType >(mType); }
+  const CCharAnimTime& GetTime() const { return mTime; }
+  void SetTime(const CCharAnimTime& time) { mTime = time; }
+  const int GetIndex() const { return mIndex; }
+  const bool GetSaveState() const { return mUnique; }
+  const float GetWeight() const { return mWeight; }
+  const int GetCharacterIndex() const { return mCharIdx; }
+  const int GetFlags() const { return mFlags; }
 
   bool operator>(const CPOINode& other) const;
   bool operator<(const CPOINode& other) const;
@@ -42,14 +42,14 @@ public:
 
 protected:
   ushort x4_;
-  rstl::string x8_name;
-  ushort x18_type;
-  CCharAnimTime x1c_time;
-  int x24_index;
-  bool x28_unique;
-  float x2c_weight;
-  int x30_charIdx;
-  int x34_flags;
+  rstl::string mName;
+  ushort mType;
+  CCharAnimTime mTime;
+  int mIndex;
+  bool mUnique;
+  float mWeight;
+  int mCharIdx;
+  int mFlags;
 };
 CHECK_SIZEOF(CPOINode, 0x38)
 

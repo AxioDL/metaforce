@@ -41,24 +41,24 @@ class CVelocityInfo {
 public:
   ~CVelocityInfo();
 
-  CVector3f& Velocity(int i) { return x0_vel[i]; }
-  const CVector3f& GetVelocity(int i) const { return x0_vel[i]; }
-  bool GetTargetHoming(int i) const { return x1c_targetHoming[i]; }
+  CVector3f& Velocity(int i) { return mVel[i]; }
+  const CVector3f& GetVelocity(int i) const { return mVel[i]; }
+  bool GetTargetHoming(int i) const { return mTargetHoming[i]; }
 
   void Clear();
 
-  void AddVelocity(const CVector3f& vel) { x0_vel.push_back(vel); }
-#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
-  void AddTargetHoming(const bool homing) { x1c_targetHoming.push_back(homing); }
+  void AddVelocity(const CVector3f& vel) { mVel.push_back(vel); }
+#if VERSION >= VERSION_GM8P_00
+  void AddTargetHoming(const bool homing) { mTargetHoming.push_back(homing); }
 #else
-  void AddTargetHoming(const bool& homing) { x1c_targetHoming.push_back(homing); }
+  void AddTargetHoming(const bool& homing) { mTargetHoming.push_back(homing); }
 #endif
-  void AddTrat(const float& trat) { x24_trat.push_back(trat); }
+  void AddTrat(const float& trat) { mTrat.push_back(trat); }
 
 private:
-  rstl::reserved_vector< CVector3f, 2 > x0_vel;
-  rstl::reserved_vector< bool, 2 > x1c_targetHoming;
-  rstl::reserved_vector< float, 2 > x24_trat;
+  rstl::reserved_vector< CVector3f, 2 > mVel;
+  rstl::reserved_vector< bool, 2 > mTargetHoming;
+  rstl::reserved_vector< float, 2 > mTrat;
 };
 
 class CGunWeapon {
@@ -89,7 +89,7 @@ public:
                     const float chargeFactor2);
   virtual void EnableFx(const bool enable) {}
   virtual void EnableSecondaryFx(const ESecondaryFxType type) {
-    x1cc_enabledSecondaryEffect = type;
+    mEnabledSecondaryEffect = type;
   }
   virtual void Draw(const bool drawSuitArm, const CStateManager& mgr, const CTransform4f& xf,
                     const CModelFlags& flags, const CActorLights* lights) const;
@@ -99,20 +99,20 @@ public:
   virtual void Unload(CStateManager& mgr);
   virtual bool IsLoaded() const;
 
-  const CVelocityInfo& GetVelocityInfo() const { return x1d0_velInfo; }
-  rstl::optional_object< CModelData >& SolidModelData() { return x10_solidModelData; }
-  const CModelData& GetSolidModelData() const { return x10_solidModelData.data(); }
+  const CVelocityInfo& GetVelocityInfo() const { return mVelInfo; }
+  rstl::optional_object< CModelData >& SolidModelData() { return mSolidModelData; }
+  const CModelData& GetSolidModelData() const { return mSolidModelData.data(); }
 
-  EWeaponType GetType() const { return x1c0_weaponType; }
-  TUniqueId GetPlayerId() const { return x1c4_playerId; }
-  EMaterialTypes GetPlayerMaterial() const { return x1c8_playerMaterial; }
+  EWeaponType GetType() const { return mWeaponType; }
+  TUniqueId GetPlayerId() const { return mPlayerId; }
+  EMaterialTypes GetPlayerMaterial() const { return mPlayerMaterial; }
 
   CAABox GetBounds() const;
   CAABox GetBounds(const CTransform4f& xf) const;
   const SWeaponInfo& GetWeaponInfo() const;
   void ActivateCharge(bool enable, bool resetEffect);
-  bool IsCharged() const { return x218_25_enableCharge; }
-  void EnableCharge(bool enable) { x218_25_enableCharge = enable; }
+  bool IsCharged() const { return mEnableCharge; }
+  void EnableCharge(bool enable) { mEnableCharge = enable; }
   bool PlayPasAnim(SamusGun::EAnimationState state, CStateManager& mgr, float angle);
   bool IsChargeAnimOver() const;
   void UpdateMuzzleFx(const float dt, const CVector3f& scale, const CVector3f& pos,
@@ -137,42 +137,42 @@ public:
 
 protected:
   // x0 is vtable
-  CVector3f x4_scale;
-  rstl::optional_object< CModelData > x10_solidModelData;
-  rstl::optional_object< CModelData > x60_holoModelData;
-  rstl::optional_object< CModelData > xb0_suitArmModelData;
-  rstl::single_ptr< CGunController > x100_gunController;
-  TToken< CAnimCharacterSet > x104_gunCharacter;
-  rstl::vector< CToken > x10c_anims;
-  rstl::vector< CToken > x11c_unk;
-  rstl::vector< CToken > x12c_deps;
-  TToken< CAnimCharacterSet > x13c_armCharacter;
-  rstl::reserved_vector< TCachedToken< CWeaponDescription >, 2 > x144_weapons;
-  TCachedToken< CGenDescription > x160_xferEffect;
-  rstl::reserved_vector< TCachedToken< CGenDescription >, 2 > x16c_muzzleEffects;
-  rstl::reserved_vector< TCachedToken< CGenDescription >, 2 > x188_frozenEffects;
-  rstl::reserved_vector< rstl::auto_ptr< CElementGen >, 2 > x1a4_muzzleGenerators;
-  rstl::single_ptr< CElementGen > x1b8_frozenGenerator;
-  CRainSplashGenerator* x1bc_rainSplashGenerator;
-  EWeaponType x1c0_weaponType;
-  TUniqueId x1c4_playerId;
-  EMaterialTypes x1c8_playerMaterial;
-  ESecondaryFxType x1cc_enabledSecondaryEffect;
-  CVelocityInfo x1d0_velInfo;
-  CPlayerState::EBeamId x200_beamId;
-  EFrozenFxType x204_frozenEffect;
-  uint x208_muzzleEffectIdx;
-  uint x20c_shaderIdx;
+  CVector3f mScale;
+  rstl::optional_object< CModelData > mSolidModelData;
+  rstl::optional_object< CModelData > mHoloModelData;
+  rstl::optional_object< CModelData > mSuitArmModelData;
+  rstl::single_ptr< CGunController > mGunController;
+  TToken< CAnimCharacterSet > mGunCharacter;
+  rstl::vector< CToken > mAnims;
+  rstl::vector< CToken > mUnk;
+  rstl::vector< CToken > mDeps;
+  TToken< CAnimCharacterSet > mArmCharacter;
+  rstl::reserved_vector< TCachedToken< CWeaponDescription >, 2 > mWeapons;
+  TCachedToken< CGenDescription > mXferEffect;
+  rstl::reserved_vector< TCachedToken< CGenDescription >, 2 > mMuzzleEffects;
+  rstl::reserved_vector< TCachedToken< CGenDescription >, 2 > mFrozenEffects;
+  rstl::reserved_vector< rstl::auto_ptr< CElementGen >, 2 > mMuzzleGenerators;
+  rstl::single_ptr< CElementGen > mFrozenGenerator;
+  CRainSplashGenerator* mRainSplashGenerator;
+  EWeaponType mWeaponType;
+  TUniqueId mPlayerId;
+  EMaterialTypes mPlayerMaterial;
+  ESecondaryFxType mEnabledSecondaryEffect;
+  CVelocityInfo mVelInfo;
+  CPlayerState::EBeamId mBeamId;
+  EFrozenFxType mFrozenEffect;
+  uint mMuzzleEffectIdx;
+  uint mShaderIdx;
   // 0x1: load request, 0x2: muzzle fx, 0x4: projectile data, 0x8: anims, 0x10: everything else
-  int x210_loadFlags;
-  CAssetId x214_ancsId;
+  int mLoadFlags;
+  CAssetId mAncsId;
   bool x218_24 : 1;
-  bool x218_25_enableCharge : 1;
-  bool x218_26_loaded : 1;
+  bool mEnableCharge : 1;
+  bool mLoaded : 1;
   // Initialize in selected beam's pose, rather than power beam's pose
-  bool x218_27_subtypeBasePose : 1;
-  bool x218_28_suitArmLocked : 1;
-  bool x218_29_drawHologram : 1;
+  bool mSubtypeBasePose : 1;
+  bool mSuitArmLocked : 1;
+  bool mDrawHologram : 1;
 
   static const char* const skMuzzleLocator;
   static const char* const skElbowLocator;

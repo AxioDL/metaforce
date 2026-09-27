@@ -19,27 +19,27 @@ public:
   void Draw() const;
 
 private:
-  TCachedToken< CStringTable > x0_msg;
-  TCachedToken< CGuiFrame > xc_msgScreen;
-  CGuiFrame* x18_loadedMsgScreen;
-  CGuiTextPane* x1c_textpane_message;
-  CGuiWidget* x20_basewidget_top;
-  CGuiWidget* x24_basewidget_center;
-  CGuiWidget* x28_basewidget_bottom;
-  CGuiModel* x2c_model_abutton;
-  CGuiModel* x30_model_top;
-  CGuiModel* x34_model_center;
-  CGuiModel* x38_model_bottom;
-  CGuiModel* x3c_model_bg;
-  CGuiModel* x40_model_videoband;
-  CVector3f x44_topPos;
-  CVector3f x50_bottomPos;
-  CVector3f x5c_videoBandPos;
-  float x68_videoBandOffset;
-  int x6c_page;
-  float x70_blurAmt;
-  float x74_delayTime;
-  bool x78_24_exit : 1;
+  TCachedToken< CStringTable > mMsg;
+  TCachedToken< CGuiFrame > mMsgScreen;
+  CGuiFrame* mLoadedMsgScreen;
+  CGuiTextPane* mTextpane_message;
+  CGuiWidget* mBasewidget_top;
+  CGuiWidget* mBasewidget_center;
+  CGuiWidget* mBasewidget_bottom;
+  CGuiModel* mModel_abutton;
+  CGuiModel* mModel_top;
+  CGuiModel* mModel_center;
+  CGuiModel* mModel_bottom;
+  CGuiModel* mModel_bg;
+  CGuiModel* mModel_videoband;
+  CVector3f mTopPos;
+  CVector3f mBottomPos;
+  CVector3f mVideoBandPos;
+  float mVideoBandOffset;
+  int mPage;
+  float mBlurAmt;
+  float mDelayTime;
+  bool mExit : 1;
 };
 CHECK_SIZEOF(CMessageScreen, 0x7c)
 

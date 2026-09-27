@@ -19,14 +19,14 @@ class CLight;
 class CProjectileTouchResult {
 public:
   CProjectileTouchResult(const TUniqueId& id, const rstl::optional_object< CRayCastResult >& result)
-  : x0_id(id), x4_result(result) {}
-  TUniqueId GetActorId() const { return x0_id; }
-  bool HasRayCastResult() const { return x4_result.valid(); }
-  const CRayCastResult& GetRayCastResult() const { return *x4_result; }
+  : mId(id), mResult(result) {}
+  TUniqueId GetActorId() const { return mId; }
+  bool HasRayCastResult() const { return mResult.valid(); }
+  const CRayCastResult& GetRayCastResult() const { return *mResult; }
 
 private:
-  TUniqueId x0_id;
-  rstl::optional_object< CRayCastResult > x4_result;
+  TUniqueId mId;
+  rstl::optional_object< CRayCastResult > mResult;
 };
 
 CHECK_SIZEOF(CProjectileTouchResult, 0x38)
@@ -56,30 +56,30 @@ public:
                                          CStateManager& mgr);
 
   CProjectileTouchResult CanCollideWithTrigger(CActor& act, CStateManager& mgr);
-  const CProjectileWeapon& GetProjectile() const { return x170_projectile; }
-  CProjectileWeapon& Projectile() { return x170_projectile; }
-  CVector3f GetVelocity() const { return GetTranslation() - x298_previousPos; }
-  const CVector3f& GetPreviousPos() const { return x298_previousPos; }
-  TUniqueId GetProjectileLightId() const { return x2c8_projectileLight; }
-  TUniqueId GetHomingTargetId() const { return x2c0_homingTargetId; }
-  void SetHomingTargetId(TUniqueId id) { x2c0_homingTargetId = id; }
-  TUniqueId GetHitProjectileOwner() const { return x2c4_hitProjectileOwner; }
-  void SetHitProjectileOwner(TUniqueId id) { x2c4_hitProjectileOwner = id; }
+  const CProjectileWeapon& GetProjectile() const { return mProjectile; }
+  CProjectileWeapon& Projectile() { return mProjectile; }
+  CVector3f GetVelocity() const { return GetTranslation() - mPreviousPos; }
+  const CVector3f& GetPreviousPos() const { return mPreviousPos; }
+  TUniqueId GetProjectileLightId() const { return mProjectileLight; }
+  TUniqueId GetHomingTargetId() const { return mHomingTargetId; }
+  void SetHomingTargetId(TUniqueId id) { mHomingTargetId = id; }
+  TUniqueId GetHitProjectileOwner() const { return mHitProjectileOwner; }
+  void SetHitProjectileOwner(TUniqueId id) { mHitProjectileOwner = id; }
 
-  void SetLastObjectId(TUniqueId id) { x2c2_lastResolvedObj = id; }
+  void SetLastObjectId(TUniqueId id) { mLastResolvedObj = id; }
 
-  void SetMinHomingDistance(float distance) { x2e0_minHomingDist = distance; }
+  void SetMinHomingDistance(float distance) { mMinHomingDist = distance; }
 
-  bool GetWeaponActive() const { return x2e4_24_active; }
+  bool GetWeaponActive() const { return mActive; }
   void DeleteProjectileLight(CStateManager&);
 
-#if VERSION >= VERSION_GM8P_00
-  bool GetUnkPalFlag() const { return x2e4_29_unkPalFlag; }
+#if VERSION >= VERSION_GM8E_02
+  bool GetUnkPalFlag() const { return mUnkPalFlag; }
 #endif
 
   void SetUnkPalFlag(bool active) {
-#if VERSION >= VERSION_GM8P_00
-    x2e4_29_unkPalFlag = active;
+#if VERSION >= VERSION_GM8E_02
+    mUnkPalFlag = active;
 #endif
   }
 
@@ -102,33 +102,33 @@ public:
   static const float kProjectileBoxAllowance;
 
 protected:
-  rstl::optional_object< TLockedToken< CGenDescription > > x158_visorParticle;
-  ushort x168_visorSfx;
-  CProjectileWeapon x170_projectile;
-  CVector3f x298_previousPos;
-  float x2a4_projExtent;
-  float x2a8_homingDt;
-  double x2b0_targetHomingTime;
-  double x2b8_curHomingTime;
-  TUniqueId x2c0_homingTargetId;
-  TUniqueId x2c2_lastResolvedObj;
-  TUniqueId x2c4_hitProjectileOwner;
-  TUniqueId x2c6_pendingDamagee;
-  TUniqueId x2c8_projectileLight;
-  CAssetId x2cc_wpscId;
-  rstl::vector< CProjectileTouchResult > x2d0_touchResults;
-  float x2e0_minHomingDist;
-  bool x2e4_24_active : 1;
-  bool x2e4_25_startedUnderwater : 1;
-  bool x2e4_26_waterUpdate : 1;
-  bool x2e4_27_inWater : 1;
-  bool x2e4_28_sendProjectileCollideMsg : 1;
-#if VERSION >= VERSION_GM8P_00
-  bool x2e4_29_unkPalFlag : 1;
+  rstl::optional_object< TLockedToken< CGenDescription > > mVisorParticle;
+  ushort mVisorSfx;
+  CProjectileWeapon mProjectile;
+  CVector3f mPreviousPos;
+  float mProjExtent;
+  float mHomingDt;
+  double mTargetHomingTime;
+  double mCurHomingTime;
+  TUniqueId mHomingTargetId;
+  TUniqueId mLastResolvedObj;
+  TUniqueId mHitProjectileOwner;
+  TUniqueId mPendingDamagee;
+  TUniqueId mProjectileLight;
+  CAssetId mWpscId;
+  rstl::vector< CProjectileTouchResult > mTouchResults;
+  float mMinHomingDist;
+  bool mActive : 1;
+  bool mStartedUnderwater : 1;
+  bool mWaterUpdate : 1;
+  bool mInWater : 1;
+  bool mSendProjectileCollideMsg : 1;
+#if VERSION >= VERSION_GM8E_02
+  bool mUnkPalFlag : 1;
 #endif
 };
-CHECK_SIZEOF(CGameProjectile, (VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02 ? 0x310
-                               : VERSION >= VERSION_GM8P_00                             ? 0x2f8
+CHECK_SIZEOF(CGameProjectile, (VERSION >= VERSION_GM8P_00 ? 0x310
+                               : VERSION >= VERSION_GM8E_02                             ? 0x2f8
                                                                                         : 0x2e8))
 
 #endif // _CGAMEPROJECTILE

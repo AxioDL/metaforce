@@ -18,9 +18,9 @@ public:
     SHintState();
     SHintState(EHintState state, float time);
 
-    EHintState x0_state;
-    float x4_time;
-    bool x8_dismissed;
+    EHintState mState;
+    float mTime;
+    bool mDismissed;
 
     bool CanContinue();
   };
@@ -31,6 +31,9 @@ public:
   void InitializeMemoryState();
 
   void SetHintNextTime();
+#if VERSION >= VERSION_GM8P_00
+  void EnsureHintNextTime();
+#endif
   void Update(float dt, const CStateManager& mgr);
 
   void DelayHint(const rstl::string& name);
@@ -40,20 +43,20 @@ public:
 
   const SHintState* GetCurrentDisplayedHint() const;
   int GetNextHintIdx();
-  const rstl::vector< SHintState >& GetHintStates() const { return x0_hintStates; }
+  const rstl::vector< SHintState >& GetHintStates() const { return mHintStates; }
 
 private:
   static uint GetBitCount(uint value);
 
-  rstl::vector< SHintState > x0_hintStates;
-  int x10_nextHintIdx;
-#if VERSION >= VERSION_GM8P_00 && VERSION < VERSION_GM8J_00
-  bool x14_palHintFlag;
+  rstl::vector< SHintState > mHintStates;
+  int mNextHintIdx;
+#if VERSION >= VERSION_GM8P_00
+  bool mPalHintFlag;
 #endif
 };
 
 NESTED_CHECK_SIZEOF(CHintOptions, SHintState, 0xc)
-#if VERSION >= VERSION_GM8P_00 && VERSION < VERSION_GM8J_00
+#if VERSION >= VERSION_GM8P_00
 CHECK_SIZEOF(CHintOptions, 0x18)
 #else
 CHECK_SIZEOF(CHintOptions, 0x14)

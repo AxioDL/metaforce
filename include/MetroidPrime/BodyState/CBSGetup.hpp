@@ -13,7 +13,7 @@ public:
   void Shutdown(CBodyController& bc) override;
 
 private:
-  pas::EFallState x4_fallState;
+  pas::EFallState mFallState;
   pas::EAnimationState GetBodyStateTransition(float dt, CBodyController& bc);
 };
 

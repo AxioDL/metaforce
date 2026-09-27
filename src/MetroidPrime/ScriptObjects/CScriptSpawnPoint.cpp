@@ -10,20 +10,20 @@ CScriptSpawnPoint::CScriptSpawnPoint(
     const rstl::reserved_vector< int, int(CPlayerState::kIT_Max) >& itemCounts,
     const bool defaultSpawn, const bool active, const bool morphed)
 : CEntity(uid, info, active, name)
-, x34_xf(xf)
-, x64_itemCounts(itemCounts)
-, x10c_24_firstSpawn(defaultSpawn)
-, x10c_25_morphed(morphed) {}
+, mXf(xf)
+, mItemCounts(itemCounts)
+, mFirstSpawn(defaultSpawn)
+, mMorphed(morphed) {}
 
 CScriptSpawnPoint::~CScriptSpawnPoint() {}
 
-const CTransform4f& CScriptSpawnPoint::GetTransform() const { return x34_xf; }
+const CTransform4f& CScriptSpawnPoint::GetTransform() const { return mXf; }
 
 int CScriptSpawnPoint::GetPowerup(const CPlayerState::EItemType& type) const {
   if (CPlayerState::kIT_Max <= type || type < 0) {
-    return x64_itemCounts.front();
+    return mItemCounts.front();
   }
-  return x64_itemCounts[type];
+  return mItemCounts[type];
 }
 
 void CScriptSpawnPoint::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId,
@@ -56,9 +56,9 @@ void CScriptSpawnPoint::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objI
 
         stateMgr.SetCurrentAreaId(thisAreaId);
         stateMgr.SetActorAreaId(*player, thisAreaId);
-        player->Teleport(x34_xf, stateMgr, true);
+        player->Teleport(mXf, stateMgr, true);
         player->SetSpawnedMorphBallState(
-            x10c_25_morphed ? CPlayer::kMS_Morphed : CPlayer::kMS_Unmorphed, stateMgr);
+            mMorphed ? CPlayer::kMS_Morphed : CPlayer::kMS_Unmorphed, stateMgr);
 
         if (propagateAgain) {
           CWorld::PropogateAreaChain(CGameArea::kOS_Occluded, stateMgr.World()->Area(nextAreaId),
@@ -66,9 +66,9 @@ void CScriptSpawnPoint::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objI
         }
 
       } else {
-        player->Teleport(x34_xf, stateMgr, true);
+        player->Teleport(mXf, stateMgr, true);
         player->SetSpawnedMorphBallState(
-            x10c_25_morphed ? CPlayer::kMS_Morphed : CPlayer::kMS_Unmorphed, stateMgr);
+            mMorphed ? CPlayer::kMS_Morphed : CPlayer::kMS_Unmorphed, stateMgr);
       }
       CEntity::SendScriptMsgs(kSS_Zero, stateMgr, kSM_None);
     }

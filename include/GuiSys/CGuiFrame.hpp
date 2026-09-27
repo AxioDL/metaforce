@@ -17,7 +17,7 @@ public:
   CGuiFrame(uint id, CGuiSys& sys, int a, int b, int c, CSimplePool* sp);
   ~CGuiFrame();
   static CGuiFrame* CreateFrame(uint id, CGuiSys& sys, CInputStream& in, CSimplePool* sp);
-#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+#if VERSION >= VERSION_GM8P_00
   int LoadWidgetsInGame(CInputStream& in, CSimplePool* sp, uint version);
 #else
   int LoadWidgetsInGame(CInputStream& in, CSimplePool* sp);
@@ -34,35 +34,35 @@ public:
   CGuiWidget* FindWidget(const rstl::string& name) const;
   bool GetIsFinishedLoading() const;
 
-  CGuiCamera* GetFrameCamera() const { return x14_camera; }
+  CGuiCamera* GetFrameCamera() const { return mCamera; }
   void SetFrameCamera(CGuiCamera* camera);
   void AddLight(CGuiLight* light);
   void RemoveLight(CGuiLight* light);
   void SetHeadWidget(CGuiHeadWidget* widget);
   void RemoveWidgetFromDrawList(CGuiWidget* widget);
 
-  short AddWidgetToIDDB(const rstl::string& name) { return x18_db.AddWidget(name); }
-  CGuiWidgetIdDB& WidgetIdDB() { return x18_db; }
+  short AddWidgetToIDDB(const rstl::string& name) { return mDb.AddWidget(name); }
+  CGuiWidgetIdDB& WidgetIdDB() { return mDb; }
 
-  CGuiSys& GetGuiSys() const { return x8_guiSys; }
+  CGuiSys& GetGuiSys() const { return mGuiSys; }
 
   void EnableLights(uint mask) const;
   void DisableLights() const;
 
 private:
-  uint x0_id;
+  uint mId;
   uint x4_;
-  CGuiSys& x8_guiSys;
-  CGuiHeadWidget* xc_headWidget;
-  CGuiWidget* x10_rootWidget;
-  CGuiCamera* x14_camera;
-  CGuiWidgetIdDB x18_db;
-  rstl::vector< CGuiWidget* > x2c_widgets;
-  rstl::vector< CGuiLight* > x3c_lights;
-  int x4c_a;
-  int x50_b;
-  int x54_c;
-  mutable bool x58_24_loaded : 1;
+  CGuiSys& mGuiSys;
+  CGuiHeadWidget* mHeadWidget;
+  CGuiWidget* mRootWidget;
+  CGuiCamera* mCamera;
+  CGuiWidgetIdDB mDb;
+  rstl::vector< CGuiWidget* > mWidgets;
+  rstl::vector< CGuiLight* > mLights;
+  int mA;
+  int mB;
+  int mC;
+  mutable bool mLoaded : 1;
 };
 CHECK_SIZEOF(CGuiFrame, 0x5c);
 

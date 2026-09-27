@@ -20,16 +20,16 @@ public:
   void Touch(CActor&, CStateManager&) override;
 
 private:
-  float xe8_duration;
-  float xec_finalRadius;
-  float xf0_currentRadius;
-  float xf4_initialRadius;
-  float xf8_interferenceDur;
+  float mDuration;
+  float mFinalRadius;
+  float mCurrentRadius;
+  float mInitialRadius;
+  float mInterferenceDur;
   float xfc_;
-  float x100_interferenceMag;
+  float mInterferenceMag;
   float x104_;
-  TLockedToken< CGenDescription > x108_particleDesc;
-  rstl::single_ptr< CElementGen > x114_particleGen;
+  TLockedToken< CGenDescription > mParticleDesc;
+  rstl::single_ptr< CElementGen > mParticleGen;
 
   CAABox CalculateBoundingBox() const;
 };

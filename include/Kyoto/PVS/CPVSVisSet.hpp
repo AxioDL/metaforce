@@ -17,7 +17,7 @@ public:
   CPVSVisSet(EPVSVisSetState state);
 
   EPVSVisSetState GetVisible(int index) const;
-  EPVSVisSetState GetState() const { return x0_state; }
+  EPVSVisSetState GetState() const { return mState; }
 
   static inline CPVSVisSet MakeFromMemory(const int numBits, const int numLights,
                                           const rstl::auto_ptr< const char >& leafPtr) {
@@ -25,10 +25,10 @@ public:
   }
 
 private:
-  EPVSVisSetState x0_state;
-  int x4_numBits;
-  int x8_numLights;
-  rstl::auto_ptr< const char > xc_ptr;
+  EPVSVisSetState mState;
+  int mNumBits;
+  int mNumLights;
+  rstl::auto_ptr< const char > mPtr;
 };
 CHECK_SIZEOF(CPVSVisSet, 0x14);
 

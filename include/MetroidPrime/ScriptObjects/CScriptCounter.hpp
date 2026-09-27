@@ -4,10 +4,10 @@
 #include "MetroidPrime/CEntity.hpp"
 
 class CScriptCounter : public CEntity {
-  int x34_initial;
-  int x38_current;
-  int x3c_max;
-  bool x40_autoReset;
+  int mInitial;
+  int mCurrent;
+  int mMax;
+  bool mAutoReset;
 
 public:
   CScriptCounter(TUniqueId, const rstl::string& name, const CEntityInfo& info, int, int, bool,

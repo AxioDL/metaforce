@@ -19,85 +19,85 @@ public:
   static int GetMinProperties() { return skMinProperties; }
   static int GetNumProperties() { return 48; }
 
-  float GetIntoDeactivateDelay() const { return x0_intoDeactivateDelay; }
-  float GetIntoActivateDelay() const { return x4_intoActivateDelay; }
-  float GetReloadTime() const { return x8_reloadTime; }
-  float GetReloadTimeVariance() const { return xc_reloadTimeVariance; }
-  float GetPanStartTime() const { return x10_panStartTime; }
-  float GetPanHoldTime() const { return x14_panHoldTime; }
-  float GetPanTotalSearchTime() const { return x18_totalPanSearchTime; }
-  float GetLeftMaxAngle() const { return x1c_leftMaxAngle; }
-  float GetRightMaxAngle() const { return x20_rightMaxAngle; }
-  float GetDownMaxAngle() const { return x24_downMaxAngle; }
-  float GetTurnSpeed() const { return x28_turnSpeed; }
-  float GetDetectionRange() const { return x2c_detectionRange; }
-  float GetDetectionZRange() const { return x30_detectionZRange; }
-  float GetFreezeDuration() const { return x34_freezeDuration; }
-  float GetFreezeVariance() const { return x38_freezeVariance; }
-  bool UseFreezeTimeout() const { return x3c_freezeTimeout; }
-  CAssetId GetProjectileRes() const { return x40_projectileRes; }
-  const CDamageInfo& GetProjectileDamage() const { return x44_projectileDamage; }
-  CAssetId GetIdleLightRes() const { return x60_idleLightRes; }
-  CAssetId GetDeactivateLightRes() const { return x64_deactivateLightRes; }
-  CAssetId GetTargettingLightRes() const { return x68_targettingLightRes; }
-  CAssetId GetFrozenEffectRes() const { return x6c_frozenEffectRes; }
-  CAssetId GetChargingEffectRes() const { return x70_chargingEffectRes; }
-  CAssetId GetPanningEffectRes() const { return x74_panningEffectRes; }
-  CAssetId GetVisorEffectRes() const { return x78_visorEffectRes; }
-  ushort GetTrackingSoundId() const { return x7c_trackingSoundId; }
-  ushort GetLockOnSoundId() const { return x7e_lockOnSoundId; }
-  ushort GetUnFreezeSoundId() const { return x80_unfreezeSoundId; }
-  ushort GetStopClankSoundId() const { return x82_stopClankSoundId; }
-  ushort GetChargingSoundId() const { return x84_chargingSoundId; }
-  const ushort GetVisorSoundId() const { return x86_visorSoundId; }
-  CAssetId GetExtensionModelResId() const { return x88_extensionModelResId; }
-  float GetExtensionDropDownDist() const { return x8c_extensionDropDownDist; }
-  uint GetNumInitialShots() const { return x90_numInitialShots; }
-  uint GetInitialShotTableIndex() const { return x94_initialShotTableIndex; }
-  uint GetNumSubsequentShots() const { return x98_numSubsequentShots; }
-  float GetFrenzyDuration() const { return x9c_frenzyDuration; }
-  bool IsScriptedStartOnly() const { return xa0_scriptedStartOnly; }
+  float GetIntoDeactivateDelay() const { return mIntoDeactivateDelay; }
+  float GetIntoActivateDelay() const { return mIntoActivateDelay; }
+  float GetReloadTime() const { return mReloadTime; }
+  float GetReloadTimeVariance() const { return mReloadTimeVariance; }
+  float GetPanStartTime() const { return mPanStartTime; }
+  float GetPanHoldTime() const { return mPanHoldTime; }
+  float GetPanTotalSearchTime() const { return mTotalPanSearchTime; }
+  float GetLeftMaxAngle() const { return mLeftMaxAngle; }
+  float GetRightMaxAngle() const { return mRightMaxAngle; }
+  float GetDownMaxAngle() const { return mDownMaxAngle; }
+  float GetTurnSpeed() const { return mTurnSpeed; }
+  float GetDetectionRange() const { return mDetectionRange; }
+  float GetDetectionZRange() const { return mDetectionZRange; }
+  float GetFreezeDuration() const { return mFreezeDuration; }
+  float GetFreezeVariance() const { return mFreezeVariance; }
+  bool UseFreezeTimeout() const { return mFreezeTimeout; }
+  CAssetId GetProjectileRes() const { return mProjectileRes; }
+  const CDamageInfo& GetProjectileDamage() const { return mProjectileDamage; }
+  CAssetId GetIdleLightRes() const { return mIdleLightRes; }
+  CAssetId GetDeactivateLightRes() const { return mDeactivateLightRes; }
+  CAssetId GetTargettingLightRes() const { return mTargettingLightRes; }
+  CAssetId GetFrozenEffectRes() const { return mFrozenEffectRes; }
+  CAssetId GetChargingEffectRes() const { return mChargingEffectRes; }
+  CAssetId GetPanningEffectRes() const { return mPanningEffectRes; }
+  CAssetId GetVisorEffectRes() const { return mVisorEffectRes; }
+  ushort GetTrackingSoundId() const { return mTrackingSoundId; }
+  ushort GetLockOnSoundId() const { return mLockOnSoundId; }
+  ushort GetUnFreezeSoundId() const { return mUnfreezeSoundId; }
+  ushort GetStopClankSoundId() const { return mStopClankSoundId; }
+  ushort GetChargingSoundId() const { return mChargingSoundId; }
+  const ushort GetVisorSoundId() const { return mVisorSoundId; }
+  CAssetId GetExtensionModelResId() const { return mExtensionModelResId; }
+  float GetExtensionDropDownDist() const { return mExtensionDropDownDist; }
+  uint GetNumInitialShots() const { return mNumInitialShots; }
+  uint GetInitialShotTableIndex() const { return mInitialShotTableIndex; }
+  uint GetNumSubsequentShots() const { return mNumSubsequentShots; }
+  float GetFrenzyDuration() const { return mFrenzyDuration; }
+  bool IsScriptedStartOnly() const { return mScriptedStartOnly; }
 
 private:
   static const int skMinProperties;
-  float x0_intoDeactivateDelay;
-  float x4_intoActivateDelay;
-  float x8_reloadTime;
-  float xc_reloadTimeVariance;
-  float x10_panStartTime;
-  float x14_panHoldTime;
-  float x18_totalPanSearchTime;
-  float x1c_leftMaxAngle;
-  float x20_rightMaxAngle;
-  float x24_downMaxAngle;
-  float x28_turnSpeed;
-  float x2c_detectionRange;
-  float x30_detectionZRange;
-  float x34_freezeDuration;
-  float x38_freezeVariance;
-  bool x3c_freezeTimeout;
-  CAssetId x40_projectileRes;
-  CDamageInfo x44_projectileDamage;
-  CAssetId x60_idleLightRes;
-  CAssetId x64_deactivateLightRes;
-  CAssetId x68_targettingLightRes;
-  CAssetId x6c_frozenEffectRes;
-  CAssetId x70_chargingEffectRes;
-  CAssetId x74_panningEffectRes;
-  CAssetId x78_visorEffectRes;
-  ushort x7c_trackingSoundId;
-  ushort x7e_lockOnSoundId;
-  ushort x80_unfreezeSoundId;
-  ushort x82_stopClankSoundId;
-  ushort x84_chargingSoundId;
-  ushort x86_visorSoundId;
-  CAssetId x88_extensionModelResId;
-  float x8c_extensionDropDownDist;
-  uint x90_numInitialShots;
-  uint x94_initialShotTableIndex;
-  uint x98_numSubsequentShots;
-  float x9c_frenzyDuration;
-  bool xa0_scriptedStartOnly;
+  float mIntoDeactivateDelay;
+  float mIntoActivateDelay;
+  float mReloadTime;
+  float mReloadTimeVariance;
+  float mPanStartTime;
+  float mPanHoldTime;
+  float mTotalPanSearchTime;
+  float mLeftMaxAngle;
+  float mRightMaxAngle;
+  float mDownMaxAngle;
+  float mTurnSpeed;
+  float mDetectionRange;
+  float mDetectionZRange;
+  float mFreezeDuration;
+  float mFreezeVariance;
+  bool mFreezeTimeout;
+  CAssetId mProjectileRes;
+  CDamageInfo mProjectileDamage;
+  CAssetId mIdleLightRes;
+  CAssetId mDeactivateLightRes;
+  CAssetId mTargettingLightRes;
+  CAssetId mFrozenEffectRes;
+  CAssetId mChargingEffectRes;
+  CAssetId mPanningEffectRes;
+  CAssetId mVisorEffectRes;
+  ushort mTrackingSoundId;
+  ushort mLockOnSoundId;
+  ushort mUnfreezeSoundId;
+  ushort mStopClankSoundId;
+  ushort mChargingSoundId;
+  ushort mVisorSoundId;
+  CAssetId mExtensionModelResId;
+  float mExtensionDropDownDist;
+  uint mNumInitialShots;
+  uint mInitialShotTableIndex;
+  uint mNumSubsequentShots;
+  float mFrenzyDuration;
+  bool mScriptedStartOnly;
 };
 CHECK_SIZEOF(CScriptGunTurretData, 0xa4)
 
@@ -141,8 +141,8 @@ public:
   CVector3f GetAimPosition(const CStateManager& mgr, float dt) const override;
   CVector3f GetOrbitPosition(const CStateManager& mgr) const override;
 
-  CHealthInfo* HealthInfo(CStateManager& mgr) override { return &x264_healthInfo; }
-  const CDamageVulnerability* GetDamageVulnerability() const override { return &x26c_damageVuln; }
+  CHealthInfo* HealthInfo(CStateManager& mgr) override { return &mHealthInfo; }
+  const CDamageVulnerability* GetDamageVulnerability() const override { return &mDamageVuln; }
 
 private:
   static const uint skStateToLocoTypeLookup[];
@@ -181,7 +181,7 @@ private:
   void PlayAdditiveFlinchAnimation(CStateManager& mgr);
   void LaunchProjectile(CStateManager& mgr);
   inline CStaticRes SetupExtensionModel(const CVector3f& scale) const {
-    return CStaticRes(x2d4_data.GetExtensionModelResId(), scale);
+    return CStaticRes(mData.GetExtensionModelResId(), scale);
   }
 
   bool IsStopped(float dt) const;
@@ -192,64 +192,64 @@ private:
   bool PlayerInsideTurretSphere(CStateManager& mgr);
   void UpdateTargettingMode(float dt, CStateManager& mgr);
   void UpdateBurstType(CStateManager& mgr);
-  void SetTargetPosition(const CVector3f& position) { x404_targetPosition = position; }
+  void SetTargetPosition(const CVector3f& position) { mTargetPosition = position; }
 
-  ETurretComponent x258_type;
-  TUniqueId x25c_gunId;
-  float x260_lastGunHP;
-  CHealthInfo x264_healthInfo;
-  CDamageVulnerability x26c_damageVuln;
-  CScriptGunTurretData x2d4_data;
+  ETurretComponent mType;
+  TUniqueId mGunId;
+  float mLastGunHP;
+  CHealthInfo mHealthInfo;
+  CDamageVulnerability mDamageVuln;
+  CScriptGunTurretData mData;
   TUniqueId x378_;
-  CProjectileInfo x37c_projectileInfo;
-  CBurstFire x3a4_burstFire;
-  CVector3f x404_targetPosition;
-  TLockedToken< CGenDescription > x410_idleLightDesc;
-  TLockedToken< CGenDescription > x41c_deactivateLightDesc;
-  TLockedToken< CGenDescription > x428_targettingLightDesc;
-  TLockedToken< CGenDescription > x434_frozenEffectDesc;
-  TLockedToken< CGenDescription > x440_chargingEffectDesc;
-  TLockedToken< CGenDescription > x44c_panningEffectDesc;
-  rstl::optional_object< TLockedToken< CGenDescription > > x458_visorEffectDesc;
-  rstl::auto_ptr< CElementGen > x468_idleLight;
-  rstl::auto_ptr< CElementGen > x470_deactivateLight;
-  rstl::auto_ptr< CElementGen > x478_targettingLight;
-  rstl::auto_ptr< CElementGen > x480_frozenEffect;
-  rstl::auto_ptr< CElementGen > x488_chargingEffect;
-  rstl::auto_ptr< CElementGen > x490_panningEffect;
-  TUniqueId x498_lightId;
-  rstl::single_ptr< CCollisionActorManager > x49c_collisionManager;
-  TUniqueId x4a0_collisionActor;
-  rstl::optional_object< CModelData > x4a4_extensionModel;
-  float x4f4_extensionRange;
-  float x4f8_extensionT;
-  CVector3f x4fc_extensionOffset;
-  CSegId x508_gunSDKSeg;
-  CSfxHandle x50c_targetingEmitter;
-  float x510_timeSinceLastTargetSfx;
-  CVector3f x514_lastFrontVector;
-  ETurretState x520_state;
-  float x524_curStateTime;
-  float x528_curInactiveTime;
-  float x52c_curActiveTime;
-  float x530_curPanTime;
-  float x534_fireCycleRemTime;
-  float x538_halfFireCycleDur;
-  float x53c_freezeRemTime;
-  int x540_turretAnim;
-  CVector3f x544_originalFrontVec;
-  CVector3f x550_originalRightVec;
-  int x55c_additiveChargeAnim;
-  bool x560_24_dead : 1;
-  bool x560_25_frozen : 1;
-  bool x560_26_firedWithSetBurst : 1;
-  bool x560_27_burstSet : 1;
-  bool x560_28_hasBeenActivated : 1;
-  bool x560_29_scriptedStart : 1;
-  bool x560_30_needsStopClankSound : 1;
-  bool x560_31_frenzyReverse : 1;
+  CProjectileInfo mProjectileInfo;
+  CBurstFire mBurstFire;
+  CVector3f mTargetPosition;
+  TLockedToken< CGenDescription > mIdleLightDesc;
+  TLockedToken< CGenDescription > mDeactivateLightDesc;
+  TLockedToken< CGenDescription > mTargettingLightDesc;
+  TLockedToken< CGenDescription > mFrozenEffectDesc;
+  TLockedToken< CGenDescription > mChargingEffectDesc;
+  TLockedToken< CGenDescription > mPanningEffectDesc;
+  rstl::optional_object< TLockedToken< CGenDescription > > mVisorEffectDesc;
+  rstl::auto_ptr< CElementGen > mIdleLight;
+  rstl::auto_ptr< CElementGen > mDeactivateLight;
+  rstl::auto_ptr< CElementGen > mTargettingLight;
+  rstl::auto_ptr< CElementGen > mFrozenEffect;
+  rstl::auto_ptr< CElementGen > mChargingEffect;
+  rstl::auto_ptr< CElementGen > mPanningEffect;
+  TUniqueId mLightId;
+  rstl::single_ptr< CCollisionActorManager > mCollisionManager;
+  TUniqueId mCollisionActor;
+  rstl::optional_object< CModelData > mExtensionModel;
+  float mExtensionRange;
+  float mExtensionT;
+  CVector3f mExtensionOffset;
+  CSegId mGunSDKSeg;
+  CSfxHandle mTargetingEmitter;
+  float mTimeSinceLastTargetSfx;
+  CVector3f mLastFrontVector;
+  ETurretState mState;
+  float mCurStateTime;
+  float mCurInactiveTime;
+  float mCurActiveTime;
+  float mCurPanTime;
+  float mFireCycleRemTime;
+  float mHalfFireCycleDur;
+  float mFreezeRemTime;
+  int mTurretAnim;
+  CVector3f mOriginalFrontVec;
+  CVector3f mOriginalRightVec;
+  int mAdditiveChargeAnim;
+  bool mDead : 1;
+  bool mFrozen : 1;
+  bool mFiredWithSetBurst : 1;
+  bool mBurstSet : 1;
+  bool mHasBeenActivated : 1;
+  bool mScriptedStart : 1;
+  bool mNeedsStopClankSound : 1;
+  bool mFrenzyReverse : 1;
 };
 
-CHECK_SIZEOF(CScriptGunTurret, (VERSION >= VERSION_GM8P_00 ? 0x578 : 0x568))
+CHECK_SIZEOF(CScriptGunTurret, (VERSION >= VERSION_GM8E_02 ? 0x578 : 0x568))
 
 #endif // _CSCRIPTGUNTURRET

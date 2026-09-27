@@ -39,11 +39,11 @@ public:
                                           const rstl::ncrc_ptr< CAnimTreeNode >& c);
 
 private:
-  rstl::ncrc_ptr< CAnimTreeNode > x18_nextAnim;
-  bool x1c_didLoopIn;
-  CAnimSysContext x20_animCtx;
-  CSequenceFundamentals x30_fundamentals;
-  CCharAnimTime x88_curTime;
+  rstl::ncrc_ptr< CAnimTreeNode > mNextAnim;
+  bool mDidLoopIn;
+  CAnimSysContext mAnimCtx;
+  CSequenceFundamentals mFundamentals;
+  CCharAnimTime mCurTime;
 };
 CHECK_SIZEOF(CAnimTreeLoopIn, 0x90)
 

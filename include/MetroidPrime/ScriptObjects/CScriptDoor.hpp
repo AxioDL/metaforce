@@ -66,6 +66,6 @@ private:
   bool mBallDoor : 1;
   bool mDoClose : 1;
 };
-CHECK_SIZEOF(CScriptDoor, (VERSION >= VERSION_GM8P_00 ? 0x2c0 : 0x2b0))
+CHECK_SIZEOF(CScriptDoor, (VERSION >= VERSION_GM8E_02 ? 0x2c0 : 0x2b0))
 
 #endif // _CSCRIPTDOOR

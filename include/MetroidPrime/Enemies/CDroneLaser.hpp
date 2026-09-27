@@ -21,11 +21,11 @@ private:
   void SetScannerLightActive(CStateManager& mgr, bool active);
   void RenderBeam(uint subdivisions, float radius, const CColor& color, bool additive) const;
 
-  CVector3f xe8_wallIntersection;
-  TUniqueId xf4_scannerLight;
-  TLockedToken< CGenDescription > xf8_beamDesc;
-  rstl::single_ptr< CElementGen > x104_beamParticle;
+  CVector3f mWallIntersection;
+  TUniqueId mScannerLight;
+  TLockedToken< CGenDescription > mBeamDesc;
+  rstl::single_ptr< CElementGen > mBeamParticle;
 };
-CHECK_SIZEOF(CDroneLaser, (VERSION >= VERSION_GM8P_00 ? 0x118 : 0x108))
+CHECK_SIZEOF(CDroneLaser, (VERSION >= VERSION_GM8E_02 ? 0x118 : 0x108))
 
 #endif // _CDRONELASER

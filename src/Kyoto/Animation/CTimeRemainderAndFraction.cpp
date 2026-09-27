@@ -1,15 +1,15 @@
 #include "Kyoto/Animation/CTimeRemainderAndFraction.hpp"
 
-#if VERSION >= VERSION_GM8P_00
+#if VERSION >= VERSION_GM8E_02
 CIntegerTimeAndRemainder::CIntegerTimeAndRemainder(const CCharAnimTime& time,
                                                    const CCharAnimTime& interval)
-: x0_realTime(time.GetSeconds())
-, x4_integerTime(CCast::ToUint32(time / interval))
-, x8_remainder(rstl::max_val(x0_realTime - x4_integerTime * interval.GetSeconds(), 0.f)) {}
+: mRealTime(time.GetSeconds())
+, mIntegerTime(CCast::ToUint32(time / interval))
+, mRemainder(rstl::max_val(mRealTime - mIntegerTime * interval.GetSeconds(), 0.f)) {}
 
 CTimeRemainderAndFraction::CTimeRemainderAndFraction(const CCharAnimTime& time,
                                                      const CCharAnimTime& interval)
 : CIntegerTimeAndRemainder(time, interval)
-, xc_fraction(Remainder() / interval.GetSeconds())
-, x10_finestSample(interval.GetSeconds()) {}
+, mFraction(Remainder() / interval.GetSeconds())
+, mFinestSample(interval.GetSeconds()) {}
 #endif

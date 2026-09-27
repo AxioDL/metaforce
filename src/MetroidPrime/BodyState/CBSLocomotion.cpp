@@ -18,7 +18,7 @@ static float skMaxPitchAngle = CRelAngle::FromDegrees(10.f).AsRadians();
 const float CBSBiPedLocomotion::skMinWalkPercent = 0.5f;
 static int skInvalidAnimId = -1;
 
-bool CBSFlyerLocomotion::IsPitchable() const { return x3cc_pitchable; }
+bool CBSFlyerLocomotion::IsPitchable() const { return mPitchable; }
 
 bool CBSFlyerLocomotion::IsBackPedal(CBodyController& bc) const {
   (void)bc;
@@ -29,14 +29,14 @@ CBSFlyerLocomotion::~CBSFlyerLocomotion() {}
 
 CBSWallWalkerLocomotion::~CBSWallWalkerLocomotion() {}
 
-bool CBSBiPedLocomotion::IsMoving() const { return x3c4_anim != pas::kLA_Idle; }
+bool CBSBiPedLocomotion::IsMoving() const { return mAnim != pas::kLA_Idle; }
 
 CBSAiMovedFlyerLocomotion::~CBSAiMovedFlyerLocomotion() {}
 
-CBSLocomotion::CBSLocomotion() : x4_locomotionType(pas::kLT_Invalid) {}
+CBSLocomotion::CBSLocomotion() : mLocomotionType(pas::kLT_Invalid) {}
 
 void CBSLocomotion::Start(CBodyController& bc, CStateManager& mgr) {
-  x4_locomotionType = bc.GetLocomotionType();
+  mLocomotionType = bc.GetLocomotionType();
 
   if (bc.CommandMgr().GetCmd(kBSC_MaintainVelocity)) {
     ReStartBodyState(bc, true);
@@ -189,7 +189,7 @@ pas::EAnimationState CBSLocomotion::GetBodyStateTransition(float dt, CBodyContro
         }
       }
     }
-    if (x4_locomotionType != bc.GetLocomotionType()) {
+    if (mLocomotionType != bc.GetLocomotionType()) {
       return pas::kAS_Locomotion;
     }
   }
@@ -199,9 +199,9 @@ pas::EAnimationState CBSLocomotion::GetBodyStateTransition(float dt, CBodyContro
 }
 
 CBSBiPedLocomotion::CBSBiPedLocomotion(CActor& actor)
-: x8_anims(14, rstl::reserved_vector< rstl::pair< int, float >, 8 >(
+: mAnims(14, rstl::reserved_vector< rstl::pair< int, float >, 8 >(
                    8, rstl::pair< int, float >(0, 0.f)))
-, x3c4_anim(pas::kLA_Invalid) {
+, mAnim(pas::kLA_Invalid) {
   const CPASDatabase& pasDatabase = actor.GetAnimationData()->GetCharacterInfo().GetPASDatabase();
   for (int i = 0; i < 14; ++i) {
     for (int j = 0; j < 8; ++j) {
@@ -213,7 +213,7 @@ CBSBiPedLocomotion::CBSBiPedLocomotion(CActor& actor)
         avgVel = actor.GetAverageAnimVelocity(best.second);
         avgVel = j != 0 ? avgVel : 0.f;
       }
-      x8_anims[static_cast< pas::ELocomotionType >(i)][static_cast< pas::ELocomotionAnim >(j)] =
+      mAnims[static_cast< pas::ELocomotionType >(i)][static_cast< pas::ELocomotionAnim >(j)] =
           rstl::pair< int, float >(best.second, avgVel);
     }
   }
@@ -225,14 +225,14 @@ float CBSBiPedLocomotion::GetLocomotionSpeed(pas::ELocomotionType type,
 }
 
 void CBSBiPedLocomotion::Start(CBodyController& bc, CStateManager& mgr) {
-  x3c8_primeTime = 0.f;
+  mPrimeTime = 0.f;
   CBSLocomotion::Start(bc, mgr);
 }
 
 pas::EAnimationState CBSBiPedLocomotion::UpdateBody(float dt, CBodyController& bc,
                                                     CStateManager& mgr) {
-  if (x3c8_primeTime < 0.2f) {
-    x3c8_primeTime += dt;
+  if (mPrimeTime < 0.2f) {
+    mPrimeTime += dt;
   }
   return CBSLocomotion::UpdateBody(dt, bc, mgr);
 }
@@ -241,26 +241,26 @@ float CBSBiPedLocomotion::UpdateLocomotionAnimation(float dt, float velMag, CBod
                                                     bool init) {
   float ret = 1.f;
 
-  if (init || x3c8_primeTime >= 0.2f) {
-    const pas::ELocomotionAnim anim = init ? pas::kLA_Invalid : x3c4_anim;
-    const float maxSpeed = velMag * GetLocomotionSpeed(x4_locomotionType, pas::kLA_Run);
+  if (init || mPrimeTime >= 0.2f) {
+    const pas::ELocomotionAnim anim = init ? pas::kLA_Invalid : mAnim;
+    const float maxSpeed = velMag * GetLocomotionSpeed(mLocomotionType, pas::kLA_Run);
     if (IsStrafing(bc) && velMag >= 0.01f) {
       ret = UpdateStrafe(velMag, bc, anim);
     } else if (maxSpeed < 0.01f) {
       if (anim != pas::kLA_Idle || init) {
         if (!bc.GetBodyStateInfo().GetLocoAnimChangeAtEndOfAnimOnly() ||
             bc.GetAnimTimeRemaining() <= dt || init) {
-          const rstl::pair< int, float >& best = GetLocoAnimation(x4_locomotionType, pas::kLA_Idle);
+          const rstl::pair< int, float >& best = GetLocoAnimation(mLocomotionType, pas::kLA_Idle);
           if (bc.GetCurrentAnimId() != best.first) {
             const CAnimPlaybackParms playParms(best.first, -1, 1.f, true);
             bc.SetCurrentAnimation(playParms, true, false);
-            x3c8_primeTime = 0.f;
+            mPrimeTime = 0.f;
           }
-          x3c4_anim = pas::kLA_Idle;
+          mAnim = pas::kLA_Idle;
         }
       }
     } else {
-      const rstl::pair< int, float >& best = GetLocoAnimation(x4_locomotionType, pas::kLA_Walk);
+      const rstl::pair< int, float >& best = GetLocoAnimation(mLocomotionType, pas::kLA_Walk);
       if (maxSpeed < best.second) {
         ret = UpdateWalk(maxSpeed, bc, anim);
       } else {
@@ -274,7 +274,7 @@ float CBSBiPedLocomotion::UpdateLocomotionAnimation(float dt, float velMag, CBod
 
 const rstl::pair< int, float >&
 CBSBiPedLocomotion::GetLocoAnimation(pas::ELocomotionType type, pas::ELocomotionAnim anim) const {
-  return x8_anims[static_cast< int >(type)][static_cast< int >(anim)];
+  return mAnims[static_cast< int >(type)][static_cast< int >(anim)];
 }
 
 bool CBSBiPedLocomotion::IsStrafing(CBodyController& bc) const {
@@ -304,19 +304,19 @@ float CBSBiPedLocomotion::UpdateStrafe(float vel, CBodyController& bc, pas::ELoc
     const int side = localVec[maxComp] > 0.f ? 0 : 1;
     const int strafeKey = maxComp * 2 + side;
     const pas::ELocomotionAnim strafeType = strafes[strafeKey];
-    const float rate = vel * GetLocomotionSpeed(x4_locomotionType, strafeType);
+    const float rate = vel * GetLocomotionSpeed(mLocomotionType, strafeType);
     if (anim != strafeType) {
-      const rstl::pair< int, float >& strafe = GetLocoAnimation(x4_locomotionType, strafeType);
+      const rstl::pair< int, float >& strafe = GetLocoAnimation(mLocomotionType, strafeType);
       if (bc.GetCurrentAnimId() != strafe.first) {
         const CAnimPlaybackParms playParms(strafe.first, -1, 1.f, true);
         bc.SetCurrentAnimation(playParms, true, false);
-        x3c8_primeTime = 0.f;
+        mPrimeTime = 0.f;
       }
-      x3c4_anim = strafeType;
+      mAnim = strafeType;
     }
 
-    const rstl::pair< int, float >& idle = GetLocoAnimation(x4_locomotionType, pas::kLA_Idle);
-    const rstl::pair< int, float >& strafe = GetLocoAnimation(x4_locomotionType, strafeType);
+    const rstl::pair< int, float >& idle = GetLocoAnimation(mLocomotionType, pas::kLA_Idle);
+    const rstl::pair< int, float >& strafe = GetLocoAnimation(mLocomotionType, strafeType);
     const float perc = rstl::max_val(skMinWalkPercent, ComputeWeightPercentage(idle, strafe, rate));
     bc.MultiplyPlaybackRate(perc);
   }
@@ -326,25 +326,25 @@ float CBSBiPedLocomotion::UpdateStrafe(float vel, CBodyController& bc, pas::ELoc
 
 float CBSBiPedLocomotion::UpdateWalk(float vel, CBodyController& bc, pas::ELocomotionAnim anim) {
   if (anim != pas::kLA_Walk) {
-    const rstl::pair< int, float >& walk = GetLocoAnimation(x4_locomotionType, pas::kLA_Walk);
+    const rstl::pair< int, float >& walk = GetLocoAnimation(mLocomotionType, pas::kLA_Walk);
     if (bc.GetCurrentAnimId() != walk.first) {
       const CAnimPlaybackParms playParms(walk.first, -1, 1.f, true);
       bc.SetCurrentAnimation(playParms, true, false);
-      x3c8_primeTime = 0.f;
+      mPrimeTime = 0.f;
     }
-    x3c4_anim = pas::kLA_Walk;
+    mAnim = pas::kLA_Walk;
   }
 
-  const rstl::pair< int, float >& idle = GetLocoAnimation(x4_locomotionType, pas::kLA_Idle);
-  const rstl::pair< int, float >& walk = GetLocoAnimation(x4_locomotionType, pas::kLA_Walk);
+  const rstl::pair< int, float >& idle = GetLocoAnimation(mLocomotionType, pas::kLA_Idle);
+  const rstl::pair< int, float >& walk = GetLocoAnimation(mLocomotionType, pas::kLA_Walk);
   const float perc = rstl::max_val(skMinWalkPercent, ComputeWeightPercentage(idle, walk, vel));
   bc.MultiplyPlaybackRate(perc);
   return perc;
 }
 
 float CBSBiPedLocomotion::UpdateRun(float vel, CBodyController& bc, pas::ELocomotionAnim anim) {
-  const rstl::pair< int, float >& walk = GetLocoAnimation(x4_locomotionType, pas::kLA_Walk);
-  const rstl::pair< int, float >& run = GetLocoAnimation(x4_locomotionType, pas::kLA_Run);
+  const rstl::pair< int, float >& walk = GetLocoAnimation(mLocomotionType, pas::kLA_Walk);
+  const rstl::pair< int, float >& run = GetLocoAnimation(mLocomotionType, pas::kLA_Run);
   const float perc = ComputeWeightPercentage(walk, run, vel);
   const int walkAnim = walk.first;
   const int runAnim = run.first;
@@ -355,46 +355,46 @@ float CBSBiPedLocomotion::UpdateRun(float vel, CBodyController& bc, pas::ELocomo
     if (anim != pas::kLA_Walk && bc.GetCurrentAnimId() != walkAnim) {
       const CAnimPlaybackParms playParms(walkAnim, -1, 1.f, true);
       bc.SetCurrentAnimation(playParms, true, false);
-      x3c8_primeTime = 0.f;
+      mPrimeTime = 0.f;
     }
     bc.MultiplyPlaybackRate(rate);
-    x3c4_anim = pas::kLA_Walk;
+    mAnim = pas::kLA_Walk;
   } else {
     rate = rstl::min_val(vel / run.second, 1.f);
     if (anim != pas::kLA_Run && bc.GetCurrentAnimId() != runAnim) {
       const CAnimPlaybackParms playParms(runAnim, -1, 1.f, true);
       bc.SetCurrentAnimation(playParms, true, false);
-      x3c8_primeTime = 0.f;
+      mPrimeTime = 0.f;
     }
     bc.MultiplyPlaybackRate(rate);
-    x3c4_anim = pas::kLA_Run;
+    mAnim = pas::kLA_Run;
   }
 
   return rate;
 }
 
 CBSRestrictedLocomotion::CBSRestrictedLocomotion(CActor& actor)
-: x8_anims(14, skInvalidAnimId)
-, x44_anim(pas::kLA_Invalid) {
+: mAnims(14, skInvalidAnimId)
+, mAnim(pas::kLA_Invalid) {
   const CPASDatabase& pasDatabase = actor.GetAnimationData()->GetCharacterInfo().GetPASDatabase();
   for (int i = 0; i < 14; ++i) {
     CPASAnimParmData parms(pas::kAS_Locomotion, CPASAnimParm::FromEnum(0),
                            CPASAnimParm::FromEnum(i));
     rstl::pair< float, int > best = pasDatabase.FindBestAnimation(parms, -1);
-    x8_anims[static_cast< pas::ELocomotionType >(i)] = best.second;
+    mAnims[static_cast< pas::ELocomotionType >(i)] = best.second;
   }
 }
 
 float CBSRestrictedLocomotion::UpdateLocomotionAnimation(float dt, float velMag,
                                                          CBodyController& bc, bool init) {
-  const pas::ELocomotionAnim anim = init ? pas::kLA_Invalid : x44_anim;
+  const pas::ELocomotionAnim anim = init ? pas::kLA_Invalid : mAnim;
   if (anim != pas::kLA_Idle) {
-    const int newAnim = x8_anims[static_cast< int >(x4_locomotionType)];
+    const int newAnim = mAnims[static_cast< int >(mLocomotionType)];
     if (newAnim != bc.GetCurrentAnimId()) {
       const CAnimPlaybackParms playParms(newAnim, -1, 1.f, true);
       bc.SetCurrentAnimation(playParms, true, false);
     }
-    x44_anim = pas::kLA_Idle;
+    mAnim = pas::kLA_Idle;
   }
 
   (void)dt;
@@ -403,14 +403,14 @@ float CBSRestrictedLocomotion::UpdateLocomotionAnimation(float dt, float velMag,
 }
 
 CBSFlyerLocomotion::CBSFlyerLocomotion(CActor& actor, const bool pitchable)
-: CBSBiPedLocomotion(actor), x3cc_pitchable(pitchable) {}
+: CBSBiPedLocomotion(actor), mPitchable(pitchable) {}
 
 float CBSFlyerLocomotion::ApplyLocomotionPhysics(float dt, CBodyController& bc) {
   const float ret = CBSLocomotion::ApplyLocomotionPhysics(dt, bc);
 
   if (CPhysicsActor* act = TCastToPtr< CPhysicsActor >(&bc.GetOwner())) {
     if (CMath::AbsF(bc.GetCommandMgr().GetMoveVector()[kDZ]) > 0.01f &&
-        (!x3cc_pitchable || bc.GetBodyStateInfo().GetMaximumPitch() < skMaxPitchAngle)) {
+        (!mPitchable || bc.GetBodyStateInfo().GetMaximumPitch() < skMaxPitchAngle)) {
       const float maxSpeed = bc.GetBodyStateInfo().GetMaxSpeed();
       CVector3f dir(0.f, 0.f, dt * (maxSpeed * bc.GetCommandMgr().GetMoveVector()[kDZ]));
       CVector3f impulse = act->GetMoveToORImpulseWR(dir, dt);
@@ -491,14 +491,14 @@ float CBSAiMovedFlyerLocomotion::UpdateLocomotionAnimation(float dt, float velMa
       strafeType = runStrafes[strafeKey];
     }
 
-    if (init || strafeType != x3c4_anim) {
-      const rstl::pair< int, float >& strafe = GetLocoAnimation(x4_locomotionType, strafeType);
+    if (init || strafeType != mAnim) {
+      const rstl::pair< int, float >& strafe = GetLocoAnimation(mLocomotionType, strafeType);
       const int anim = strafe.first;
       if (init || bc.GetCurrentAnimId() != anim) {
         const CAnimPlaybackParms playParms(anim, -1, 1.f, true);
         bc.SetCurrentAnimation(playParms, true, false);
       }
-      x3c4_anim = strafeType;
+      mAnim = strafeType;
     }
   }
 

@@ -76,11 +76,13 @@ MetroidPrime/CArchMsgParmUserInput.cpp:
 	.data       start:0x803C4CB0 end:0x803C4CC0
 
 MetroidPrime/CFrontEndUI.cpp:
-	.text       start:0x8001C4B0 end:0x80024898
-	.rodata     start:0x803B696C end:0x803B69E0
-	.data       start:0x803C4DB8 end:0x803C4DE0
-	.sdata      start:0x80468DBC end:0x80468DD0
-	.sdata2     start:0x8046C0F8 end:0x8046C14C
+	.text       start:0x8001C45C end:0x800248C8
+	.ctors      start:0x803B4F98 end:0x803B4F9C
+	.rodata     start:0x803B68C0 end:0x803B6F00
+	.data       start:0x803C4CC0 end:0x803C4DD4
+	.sdata      start:0x80468D88 end:0x80468DD0
+	.sbss       start:0x8046ADB8 end:0x8046ADC4
+	.sdata2     start:0x8046C0E8 end:0x8046C168
 
 MetroidPrime/CInputGenerator.cpp:
 	.text       start:0x800248C8 end:0x80024DE4
@@ -100,9 +102,13 @@ MetroidPrime/CMFGame.cpp:
 	.sdata2     start:0x8046C170 end:0x8046C174
 
 MetroidPrime/CCredits.cpp:
-	.text       start:0x800268E8 end:0x800295D4
+	.text       start:0x800268E0 end:0x80029684
+	.ctors      start:0x803B4FA0 end:0x803B4FA4
+	.rodata     start:0x803B6F80 end:0x803B71D0
 	.data       start:0x803C4EA8 end:0x803C4F08
+	.bss        start:0x803E3020 end:0x803E3050
 	.sdata      start:0x80468E08 end:0x80468E38
+	.sbss       start:0x8046ADD8 end:0x8046ADE0
 	.sdata2     start:0x8046C180 end:0x8046C1F8
 
 MetroidPrime/CSplashScreen.cpp:
@@ -1165,7 +1171,7 @@ MetroidPrime/HUD/CHudRadarInterface.cpp:
 	.sdata2     start:0x8046E450 end:0x8046E480
 
 MetroidPrime/HUD/CHudThreatInterface.cpp:
-	.text       start:0x8018769C end:0x8018828C
+	.text       start:0x80187550 end:0x8018828C
 	.rodata     start:0x803BB864 end:0x803BB88C
 	.sdata2     start:0x8046E480 end:0x8046E4D0
 
@@ -1237,6 +1243,7 @@ MetroidPrime/ScriptObjects/CScriptPlayerActor.cpp:
 MetroidPrime/Tweaks/CTweakPlayerRes.cpp:
 	.text       start:0x8019FF48 end:0x801A0F08
 	.data       start:0x803CE298 end:0x803CE2A8
+	.sdata2     start:0x8046E750 end:0x8046E758
 
 MetroidPrime/Enemies/CBurstFire.cpp:
 	.text       start:0x801A0F08 end:0x801A1368
@@ -1640,7 +1647,7 @@ MetroidPrime/ScriptObjects/CScriptMemoryRelay.cpp:
 	.data       start:0x803D0F00 end:0x803D0F20
 
 MetroidPrime/CPauseScreenFrame.cpp:
-	.text       start:0x80231410 end:0x8023496C
+	.text       start:0x80231410 end:0x80234ACC
 	.rodata     start:0x803BEE10 end:0x803BF1A8
 	.data       start:0x803D0F20 end:0x803D10C8
 	.sdata      start:0x8046A368 end:0x8046A378
@@ -1844,16 +1851,19 @@ MetroidPrime/Player/CPlayerStuckTracker.cpp:
 	.sdata2     start:0x8046FEF0 end:0x8046FF08
 
 MetroidPrime/CSlideShow.cpp:
-	.text       start:0x80285178 end:0x80289BA4
+	.text       start:0x802847CC end:0x80289BA4
 	.ctors      start:0x803B5094 end:0x803B5098
-	.rodata     start:0x803C1138 end:0x803C1240
+	.rodata     start:0x803C1128 end:0x803C1240
 	.data       start:0x803D3E08 end:0x803D3E50
-	.sdata      start:0x8046A67C end:0x8046A6A8
+	.sdata      start:0x8046A668 end:0x8046A6A8
 	.sbss       start:0x8046B280 end:0x8046B288
-	.sdata2     start:0x8046FF24 end:0x8046FF88
+	.sdata2     start:0x8046FF08 end:0x8046FF80
+	.sbss2      start:0x80471708 end:0x80471710
 
 MetroidPrime/Tweaks/CTweakSlideShow.cpp:
-	.text       start:0x80289DB0 end:0x80289E78
+	.text       start:0x80289BA4 end:0x80289E78
+	.data       start:0x803D3E50 end:0x803D3E60
+	.sdata2     start:0x8046FF80 end:0x8046FF88
 
 MetroidPrime/CArtifactDoll.cpp:
 	.text       start:0x80289E78 end:0x8028AB08

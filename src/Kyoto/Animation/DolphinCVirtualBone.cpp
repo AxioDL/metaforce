@@ -30,10 +30,10 @@ static rstl::reserved_vector< SSkinWeighting, 3 > StreamInSkinWeighting(CInputSt
 }
 
 CVirtualBone::CVirtualBone(CInputStream& in)
-: x0_weights(StreamInSkinWeighting(in))
-, x1c_vertexCount(in.ReadLong())
-, x20_xf(CTransform4f::Identity())
-, x50_rotation(CMatrix3f::Identity()) {}
+: mWeights(StreamInSkinWeighting(in))
+, mVertexCount(in.ReadLong())
+, mXf(CTransform4f::Identity())
+, mRotation(CMatrix3f::Identity()) {}
 
 static ConstMtxPtr TransformToMtx(const CTransform4f& xf) { return xf.GetCStyleMatrix(); }
 
@@ -133,42 +133,42 @@ void Transform2FromMatrixData(CTransform4f* xf, const CMatrix3f* rot, const CVec
 
 void CVirtualBone::BuildFinalPosMatrix(const CPoseAsTransforms& pose,
                                        const CVector3f* points) const {
-  switch (x0_weights.size()) {
+  switch (mWeights.size()) {
   case 1: {
-    const CSegId id = x0_weights[0].x0_id;
+    const CSegId id = mWeights[0].mId;
     const CMatrix3f& rotation = pose.GetTransformMinusOffset(id);
-    TransformFromMatrixDelta(&x20_xf, &rotation, &points[id.val()]);
+    TransformFromMatrixDelta(&mXf, &rotation, &points[id.val()]);
     break;
   }
   case 2: {
-    const CSegId& id0 = x0_weights[0].x0_id;
-    const float weight0 = x0_weights[0].x4_weight;
-    const CSegId& id1 = x0_weights[1].x0_id;
-    const float weight1 = x0_weights[1].x4_weight;
+    const CSegId& id0 = mWeights[0].mId;
+    const float weight0 = mWeights[0].mWeight;
+    const CSegId& id1 = mWeights[1].mId;
+    const float weight1 = mWeights[1].mWeight;
     const CMatrix3f& rotation0 = pose.GetTransformMinusOffset(id0);
     const CMatrix3f& rotation1 = pose.GetTransformMinusOffset(id1);
-    Transform2FromMatrixData(&x20_xf, &rotation0, &points[id0.val()], weight0, &rotation1,
+    Transform2FromMatrixData(&mXf, &rotation0, &points[id0.val()], weight0, &rotation1,
                              &points[id1.val()], weight1);
     break;
   }
   case 3: {
-    const CSegId& id0 = x0_weights[0].x0_id;
-    const float weight0 = x0_weights[0].x4_weight;
-    const CSegId& id1 = x0_weights[1].x0_id;
-    const float weight1 = x0_weights[1].x4_weight;
-    const CSegId& id2 = x0_weights[2].x0_id;
-    const float weight2 = x0_weights[2].x4_weight;
+    const CSegId& id0 = mWeights[0].mId;
+    const float weight0 = mWeights[0].mWeight;
+    const CSegId& id1 = mWeights[1].mId;
+    const float weight1 = mWeights[1].mWeight;
+    const CSegId& id2 = mWeights[2].mId;
+    const float weight2 = mWeights[2].mWeight;
     const CMatrix3f& rotation0 = pose.GetTransformMinusOffset(id0);
     const CMatrix3f& rotation1 = pose.GetTransformMinusOffset(id1);
     CMatrix3f rotation(rotation0, weight0, rotation1, weight1);
     CVector3f offset = weight0 * points[id0.val()] + weight1 * points[id1.val()];
     pose.AccumulateScaledTransform(id2, rotation, weight2);
     offset += weight2 * points[id2.val()];
-    x20_xf = CTransform4f(rotation, offset);
+    mXf = CTransform4f(rotation, offset);
     break;
   }
   default:
-    x20_xf = CTransform4f::Identity();
+    mXf = CTransform4f::Identity();
     break;
   }
 }
@@ -176,13 +176,13 @@ void CVirtualBone::BuildFinalPosMatrix(const CPoseAsTransforms& pose,
 void CVirtualBone::BuildAccumulatedTransform(const CPoseAsTransforms& pose,
                                              const CVector3f* points) const {
   BuildFinalPosMatrix(pose, points);
-  x50_rotation = pose.GetRotation(x0_weights[0].x0_id);
+  mRotation = pose.GetRotation(mWeights[0].mId);
 }
 
 void PSMTXROMultS16VecArrayGathered(ROMtx mtx, const ushort* in, volatile void* out,
                                     size_t pointCount);
 
-#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+#if VERSION >= VERSION_GM8P_00
 void PSMTXROMultS16VecArrayGatheredSingle(ROMtx mtx, const ushort* in, volatile void* out,
                                           size_t pointCount);
 #endif
@@ -201,15 +201,15 @@ void CVirtualBone::BuildPoints(const ushort* in, volatile void* out, int pointCo
     float* outF = const_cast< float* >(static_cast< volatile float* >(out));
     const CVector3f* inV = reinterpret_cast< const CVector3f* >(in);
     for (int i = 0; i < pointCount; ++i) {
-      CVector3f point = x20_xf * inV[i];
+      CVector3f point = mXf * inV[i];
       *outF = point.GetX();
       *outF = point.GetY();
       *outF = point.GetZ();
     }
   } else {
     ROMtx mtx;
-    PSMTXReorder(TransformToMtx(x20_xf), mtx);
-#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+    PSMTXReorder(TransformToMtx(mXf), mtx);
+#if VERSION >= VERSION_GM8P_00
     PSMTXROMultS16VecArrayGatheredSingle(mtx, in, out, pointCount);
 #else
     PSMTXROMultS16VecArrayGathered(mtx, in, out, pointCount);
@@ -220,7 +220,7 @@ void CVirtualBone::BuildPoints(const ushort* in, volatile void* out, int pointCo
 void CVirtualBone::BuildPoints(const ushort* in, volatile void* out, int pointCount) const {
   volatile float* dest = static_cast< volatile float* >(out);
   for (int i = 0; i < pointCount; ++i) {
-    const CVector3f value = x20_xf * ReadVertex(in, i);
+    const CVector3f value = mXf * ReadVertex(in, i);
     *dest++ = value.GetX();
     *dest++ = value.GetY();
     *dest++ = value.GetZ();
@@ -234,13 +234,13 @@ void CVirtualBone::BuildNormals(const ushort* in, volatile void* out, int normal
     float* outF = const_cast< float* >(static_cast< volatile float* >(out));
     const CVector3f* inV = reinterpret_cast< const CVector3f* >(in);
     for (int i = 0; i < normalCount; ++i) {
-      CVector3f normal = x50_rotation * inV[i];
+      CVector3f normal = mRotation * inV[i];
       *outF = normal.GetX();
       *outF = normal.GetY();
       *outF = normal.GetZ();
     }
   } else {
-    CTransform4f xf(x50_rotation, CVector3f(0.f, 0.f, 0.f));
+    CTransform4f xf(mRotation, CVector3f(0.f, 0.f, 0.f));
     ROMtx mtx;
     PSMTXReorder(TransformToMtx(xf), mtx);
     PSMTXROMultS16VecArrayGathered(mtx, in, out, normalCount);
@@ -250,7 +250,7 @@ void CVirtualBone::BuildNormals(const ushort* in, volatile void* out, int normal
 void CVirtualBone::BuildNormals(const ushort* in, volatile void* out, int normalCount) const {
   volatile float* dest = static_cast< volatile float* >(out);
   for (int i = 0; i < normalCount; ++i) {
-    const CVector3f value = x50_rotation * ReadVertex(in, i);
+    const CVector3f value = mRotation * ReadVertex(in, i);
     *dest++ = value.GetX();
     *dest++ = value.GetY();
     *dest++ = value.GetZ();
@@ -260,7 +260,7 @@ void CVirtualBone::BuildNormals(const ushort* in, volatile void* out, int normal
 
 void CVirtualBone::BuildNormals(const CVector3f* in, CVector3f* out, int normalCount) const {
   for (int i = 0; i < normalCount; ++i) {
-    out[i] = x50_rotation * in[i];
+    out[i] = mRotation * in[i];
   }
 }
 
@@ -356,7 +356,7 @@ void PSMTXROMultS16VecArrayGathered(ROMtx mtx, const ushort* in, volatile void* 
   }
 }
 #endif
-#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+#if VERSION >= VERSION_GM8P_00
 #ifdef __MWERKS__
 // PAL point skinning writes each float separately, including the original FIFO pacing.
 asm void PSMTXROMultS16VecArrayGatheredSingle(ROMtx mtx, const ushort* in, volatile void* out,

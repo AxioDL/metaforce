@@ -17,11 +17,11 @@ public:
   short Rumble(CStateManager&, ERumbleFxId, float, ERumblePriority);
 
   void StopRumble(short id);
-  void HardStopAll() { x0_rumbleGenerator.HardStopAll(); } 
+  void HardStopAll() { mRumbleGenerator.HardStopAll(); }
   void Update(float dt);
 
 private:
-  CRumbleGenerator x0_rumbleGenerator;
+  CRumbleGenerator mRumbleGenerator;
 };
 
 #endif // _CRUMBLEMANAGER

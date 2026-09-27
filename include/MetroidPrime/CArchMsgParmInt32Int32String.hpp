@@ -6,14 +6,14 @@
 
 class CArchMsgParmInt32Int32String : public IArchitectureMessageParm {
 public:
-  int GetFirstInt32() const { return x4_int1; }
-  int GetSecondInt32() const { return x8_int2; }
-  const rstl::string& GetString() const { return xc_string; }
+  int GetFirstInt32() const { return mInt1; }
+  int GetSecondInt32() const { return mInt2; }
+  const rstl::string& GetString() const { return mString; }
 
 private:
-  int x4_int1;
-  int x8_int2;
-  rstl::string xc_string;
+  int mInt1;
+  int mInt2;
+  rstl::string mString;
 };
 CHECK_SIZEOF(CArchMsgParmInt32Int32String, 0x1c)
 

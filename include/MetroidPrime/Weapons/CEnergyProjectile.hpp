@@ -41,7 +41,7 @@ public:
 
   void Set3d0_26(bool v) { x3d0_26_ = v; }
 
-  CProjectileWeapon& ProjectileWeapon() { return x170_projectile; }
+  CProjectileWeapon& ProjectileWeapon() { return mProjectile; }
 
   void StopProjectile(CStateManager& mgr);
 
@@ -51,20 +51,20 @@ public:
   void ResolveCollisionWithWorld(const CRayCastResult& res, CStateManager& mgr);
 
 private:
-  CSfxHandle x2e8_sfx;
-  CVector3f x2ec_dir;
-  float x2f8_mag;
-  CCameraShakeData x2fc_camShake;
-  bool x3d0_24_dead : 1;
+  CSfxHandle mSfx;
+  CVector3f mDir;
+  float mMag;
+  CCameraShakeData mCamShake;
+  bool mDead : 1;
   bool x3d0_25_ : 1;
   bool x3d0_26_ : 1;
-  bool x3d0_27_camShakeDirty : 1;
-  float x3d4_curTime;
+  bool mCamShakeDirty : 1;
+  float mCurTime;
 
   static const CMaterialList kCheckMaterial;
 };
-CHECK_SIZEOF(CEnergyProjectile, (VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02 ? 0x400
-                                 : VERSION >= VERSION_GM8P_00                             ? 0x3e8
+CHECK_SIZEOF(CEnergyProjectile, (VERSION >= VERSION_GM8P_00 ? 0x400
+                                 : VERSION >= VERSION_GM8E_02                             ? 0x3e8
                                                                                           : 0x3d8));
 
 #endif // _CENERGYPROJECTILE

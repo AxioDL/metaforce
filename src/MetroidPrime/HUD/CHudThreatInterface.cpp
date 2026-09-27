@@ -54,71 +54,87 @@ rstl::pair< CVector3f, CVector3f > CHudThreatInterface::XRayThreatBarCoordFunc(f
   return rstl::pair< CVector3f, CVector3f >(CVector3f(0.4f + x, 0.f, z), CVector3f(x, 0.f, z));
 }
 
-CHudThreatInterface::CHudThreatInterface(CGuiFrame& hud, EHudType type, float distance)
-: x4_hudType(type)
-, x8_damagePulseTimer(0.f)
-, xc_damagePulse(0.f)
-, x10_threatDist(distance)
-, x14_arrowTimer(0.f)
-, x18_threatIconXf(CTransform4f::Identity())
-, x48_warningLerpAlpha(0.f)
-, x4c_threatStatus(kTS_Normal)
-, x50_warningColorLerp(0.f)
-, x54_24_visibleDebug(true)
-, x54_25_visibleGame(true) {
-  x58_basewidget_threatstuff = hud.FindWidget(skThreatGroupWidgetName);
-  x5c_basewidget_threaticon = hud.FindWidget(skThreatIconWidgetName);
-  x60_model_threatarrowup = static_cast< CGuiModel* >(hud.FindWidget(skThreatArrowUpWidgetName));
-  x64_model_threatarrowdown =
+CHudThreatInterface::CHudThreatInterface(
+  CGuiFrame& hud,
+#if VERSION >= VERSION_GM8E_02
+  StringTableHolder* stringTable,
+#endif
+  EHudType type,
+  float distance
+)
+#if VERSION >= VERSION_GM8E_02
+: mStringTable(stringTable),
+#else
+:
+#endif
+  mHudType(type)
+, mDamagePulseTimer(0.f)
+, mDamagePulse(0.f)
+, mThreatDist(distance)
+, mArrowTimer(0.f)
+, mThreatIconXf(CTransform4f::Identity())
+, mWarningLerpAlpha(0.f)
+, mThreatStatus(kTS_Normal)
+, mWarningColorLerp(0.f)
+, mVisibleDebug(true)
+, mVisibleGame(true) {
+  mBasewidget_threatstuff = hud.FindWidget(skThreatGroupWidgetName);
+  mBasewidget_threaticon = hud.FindWidget(skThreatIconWidgetName);
+  mModel_threatarrowup = static_cast< CGuiModel* >(hud.FindWidget(skThreatArrowUpWidgetName));
+  mModel_threatarrowdown =
       static_cast< CGuiModel* >(hud.FindWidget(skThreatArrowDownWidgetName));
-  x68_textpane_threatwarning =
+  mTextpane_threatwarning =
       static_cast< CGuiTextPane* >(hud.FindWidget(skThreatWarningWidgetName));
-  x6c_energybart01_threatbar =
+  mEnergybart01_threatbar =
       static_cast< CAuiEnergyBarT01* >(hud.FindWidget(skThreatBarWidgetName));
-  x70_textpane_threatdigits =
+  mTextpane_threatdigits =
       static_cast< CGuiTextPane* >(hud.FindWidget(rstl::string_l(skThreatDigitsNameXRay)));
-  if (x70_textpane_threatdigits) {
-    x70_textpane_threatdigits->TextSupport().SetFontColor(gpTweakGuiColors->GetThreatDigitsFont());
-    x70_textpane_threatdigits->TextSupport().SetOutlineColor(
+  if (mTextpane_threatdigits) {
+    mTextpane_threatdigits->TextSupport().SetFontColor(gpTweakGuiColors->GetThreatDigitsFont());
+    mTextpane_threatdigits->TextSupport().SetOutlineColor(
         gpTweakGuiColors->GetThreatDigitsOutline());
   }
-  x54_26_hasArrows = x60_model_threatarrowup && x64_model_threatarrowdown;
-  x54_27_notXRay = type != kHT_XRay;
-  x5c_basewidget_threaticon->SetColor(gpTweakGuiColors->GetThreatIconColor());
-  x18_threatIconXf = x5c_basewidget_threaticon->GetO2PTransform();
-  x6c_energybart01_threatbar->SetFilledColor(gpTweakGuiColors->GetThreatBarFilled());
-  x6c_energybart01_threatbar->SetEmptyColor(gpTweakGuiColors->GetThreatBarEmpty());
-  x6c_energybart01_threatbar->SetShadowColor(gpTweakGuiColors->GetThreatBarShadow());
-  x6c_energybart01_threatbar->SetCoordFunc(skThreatCoordFuncs[type]);
-  x6c_energybart01_threatbar->SetTesselation(type == kHT_Combat ? 1.f : 0.1f);
-  x6c_energybart01_threatbar->SetMaxEnergy(gpTweakGui->GetThreatRange());
-  x6c_energybart01_threatbar->SetFilledDrainSpeed(9999.f);
-  x6c_energybart01_threatbar->SetShadowDrainSpeed(9999.f);
-  x6c_energybart01_threatbar->SetShadowDrainDelay(0.f);
-  x6c_energybart01_threatbar->SetIsAlwaysResetTimer(false);
-  if (x68_textpane_threatwarning) {
-    x68_textpane_threatwarning->TextSupport().SetFontColor(
+  mHasArrows = mModel_threatarrowup && mModel_threatarrowdown;
+  mNotXRay = type != kHT_XRay;
+  mBasewidget_threaticon->SetColor(gpTweakGuiColors->GetThreatIconColor());
+  mThreatIconXf = mBasewidget_threaticon->GetO2PTransform();
+  mEnergybart01_threatbar->SetFilledColor(gpTweakGuiColors->GetThreatBarFilled());
+  mEnergybart01_threatbar->SetEmptyColor(gpTweakGuiColors->GetThreatBarEmpty());
+  mEnergybart01_threatbar->SetShadowColor(gpTweakGuiColors->GetThreatBarShadow());
+  mEnergybart01_threatbar->SetCoordFunc(skThreatCoordFuncs[type]);
+  mEnergybart01_threatbar->SetTesselation(type == kHT_Combat ? 1.f : 0.1f);
+  mEnergybart01_threatbar->SetMaxEnergy(gpTweakGui->GetThreatRange());
+  mEnergybart01_threatbar->SetFilledDrainSpeed(9999.f);
+  mEnergybart01_threatbar->SetShadowDrainSpeed(9999.f);
+  mEnergybart01_threatbar->SetShadowDrainDelay(0.f);
+  mEnergybart01_threatbar->SetIsAlwaysResetTimer(false);
+  if (mTextpane_threatwarning) {
+    mTextpane_threatwarning->TextSupport().SetFontColor(
         gpTweakGuiColors->GetThreatWarningFont());
-    x68_textpane_threatwarning->TextSupport().SetOutlineColor(
+    mTextpane_threatwarning->TextSupport().SetOutlineColor(
         gpTweakGuiColors->GetThreatWarningOutline());
   }
 }
 
-void CHudThreatInterface::SetThreatDistance(float distance) { x10_threatDist = distance; }
+#if VERSION >= VERSION_GM8E_02
+CHudThreatInterface::~CHudThreatInterface() {}
+#endif
+
+void CHudThreatInterface::SetThreatDistance(float distance) { mThreatDist = distance; }
 
 void CHudThreatInterface::SetIsVisibleDebug(bool visible) {
-  x54_24_visibleDebug = visible;
+  mVisibleDebug = visible;
   UpdateVisibility();
 }
 
 void CHudThreatInterface::SetIsVisibleGame(bool visible) {
-  x54_25_visibleGame = visible;
+  mVisibleGame = visible;
   UpdateVisibility();
 }
 
 void CHudThreatInterface::UpdateVisibility() {
-  const bool visible = x54_25_visibleGame && x54_24_visibleDebug;
-  x58_basewidget_threatstuff->SetVisibility(visible, kTM_Children);
+  const bool visible = mVisibleGame && mVisibleDebug;
+  mBasewidget_threatstuff->SetVisibility(visible, kTM_Children);
   if (visible) {
     Update(0.f);
   }
@@ -127,120 +143,138 @@ void CHudThreatInterface::UpdateVisibility() {
 void CHudThreatInterface::Update(float dt) {
   const CTweakGuiColors& colors = *gpTweakGuiColors;
   const CColor warningColor = CColor::Lerp(
-      colors.GetThreatIconColor(), colors.GetThreatIconWarningColor(), x50_warningColorLerp);
+      colors.GetThreatIconColor(), colors.GetThreatIconWarningColor(), mWarningColorLerp);
   const float maxThreatEnergy = gpTweakGui->GetThreatRange();
-  const float oldThreatDistance = maxThreatEnergy - x6c_energybart01_threatbar->GetActualEnergy();
-  if (x70_textpane_threatdigits) {
-    if (x10_threatDist < maxThreatEnergy) {
-      x70_textpane_threatdigits->SetIsVisible(true);
+  const float oldThreatDistance = maxThreatEnergy - mEnergybart01_threatbar->GetActualEnergy();
+  if (mTextpane_threatdigits) {
+    if (mThreatDist < maxThreatEnergy) {
+      mTextpane_threatdigits->SetIsVisible(true);
       char digits[8];
-      sprintf(digits, "%01.1f", rstl::max_val(0.f, x10_threatDist));
-      x70_textpane_threatdigits->TextSupport().SetText(rstl::string(digits));
+      sprintf(digits, "%01.1f", rstl::max_val(0.f, mThreatDist));
+      mTextpane_threatdigits->TextSupport().SetText(rstl::string(digits));
     } else {
-      x70_textpane_threatdigits->SetIsVisible(false);
+      mTextpane_threatdigits->SetIsVisible(false);
     }
   }
-  if (x54_26_hasArrows) {
-    if (x14_arrowTimer > 0.f) {
-      x14_arrowTimer = rstl::max_val(0.f, x14_arrowTimer - dt);
-      const float alpha = x14_arrowTimer / gpTweakGui->GetMissileArrowVisTime();
-      x60_model_threatarrowup->SetIsVisible(true);
-      x60_model_threatarrowup->SetColor(warningColor.WithAlphaModulatedBy(alpha));
-      x64_model_threatarrowdown->SetIsVisible(false);
-    } else if (x14_arrowTimer < 0.f) {
-      x14_arrowTimer = rstl::min_val(0.f, x14_arrowTimer + dt);
-      const float alpha = -x14_arrowTimer / gpTweakGui->GetMissileArrowVisTime();
-      x64_model_threatarrowdown->SetIsVisible(true);
-      x64_model_threatarrowdown->SetColor(warningColor.WithAlphaModulatedBy(alpha));
-      x60_model_threatarrowup->SetIsVisible(false);
+  if (mHasArrows) {
+    if (mArrowTimer > 0.f) {
+      mArrowTimer = rstl::max_val(0.f, mArrowTimer - dt);
+      const float alpha = mArrowTimer / gpTweakGui->GetMissileArrowVisTime();
+      mModel_threatarrowup->SetIsVisible(true);
+      mModel_threatarrowup->SetColor(warningColor.WithAlphaModulatedBy(alpha));
+      mModel_threatarrowdown->SetIsVisible(false);
+    } else if (mArrowTimer < 0.f) {
+      mArrowTimer = rstl::min_val(0.f, mArrowTimer + dt);
+      const float alpha = -mArrowTimer / gpTweakGui->GetMissileArrowVisTime();
+      mModel_threatarrowdown->SetIsVisible(true);
+      mModel_threatarrowdown->SetColor(warningColor.WithAlphaModulatedBy(alpha));
+      mModel_threatarrowup->SetIsVisible(false);
     } else {
-      x60_model_threatarrowup->SetIsVisible(false);
-      x64_model_threatarrowdown->SetIsVisible(false);
+      mModel_threatarrowup->SetIsVisible(false);
+      mModel_threatarrowdown->SetIsVisible(false);
     }
   }
-  if (x10_threatDist <= maxThreatEnergy) {
-    const float delta = x10_threatDist - oldThreatDistance;
+  if (mThreatDist <= maxThreatEnergy) {
+    const float delta = mThreatDist - oldThreatDistance;
     if (delta < -0.01f) {
-      x14_arrowTimer = gpTweakGui->GetMissileArrowVisTime();
+      mArrowTimer = gpTweakGui->GetMissileArrowVisTime();
     } else if (delta > 0.01f) {
-      x14_arrowTimer = -1.f * gpTweakGui->GetMissileArrowVisTime();
+      mArrowTimer = -1.f * gpTweakGui->GetMissileArrowVisTime();
     }
   } else {
-    x14_arrowTimer = 0.f;
+    mArrowTimer = 0.f;
   }
-  if (x10_threatDist <= maxThreatEnergy) {
-    x6c_energybart01_threatbar->SetCurrEnergy(
-        x6c_energybart01_threatbar->GetMaxEnergy() - x10_threatDist, CAuiEnergyBarT01::kSM_Normal);
-    x5c_basewidget_threaticon->SetColor(warningColor);
+  if (mThreatDist <= maxThreatEnergy) {
+    mEnergybart01_threatbar->SetCurrEnergy(
+        mEnergybart01_threatbar->GetMaxEnergy() - mThreatDist, CAuiEnergyBarT01::kSM_Normal);
+    mBasewidget_threaticon->SetColor(warningColor);
   } else {
-    x6c_energybart01_threatbar->SetCurrEnergy(0.f, CAuiEnergyBarT01::kSM_Normal);
-    x5c_basewidget_threaticon->SetColor(gpTweakGuiColors->GetThreatIconSafeColor());
+    mEnergybart01_threatbar->SetCurrEnergy(0.f, CAuiEnergyBarT01::kSM_Normal);
+    mBasewidget_threaticon->SetColor(gpTweakGuiColors->GetThreatIconSafeColor());
   }
-  x6c_energybart01_threatbar->SetFilledColor(warningColor);
-  if (x54_27_notXRay) {
-    x5c_basewidget_threaticon->SetO2PTransform(
-        x18_threatIconXf *
+  mEnergybart01_threatbar->SetFilledColor(warningColor);
+  if (mNotXRay) {
+    mBasewidget_threaticon->SetO2PTransform(
+        mThreatIconXf *
         CTransform4f::Translate(CVector3f(0.f, 0.f,
-                                          skIconTranslateRanges[x4_hudType] *
-                                              rstl::max_val(0.f, maxThreatEnergy - x10_threatDist) /
+                                          skIconTranslateRanges[mHudType] *
+                                              rstl::max_val(0.f, maxThreatEnergy - mThreatDist) /
                                               maxThreatEnergy)));
   }
-  if (x68_textpane_threatwarning) {
-    const float fraction = x6c_energybart01_threatbar->GetActualFraction();
+  if (mTextpane_threatwarning) {
+    const float fraction = mEnergybart01_threatbar->GetActualFraction();
     if (fraction > gpTweakGui->GetThreatWarningFraction()) {
-      x68_textpane_threatwarning->SetIsVisible(true);
+      mTextpane_threatwarning->SetIsVisible(true);
     } else {
-      x68_textpane_threatwarning->SetIsVisible(false);
+      mTextpane_threatwarning->SetIsVisible(false);
     }
     EThreatStatus status;
-    if (maxThreatEnergy == x6c_energybart01_threatbar->GetActualEnergy()) {
+    if (maxThreatEnergy == mEnergybart01_threatbar->GetActualEnergy()) {
       status = kTS_Damage;
     } else {
-      const float fraction = x6c_energybart01_threatbar->GetActualFraction();
+      const float fraction = mEnergybart01_threatbar->GetActualFraction();
       status = fraction > gpTweakGui->GetThreatWarningFraction() ? kTS_Warning : kTS_Normal;
     }
-    if (status != x4c_threatStatus) {
+    if (status != mThreatStatus) {
+#if VERSION < VERSION_GM8E_02
       const rstl::wstring text =
           status == kTS_Warning  ? rstl::wstring_l(gpStringTable->GetString(10))
           : status == kTS_Damage ? rstl::wstring_l(gpStringTable->GetString(11))
                                  : rstl::wstring_l(L"");
-      x68_textpane_threatwarning->TextSupport().SetText(text);
-      if (x4c_threatStatus == kTS_Normal && status == kTS_Warning) {
+#else
+      const rstl::wstring text = BuildWarningString(status);
+#endif
+      mTextpane_threatwarning->TextSupport().SetText(text);
+      if (mThreatStatus == kTS_Normal && status == kTS_Warning) {
         CSfxManager::SfxStart(0x574);
       } else if (status == kTS_Damage) {
         CSfxManager::SfxStart(0x577);
       }
-      x4c_threatStatus = status;
+      mThreatStatus = status;
     }
   }
-  const float oldPulseTimer = x8_damagePulseTimer;
-  x8_damagePulseTimer = CMath::ModF(x8_damagePulseTimer + dt, 0.5f);
-  xc_damagePulse = x8_damagePulseTimer < 0.25f ? x8_damagePulseTimer / 0.25f
-                                               : (0.5f - x8_damagePulseTimer) / 0.25f;
-  if (x4c_threatStatus == kTS_Damage && x8_damagePulseTimer < oldPulseTimer) {
+  const float oldPulseTimer = mDamagePulseTimer;
+  mDamagePulseTimer = CMath::ModF(mDamagePulseTimer + dt, 0.5f);
+  mDamagePulse = mDamagePulseTimer < 0.25f ? mDamagePulseTimer / 0.25f
+                                               : (0.5f - mDamagePulseTimer) / 0.25f;
+  if (mThreatStatus == kTS_Damage && mDamagePulseTimer < oldPulseTimer) {
     CSfxManager::SfxStart(0x577);
   }
-  if (x68_textpane_threatwarning) {
-    if (x4c_threatStatus != kTS_Normal) {
-      x48_warningLerpAlpha = rstl::min_val(1.f, x48_warningLerpAlpha + 2.f * dt);
-      x68_textpane_threatwarning->SetColor(
-          CColor::White().WithAlphaOf(x48_warningLerpAlpha * xc_damagePulse));
+  if (mTextpane_threatwarning) {
+    if (mThreatStatus != kTS_Normal) {
+      mWarningLerpAlpha = rstl::min_val(1.f, mWarningLerpAlpha + 2.f * dt);
+      mTextpane_threatwarning->SetColor(
+          CColor::White().WithAlphaOf(mWarningLerpAlpha * mDamagePulse));
     } else {
-      x48_warningLerpAlpha = rstl::max_val(0.f, x48_warningLerpAlpha - 2.f * dt);
-      x68_textpane_threatwarning->SetColor(
-          CColor::White().WithAlphaOf(x48_warningLerpAlpha * xc_damagePulse));
+      mWarningLerpAlpha = rstl::max_val(0.f, mWarningLerpAlpha - 2.f * dt);
+      mTextpane_threatwarning->SetColor(
+          CColor::White().WithAlphaOf(mWarningLerpAlpha * mDamagePulse));
     }
-    if (x68_textpane_threatwarning->GetModifiedColor().GetAlphau8()) {
-      x68_textpane_threatwarning->SetIsVisible(true);
+    if (mTextpane_threatwarning->GetModifiedColor().GetAlphau8()) {
+      mTextpane_threatwarning->SetIsVisible(true);
     } else {
-      x68_textpane_threatwarning->SetIsVisible(false);
+      mTextpane_threatwarning->SetIsVisible(false);
     }
   }
-  if (x4c_threatStatus == kTS_Damage) {
-    x50_warningColorLerp = rstl::min_val(1.f, x50_warningColorLerp + 2.f * dt);
+  if (mThreatStatus == kTS_Damage) {
+    mWarningColorLerp = rstl::min_val(1.f, mWarningColorLerp + 2.f * dt);
   } else {
-    x50_warningColorLerp = rstl::max_val(0.f, x50_warningColorLerp - 2.f * dt);
+    mWarningColorLerp = rstl::max_val(0.f, mWarningColorLerp - 2.f * dt);
   }
 }
 
-CHudThreatInterface::~CHudThreatInterface() {}
+
+#if VERSION >= VERSION_GM8E_02
+
+void CHudThreatInterface::ReinitializeStrings() {
+  mTextpane_threatwarning->TextSupport().SetText(BuildWarningString(mThreatStatus));
+}
+
+const rstl::wstring CHudThreatInterface::BuildWarningString(CHudThreatInterface::EThreatStatus status) {
+  return status == kTS_Warning  ? rstl::wstring_l(mStringTable->mTable->GetString(9))
+          : status == kTS_Damage ? rstl::wstring_l(mStringTable->mTable->GetString(10))
+                                 : rstl::wstring_l(L"");
+
+}
+
+#endif

@@ -53,51 +53,51 @@ const uint CPlayerState::GetBitCount(uint val) {
 }
 
 CPlayerState::CPowerUp::CPowerUp(int amount, int capacity)
-: x0_amount(amount), x4_capacity(capacity) {}
+: mAmount(amount), mCapacity(capacity) {}
 
 CPlayerState::CPlayerState()
-: x0_24_alive(true)
-, x0_25_firingComboBeam(false)
-, x0_26_fusion(false)
-, x4_enabledItems(0)
-, x8_currentBeam(kBI_Power)
-, xc_health(kBaseHealthCapacity, kDefaultKnockbackResistance)
-, x14_currentVisor(kPV_Combat)
-, x18_transitioningVisor(x14_currentVisor)
-, x1c_visorTransitionFactor(kMaxVisorTransitionFactor)
-, x20_currentSuit(kPS_Power)
-, x24_powerups(CPowerUp(0, 0))
-, x170_scanTimes()
-, x180_scanCompletionRateFirst(0)
-, x184_scanCompletionRateSecond(0)
-, x188_staticIntf(5) {}
+: mAlive(true)
+, mFiringComboBeam(false)
+, mFusion(false)
+, mEnabledItems(0)
+, mCurrentBeam(kBI_Power)
+, mHealth(kBaseHealthCapacity, kDefaultKnockbackResistance)
+, mCurrentVisor(kPV_Combat)
+, mTransitioningVisor(mCurrentVisor)
+, mVisorTransitionFactor(kMaxVisorTransitionFactor)
+, mCurrentSuit(kPS_Power)
+, mPowerups(CPowerUp(0, 0))
+, mScanTimes()
+, mScanCompletionRateFirst(0)
+, mScanCompletionRateSecond(0)
+, mStaticIntf(5) {}
 
 CPlayerState::CPlayerState(CInputStream& stream)
-: x0_24_alive(true)
-, x0_25_firingComboBeam(false)
-, x0_26_fusion(false)
-, x4_enabledItems(0)
-, x8_currentBeam(kBI_Power)
-, xc_health(kBaseHealthCapacity, kDefaultKnockbackResistance)
-, x14_currentVisor(kPV_Combat)
-, x18_transitioningVisor(x14_currentVisor)
-, x1c_visorTransitionFactor(kMaxVisorTransitionFactor)
-, x20_currentSuit(kPS_Power)
-, x24_powerups()
-, x170_scanTimes()
-, x180_scanCompletionRateFirst(0)
-, x184_scanCompletionRateSecond(0)
-, x188_staticIntf(5) {
-  x4_enabledItems = uint(stream.ReadBits(32));
+: mAlive(true)
+, mFiringComboBeam(false)
+, mFusion(false)
+, mEnabledItems(0)
+, mCurrentBeam(kBI_Power)
+, mHealth(kBaseHealthCapacity, kDefaultKnockbackResistance)
+, mCurrentVisor(kPV_Combat)
+, mTransitioningVisor(mCurrentVisor)
+, mVisorTransitionFactor(kMaxVisorTransitionFactor)
+, mCurrentSuit(kPS_Power)
+, mPowerups()
+, mScanTimes()
+, mScanCompletionRateFirst(0)
+, mScanCompletionRateSecond(0)
+, mStaticIntf(5) {
+  mEnabledItems = uint(stream.ReadBits(32));
 
   const uint integralHP = uint(stream.ReadBits(32));
-  xc_health.SetHP(*(float*)(&integralHP));
-  xc_health.SetKnockbackResistance(kDefaultKnockbackResistance);
+  mHealth.SetHP(*(float*)(&integralHP));
+  mHealth.SetKnockbackResistance(kDefaultKnockbackResistance);
 
-  x8_currentBeam = EBeamId(stream.ReadBits(GetBitCount(5)));
-  x20_currentSuit = EPlayerSuit(stream.ReadBits(GetBitCount(4)));
+  mCurrentBeam = EBeamId(stream.ReadBits(GetBitCount(5)));
+  mCurrentSuit = EPlayerSuit(stream.ReadBits(GetBitCount(4)));
 
-  for (int i = 0; i < x24_powerups.capacity(); ++i) {
+  for (int i = 0; i < mPowerups.capacity(); ++i) {
     int amount = 0;
     int capacity = 0;
 
@@ -108,41 +108,41 @@ CPlayerState::CPlayerState(CInputStream& stream)
       capacity = stream.ReadBits(bitCount);
     }
     CPowerUp pw(amount, capacity);
-    x24_powerups.push_back(pw);
+    mPowerups.push_back(pw);
   }
 
   // Scan
   const rstl::vector< CMemoryCard::ScanState >& scanStates = gpMemoryCard->GetScanStates();
-  x170_scanTimes.reserve(scanStates.size());
+  mScanTimes.reserve(scanStates.size());
   for (rstl::vector< CMemoryCard::ScanState >::const_iterator it = scanStates.begin();
        it != scanStates.end(); ++it) {
     bool isScanned = stream.ReadBits(1) != 0;
-    x170_scanTimes.push_back(rstl::pair< CAssetId, float >(it->first, isScanned ? 1.f : 0.f));
+    mScanTimes.push_back(rstl::pair< CAssetId, float >(it->first, isScanned ? 1.f : 0.f));
   }
 
-  x180_scanCompletionRateFirst = uint(stream.ReadBits(GetBitCount(0x100u)));
-  x184_scanCompletionRateSecond = uint(stream.ReadBits(GetBitCount(0x100u)));
+  mScanCompletionRateFirst = uint(stream.ReadBits(GetBitCount(0x100u)));
+  mScanCompletionRateSecond = uint(stream.ReadBits(GetBitCount(0x100u)));
 }
 
 void CPlayerState::PutTo(COutputStream& stream) {
-  stream.WriteBits(x4_enabledItems, 32);
+  stream.WriteBits(mEnabledItems, 32);
 
-  const float realHP = xc_health.GetHP();
+  const float realHP = mHealth.GetHP();
   stream.WriteBits(*(int*)(&realHP), 32);
-  stream.WriteBits(x8_currentBeam, GetBitCount(5));
-  stream.WriteBits(x20_currentSuit, GetBitCount(4));
+  stream.WriteBits(mCurrentBeam, GetBitCount(5));
+  stream.WriteBits(mCurrentSuit, GetBitCount(4));
 
-  CPowerUp* powup = x24_powerups.data();
-  for (int i = 0; i < x24_powerups.capacity(); ++i) {
+  CPowerUp* powup = mPowerups.data();
+  for (int i = 0; i < mPowerups.capacity(); ++i) {
     if (0 < kPowerUpMax[i]) {
       int bitCount = GetBitCount(kPowerUpMax[i]);
-      stream.WriteBits(powup[i].x0_amount, bitCount);
-      stream.WriteBits(powup[i].x4_capacity, bitCount);
+      stream.WriteBits(powup[i].mAmount, bitCount);
+      stream.WriteBits(powup[i].mCapacity, bitCount);
     }
   }
 
-  for (rstl::vector< rstl::pair< CAssetId, float > >::iterator it = x170_scanTimes.begin();
-       it != x170_scanTimes.end(); it += 1) {
+  for (rstl::vector< rstl::pair< CAssetId, float > >::iterator it = mScanTimes.begin();
+       it != mScanTimes.end(); it += 1) {
     int flag;
     if (it->second >= 1.f) {
       flag = 1;
@@ -152,12 +152,12 @@ void CPlayerState::PutTo(COutputStream& stream) {
     stream.WriteBits(flag, 1);
   }
 
-  stream.WriteBits(x180_scanCompletionRateFirst, GetBitCount(0x100));
-  stream.WriteBits(x184_scanCompletionRateSecond, GetBitCount(0x100));
+  stream.WriteBits(mScanCompletionRateFirst, GetBitCount(0x100));
+  stream.WriteBits(mScanCompletionRateSecond, GetBitCount(0x100));
 }
 
 void CPlayerState::SetPowerUp(CPlayerState::EItemType type, int capacity) {
-  x24_powerups[uint(type)].x4_capacity = 0;
+  mPowerups[uint(type)].mCapacity = 0;
   InitializePowerUp(type, capacity);
 }
 
@@ -165,27 +165,27 @@ void CPlayerState::InitializePowerUp(CPlayerState::EItemType type, int capacity)
   if (type < kIT_PowerBeam || type > kIT_Max - 1)
     return;
 
-  CPowerUp& pup = x24_powerups[uint(type)];
-  pup.x4_capacity = CMath::Clamp(0, capacity + pup.x4_capacity, kPowerUpMax[uint(type)]);
-  pup.x0_amount = rstl::min_val(pup.x0_amount, pup.x4_capacity);
+  CPowerUp& pup = mPowerups[uint(type)];
+  pup.mCapacity = CMath::Clamp(0, capacity + pup.mCapacity, kPowerUpMax[uint(type)]);
+  pup.mAmount = rstl::min_val(pup.mAmount, pup.mCapacity);
   if (type >= kIT_PowerSuit && type <= kIT_PhazonSuit) {
     if (HasPowerUp(kIT_PhazonSuit))
-      x20_currentSuit = kPS_Phazon;
+      mCurrentSuit = kPS_Phazon;
     else if (HasPowerUp(kIT_GravitySuit))
-      x20_currentSuit = kPS_Gravity;
+      mCurrentSuit = kPS_Gravity;
     else if (HasPowerUp(kIT_VariaSuit))
-      x20_currentSuit = kPS_Varia;
+      mCurrentSuit = kPS_Varia;
     else
-      x20_currentSuit = kPS_Power;
+      mCurrentSuit = kPS_Power;
   }
 }
 
 const float CPlayerState::CalculateHealth() {
-  return (kEnergyTankCapacity * x24_powerups[kIT_EnergyTanks].x0_amount) + kBaseHealthCapacity;
+  return (kEnergyTankCapacity * mPowerups[kIT_EnergyTanks].mAmount) + kBaseHealthCapacity;
 }
 
 void CPlayerState::SetPickup(const CPlayerState::EItemType type, const int amount) {
-  x24_powerups[uint(type)].x0_amount = 0;
+  mPowerups[uint(type)].mAmount = 0;
   IncrPickUp(type, amount);
 }
 
@@ -213,11 +213,11 @@ void CPlayerState::IncrPickUp(EItemType type, int amount) {
     case kIT_World:
     case kIT_Spirit:
     case kIT_Newborn: {
-      x24_powerups[type].Add(amount);
+      mPowerups[type].Add(amount);
       break;
     }
     case kIT_HealthRefill: {
-      CHealthInfo* info = &xc_health;
+      CHealthInfo* info = &mHealth;
       if (info != NULL) {
         float newHealth = float(amount) + info->GetHP();
         float maxHealth = CalculateHealth();
@@ -243,7 +243,7 @@ void CPlayerState::DecrPickUp(CPlayerState::EItemType type, int amount) {
   case kIT_Missiles:
   case kIT_PowerBombs:
   case kIT_Flamethrower:
-    x24_powerups[type].Dec(amount);
+    mPowerups[type].Dec(amount);
   default:
     return;
   }
@@ -272,7 +272,7 @@ const int CPlayerState::GetItemAmount(const CPlayerState::EItemType type) const 
   case kIT_World:
   case kIT_Spirit:
   case kIT_Newborn:
-    return x24_powerups[uint(type)].x0_amount;
+    return mPowerups[uint(type)].mAmount;
   default:
     break;
   }
@@ -284,51 +284,51 @@ const int CPlayerState::GetItemCapacity(const CPlayerState::EItemType type) cons
   if (type < 0 || kIT_Max - 1 < type) {
     return 0;
   }
-  return x24_powerups[uint(type)].x4_capacity;
+  return mPowerups[uint(type)].mCapacity;
 }
 
 const bool CPlayerState::HasPowerUp(const CPlayerState::EItemType type) const {
   if (type < 0 || kIT_Max - 1 < type) {
     return false;
   }
-  return x24_powerups[uint(type)].x4_capacity > 0;
+  return mPowerups[uint(type)].mCapacity > 0;
 }
 
 const uint CPlayerState::GetPowerUp(const CPlayerState::EItemType type) {
   if (type < 0 || kIT_Max - 1 < type) {
     return 0;
   }
-  return x24_powerups[uint(type)].x4_capacity;
+  return mPowerups[uint(type)].mCapacity;
 }
 
 void CPlayerState::EnableItem(const CPlayerState::EItemType type) {
   if (HasPowerUp(type))
-    x4_enabledItems |= (1 << uint(type));
+    mEnabledItems |= (1 << uint(type));
 }
 
 void CPlayerState::DisableItem(const CPlayerState::EItemType type) {
   if (HasPowerUp(type))
-    x4_enabledItems &= ~(1 << uint(type));
+    mEnabledItems &= ~(1 << uint(type));
 }
 
 const bool CPlayerState::ItemEnabled(const CPlayerState::EItemType type) const {
   if (HasPowerUp(type))
-    return (x4_enabledItems & (1 << uint(type)));
+    return (mEnabledItems & (1 << uint(type)));
   return false;
 }
 
 void CPlayerState::ResetVisor() {
-  x14_currentVisor = x18_transitioningVisor = kPV_Combat;
-  x1c_visorTransitionFactor = 0.0f;
+  mCurrentVisor = mTransitioningVisor = kPV_Combat;
+  mVisorTransitionFactor = 0.0f;
 }
 
 void CPlayerState::StartTransitionToVisor(const CPlayerState::EPlayerVisor visor) {
-  if (visor == x18_transitioningVisor)
+  if (visor == mTransitioningVisor)
     return;
 
-  x18_transitioningVisor = visor;
+  mTransitioningVisor = visor;
 
-  if (x18_transitioningVisor == x14_currentVisor)
+  if (mTransitioningVisor == mCurrentVisor)
     return;
 }
 
@@ -336,26 +336,26 @@ void CPlayerState::UpdateVisorTransition(float dt) {
   if (!GetIsVisorTransitioning())
     return;
 
-  if (x14_currentVisor == x18_transitioningVisor) {
-    x1c_visorTransitionFactor = rstl::min_val(kMaxVisorTransitionFactor, x1c_visorTransitionFactor + dt);
+  if (mCurrentVisor == mTransitioningVisor) {
+    mVisorTransitionFactor = rstl::min_val(kMaxVisorTransitionFactor, mVisorTransitionFactor + dt);
   } else {
-    x1c_visorTransitionFactor -= dt;
-    if (x1c_visorTransitionFactor < 0.f) {
-      x14_currentVisor = x18_transitioningVisor;
-      x1c_visorTransitionFactor = fabs(x1c_visorTransitionFactor);
-      x1c_visorTransitionFactor =
-          rstl::min_val(x1c_visorTransitionFactor, kMaxVisorTransitionFactor - FLT_EPSILON);
+    mVisorTransitionFactor -= dt;
+    if (mVisorTransitionFactor < 0.f) {
+      mCurrentVisor = mTransitioningVisor;
+      mVisorTransitionFactor = fabs(mVisorTransitionFactor);
+      mVisorTransitionFactor =
+          rstl::min_val(mVisorTransitionFactor, kMaxVisorTransitionFactor - FLT_EPSILON);
     }
   }
 }
 
 float CPlayerState::GetVisorTransitionFactor() const {
-  return x1c_visorTransitionFactor / kMaxVisorTransitionFactor;
+  return mVisorTransitionFactor / kMaxVisorTransitionFactor;
 }
 
 bool CPlayerState::GetIsVisorTransitioning() const {
-  return x14_currentVisor != x18_transitioningVisor ||
-         kMaxVisorTransitionFactor > x1c_visorTransitionFactor;
+  return mCurrentVisor != mTransitioningVisor ||
+         kMaxVisorTransitionFactor > mVisorTransitionFactor;
 }
 
 float CPlayerState::GetBaseHealthCapacity() { return kBaseHealthCapacity; }
@@ -363,37 +363,37 @@ float CPlayerState::GetBaseHealthCapacity() { return kBaseHealthCapacity; }
 float CPlayerState::GetEnergyTankCapacity() { return kEnergyTankCapacity; }
 
 void CPlayerState::InitializeScanTimes() {
-  if (x170_scanTimes.size())
+  if (mScanTimes.size())
     return;
 
   const rstl::vector< CMemoryCard::ScanState >& scanStates = gpMemoryCard->GetScanStates();
-  x170_scanTimes.reserve(scanStates.size());
+  mScanTimes.reserve(scanStates.size());
   for (rstl::vector< CMemoryCard::ScanState >::const_iterator it = scanStates.begin();
        it != scanStates.end(); ++it) {
-    x170_scanTimes.push_back(rstl::pair< CAssetId, float >(it->first, 0.f));
+    mScanTimes.push_back(rstl::pair< CAssetId, float >(it->first, 0.f));
   }
 }
 
 const float CPlayerState::GetScanTime(const CAssetId res) const {
   rstl::vector< rstl::pair< CAssetId, float > >::const_iterator it =
-      rstl::find_by_key(x170_scanTimes, res);
+      rstl::find_by_key(mScanTimes, res);
   return it->second;
 }
 
 void CPlayerState::SetScanTime(const CAssetId res, float time) {
   rstl::vector< rstl::pair< CAssetId, float > >::iterator it =
-      rstl::find_by_key_nc(x170_scanTimes, res);
+      rstl::find_by_key_nc(mScanTimes, res);
   it->second = time;
 }
 
 void CPlayerState::UpdateStaticInterference(CStateManager& stateMgr, const float& dt) {
-  x188_staticIntf.Update(stateMgr, dt);
+  mStaticIntf.Update(stateMgr, dt);
 }
 
 CPlayerState::EPlayerVisor CPlayerState::GetActiveVisor(const CStateManager& stateMgr) const {
   const CFirstPersonCamera* cam = TCastToConstPtr< CFirstPersonCamera >(
       stateMgr.GetCameraManager()->GetCurrentCamera(stateMgr));
-  return (cam ? x14_currentVisor : kPV_Combat);
+  return (cam ? mCurrentVisor : kPV_Combat);
 }
 
 bool CPlayerState::CanVisorSeeFog(const CStateManager& stateMgr) const {
@@ -405,12 +405,12 @@ CPlayerState::EPlayerSuit CPlayerState::GetCurrentSuit() const {
   if (GetIsFusionEnabled())
     return kPS_FusionPower;
 
-  return x20_currentSuit;
+  return mCurrentSuit;
 }
 
-bool CPlayerState::GetIsFusionEnabled() const { return x0_26_fusion || false; }
+bool CPlayerState::GetIsFusionEnabled() const { return mFusion || false; }
 
-void CPlayerState::SetIsFusionEnabled(bool val) { x0_26_fusion = val; }
+void CPlayerState::SetIsFusionEnabled(bool val) { mFusion = val; }
 
 int CPlayerState::GetTotalPickupCount() const { return 99; }
 
@@ -438,11 +438,11 @@ int CPlayerState::CalculateItemCollectionPercentage() const {
 }
 
 int CPlayerState::GetMissileCostForAltAttack() const {
-  return kMissileCosts[size_t(x8_currentBeam)];
+  return kMissileCosts[size_t(mCurrentBeam)];
 }
 
 float CPlayerState::GetComboFireAmmoPeriod() const {
-  return kComboAmmoPeriods[size_t(x8_currentBeam)];
+  return kComboAmmoPeriods[size_t(mCurrentBeam)];
 }
 
 float CPlayerState::GetMissileComboChargeFactor() { return 1.8f; }

@@ -26,24 +26,24 @@ CBouncyGrenade::CBouncyGrenade(TUniqueId uid, const rstl::string& name, const CE
 : CPhysicsActor(uid, true, name, info, xf, mData, CMaterialList(kMT_Solid, kMT_Projectile),
                 mData.GetBounds(), SMoverData(data.GetVelocityInfo().GetMass()), actParams, 0.3f,
                 0.1f)
-, x258_data(data)
-, x294_numBounces(data.GetNumBounces())
-, x298_parentId(parentId)
-, x29c_elapsedTime(0.f)
-, x2a0_elementGenCombat(CreateElementGen(data.GetElementGenId1()))
-, x2a4_elementGenXRay(CreateElementGen(data.GetElementGenId2()))
-, x2a8_elementGenThermal(CreateElementGen(data.GetElementGenId3()))
-, x2ac_elementGenTrail(CreateElementGen(data.GetElementGenId4()))
-, x2b0_explodePlayerDistance(explodePlayerDistance)
-, x2b4_24_exploded(false)
+, mData(data)
+, mNumBounces(data.GetNumBounces())
+, mParentId(parentId)
+, mElapsedTime(0.f)
+, mElementGenCombat(CreateElementGen(data.GetElementGenId1()))
+, mElementGenXRay(CreateElementGen(data.GetElementGenId2()))
+, mElementGenThermal(CreateElementGen(data.GetElementGenId3()))
+, mElementGenTrail(CreateElementGen(data.GetElementGenId4()))
+, mExplodePlayerDistance(explodePlayerDistance)
+, mExploded(false)
 , x2b4_25_(false) {
   const float mass = GetMass();
   SetMomentumWR(CVector3f(0.f, 0.f, -kGravityAccel * mass));
   SetVelocityWR(velocity * xf.GetForward());
-  x2a0_elementGenCombat->SetParticleEmission(false);
-  x2a4_elementGenXRay->SetParticleEmission(false);
-  x2a8_elementGenThermal->SetParticleEmission(false);
-  x2ac_elementGenTrail->SetParticleEmission(true);
+  mElementGenCombat->SetParticleEmission(false);
+  mElementGenXRay->SetParticleEmission(false);
+  mElementGenThermal->SetParticleEmission(false);
+  mElementGenTrail->SetParticleEmission(true);
   CMaterialList exclude = GetMaterialFilter().GetExcludeList();
   exclude.Add(CMaterialList(kMT_Character));
   SetMaterialFilter(
@@ -57,39 +57,39 @@ void CBouncyGrenade::Think(float dt, CStateManager& mgr) {
     const CTransform4f orientation = GetTransform().GetRotation();
     const CVector3f translation = GetTranslation();
     const CVector3f scale = GetModelData()->ScaleCopy();
-    if (x2b4_24_exploded) {
+    if (mExploded) {
       Stop();
-      x2a0_elementGenCombat->SetOrientation(orientation);
-      x2a0_elementGenCombat->SetGlobalTranslation(translation);
-      x2a0_elementGenCombat->SetGlobalScale(scale);
-      x2a0_elementGenCombat->Update(dt);
-      x2a4_elementGenXRay->SetOrientation(orientation);
-      x2a4_elementGenXRay->SetGlobalTranslation(translation);
-      x2a4_elementGenXRay->SetGlobalScale(scale);
-      x2a4_elementGenXRay->Update(dt);
-      x2a8_elementGenThermal->SetOrientation(orientation);
-      x2a8_elementGenThermal->SetGlobalTranslation(translation);
-      x2a8_elementGenThermal->SetGlobalScale(scale);
-      x2a8_elementGenThermal->Update(dt);
+      mElementGenCombat->SetOrientation(orientation);
+      mElementGenCombat->SetGlobalTranslation(translation);
+      mElementGenCombat->SetGlobalScale(scale);
+      mElementGenCombat->Update(dt);
+      mElementGenXRay->SetOrientation(orientation);
+      mElementGenXRay->SetGlobalTranslation(translation);
+      mElementGenXRay->SetGlobalScale(scale);
+      mElementGenXRay->Update(dt);
+      mElementGenThermal->SetOrientation(orientation);
+      mElementGenThermal->SetGlobalTranslation(translation);
+      mElementGenThermal->SetGlobalScale(scale);
+      mElementGenThermal->Update(dt);
     } else {
-      x2ac_elementGenTrail->SetOrientation(orientation);
-      x2ac_elementGenTrail->SetGlobalTranslation(translation);
-      x2ac_elementGenTrail->SetGlobalScale(scale);
-      x2ac_elementGenTrail->Update(dt);
+      mElementGenTrail->SetOrientation(orientation);
+      mElementGenTrail->SetGlobalTranslation(translation);
+      mElementGenTrail->SetGlobalScale(scale);
+      mElementGenTrail->Update(dt);
     }
-    x29c_elapsedTime += dt;
-    if (x29c_elapsedTime > 0.3f) {
+    mElapsedTime += dt;
+    if (mElapsedTime > 0.3f) {
       x2b4_25_ = true;
     }
     const CVector3f playerPos = mgr.GetPlayer()->GetTranslation() +
                                 CVector3f(0.f, 0.f, 0.5f * mgr.GetPlayer()->GetEyeHeight());
     const CVector3f& delta = CVector3f(playerPos - translation);
-    if (delta.MagSquared() < x2b0_explodePlayerDistance * x2b0_explodePlayerDistance) {
+    if (delta.MagSquared() < mExplodePlayerDistance * mExplodePlayerDistance) {
       Explode(mgr, kInvalidUniqueId);
     }
   }
-  if (x2a0_elementGenCombat->IsSystemDeletable() && x2a4_elementGenXRay->IsSystemDeletable() &&
-      x2a8_elementGenThermal->IsSystemDeletable()) {
+  if (mElementGenCombat->IsSystemDeletable() && mElementGenXRay->IsSystemDeletable() &&
+      mElementGenThermal->IsSystemDeletable()) {
     mgr.DeleteObjectRequest(GetUniqueId());
   }
 }
@@ -105,10 +105,10 @@ void CBouncyGrenade::CollidedWith(const TUniqueId& id, const CCollisionInfoList&
   static const CMaterialList skSolidTypes(kMT_Solid, kMT_Ceiling, kMT_Wall, kMT_Floor,
                                           kMT_Character);
   bool shouldExplode = false;
-  if (id != x298_parentId) {
+  if (id != mParentId) {
     if (const CEntity* entity = mgr.GetObjectById(id)) {
       if (const CCollisionActor* actor = TCastToConstPtr< CCollisionActor >(entity)) {
-        shouldExplode = actor->GetOwnerId() != x298_parentId;
+        shouldExplode = actor->GetOwnerId() != mParentId;
       } else {
         shouldExplode = true;
       }
@@ -120,19 +120,19 @@ void CBouncyGrenade::CollidedWith(const TUniqueId& id, const CCollisionInfoList&
     for (int i = 0; i < list.GetCount(); ++i) {
       const CCollisionInfo& info = list[i];
       if (info.GetMaterialLeft().SharesMaterials(skSolidTypes)) {
-        if (x294_numBounces != 0) {
+        if (mNumBounces != 0) {
           const CVector3f bounceNormal = CVector3f::Dot(GetVelocityWR(), info.GetNormalLeft()) > 0.f
                                              ? info.GetNormalRight()
                                              : info.GetNormalLeft();
           const CVector3f impulse =
-              (x258_data.GetVelocityInfo().GetSpeed() * GetConstantForceWR().Magnitude()) *
+              (mData.GetVelocityInfo().GetSpeed() * GetConstantForceWR().Magnitude()) *
               bounceNormal;
-          const CAxisAngle angle = -x258_data.GetVelocityInfo().GetSpeed() * GetAngularMomentumWR();
+          const CAxisAngle angle = -mData.GetVelocityInfo().GetSpeed() * GetAngularMomentumWR();
           ApplyImpulseWR(impulse, angle);
-          CSfxManager::AddEmitter(x258_data.GetBounceSfx(), GetTranslation(), CVector3f::Up(),
+          CSfxManager::AddEmitter(mData.GetBounceSfx(), GetTranslation(), CVector3f::Up(),
                                   false, false, CSfxManager::kMedPriority,
                                   GetCurrentAreaId().Value());
-          --x294_numBounces;
+          --mNumBounces;
         } else {
           Explode(mgr, kInvalidUniqueId);
         }
@@ -144,13 +144,13 @@ void CBouncyGrenade::CollidedWith(const TUniqueId& id, const CCollisionInfoList&
 }
 
 void CBouncyGrenade::Render(const CStateManager& mgr) const {
-  if (!x2b4_24_exploded) {
+  if (!mExploded) {
     GetModelData()->Render(mgr, GetTransform(), nullptr, CModelFlags::Normal());
   } else if (mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::kPV_XRay) {
     CElementGen::SetSubtractBlend(true);
     CElementGen::SetMoveRedToAlphaBuffer(true);
     CGraphics::SetFog(kRFM_PerspLin, 0.f, 75.f, CColor::Black());
-    x2a4_elementGenXRay->Render();
+    mElementGenXRay->Render();
     mgr.SetupFogForArea(GetCurrentAreaId());
     CElementGen::SetSubtractBlend(false);
     CElementGen::SetMoveRedToAlphaBuffer(false);
@@ -159,37 +159,37 @@ void CBouncyGrenade::Render(const CStateManager& mgr) const {
 
 void CBouncyGrenade::AddToRenderer(const CFrustumPlanes& frustum, const CStateManager& mgr) const {
   CActor::AddToRenderer(frustum, mgr);
-  if (x2b4_24_exploded) {
+  if (mExploded) {
     switch (mgr.GetPlayerState()->GetActiveVisor(mgr)) {
     case CPlayerState::kPV_Combat:
     case CPlayerState::kPV_Scan:
-      gpRender->AddParticleGen(*x2a0_elementGenCombat);
+      gpRender->AddParticleGen(*mElementGenCombat);
       break;
     case CPlayerState::kPV_Thermal:
-      gpRender->AddParticleGen(*x2a8_elementGenThermal);
+      gpRender->AddParticleGen(*mElementGenThermal);
       break;
     }
   } else {
-    gpRender->AddParticleGen(*x2ac_elementGenTrail);
+    gpRender->AddParticleGen(*mElementGenTrail);
   }
 }
 
 void CBouncyGrenade::Explode(CStateManager& mgr, const TUniqueId uid) {
-  if (x2b4_24_exploded) {
+  if (mExploded) {
     return;
   }
-  x2b4_24_exploded = true;
-  CSfxManager::AddEmitter(x258_data.GetExplodeSfx(), GetTranslation(), CVector3f::Up(), false,
+  mExploded = true;
+  CSfxManager::AddEmitter(mData.GetExplodeSfx(), GetTranslation(), CVector3f::Up(), false,
                           false, CSfxManager::kMedPriority, GetCurrentAreaId().Value());
-  x2a0_elementGenCombat->SetParticleEmission(true);
-  x2a4_elementGenXRay->SetParticleEmission(true);
-  x2a8_elementGenThermal->SetParticleEmission(true);
-  x2ac_elementGenTrail->SetParticleEmission(false);
-  bool isParent = uid == x298_parentId;
+  mElementGenCombat->SetParticleEmission(true);
+  mElementGenXRay->SetParticleEmission(true);
+  mElementGenThermal->SetParticleEmission(true);
+  mElementGenTrail->SetParticleEmission(false);
+  bool isParent = uid == mParentId;
   if (const CCollisionActor* actor = TCastToConstPtr< CCollisionActor >(mgr.GetObjectById(uid))) {
-    isParent = actor->GetOwnerId() == x298_parentId;
+    isParent = actor->GetOwnerId() == mParentId;
   }
-  const CDamageInfo& dInfo = x258_data.GetDamageInfo();
+  const CDamageInfo& dInfo = mData.GetDamageInfo();
   if (uid != kInvalidUniqueId && !isParent) {
     mgr.ApplyDamage(
         GetUniqueId(), uid, GetUniqueId(), dInfo,
@@ -205,10 +205,10 @@ void CBouncyGrenade::Explode(CStateManager& mgr, const TUniqueId uid) {
     TEntityList nearList;
     mgr.BuildNearList(nearList, bounds, filter, nullptr);
     for (AUTO(it, nearList.begin()); it != nearList.end(); ++it) {
-      bool isParent = *it == x298_parentId;
+      bool isParent = *it == mParentId;
       if (const CCollisionActor* actor =
               TCastToConstPtr< CCollisionActor >(mgr.GetObjectById(*it))) {
-        isParent = actor->GetOwnerId() == x298_parentId;
+        isParent = actor->GetOwnerId() == mParentId;
       }
       if (isParent) {
         continue;

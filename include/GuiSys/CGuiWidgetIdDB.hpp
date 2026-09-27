@@ -12,8 +12,8 @@ public:
   const short FindWidgetID(const rstl::string& name) const;
 
 private:
-  rstl::vector< rstl::string > x0_db;
-  short x10_lastPoolId;
+  rstl::vector< rstl::string > mDb;
+  short mLastPoolId;
 };
 
 CHECK_SIZEOF(CGuiWidgetIdDB, 0x14);

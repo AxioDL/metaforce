@@ -7,9 +7,9 @@ CScriptGrapplePoint::CScriptGrapplePoint(TUniqueId uid, const rstl::string& name
                                          const bool active, const CGrappleParameters& params)
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(kMT_Orbit),
          CActorParameters::None(), kInvalidUniqueId)
-, xe8_touchBounds(GetTranslation() - CVector3f(0.5f, 0.5f, 0.5f),
+, mTouchBounds(GetTranslation() - CVector3f(0.5f, 0.5f, 0.5f),
                   GetTranslation() + CVector3f(0.5f, 0.5f, 0.5f))
-, x100_parameters(params) {}
+, mParameters(params) {}
 
 CScriptGrapplePoint::~CScriptGrapplePoint() {}
 
@@ -18,7 +18,7 @@ void CScriptGrapplePoint::AddToRenderer(const CFrustumPlanes&, const CStateManag
 }
 
 rstl::optional_object< CAABox > CScriptGrapplePoint::GetTouchBounds() const {
-  return xe8_touchBounds;
+  return mTouchBounds;
 }
 
 void CScriptGrapplePoint::Render(const CStateManager&) const {}

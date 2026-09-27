@@ -55,15 +55,15 @@ private:
   bool IsArtifactCategorySelected() const;
   int GetSelectedArtifactHeadScanIndex() const;
 
-  rstl::reserved_vector< CScanCategory, 5 > x19c_scanCompletes;
-  CArticleList x1f0_curViewScans;
-  rstl::reserved_vector< CArticleList, 5 > x200_viewScans;
-  float x254_viewInterp;
-  rstl::single_ptr< CArtifactDoll > x258_artifactDoll;
-  ELeavePauseState x25c_leavePauseState;
-  bool x260_24_loaded : 1;
-  bool x260_25_inTextScroll : 1;
-  bool x260_26_exitTextScroll : 1;
+  rstl::reserved_vector< CScanCategory, 5 > mScanCompletes;
+  CArticleList mCurViewScans;
+  rstl::reserved_vector< CArticleList, 5 > mViewScans;
+  float mViewInterp;
+  rstl::single_ptr< CArtifactDoll > mArtifactDoll;
+  ELeavePauseState mLeavePauseState;
+  bool mLoaded : 1;
+  bool mInTextScroll : 1;
+  bool mExitTextScroll : 1;
 };
 CHECK_SIZEOF(CLogBookScreen, 0x264)
 

@@ -81,27 +81,27 @@ public:
   class CMapWorldData {
   public:
     explicit CMapWorldData(CInputStream& in, uint version);
-    CAssetId GetWorldAssetId() const { return x10_worldAssetId; }
-    const CVector3f& GetWorldCenterPoint() const { return x64_centerPoint; }
-    const rstl::string& GetWorldLabel() const { return x0_label; }
-    const CTransform4f& GetWorldTransform() const { return x14_transform; }
-    const CMapAreaData& GetMapAreaData(int idx) const { return x44_areaDatas[idx]; }
-    int GetNumMapAreaDatas() const { return x44_areaDatas.size(); }
-    const CColor& GetOutlineColorUnselected() const { return x60_outlineColorUnselected; }
-    const CColor& GetOutlineColorSelected() const { return x58_outlineColorSelected; }
-    const CColor& GetSurfaceColorUnselected() const { return x5c_surfColorUnselected; }
-    const CColor& GetSurfaceColorSelected() const { return x54_surfColorSelected; }
+    CAssetId GetWorldAssetId() const { return mWorldAssetId; }
+    const CVector3f& GetWorldCenterPoint() const { return mCenterPoint; }
+    const rstl::string& GetWorldLabel() const { return mLabel; }
+    const CTransform4f& GetWorldTransform() const { return mTransform; }
+    const CMapAreaData& GetMapAreaData(int idx) const { return mAreaDatas[idx]; }
+    int GetNumMapAreaDatas() const { return mAreaDatas.size(); }
+    const CColor& GetOutlineColorUnselected() const { return mOutlineColorUnselected; }
+    const CColor& GetOutlineColorSelected() const { return mOutlineColorSelected; }
+    const CColor& GetSurfaceColorUnselected() const { return mSurfColorUnselected; }
+    const CColor& GetSurfaceColorSelected() const { return mSurfColorSelected; }
 
   private:
-    rstl::string x0_label;
-    CAssetId x10_worldAssetId;
-    CTransform4f x14_transform;
-    rstl::vector< CMapAreaData > x44_areaDatas;
-    CColor x54_surfColorSelected;
-    CColor x58_outlineColorSelected;
-    CColor x5c_surfColorUnselected;
-    CColor x60_outlineColorUnselected;
-    CVector3f x64_centerPoint;
+    rstl::string mLabel;
+    CAssetId mWorldAssetId;
+    CTransform4f mTransform;
+    rstl::vector< CMapAreaData > mAreaDatas;
+    CColor mSurfColorSelected;
+    CColor mOutlineColorSelected;
+    CColor mSurfColorUnselected;
+    CColor mOutlineColorUnselected;
+    CVector3f mCenterPoint;
   };
 
   explicit CMapUniverse(CInputStream& in, uint version);
@@ -109,18 +109,18 @@ public:
 
   void Draw(const CMapUniverseDrawParms& parms, const CVector3f& pos, float depth1,
             float depth2) const;
-  const CMapWorldData& GetMapWorldData(int idx) const { return x10_worldDatas[idx]; }
+  const CMapWorldData& GetMapWorldData(int idx) const { return mWorldDatas[idx]; }
   const CMapWorldData& GetMapWorldDataByWorldId(CAssetId id);
-  int GetNumMapWorldDatas() const { return x10_worldDatas.size(); }
-  float GetMapUniverseRadius() const { return x2c_universeRadius; }
-  const CVector3f& GetMapUniverseCenterPoint() const { return x20_universeCenter; }
+  int GetNumMapWorldDatas() const { return mWorldDatas.size(); }
+  float GetMapUniverseRadius() const { return mUniverseRadius; }
+  const CVector3f& GetMapUniverseCenterPoint() const { return mUniverseCenter; }
 
 private:
-  CAssetId x0_hexagonId;
-  mutable TCachedToken< CMapArea > x4_hexagonToken;
-  rstl::vector< CMapWorldData > x10_worldDatas;
-  CVector3f x20_universeCenter;
-  float x2c_universeRadius;
+  CAssetId mHexagonId;
+  mutable TCachedToken< CMapArea > mHexagonToken;
+  rstl::vector< CMapWorldData > mWorldDatas;
+  CVector3f mUniverseCenter;
+  float mUniverseRadius;
 };
 CHECK_SIZEOF(CMapUniverse, 0x30)
 

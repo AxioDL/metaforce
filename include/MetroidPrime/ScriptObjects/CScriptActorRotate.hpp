@@ -19,16 +19,16 @@ public:
   void Think(float, CStateManager&) override;
 
 private:
-  CVector3f x34_rotation;
-  float x40_maxTime;
-  float x44_currentTime; // = 0.f;
+  CVector3f mRotation;
+  float mMaxTime;
+  float mCurrentTime; // = 0.f;
   // rstl::map< TUniqueId, CTransform4f > x48_actors;
-  rstl::vector< rstl::pair< TUniqueId, CTransform4f > > x48_actors;
+  rstl::vector< rstl::pair< TUniqueId, CTransform4f > > mActors;
 
-  bool x58_24_updateRotation : 1;            // = false;
-  bool x58_25_updateSpiderBallWaypoints : 1; // = false;
-  bool x58_26_updateActors : 1;
-  bool x58_27_updateOnCreation : 1;
+  bool mUpdateRotation : 1;            // = false;
+  bool mUpdateSpiderBallWaypoints : 1; // = false;
+  bool mUpdateActors : 1;
+  bool mUpdateOnCreation : 1;
 
   void UpdateActors(bool, CStateManager&);
   void RebuildSpiderBallWaypoints(CStateManager&);

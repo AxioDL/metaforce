@@ -6,12 +6,12 @@
 
 const bool CPathFindSearch::SegmentOver(const CVector3f& pos) const {
   bool over = true;
-  const int count = x4_waypoints.size();
-  if (count > 1 && xc8_curWaypoint < count - 1) {
-    const int nextIndex = rstl::min_val(xc8_curWaypoint + 2, count - 1);
-    const CVector3f& a = x4_waypoints[xc8_curWaypoint];
-    const CVector3f& c = x4_waypoints[nextIndex];
-    const CVector3f& b = x4_waypoints[xc8_curWaypoint + 1];
+  const int count = mWaypoints.size();
+  if (count > 1 && mCurWaypoint < count - 1) {
+    const int nextIndex = rstl::min_val(mCurWaypoint + 2, count - 1);
+    const CVector3f& a = mWaypoints[mCurWaypoint];
+    const CVector3f& c = mWaypoints[nextIndex];
+    const CVector3f& b = mWaypoints[mCurWaypoint + 1];
     const CVector3f direction = c - a;
     over = CVector3f::Dot(pos - b, direction) >= 0.f;
   }
@@ -19,35 +19,35 @@ const bool CPathFindSearch::SegmentOver(const CVector3f& pos) const {
 }
 
 void CPathFindSearch::GetSplinePoint(CVector3f& point, const CVector3f& pos, int waypoint) const {
-  const int count = x4_waypoints.size();
+  const int count = mWaypoints.size();
   if (count > 1 && waypoint < count - 1) {
     const CVector3f a =
-        waypoint == 0 ? 2.f * x4_waypoints[0] - x4_waypoints[1] : x4_waypoints[waypoint - 1];
-    const CVector3f& b = x4_waypoints[waypoint];
-    const CVector3f& c = x4_waypoints[waypoint + 1];
+        waypoint == 0 ? 2.f * mWaypoints[0] - mWaypoints[1] : mWaypoints[waypoint - 1];
+    const CVector3f& b = mWaypoints[waypoint];
+    const CVector3f& c = mWaypoints[waypoint + 1];
     const CVector3f d = waypoint + 2 >= count
-                            ? 2.f * x4_waypoints[count - 1] - x4_waypoints[count - 2]
-                            : x4_waypoints[waypoint + 2];
+                            ? 2.f * mWaypoints[count - 1] - mWaypoints[count - 2]
+                            : mWaypoints[waypoint + 2];
     const CVector3f delta = c - b;
     if (delta.IsMagnitudeSafe()) {
       const float t = CVector3f::Dot(pos - b, delta) / delta.MagSquared();
       point = CMath::GetCatmullRomSplinePoint(a, b, c, d, t);
     } else {
-      point = x4_waypoints[waypoint];
+      point = mWaypoints[waypoint];
     }
   }
 }
 
 void CPathFindSearch::GetSplinePoint(CVector3f& point, const CVector3f& pos) const {
-  GetSplinePoint(point, pos, xc8_curWaypoint);
+  GetSplinePoint(point, pos, mCurWaypoint);
 }
 
 void CPathFindSearch::GetSplinePointWithLookahead(CVector3f& point, const CVector3f& pos,
                                                   int waypoint, float lookahead) const {
-  const int count = x4_waypoints.size();
+  const int count = mWaypoints.size();
   if (count > 1 && waypoint < count - 1) {
-    const CVector3f& a = x4_waypoints[waypoint];
-    const CVector3f& b = x4_waypoints[waypoint + 1];
+    const CVector3f& a = mWaypoints[waypoint];
+    const CVector3f& b = mWaypoints[waypoint + 1];
     CVector3f delta = b - a;
     if (delta.IsMagnitudeSafe()) {
       const float distance = delta.Magnitude();
@@ -72,16 +72,16 @@ void CPathFindSearch::GetSplinePointWithLookahead(CVector3f& point, const CVecto
 
 void CPathFindSearch::GetSplinePointWithLookahead(CVector3f& point, const CVector3f& pos,
                                                   float lookahead) const {
-  GetSplinePointWithLookahead(point, pos, xc8_curWaypoint, lookahead);
+  GetSplinePointWithLookahead(point, pos, mCurWaypoint, lookahead);
 }
 
 float CPathFindSearch::RemainingPathDistance(const CVector3f& pos) const {
   float distance = 0.f;
-  const int count = x4_waypoints.size();
-  if (xc8_curWaypoint < count - 1) {
-    distance += (x4_waypoints[xc8_curWaypoint + 1] - pos).Magnitude();
-    for (int i = xc8_curWaypoint + 1; i < count - 1; ++i) {
-      distance += (x4_waypoints[i + 1] - x4_waypoints[i]).Magnitude();
+  const int count = mWaypoints.size();
+  if (mCurWaypoint < count - 1) {
+    distance += (mWaypoints[mCurWaypoint + 1] - pos).Magnitude();
+    for (int i = mCurWaypoint + 1; i < count - 1; ++i) {
+      distance += (mWaypoints[i + 1] - mWaypoints[i]).Magnitude();
     }
   }
   return distance;

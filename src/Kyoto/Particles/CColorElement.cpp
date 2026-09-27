@@ -7,24 +7,24 @@
 #include "rstl/math.hpp"
 
 CCEConstant::CCEConstant(CRealElement* r, CRealElement* g, CRealElement* b, CRealElement* a)
-: x4_r(r), x8_g(g), xc_b(b), x10_a(a) {}
+: mR(r), mG(g), mB(b), mA(a) {}
 
 CCEConstant::~CCEConstant() {
-  delete x4_r;
-  delete x8_g;
-  delete xc_b;
-  delete x10_a;
+  delete mR;
+  delete mG;
+  delete mB;
+  delete mA;
 }
 
 bool CCEConstant::GetValue(int frame, CColor& colorOut) const {
   float r, g, b, a;
-  x4_r->GetValue(frame, r);
+  mR->GetValue(frame, r);
   r = CMath::Clamp(0.f, r, 1.f);
-  x8_g->GetValue(frame, g);
+  mG->GetValue(frame, g);
   g = CMath::Clamp(0.f, g, 1.f);
-  xc_b->GetValue(frame, b);
+  mB->GetValue(frame, b);
   b = CMath::Clamp(0.f, b, 1.f);
-  x10_a->GetValue(frame, a);
+  mA->GetValue(frame, a);
   a = CMath::Clamp(0.f, a, 1.f);
   colorOut.Set(r, g, b, a);
   return false;
@@ -35,37 +35,37 @@ CCEFastConstant::CCEFastConstant(const float r, const float g, const float b, co
    float cg = CMath::Clamp(0.f, g, 1.f);
    float cb = CMath::Clamp(0.f, b, 1.f);
    float ca = CMath::Clamp(0.f, a, 1.f);
-   x4_val.Set(cr, cg, cb, ca);
+   mVal.Set(cr, cg, cb, ca);
 }
 
 CCEFastConstant::~CCEFastConstant() {}
 
 bool CCEFastConstant::GetValue(int frame, CColor& colorOut) const {
-  colorOut = x4_val;
+  colorOut = mVal;
   return false;
 }
 
 CCEFade::CCEFade(CColorElement* a, CColorElement* b, CRealElement* end)
-: x4_a(a), x8_b(b), xc_endFrame(end) {}
+: mA(a), mB(b), mEndFrame(end) {}
 
 CCEFade::~CCEFade() {
-  delete x4_a;
-  delete x8_b;
-  delete xc_endFrame;
+  delete mA;
+  delete mB;
+  delete mEndFrame;
 }
 
 bool CCEFade::GetValue(int frame, CColor& colorOut) const {
   float c;
-  xc_endFrame->GetValue(frame, c);
+  mEndFrame->GetValue(frame, c);
 
   float t = static_cast< float >(frame) * (1.f / c);
   if (t >= 1.f) {
-    x8_b->GetValue(frame, colorOut);
+    mB->GetValue(frame, colorOut);
   } else {
     CColor colA;
     CColor colB;
-    x4_a->GetValue(frame, colA);
-    x8_b->GetValue(frame, colB);
+    mA->GetValue(frame, colA);
+    mB->GetValue(frame, colB);
 
     float ar, ag, ab, aa;
     float br, bg, bb, ba;
@@ -79,32 +79,32 @@ bool CCEFade::GetValue(int frame, CColor& colorOut) const {
 }
 
 CCEFadeEnd::CCEFadeEnd(CColorElement* a, CColorElement* b, CRealElement* start, CRealElement* end)
-: x4_a(a), x8_b(b), xc_startFrame(start), x10_endFrame(end) {}
+: mA(a), mB(b), mStartFrame(start), mEndFrame(end) {}
 
 CCEFadeEnd::~CCEFadeEnd() {
-  delete x4_a;
-  delete x8_b;
-  delete xc_startFrame;
-  delete x10_endFrame;
+  delete mA;
+  delete mB;
+  delete mStartFrame;
+  delete mEndFrame;
 }
 
 bool CCEFadeEnd::GetValue(int frame, CColor& colorOut) const {
   float start;
-  xc_startFrame->GetValue(frame, start);
+  mStartFrame->GetValue(frame, start);
 
   float frameF = static_cast< float >(frame);
   if (frameF < start) {
-    x4_a->GetValue(frame, colorOut);
+    mA->GetValue(frame, colorOut);
     return false;
   }
 
   float end;
-  x10_endFrame->GetValue(frame, end);
+  mEndFrame->GetValue(frame, end);
 
   CColor colA;
   CColor colB;
-  x4_a->GetValue(frame, colA);
-  x8_b->GetValue(frame, colB);
+  mA->GetValue(frame, colA);
+  mB->GetValue(frame, colB);
 
   float ar, ag, ab, aa;
   float br, bg, bb, ba;
@@ -118,38 +118,38 @@ bool CCEFadeEnd::GetValue(int frame, CColor& colorOut) const {
 }
 
 CCETimeChain::CCETimeChain(CColorElement* a, CColorElement* b, CIntElement* c)
-: x4_a(a), x8_b(b), xc_swFrame(c) {}
+: mA(a), mB(b), mSwFrame(c) {}
 
 CCETimeChain::~CCETimeChain() {
-  delete x4_a;
-  delete x8_b;
-  delete xc_swFrame;
+  delete mA;
+  delete mB;
+  delete mSwFrame;
 }
 
 bool CCETimeChain::GetValue(int frame, CColor& colorOut) const {
   int v;
-  xc_swFrame->GetValue(frame, v);
+  mSwFrame->GetValue(frame, v);
   if (frame < v) {
-    return x4_a->GetValue(frame, colorOut);
+    return mA->GetValue(frame, colorOut);
   } else {
-    return x8_b->GetValue(frame - v, colorOut);
+    return mB->GetValue(frame - v, colorOut);
   }
 }
 
 CCEPulse::CCEPulse(CIntElement* a, CIntElement* b, CColorElement* c, CColorElement* d)
-: x4_aDuration(a), x8_bDuration(b), xc_aVal(c), x10_bVal(d) {}
+: mADuration(a), mBDuration(b), mAVal(c), mBVal(d) {}
 
 CCEPulse::~CCEPulse() {
-  delete x4_aDuration;
-  delete x8_bDuration;
-  delete xc_aVal;
-  delete x10_bVal;
+  delete mADuration;
+  delete mBDuration;
+  delete mAVal;
+  delete mBVal;
 }
 
 bool CCEPulse::GetValue(int frame, CColor& colorOut) const {
   int a, b;
-  x4_aDuration->GetValue(frame, a);
-  x8_bDuration->GetValue(frame, b);
+  mADuration->GetValue(frame, a);
+  mBDuration->GetValue(frame, b);
   int cv = a + b + 1;
   if (cv < 0) {
     cv = 1;
@@ -157,59 +157,59 @@ bool CCEPulse::GetValue(int frame, CColor& colorOut) const {
 
   if (b >= 1) {
     if (frame % cv > a) {
-      x10_bVal->GetValue(frame, colorOut);
+      mBVal->GetValue(frame, colorOut);
     } else {
-      xc_aVal->GetValue(frame, colorOut);
+      mAVal->GetValue(frame, colorOut);
     }
   } else {
-    xc_aVal->GetValue(frame, colorOut);
+    mAVal->GetValue(frame, colorOut);
   }
   return false;
 }
 
 CCEKeyframeEmitter::CCEKeyframeEmitter(CInputStream& in)
-: x4_percent(in.ReadLong())
-, x8_unk1(in.ReadLong())
-, xc_loop(in.ReadBool())
-, xd_unk2(in.ReadBool())
-, x10_loopEnd(in.ReadLong())
-, x14_loopStart(in.ReadLong())
-, x18_keys(in) {
-  if (x14_loopStart >= x10_loopEnd) {
-    x14_loopStart = 0;
+: mPercent(in.ReadLong())
+, mUnk1(in.ReadLong())
+, mLoop(in.ReadBool())
+, mUnk2(in.ReadBool())
+, mLoopEnd(in.ReadLong())
+, mLoopStart(in.ReadLong())
+, mKeys(in) {
+  if (mLoopStart >= mLoopEnd) {
+    mLoopStart = 0;
   }
 }
 
 CCEKeyframeEmitter::~CCEKeyframeEmitter() {}
 
 bool CCEKeyframeEmitter::GetValue(int frame, CColor& valOut) const {
-  if (x4_percent == 0) {
+  if (mPercent == 0) {
     int emitterTime = CParticleGlobals::GetEmitterTime();
-    if (xc_loop) {
-      if (emitterTime >= x10_loopEnd) {
-        emitterTime -= x14_loopStart;
-        emitterTime = emitterTime % (x10_loopEnd - x14_loopStart);
-        emitterTime += x14_loopStart;
+    if (mLoop) {
+      if (emitterTime >= mLoopEnd) {
+        emitterTime -= mLoopStart;
+        emitterTime = emitterTime % (mLoopEnd - mLoopStart);
+        emitterTime += mLoopStart;
       }
-      valOut = x18_keys[emitterTime];
+      valOut = mKeys[emitterTime];
     } else {
-      emitterTime = rstl::min_val(emitterTime, x10_loopEnd - 1);
-      valOut = x18_keys[emitterTime];
+      emitterTime = rstl::min_val(emitterTime, mLoopEnd - 1);
+      valOut = mKeys[emitterTime];
     }
     return false;
   }
 
   if (CParticleGlobals::GetParticleLifetimePercentage() == 100) {
-    valOut = x18_keys[CParticleGlobals::GetParticleLifetimePercentage()];
+    valOut = mKeys[CParticleGlobals::GetParticleLifetimePercentage()];
   } else {
-    valOut = CColor::Lerp(x18_keys[CParticleGlobals::GetParticleLifetimePercentage()],
-                          x18_keys[CParticleGlobals::GetParticleLifetimePercentage() + 1],
+    valOut = CColor::Lerp(mKeys[CParticleGlobals::GetParticleLifetimePercentage()],
+                          mKeys[CParticleGlobals::GetParticleLifetimePercentage() + 1],
                           CParticleGlobals::GetParticleLifetimePercentageRemainder());
   }
   return false;
 }
 
 bool CCEParticleColor::GetValue(int frame, CColor& colorOut) const {
-  colorOut = CParticleGlobals::GetCurrentParticle()->x34_color;
+  colorOut = CParticleGlobals::GetCurrentParticle()->mColor;
   return false;
 }

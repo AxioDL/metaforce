@@ -60,25 +60,25 @@ struct SMultipassDrawContext {
 static const CAdvancementDeltas skNullAdvance(CVector3f::Zero(), CQuaternion::NoRotation());
 
 CModelData::CModelData(const CStaticRes& res)
-: x0_scale(res.GetScale())
-, x14_24_renderSorted(false)
-, x14_25_sortThermal(false)
-, x18_ambientColor(CColor::White())
-, x1c_normalModel(gpSimplePool->GetObj(SObjectTag('CMDL', res.GetId()))) {}
+: mScale(res.GetScale())
+, mRenderSorted(false)
+, mSortThermal(false)
+, mAmbientColor(CColor::White())
+, mNormalModel(gpSimplePool->GetObj(SObjectTag('CMDL', res.GetId()))) {}
 
 CModelData::CModelData()
-: x0_scale(1.f, 1.f, 1.f)
-, x14_24_renderSorted(false)
-, x14_25_sortThermal(false)
-, x18_ambientColor(CColor::White()) {}
+: mScale(1.f, 1.f, 1.f)
+, mRenderSorted(false)
+, mSortThermal(false)
+, mAmbientColor(CColor::White()) {}
 
 CModelData::CModelData(const CAnimRes& res)
-: x0_scale(res.GetScale())
-, x14_24_renderSorted(false)
-, x14_25_sortThermal(false)
-, x18_ambientColor(CColor::White()) {
+: mScale(res.GetScale())
+, mRenderSorted(false)
+, mSortThermal(false)
+, mAmbientColor(CColor::White()) {
   TLockedToken< CCharacterFactory > factory = gpCharacterFactoryBuilder->GetFactory(res);
-  xc_animData =
+  mAnimData =
       factory
           ->CreateCharacter(res.GetCharacterNodeId(), res.CanLoop(), factory, res.GetDefaultAnim())
           .release();
@@ -88,56 +88,56 @@ CModelData::~CModelData() {}
 
 void CModelData::Render(EWhichModel which, const CTransform4f& xf, const CActorLights* lights,
                         const CModelFlags& flags) const {
-  if (x14_25_sortThermal && which == kWM_ThermalHot) {
+  if (mSortThermal && which == kWM_ThermalHot) {
     const float alpha = flags.GetColorRef().GetAlpha();
     const CColor mulColor(alpha, alpha, alpha, alpha);
     RenderThermal(xf, mulColor, CColor(uchar(0), uchar(0), uchar(0), uchar(0x40)), flags);
     return;
   }
   CTransform4f scaledXf = xf;
-  scaledXf *= CTransform4f::Scale(x0_scale.GetX(), x0_scale.GetY(), x0_scale.GetZ());
+  scaledXf *= CTransform4f::Scale(mScale.GetX(), mScale.GetY(), mScale.GetZ());
   gpRender->SetModelMatrix(scaledXf);
   if (lights != nullptr) {
     lights->ActivateLights();
   } else {
     CGraphics::DisableAllLights();
-    gpRender->SetAmbientColor(x18_ambientColor);
+    gpRender->SetAmbientColor(mAmbientColor);
   }
   if (HasAnimation()) {
-    xc_animData->Render(PickAnimatedModel(which), flags,
+    mAnimData->Render(PickAnimatedModel(which), flags,
                         rstl::optional_object< CVertexMorphEffect >(), nullptr);
-  } else if (x1c_normalModel) {
+  } else if (mNormalModel) {
     const CModel& model = **PickStaticModel(which);
-    if (x14_24_renderSorted)
+    if (mRenderSorted)
       model.DrawSortedParts(flags);
     else
       model.Draw(flags);
   }
   gpRender->SetAmbientColor(CColor::White());
   CGraphics::DisableAllLights();
-  x14_24_renderSorted = false;
+  mRenderSorted = false;
 }
 
 void CModelData::RenderUnsortedParts(EWhichModel which, const CTransform4f& xf,
                                      const CActorLights* lights, const CModelFlags& flags) const {
-  if ((x14_25_sortThermal && which == kWM_ThermalHot) || HasAnimation() || !x1c_normalModel ||
+  if ((mSortThermal && which == kWM_ThermalHot) || HasAnimation() || !mNormalModel ||
       flags.GetTrans() > CModelFlags::kT_Four) {
-    x14_24_renderSorted = false;
+    mRenderSorted = false;
     return;
   }
   CTransform4f scaledXf =
-      xf * CTransform4f::Scale(x0_scale.GetX(), x0_scale.GetY(), x0_scale.GetZ());
+      xf * CTransform4f::Scale(mScale.GetX(), mScale.GetY(), mScale.GetZ());
   gpRender->SetModelMatrix(scaledXf);
   if (lights != nullptr) {
     lights->ActivateLights();
   } else {
     CGraphics::DisableAllLights();
-    gpRender->SetAmbientColor(x18_ambientColor);
+    gpRender->SetAmbientColor(mAmbientColor);
   }
   PickStaticModel(which)->DrawUnsortedParts(flags);
   gpRender->SetAmbientColor(CColor::White());
   CGraphics::DisableAllLights();
-  x14_24_renderSorted = true;
+  mRenderSorted = true;
 }
 
 void CModelData::ThermalDrawCallback(TModelPositions positions, TModelNormals normals,
@@ -211,12 +211,12 @@ void CModelData::ThermalDraw(CSkinnedModel& model, const float* positions, const
 
 void CModelData::RenderThermal(const CTransform4f& xf, const CColor& mulColor,
                                const CColor& addColor, const CModelFlags& flags) const {
-  CTransform4f scaledXf = xf * CTransform4f::Scale(x0_scale);
+  CTransform4f scaledXf = xf * CTransform4f::Scale(mScale);
   gpRender->SetModelMatrix(scaledXf);
   CGraphics::DisableAllLights();
   if (HasAnimation()) {
     CSkinnedModel& model = PickAnimatedModel(kWM_ThermalHot);
-    xc_animData->SetupRender(model, rstl::optional_object< CVertexMorphEffect >(), nullptr);
+    mAnimData->SetupRender(model, rstl::optional_object< CVertexMorphEffect >(), nullptr);
     ThermalDraw(model, mulColor, addColor, flags);
   } else {
     gpRender->DrawThermalModel(**PickStaticModel(kWM_ThermalHot), mulColor, addColor,
@@ -226,13 +226,13 @@ void CModelData::RenderThermal(const CTransform4f& xf, const CColor& mulColor,
 
 void CModelData::DisintegrateDraw(EWhichModel which, const CTransform4f& xf,
                                   const CTexture& texture, const CColor& color, float t) const {
-  CTransform4f scaledXf = xf * CTransform4f::Scale(x0_scale);
+  CTransform4f scaledXf = xf * CTransform4f::Scale(mScale);
   gpRender->SetModelMatrix(scaledXf);
   CGraphics::DisableAllLights();
   CAABox bounds = GetBounds(scaledXf);
   if (HasAnimation()) {
     CSkinnedModel& model = PickAnimatedModel(which);
-    xc_animData->SetupRender(model, rstl::optional_object< CVertexMorphEffect >(), nullptr);
+    mAnimData->SetupRender(model, rstl::optional_object< CVertexMorphEffect >(), nullptr);
     SOneTextureDrawContext ctx(model, texture, color, t);
     model.Draw(DisintegrateDrawCallback, &ctx);
   } else {
@@ -248,12 +248,12 @@ void CModelData::DisintegrateDraw(const CStateManager& mgr, const CTransform4f& 
 
 void CModelData::FlatDraw(EWhichModel which, const CTransform4f& xf, bool unsortedOnly,
                           const CModelFlags& flags) const {
-  CTransform4f scaledXf = xf * CTransform4f::Scale(x0_scale);
+  CTransform4f scaledXf = xf * CTransform4f::Scale(mScale);
   gpRender->SetModelMatrix(scaledXf);
   CGraphics::DisableAllLights();
   if (HasAnimation()) {
     CSkinnedModel& model = PickAnimatedModel(which);
-    xc_animData->SetupRender(model, rstl::optional_object< CVertexMorphEffect >(), nullptr);
+    mAnimData->SetupRender(model, rstl::optional_object< CVertexMorphEffect >(), nullptr);
     SFlatDrawContext ctx(model, unsortedOnly, flags);
     model.Draw(FlatDrawCallback, &ctx);
   } else {
@@ -265,7 +265,7 @@ void CModelData::FlatDraw(EWhichModel which, const CTransform4f& xf, bool unsort
 void CModelData::MultiLightingDraw(EWhichModel which, const CTransform4f& xf,
                                    const CActorLights* lights, const CColor& mulColor,
                                    const CColor& addColor) const {
-  CTransform4f scaledXf = xf * CTransform4f::Scale(x0_scale);
+  CTransform4f scaledXf = xf * CTransform4f::Scale(mScale);
   gpRender->SetModelMatrix(scaledXf);
   if (HasAnimation()) {
     CSkinnedModel& model = PickAnimatedModel(which);
@@ -281,13 +281,13 @@ void CModelData::MultiLightingDraw(EWhichModel which, const CTransform4f& xf,
 void CModelData::MultipassDraw(EWhichModel which, const CTransform4f& xf,
                                const CActorLights* lights, const CModelFlags* flags,
                                int count) const {
-  CTransform4f scaledXf = xf * CTransform4f::Scale(x0_scale);
+  CTransform4f scaledXf = xf * CTransform4f::Scale(mScale);
   gpRender->SetModelMatrix(scaledXf);
   if (lights != nullptr) {
     lights->ActivateLights();
   } else {
     CGraphics::DisableAllLights();
-    gpRender->SetAmbientColor(x18_ambientColor);
+    gpRender->SetAmbientColor(mAmbientColor);
   }
   if (HasAnimation()) {
     CSkinnedModel& model = PickAnimatedModel(which);
@@ -307,14 +307,14 @@ void CModelData::Touch(const CStateManager& mgr, int shaderIdx) const {
 
 void CModelData::Touch(EWhichModel which, int shaderIdx) const {
   if (HasAnimation())
-    xc_animData->Touch(PickAnimatedModel(which), shaderIdx);
+    mAnimData->Touch(PickAnimatedModel(which), shaderIdx);
   else
     PickStaticModel(which)->Touch(shaderIdx);
 }
 
 void CModelData::RenderParticles(const CFrustumPlanes& planes) const {
   if (HasAnimation())
-    xc_animData->RenderAuxiliary(planes);
+    mAnimData->RenderAuxiliary(planes);
 }
 
 bool CModelData::IsInFrustum(const CTransform4f& xf, const CFrustumPlanes& planes) const {
@@ -323,40 +323,40 @@ bool CModelData::IsInFrustum(const CTransform4f& xf, const CFrustumPlanes& plane
   return planes.BoxInFrustumPlanes(GetBounds(xf));
 }
 
-bool CModelData::IsAnimating() const { return HasAnimation() && xc_animData->IsAnimating(); }
+bool CModelData::IsAnimating() const { return HasAnimation() && mAnimData->IsAnimating(); }
 
 CAdvancementDeltas CModelData::AdvanceAnimation(float dt, CStateManager& mgr, TAreaId aid,
                                                 bool advTree) {
   if (!HasAnimation())
     return skNullAdvance;
-  return xc_animData->Advance(dt, ScaleCopy(), mgr, aid, advTree);
+  return mAnimData->Advance(dt, ScaleCopy(), mgr, aid, advTree);
 }
 
 CAdvancementDeltas CModelData::AdvanceAnimationIgnoreParticles(float dt, CRandom16& rand,
                                                                bool advTree) {
   if (!HasAnimation())
     return skNullAdvance;
-  return xc_animData->AdvanceIgnoreParticles(dt, rand, advTree);
+  return mAnimData->AdvanceIgnoreParticles(dt, rand, advTree);
 }
 
 CTransform4f CModelData::GetLocatorTransform(const rstl::string& name) const {
   if (!HasAnimation())
     return CTransform4f::Identity();
-  return xc_animData->GetLocatorTransform(name, nullptr);
+  return mAnimData->GetLocatorTransform(name, nullptr);
 }
 
 CTransform4f CModelData::GetLocatorTransformDynamic(const rstl::string& name,
                                                     const CCharAnimTime* time) const {
   if (!HasAnimation())
     return CTransform4f::Identity();
-  return xc_animData->GetLocatorTransform(name, time);
+  return mAnimData->GetLocatorTransform(name, time);
 }
 
 CTransform4f CModelData::GetScaledLocatorTransform(const rstl::string& name) const {
   CTransform4f xf = GetLocatorTransform(name);
   const CVector3f pos = xf.GetTranslation();
-  xf.SetTranslation(CVector3f(x0_scale.GetX() * pos.GetX(), x0_scale.GetY() * pos.GetY(),
-                              x0_scale.GetZ() * pos.GetZ()));
+  xf.SetTranslation(CVector3f(mScale.GetX() * pos.GetX(), mScale.GetY() * pos.GetY(),
+                              mScale.GetZ() * pos.GetZ()));
   return xf;
 }
 
@@ -364,83 +364,83 @@ CTransform4f CModelData::GetScaledLocatorTransformDynamic(const rstl::string& na
                                                           const CCharAnimTime* time) const {
   CTransform4f xf = GetLocatorTransformDynamic(name, time);
   const CVector3f pos = xf.GetTranslation();
-  xf.SetTranslation(CVector3f(x0_scale.GetX() * pos.GetX(), x0_scale.GetY() * pos.GetY(),
-                              x0_scale.GetZ() * pos.GetZ()));
+  xf.SetTranslation(CVector3f(mScale.GetX() * pos.GetX(), mScale.GetY() * pos.GetY(),
+                              mScale.GetZ() * pos.GetZ()));
   return xf;
 }
 
 CAABox CModelData::GetBounds(const CTransform4f& xf) const {
   CTransform4f scaledXf =
-      xf * CTransform4f::Scale(x0_scale.GetX(), x0_scale.GetY(), x0_scale.GetZ());
+      xf * CTransform4f::Scale(mScale.GetX(), mScale.GetY(), mScale.GetZ());
   if (HasAnimation())
-    return xc_animData->GetBoundingBox(scaledXf);
-  if (!x2c_xrayModel && !x3c_infraModel)
-    return (*x1c_normalModel)->GetBoundingBox().GetTransformedAABox(scaledXf);
-  CAABox bounds = (*x1c_normalModel)->GetBoundingBox();
-  if (x3c_infraModel) {
-    bounds.Include((*x3c_infraModel)->GetBoundingBox());
+    return mAnimData->GetBoundingBox(scaledXf);
+  if (!mXrayModel && !mInfraModel)
+    return (*mNormalModel)->GetBoundingBox().GetTransformedAABox(scaledXf);
+  CAABox bounds = (*mNormalModel)->GetBoundingBox();
+  if (mInfraModel) {
+    bounds.Include((*mInfraModel)->GetBoundingBox());
   }
-  if (x2c_xrayModel) {
-    bounds.Include((*x2c_xrayModel)->GetBoundingBox());
+  if (mXrayModel) {
+    bounds.Include((*mXrayModel)->GetBoundingBox());
   }
   return bounds.GetTransformedAABox(scaledXf);
 }
 
 CAABox CModelData::GetBounds() const {
   if (HasAnimation())
-    return xc_animData->GetBoundingBox(
-        CTransform4f::Scale(x0_scale.GetX(), x0_scale.GetY(), x0_scale.GetZ()));
-  if (!x2c_xrayModel && !x3c_infraModel) {
-    const CAABox& bounds = (*x1c_normalModel)->GetBoundingBox();
-    return CAABox(CVector3f(bounds.GetMinPoint().GetX() * x0_scale.GetX(),
-                            bounds.GetMinPoint().GetY() * x0_scale.GetY(),
-                            bounds.GetMinPoint().GetZ() * x0_scale.GetZ()),
-                  CVector3f(bounds.GetMaxPoint().GetX() * x0_scale.GetX(),
-                            bounds.GetMaxPoint().GetY() * x0_scale.GetY(),
-                            bounds.GetMaxPoint().GetZ() * x0_scale.GetZ()));
+    return mAnimData->GetBoundingBox(
+        CTransform4f::Scale(mScale.GetX(), mScale.GetY(), mScale.GetZ()));
+  if (!mXrayModel && !mInfraModel) {
+    const CAABox& bounds = (*mNormalModel)->GetBoundingBox();
+    return CAABox(CVector3f(bounds.GetMinPoint().GetX() * mScale.GetX(),
+                            bounds.GetMinPoint().GetY() * mScale.GetY(),
+                            bounds.GetMinPoint().GetZ() * mScale.GetZ()),
+                  CVector3f(bounds.GetMaxPoint().GetX() * mScale.GetX(),
+                            bounds.GetMaxPoint().GetY() * mScale.GetY(),
+                            bounds.GetMaxPoint().GetZ() * mScale.GetZ()));
   }
-  CAABox bounds = (*x1c_normalModel)->GetBoundingBox();
-  if (x3c_infraModel) {
-    bounds.Include((*x3c_infraModel)->GetBoundingBox());
+  CAABox bounds = (*mNormalModel)->GetBoundingBox();
+  if (mInfraModel) {
+    bounds.Include((*mInfraModel)->GetBoundingBox());
   }
-  if (x2c_xrayModel) {
-    bounds.Include((*x2c_xrayModel)->GetBoundingBox());
+  if (mXrayModel) {
+    bounds.Include((*mXrayModel)->GetBoundingBox());
   }
-  return CAABox(CVector3f(bounds.GetMinPoint().GetX() * x0_scale.GetX(),
-                          bounds.GetMinPoint().GetY() * x0_scale.GetY(),
-                          bounds.GetMinPoint().GetZ() * x0_scale.GetZ()),
-                CVector3f(bounds.GetMaxPoint().GetX() * x0_scale.GetX(),
-                          bounds.GetMaxPoint().GetY() * x0_scale.GetY(),
-                          bounds.GetMaxPoint().GetZ() * x0_scale.GetZ()));
+  return CAABox(CVector3f(bounds.GetMinPoint().GetX() * mScale.GetX(),
+                          bounds.GetMinPoint().GetY() * mScale.GetY(),
+                          bounds.GetMinPoint().GetZ() * mScale.GetZ()),
+                CVector3f(bounds.GetMaxPoint().GetX() * mScale.GetX(),
+                          bounds.GetMaxPoint().GetY() * mScale.GetY(),
+                          bounds.GetMaxPoint().GetZ() * mScale.GetZ()));
 }
 
 void CModelData::AdvanceParticles(const CTransform4f& xf, float dt, CStateManager& mgr) {
   if (HasAnimation())
-    xc_animData->AdvanceParticles(xf, dt, x0_scale, mgr);
+    mAnimData->AdvanceParticles(xf, dt, mScale, mgr);
 }
 
 void CModelData::EnableLooping(bool enable) {
   if (!HasAnimation())
     return;
-  xc_animData->EnableLooping(enable);
+  mAnimData->EnableLooping(enable);
 }
 
 float CModelData::GetAnimationDuration(int anim) const {
-  if (xc_animData.null())
+  if (mAnimData.null())
     return 0.f;
-  return xc_animData->GetAnimationDuration(anim);
+  return mAnimData->GetAnimationDuration(anim);
 }
 
 bool CModelData::GetIsLoop() const {
-  if (xc_animData.null())
+  if (mAnimData.null())
     return false;
-  return xc_animData->GetIsLoop();
+  return mAnimData->GetIsLoop();
 }
 
 bool CModelData::IsDefinitelyOpaque(EWhichModel which) const {
   if (HasAnimation())
     return PickAnimatedModel(which).GetModel()->IsDefinitelyOpaque();
-  if (x1c_normalModel)
+  if (mNormalModel)
     return PickStaticModel(which)->IsDefinitelyOpaque();
   return false;
 }
@@ -448,11 +448,11 @@ bool CModelData::IsDefinitelyOpaque(EWhichModel which) const {
 void CModelData::SetInfraModel(const rstl::pair< CAssetId, CAssetId >& assets) {
   if (assets.first != 0) {
     if (HasAnimation() && assets.second != 0) {
-      xc_animData->SetInfraModel(
+      mAnimData->SetInfraModel(
           TToken< CModel >(gpSimplePool->GetObj(SObjectTag('CMDL', assets.first))),
           TToken< CSkinRules >(gpSimplePool->GetObj(SObjectTag('CSKR', assets.second))));
     } else {
-      x3c_infraModel =
+      mInfraModel =
           TLockedToken< CModel >(gpSimplePool->GetObj(SObjectTag('CMDL', assets.first)));
     }
   }
@@ -463,11 +463,11 @@ void CModelData::SetXRayModel(const rstl::pair< CAssetId, CAssetId >& assets) {
     return;
   if (HasAnimation() && assets.second != 0 &&
       gpResourceFactory->GetResourceTypeById(assets.second) == 'CSKR') {
-    xc_animData->SetXRayModel(
+    mAnimData->SetXRayModel(
         TToken< CModel >(gpSimplePool->GetObj(SObjectTag('CMDL', assets.first))),
         TToken< CSkinRules >(gpSimplePool->GetObj(SObjectTag('CSKR', assets.second))));
   } else {
-    x2c_xrayModel = TLockedToken< CModel >(gpSimplePool->GetObj(SObjectTag('CMDL', assets.first)));
+    mXrayModel = TLockedToken< CModel >(gpSimplePool->GetObj(SObjectTag('CMDL', assets.first)));
   }
 }
 
@@ -475,17 +475,17 @@ const TLockedToken< CModel >& CModelData::PickStaticModel(EWhichModel which) con
   switch (which) {
   case kWM_Thermal:
   case kWM_ThermalHot:
-    if (x3c_infraModel)
-      return *x3c_infraModel;
+    if (mInfraModel)
+      return *mInfraModel;
     break;
   case kWM_XRay:
-    if (x2c_xrayModel)
-      return *x2c_xrayModel;
+    if (mXrayModel)
+      return *mXrayModel;
     break;
   default:
     break;
   }
-  return *x1c_normalModel;
+  return *mNormalModel;
 }
 
 CSkinnedModel& CModelData::PickAnimatedModel(EWhichModel which) const {
@@ -493,17 +493,17 @@ CSkinnedModel& CModelData::PickAnimatedModel(EWhichModel which) const {
   switch (which) {
   case kWM_Thermal:
   case kWM_ThermalHot:
-    model = xc_animData->GetInfraModel();
+    model = mAnimData->GetInfraModel();
     break;
   case kWM_XRay:
-    model = xc_animData->GetXRayModel();
+    model = mAnimData->GetXRayModel();
     break;
   default:
     break;
   }
   if (model != nullptr)
     return *model;
-  return **xc_animData->GetModelData();
+  return **mAnimData->GetModelData();
 }
 
 CModelData::EWhichModel CModelData::GetRenderingModel(const CStateManager& mgr) {
@@ -525,22 +525,22 @@ bool CModelData::HasModel(EWhichModel which) const {
     case kWM_Normal:
       return true;
     case kWM_XRay:
-      return xc_animData->GetXRayModel() != nullptr;
+      return mAnimData->GetXRayModel() != nullptr;
     case kWM_Thermal:
     case kWM_ThermalHot:
-      return xc_animData->GetInfraModel() != nullptr;
+      return mAnimData->GetInfraModel() != nullptr;
     default:
       return false;
     }
   }
   switch (which) {
   case kWM_Normal:
-    return x1c_normalModel;
+    return mNormalModel;
   case kWM_XRay:
-    return x2c_xrayModel;
+    return mXrayModel;
   case kWM_Thermal:
   case kWM_ThermalHot:
-    return x3c_infraModel;
+    return mInfraModel;
   default:
     return false;
   }
@@ -553,7 +553,7 @@ void CModelData::Render(const CStateManager& mgr, const CTransform4f& xf,
 
 bool CModelData::IsLoaded(int shaderIdx) const {
   if (HasAnimation()) {
-    const CAnimData& animData = *xc_animData;
+    const CAnimData& animData = *mAnimData;
     if (!animData.GetModelData()->GetModel()->IsLoaded(shaderIdx))
       return false;
     CSkinnedModel* xrayModel = animData.GetXRayModel();
@@ -563,19 +563,19 @@ bool CModelData::IsLoaded(int shaderIdx) const {
     if (infraModel != nullptr && !infraModel->GetModel()->IsLoaded(shaderIdx))
       return false;
   }
-  if (x1c_normalModel && !(*x1c_normalModel)->IsLoaded(shaderIdx))
+  if (mNormalModel && !(*mNormalModel)->IsLoaded(shaderIdx))
     return false;
-  if (x2c_xrayModel && !(*x2c_xrayModel)->IsLoaded(shaderIdx))
+  if (mXrayModel && !(*mXrayModel)->IsLoaded(shaderIdx))
     return false;
-  if (x3c_infraModel && !(*x3c_infraModel)->IsLoaded(shaderIdx))
+  if (mInfraModel && !(*mInfraModel)->IsLoaded(shaderIdx))
     return false;
   return true;
 }
 
 int CModelData::GetNumMaterialSets() const {
   if (HasAnimation())
-    return xc_animData->GetModelData()->GetModel()->GetNumMaterialSets();
-  if (x1c_normalModel)
-    return (*x1c_normalModel)->GetNumMaterialSets();
+    return mAnimData->GetModelData()->GetModel()->GetNumMaterialSets();
+  if (mNormalModel)
+    return (*mNormalModel)->GetNumMaterialSets();
   return 1;
 }

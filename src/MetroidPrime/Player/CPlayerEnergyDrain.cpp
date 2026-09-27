@@ -3,20 +3,20 @@
 #include "MetroidPrime/CStateManager.hpp"
 #include "rstl/algorithm.hpp"
 
-CPlayerEnergyDrain::CPlayerEnergyDrain(uint numSources) : x10_energyDrainTime(0.f) {
-  x0_sources.reserve(numSources);
+CPlayerEnergyDrain::CPlayerEnergyDrain(uint numSources) : mEnergyDrainTime(0.f) {
+  mSources.reserve(numSources);
 }
 
 bool CPlayerEnergyDrain::AddEnergyDrainSource(TUniqueId id, float intensity) {
   const CEnergyDrainSource source(id, intensity);
-  AUTO(it, rstl::binary_find(x0_sources.begin(), x0_sources.end(), source));
-  if (it != x0_sources.end()) {
+  AUTO(it, rstl::binary_find(mSources.begin(), mSources.end(), source));
+  if (it != mSources.end()) {
     it->SetEnergyDrainIntensity(intensity);
     return true;
   }
-  if (x0_sources.size() < x0_sources.capacity()) {
-    AUTO(insertAt, rstl::lower_bound(x0_sources.begin(), x0_sources.end(), source));
-    x0_sources.insert(insertAt, source);
+  if (mSources.size() < mSources.capacity()) {
+    AUTO(insertAt, rstl::lower_bound(mSources.begin(), mSources.end(), source));
+    mSources.insert(insertAt, source);
     return true;
   }
   return false;
@@ -24,25 +24,25 @@ bool CPlayerEnergyDrain::AddEnergyDrainSource(TUniqueId id, float intensity) {
 
 void CPlayerEnergyDrain::RemoveEnergyDrainSource(TUniqueId id) {
   const CEnergyDrainSource source(id, 0.f);
-  AUTO(it, rstl::binary_find(x0_sources.begin(), x0_sources.end(), source));
-  if (it != x0_sources.end()) {
-    x0_sources.erase(it);
+  AUTO(it, rstl::binary_find(mSources.begin(), mSources.end(), source));
+  if (it != mSources.end()) {
+    mSources.erase(it);
   }
 }
 
 float CPlayerEnergyDrain::GetEnergyDrainIntensity() const {
   float intensity = 0.f;
-  for (AUTO(it, x0_sources.begin()); it != x0_sources.end(); ++it) {
+  for (AUTO(it, mSources.begin()); it != mSources.end(); ++it) {
     intensity += it->GetEnergyDrainIntensity();
   }
   return intensity;
 }
 
 void CPlayerEnergyDrain::ProcessEnergyDrain(const CStateManager& mgr, float dt) {
-  for (AUTO(it, x0_sources.begin()); it != x0_sources.end(); ++it) {
+  for (AUTO(it, mSources.begin()); it != mSources.end(); ++it) {
     if (!mgr.GetObjectById(it->GetEnergyDrainSourceId())) {
       RemoveEnergyDrainSource(it->GetEnergyDrainSourceId());
     }
   }
-  x10_energyDrainTime = x0_sources.size() > 0 ? x10_energyDrainTime + dt : 0.f;
+  mEnergyDrainTime = mSources.size() > 0 ? mEnergyDrainTime + dt : 0.f;
 }

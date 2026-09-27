@@ -8,8 +8,8 @@
 CScriptRipple::CScriptRipple(const TUniqueId uid, const rstl::string& name, const CEntityInfo& info,
                              const CVector3f& vec, const bool active, const float f1)
 : CEntity(uid, info, active, name)
-, x34_magnitude(f1 >= 0.f ? f1 : CRipple::kDefaultScale)
-, x38_center(vec) {}
+, mMagnitude(f1 >= 0.f ? f1 : CRipple::kDefaultScale)
+, mCenter(vec) {}
 
 CScriptRipple::~CScriptRipple() {}
 
@@ -22,15 +22,15 @@ void CScriptRipple::AcceptScriptMsg(const EScriptObjectMessage msg, const TUniqu
 
     rstl::vector< SConnection >::const_iterator conn = GetConnectionList().begin();
     for (; conn != GetConnectionList().end(); ++conn) {
-      if (conn->x0_state != kSS_Active || conn->x4_msg != kSM_Next) {
+      if (conn->mState != kSS_Active || conn->mMsg != kSM_Next) {
         continue;
       }
 
-      CStateManager::TIdListResult search = mgr.GetIdListForScript(conn->x8_objId);
+      CStateManager::TIdListResult search = mgr.GetIdListForScript(conn->mObjId);
       if (search.first != search.second) {
         if (CScriptWater* water =
                 TCastToPtr< CScriptWater >(mgr.ObjectById(search.first->second))) {
-          water->FluidPlane().AddRipple(x34_magnitude, GetUniqueId(), x38_center, *water, mgr);
+          water->FluidPlane().AddRipple(mMagnitude, GetUniqueId(), mCenter, *water, mgr);
         }
       }
     }

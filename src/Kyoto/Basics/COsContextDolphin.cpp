@@ -14,17 +14,17 @@ COsContext::COsContext(bool, bool) {
 
   switch (OSGetConsoleType()) {
   case OS_CONSOLE_RETAIL1:
-    x14_consoleType = kCT_Retail;
+    mConsoleType = kCT_Retail;
     break;
   case OS_CONSOLE_DEVHW1:
-    x14_consoleType = kCT_Development1;
+    mConsoleType = kCT_Development1;
     break;
   case OS_CONSOLE_DEVHW2:
   case OS_CONSOLE_DEVHW3:
-    x14_consoleType = kCT_Development2Or3;
+    mConsoleType = kCT_Development2Or3;
     break;
   case OS_CONSOLE_EMULATOR:
-    x14_consoleType = kCT_Emulator;
+    mConsoleType = kCT_Emulator;
     break;
   }
 }
@@ -43,54 +43,52 @@ int COsContext::OpenWindow(const char* title, int x, int y, int w, int h, bool f
   switch (VIGetTvFormat()) {
   case VI_NTSC:
     rModeObj = &GXNtsc480IntDf;
-    x10_format = 1;
+    mFormat = 1;
     break;
   case VI_PAL:
     rModeObj = &GXPal528IntDf;
-    x10_format = 2;
+    mFormat = 2;
     break;
   case VI_MPAL:
     rModeObj = &GXMpal480IntDf;
-    x10_format = 3;
+    mFormat = 3;
     break;
   }
 
   if (w > 0) {
-    x30_renderMode.viWidth = w;
+    mRenderMode.viWidth = w;
   }
   if (h > 0) {
-    x30_renderMode.viHeight = h;
+    mRenderMode.viHeight = h;
   }
 
-  GXAdjustForOverscan(rModeObj, &x30_renderMode, 0, 16);
+  GXAdjustForOverscan(rModeObj, &mRenderMode, 0, 16);
 
-  x8_left = x30_renderMode.viXOrigin;
-  xc_top = x30_renderMode.viYOrigin;
-  x0_right = x30_renderMode.viWidth;
-  x4_bottom = x30_renderMode.viHeight;
-
+  mLeft = mRenderMode.viXOrigin;
+  mTop = mRenderMode.viYOrigin;
+  mRight = mRenderMode.viWidth;
+  mBottom = mRenderMode.viHeight;
 #if defined(TARGET_PC)
-  x24_frameBuffer1 = reinterpret_cast< void* >(0xDEADBABEu);
-  x28_frameBuffer2 = reinterpret_cast< void* >(0xBABEDEADu);
+  mFrameBuffer1 = reinterpret_cast< void* >(0xDEADBABEu);
+  mFrameBuffer2 = reinterpret_cast< void* >(0xBABEDEADu);
 #else
-  x2c_frameBufferSize =
-      (ushort)((x30_renderMode.fbWidth + 15) & ~15) * x30_renderMode.xfbHeight * 2;
-  x24_frameBuffer1 = OSAllocFromArenaLo(x2c_frameBufferSize, 32);
-  x28_frameBuffer2 = OSAllocFromArenaLo(x2c_frameBufferSize, 32);
+  mFrameBufferSize =
+      (ushort)((mRenderMode.fbWidth + 15) & ~15) * mRenderMode.xfbHeight * 2;
+  mFrameBuffer1 = OSAllocFromArenaLo(mFrameBufferSize, 32);
+  mFrameBuffer2 = OSAllocFromArenaLo(mFrameBufferSize, 32);
+  mArenaLo2 = OSGetArenaLo();
+  mArenaLo1 = OSGetArenaLo();
+  mArenaHi = OSGetArenaHi();
+  mRenderMode.viWidth += 20;
+  mRenderMode.viXOrigin -= 10;
 #endif
-  x20_arenaLo2 = OSGetArenaLo();
-  x18_arenaLo1 = OSGetArenaLo();
-  x1c_arenaHi = OSGetArenaHi();
-  x30_renderMode.viWidth += 20;
-  x30_renderMode.viXOrigin -= 10;
-
   if (mProgressiveMode) {
-    x30_renderMode.viTVmode = VI_TVMODE_NTSC_PROG;
-    x30_renderMode.xFBmode = VI_XFBMODE_SF;
+    mRenderMode.viTVmode = VI_TVMODE_NTSC_PROG;
+    mRenderMode.xFBmode = VI_XFBMODE_SF;
     uchar progressiveFilterPattern[7] = {4, 4, 16, 16, 16, 4, 4};
-    memcpy(x30_renderMode.vfilter, progressiveFilterPattern, 7);
+    memcpy(mRenderMode.vfilter, progressiveFilterPattern, 7);
   }
-  VIConfigure(&x30_renderMode);
+  VIConfigure(&mRenderMode);
   VIFlush();
   return -1;
 }
@@ -101,9 +99,9 @@ void* COsContext::AllocFromArena(size_t sz) {
 #else
   void* ret = OSAllocFromArenaLo(sz, 32);
 
-  x20_arenaLo2 = OSGetArenaLo();
-  x18_arenaLo1 = OSGetArenaLo();
-  x1c_arenaHi = OSGetArenaHi();
+  mArenaLo2 = OSGetArenaLo();
+  mArenaLo1 = OSGetArenaLo();
+  mArenaHi = OSGetArenaHi();
   return ret;
 #endif
 }

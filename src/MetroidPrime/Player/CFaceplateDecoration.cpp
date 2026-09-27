@@ -6,27 +6,27 @@
 #include "Kyoto/Math/CloseEnough.hpp"
 #include "Kyoto/SObjectTag.hpp"
 
-CFaceplateDecoration::CFaceplateDecoration(const CStateManager& stateMgr) : x0_id(kInvalidAssetId) {}
+CFaceplateDecoration::CFaceplateDecoration(const CStateManager& stateMgr) : mId(kInvalidAssetId) {}
 
 void CFaceplateDecoration::Update(float dt, const CStateManager& mgr) {
   CAssetId txtrId = mgr.GetPlayer()->GetVisorSteam().GetTextureId();
-  if (txtrId == kInvalidAssetId && x4_tex.valid()) {
-    x4_tex->Unlock();
-    x0_id = txtrId;
+  if (txtrId == kInvalidAssetId && mTex.valid()) {
+    mTex->Unlock();
+    mId = txtrId;
   }
 
-  if (txtrId != x0_id && txtrId != kInvalidAssetId) {
-    x0_id = txtrId;
-    x4_tex = gpSimplePool->GetObj(SObjectTag('TXTR', x0_id));
-    if (x4_tex.valid()) {
-      x4_tex->Lock();
+  if (txtrId != mId && txtrId != kInvalidAssetId) {
+    mId = txtrId;
+    mTex = gpSimplePool->GetObj(SObjectTag('TXTR', mId));
+    if (mTex.valid()) {
+      mTex->Lock();
     }
   }
 }
 
 void CFaceplateDecoration::Draw(const CStateManager& stateMgr) const {
-  if (x4_tex.valid() && x4_tex->IsLoaded()) {
-    CTexture* texture = TToken< CTexture >(*x4_tex).GetT();
+  if (mTex.valid() && mTex->IsLoaded()) {
+    CTexture* texture = TToken< CTexture >(*mTex).GetT();
     float alpha = stateMgr.GetPlayer()->GetVisorSteamAlpha();
     if (!close_enough(alpha, 0.f)) {
       CCameraFilterPass::DrawFilter(CCameraFilterPass::kFT_Blend,

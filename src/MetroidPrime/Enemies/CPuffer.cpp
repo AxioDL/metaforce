@@ -26,22 +26,22 @@ CPuffer::CPuffer(TUniqueId uid, const rstl::string& name, const CEntityInfo& inf
                  const CDamageInfo& explosionDamage, ushort sfxId)
 : CPatterned(kC_Puffer, uid, name, kFT_Zero, info, xf, modelData, patternedInfo, kMT_Flyer, kCT_One,
              kBT_RestrictedFlyer, actorParameters, kCS_Small)
-, x568_face(xf.GetColumn(kDY))
-, x574_cloudEffect(gpSimplePool->GetObj(SObjectTag('PART', cloudEffect)))
-, x57c_cloudDamage(cloudDamage)
+, mFace(xf.GetColumn(kDY))
+, mCloudEffect(gpSimplePool->GetObj(SObjectTag('PART', cloudEffect)))
+, mCloudDamage(cloudDamage)
 , x598_24_(b1)
 , x598_25_(b3)
 , x598_26_(b2)
 , x59a_(CSfxManager::TranslateSFXID(sfxId))
-, x59c_explosionDamage(explosionDamage)
+, mExplosionDamage(explosionDamage)
 , x5b8_(f2)
-, x5bc_cloudSteam(cloudSteam)
-, x5c0_move(CVector3f::Zero())
+, mCloudSteam(cloudSteam)
+, mMove(CVector3f::Zero())
 , x5cc_(kInvalidUniqueId)
-, x5d0_enabledParticles(0) {
+, mEnabledParticles(0) {
   SetDrawShadow(false);
   KnockBackCtrl().SetImpulseDurationIdx(1);
-  x574_cloudEffect.Lock();
+  mCloudEffect.Lock();
   BodyCtrl()->SetRestrictedFlyerMoveSpeed(hoverSpeed);
 }
 
@@ -91,16 +91,16 @@ void CPuffer::Death(CStateManager& mgr, const CVector3f& vec, EScriptObjectState
   CPatterned::Death(mgr, vec, state);
 
   mgr.ApplyDamageToWorld(
-      GetUniqueId(), *this, GetTranslation(), x59c_explosionDamage,
+      GetUniqueId(), *this, GetTranslation(), mExplosionDamage,
       CMaterialFilter::MakeIncludeExclude(CMaterialList(kMT_Solid), CMaterialList()));
 
   TUniqueId uid = mgr.AllocateUniqueId();
   CAABox aabb =
       CAABox(CVector3f(-1.f, -1.f, -1.f), CVector3f(1.f, 1.f, 1.f))
-          .GetTransformedAABox(GetTransform() * CTransform4f::Scale(x57c_cloudDamage.GetRadius()));
-  mgr.AddObject(rs_new CFire(x574_cloudEffect, uid, GetCurrentAreaId(), true, GetUniqueId(),
-                             GetTransform(), x57c_cloudDamage, aabb, CVector3f(1.f, 1.f, 1.f), true,
-                             x5bc_cloudSteam, x598_24_, x598_26_, x598_25_, 1.f, x5b8_, 1.f, 1.f));
+          .GetTransformedAABox(GetTransform() * CTransform4f::Scale(mCloudDamage.GetRadius()));
+  mgr.AddObject(rs_new CFire(mCloudEffect, uid, GetCurrentAreaId(), true, GetUniqueId(),
+                             GetTransform(), mCloudDamage, aabb, CVector3f(1.f, 1.f, 1.f), true,
+                             mCloudSteam, x598_24_, x598_26_, x598_25_, 1.f, x5b8_, 1.f, 1.f));
 }
 
 void CPuffer::Think(float dt, CStateManager& mgr) {
@@ -116,17 +116,17 @@ void CPuffer::Think(float dt, CStateManager& mgr) {
 
   BodyCtrl()->CommandMgr().ClearLocomotionCmds();
   if (moveVector.CanBeNormalized()) {
-    x5c0_move = CVector3f::Lerp(x5c0_move, moveVector, dt / 0.5f).AsNormalized();
-    BodyCtrl()->CommandMgr().DeliverCmd(CBCLocomotionCmd(x5c0_move, x568_face, 1.f));
+    mMove = CVector3f::Lerp(mMove, moveVector, dt / 0.5f).AsNormalized();
+    BodyCtrl()->CommandMgr().DeliverCmd(CBCLocomotionCmd(mMove, mFace, 1.f));
   }
 }
 
 void CPuffer::UpdateJets(CStateManager& mgr) {
   CVector3f moveVector = BodyCtrl()->GetCommandMgr().GetMoveVector();
 
-  if (x5d4_gasLocators.empty()) {
+  if (mGasLocators.empty()) {
     for (int i = 0; i < ARRAY_SIZE(skGasLocators); ++i) {
-      x5d4_gasLocators.push_back(
+      mGasLocators.push_back(
           GetScaledLocatorTransform(rstl::string_l(skGasLocators[i])).GetColumn(kDY));
     }
   }
@@ -134,7 +134,7 @@ void CPuffer::UpdateJets(CStateManager& mgr) {
   if (moveVector.CanBeNormalized()) {
     CVector3f moveNorm = -moveVector.AsNormalized();
     for (int i = 0; i < ARRAY_SIZE(skGasJetLocators); ++i) {
-      CVector3f tmp = GetTransform().Rotate(x5d4_gasLocators[i]);
+      CVector3f tmp = GetTransform().Rotate(mGasLocators[i]);
       float ang = CMath::FastCosR(CAbsAngle::FromDegrees(45.f).AsRadians());
       bool enable = CVector3f::Dot(moveNorm, tmp) > ang;
       if (IsParticleEnabled(i) != enable) {
@@ -149,6 +149,6 @@ void CPuffer::UpdateJets(CStateManager& mgr) {
         AnimationData()->SetParticleEffectState(rstl::string_l(skGasJetLocators[i]), false, mgr);
       }
     }
-    x5d0_enabledParticles = 0;
+    mEnabledParticles = 0;
   }
 }

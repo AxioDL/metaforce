@@ -28,7 +28,7 @@ public:
   float GetSinSqVerticalAngle() const;
   float GetCosHorizontalAngle() const;
   pas::ECoverDirection GetAttackDirection() const;
-  void Reserve(TUniqueId id) { xfa_occupant = id; }
+  void Reserve(TUniqueId id) { mOccupant = id; }
 
 private:
   // bool xe8_26_landHere : 1;
@@ -36,16 +36,16 @@ private:
   // bool xe8_28_stay : 1;
   // bool xe8_29_ : 1;
   // bool xe8_30_attackDirection : 1;
-  uint xe8_flags;
-  float xec_cosHorizontalAngle;
-  float xf0_sinVerticalAngle;
-  float xf4_coverTime;
-  bool xf8_24_crouch : 1;
-  bool xf8_25_inUse : 1;
-  TUniqueId xfa_occupant;
-  TUniqueId xfc_retreating;
-  rstl::optional_object< CAABox > x100_touchBounds;
-  float x11c_timeLeft;
+  uint mFlags;
+  float mCosHorizontalAngle;
+  float mSinVerticalAngle;
+  float mCoverTime;
+  bool mCrouch : 1;
+  bool mInUse : 1;
+  TUniqueId mOccupant;
+  TUniqueId mRetreating;
+  rstl::optional_object< CAABox > mTouchBounds;
+  float mTimeLeft;
 };
 
 #endif // _CSCRIPTCOVERPOINT

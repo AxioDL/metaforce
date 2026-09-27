@@ -11,72 +11,72 @@ class CDamageVulnerability;
 class CDamageInfo {
 public:
   CDamageInfo()
-  : x0_weaponMode(CWeaponMode::Invalid())
-  , x8_damage(0.f)
-  , xc_radiusDamage(x8_damage)
-  , x10_radius(0.f)
-  , x14_knockback(0.f)
-  , x18_24_noImmunity(false) {}
+  : mWeaponMode(CWeaponMode::Invalid())
+  , mDamage(0.f)
+  , mRadiusDamage(mDamage)
+  , mRadius(0.f)
+  , mKnockback(0.f)
+  , mNoImmunity(false) {}
 
   CDamageInfo(const CWeaponMode& mode, const float damage, const float radius,
               const float knockback, const bool noImmunity = false)
-  : x0_weaponMode(mode)
-  , x8_damage(damage)
-  , xc_radiusDamage(x8_damage)
-  , x10_radius(radius)
-  , x14_knockback(knockback)
-  , x18_24_noImmunity(noImmunity) {}
+  : mWeaponMode(mode)
+  , mDamage(damage)
+  , mRadiusDamage(mDamage)
+  , mRadius(radius)
+  , mKnockback(knockback)
+  , mNoImmunity(noImmunity) {}
 
   // HACK: This constructor exists to fix CWeapon::Think writing xc_radiusDamage as a double
   CDamageInfo(const CWeaponMode& mode, float damage, double radiusDamage, float radius,
               float knockback, bool noImmunity = false)
-  : x0_weaponMode(mode)
-  , x8_damage(damage)
-  , xc_radiusDamage(radiusDamage)
-  , x10_radius(radius)
-  , x14_knockback(knockback)
-  , x18_24_noImmunity(noImmunity) {}
+  : mWeaponMode(mode)
+  , mDamage(damage)
+  , mRadiusDamage(radiusDamage)
+  , mRadius(radius)
+  , mKnockback(knockback)
+  , mNoImmunity(noImmunity) {}
 
   CDamageInfo(CInputStream& in);
   CDamageInfo(const CDamageInfo&, float);
 
-  const CWeaponMode& GetWeaponMode() const { return x0_weaponMode; }
-  void SetWeaponMode(const CWeaponMode& mode) { x0_weaponMode = mode; }
-  float GetRadius() const { return x10_radius; }
-  void SetRadius(float r) { x10_radius = r; }
-  float GetKnockBackPower() const { return x14_knockback; }
-  void SetKnockBackPower(float k) { x14_knockback = k; }
-  float GetDamage() const { return x8_damage; }
-  void SetDamage(float d) { x8_damage = d; }
-  bool HasNoDamage() const { return x8_damage <= 0.0f; }
+  const CWeaponMode& GetWeaponMode() const { return mWeaponMode; }
+  void SetWeaponMode(const CWeaponMode& mode) { mWeaponMode = mode; }
+  float GetRadius() const { return mRadius; }
+  void SetRadius(float r) { mRadius = r; }
+  float GetKnockBackPower() const { return mKnockback; }
+  void SetKnockBackPower(float k) { mKnockback = k; }
+  float GetDamage() const { return mDamage; }
+  void SetDamage(float d) { mDamage = d; }
+  bool HasNoDamage() const { return mDamage <= 0.0f; }
   float GetDamage(const CDamageVulnerability& dVuln) const;
-  float GetRadiusDamage() const { return xc_radiusDamage; }
-  void SetRadiusDamage(float r) { xc_radiusDamage = r; }
+  float GetRadiusDamage() const { return mRadiusDamage; }
+  void SetRadiusDamage(float r) { mRadiusDamage = r; }
   float GetRadiusDamage(const CDamageVulnerability& dVuln) const;
-  bool NoImmunity() const { return x18_24_noImmunity; }
-  void SetNoImmunity(bool b) { x18_24_noImmunity = b; }
+  bool NoImmunity() const { return mNoImmunity; }
+  void SetNoImmunity(bool b) { mNoImmunity = b; }
   void MultiplyDamage(const float m) {
-    x8_damage = m * x8_damage;
-    xc_radiusDamage = m * xc_radiusDamage;
-    x14_knockback = m * x14_knockback;
+    mDamage = m * mDamage;
+    mRadiusDamage = m * mRadiusDamage;
+    mKnockback = m * mKnockback;
   }
   CDamageInfo& MultiplyDamageAndRadius(float m) {
-    x8_damage = m * x8_damage;
-    xc_radiusDamage = m * xc_radiusDamage;
-    x10_radius = m * x10_radius;
-    x14_knockback = m * x14_knockback;
+    mDamage = m * mDamage;
+    mRadiusDamage = m * mRadiusDamage;
+    mRadius = m * mRadius;
+    mKnockback = m * mKnockback;
     return *this;
   }
 
   CDamageInfo MakeScaledForTime(const float dt) const;
 
 private:
-  CWeaponMode x0_weaponMode;
-  float x8_damage;
-  float xc_radiusDamage;
-  float x10_radius;
-  float x14_knockback;
-  bool x18_24_noImmunity : 1;
+  CWeaponMode mWeaponMode;
+  float mDamage;
+  float mRadiusDamage;
+  float mRadius;
+  float mKnockback;
+  bool mNoImmunity : 1;
 };
 
 #endif // _CDAMAGEINFO

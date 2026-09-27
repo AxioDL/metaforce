@@ -26,35 +26,35 @@ public:
 
 private:
   struct SMenuItem {
-    SMenuItem() : x0_model_loz(nullptr), x4_model_icon(nullptr), x8_positioner(0.f), xc_opacity(0.f) {}
-    CGuiModel* x0_model_loz;
-    CGuiModel* x4_model_icon;
-    float x8_positioner;
-    float xc_opacity;
+    SMenuItem() : mModel_loz(nullptr), mModel_icon(nullptr), mPositioner(0.f), mOpacity(0.f) {}
+    CGuiModel* mModel_loz;
+    CGuiModel* mModel_icon;
+    float mPositioner;
+    float mOpacity;
   };
   enum EAnimPhase { kAP_None, kAP_Steady, kAP_SelectFlash, kAP_Animate };
-  EVisorBeamMenu GetSwappedType() const { return x80_24_swapBeamControls ? static_cast< EVisorBeamMenu >(1 - x4_type) : x4_type; }
-  bool GetIsVisible() const { return x14_24_visibleDebug && x14_25_visibleGame; }
+  EVisorBeamMenu GetSwappedType() const { return mSwapBeamControls ? static_cast< EVisorBeamMenu >(1 - mType) : mType; }
+  bool GetIsVisible() const { return mVisibleDebug && mVisibleGame; }
   void UpdateMenuWidgetTransform(int idx, CGuiWidget& widget, float t);
-  CGuiFrame& x0_baseHud;
-  EVisorBeamMenu x4_type;
-  int x8_selectedItem;
-  int xc_pendingSelection;
-  float x10_interp;
-  bool x14_24_visibleDebug : 1;
-  bool x14_25_visibleGame : 1;
-  bool x14_26_dirty : 1;
-  CGuiWidget* x18_basewidget_menu;
-  CGuiWidget* x1c_basewidget_menutitle;
-  CGuiTextPane* x20_textpane_menu;
-  CGuiModel* x24_model_ghost;
-  rstl::reserved_vector< SMenuItem, 4 > x28_menuItems;
-  EAnimPhase x6c_animPhase;
+  CGuiFrame& mBaseHud;
+  EVisorBeamMenu mType;
+  int mSelectedItem;
+  int mPendingSelection;
+  float mInterp;
+  bool mVisibleDebug : 1;
+  bool mVisibleGame : 1;
+  bool mDirty : 1;
+  CGuiWidget* mBasewidget_menu;
+  CGuiWidget* mBasewidget_menutitle;
+  CGuiTextPane* mTextpane_menu;
+  CGuiModel* mModel_ghost;
+  rstl::reserved_vector< SMenuItem, 4 > mMenuItems;
+  EAnimPhase mAnimPhase;
   float x70_;
   float x74_;
-  float x78_textFader;
-  float x7c_animDur;
-  bool x80_24_swapBeamControls : 1;
+  float mTextFader;
+  float mAnimDur;
+  bool mSwapBeamControls : 1;
 };
 CHECK_SIZEOF(CHudVisorBeamMenu, 0x84)
 

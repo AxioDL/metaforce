@@ -9,12 +9,12 @@ class CInputStream;
 class CHalfTransition {
 public:
   explicit CHalfTransition(CInputStream& in);
-  uint GetPrimitiveIndex() const { return x0_id; }
-  const rstl::rc_ptr< IMetaTrans >& GetMetaTrans() const { return x4_trans; }
+  uint GetPrimitiveIndex() const { return mId; }
+  const rstl::rc_ptr< IMetaTrans >& GetMetaTrans() const { return mTrans; }
 
 private:
-  uint x0_id;
-  rstl::rc_ptr< IMetaTrans > x4_trans;
+  uint mId;
+  rstl::rc_ptr< IMetaTrans > mTrans;
 };
 CHECK_SIZEOF(CHalfTransition, 0x8)
 

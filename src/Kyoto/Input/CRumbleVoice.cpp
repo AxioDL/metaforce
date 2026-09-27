@@ -2,20 +2,20 @@
 #include "rstl/math.hpp"
 
 CRumbleVoice::CRumbleVoice()
-: x0_datas(4, SAdsrData())
-, x10_deltas(4, SAdsrDelta::Stopped())
-, x20_handleIds(0)
-, x2c_usedChannels(0)
-, x2e_lastId(0) {}
+: mDatas(4, SAdsrData())
+, mDeltas(4, SAdsrDelta::Stopped())
+, mHandleIds(0)
+, mUsedChannels(0)
+, mLastId(0) {}
 
 short CRumbleVoice::Activate(const SAdsrData& data, ushort idx, float gain, ERumblePriority prio) {
   if (gain > 0.f) {
-    x0_datas[idx] = data;
-    x10_deltas[idx] = SAdsrDelta::Start(prio, x2c_usedChannels == 0);
-    x10_deltas[idx].x14_attackIntensity = gain * x0_datas[idx].x0_attackGain;
-    x10_deltas[idx].x18_sustainIntensity = gain * x0_datas[idx].x10_sustainGain;
-    x2c_usedChannels |= 1 << idx;
-    if (data.x18_24_hasSustain)
+    mDatas[idx] = data;
+    mDeltas[idx] = SAdsrDelta::Start(prio, mUsedChannels == 0);
+    mDeltas[idx].mAttackIntensity = gain * mDatas[idx].mAttackGain;
+    mDeltas[idx].mSustainIntensity = gain * mDatas[idx].mSustainGain;
+    mUsedChannels |= 1 << idx;
+    if (data.mHasSustain)
       return CreateRumbleHandle(idx);
   }
   return -1;
@@ -26,16 +26,16 @@ void CRumbleVoice::Deactivate(short id, bool b1) {
     return;
   }
 
-  if (x2c_usedChannels & (1 << GetChannelId(id))) {
-    x10_deltas[GetChannelId(id)].x20_phase = SAdsrDelta::kP_Release;
+  if (mUsedChannels & (1 << GetChannelId(id))) {
+    mDeltas[GetChannelId(id)].mPhase = SAdsrDelta::kP_Release;
   }
 }
 
 void CRumbleVoice::HardReset() {
-  x2c_usedChannels = 0;
+  mUsedChannels = 0;
   for (ushort i = 0; i < 4; ++i) {
-    x10_deltas[i] = SAdsrDelta::Stopped();
-    x20_handleIds[i] = 0;
+    mDeltas[i] = SAdsrDelta::Stopped();
+    mHandleIds[i] = 0;
   }
 }
 
@@ -57,40 +57,40 @@ inline void CRumbleVoice::UpdateStage(SAdsrDelta::EPhase& phase, float& intensit
 }
 
 bool CRumbleVoice::UpdateChannel(SAdsrDelta& delta, const SAdsrData& data, float dt) {
-  switch (delta.x20_phase) {
+  switch (delta.mPhase) {
   case SAdsrDelta::kP_PrePulse:
-    if (delta.x4_attackTime < (1.f / 30.f)) {
-      delta.x4_attackTime += dt;
+    if (delta.mAttackTime < (1.f / 30.f)) {
+      delta.mAttackTime += dt;
     } else {
-      delta.x20_phase = SAdsrDelta::kP_Attack;
-      delta.x0_curIntensity = 0.f;
-      delta.x4_attackTime = 0.f;
+      delta.mPhase = SAdsrDelta::kP_Attack;
+      delta.mCurIntensity = 0.f;
+      delta.mAttackTime = 0.f;
     }
     break;
   case SAdsrDelta::kP_Attack:
-    UpdateStage(delta.x20_phase, delta.x0_curIntensity, delta.x4_attackTime, 0.f,
-                delta.x14_attackIntensity, data.x8_attackDur, SAdsrDelta::kP_Decay, dt);
+    UpdateStage(delta.mPhase, delta.mCurIntensity, delta.mAttackTime, 0.f,
+                delta.mAttackIntensity, data.mAttackDur, SAdsrDelta::kP_Decay, dt);
     break;
   case SAdsrDelta::kP_Decay:
-    if (data.x18_24_hasSustain) {
-      UpdateStage(delta.x20_phase, delta.x0_curIntensity, delta.x8_decayTime,
-                  delta.x14_attackIntensity, delta.x18_sustainIntensity, data.xc_decayDur,
+    if (data.mHasSustain) {
+      UpdateStage(delta.mPhase, delta.mCurIntensity, delta.mDecayTime,
+                  delta.mAttackIntensity, delta.mSustainIntensity, data.mDecayDur,
                   SAdsrDelta::kP_Sustain, dt);
     } else {
-      UpdateStage(delta.x20_phase, delta.x0_curIntensity, delta.x8_decayTime,
-                  delta.x14_attackIntensity, 0.f, data.xc_decayDur, SAdsrDelta::kP_Stop, dt);
-      if (delta.x20_phase != SAdsrDelta::kP_Decay) {
-        delta.x20_phase = SAdsrDelta::kP_Stop;
+      UpdateStage(delta.mPhase, delta.mCurIntensity, delta.mDecayTime,
+                  delta.mAttackIntensity, 0.f, data.mDecayDur, SAdsrDelta::kP_Stop, dt);
+      if (delta.mPhase != SAdsrDelta::kP_Decay) {
+        delta.mPhase = SAdsrDelta::kP_Stop;
         return true;
       }
     }
     break;
   case SAdsrDelta::kP_Release: {
-    float a = data.x18_24_hasSustain ? delta.x18_sustainIntensity : 0.f;
-    UpdateStage(delta.x20_phase, delta.x0_curIntensity, delta.xc_releaseTime, a, 0.f,
-                data.x14_releaseDur, SAdsrDelta::kP_Stop, dt);
-    if (delta.x20_phase != SAdsrDelta::kP_Release) {
-      delta.x20_phase = SAdsrDelta::kP_Stop;
+    float a = data.mHasSustain ? delta.mSustainIntensity : 0.f;
+    UpdateStage(delta.mPhase, delta.mCurIntensity, delta.mReleaseTime, a, 0.f,
+                data.mReleaseDur, SAdsrDelta::kP_Stop, dt);
+    if (delta.mPhase != SAdsrDelta::kP_Release) {
+      delta.mPhase = SAdsrDelta::kP_Stop;
       return true;
     }
   } break;
@@ -98,23 +98,23 @@ bool CRumbleVoice::UpdateChannel(SAdsrDelta& delta, const SAdsrData& data, float
     break;
   }
 
-  if (data.x18_25_autoRelease) {
-    if (delta.x10_autoReleaseTime < data.x4_autoReleaseDur)
-      delta.x10_autoReleaseTime += dt;
-    else if (delta.x20_phase == SAdsrDelta::kP_Sustain)
-      delta.x20_phase = SAdsrDelta::kP_Release;
+  if (data.mAutoRelease) {
+    if (delta.mAutoReleaseTime < data.mAutoReleaseDur)
+      delta.mAutoReleaseTime += dt;
+    else if (delta.mPhase == SAdsrDelta::kP_Sustain)
+      delta.mPhase = SAdsrDelta::kP_Release;
   }
 
   return false;
 }
 
 bool CRumbleVoice::Update(float dt) {
-  if (x2c_usedChannels != 0) {
+  if (mUsedChannels != 0) {
     for (ushort i = 0; i < 4; ++i) {
-      if (x2c_usedChannels & (1 << i)) {
-        if (UpdateChannel(x10_deltas[i], x0_datas[i], dt)) {
-          x2c_usedChannels &= ~(1 << i);
-          x10_deltas[i] = SAdsrDelta::Stopped();
+      if (mUsedChannels & (1 << i)) {
+        if (UpdateChannel(mDeltas[i], mDatas[i], dt)) {
+          mUsedChannels &= ~(1 << i);
+          mDeltas[i] = SAdsrDelta::Stopped();
         }
       }
     }
@@ -125,7 +125,7 @@ bool CRumbleVoice::Update(float dt) {
 
 ushort CRumbleVoice::GetFreeChannel() const {
   for (ushort i = 0; i < 4; ++i) {
-    if ((x2c_usedChannels & (1 << i)) == 0) {
+    if ((mUsedChannels & (1 << i)) == 0) {
       return (ushort)i;
     }
   }
@@ -133,10 +133,10 @@ ushort CRumbleVoice::GetFreeChannel() const {
 }
 
 float CRumbleVoice::GetIntensity() const {
-  float ret = x10_deltas[0].x0_curIntensity;
+  float ret = mDeltas[0].mCurIntensity;
   for (int i = 1; i < 4; ++i) {
-    if (ret < x10_deltas[i].x0_curIntensity) {
-      ret = x10_deltas[i].x0_curIntensity;
+    if (ret < mDeltas[i].mCurIntensity) {
+      ret = mDeltas[i].mCurIntensity;
     }
   }
 
@@ -150,15 +150,15 @@ float CRumbleVoice::GetIntensity() const {
 bool CRumbleVoice::OwnsSustained(short handle) const {
   const ushort i = GetChannelId(handle);
   const uint owner = GetOwnerId(handle);
-  return i < 4 ? x20_handleIds[i] == owner : false;
+  return i < 4 ? mHandleIds[i] == owner : false;
 }
 
 /* TODO: Fake matched, find real solution */
 short CRumbleVoice::CreateRumbleHandle(const ushort idx) {
-  ++x2e_lastId;
-  if (x2e_lastId == 0)
-    x2e_lastId = 1;
-  ushort* h = &x20_handleIds[idx];
-  *h = x2e_lastId;
-  return ((x2e_lastId << 8) | idx) & 0xFFFF;
+  ++mLastId;
+  if (mLastId == 0)
+    mLastId = 1;
+  ushort* h = &mHandleIds[idx];
+  *h = mLastId;
+  return ((mLastId << 8) | idx) & 0xFFFF;
 }

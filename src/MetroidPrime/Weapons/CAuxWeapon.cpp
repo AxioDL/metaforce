@@ -19,24 +19,24 @@ const ushort CAuxWeapon::skSoundId[5] = {SFXsam_a_co1fire_00, SFXsam_a_icecofir_
                                          SFXsam_a_co1fire_00};
 
 CAuxWeapon::CAuxWeapon(TUniqueId playerId)
-: x0_missile(gpSimplePool->GetObj("Missile"))
-, xc_flameMuzzle(gpSimplePool->GetObj("FlameMuzzle"))
-, x18_busterMuzzle(gpSimplePool->GetObj("BusterMuzzle"))
-, x24_muzzleFxGen(nullptr)
-, x68_ammoConsumeTimer(0.f)
-, x6c_playerId(playerId)
-, x6e_flameThrowerId(kInvalidUniqueId)
-, x70_waveBusterId(kInvalidUniqueId)
-, x74_firingBeamId(CPlayerState::kBI_Invalid)
-, x78_loadBeamId(CPlayerState::kBI_Power)
-, x80_24_isLoaded(false) {
+: mMissile(gpSimplePool->GetObj("Missile"))
+, mFlameMuzzle(gpSimplePool->GetObj("FlameMuzzle"))
+, mBusterMuzzle(gpSimplePool->GetObj("BusterMuzzle"))
+, mMuzzleFxGen(nullptr)
+, mAmmoConsumeTimer(0.f)
+, mPlayerId(playerId)
+, mFlameThrowerId(kInvalidUniqueId)
+, mWaveBusterId(kInvalidUniqueId)
+, mFiringBeamId(CPlayerState::kBI_Invalid)
+, mLoadBeamId(CPlayerState::kBI_Power)
+, mIsLoaded(false) {
   InitComboData();
 }
 
 void CAuxWeapon::Fire(float dt, bool underwater, int currentBeam,
                       CPlayerState::EChargeStage chargeState, const CTransform4f& xf,
                       CStateManager& mgr, EWeaponType type, TUniqueId homingId) {
-  if (!x80_24_isLoaded) {
+  if (!mIsLoaded) {
     return;
   }
 
@@ -61,9 +61,9 @@ void CAuxWeapon::Fire(float dt, bool underwater, int currentBeam,
 }
 
 void CAuxWeapon::SetNewTarget(TUniqueId target, CStateManager& mgr) {
-  switch (x74_firingBeamId) {
+  switch (mFiringBeamId) {
   case CPlayerState::kBI_Wave:
-    if (CWaveBuster* beam = static_cast< CWaveBuster* >(mgr.ObjectById(x70_waveBusterId))) {
+    if (CWaveBuster* beam = static_cast< CWaveBuster* >(mgr.ObjectById(mWaveBusterId))) {
       beam->SetNewTarget(target, mgr);
     }
     break;
@@ -71,10 +71,10 @@ void CAuxWeapon::SetNewTarget(TUniqueId target, CStateManager& mgr) {
 }
 
 TUniqueId CAuxWeapon::HasTarget(const CStateManager& mgr) const {
-  switch (x74_firingBeamId) {
+  switch (mFiringBeamId) {
   case CPlayerState::kBI_Wave:
     if (const CWaveBuster* beam =
-            static_cast< const CWaveBuster* >(mgr.GetObjectById(x70_waveBusterId))) {
+            static_cast< const CWaveBuster* >(mgr.GetObjectById(mWaveBusterId))) {
       return beam->GetHomingTargetId();
     }
     break;
@@ -83,32 +83,32 @@ TUniqueId CAuxWeapon::HasTarget(const CStateManager& mgr) const {
 }
 
 void CAuxWeapon::RenderMuzzleFx() const {
-  switch (x74_firingBeamId) {
+  switch (mFiringBeamId) {
   case CPlayerState::kBI_Wave:
   case CPlayerState::kBI_Plasma:
-    x24_muzzleFxGen->Render();
+    mMuzzleFxGen->Render();
     break;
   }
 }
 
 const bool CAuxWeapon::UpdateComboFx(float dt, const CVector3f& scale, const CVector3f& firePos,
                                      const CTransform4f& targetXf, CStateManager& mgr) {
-  if (!x80_24_isLoaded || x74_firingBeamId == CPlayerState::kBI_Invalid) {
+  if (!mIsLoaded || mFiringBeamId == CPlayerState::kBI_Invalid) {
     return false;
   }
 
   bool firing = false;
   CPlayerState& playerState = *mgr.PlayerState();
-  if (!CSfxManager::IsPlaying(x7c_comboSfx) && x7c_comboSfx) {
+  if (!CSfxManager::IsPlaying(mComboSfx) && mComboSfx) {
     FreeComboVoiceId();
   }
 
-  switch (x74_firingBeamId) {
+  switch (mFiringBeamId) {
   case CPlayerState::kBI_Wave:
   case CPlayerState::kBI_Plasma: {
     bool firingFx = false;
-    if (x74_firingBeamId == CPlayerState::kBI_Wave) {
-      CWaveBuster* beam = static_cast< CWaveBuster* >(mgr.ObjectById(x70_waveBusterId));
+    if (mFiringBeamId == CPlayerState::kBI_Wave) {
+      CWaveBuster* beam = static_cast< CWaveBuster* >(mgr.ObjectById(mWaveBusterId));
       if (beam && beam->IsFiring()) {
         beam->UpdateFx(targetXf, dt, mgr);
         firing = true;
@@ -119,7 +119,7 @@ const bool CAuxWeapon::UpdateComboFx(float dt, const CVector3f& scale, const CVe
       }
     } else {
       CNewFlameThrower* flame =
-          static_cast< CNewFlameThrower* >(mgr.ObjectById(x6e_flameThrowerId));
+          static_cast< CNewFlameThrower* >(mgr.ObjectById(mFlameThrowerId));
       bool needsDelete = true;
       if (flame) {
         firingFx = flame->CanRenderAuxEffects();
@@ -127,7 +127,7 @@ const bool CAuxWeapon::UpdateComboFx(float dt, const CVector3f& scale, const CVe
           flame->UpdateFx(targetXf, dt, mgr);
           firing = flame->IsFiring();
         }
-        if (x6e_flameThrowerId != kInvalidUniqueId) {
+        if (mFlameThrowerId != kInvalidUniqueId) {
           needsDelete = flame->AreEffectsFinished();
         }
       }
@@ -138,21 +138,21 @@ const bool CAuxWeapon::UpdateComboFx(float dt, const CVector3f& scale, const CVe
     }
 
     if (firingFx) {
-      x68_ammoConsumeTimer += dt;
+      mAmmoConsumeTimer += dt;
       if (playerState.GetItemAmount(CPlayerState::kIT_Missiles) > 0 &&
-          x68_ammoConsumeTimer >= playerState.GetComboFireAmmoPeriod()) {
+          mAmmoConsumeTimer >= playerState.GetComboFireAmmoPeriod()) {
         playerState.DecrPickUp(CPlayerState::kIT_Missiles, 1);
-        x68_ammoConsumeTimer = 0.f;
+        mAmmoConsumeTimer = 0.f;
       }
     }
     if (playerState.GetItemAmount(CPlayerState::kIT_Missiles) == 0) {
       StopComboFx(mgr, false);
     }
 
-    x24_muzzleFxGen->SetGlobalTranslation(firePos);
-    x24_muzzleFxGen->SetGlobalScale(scale);
-    x24_muzzleFxGen->SetParticleEmission(firingFx);
-    x24_muzzleFxGen->Update(dt);
+    mMuzzleFxGen->SetGlobalTranslation(firePos);
+    mMuzzleFxGen->SetGlobalScale(scale);
+    mMuzzleFxGen->SetParticleEmission(firingFx);
+    mMuzzleFxGen->Update(dt);
     break;
   }
   }
@@ -160,16 +160,16 @@ const bool CAuxWeapon::UpdateComboFx(float dt, const CVector3f& scale, const CVe
 }
 
 void CAuxWeapon::StopComboFx(CStateManager& mgr, bool deactivate) {
-  switch (x74_firingBeamId) {
+  switch (mFiringBeamId) {
   case CPlayerState::kBI_Wave:
-    if (CWaveBuster* beam = static_cast< CWaveBuster* >(mgr.ObjectById(x70_waveBusterId))) {
+    if (CWaveBuster* beam = static_cast< CWaveBuster* >(mgr.ObjectById(mWaveBusterId))) {
       beam->ResetBeam(deactivate);
       DeleteWaveBusterBeam(mgr);
     }
     break;
   case CPlayerState::kBI_Plasma:
     if (CNewFlameThrower* flame =
-            static_cast< CNewFlameThrower* >(mgr.ObjectById(x6e_flameThrowerId))) {
+            static_cast< CNewFlameThrower* >(mgr.ObjectById(mFlameThrowerId))) {
       mgr.PlayerState()->SetFiringComboBeam(false);
       if (flame->IsFiring()) {
         flame->Reset(mgr, deactivate);
@@ -182,22 +182,22 @@ void CAuxWeapon::StopComboFx(CStateManager& mgr, bool deactivate) {
   }
 
   if (deactivate) {
-    x74_firingBeamId = CPlayerState::kBI_Invalid;
-    x68_ammoConsumeTimer = 0.f;
+    mFiringBeamId = CPlayerState::kBI_Invalid;
+    mAmmoConsumeTimer = 0.f;
   }
 }
 
 bool CAuxWeapon::IsComboFxActive(const CStateManager& mgr) const {
-  switch (x74_firingBeamId) {
+  switch (mFiringBeamId) {
   case CPlayerState::kBI_Wave:
     if (const CWaveBuster* beam =
-            static_cast< const CWaveBuster* >(mgr.GetObjectById(x70_waveBusterId))) {
+            static_cast< const CWaveBuster* >(mgr.GetObjectById(mWaveBusterId))) {
       return beam->IsFiring();
     }
     break;
   case CPlayerState::kBI_Plasma:
     if (const CNewFlameThrower* flame =
-            static_cast< const CNewFlameThrower* >(mgr.GetObjectById(x6e_flameThrowerId))) {
+            static_cast< const CNewFlameThrower* >(mgr.GetObjectById(mFlameThrowerId))) {
       return flame->IsFiring();
     }
     break;
@@ -209,21 +209,21 @@ void CAuxWeapon::InitComboData() {
   static const char* const skComboNames[] = {"SuperMissile", "IceCombo", "WaveBuster",
                                              "FlameThrower", "SuperMissile"};
   for (int i = 0; i < 5; ++i) {
-    x28_combos.push_back(gpSimplePool->GetObj(skComboNames[i]));
+    mCombos.push_back(gpSimplePool->GetObj(skComboNames[i]));
   }
 }
 
 void CAuxWeapon::LaunchMissile(float dt, const bool underwater, bool charged, int currentBeam,
                                uint attribs, const CTransform4f& xf, TUniqueId target,
                                CStateManager& mgr) {
-  const TToken< CWeaponDescription >& combo = x28_combos[currentBeam];
+  const TToken< CWeaponDescription >& combo = mCombos[currentBeam];
   const CDamageInfo& damage =
       charged ? gpTweakPlayerGun->GetComboDamage(currentBeam) : gpTweakPlayerGun->GetMissleDamage();
   const ushort sfx = charged ? skSoundId[currentBeam] : ushort(SFXsam_a_mislfire_00);
   CEntity* projectile = rs_new CEnergyProjectile(
-      true, charged ? combo : static_cast< const TToken< CWeaponDescription >& >(x0_missile),
+      true, charged ? combo : static_cast< const TToken< CWeaponDescription >& >(mMissile),
       charged ? kWT_Power : kWT_Missile, xf, kMT_Player, NWeaponTypes::get_shot_damage(damage, mgr),
-      mgr.AllocateUniqueId(), kInvalidAreaId, x6c_playerId, target,
+      mgr.AllocateUniqueId(), kInvalidAreaId, mPlayerId, target,
       attribs | CWeapon::kPA_ArmCannon, underwater, CVector3f(1.f, 1.f, 1.f),
       rstl::optional_object< TLockedToken< CGenDescription > >(),
       CSfxManager::kInternalInvalidSfxId, false);
@@ -240,12 +240,12 @@ void CAuxWeapon::LaunchMissile(float dt, const bool underwater, bool charged, in
   } else {
     mgr.GetRumbleManager()->Rumble(mgr, kRFX_PlayerMissileFire, 0.5f, kRP_One);
   }
-  x7c_comboSfx = NWeaponTypes::play_sfx(sfx, underwater, false, 0x4a);
+  mComboSfx = NWeaponTypes::play_sfx(sfx, underwater, false, 0x4a);
 }
 
 void CAuxWeapon::CreateFlameThrower(const CTransform4f& xf, CStateManager& mgr, float dt) {
   DeleteFlameThrower(mgr);
-  if (x6e_flameThrowerId != kInvalidUniqueId) {
+  if (mFlameThrowerId != kInvalidUniqueId) {
     return;
   }
 
@@ -256,47 +256,47 @@ void CAuxWeapon::CreateFlameThrower(const CTransform4f& xf, CStateManager& mgr, 
                                    NWeaponTypes::get_asset_id_from_name("NFTSecondarySmoke"),
                                    NWeaponTypes::get_asset_id_from_name("NFTSecondaryFire"),
                                    NWeaponTypes::get_asset_id_from_name("NFTSecondarySparks"));
-  x6e_flameThrowerId = mgr.AllocateUniqueId();
+  mFlameThrowerId = mgr.AllocateUniqueId();
   CNewFlameThrower* flame = rs_new CNewFlameThrower(
-      x28_combos[3], rstl::string_l("Player_FlameThrower"), kWT_Plasma, resources, xf, kMT_Player,
-      NWeaponTypes::get_shot_damage(gpTweakPlayerGun->GetComboDamage(3), mgr), x6e_flameThrowerId,
-      kInvalidAreaId, x6c_playerId, CWeapon::kPA_None);
+      mCombos[3], rstl::string_l("Player_FlameThrower"), kWT_Plasma, resources, xf, kMT_Player,
+      NWeaponTypes::get_shot_damage(gpTweakPlayerGun->GetComboDamage(3), mgr), mFlameThrowerId,
+      kInvalidAreaId, mPlayerId, CWeapon::kPA_None);
   mgr.AddObject(*flame);
   flame->Think(dt, mgr);
   flame->Fire(xf, mgr, false);
-  x24_muzzleFxGen = rs_new CElementGen(xc_flameMuzzle);
-  x7c_comboSfx = NWeaponTypes::play_sfx(SFXsam_a_placofir_lp_00, false, true, 0x4a);
+  mMuzzleFxGen = rs_new CElementGen(mFlameMuzzle);
+  mComboSfx = NWeaponTypes::play_sfx(SFXsam_a_placofir_lp_00, false, true, 0x4a);
   mgr.CameraManager()->AddCameraShaker(CCameraShakeData::skHardRecoil, false);
   mgr.PlayerState()->SetFiringComboBeam(true);
-  x74_firingBeamId = CPlayerState::kBI_Plasma;
+  mFiringBeamId = CPlayerState::kBI_Plasma;
 }
 
 void CAuxWeapon::CreateWaveBusterBeam(uint attribs, TUniqueId target, const CTransform4f& xf,
                                       CStateManager& mgr) {
   DeleteWaveBusterBeam(mgr);
-  if (x70_waveBusterId != kInvalidUniqueId) {
+  if (mWaveBusterId != kInvalidUniqueId) {
     return;
   }
 
-  x70_waveBusterId = mgr.AllocateUniqueId();
+  mWaveBusterId = mgr.AllocateUniqueId();
   CWaveBuster* beam =
-      rs_new CWaveBuster(x28_combos[2], kWT_Wave, xf, kMT_Player,
+      rs_new CWaveBuster(mCombos[2], kWT_Wave, xf, kMT_Player,
                          NWeaponTypes::get_shot_damage(gpTweakPlayerGun->GetComboDamage(2), mgr),
-                         x70_waveBusterId, kInvalidAreaId, x6c_playerId, target, attribs);
+                         mWaveBusterId, kInvalidAreaId, mPlayerId, target, attribs);
   mgr.AddObject(*beam);
-  x24_muzzleFxGen = rs_new CElementGen(x18_busterMuzzle);
-  x7c_comboSfx = NWeaponTypes::play_sfx(SFXsam_a_wavcofir_lp_00, false, true, 0x4a);
+  mMuzzleFxGen = rs_new CElementGen(mBusterMuzzle);
+  mComboSfx = NWeaponTypes::play_sfx(SFXsam_a_wavcofir_lp_00, false, true, 0x4a);
   mgr.CameraManager()->AddCameraShaker(CCameraShakeData::skSoftRecoil, false);
   mgr.PlayerState()->SetFiringComboBeam(true);
-  x74_firingBeamId = CPlayerState::kBI_Wave;
+  mFiringBeamId = CPlayerState::kBI_Wave;
 }
 
 void CAuxWeapon::DeleteFlameThrower(CStateManager& mgr) {
   FreeComboVoiceId();
-  if (x6e_flameThrowerId != kInvalidUniqueId) {
-    mgr.DeleteObjectRequest(x6e_flameThrowerId);
-    x6e_flameThrowerId = kInvalidUniqueId;
-    x74_firingBeamId = CPlayerState::kBI_Invalid;
+  if (mFlameThrowerId != kInvalidUniqueId) {
+    mgr.DeleteObjectRequest(mFlameThrowerId);
+    mFlameThrowerId = kInvalidUniqueId;
+    mFiringBeamId = CPlayerState::kBI_Invalid;
     CPlayerState& playerState = *mgr.PlayerState();
     if (playerState.IsFiringComboBeam()) {
       playerState.SetFiringComboBeam(false);
@@ -306,10 +306,10 @@ void CAuxWeapon::DeleteFlameThrower(CStateManager& mgr) {
 
 void CAuxWeapon::DeleteWaveBusterBeam(CStateManager& mgr) {
   FreeComboVoiceId();
-  if (x70_waveBusterId != kInvalidUniqueId) {
-    mgr.DeleteObjectRequest(x70_waveBusterId);
-    x70_waveBusterId = kInvalidUniqueId;
-    x74_firingBeamId = CPlayerState::kBI_Invalid;
+  if (mWaveBusterId != kInvalidUniqueId) {
+    mgr.DeleteObjectRequest(mWaveBusterId);
+    mWaveBusterId = kInvalidUniqueId;
+    mFiringBeamId = CPlayerState::kBI_Invalid;
     CPlayerState& playerState = *mgr.PlayerState();
     if (playerState.IsFiringComboBeam()) {
       playerState.SetFiringComboBeam(false);
@@ -331,13 +331,13 @@ void CAuxWeapon::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CSt
 }
 
 void CAuxWeapon::FreeComboVoiceId() {
-  CSfxManager::SfxStop(x7c_comboSfx);
-  x7c_comboSfx.Clear();
+  CSfxManager::SfxStop(mComboSfx);
+  mComboSfx.Clear();
 }
 
 void CAuxWeapon::Load(int curBeam, CStateManager& mgr) {
-  x80_24_isLoaded = false;
-  switch (x78_loadBeamId) {
+  mIsLoaded = false;
+  switch (mLoadBeamId) {
   case CPlayerState::kBI_Wave:
     DeleteWaveBusterBeam(mgr);
     break;
@@ -345,10 +345,10 @@ void CAuxWeapon::Load(int curBeam, CStateManager& mgr) {
     DeleteFlameThrower(mgr);
     break;
   }
-  x28_combos[x78_loadBeamId].Unlock();
-  x28_combos[curBeam].Lock();
-  x78_loadBeamId = curBeam;
+  mCombos[mLoadBeamId].Unlock();
+  mCombos[curBeam].Lock();
+  mLoadBeamId = curBeam;
   LoadIdle();
 }
 
-void CAuxWeapon::LoadIdle() { x80_24_isLoaded = x28_combos[x78_loadBeamId].TryCache(); }
+void CAuxWeapon::LoadIdle() { mIsLoaded = mCombos[mLoadBeamId].TryCache(); }

@@ -6,33 +6,33 @@
 #include "rstl/math.hpp"
 
 CBurstFire::CBurstFire(const SBurst** burstDefs, int firstBurstCount)
-: x0_burstType(-1)
-, x4_angleIdx(-1)
-, x8_timeToNextShot(0.f)
-, xc_firstBurstIdx(0)
-, x10_firstBurstCounter(firstBurstCount)
-, x14_24_shouldFire(false)
-, x14_25_avoidAccuracy(false)
-, x18_curBursts(nullptr) {
+: mBurstType(-1)
+, mAngleIdx(-1)
+, mTimeToNextShot(0.f)
+, mFirstBurstIdx(0)
+, mFirstBurstCounter(firstBurstCount)
+, mShouldFire(false)
+, mAvoidAccuracy(false)
+, mCurBursts(nullptr) {
   while (*burstDefs) {
-    x1c_burstDefs.push_back(*burstDefs);
+    mBurstDefs.push_back(*burstDefs);
     ++burstDefs;
   }
 }
 
 void CBurstFire::Start(CStateManager& mgr) {
-  const SBurst* bursts = x1c_burstDefs[x0_burstType];
+  const SBurst* bursts = mBurstDefs[mBurstType];
   int burstIdx = -1;
 
-  if (x10_firstBurstCounter-- > 0) {
-    burstIdx = xc_firstBurstIdx >= 0 ? xc_firstBurstIdx : 0;
+  if (mFirstBurstCounter-- > 0) {
+    burstIdx = mFirstBurstIdx >= 0 ? mFirstBurstIdx : 0;
 
   } else {
     int random = mgr.Random()->Range(0, 100);
     int advanceAccum = 0;
     do {
       burstIdx += 1;
-      int advanceWeight = bursts[burstIdx].x0_randomSelectionWeight;
+      int advanceWeight = bursts[burstIdx].mRandomSelectionWeight;
       if (advanceWeight == 0) {
         advanceAccum = 100;
         burstIdx -= 1;
@@ -40,28 +40,28 @@ void CBurstFire::Start(CStateManager& mgr) {
       advanceAccum += advanceWeight;
     } while (random > advanceAccum);
   }
-  x18_curBursts = &bursts[burstIdx];
-  x4_angleIdx = -1;
-  x8_timeToNextShot = 0.f;
-  x14_24_shouldFire = false;
+  mCurBursts = &bursts[burstIdx];
+  mAngleIdx = -1;
+  mTimeToNextShot = 0.f;
+  mShouldFire = false;
 }
 
 void CBurstFire::Update(CStateManager& mgr, float dt) {
-  x14_24_shouldFire = false;
-  if (!x18_curBursts) {
+  mShouldFire = false;
+  if (!mCurBursts) {
     return;
   }
 
-  x8_timeToNextShot -= dt;
-  if (x8_timeToNextShot < 0.f) {
-    x4_angleIdx += 1;
-    if (x18_curBursts->x4_shotAngles[x4_angleIdx] > 0) {
-      x14_24_shouldFire = true;
-      x8_timeToNextShot = x18_curBursts->x24_timeToNextShot;
-      x8_timeToNextShot +=
-          (mgr.Random()->Float() - 0.5f) * x18_curBursts->x28_timeToNextShotVariance;
+  mTimeToNextShot -= dt;
+  if (mTimeToNextShot < 0.f) {
+    mAngleIdx += 1;
+    if (mCurBursts->mShotAngles[mAngleIdx] > 0) {
+      mShouldFire = true;
+      mTimeToNextShot = mCurBursts->mTimeToNextShot;
+      mTimeToNextShot +=
+          (mgr.Random()->Float() - 0.5f) * mCurBursts->mTimeToNextShotVariance;
     } else {
-      x18_curBursts = nullptr;
+      mCurBursts = nullptr;
     }
   }
 }
@@ -69,11 +69,11 @@ void CBurstFire::Update(CStateManager& mgr, float dt) {
 CVector3f CBurstFire::GetError(float xMag, float zMag) const {
   CVector3f result = CVector3f::Zero();
 
-  if (x14_24_shouldFire && x18_curBursts) {
+  if (mShouldFire && mCurBursts) {
 
-    int r0 = x18_curBursts->x4_shotAngles[x4_angleIdx];
-    if (x14_25_avoidAccuracy && (r0 == 4 || r0 == 12)) {
-      r0 = x18_curBursts->x4_shotAngles[x4_angleIdx > 0 ? x4_angleIdx - 1 : x4_angleIdx + 1];
+    int r0 = mCurBursts->mShotAngles[mAngleIdx];
+    if (mAvoidAccuracy && (r0 == 4 || r0 == 12)) {
+      r0 = mCurBursts->mShotAngles[mAngleIdx > 0 ? mAngleIdx - 1 : mAngleIdx + 1];
     }
 
     if (r0 > 0) {

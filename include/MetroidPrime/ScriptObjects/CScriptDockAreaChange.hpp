@@ -4,7 +4,7 @@
 #include "MetroidPrime/CEntity.hpp"
 
 class CScriptDockAreaChange : public CEntity {
-  int x34_dockReference;
+  int mDockReference;
 
 public:
   CScriptDockAreaChange(const TUniqueId, const rstl::string&, const CEntityInfo&, int, const bool);

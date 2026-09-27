@@ -14,14 +14,14 @@ public:
   void Free(void* ptr, int len);
   int GetAllocatedAmount() const;
   void* GetOffsettedMemory(const int offset) {
-    return x0_ptr.get() + offset;
+    return mPtr.get() + offset;
   }
 
 private:
-  rstl::auto_ptr<char> x0_ptr;
-  int x8_bufferLen;
+  rstl::auto_ptr<char> mPtr;
+  int mBufferLen;
   int xc_;
-  int x10_nextFreeAddr;
+  int mNextFreeAddr;
   int x14_;
 };
 

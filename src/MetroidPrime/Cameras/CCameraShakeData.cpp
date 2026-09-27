@@ -94,12 +94,12 @@ CCameraShakeData CCameraShakeData::HardVertShakeDistance(float duration, float m
 
 SCameraShakePoint::SCameraShakePoint(int flags, float attackTime, float sustainTime, float duration,
                                      float magnitude)
-: x0_useEnvelope(flags)
-, x4_value(0.f)
-, x8_magnitude(magnitude)
-, xc_attackTime(attackTime)
-, x10_sustainTime(sustainTime)
-, x14_duration(duration) {}
+: mUseEnvelope(flags)
+, mValue(0.f)
+, mMagnitude(magnitude)
+, mAttackTime(attackTime)
+, mSustainTime(sustainTime)
+, mDuration(duration) {}
 
 SCameraShakePoint LoadCameraShakePoint(CInputStream& in) {
   const uint flags = LoadParameterFlags(in);
@@ -112,27 +112,27 @@ SCameraShakePoint LoadCameraShakePoint(CInputStream& in) {
 SCameraShakePoint SCameraShakePoint::NoMotion() { return SCameraShakePoint(0, 0.f, 0.f, 0.f, 0.f); }
 
 void SCameraShakePoint::Update(float curTime) {
-  const float offTime = xc_attackTime + x10_sustainTime;
+  const float offTime = mAttackTime + mSustainTime;
   float factor = 1.f;
-  if (curTime < xc_attackTime && xc_attackTime > 0.f) {
-    factor = CMath::Clamp(0.f, curTime / xc_attackTime, 1.f);
+  if (curTime < mAttackTime && mAttackTime > 0.f) {
+    factor = CMath::Clamp(0.f, curTime / mAttackTime, 1.f);
   }
-  if (curTime >= offTime && x14_duration > 0.f) {
-    factor = 1.f - CMath::Clamp(0.f, (curTime - offTime) / x14_duration, 1.f);
+  if (curTime >= offTime && mDuration > 0.f) {
+    factor = 1.f - CMath::Clamp(0.f, (curTime - offTime) / mDuration, 1.f);
   }
-  x4_value = x8_magnitude * factor;
+  mValue = mMagnitude * factor;
 }
 
 float SCameraShakePoint::GetValue() const {
-  if (x0_useEnvelope & 1) {
-    return x8_magnitude;
+  if (mUseEnvelope & 1) {
+    return mMagnitude;
   }
-  return x4_value;
+  return mValue;
 }
 
 CCameraShakerComponent::CCameraShakerComponent(int flags, const SCameraShakePoint& am,
                                                const SCameraShakePoint& fm)
-: x4_useModulation(flags), x8_am(am), x20_fm(fm), x38_value(0.f) {}
+: mUseModulation(flags), mAm(am), mFm(fm), mValue(0.f) {}
 
 CCameraShakerComponent LoadNewCameraShakerComponent(CInputStream& in) {
   const uint flags = LoadParameterFlags(in);
@@ -146,55 +146,55 @@ CCameraShakerComponent CCameraShakerComponent::NoMotion() {
 }
 
 void CCameraShakerComponent::UpdateMotion(float curTime, float duration, float distAtt) {
-  if (close_enough(duration, 0.f) || !(x4_useModulation & 1)) {
-    x38_value = 0.f;
+  if (close_enough(duration, 0.f) || !(mUseModulation & 1)) {
+    mValue = 0.f;
     return;
   }
 
-  x20_fm.Update(curTime);
-  const float freq = 1.f + x20_fm.GetValue();
-  x8_am.Update(curTime);
-  x38_value = x8_am.GetValue() * sinf(2.f * M_PIF * (duration - curTime) * freq);
-  x38_value *= distAtt;
+  mFm.Update(curTime);
+  const float freq = 1.f + mFm.GetValue();
+  mAm.Update(curTime);
+  mValue = mAm.GetValue() * sinf(2.f * M_PIF * (duration - curTime) * freq);
+  mValue *= distAtt;
 }
 
 CCameraShakeData::CCameraShakeData(float duration, float sfxDist, int flags,
                                    const CVector3f& sfxPos, const CCameraShakerComponent& shakerX,
                                    const CCameraShakerComponent& shakerY,
                                    const CCameraShakerComponent& shakerZ)
-: x0_duration(duration)
-, x4_curTime(0.f)
-, x8_shakerX(shakerX)
-, x44_shakerY(shakerY)
-, x80_shakerZ(shakerZ)
-, xbc_shakerId(0)
-, xc0_flags(flags)
-, xc4_sfxPos(sfxPos)
-, xd0_sfxDist(sfxDist) {}
+: mDuration(duration)
+, mCurTime(0.f)
+, mShakerX(shakerX)
+, mShakerY(shakerY)
+, mShakerZ(shakerZ)
+, mShakerId(0)
+, mFlags(flags)
+, mSfxPos(sfxPos)
+, mSfxDist(sfxDist) {}
 
 void CCameraShakeData::SetSfxPositionAndDistance(float distance, CVector3f pos) {
-  xc0_flags |= 1;
-  xd0_sfxDist = distance;
-  xc4_sfxPos = pos;
+  mFlags |= 1;
+  mSfxDist = distance;
+  mSfxPos = pos;
 }
 
 void CCameraShakeData::Update(float dt, CStateManager& mgr) {
-  x4_curTime += dt;
+  mCurTime += dt;
   float distAtt = 1.f;
-  if (xc0_flags & 1) {
+  if (mFlags & 1) {
     const CVector3f playerPos = mgr.GetPlayer()->GetTranslation();
     distAtt =
-        1.f - CMath::Clamp(0.f, (CVector3f(xc4_sfxPos - playerPos)).Magnitude() / xd0_sfxDist, 1.f);
+        1.f - CMath::Clamp(0.f, (CVector3f(mSfxPos - playerPos)).Magnitude() / mSfxDist, 1.f);
   }
-  x8_shakerX.UpdateMotion(x4_curTime, x0_duration, distAtt);
-  x44_shakerY.UpdateMotion(x4_curTime, x0_duration, distAtt);
-  x80_shakerZ.UpdateMotion(x4_curTime, x0_duration, distAtt);
+  mShakerX.UpdateMotion(mCurTime, mDuration, distAtt);
+  mShakerY.UpdateMotion(mCurTime, mDuration, distAtt);
+  mShakerZ.UpdateMotion(mCurTime, mDuration, distAtt);
 }
 
 CVector3f CCameraShakeData::GetPoint() const {
-  const float x = x8_shakerX.GetValue();
-  const float y = x44_shakerY.GetValue();
-  const float z = x80_shakerZ.GetValue();
+  const float x = mShakerX.GetValue();
+  const float y = mShakerY.GetValue();
+  const float z = mShakerZ.GetValue();
   return CVector3f(x, y, z);
 }
 
@@ -235,28 +235,28 @@ CCameraShakeData CCameraShakeData::EatOldCameraShakerData(CInputStream& in) {
 
 float CCameraShakeData::GetMaxAmplitude() const {
   float result = 0.f;
-  if (x8_shakerX.IsModulated()) {
-    result = x8_shakerX.GetAmplitude();
+  if (mShakerX.IsModulated()) {
+    result = mShakerX.GetAmplitude();
   }
-  if (x44_shakerY.IsModulated() && x44_shakerY.GetAmplitude() > result) {
-    result = x44_shakerY.GetAmplitude();
+  if (mShakerY.IsModulated() && mShakerY.GetAmplitude() > result) {
+    result = mShakerY.GetAmplitude();
   }
-  if (x80_shakerZ.IsModulated() && x80_shakerZ.GetAmplitude() > result) {
-    result = x80_shakerZ.GetAmplitude();
+  if (mShakerZ.IsModulated() && mShakerZ.GetAmplitude() > result) {
+    result = mShakerZ.GetAmplitude();
   }
   return result;
 }
 
 float CCameraShakeData::GetMaxSeverity() const {
   float result = 0.f;
-  if (x8_shakerX.IsModulated()) {
-    result = x8_shakerX.GetSeverity();
+  if (mShakerX.IsModulated()) {
+    result = mShakerX.GetSeverity();
   }
-  if (x44_shakerY.IsModulated() && x44_shakerY.GetSeverity() > result) {
-    result = x44_shakerY.GetSeverity();
+  if (mShakerY.IsModulated() && mShakerY.GetSeverity() > result) {
+    result = mShakerY.GetSeverity();
   }
-  if (x80_shakerZ.IsModulated() && x80_shakerZ.GetSeverity() > result) {
-    result = x80_shakerZ.GetSeverity();
+  if (mShakerZ.IsModulated() && mShakerZ.GetSeverity() > result) {
+    result = mShakerZ.GetSeverity();
   }
   return result;
 }

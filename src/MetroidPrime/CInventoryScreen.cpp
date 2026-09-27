@@ -54,7 +54,7 @@ CInventoryScreen::CInventoryScreen(const CStateManager& mgr, CGuiFrame& frame,
                                    const CStringTable& pauseStrg, const CDependencyGroup& suitDgrp,
                                    const CDependencyGroup& ballDgrp)
 : CPauseScreenBase(mgr, frame, pauseStrg)
-, x19c_samusDoll(rs_new CSamusDoll(
+, mSamusDoll(rs_new CSamusDoll(
       suitDgrp, ballDgrp,
       static_cast< CPlayerState::EPlayerSuit >(mgr.GetPlayerState()->GetCurrentSuitRaw() +
                                                4 * mgr.GetPlayerState()->GetIsFusionEnabled()),
@@ -62,48 +62,48 @@ CInventoryScreen::CInventoryScreen(const CStateManager& mgr, CGuiFrame& frame,
       mgr.GetPlayerState()->HasPowerUp(CPlayerState::kIT_SpiderBall),
       mgr.GetPlayerState()->HasPowerUp(CPlayerState::kIT_GrappleBeam)))
 , x1a0_(0.f)
-, x1a4_textBodyAlpha(0.f)
-, x1a8_state(kS_Active)
-, x1ac_textLeaveRequested(false) {}
+, mTextBodyAlpha(0.f)
+, mState(kS_Active)
+, mTextLeaveRequested(false) {}
 
 CInventoryScreen::~CInventoryScreen() {
   for (int i = 0; i < 5; ++i) {
-    xd8_textpane_titles[i]->TextSupport().SetFontColor(CColor::White());
-    x15c_model_righttitledecos[i]->SetColor(CColor::White());
-    x144_model_titles[i]->SetColor(CColor::White());
+    mTextpane_titles[i]->TextSupport().SetFontColor(CColor::White());
+    mModel_righttitledecos[i]->SetColor(CColor::White());
+    mModel_titles[i]->SetColor(CColor::White());
   }
 
-  x8c_model_righthighlight->SetColor(CColor::White());
+  mModel_righthighlight->SetColor(CColor::White());
 }
 
 float CInventoryScreen::GetCameraYBias() const {
-  return CMath::AbsF(x19c_samusDoll->GetViewInterpolation());
+  return CMath::AbsF(mSamusDoll->GetViewInterpolation());
 }
 
 void CInventoryScreen::ProcessInput(const CFinalInput& input) {
-  if (x1a8_state == kS_Inactive) {
+  if (mState == kS_Inactive) {
     return;
   }
 
-  if (x19c_samusDoll->IsViewInterpolating()) {
+  if (mSamusDoll->IsViewInterpolating()) {
     return;
   }
 
-  float viewInterp = CMath::AbsF(x19c_samusDoll->GetViewInterpolation());
-  if (input.PY() && x19c_samusDoll->IsLoaded() && (viewInterp > 0.f || x10_mode != kM_TextScroll)) {
-    x19c_samusDoll->BeginViewInterpolate(viewInterp == 0.f);
+  float viewInterp = CMath::AbsF(mSamusDoll->GetViewInterpolation());
+  if (input.PY() && mSamusDoll->IsLoaded() && (viewInterp > 0.f || mMode != kM_TextScroll)) {
+    mSamusDoll->BeginViewInterpolate(viewInterp == 0.f);
   }
 
   if (viewInterp == 1.f) {
     if (input.PStart()) {
-      x19c_samusDoll->BeginViewInterpolate(false);
-      x198_26_exitPauseScreen = true;
+      mSamusDoll->BeginViewInterpolate(false);
+      mExitPauseScreen = true;
     } else if (input.PB()) {
-      x19c_samusDoll->BeginViewInterpolate(false);
+      mSamusDoll->BeginViewInterpolate(false);
     }
   }
 
-  if (CMath::AbsF(x19c_samusDoll->GetViewInterpolation()) > 0.f) {
+  if (CMath::AbsF(mSamusDoll->GetViewInterpolation()) > 0.f) {
     float motionAmt = 6.f * input.Time();
     float circleUp = ControlMapper::GetAnalogInput(ControlMapper::kC_MapCircleUp, input);
     float circleDown = ControlMapper::GetAnalogInput(ControlMapper::kC_MapCircleDown, input);
@@ -119,16 +119,16 @@ void CInventoryScreen::ProcessInput(const CFinalInput& input) {
     CVector3f moveVec(0.25f * motionAmt * (moveRight - moveLeft),
                       0.5f * motionAmt * (zoomIn - zoomOut),
                       0.25f * motionAmt * (moveForward - moveBack));
-    x19c_samusDoll->SetOffset(moveVec, input.Time());
-    x19c_samusDoll->SetRotation(0.5f * motionAmt * (circleDown - circleUp),
+    mSamusDoll->SetOffset(moveVec, input.Time());
+    mSamusDoll->SetRotation(0.5f * motionAmt * (circleDown - circleUp),
                                 0.5f * motionAmt * (circleRight - circleLeft), input.Time());
   } else {
-    x1ad_textViewing = false;
+    mTextViewing = false;
 
-    if (x10_mode == kM_TextScroll) {
-      int oldPage = x174_textpane_body->TextSupport().GetPageCounter();
+    if (mMode == kM_TextScroll) {
+      int oldPage = mTextpane_body->TextSupport().GetPageCounter();
       int newPage = oldPage;
-      int totalCount = x174_textpane_body->TextSupport().GetTotalPageCount();
+      int totalCount = mTextpane_body->TextSupport().GetTotalPageCount();
       bool lastPage = oldPage == totalCount - 1;
 
       if (totalCount != -1) {
@@ -138,27 +138,27 @@ void CInventoryScreen::ProcessInput(const CFinalInput& input) {
           newPage = rstl::min_val(totalCount - 1, oldPage + 1);
         }
 
-        x174_textpane_body->TextSupport().SetPage(newPage);
+        mTextpane_body->TextSupport().SetPage(newPage);
         if (oldPage != newPage) {
           CSfxManager::SfxStart(0x5a4, 0x7f, 0x40, false);
         }
 
-        x198_28_pulseTextArrowTop = newPage > 0;
-        x198_29_pulseTextArrowBottom = !lastPage;
+        mPulseTextArrowTop = newPage > 0;
+        mPulseTextArrowBottom = !lastPage;
       } else {
-        x198_28_pulseTextArrowTop = x198_29_pulseTextArrowBottom = false;
+        mPulseTextArrowTop = mPulseTextArrowBottom = false;
       }
 
-      if (!x1ac_textLeaveRequested) {
-        x1ac_textLeaveRequested = input.PB() || ((input.PA() && lastPage) ? true : false);
+      if (!mTextLeaveRequested) {
+        mTextLeaveRequested = input.PB() || ((input.PA() && lastPage) ? true : false);
       }
-      x1ad_textViewing = !x1ac_textLeaveRequested;
+      mTextViewing = !mTextLeaveRequested;
     } else {
-      x198_28_pulseTextArrowTop = x198_29_pulseTextArrowBottom = false;
+      mPulseTextArrowTop = mPulseTextArrowBottom = false;
     }
 
-    if (x1a8_state != kS_Active) {
-      x1ad_textViewing = false;
+    if (mState != kS_Active) {
+      mTextViewing = false;
     }
 
     CPauseScreenBase::ProcessInput(input);
@@ -166,107 +166,107 @@ void CInventoryScreen::ProcessInput(const CFinalInput& input) {
 }
 
 void CInventoryScreen::ChangedMode(EMode oldMode) {
-  if (x10_mode == kM_TextScroll) {
-    x1ad_textViewing = true;
+  if (mMode == kM_TextScroll) {
+    mTextViewing = true;
     UpdateTextBody();
   }
 }
 
 void CInventoryScreen::UpdateTextBody() {
-  x1ac_textLeaveRequested = false;
+  mTextLeaveRequested = false;
 
-  int leftSel = x70_tablegroup_leftlog->GetUserSelection();
+  int leftSel = mTablegroup_leftlog->GetUserSelection();
   const SInventoryCategory& category = skInventoryRegistry[leftSel];
-  const SInventoryItem& item = category.items[x1c_rightSel];
+  const SInventoryItem& item = category.items[mRightSel];
 
-  rstl::wstring text = xc_pauseStrg.GetString(item.entryStrIdx);
+  rstl::wstring text = mPauseStrg.GetString(item.entryStrIdx);
   if (item.idx == 23) {
-    const CPlayerState& playerState = *x4_mgr.GetPlayerState();
+    const CPlayerState& playerState = *mMgr.GetPlayerState();
     text.append(
-        xc_pauseStrg.GetString(playerState.HasPowerUp(CPlayerState::kIT_SuperMissile) ? 71 : 65),
+        mPauseStrg.GetString(playerState.HasPowerUp(CPlayerState::kIT_SuperMissile) ? 71 : 65),
         -1);
     text.append(
-        xc_pauseStrg.GetString(playerState.HasPowerUp(CPlayerState::kIT_IceSpreader) ? 73 : 65),
+        mPauseStrg.GetString(playerState.HasPowerUp(CPlayerState::kIT_IceSpreader) ? 73 : 65),
         -1);
     text.append(
-        xc_pauseStrg.GetString(playerState.HasPowerUp(CPlayerState::kIT_Wavebuster) ? 75 : 65), -1);
+        mPauseStrg.GetString(playerState.HasPowerUp(CPlayerState::kIT_Wavebuster) ? 75 : 65), -1);
     text.append(
-        xc_pauseStrg.GetString(playerState.HasPowerUp(CPlayerState::kIT_Flamethrower) ? 77 : 65),
+        mPauseStrg.GetString(playerState.HasPowerUp(CPlayerState::kIT_Flamethrower) ? 77 : 65),
         -1);
   }
 
-  x174_textpane_body->TextSupport().SetText(text, true);
-  x174_textpane_body->TextSupport().SetPage(0);
+  mTextpane_body->TextSupport().SetText(text, true);
+  mTextpane_body->TextSupport().SetPage(0);
 }
 
 bool CInventoryScreen::VReady() const { return true; }
 
 void CInventoryScreen::VActivate() {
   for (int i = 0; i < 5; ++i) {
-    CGuiTextPane* category = xa8_textpane_categories[i];
+    CGuiTextPane* category = mTextpane_categories[i];
     if (HasLeftInventoryItem(i)) {
-      category->TextSupport().SetText(xc_pauseStrg.GetString(i + 10));
+      category->TextSupport().SetText(mPauseStrg.GetString(i + 10));
     } else {
       category->TextSupport().SetText(rstl::wstring_l(skUnknownItem));
-      x70_tablegroup_leftlog->GetWorkerWidget(i)->SetIsSelectable(false);
+      mTablegroup_leftlog->GetWorkerWidget(i)->SetIsSelectable(false);
     }
   }
 
-  x178_textpane_title->TextSupport().SetText(xc_pauseStrg.GetString(9));
-  x180_basewidget_yicon->SetVisibility(true, kTM_Children);
+  mTextpane_title->TextSupport().SetText(mPauseStrg.GetString(9));
+  mBasewidget_yicon->SetVisibility(true, kTM_Children);
 
   for (int i = 5; i < 5; ++i) {
-    x70_tablegroup_leftlog->GetWorkerWidget(i)->SetIsSelectable(false);
+    mTablegroup_leftlog->GetWorkerWidget(i)->SetIsSelectable(false);
   }
 }
 
-bool CInventoryScreen::ShouldLeftTableAdvance() { return x19c_samusDoll->IsLoaded(); }
+bool CInventoryScreen::ShouldLeftTableAdvance() { return mSamusDoll->IsLoaded(); }
 
 bool CInventoryScreen::ShouldRightTableAdvance() {
-  return CMath::AbsF(x19c_samusDoll->GetViewInterpolation()) == 0.f;
+  return CMath::AbsF(mSamusDoll->GetViewInterpolation()) == 0.f;
 }
 
 uint CInventoryScreen::GetRightTableCount() const {
-  return skInventoryRegistry[x70_tablegroup_leftlog->GetUserSelection()].count;
+  return skInventoryRegistry[mTablegroup_leftlog->GetUserSelection()].count;
 }
 
 void CInventoryScreen::Draw(float transInterp, float totalAlpha, float yOff) const {
   CPauseScreenBase::Draw(transInterp, totalAlpha,
-                         CMath::AbsF(x19c_samusDoll->GetViewInterpolation()));
-  x19c_samusDoll->Draw(x4_mgr, transInterp * (1.f - x1a4_textBodyAlpha));
+                         CMath::AbsF(mSamusDoll->GetViewInterpolation()));
+  mSamusDoll->Draw(mMgr, transInterp * (1.f - mTextBodyAlpha));
 }
 
 void CInventoryScreen::Touch() {
   CPauseScreenBase::Touch();
-  x19c_samusDoll->Touch();
+  mSamusDoll->Touch();
 }
 
 void CInventoryScreen::Update(float dt, CRandom16& rand, CArchitectureQueue& queue) {
   CPauseScreenBase::Update(dt, rand, queue);
-  x19c_samusDoll->Update(dt, rand);
+  mSamusDoll->Update(dt, rand);
 
-  if (x10_mode == kM_TextScroll) {
-    if (x1ad_textViewing) {
-      x1a4_textBodyAlpha = rstl::min_val(1.f, 4.f * dt + x1a4_textBodyAlpha);
+  if (mMode == kM_TextScroll) {
+    if (mTextViewing) {
+      mTextBodyAlpha = rstl::min_val(1.f, 4.f * dt + mTextBodyAlpha);
     } else {
-      x1a4_textBodyAlpha = rstl::max_val(0.f, x1a4_textBodyAlpha - 4.f * dt);
+      mTextBodyAlpha = rstl::max_val(0.f, mTextBodyAlpha - 4.f * dt);
     }
 
-    CColor bodyColor = CColor::White().WithAlphaOf(x1a4_textBodyAlpha);
-    x174_textpane_body->SetColor(bodyColor);
-    x180_basewidget_yicon->SetColor(CColor::White().WithAlphaOf(1.f - x1a4_textBodyAlpha));
+    CColor bodyColor = CColor::White().WithAlphaOf(mTextBodyAlpha);
+    mTextpane_body->SetColor(bodyColor);
+    mBasewidget_yicon->SetColor(CColor::White().WithAlphaOf(1.f - mTextBodyAlpha));
 
-    if (x1a4_textBodyAlpha == 0.f && x1a8_state == kS_Active) {
+    if (mTextBodyAlpha == 0.f && mState == kS_Active) {
       ChangeMode(kM_RightTable);
     }
   }
 
-  bool morphball = x70_tablegroup_leftlog->GetUserSelection() == 1 && x10_mode != kM_LeftTable;
-  x19c_samusDoll->CheckTransition(morphball);
+  bool morphball = mTablegroup_leftlog->GetUserSelection() == 1 && mMode != kM_LeftTable;
+  mSamusDoll->CheckTransition(morphball);
   UpdateSamusDollPulses();
 
-  if (x1a8_state == kS_Leaving && x1a4_textBodyAlpha == 0.f) {
-    x1a8_state = kS_Inactive;
+  if (mState == kS_Leaving && mTextBodyAlpha == 0.f) {
+    mState = kS_Inactive;
   }
 }
 
@@ -274,22 +274,22 @@ void CInventoryScreen::UpdateRightTable() {
   CPauseScreenBase::UpdateRightTable();
 
   int minSel = INT_MAX;
-  int leftSel = x70_tablegroup_leftlog->GetUserSelection();
+  int leftSel = mTablegroup_leftlog->GetUserSelection();
   const SInventoryCategory& category = skInventoryRegistry[leftSel];
 
   for (int i = 0; i < 5; ++i) {
-    CGuiTextPane* title = xd8_textpane_titles[i];
+    CGuiTextPane* title = mTextpane_titles[i];
     if (i < category.count) {
       const SInventoryItem& item = category.items[i];
       if (HasRightInventoryItem(item.idx)) {
-        title->TextSupport().SetText(xc_pauseStrg.GetString(item.nameStrIdx));
-        x84_tablegroup_rightlog->GetWorkerWidget(i + 1)->SetIsSelectable(true);
+        title->TextSupport().SetText(mPauseStrg.GetString(item.nameStrIdx));
+        mTablegroup_rightlog->GetWorkerWidget(i + 1)->SetIsSelectable(true);
         if (i < minSel) {
           minSel = i;
         }
       } else {
         title->TextSupport().SetText(rstl::wstring_l(skUnknownItem));
-        x84_tablegroup_rightlog->GetWorkerWidget(i + 1)->SetIsSelectable(false);
+        mTablegroup_rightlog->GetWorkerWidget(i + 1)->SetIsSelectable(false);
       }
     } else {
       title->TextSupport().SetText(rstl::wstring_l(L""));
@@ -297,12 +297,12 @@ void CInventoryScreen::UpdateRightTable() {
   }
 
   if (minSel != INT_MAX) {
-    x1c_rightSel = minSel;
-    SetRightTableSelection(x1c_rightSel, x1c_rightSel);
+    mRightSel = minSel;
+    SetRightTableSelection(mRightSel, mRightSel);
   }
 
-  x84_tablegroup_rightlog->GetWorkerWidget(0)->SetIsSelectable(false);
-  x84_tablegroup_rightlog->GetWorkerWidget(x84_tablegroup_rightlog->GetElementCount() - 1)
+  mTablegroup_rightlog->GetWorkerWidget(0)->SetIsSelectable(false);
+  mTablegroup_rightlog->GetWorkerWidget(mTablegroup_rightlog->GetElementCount() - 1)
       ->SetIsSelectable(false);
 
   UpdateRightLogColors(false, gpTweakGuiColors->GetPauseItemAmberColor(),
@@ -311,23 +311,23 @@ void CInventoryScreen::UpdateRightTable() {
 
 void CInventoryScreen::UpdateRightLogColors(bool active, const CColor& activeColor,
                                             const CColor& inactiveColor) {
-  x80_basewidget_rightlog->SetColor(active ? CColor::White()
+  mBasewidget_rightlog->SetColor(active ? CColor::White()
                                            : CColor::White().WithAlphaOf(0.712291f));
 
-  int leftSel = x70_tablegroup_leftlog->GetUserSelection();
+  int leftSel = mTablegroup_leftlog->GetUserSelection();
   const SInventoryCategory& category = skInventoryRegistry[leftSel];
 
   for (int i = 0; i < 5; ++i) {
-    CGuiTextPane* title = xd8_textpane_titles[i];
+    CGuiTextPane* title = mTextpane_titles[i];
     bool useActiveColor = true;
     if (i < category.count && IsRightInventoryItemEquipped(category.items[i].idx)) {
-      x15c_model_righttitledecos[i]->SetColor(gpTweakGuiColors->GetPauseItemBlueColor());
+      mModel_righttitledecos[i]->SetColor(gpTweakGuiColors->GetPauseItemBlueColor());
       title->TextSupport().SetFontColor(gpTweakGuiColors->GetPauseItemBlueColor());
       useActiveColor = false;
     }
 
     if (useActiveColor) {
-      x15c_model_righttitledecos[i]->SetColor(activeColor);
+      mModel_righttitledecos[i]->SetColor(activeColor);
       title->TextSupport().SetFontColor(activeColor);
     }
   }
@@ -341,7 +341,7 @@ void CInventoryScreen::UpdateRightLogHighlight(bool active, int idx, const CColo
   CColor inactiveAmber =
       CColor::Modulate(gpTweakGuiColors->GetPauseItemAmberColor(), inactiveColor);
 
-  int leftSel = x70_tablegroup_leftlog->GetUserSelection();
+  int leftSel = mTablegroup_leftlog->GetUserSelection();
   const SInventoryCategory& category = skInventoryRegistry[leftSel];
 
   for (int i = 0; i < 5; ++i) {
@@ -349,24 +349,24 @@ void CInventoryScreen::UpdateRightLogHighlight(bool active, int idx, const CColo
     bool useAmber = true;
     if (i < category.count && IsRightInventoryItemEquipped(category.items[i].idx) && selected) {
       useAmber = false;
-      x8c_model_righthighlight->SetColor(gpTweakGuiColors->GetPauseItemBlueColor());
+      mModel_righthighlight->SetColor(gpTweakGuiColors->GetPauseItemBlueColor());
     }
 
-    x144_model_titles[i]->SetColor(selected ? activeAmber : inactiveAmber);
+    mModel_titles[i]->SetColor(selected ? activeAmber : inactiveAmber);
     if (useAmber && selected) {
-      x8c_model_righthighlight->SetColor(activeAmber);
+      mModel_righthighlight->SetColor(activeAmber);
     }
   }
 }
 
-void CInventoryScreen::TransitioningAway() { x1a8_state = kS_Leaving; }
+void CInventoryScreen::TransitioningAway() { mState = kS_Leaving; }
 
 bool CInventoryScreen::InputDisabled() const {
-  if (CMath::AbsF(x19c_samusDoll->GetViewInterpolation()) > 0.f) {
+  if (CMath::AbsF(mSamusDoll->GetViewInterpolation()) > 0.f) {
     return true;
   }
 
-  return x1a8_state == kS_Leaving;
+  return mState == kS_Leaving;
 }
 
 void CInventoryScreen::RightTableSelectionChanged(int oldSel, int newSel) {}
@@ -377,9 +377,9 @@ void CInventoryScreen::UpdateSamusDollPulses() {
   bool pulseGrapple = false;
   bool pulseBoots = false;
   bool pulseVisor = false;
-  int userSel = x70_tablegroup_leftlog->GetUserSelection();
+  int userSel = mTablegroup_leftlog->GetUserSelection();
 
-  if (x10_mode == kM_RightTable) {
+  if (mMode == kM_RightTable) {
     if (userSel == 2) {
       pulseSuit = true;
     } else if (userSel == 0) {
@@ -387,23 +387,23 @@ void CInventoryScreen::UpdateSamusDollPulses() {
     } else if (userSel == 3) {
       pulseVisor = true;
     } else if (userSel == 4) {
-      pulseGrapple = skSecondaryItems[x1c_rightSel].idx == 20;
-      pulseBoots = skSecondaryItems[x1c_rightSel].idx == 19;
-      if (skSecondaryItems[x1c_rightSel].idx == 21) {
+      pulseGrapple = skSecondaryItems[mRightSel].idx == 20;
+      pulseBoots = skSecondaryItems[mRightSel].idx == 19;
+      if (skSecondaryItems[mRightSel].idx == 21) {
         pulseBeam = true;
       }
     }
   }
 
-  x19c_samusDoll->SetPulseSuit(pulseSuit);
-  x19c_samusDoll->SetPulseBeam(pulseBeam);
-  x19c_samusDoll->SetPulseGrapple(pulseGrapple);
-  x19c_samusDoll->SetPulseBoots(pulseBoots);
-  x19c_samusDoll->SetPulseVisor(pulseVisor);
+  mSamusDoll->SetPulseSuit(pulseSuit);
+  mSamusDoll->SetPulseBeam(pulseBeam);
+  mSamusDoll->SetPulseGrapple(pulseGrapple);
+  mSamusDoll->SetPulseBoots(pulseBoots);
+  mSamusDoll->SetPulseVisor(pulseVisor);
 }
 
 bool CInventoryScreen::HasLeftInventoryItem(int idx) const {
-  const CPlayerState& playerState = *x4_mgr.GetPlayerState();
+  const CPlayerState& playerState = *mMgr.GetPlayerState();
 
   switch (idx) {
   case 0:
@@ -429,7 +429,7 @@ bool CInventoryScreen::HasLeftInventoryItem(int idx) const {
 }
 
 bool CInventoryScreen::HasRightInventoryItem(int idx) const {
-  const CPlayerState& playerState = *x4_mgr.GetPlayerState();
+  const CPlayerState& playerState = *mMgr.GetPlayerState();
 
   switch (idx) {
   case 0:
@@ -489,7 +489,7 @@ bool CInventoryScreen::HasRightInventoryItem(int idx) const {
 }
 
 bool CInventoryScreen::IsRightInventoryItemEquipped(int idx) const {
-  const CPlayerState& playerState = *x4_mgr.GetPlayerState();
+  const CPlayerState& playerState = *mMgr.GetPlayerState();
 
   switch (idx) {
   case 0:

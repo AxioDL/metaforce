@@ -26,45 +26,45 @@ public:
   CCollisionInfo(const CAABox& aabox, const CMaterialList& leftMat, const CMaterialList& rightMat,
                  const CVector3f& leftNormal, const CVector3f& rightNormal);
   CCollisionInfo(const CCollisionInfo& other, ESwapMaterials)
-  : x0_point(other.x0_point)
-  , xc_extentX(other.xc_extentX)
-  , x18_extentY(other.x18_extentY)
-  , x24_extentZ(other.x24_extentZ)
-  , x30_valid(other.x30_valid)
-  , x31_hasExtents(other.x31_hasExtents)
-  , x38_materialLeft(other.x40_materialRight)
-  , x40_materialRight(other.x38_materialLeft)
-  , x48_normalLeft(other.x54_normalRight)
-  , x54_normalRight(other.x48_normalLeft) {}
+  : mPoint(other.mPoint)
+  , mExtentX(other.mExtentX)
+  , mExtentY(other.mExtentY)
+  , mExtentZ(other.mExtentZ)
+  , mValid(other.mValid)
+  , mHasExtents(other.mHasExtents)
+  , mMaterialLeft(other.mMaterialRight)
+  , mMaterialRight(other.mMaterialLeft)
+  , mNormalLeft(other.mNormalRight)
+  , mNormalRight(other.mNormalLeft) {}
 
   CCollisionInfo GetSwapped(ESwapMaterials) const;
-  bool IsValid() const { return x30_valid; }
-  const CMaterialList& GetMaterialLeft() const { return x38_materialLeft; }
-  const CMaterialList& GetMaterialRight() const { return x40_materialRight; }
+  bool IsValid() const { return mValid; }
+  const CMaterialList& GetMaterialLeft() const { return mMaterialLeft; }
+  const CMaterialList& GetMaterialRight() const { return mMaterialRight; }
   CVector3f GetExtreme() const;
   void Swap();
-  const CVector3f& GetNormalLeft() const { return x48_normalLeft; }
-  const CVector3f& GetNormalRight() const { return x54_normalRight; }
-  const CVector3f& GetPoint() const { return x0_point; }
+  const CVector3f& GetNormalLeft() const { return mNormalLeft; }
+  const CVector3f& GetNormalRight() const { return mNormalRight; }
+  const CVector3f& GetPoint() const { return mPoint; }
 
   // TODO: hack for CollisionUtil::AccumulateCollisionInfo. Maybe it's a static function here?
-  CMaterialList& MaterialLeft() { return x38_materialLeft; }
-  CMaterialList& MaterialRight() { return x40_materialRight; }
-  CVector3f& NormalLeft() { return x48_normalLeft; }
-  CVector3f& NormalRight() { return x54_normalRight; }
-  CVector3f& Point() { return x0_point; }
+  CMaterialList& MaterialLeft() { return mMaterialLeft; }
+  CMaterialList& MaterialRight() { return mMaterialRight; }
+  CVector3f& NormalLeft() { return mNormalLeft; }
+  CVector3f& NormalRight() { return mNormalRight; }
+  CVector3f& Point() { return mPoint; }
 
 private:
-  CVector3f x0_point;
-  CVector3f xc_extentX;
-  CVector3f x18_extentY;
-  CVector3f x24_extentZ;
-  bool x30_valid;
-  bool x31_hasExtents;
-  CMaterialList x38_materialLeft;
-  CMaterialList x40_materialRight;
-  CVector3f x48_normalLeft;
-  CVector3f x54_normalRight;
+  CVector3f mPoint;
+  CVector3f mExtentX;
+  CVector3f mExtentY;
+  CVector3f mExtentZ;
+  bool mValid;
+  bool mHasExtents;
+  CMaterialList mMaterialLeft;
+  CMaterialList mMaterialRight;
+  CVector3f mNormalLeft;
+  CVector3f mNormalRight;
 };
 CHECK_SIZEOF(CCollisionInfo, 0x60)
 

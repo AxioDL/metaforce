@@ -21,12 +21,12 @@ enum ESpindleInput {
 };
 
 struct CSpindleCameraInterpolant {
-  uint x0_flags;
-  ESpindleInput x4_input;
-  float x8_lowOut;
-  float xc_highOut;
-  float x10_lowIn;
-  float x14_highIn;
+  uint mFlags;
+  ESpindleInput mInput;
+  float mLowOut;
+  float mHighOut;
+  float mLowIn;
+  float mHighIn;
 
   CSpindleCameraInterpolant() {}
   CSpindleCameraInterpolant(ESpindleInput input, uint flags, float lowOut, float highOut,
@@ -73,32 +73,32 @@ public:
 private:
   float GetInterpolant(const CSpindleCameraInterpolant& seg) const;
 
-  uint x188_flags;
-  rstl::reserved_vector< float, 8 > x18c_inVars;
-  float x1b0_hintToCamDistMin;
-  float x1b4_hintToCamDistMax;
-  float x1b8_hintToCamVOffMin;
-  float x1bc_hintToCamVOffMax;
-  CSpindleCameraInterpolant x1c0_targetHintToCamDeltaAngleVel;
-  CSpindleCameraInterpolant x1d8_deltaAngleScaleWithCamDist;
-  CSpindleCameraInterpolant x1f0_hintToCamDist;
-  CSpindleCameraInterpolant x208_distOffsetFromBallDist;
-  CSpindleCameraInterpolant x220_hintBallToCamAzimuth;
-  CSpindleCameraInterpolant x238_unused;
-  CSpindleCameraInterpolant x250_maxHintBallToCamAzimuth;
-  CSpindleCameraInterpolant x268_camLookRelAzimuth;
-  CSpindleCameraInterpolant x280_lookPosZOffset;
-  CSpindleCameraInterpolant x298_camPosZOffset;
-  CSpindleCameraInterpolant x2b0_clampedAzimuthFromHintDir;
-  CSpindleCameraInterpolant x2c8_dampingAzimuthSpeed;
-  CSpindleCameraInterpolant x2e0_targetHintToCamDeltaAngleVelRange;
-  CSpindleCameraInterpolant x2f8_deleteHintBallDist;
-  CSpindleCameraInterpolant x310_recoverClampedAzimuthFromHintDir;
-  float x328_maxAzimuthInterpTimer;
-  bool x32c_24_outsideClampedAzimuth : 1;
-  CVector3f x330_lookDir;
-  bool x33c_24_inResetThink : 1;
+  uint mFlags;
+  rstl::reserved_vector< float, 8 > mInVars;
+  float mHintToCamDistMin;
+  float mHintToCamDistMax;
+  float mHintToCamVOffMin;
+  float mHintToCamVOffMax;
+  CSpindleCameraInterpolant mTargetHintToCamDeltaAngleVel;
+  CSpindleCameraInterpolant mDeltaAngleScaleWithCamDist;
+  CSpindleCameraInterpolant mHintToCamDist;
+  CSpindleCameraInterpolant mDistOffsetFromBallDist;
+  CSpindleCameraInterpolant mHintBallToCamAzimuth;
+  CSpindleCameraInterpolant mUnused;
+  CSpindleCameraInterpolant mMaxHintBallToCamAzimuth;
+  CSpindleCameraInterpolant mCamLookRelAzimuth;
+  CSpindleCameraInterpolant mLookPosZOffset;
+  CSpindleCameraInterpolant mCamPosZOffset;
+  CSpindleCameraInterpolant mClampedAzimuthFromHintDir;
+  CSpindleCameraInterpolant mDampingAzimuthSpeed;
+  CSpindleCameraInterpolant mTargetHintToCamDeltaAngleVelRange;
+  CSpindleCameraInterpolant mDeleteHintBallDist;
+  CSpindleCameraInterpolant mRecoverClampedAzimuthFromHintDir;
+  float mMaxAzimuthInterpTimer;
+  bool mOutsideClampedAzimuth : 1;
+  CVector3f mLookDir;
+  bool mInResetThink : 1;
 };
-CHECK_SIZEOF(CScriptSpindleCamera, (VERSION >= VERSION_GM8P_00 ? 0x350 : 0x340))
+CHECK_SIZEOF(CScriptSpindleCamera, (VERSION >= VERSION_GM8E_02 ? 0x350 : 0x340))
 
 #endif // _CSCRIPTSPINDLECAMERA

@@ -34,13 +34,13 @@ enum ECardResult {
 };
 
 struct ProbeResults {
-  ECardResult x0_error;
-  s32 x4_cardSize;   /* in megabits */
-  s32 x8_sectorSize; /* in bytes */
+  ECardResult mError;
+  s32 mCardSize;   /* in megabits */
+  s32 mSectorSize; /* in bytes */
 };
 
 struct CardStat {
-  CARDStat x0_stat;
+  CARDStat mStat;
 
   CardStat() { memset(this, 0, sizeof(CardStat)); }
 
@@ -63,25 +63,25 @@ public:
 
   class CCardFileInfo {
     struct Icon {
-      CAssetId x0_id;
-      int x4_speed;
-      TLockedToken< CTexture > x8_tex;
+      CAssetId mId;
+      int mSpeed;
+      TLockedToken< CTexture > mTex;
 
       Icon(CAssetId id, int speed, CSimplePool& pool);
     };
 
     enum EStatus { kS_Standby, kS_Transferring, kS_Done };
 
-    EStatus x0_status;
-    CARDFileInfo x4_fileInfo;
-    rstl::string x18_fileName;
-    rstl::string x28_comment;
+    EStatus mStatus;
+    CARDFileInfo mFileInfo;
+    rstl::string mFileName;
+    rstl::string mComment;
     int x38_;
-    CAssetId x3c_bannerTex;
-    rstl::optional_object< TLockedToken< CTexture > > x40_bannerTok;
-    rstl::reserved_vector< Icon, 8 > x50_iconToks;
-    rstl::vector< u8 > xf4_saveBuffer;
-    rstl::vector< u8, rstl::aligned_allocator > x104_cardBuffer;
+    CAssetId mBannerTex;
+    rstl::optional_object< TLockedToken< CTexture > > mBannerTok;
+    rstl::reserved_vector< Icon, 8 > mIconToks;
+    rstl::vector< u8 > mSaveBuffer;
+    rstl::vector< u8, rstl::aligned_allocator > mCardBuffer;
 
   public:
     CCardFileInfo(EMemoryCardPort port, const rstl::string& name);
@@ -104,11 +104,11 @@ public:
     void WriteBannerData(COutputStream& out);
     void WriteIconData(COutputStream& out);
 
-    rstl::vector< u8 >& SaveBuffer() { return xf4_saveBuffer; }
+    rstl::vector< u8 >& SaveBuffer() { return mSaveBuffer; }
 
     inline CMemoryStreamOut BeginMemoryOut(uint sz) {
-      xf4_saveBuffer.resize(sz);
-      return CMemoryStreamOut(xf4_saveBuffer.data(), sz);
+      mSaveBuffer.resize(sz);
+      return CMemoryStreamOut(mSaveBuffer.data(), sz);
     }
   };
 
@@ -144,17 +144,17 @@ private:
 NESTED_CHECK_SIZEOF(CMemoryCardSys, CCardFileInfo, 0x114)
 
 struct SMemoryCardFileInfo {
-  CARDFileInfo x0_fileInfo;
-  rstl::string x14_name;
-  rstl::vector< uchar, rstl::aligned_allocator > x24_saveFileData;
-  rstl::vector< uchar > x34_saveData;
+  CARDFileInfo mFileInfo;
+  rstl::string mName;
+  rstl::vector< uchar, rstl::aligned_allocator > mSaveFileData;
+  rstl::vector< uchar > mSaveData;
 
   SMemoryCardFileInfo(int cardPort, const rstl::string& name);
   SMemoryCardFileInfo(const SMemoryCardFileInfo& other)
-  : x0_fileInfo(other.x0_fileInfo)
-  , x14_name(other.x14_name)
-  , x24_saveFileData(other.x24_saveFileData)
-  , x34_saveData(other.x34_saveData) {}
+  : mFileInfo(other.mFileInfo)
+  , mName(other.mName)
+  , mSaveFileData(other.mSaveFileData)
+  , mSaveData(other.mSaveData) {}
   ~SMemoryCardFileInfo() {}
 
   ECardResult Open();

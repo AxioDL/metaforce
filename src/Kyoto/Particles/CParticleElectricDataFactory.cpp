@@ -7,7 +7,7 @@
 
 const CFactoryFnReturn FParticleElectricDataFactory(const SObjectTag& tag, CInputStream& in,
                                               const CVParamTransfer& transfer) {
-  rstl::rc_ptr< IVParamObj > obj = transfer.x0_obj;
+  rstl::rc_ptr< IVParamObj > obj = transfer.mObj;
   CSimplePool* pool = static_cast< TObjOwnerParam< CSimplePool* >* >(obj.GetPtr())->GetData();
   return CParticleElectricDataFactory::GetGeneratorDesc(in, pool);
 }
@@ -31,14 +31,14 @@ CElectricDescription* CParticleElectricDataFactory::CreateGeneratorDescription(C
 }
 
 void CParticleElectricDataFactory::LoadELSMTokens(CElectricDescription* desc) {
-  if (desc->x40_SSWH) {
-    desc->x40_SSWH->ForceCache();
+  if (desc->mSSWH) {
+    desc->mSSWH->ForceCache();
   }
-  if (desc->x50_GPSM) {
-    desc->x50_GPSM->ForceCache();
+  if (desc->mGPSM) {
+    desc->mGPSM->ForceCache();
   }
-  if (desc->x60_EPSM) {
-    desc->x60_EPSM->ForceCache();
+  if (desc->mEPSM) {
+    desc->mEPSM->ForceCache();
   }
 }
 
@@ -51,41 +51,41 @@ bool CParticleElectricDataFactory::CreateELSM(CElectricDescription* desc, CInput
     const FourCC classId = CParticleDataFactory::GetClassID(in);
     switch (classId) {
     case 'LIFE':
-      desc->x0_LIFE = CParticleDataFactory::GetIntElement(in);
+      desc->mLIFE = CParticleDataFactory::GetIntElement(in);
       break;
     case 'SLIF':
-      desc->x4_SLIF = CParticleDataFactory::GetIntElement(in);
+      desc->mSLIF = CParticleDataFactory::GetIntElement(in);
       break;
     case 'GRAT':
-      desc->x8_GRAT = CParticleDataFactory::GetRealElement(in);
+      desc->mGRAT = CParticleDataFactory::GetRealElement(in);
       break;
     case 'SCNT':
-      desc->xc_SCNT = CParticleDataFactory::GetIntElement(in);
+      desc->mSCNT = CParticleDataFactory::GetIntElement(in);
       break;
     case 'SSEG':
-      desc->x10_SSEG = CParticleDataFactory::GetIntElement(in);
+      desc->mSSEG = CParticleDataFactory::GetIntElement(in);
       break;
     case 'COLR':
-      desc->x14_COLR = CParticleDataFactory::GetColorElement(in);
+      desc->mCOLR = CParticleDataFactory::GetColorElement(in);
       break;
     case 'IEMT':
-      desc->x18_IEMT = CParticleDataFactory::GetEmitterElement(in);
+      desc->mIEMT = CParticleDataFactory::GetEmitterElement(in);
       break;
     case 'FEMT':
-      desc->x1c_FEMT = CParticleDataFactory::GetEmitterElement(in);
+      desc->mFEMT = CParticleDataFactory::GetEmitterElement(in);
       break;
     case 'AMPL':
-      desc->x20_AMPL = CParticleDataFactory::GetRealElement(in);
+      desc->mAMPL = CParticleDataFactory::GetRealElement(in);
       break;
     case 'AMPD':
-      desc->x24_AMPD = CParticleDataFactory::GetRealElement(in);
+      desc->mAMPD = CParticleDataFactory::GetRealElement(in);
       break;
     case 'SSWH': {
       const FourCC childId = CParticleDataFactory::GetClassID(in);
       if (childId != 'NONE') {
         const CAssetId id = in.ReadLong();
         if (id != 0) {
-          desc->x40_SSWH = TCachedToken< CSwooshDescription >(pool->GetObj(SObjectTag('SWHC', id)));
+          desc->mSSWH = TCachedToken< CSwooshDescription >(pool->GetObj(SObjectTag('SWHC', id)));
         }
       }
       break;
@@ -95,7 +95,7 @@ bool CParticleElectricDataFactory::CreateELSM(CElectricDescription* desc, CInput
       rstl::optional_object< TToken< CGenDescription > > child =
           CParticleDataFactory::GetChildGeneratorDesc(in, pool, resources);
       if (child) {
-        desc->x50_GPSM = TCachedToken< CGenDescription >(*child);
+        desc->mGPSM = TCachedToken< CGenDescription >(*child);
       }
       break;
     }
@@ -104,30 +104,30 @@ bool CParticleElectricDataFactory::CreateELSM(CElectricDescription* desc, CInput
       rstl::optional_object< TToken< CGenDescription > > child =
           CParticleDataFactory::GetChildGeneratorDesc(in, pool, resources);
       if (child) {
-        desc->x60_EPSM = TCachedToken< CGenDescription >(*child);
+        desc->mEPSM = TCachedToken< CGenDescription >(*child);
       }
       break;
     }
     case 'LWD1':
-      desc->x28_LWD1 = CParticleDataFactory::GetRealElement(in);
+      desc->mLWD1 = CParticleDataFactory::GetRealElement(in);
       break;
     case 'LWD2':
-      desc->x2c_LWD2 = CParticleDataFactory::GetRealElement(in);
+      desc->mLWD2 = CParticleDataFactory::GetRealElement(in);
       break;
     case 'LWD3':
-      desc->x30_LWD3 = CParticleDataFactory::GetRealElement(in);
+      desc->mLWD3 = CParticleDataFactory::GetRealElement(in);
       break;
     case 'LCL1':
-      desc->x34_LCL1 = CParticleDataFactory::GetColorElement(in);
+      desc->mLCL1 = CParticleDataFactory::GetColorElement(in);
       break;
     case 'LCL2':
-      desc->x38_LCL2 = CParticleDataFactory::GetColorElement(in);
+      desc->mLCL2 = CParticleDataFactory::GetColorElement(in);
       break;
     case 'LCL3':
-      desc->x3c_LCL3 = CParticleDataFactory::GetColorElement(in);
+      desc->mLCL3 = CParticleDataFactory::GetColorElement(in);
       break;
     case 'ZERY':
-      desc->x70_ZERY = CParticleDataFactory::GetBool(in);
+      desc->mZERY = CParticleDataFactory::GetBool(in);
       break;
     case '_END':
       done = true;

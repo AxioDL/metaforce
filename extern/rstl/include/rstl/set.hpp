@@ -31,7 +31,7 @@ public:
 };
 
 template < typename T, typename Cmp, typename Alloc >
-#if RSTL_VERSION < RSTL_GM8P_00
+#if RSTL_VERSION < RSTL_GM8E_02
 inline
 #endif
     set< T, Cmp, Alloc >::set(const set& other)

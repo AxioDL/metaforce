@@ -46,27 +46,27 @@ public:
   bool AnimOver(CStateManager& mgr, float arg) override;
 
 private:
-  float x568_maxDetectionRange;
-  float x56c_detectionHeightRange;
-  float x570_maxHearingRange;
-  float x574_maxSightRange;
-  float x578_hideTime;
-  bool x57c_canKnockBack;
+  float mMaxDetectionRange;
+  float mDetectionHeightRange;
+  float mMaxHearingRange;
+  float mMaxSightRange;
+  float mHideTime;
+  bool mCanKnockBack;
   float x580_;
-  CVector3f x584_retreatOrigin;
+  CVector3f mRetreatOrigin;
   TUniqueId x590_;
-  rstl::single_ptr< CCollisionActorManager > x594_collisionMgr;
-  bool x598_isHiding;
-  CVector3f x59c_lockonOffset;
-  CVector3f x5a8_lockonTarget;
-  int x5b4_state;
-  int x5b8_previousState;
-  int x5bc_animPhase;
+  rstl::single_ptr< CCollisionActorManager > mCollisionMgr;
+  bool mIsHiding;
+  CVector3f mLockonOffset;
+  CVector3f mLockonTarget;
+  int mState;
+  int mPreviousState;
+  int mAnimPhase;
 
   float GetPlayerDistance(CStateManager& mgr) const;
 
   static const SSphereJointInfo skSphereJointInfoList[];
 };
-CHECK_SIZEOF(CSpankWeed, (VERSION >= VERSION_GM8P_00 ? 0x5d0 : 0x5c0))
+CHECK_SIZEOF(CSpankWeed, (VERSION >= VERSION_GM8E_02 ? 0x5d0 : 0x5c0))
 
 #endif // _CSPANKWEED

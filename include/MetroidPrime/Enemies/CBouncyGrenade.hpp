@@ -8,53 +8,53 @@
 
 struct SGrenadeVelocityInfo {
 private:
-  float x0_mass;
-  float x4_speed;
+  float mMass;
+  float mSpeed;
 
 public:
-  SGrenadeVelocityInfo(float mass, float speed) : x0_mass(mass), x4_speed(speed) {}
+  SGrenadeVelocityInfo(float mass, float speed) : mMass(mass), mSpeed(speed) {}
   explicit SGrenadeVelocityInfo(CInputStream& in)
-  : x0_mass(in.ReadFloat()), x4_speed(in.ReadFloat()) {}
+  : mMass(in.ReadFloat()), mSpeed(in.ReadFloat()) {}
 
-  float GetMass() const { return x0_mass; }
-  float GetSpeed() const { return x4_speed; }
+  float GetMass() const { return mMass; }
+  float GetSpeed() const { return mSpeed; }
 };
 CHECK_SIZEOF(SGrenadeVelocityInfo, 0x8)
 
 class CBouncyGrenadeData {
-  SGrenadeVelocityInfo x0_velocityInfo;
-  CDamageInfo x8_damageInfo;
-  CAssetId x24_elementGenId1;
-  CAssetId x28_elementGenId2;
-  CAssetId x2c_elementGenId3;
-  CAssetId x30_elementGenId4;
-  uint x34_numBounces;
-  ushort x38_bounceSfx;
-  ushort x3a_explodeSfx;
+  SGrenadeVelocityInfo mVelocityInfo;
+  CDamageInfo mDamageInfo;
+  CAssetId mElementGenId1;
+  CAssetId mElementGenId2;
+  CAssetId mElementGenId3;
+  CAssetId mElementGenId4;
+  uint mNumBounces;
+  ushort mBounceSfx;
+  ushort mExplodeSfx;
 
 public:
   CBouncyGrenadeData(const SGrenadeVelocityInfo& velocityInfo, CDamageInfo damageInfo,
                      CAssetId elementGenId1, CAssetId elementGenId2, CAssetId elementGenId3,
                      CAssetId elementGenId4, uint numBounces, ushort bounceSfx, ushort explodeSfx)
-  : x0_velocityInfo(velocityInfo)
-  , x8_damageInfo(damageInfo)
-  , x24_elementGenId1(elementGenId1)
-  , x28_elementGenId2(elementGenId2)
-  , x2c_elementGenId3(elementGenId3)
-  , x30_elementGenId4(elementGenId4)
-  , x34_numBounces(numBounces)
-  , x38_bounceSfx(bounceSfx)
-  , x3a_explodeSfx(explodeSfx) {}
+  : mVelocityInfo(velocityInfo)
+  , mDamageInfo(damageInfo)
+  , mElementGenId1(elementGenId1)
+  , mElementGenId2(elementGenId2)
+  , mElementGenId3(elementGenId3)
+  , mElementGenId4(elementGenId4)
+  , mNumBounces(numBounces)
+  , mBounceSfx(bounceSfx)
+  , mExplodeSfx(explodeSfx) {}
 
-  const SGrenadeVelocityInfo& GetVelocityInfo() const { return x0_velocityInfo; }
-  const CDamageInfo& GetDamageInfo() const { return x8_damageInfo; }
-  CAssetId GetElementGenId1() const { return x24_elementGenId1; }
-  CAssetId GetElementGenId2() const { return x28_elementGenId2; }
-  CAssetId GetElementGenId3() const { return x2c_elementGenId3; }
-  CAssetId GetElementGenId4() const { return x30_elementGenId4; }
-  uint GetNumBounces() const { return x34_numBounces; }
-  ushort GetBounceSfx() const { return x38_bounceSfx; }
-  ushort GetExplodeSfx() const { return x3a_explodeSfx; }
+  const SGrenadeVelocityInfo& GetVelocityInfo() const { return mVelocityInfo; }
+  const CDamageInfo& GetDamageInfo() const { return mDamageInfo; }
+  CAssetId GetElementGenId1() const { return mElementGenId1; }
+  CAssetId GetElementGenId2() const { return mElementGenId2; }
+  CAssetId GetElementGenId3() const { return mElementGenId3; }
+  CAssetId GetElementGenId4() const { return mElementGenId4; }
+  uint GetNumBounces() const { return mNumBounces; }
+  ushort GetBounceSfx() const { return mBounceSfx; }
+  ushort GetExplodeSfx() const { return mExplodeSfx; }
 };
 CHECK_SIZEOF(CBouncyGrenadeData, 0x3c)
 
@@ -83,18 +83,18 @@ public:
 private:
   void Explode(CStateManager& mgr, TUniqueId uid);
 
-  CBouncyGrenadeData x258_data;
-  uint x294_numBounces;
-  TUniqueId x298_parentId;
-  float x29c_elapsedTime;
-  rstl::single_ptr< CElementGen > x2a0_elementGenCombat;
-  rstl::single_ptr< CElementGen > x2a4_elementGenXRay;
-  rstl::single_ptr< CElementGen > x2a8_elementGenThermal;
-  rstl::single_ptr< CElementGen > x2ac_elementGenTrail;
-  float x2b0_explodePlayerDistance;
-  bool x2b4_24_exploded : 1;
+  CBouncyGrenadeData mData;
+  uint mNumBounces;
+  TUniqueId mParentId;
+  float mElapsedTime;
+  rstl::single_ptr< CElementGen > mElementGenCombat;
+  rstl::single_ptr< CElementGen > mElementGenXRay;
+  rstl::single_ptr< CElementGen > mElementGenThermal;
+  rstl::single_ptr< CElementGen > mElementGenTrail;
+  float mExplodePlayerDistance;
+  bool mExploded : 1;
   bool x2b4_25_ : 1;
 };
-CHECK_SIZEOF(CBouncyGrenade, (VERSION >= VERSION_GM8P_00 ? 0x2c8 : 0x2b8))
+CHECK_SIZEOF(CBouncyGrenade, (VERSION >= VERSION_GM8E_02 ? 0x2c8 : 0x2b8))
 
 #endif // _CBOUNCYGRENADE

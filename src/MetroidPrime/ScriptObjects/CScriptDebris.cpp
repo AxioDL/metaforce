@@ -42,46 +42,46 @@ CScriptDebris::CScriptDebris(TUniqueId uid, const rstl::string& name, const CEnt
                              bool randomAngImpulse, bool active)
 : CPhysicsActor(uid, active, name, info, xf, mData, CMaterialList(kMT_Solid, kMT_Debris),
                 mData.GetBounds(xf.GetRotation()), SMoverData(mass), aParams, 0.3f, 0.1f)
-, x258_velocity(velocity)
-, x264_color(1.f, 0.5f, 0.5f, 1.f)
-, x268_endsColor(endsColor)
-, x26c_zImpulse(zImpulse)
-, x270_curTime(0.f)
-, x274_duration(duration >= 0.f ? duration : 0.5f)
-, x278_ooDuration(1.f / x274_duration)
-, x27c_restitution(restitution)
-, x280_scaleType(scaleType)
-, x281_24_randomAngImpulse(randomAngImpulse)
-, x281_25_particle1GlobalTranslation(false)
-, x281_26_deferDeleteTillParticle1Done(false)
-, x281_27_particle2GlobalTranslation(false)
-, x281_28_deferDeleteTillParticle2Done(false)
-, x281_29_particle3Active(false)
-, x281_30_debrisExtended(false)
-, x281_31_dieOnProjectile(false)
-, x282_24_noBounce(false)
-, x283_particleOr0(kOT_NotOriented)
-, x284_particleOr1(kOT_NotOriented)
-, x285_particleOr2(kOT_NotOriented)
-, x288_linConeAngle(0.f)
-, x28c_linMinMag(0.f)
-, x290_linMaxMag(0.f)
-, x294_angMinMag(0.f)
-, x298_angMaxMag(0.f)
-, x29c_minDuration(0.f)
-, x2a0_maxDuration(0.f)
-, x2a4_colorInT(0.f)
-, x2a8_colorOutT(0.f)
-, x2ac_scaleOutStartT(0.f)
-, x2b0_scale(CVector3f(mData.GetScale()))
-, x2bc_endScale(scaleType == kST_NoScale      ? CVector3f(mData.GetScale())
+, mVelocity(velocity)
+, mColor(1.f, 0.5f, 0.5f, 1.f)
+, mEndsColor(endsColor)
+, mZImpulse(zImpulse)
+, mCurTime(0.f)
+, mDuration(duration >= 0.f ? duration : 0.5f)
+, mOoDuration(1.f / mDuration)
+, mRestitution(restitution)
+, mScaleType(scaleType)
+, mRandomAngImpulse(randomAngImpulse)
+, mParticle1GlobalTranslation(false)
+, mDeferDeleteTillParticle1Done(false)
+, mParticle2GlobalTranslation(false)
+, mDeferDeleteTillParticle2Done(false)
+, mParticle3Active(false)
+, mDebrisExtended(false)
+, mDieOnProjectile(false)
+, mNoBounce(false)
+, mParticleOr0(kOT_NotOriented)
+, mParticleOr1(kOT_NotOriented)
+, mParticleOr2(kOT_NotOriented)
+, mLinConeAngle(0.f)
+, mLinMinMag(0.f)
+, mLinMaxMag(0.f)
+, mAngMinMag(0.f)
+, mAngMaxMag(0.f)
+, mMinDuration(0.f)
+, mMaxDuration(0.f)
+, mColorInT(0.f)
+, mColorOutT(0.f)
+, mScaleOutStartT(0.f)
+, mScale(CVector3f(mData.GetScale()))
+, mEndScale(scaleType == kST_NoScale      ? CVector3f(mData.GetScale())
                 : scaleType == kST_EndsToZero ? CVector3f::Zero()
                                               : CVector3f(5.f, 5.f, 5.f))
-, x2c8_collisionNormal(CVector3f::Zero())
-, x2d4_particleGen0(nullptr)
-, x2d8_particleGen1(nullptr)
-, x2dc_particleGen2(nullptr)
-, x2e0_speedAvg(2.f) {
+, mCollisionNormal(CVector3f::Zero())
+, mParticleGen0(nullptr)
+, mParticleGen1(nullptr)
+, mParticleGen2(nullptr)
+, mSpeedAvg(2.f) {
   SetDoTargetDistanceTest(false);
   if (HasActorLights()) {
     ActorLights()->SetFramesBetweenRecalculation(ActorLights()->GetFramesBetweenRecalculation() *
@@ -93,8 +93,8 @@ CScriptDebris::CScriptDebris(TUniqueId uid, const rstl::string& name, const CEnt
       CMaterialList(kMT_Debris, kMT_Character, kMT_Player, kMT_Projectile)));
   if (gpResourceFactory->GetResourceTypeById(particleId) != 0) {
     TToken< CGenDescription > desc = gpSimplePool->GetObj(SObjectTag('PART', particleId));
-    x2d4_particleGen0 = rs_new CElementGen(desc, CElementGen::kMOT_Normal, CElementGen::kOSF_One);
-    x2d4_particleGen0->SetGlobalScale(particleScale);
+    mParticleGen0 = rs_new CElementGen(desc, CElementGen::kMOT_Normal, CElementGen::kOSF_One);
+    mParticleGen0->SetGlobalScale(particleScale);
   }
 
   const float m = GetMass();
@@ -124,44 +124,44 @@ CScriptDebris::CScriptDebris(TUniqueId uid, const rstl::string& name, const CEnt
                 mData.IsNull() ? CAABox(CVector3f(-0.5f, -0.5f, -0.5f), CVector3f(0.5f, 0.5f, 0.5f))
                                : mData.GetBounds(xf.GetRotation()),
                 SMoverData(1.f), aParams, 0.3f, 0.1f)
-, x258_velocity(CVector3f::Zero())
-, x264_color(color)
-, x268_endsColor(endsColor)
-, x26c_zImpulse(0.f)
-, x270_curTime(0.f)
-, x274_duration(0.f)
-, x278_ooDuration(0.f)
-, x27c_restitution(restitution)
-, x280_scaleType(kST_NoScale)
-, x281_24_randomAngImpulse(false)
-, x281_25_particle1GlobalTranslation(particle1GlobalTranslation)
-, x281_26_deferDeleteTillParticle1Done(deferDeleteTillParticle1Done)
-, x281_27_particle2GlobalTranslation(particle2GlobalTranslation)
-, x281_28_deferDeleteTillParticle2Done(deferDeleteTillParticle2Done)
-, x281_29_particle3Active(false)
-, x281_30_debrisExtended(true)
-, x281_31_dieOnProjectile(dieOnProjectile)
-, x282_24_noBounce(noBounce)
-, x283_particleOr0(particleOr0)
-, x284_particleOr1(particleOr1)
-, x285_particleOr2(particleOr2)
-, x288_linConeAngle(linConeAngle)
-, x28c_linMinMag(linMinMag)
-, x290_linMaxMag(linMaxMag)
-, x294_angMinMag(angMinMag)
-, x298_angMaxMag(angMaxMag)
-, x29c_minDuration(minDuration)
-, x2a0_maxDuration(maxDuration)
-, x2a4_colorInT(colorInT / 100.f)
-, x2a8_colorOutT(colorOutT / 100.f)
-, x2ac_scaleOutStartT(scaleOutStartT / 100.f)
-, x2b0_scale(scale)
-, x2bc_endScale(CVector3f::ByElementMultiply(scale, endScale))
-, x2c8_collisionNormal(CVector3f::Zero())
-, x2d4_particleGen0(nullptr)
-, x2d8_particleGen1(nullptr)
-, x2dc_particleGen2(nullptr)
-, x2e0_speedAvg(2.f) {
+, mVelocity(CVector3f::Zero())
+, mColor(color)
+, mEndsColor(endsColor)
+, mZImpulse(0.f)
+, mCurTime(0.f)
+, mDuration(0.f)
+, mOoDuration(0.f)
+, mRestitution(restitution)
+, mScaleType(kST_NoScale)
+, mRandomAngImpulse(false)
+, mParticle1GlobalTranslation(particle1GlobalTranslation)
+, mDeferDeleteTillParticle1Done(deferDeleteTillParticle1Done)
+, mParticle2GlobalTranslation(particle2GlobalTranslation)
+, mDeferDeleteTillParticle2Done(deferDeleteTillParticle2Done)
+, mParticle3Active(false)
+, mDebrisExtended(true)
+, mDieOnProjectile(dieOnProjectile)
+, mNoBounce(noBounce)
+, mParticleOr0(particleOr0)
+, mParticleOr1(particleOr1)
+, mParticleOr2(particleOr2)
+, mLinConeAngle(linConeAngle)
+, mLinMinMag(linMinMag)
+, mLinMaxMag(linMaxMag)
+, mAngMinMag(angMinMag)
+, mAngMaxMag(angMaxMag)
+, mMinDuration(minDuration)
+, mMaxDuration(maxDuration)
+, mColorInT(colorInT / 100.f)
+, mColorOutT(colorOutT / 100.f)
+, mScaleOutStartT(scaleOutStartT / 100.f)
+, mScale(scale)
+, mEndScale(CVector3f::ByElementMultiply(scale, endScale))
+, mCollisionNormal(CVector3f::Zero())
+, mParticleGen0(nullptr)
+, mParticleGen1(nullptr)
+, mParticleGen2(nullptr)
+, mSpeedAvg(2.f) {
   SetUseInSortedLists(false);
   SetTranslation(GetTranslation() + GetTransform().Rotate(localOffset));
   if (solid) {
@@ -174,18 +174,18 @@ CScriptDebris::CScriptDebris(TUniqueId uid, const rstl::string& name, const CEnt
   }
   if (gpResourceFactory->GetResourceTypeById(particle0) != 0) {
     TToken< CGenDescription > desc = gpSimplePool->GetObj(SObjectTag('PART', particle0));
-    x2d4_particleGen0 = rs_new CElementGen(desc, CElementGen::kMOT_Normal, CElementGen::kOSF_One);
-    x2d4_particleGen0->SetGlobalScale(particle0Scale);
+    mParticleGen0 = rs_new CElementGen(desc, CElementGen::kMOT_Normal, CElementGen::kOSF_One);
+    mParticleGen0->SetGlobalScale(particle0Scale);
   }
   if (gpResourceFactory->GetResourceTypeById(particle1) != 0) {
     TToken< CGenDescription > desc = gpSimplePool->GetObj(SObjectTag('PART', particle1));
-    x2d8_particleGen1 = rs_new CElementGen(desc, CElementGen::kMOT_Normal, CElementGen::kOSF_One);
-    x2d8_particleGen1->SetGlobalScale(particle1Scale);
+    mParticleGen1 = rs_new CElementGen(desc, CElementGen::kMOT_Normal, CElementGen::kOSF_One);
+    mParticleGen1->SetGlobalScale(particle1Scale);
   }
   if (gpResourceFactory->GetResourceTypeById(particle2) != 0) {
     TToken< CGenDescription > desc = gpSimplePool->GetObj(SObjectTag('PART', particle2));
-    x2dc_particleGen2 = rs_new CElementGen(desc, CElementGen::kMOT_Normal, CElementGen::kOSF_One);
-    x2dc_particleGen2->SetGlobalScale(particle2Scale);
+    mParticleGen2 = rs_new CElementGen(desc, CElementGen::kMOT_Normal, CElementGen::kOSF_One);
+    mParticleGen2->SetGlobalScale(particle2Scale);
   }
   const float mass = GetMass();
   SetMomentumWR(CVector3f(0.f, 0.f, -downwardSpeed * mass));
@@ -197,106 +197,106 @@ void CScriptDebris::Think(float dt, CStateManager& mgr) {
   if (!GetActive()) {
     return;
   }
-  x270_curTime += dt;
-  bool done = x270_curTime >= x274_duration;
+  mCurTime += dt;
+  bool done = mCurTime >= mDuration;
 
-  if (!x2d4_particleGen0.null()) {
-    if (x270_curTime >= x274_duration) {
-      x2d4_particleGen0->SetParticleEmission(false);
+  if (!mParticleGen0.null()) {
+    if (mCurTime >= mDuration) {
+      mParticleGen0->SetParticleEmission(false);
     } else {
-      if (x281_25_particle1GlobalTranslation) {
-        x2d4_particleGen0->SetGlobalTranslation(GetTranslation());
+      if (mParticle1GlobalTranslation) {
+        mParticleGen0->SetGlobalTranslation(GetTranslation());
       } else {
-        x2d4_particleGen0->SetTranslation(GetTranslation());
+        mParticleGen0->SetTranslation(GetTranslation());
       }
-      if (x283_particleOr0 == kOT_AlongVelocity) {
+      if (mParticleOr0 == kOT_AlongVelocity) {
         if (GetVelocityWR().CanBeNormalized()) {
           const CVector3f velocity = GetVelocityWR().AsNormalized();
           const CVector3f up = CMath::AbsF(velocity.GetZ()) < 0.99f ? CVector3f(0.f, 0.f, 1.f)
                                                                     : CVector3f(0.f, 1.f, 0.f);
-          x2d4_particleGen0->SetOrientation(CTransform4f::LookAt(CVector3f::Zero(), velocity, up));
+          mParticleGen0->SetOrientation(CTransform4f::LookAt(CVector3f::Zero(), velocity, up));
         }
-      } else if (x283_particleOr0 == kOT_ToObject) {
-        x2d4_particleGen0->SetOrientation(GetTransform().GetRotation());
+      } else if (mParticleOr0 == kOT_ToObject) {
+        mParticleGen0->SetOrientation(GetTransform().GetRotation());
       }
     }
-    if (x281_26_deferDeleteTillParticle1Done && x2d4_particleGen0->GetParticleCount() != 0) {
+    if (mDeferDeleteTillParticle1Done && mParticleGen0->GetParticleCount() != 0) {
       done = false;
     }
-    if (x270_curTime < x274_duration || x281_26_deferDeleteTillParticle1Done) {
-      x2d4_particleGen0->Update(dt);
+    if (mCurTime < mDuration || mDeferDeleteTillParticle1Done) {
+      mParticleGen0->Update(dt);
     }
   }
 
-  if (!x2d8_particleGen1.null()) {
-    if (x270_curTime >= x274_duration) {
-      x2d8_particleGen1->SetParticleEmission(false);
+  if (!mParticleGen1.null()) {
+    if (mCurTime >= mDuration) {
+      mParticleGen1->SetParticleEmission(false);
     } else {
-      if (x281_27_particle2GlobalTranslation) {
-        x2d8_particleGen1->SetGlobalTranslation(GetTranslation());
+      if (mParticle2GlobalTranslation) {
+        mParticleGen1->SetGlobalTranslation(GetTranslation());
       } else {
-        x2d8_particleGen1->SetTranslation(GetTranslation());
+        mParticleGen1->SetTranslation(GetTranslation());
       }
-      if (x284_particleOr1 == kOT_AlongVelocity) {
+      if (mParticleOr1 == kOT_AlongVelocity) {
         if (GetVelocityWR().CanBeNormalized()) {
           const CVector3f velocity = GetVelocityWR().AsNormalized();
           const CVector3f up = CMath::AbsF(velocity.GetZ()) < 0.99f ? CVector3f(0.f, 0.f, 1.f)
                                                                     : CVector3f(0.f, 1.f, 0.f);
-          x2d8_particleGen1->SetOrientation(CTransform4f::LookAt(CVector3f::Zero(), velocity, up));
+          mParticleGen1->SetOrientation(CTransform4f::LookAt(CVector3f::Zero(), velocity, up));
         }
-      } else if (x284_particleOr1 == kOT_ToObject) {
-        x2d8_particleGen1->SetOrientation(GetTransform().GetRotation());
+      } else if (mParticleOr1 == kOT_ToObject) {
+        mParticleGen1->SetOrientation(GetTransform().GetRotation());
       }
     }
-    if (x281_28_deferDeleteTillParticle2Done && x2d8_particleGen1->GetParticleCount() != 0) {
+    if (mDeferDeleteTillParticle2Done && mParticleGen1->GetParticleCount() != 0) {
       done = false;
     }
-    if (x270_curTime < x274_duration || x281_28_deferDeleteTillParticle2Done) {
-      x2d8_particleGen1->Update(dt);
+    if (mCurTime < mDuration || mDeferDeleteTillParticle2Done) {
+      mParticleGen1->Update(dt);
     }
   }
 
-  if (!x2dc_particleGen2.null()) {
-    if (x270_curTime >= x274_duration && !x281_29_particle3Active) {
-      x2dc_particleGen2->SetGlobalTranslation(GetTranslation());
-      if (x285_particleOr2 == kOT_AlongVelocity) {
+  if (!mParticleGen2.null()) {
+    if (mCurTime >= mDuration && !mParticle3Active) {
+      mParticleGen2->SetGlobalTranslation(GetTranslation());
+      if (mParticleOr2 == kOT_AlongVelocity) {
         if (GetVelocityWR().CanBeNormalized()) {
           const CVector3f velocity = GetVelocityWR().AsNormalized();
           const CVector3f up = CMath::AbsF(velocity.GetZ()) < 0.99f ? CVector3f(0.f, 0.f, 1.f)
                                                                     : CVector3f(0.f, 1.f, 0.f);
-          x2dc_particleGen2->SetOrientation(CTransform4f::LookAt(CVector3f::Zero(), velocity, up));
+          mParticleGen2->SetOrientation(CTransform4f::LookAt(CVector3f::Zero(), velocity, up));
         }
-      } else if (x285_particleOr2 == kOT_ToObject) {
-        x2dc_particleGen2->SetOrientation(GetTransform().GetRotation());
-      } else if (x285_particleOr2 == kOT_AlongCollisionNormal) {
-        if (x2c8_collisionNormal.MagSquared() == 0.f) {
-          x2c8_collisionNormal = CVector3f::Up();
+      } else if (mParticleOr2 == kOT_ToObject) {
+        mParticleGen2->SetOrientation(GetTransform().GetRotation());
+      } else if (mParticleOr2 == kOT_AlongCollisionNormal) {
+        if (mCollisionNormal.MagSquared() == 0.f) {
+          mCollisionNormal = CVector3f::Up();
         }
         const CTransform4f orientation = CTransform4f::LookAt(
-            CVector3f::Zero(), x2c8_collisionNormal,
-            CMath::AbsF(CVector3f::Dot(CVector3f::Up(), x2c8_collisionNormal)) > 0.99f
+            CVector3f::Zero(), mCollisionNormal,
+            CMath::AbsF(CVector3f::Dot(CVector3f::Up(), mCollisionNormal)) > 0.99f
                 ? CVector3f::Right()
                 : CVector3f::Up());
-        x2dc_particleGen2->SetOrientation(orientation);
+        mParticleGen2->SetOrientation(orientation);
       }
-      x281_29_particle3Active = true;
+      mParticle3Active = true;
     }
-    if (x281_29_particle3Active) {
-      x2dc_particleGen2->Update(dt);
-      if (!x2dc_particleGen2->IsSystemDeletable()) {
+    if (mParticle3Active) {
+      mParticleGen2->Update(dt);
+      if (!mParticleGen2->IsSystemDeletable()) {
         done = false;
       }
     }
   }
 
   if (HasModelData()) {
-    const float t = x270_curTime / x274_duration > x2ac_scaleOutStartT
-                        ? (x270_curTime - x274_duration * x2ac_scaleOutStartT) /
-                              (x274_duration * (1.f - x2ac_scaleOutStartT))
+    const float t = mCurTime / mDuration > mScaleOutStartT
+                        ? (mCurTime - mDuration * mScaleOutStartT) /
+                              (mDuration * (1.f - mScaleOutStartT))
                         : 0.f;
-    ModelData()->SetScale(CVector3f::Lerp(x2b0_scale, x2bc_endScale, t));
+    ModelData()->SetScale(CVector3f::Lerp(mScale, mEndScale, t));
   }
-  if (x270_curTime >= x274_duration) {
+  if (mCurTime >= mDuration) {
     SetMomentumWR(CVector3f::Zero());
     SetMaterialFilter(CMaterialFilter::MakeExclude(
         CMaterialList(kMT_Debris, kMT_Character, kMT_Player, kMT_Projectile)));
@@ -305,16 +305,16 @@ void CScriptDebris::Think(float dt, CStateManager& mgr) {
       return;
     }
   }
-  if (xf8_24_movable) {
-    x2e0_speedAvg.AddValue(GetVelocityWR().Magnitude());
-    if (*x2e0_speedAvg.GetAverage() < 0.1f) {
-      xf8_24_movable = false;
+  if (mMovable) {
+    mSpeedAvg.AddValue(GetVelocityWR().Magnitude());
+    if (*mSpeedAvg.GetAverage() < 0.1f) {
+      mMovable = false;
     }
   }
 }
 
 void CScriptDebris::Touch(CActor& other, CStateManager& mgr) {
-  if (!x281_31_dieOnProjectile) {
+  if (!mDieOnProjectile) {
     return;
   }
   if (TCastToPtr< CGameProjectile >(other)) {
@@ -324,7 +324,7 @@ void CScriptDebris::Touch(CActor& other, CStateManager& mgr) {
 }
 
 rstl::optional_object< CAABox > CScriptDebris::GetTouchBounds() const {
-  if (x281_31_dieOnProjectile) {
+  if (mDieOnProjectile) {
     return GetBoundingBox();
   }
   return rstl::optional_object_null();
@@ -334,19 +334,19 @@ void CScriptDebris::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender,
                                     CStateManager& mgr) {
   switch (msg) {
   case kSM_Activate:
-    if (!x281_30_debrisExtended) {
+    if (!mDebrisExtended) {
       const float mass = GetMass();
       const float zRand = debris_frand(mgr);
-      const float z = mass * x258_velocity.GetZ() * CMath::AbsF(zRand) + x26c_zImpulse;
+      const float z = mass * mVelocity.GetZ() * CMath::AbsF(zRand) + mZImpulse;
       const float yRand = debris_frand(mgr);
-      const float yScale = mass * x258_velocity.GetY();
+      const float yScale = mass * mVelocity.GetY();
       const float y = yScale * yRand;
       const float xRand = debris_frand(mgr);
-      const float xScale = mass * x258_velocity.GetX();
+      const float xScale = mass * mVelocity.GetX();
       const float x = xScale * xRand;
       const CVector3f linImpulse = GetTransform().GetColumn(kDZ) + CVector3f(x, y, z);
       CAxisAngle angImpulse = CAxisAngle::Identity();
-      if (x281_24_randomAngImpulse) {
+      if (mRandomAngImpulse) {
         if (mgr.Random()->Next() % 100 < 50) {
           angImpulse = CAxisAngle(CVector3f(45.f * debris_frand(mgr), 15.f * debris_frand(mgr),
                                             35.f * debris_frand(mgr)));
@@ -357,22 +357,22 @@ void CScriptDebris::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender,
       ApplyImpulseWR(linImpulse, angImpulse);
     } else {
       const CVector3f linImpulse =
-          debris_cone(mgr, x288_linConeAngle, x28c_linMinMag, x290_linMaxMag);
-      const CAxisAngle angImpulse(debris_cone(mgr, 360.f, x294_angMinMag, x298_angMaxMag));
+          debris_cone(mgr, mLinConeAngle, mLinMinMag, mLinMaxMag);
+      const CAxisAngle angImpulse(debris_cone(mgr, 360.f, mAngMinMag, mAngMaxMag));
       ApplyImpulseOR(linImpulse, angImpulse);
-      x274_duration = debris_frand_range(mgr, x29c_minDuration, x2a0_maxDuration);
+      mDuration = debris_frand_range(mgr, mMinDuration, mMaxDuration);
     }
-    if (!x2d4_particleGen0.null()) {
-      x2d4_particleGen0->SetParticleEmission(true);
+    if (!mParticleGen0.null()) {
+      mParticleGen0->SetParticleEmission(true);
     }
-    if (!x2d8_particleGen1.null()) {
-      x2d8_particleGen1->SetParticleEmission(true);
+    if (!mParticleGen1.null()) {
+      mParticleGen1->SetParticleEmission(true);
     }
     break;
   case kSM_OnFloor:
-    if (!x282_24_noBounce) {
-      const CVector3f linImpulse = -x27c_restitution * GetConstantForceWR();
-      const CAxisAngle angImpulse = -x27c_restitution * GetAngularMomentumWR();
+    if (!mNoBounce) {
+      const CVector3f linImpulse = -mRestitution * GetConstantForceWR();
+      const CAxisAngle angImpulse = -mRestitution * GetAngularMomentumWR();
       ApplyImpulseWR(linImpulse, angImpulse);
     }
     break;
@@ -384,15 +384,15 @@ void CScriptDebris::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender,
 
 void CScriptDebris::PreRender(CStateManager& mgr, const CFrustumPlanes& frustum) {
   CActor::PreRender(mgr, frustum);
-  float t = x270_curTime / x274_duration;
-  if (t < x2a4_colorInT) {
-    t = x2a4_colorInT > 0.f ? 1.f - x270_curTime / (x274_duration * x2a4_colorInT) : 0.f;
-  } else if (t > x2a8_colorOutT) {
-    t = (x270_curTime - x274_duration * x2a8_colorOutT) / (x274_duration * (1.f - x2a8_colorOutT));
+  float t = mCurTime / mDuration;
+  if (t < mColorInT) {
+    t = mColorInT > 0.f ? 1.f - mCurTime / (mDuration * mColorInT) : 0.f;
+  } else if (t > mColorOutT) {
+    t = (mCurTime - mDuration * mColorOutT) / (mDuration * (1.f - mColorOutT));
   } else {
     t = 0.f;
   }
-  const CColor color = CColor::Lerp(CColor::White(), x268_endsColor, t);
+  const CColor color = CColor::Lerp(CColor::White(), mEndsColor, t);
   SetModelFlags(
       CModelFlags::AlphaBlended(color).DepthCompareUpdate(true, color.GetAlphau8() == 255));
 }
@@ -400,20 +400,20 @@ void CScriptDebris::PreRender(CStateManager& mgr, const CFrustumPlanes& frustum)
 void CScriptDebris::Render(const CStateManager& mgr) const { CPhysicsActor::Render(mgr); }
 
 void CScriptDebris::AddToRenderer(const CFrustumPlanes& frustum, const CStateManager& mgr) const {
-  if (!x2d4_particleGen0.null()) {
-    if (x270_curTime < x274_duration || x281_26_deferDeleteTillParticle1Done) {
-      gpRender->AddParticleGen(*x2d4_particleGen0);
+  if (!mParticleGen0.null()) {
+    if (mCurTime < mDuration || mDeferDeleteTillParticle1Done) {
+      gpRender->AddParticleGen(*mParticleGen0);
     }
   }
-  if (!x2d8_particleGen1.null()) {
-    if (x270_curTime < x274_duration || x281_28_deferDeleteTillParticle2Done) {
-      gpRender->AddParticleGen(*x2d8_particleGen1);
+  if (!mParticleGen1.null()) {
+    if (mCurTime < mDuration || mDeferDeleteTillParticle2Done) {
+      gpRender->AddParticleGen(*mParticleGen1);
     }
   }
-  if (x281_29_particle3Active) {
-    gpRender->AddParticleGen(*x2dc_particleGen2);
+  if (mParticle3Active) {
+    gpRender->AddParticleGen(*mParticleGen2);
   }
-  if (HasModelData() && x270_curTime < x274_duration) {
+  if (HasModelData() && mCurTime < mDuration) {
     CActor::AddToRenderer(frustum, mgr);
   }
 }
@@ -425,9 +425,9 @@ void CScriptDebris::CollidedWith(const TUniqueId& id, const CCollisionInfoList& 
   if (list.GetCount() == 0) {
     return;
   }
-  if (x282_24_noBounce) {
-    x274_duration = x270_curTime;
+  if (mNoBounce) {
+    mDuration = mCurTime;
     SetVelocityWR(CVector3f::Zero());
   }
-  x2c8_collisionNormal = list[0].GetNormalLeft();
+  mCollisionNormal = list[0].GetNormalLeft();
 }

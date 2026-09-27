@@ -63,85 +63,85 @@ static const GXTexFmt skBlurFbCopyTextureFormats[] = {
 static const CColor& skIdentityColorMultiply = CColor::White();
 
 CCameraFilterPass::CCameraFilterPass()
-: x0_curType(kFT_Passthru)
-, x4_nextType(kFT_Passthru)
-, x8_shape(kFS_Fullscreen)
-, xc_duration(0.f)
-, x10_remTime(0.f)
-, x14_prevColor(0xFFFFFFFF)
-, x18_curColor(0xFFFFFFFF)
-, x1c_nextColor(0xFFFFFFFF)
-, x20_nextTxtr(kInvalidAssetId) {}
+: mCurType(kFT_Passthru)
+, mNextType(kFT_Passthru)
+, mShape(kFS_Fullscreen)
+, mDuration(0.f)
+, mRemTime(0.f)
+, mPrevColor(0xFFFFFFFF)
+, mCurColor(0xFFFFFFFF)
+, mNextColor(0xFFFFFFFF)
+, mNextTxtr(kInvalidAssetId) {}
 
 void CCameraFilterPass::SetFilter(const EFilterType type, const EFilterShape shape,
                                   const float time, const CColor& color, const CAssetId txtr) {
   if (time == 0.f) {
-    xc_duration = 0.f;
-    x10_remTime = 0.f;
-    x8_shape = shape;
-    x4_nextType = type;
-    x0_curType = type;
-    x1c_nextColor = color;
-    x18_curColor = x1c_nextColor;
-    x14_prevColor = x18_curColor;
-    x20_nextTxtr = txtr;
+    mDuration = 0.f;
+    mRemTime = 0.f;
+    mShape = shape;
+    mNextType = type;
+    mCurType = type;
+    mNextColor = color;
+    mCurColor = mNextColor;
+    mPrevColor = mCurColor;
+    mNextTxtr = txtr;
 
-    if (x20_nextTxtr != kInvalidAssetId) {
-      x24_texObj = rs_new TLockedToken< CTexture >(gpSimplePool->GetObj(SObjectTag('TXTR', txtr)));
+    if (mNextTxtr != kInvalidAssetId) {
+      mTexObj = rs_new TLockedToken< CTexture >(gpSimplePool->GetObj(SObjectTag('TXTR', txtr)));
     }
   } else {
-    x1c_nextColor = color;
-    x14_prevColor = x18_curColor;
-    x8_shape = shape;
-    x20_nextTxtr = txtr;
+    mNextColor = color;
+    mPrevColor = mCurColor;
+    mShape = shape;
+    mNextTxtr = txtr;
 
-    if (x20_nextTxtr != kInvalidAssetId) {
-      x24_texObj = rs_new TLockedToken< CTexture >(gpSimplePool->GetObj(SObjectTag('TXTR', txtr)));
+    if (mNextTxtr != kInvalidAssetId) {
+      mTexObj = rs_new TLockedToken< CTexture >(gpSimplePool->GetObj(SObjectTag('TXTR', txtr)));
     }
 
-    x10_remTime = time;
-    xc_duration = time;
-    x0_curType = x4_nextType;
-    x4_nextType = type;
+    mRemTime = time;
+    mDuration = time;
+    mCurType = mNextType;
+    mNextType = type;
 
     if (type == kFT_Passthru) {
-      if (x0_curType == kFT_Multiply) {
-        x1c_nextColor = skIdentityColorMultiply;
-      } else if (x0_curType == kFT_Add || x0_curType == kFT_Blend) {
-        x1c_nextColor =
-            CColor(x1c_nextColor.GetRed(), x1c_nextColor.GetGreen(), x1c_nextColor.GetBlue(), 0.f);
+      if (mCurType == kFT_Multiply) {
+        mNextColor = skIdentityColorMultiply;
+      } else if (mCurType == kFT_Add || mCurType == kFT_Blend) {
+        mNextColor =
+            CColor(mNextColor.GetRed(), mNextColor.GetGreen(), mNextColor.GetBlue(), 0.f);
       }
     } else {
-      if (x0_curType == kFT_Passthru) {
+      if (mCurType == kFT_Passthru) {
         if (type == kFT_Multiply) {
-          x18_curColor = skIdentityColorMultiply;
+          mCurColor = skIdentityColorMultiply;
         } else if (type == kFT_Add || type == kFT_Blend) {
-          x18_curColor = CColor(x1c_nextColor.GetRed(), x1c_nextColor.GetGreen(),
-                                x1c_nextColor.GetBlue(), 0.f);
-          x14_prevColor = x18_curColor;
+          mCurColor = CColor(mNextColor.GetRed(), mNextColor.GetGreen(),
+                                mNextColor.GetBlue(), 0.f);
+          mPrevColor = mCurColor;
         }
       }
-      x0_curType = x4_nextType;
+      mCurType = mNextType;
     }
   }
 }
 
 void CCameraFilterPass::DisableFilter(float time) {
-  SetFilter(kFT_Passthru, x8_shape, time, 0xFFFFFFFF, kInvalidAssetId);
+  SetFilter(kFT_Passthru, mShape, time, 0xFFFFFFFF, kInvalidAssetId);
 }
 
 void CCameraFilterPass::Update(float dt) {
-  if (x10_remTime > 0.f) {
-    EFilterType origType = x0_curType;
+  if (mRemTime > 0.f) {
+    EFilterType origType = mCurType;
 
-    x10_remTime = rstl::max_val(0.f, x10_remTime - dt);
-    x18_curColor = CColor::Lerp(x1c_nextColor, x14_prevColor, x10_remTime / xc_duration);
+    mRemTime = rstl::max_val(0.f, mRemTime - dt);
+    mCurColor = CColor::Lerp(mNextColor, mPrevColor, mRemTime / mDuration);
 
-    if (x10_remTime == 0.f) {
-      x0_curType = x4_nextType;
-      if (x0_curType == kFT_Passthru) {
-        x24_texObj = nullptr;
-        x20_nextTxtr = kInvalidAssetId;
+    if (mRemTime == 0.f) {
+      mCurType = mNextType;
+      if (mCurType == kFT_Passthru) {
+        mTexObj = nullptr;
+        mNextTxtr = kInvalidAssetId;
       }
     }
   }
@@ -240,10 +240,10 @@ void CCameraFilterPass::DrawScanLines(const CColor& color, bool even) {
 
 float CCameraFilterPass::GetT(bool invert) const {
   float tmp;
-  if (xc_duration == 0.f) {
+  if (mDuration == 0.f) {
     tmp = 1.f;
   } else {
-    tmp = 1.f - x10_remTime / xc_duration;
+    tmp = 1.f - mRemTime / mDuration;
   }
   if (invert) {
     return 1.f - tmp;
@@ -347,9 +347,9 @@ void CCameraFilterPass::DrawRandomStatic(const CColor& color, float alpha, bool 
 }
 
 void CCameraFilterPass::Draw() const {
-  float t = GetT(x4_nextType == kFT_Passthru);
-  CTexture* tex = x24_texObj.null() ? nullptr : **x24_texObj;
-  DrawFilter(x0_curType, x8_shape, x18_curColor, tex, t);
+  float t = GetT(mNextType == kFT_Passthru);
+  CTexture* tex = mTexObj.null() ? nullptr : **mTexObj;
+  DrawFilter(mCurType, mShape, mCurColor, tex, t);
 }
 
 void CCameraFilterPass::DrawFilter(EFilterType type, EFilterShape shape, const CColor& color,
@@ -430,100 +430,100 @@ void CCameraFilterPass::DrawFilterShape(EFilterShape shape, const CColor& color,
 // CCameraBlurPass functions
 
 CCameraBlurPass::CCameraBlurPass()
-: x0_paletteTex(rstl::optional_object_null())
-, x10_curType(kBT_NoBlur)
-, x14_endType(kBT_NoBlur)
-, x18_endValue(0.f)
-, x1c_curValue(0.f)
-, x20_startValue(0.f)
-, x24_totalTime(0.f)
-, x28_remainingTime(0.f)
-, x2c_usePersistent(false)
-, x2d_noPersistentCopy(false)
-, x30_persistentBuf(0) {}
+: mPaletteTex(rstl::optional_object_null())
+, mCurType(kBT_NoBlur)
+, mEndType(kBT_NoBlur)
+, mEndValue(0.f)
+, mCurValue(0.f)
+, mStartValue(0.f)
+, mTotalTime(0.f)
+, mRemainingTime(0.f)
+, mUsePersistent(false)
+, mNoPersistentCopy(false)
+, mPersistentBuf(0) {}
 
 void CCameraBlurPass::Update(float dt) {
-  if (x28_remainingTime > 0.f) {
-    float remaining = x28_remainingTime - dt;
-    x28_remainingTime = rstl::max_val(0.f, remaining);
+  if (mRemainingTime > 0.f) {
+    float remaining = mRemainingTime - dt;
+    mRemainingTime = rstl::max_val(0.f, remaining);
 
-    float t = x28_remainingTime / x24_totalTime;
-    x1c_curValue = x20_startValue * (1.f - t) + x18_endValue * t;
+    float t = mRemainingTime / mTotalTime;
+    mCurValue = mStartValue * (1.f - t) + mEndValue * t;
 
-    if (x28_remainingTime == 0.f) {
-      if (x14_endType == kBT_NoBlur && x10_curType != kBT_NoBlur && x2c_usePersistent) {
+    if (mRemainingTime == 0.f) {
+      if (mEndType == kBT_NoBlur && mCurType != kBT_NoBlur && mUsePersistent) {
         FreePersistentFbTexture();
       }
 
-      x0_paletteTex = rstl::optional_object_null();
+      mPaletteTex = rstl::optional_object_null();
 
-      const char* texName = skBlurTextureAssetNames[x14_endType];
+      const char* texName = skBlurTextureAssetNames[mEndType];
       if (strcmp(texName, "") != 0) {
-        x0_paletteTex = TToken< CTexture >(gpSimplePool->GetObj(texName));
+        mPaletteTex = TToken< CTexture >(gpSimplePool->GetObj(texName));
       }
 
-      x10_curType = x14_endType;
+      mCurType = mEndType;
     }
   }
 }
 
 void CCameraBlurPass::SetBlur(EBlurType type, float amount, float duration, bool usePersistentFb) {
   if (duration == 0.f) {
-    x28_remainingTime = 0.f;
-    x24_totalTime = 0.f;
-    x20_startValue = amount;
-    x1c_curValue = amount;
-    x18_endValue = amount;
+    mRemainingTime = 0.f;
+    mTotalTime = 0.f;
+    mStartValue = amount;
+    mCurValue = amount;
+    mEndValue = amount;
 
-    if (x10_curType == kBT_NoBlur) {
+    if (mCurType == kBT_NoBlur) {
       if (type != kBT_NoBlur) {
         if (usePersistentFb) {
           AllocatePersistentFbTexture();
         }
-        x0_paletteTex = rstl::optional_object_null();
+        mPaletteTex = rstl::optional_object_null();
         const char* texName = skBlurTextureAssetNames[type];
         if (strcmp(texName, "") != 0) {
-          x0_paletteTex =
+          mPaletteTex =
               TCachedToken< CTexture >(TToken< CTexture >(gpSimplePool->GetObj(texName)));
-          x0_paletteTex->Lock();
+          mPaletteTex->Lock();
         }
       }
     } else if (type == kBT_NoBlur) {
-      if (x2c_usePersistent) {
+      if (mUsePersistent) {
         FreePersistentFbTexture();
       }
-      x0_paletteTex = rstl::optional_object_null();
+      mPaletteTex = rstl::optional_object_null();
     }
 
-    x14_endType = type;
-    x10_curType = type;
-    x2c_usePersistent = usePersistentFb;
+    mEndType = type;
+    mCurType = type;
+    mUsePersistent = usePersistentFb;
   } else {
-    x2c_usePersistent = usePersistentFb;
-    x24_totalTime = duration;
-    x28_remainingTime = duration;
-    x18_endValue = x1c_curValue;
-    x20_startValue = amount;
+    mUsePersistent = usePersistentFb;
+    mTotalTime = duration;
+    mRemainingTime = duration;
+    mEndValue = mCurValue;
+    mStartValue = amount;
 
-    if (type != x14_endType) {
-      if (x10_curType == kBT_NoBlur) {
-        if (x2c_usePersistent) {
+    if (type != mEndType) {
+      if (mCurType == kBT_NoBlur) {
+        if (mUsePersistent) {
           AllocatePersistentFbTexture();
         }
-        if (strcmp(skBlurTextureAssetNames[x14_endType], "") != 0) {
-          x0_paletteTex =
-              TToken< CTexture >(gpSimplePool->GetObj(skBlurTextureAssetNames[x14_endType]));
-          x0_paletteTex->Lock();
+        if (strcmp(skBlurTextureAssetNames[mEndType], "") != 0) {
+          mPaletteTex =
+              TToken< CTexture >(gpSimplePool->GetObj(skBlurTextureAssetNames[mEndType]));
+          mPaletteTex->Lock();
         }
-        x10_curType = type;
+        mCurType = type;
       }
-      x14_endType = type;
+      mEndType = type;
     }
   }
 }
 
 void CCameraBlurPass::DisableBlur(float duration) {
-  SetBlur(kBT_NoBlur, 0.f, duration, x2c_usePersistent);
+  SetBlur(kBT_NoBlur, 0.f, duration, mUsePersistent);
 }
 
 static inline float get_stretched_t(float t, float linearWeight) {
@@ -533,32 +533,32 @@ static inline float get_stretched_t(float t, float linearWeight) {
 }
 
 void CCameraBlurPass::Draw() const {
-  if (x10_curType == kBT_NoBlur)
+  if (mCurType == kBT_NoBlur)
     return;
 
   uchar* data;
   u32 texMtxId;
-  GXTexFmt fmt = skBlurFbCopyTextureFormats[x10_curType];
-  if (x2c_usePersistent) {
-    data = static_cast< uchar* >(x30_persistentBuf);
+  GXTexFmt fmt = skBlurFbCopyTextureFormats[mCurType];
+  if (mUsePersistent) {
+    data = static_cast< uchar* >(mPersistentBuf);
   } else {
     data = static_cast< uchar* >(CGraphics::GetDolphinSpareBuffer());
   }
 
   ushort width = 640;
   ushort height = 448;
-  if (x10_curType != kBT_XRay) {
+  if (mCurType != kBT_XRay) {
     width >>= 1;
     height >>= 1;
   }
 
-  if (!x2d_noPersistentCopy || !x2c_usePersistent) {
+  if (!mNoPersistentCopy || !mUsePersistent) {
     GetFbCopy(fmt, data);
   }
 
-  if (x10_curType == kBT_XRay) {
-    const_cast< TCachedToken< CTexture >& >(*x0_paletteTex).TryCache();
-    CTexture* paletteTex = x0_paletteTex->GetObject();
+  if (mCurType == kBT_XRay) {
+    const_cast< TCachedToken< CTexture >& >(*mPaletteTex).TryCache();
+    CTexture* paletteTex = mPaletteTex->GetObject();
     if (paletteTex != nullptr) {
       paletteTex->GetPalette()->Load();
     } else {
@@ -584,7 +584,7 @@ void CCameraBlurPass::Draw() const {
   CGraphics::SetViewPointMatrix(CTransform4f::Identity());
   gpRender->SetModelMatrix(CTransform4f::Identity());
 
-  if (x10_curType == kBT_XRay) {
+  if (mCurType == kBT_XRay) {
     gpRender->SetBlendMode_Replace();
 
     const GXVtxDescList xrayVtxDescList[] = {
@@ -622,8 +622,8 @@ void CCameraBlurPass::Draw() const {
 
     float tweakLinear = gpTweakGui->GetXrayBlurScaleLinear() / 4.f;
     float tweakQuad = gpTweakGui->GetXrayBlurScaleQuadratic() / 4.f;
-    float linearCoeff = x1c_curValue * tweakLinear;
-    float quadCoeff = x1c_curValue * tweakQuad;
+    float linearCoeff = mCurValue * tweakLinear;
+    float quadCoeff = mCurValue * tweakQuad;
 
     for (int i = 0; i < 4; ++i) {
       float val = linearCoeff * static_cast< float >(i) +
@@ -716,10 +716,10 @@ void CCameraBlurPass::Draw() const {
     CGX::SetTevOrder(GX_TEVSTAGE7, GX_TEXCOORD7, CGraphics::kSpareBufferTexMapID, GX_COLOR_NULL);
 
     float alpha;
-    if (x2c_usePersistent) {
+    if (mUsePersistent) {
       alpha = 1.f;
     } else {
-      alpha = rstl::min_val(1.f, 0.5f * x1c_curValue);
+      alpha = rstl::min_val(1.f, 0.5f * mCurValue);
     }
     CColor blurKColor(1.f / 7.f, 1.f / 7.f, 1.f / 7.f, alpha);
     CGX::SetTevKColor(GX_KCOLOR0, blurKColor.GetGXColor());
@@ -732,7 +732,7 @@ void CCameraBlurPass::Draw() const {
         offsetX = 0.0;
       } else {
         float angle = 6.2831855f * static_cast< float >(i - 1) / 6.f;
-        offsetX = (x1c_curValue / 640.f) * cos(angle);
+        offsetX = (mCurValue / 640.f) * cos(angle);
       }
       float fOffsetX = static_cast< float >(offsetX);
       double offsetY;
@@ -740,7 +740,7 @@ void CCameraBlurPass::Draw() const {
         offsetY = 0.0;
       } else {
         float angle = 6.2831855f * static_cast< float >(i - 1) / 6.f;
-        offsetY = (x1c_curValue / 448.f) * sin(angle);
+        offsetY = (mCurValue / 448.f) * sin(angle);
       }
       float fOffsetY = static_cast< float >(offsetY);
       float mtx[2][4] = {
@@ -802,12 +802,12 @@ void CCameraBlurPass::GetFbCopy(GXTexFmt fmt, uchar* buf) const {
   }
   GXCopyTex(buf, GX_FALSE);
   GXPixModeSync();
-  x2d_noPersistentCopy = true;
+  mNoPersistentCopy = true;
 }
 
 void CCameraBlurPass::AllocatePersistentFbTexture() {
   GXGetTexBufferSize(320, 224, GX_TF_RGB565, GX_FALSE, 0);
-  x30_persistentBuf = CGraphics::GetDolphinSpareBuffer();
+  mPersistentBuf = CGraphics::GetDolphinSpareBuffer();
 }
 
-void CCameraBlurPass::FreePersistentFbTexture() { x2d_noPersistentCopy = false; }
+void CCameraBlurPass::FreePersistentFbTexture() { mNoPersistentCopy = false; }

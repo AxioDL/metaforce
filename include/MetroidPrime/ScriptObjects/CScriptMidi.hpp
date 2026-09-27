@@ -17,11 +17,11 @@ public:
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) override;
 
 private:
-  TToken< CMidiManager::CMidiData > x34_song;
-  CSfxHandle x3c_handle;
-  float x40_fadeInTime;
-  float x44_fadeOutTime;
-  short x48_volume;
+  TToken< CMidiManager::CMidiData > mSong;
+  CSfxHandle mHandle;
+  float mFadeInTime;
+  float mFadeOutTime;
+  short mVolume;
 
   void StopInternal(float fadeTime);
 };

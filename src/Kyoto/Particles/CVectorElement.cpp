@@ -9,59 +9,59 @@
 #include "rstl/math.hpp"
 
 CVEConstant::CVEConstant(CRealElement* x, CRealElement* y, CRealElement* z)
-: x4_x(x), x8_y(y), xc_z(z) {}
+: mX(x), mY(y), mZ(z) {}
 
 CVEConstant::~CVEConstant() {
-  delete x4_x;
-  delete x8_y;
-  delete xc_z;
+  delete mX;
+  delete mY;
+  delete mZ;
 }
 
 bool CVEConstant::GetValue(int frame, CVector3f& valOut) const {
   float x, y, z;
-  x4_x->GetValue(frame, x);
-  x8_y->GetValue(frame, y);
-  xc_z->GetValue(frame, z);
+  mX->GetValue(frame, x);
+  mY->GetValue(frame, y);
+  mZ->GetValue(frame, z);
   valOut = CVector3f(x, y, z);
   return false;
 }
 
-CVEFastConstant::CVEFastConstant(float x, float y, float z) : x4_val(x, y, z) {}
+CVEFastConstant::CVEFastConstant(float x, float y, float z) : mVal(x, y, z) {}
 
 CVEFastConstant::~CVEFastConstant() {}
 
 bool CVEFastConstant::GetValue(int frame, CVector3f& valOut) const {
-  valOut = x4_val;
+  valOut = mVal;
   return false;
 }
 
 CVECone::CVECone(CVectorElement* direction, CRealElement* magnitude)
-: x4_direction(direction)
-, x8_magnitude(magnitude)
-, xc_xVec(CVector3f::Zero())
-, x18_yVec(CVector3f::Zero()) {
+: mDirection(direction)
+, mMagnitude(magnitude)
+, mXVec(CVector3f::Zero())
+, mYVec(CVector3f::Zero()) {
   CVector3f av(0.f, 0.f, 0.f);
-  x4_direction->GetValue(0, av);
+  mDirection->GetValue(0, av);
   CVector3f avNorm = av.AsNormalized();
   if (avNorm.GetX() > 0.8f) {
-    xc_xVec = CVector3f::Cross(av, CVector3f(0.f, 1.f, 0.f));
+    mXVec = CVector3f::Cross(av, CVector3f(0.f, 1.f, 0.f));
   } else {
-    xc_xVec = CVector3f::Cross(av, CVector3f(1.f, 0.f, 0.f));
+    mXVec = CVector3f::Cross(av, CVector3f(1.f, 0.f, 0.f));
   }
-  x18_yVec = CVector3f::Cross(avNorm, xc_xVec);
+  mYVec = CVector3f::Cross(avNorm, mXVec);
 }
 
 CVECone::~CVECone() {
-  delete x4_direction;
-  delete x8_magnitude;
+  delete mDirection;
+  delete mMagnitude;
 }
 
 bool CVECone::GetValue(int frame, CVector3f& valOut) const {
   float b;
   CVector3f dir(0.f, 0.f, 0.f);
 
-  x8_magnitude->GetValue(frame, b);
-  x4_direction->GetValue(frame, dir);
+  mMagnitude->GetValue(frame, b);
+  mDirection->GetValue(frame, dir);
   b = rstl::min_val(1.f, b);
 
   float randX = 0.f, randY = 0.f;
@@ -70,33 +70,33 @@ bool CVECone::GetValue(int frame, CVector3f& valOut) const {
     randY = 2.f * b * (CRandom16::GetRandomNumber()->Float() - 0.5f);
   } while (randX * randX + randY * randY > 1.f);
 
-  valOut = dir + xc_xVec * randX + x18_yVec * randY;
+  valOut = dir + mXVec * randX + mYVec * randY;
   return false;
 }
 
 CVEAngleCone::CVEAngleCone(CRealElement* angleXConstant, CRealElement* angleYConstant,
                            CRealElement* angleXRange, CRealElement* angleYRange,
                            CRealElement* magnitude)
-: x4_angleXConstant(angleXConstant)
-, x8_angleYConstant(angleYConstant)
-, xc_angleXRange(angleXRange)
-, x10_angleYRange(angleYRange)
-, x14_magnitude(magnitude) {}
+: mAngleXConstant(angleXConstant)
+, mAngleYConstant(angleYConstant)
+, mAngleXRange(angleXRange)
+, mAngleYRange(angleYRange)
+, mMagnitude(magnitude) {}
 
 CVEAngleCone::~CVEAngleCone() {
-  delete x4_angleXConstant;
-  delete x8_angleYConstant;
-  delete xc_angleXRange;
-  delete x10_angleYRange;
-  delete x14_magnitude;
+  delete mAngleXConstant;
+  delete mAngleYConstant;
+  delete mAngleXRange;
+  delete mAngleYRange;
+  delete mMagnitude;
 }
 
 bool CVEAngleCone::GetValue(int frame, CVector3f& valOut) const {
   float xc, xr, yc, yr;
-  x4_angleXConstant->GetValue(frame, xc);
-  x8_angleYConstant->GetValue(frame, yc);
-  xc_angleXRange->GetValue(frame, xr);
-  x10_angleYRange->GetValue(frame, yr);
+  mAngleXConstant->GetValue(frame, xc);
+  mAngleYConstant->GetValue(frame, yc);
+  mAngleXRange->GetValue(frame, xr);
+  mAngleYRange->GetValue(frame, yr);
 
   xc += (xr * 0.5f - (xr * CRandom16::GetRandomNumber()->Float()));
   xc *= M_PIF / 180.f;
@@ -107,7 +107,7 @@ bool CVEAngleCone::GetValue(int frame, CVector3f& valOut) const {
   CVector3f vec = CVector3f(-CMath::FastSinR(yc) * CMath::FastCosR(xc), CMath::FastSinR(xc),
                             CMath::FastCosR(xc) * CMath::FastCosR(yc));
   float mag = 0.f;
-  x14_magnitude->GetValue(frame, mag);
+  mMagnitude->GetValue(frame, mag);
 
   valOut = vec * mag;
   return false;
@@ -191,7 +191,7 @@ CVECircleCluster::CVECircleCluster(CVectorElement* circleOffset, CVectorElement*
   mRadius = (M_PIF / 180.f) * (360.f / _cycleFrames);
 
   CVector3f normal = CVector3f(0.f, 0.f, 0.f);
-#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+#if VERSION >= VERSION_GM8P_00
   CVector3f tmp(0.f, 0.f, 0.f);
 #else
   CVector3f tmp;
@@ -361,37 +361,37 @@ bool CVERealToVector::GetValue(int frame, CVector3f& valOut) const {
 }
 
 bool CVEParticleLocation::GetValue(int frame, CVector3f& valOut) const {
-  valOut = CParticleGlobals::GetCurrentParticle()->x4_pos;
+  valOut = CParticleGlobals::GetCurrentParticle()->mPos;
   return false;
 }
 
 bool CVEParticlePreviousLocation::GetValue(int frame, CVector3f& valOut) const {
-  valOut = CParticleGlobals::GetCurrentParticle()->x10_prevPos;
+  valOut = CParticleGlobals::GetCurrentParticle()->mPrevPos;
   return false;
 }
 
 bool CVEParticleVelocity::GetValue(int frame, CVector3f& valOut) const {
-  valOut = CParticleGlobals::GetCurrentParticle()->x1c_vel;
+  valOut = CParticleGlobals::GetCurrentParticle()->mVel;
   return false;
 }
 
 bool CVEParticleSystemOrientationFront::GetValue(int frame, CVector3f& valOut) const {
-  valOut = CParticleGlobals::GetCurrentParticleSystem()->x4_system->GetOrientation().GetForward();
+  valOut = CParticleGlobals::GetCurrentParticleSystem()->mSystem->GetOrientation().GetForward();
   return false;
 }
 
 bool CVEParticleSystemOrientationUp::GetValue(int frame, CVector3f& valOut) const {
-  valOut = CParticleGlobals::GetCurrentParticleSystem()->x4_system->GetOrientation().GetUp();
+  valOut = CParticleGlobals::GetCurrentParticleSystem()->mSystem->GetOrientation().GetUp();
   return false;
 }
 
 bool CVEParticleSystemOrientationRight::GetValue(int frame, CVector3f& valOut) const {
-  valOut = CParticleGlobals::GetCurrentParticleSystem()->x4_system->GetOrientation().GetRight();
+  valOut = CParticleGlobals::GetCurrentParticleSystem()->mSystem->GetOrientation().GetRight();
   return false;
 }
 
 bool CVEParticleSystemTranslation::GetValue(int frame, CVector3f& valOut) const {
-  valOut = CParticleGlobals::GetCurrentParticleSystem()->x4_system->GetTranslation();
+  valOut = CParticleGlobals::GetCurrentParticleSystem()->mSystem->GetTranslation();
   return false;
 }
 

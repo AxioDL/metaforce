@@ -30,7 +30,7 @@ public:
 
   // CAi and CPatterned
   void Death(CStateManager& mgr, const CVector3f& direction, EScriptObjectState state) override;
-  CPathFindSearch* GetSearchPath() override { return &x568_pathFindSearch; }
+  CPathFindSearch* GetSearchPath() override { return &mPathFindSearch; }
   bool IsListening() const override { return true; }
   void Patrol(CStateManager& mgr, EStateMsg msg, float arg) override;
   void PathFind(CStateManager& mgr, EStateMsg msg, float arg) override;
@@ -66,20 +66,20 @@ private:
   static CVector3f kBombPosOffset;
   static const char* const kMouthLctr;
 
-  CPathFindSearch x568_pathFindSearch;
-  CTransform4f x64c_playerRotation;
-  float x67c_suckForceMultiplier;
-  float x680_minSuckAngleProj;
-  float x684_suckRange;
-  float x688_launchSpeed;
-  float x68c_ignoreMorphballTimer;
+  CPathFindSearch mPathFindSearch;
+  CTransform4f mPlayerRotation;
+  float mSuckForceMultiplier;
+  float mMinSuckAngleProj;
+  float mSuckRange;
+  float mLaunchSpeed;
+  float mIgnoreMorphballTimer;
   uint x690_;
-  TUniqueId x694_bombId;
+  TUniqueId mBombId;
   TUniqueId x696_;
-  bool x698_24_shotTarget : 1;
-  bool x698_25_targetingBomb : 1;
-  bool x698_26_vulnerable : 1;
-  bool x698_27_dizzy : 1;
+  bool mShotTarget : 1;
+  bool mTargetingBomb : 1;
+  bool mVulnerable : 1;
+  bool mDizzy : 1;
 
   bool BallCloseToCollision(const CStateManager& mgr) const;
   void ShootPlayer(CStateManager& mgr, const CTransform4f& xf, float f);
@@ -94,6 +94,6 @@ private:
   void CenterPlayer(CStateManager& mgr, const CVector3f& dest, float f);
   void AttractBomb(CStateManager& mgr, float f);
 };
-CHECK_SIZEOF(CTryclops, (VERSION >= VERSION_GM8P_00 ? 0x6b0 : 0x6A0))
+CHECK_SIZEOF(CTryclops, (VERSION >= VERSION_GM8E_02 ? 0x6b0 : 0x6A0))
 
 #endif // _CTRYCLOPS

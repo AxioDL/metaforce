@@ -17,36 +17,36 @@ const CFactoryFnReturn FCollidableOBBTreeGroupFactory(const SObjectTag& tag, CIn
 }
 
 CCollidableOBBTreeGroupContainer::CCollidableOBBTreeGroupContainer(CInputStream& in)
-: x20_aabox(CAABox::MakeMaxInvertedBox()) {
+: mAabox(CAABox::MakeMaxInvertedBox()) {
   int obbCount = in.ReadInt32();
-  x0_trees.reserve(obbCount);
+  mTrees.reserve(obbCount);
   for (uint i = 0; i < obbCount; ++i) {
-    x0_trees.push_back(rs_new COBBTree(in));
+    mTrees.push_back(rs_new COBBTree(in));
   }
 
-  x10_aabbs.reserve(x0_trees.size());
-  for (AUTO(it, x0_trees.begin()); it != x0_trees.end(); ++it) {
+  mAabbs.reserve(mTrees.size());
+  for (AUTO(it, mTrees.begin()); it != mTrees.end(); ++it) {
     CCollidableOBBTree tree(it->get(), CMaterialList());
     CAABox box = tree.CalculateLocalAABox();
-    x10_aabbs.push_back(box);
-    x20_aabox.AccumulateBounds(box.GetMinPoint());
-    x20_aabox.AccumulateBounds(box.GetMaxPoint());
+    mAabbs.push_back(box);
+    mAabox.AccumulateBounds(box.GetMinPoint());
+    mAabox.AccumulateBounds(box.GetMaxPoint());
   }
 }
 
 CCollidableOBBTreeGroupContainer::CCollidableOBBTreeGroupContainer(const CVector3f& extent,
                                                                    const CVector3f& center)
-: x20_aabox(CAABox::MakeMaxInvertedBox()) {
-  x0_trees.reserve(1);
-  x0_trees.push_back(
+: mAabox(CAABox::MakeMaxInvertedBox()) {
+  mTrees.reserve(1);
+  mTrees.push_back(
       rstl::auto_ptr< COBBTree >(COBBTree::BuildOrientedBoundingBoxTree(extent, center)));
-  x10_aabbs.reserve(1);
-  for (AUTO(it, x0_trees.begin()); it != x0_trees.end(); ++it) {
+  mAabbs.reserve(1);
+  for (AUTO(it, mTrees.begin()); it != mTrees.end(); ++it) {
     CCollidableOBBTree tree(it->get(), CMaterialList());
     CAABox box = tree.CalculateLocalAABox();
-    x10_aabbs.push_back(box);
-    x20_aabox.AccumulateBounds(box.GetMinPoint());
-    x20_aabox.AccumulateBounds(box.GetMaxPoint());
+    mAabbs.push_back(box);
+    mAabox.AccumulateBounds(box.GetMinPoint());
+    mAabox.AccumulateBounds(box.GetMaxPoint());
   }
 }
 
@@ -59,27 +59,27 @@ CCollisionPrimitive::Type CCollidableOBBTreeGroup::GetType() {
 CCollidableOBBTreeGroup::CCollidableOBBTreeGroup(CCollidableOBBTreeGroupContainer* container,
                                                  const CMaterialList& material)
 : CCollisionPrimitive(material)
-, x10_container(container) {}
+, mContainer(container) {}
 
 COBBTree* CCollidableOBBTreeGroup::GetOBBTreeAABox(int idx) const {
-  return x10_container->x0_trees[idx].get();
+  return mContainer->mTrees[idx].get();
 }
 
 void CRayCastResult::Transform(const CTransform4f& xf) {
-  x4_point = xf * x4_point;
-  CVector3f normal = xf.Rotate(x10_plane.GetNormal());
-  x10_plane = CPlane(x4_point, CUnitVector3f(normal.GetX(), normal.GetY(), normal.GetZ()));
+  mPoint = xf * mPoint;
+  CVector3f normal = xf.Rotate(mPlane.GetNormal());
+  mPlane = CPlane(mPoint, CUnitVector3f(normal.GetX(), normal.GetY(), normal.GetZ()));
 }
 
 CRayCastResult
 CCollidableOBBTreeGroup::CastRayInternal(const CInternalRayCastStructure& rayCast) const {
   CRayCastResult result;
   float mag = rayCast.GetMaxTime();
-  AUTO(treeIt, x10_container->x0_trees.begin());
-  AUTO(aabbIt, x10_container->x10_aabbs.begin());
+  AUTO(treeIt, mContainer->mTrees.begin());
+  AUTO(aabbIt, mContainer->mAabbs.begin());
   CMRay ray = rayCast.GetRay().GetInvUnscaledTransformRay(rayCast.GetTransform());
 
-  for (; treeIt != x10_container->x0_trees.end(); ++treeIt, ++aabbIt) {
+  for (; treeIt != mContainer->mTrees.end(); ++treeIt, ++aabbIt) {
     CCollidableOBBTree tree(treeIt->get(), GetMaterial());
     float tMin = 0.f;
     float tMax = 0.f;
@@ -260,10 +260,10 @@ bool CCollidableOBBTreeGroup::CollideMovingSphere(const CInternalCollisionStruct
 }
 
 CAABox CCollidableOBBTreeGroup::CalculateAABox(const CTransform4f& xf) const {
-  return x10_container->x20_aabox.GetTransformedAABox(xf);
+  return mContainer->mAabox.GetTransformedAABox(xf);
 }
 
-CAABox CCollidableOBBTreeGroup::CalculateLocalAABox() const { return x10_container->x20_aabox; }
+CAABox CCollidableOBBTreeGroup::CalculateLocalAABox() const { return mContainer->mAabox; }
 
 FourCC CCollidableOBBTreeGroup::GetPrimType() const { return 'OBTG'; }
 

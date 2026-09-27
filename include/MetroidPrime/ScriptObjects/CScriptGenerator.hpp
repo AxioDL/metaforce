@@ -14,12 +14,12 @@ public:
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) override;
 
 private:
-  int x34_spawnCount;
-  bool x38_24_noReuseFollowers : 1;
-  bool x38_25_noInheritTransform : 1;
-  CVector3f x3c_offset;
-  float x48_minScale;
-  float x4c_maxScale;
+  int mSpawnCount;
+  bool mNoReuseFollowers : 1;
+  bool mNoInheritTransform : 1;
+  CVector3f mOffset;
+  float mMinScale;
+  float mMaxScale;
 };
 
 #endif // _CSCRIPTGENERATOR

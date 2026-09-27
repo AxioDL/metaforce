@@ -6,17 +6,17 @@
 class CInputStream;
 class CHealthInfo {
 public:
-  CHealthInfo(float hp, float resist) : x0_health(hp), x4_knockbackResistance(resist) {}
+  CHealthInfo(float hp, float resist) : mHealth(hp), mKnockbackResistance(resist) {}
   explicit CHealthInfo(CInputStream&);
 
-  void SetHP(float hp) { x0_health = hp; }
-  void SetKnockbackResistance(float resist) { x4_knockbackResistance = resist; }
-  float GetHP() const { return x0_health; }
-  float GetKnockBackResistance() const { return x4_knockbackResistance; }
+  void SetHP(float hp) { mHealth = hp; }
+  void SetKnockbackResistance(float resist) { mKnockbackResistance = resist; }
+  float GetHP() const { return mHealth; }
+  float GetKnockBackResistance() const { return mKnockbackResistance; }
 
 private:
-  float x0_health;
-  float x4_knockbackResistance;
+  float mHealth;
+  float mKnockbackResistance;
 };
 CHECK_SIZEOF(CHealthInfo, 0x8)
 

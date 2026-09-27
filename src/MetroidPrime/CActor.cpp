@@ -42,69 +42,69 @@ CActor::CActor(const TUniqueId uid, const bool active, const rstl::string& name,
                const CMaterialList& list, const CActorParameters& params,
                const TUniqueId nextDrawNode)
 : CEntity(uid, info, active, name)
-, x34_transform(xf)
-, x64_modelData(mData.IsNull() ? nullptr : rs_new CModelData(mData))
-, x68_material(MakeActorMaterialList(list, params))
-, x70_materialFilter(
+, mTransform(xf)
+, mModelData(mData.IsNull() ? nullptr : rs_new CModelData(mData))
+, mMaterial(MakeActorMaterialList(list, params))
+, mMaterialFilter(
       CMaterialFilter::MakeIncludeExclude(CMaterialList(SolidMaterial), CMaterialList()))
-, x88_sfxId(InvalidSfxId)
-, x90_actorLights(mData.IsNull() ? nullptr : params.GetLighting().MakeActorLights().release())
-, x9c_renderBounds(CAABox::MakeMaxInvertedBox())
-, xb4_drawFlags(CModelFlags::Normal())
-, xbc_time(0.f)
-, xc0_pitchBend(8192)
-, xc4_fluidId(kInvalidUniqueId)
-, xc6_nextDrawNode(nextDrawNode)
-, xc8_drawnToken(-1)
-, xcc_addedToken(-1)
-, xd0_damageMag(params.GetThermalMag())
-, xd4_maxVol(CAudioSys::kMaxVolume)
-#if VERSION >= VERSION_GM8P_00
-, xd8_fluidIds(kInvalidUniqueId)
+, mSfxId(InvalidSfxId)
+, mActorLights(mData.IsNull() ? nullptr : params.GetLighting().MakeActorLights().release())
+, mRenderBounds(CAABox::MakeMaxInvertedBox())
+, mDrawFlags(CModelFlags::Normal())
+, mTime(0.f)
+, mPitchBend(8192)
+, mFluidId(kInvalidUniqueId)
+, mNextDrawNode(nextDrawNode)
+, mDrawnToken(-1)
+, mAddedToken(-1)
+, mDamageMag(params.GetThermalMag())
+, mMaxVol(CAudioSys::kMaxVolume)
+#if VERSION >= VERSION_GM8E_02
+, mFluidIds(kInvalidUniqueId)
 #endif
-, xd8_nonLoopingSfxHandles(CSfxHandle())
-, xe4_24_nextNonLoopingSfxHandle(0)
-, xe4_27_notInSortedLists(true)
-, xe4_28_transformDirty(true)
-, xe4_29_actorLightsDirty(true)
-, xe4_30_outOfFrustum(false)
-, xe4_31_calculateLighting(true)
-, xe5_24_shadowEnabled(false)
-, xe5_25_shadowDirty(false)
-, xe5_26_muted(false)
-, xe5_27_useInSortedLists(true)
-, xe5_28_callTouch(true)
-, xe5_29_globalTimeProvider(params.UseGlobalRenderTime())
-, xe5_30_renderUnsorted(params.ForceRenderUnsorted())
-, xe5_31_pointGeneratorParticles(false)
-, xe6_24_fluidCounter(0)
-, xe6_27_thermalVisorFlags(params.IsHotInThermal() ? kTF_Hot : kTF_Cold)
-, xe6_29_renderParticleDBInside(true)
-, xe6_30_enablePitchBend(false)
-, xe6_31_targetableVisorFlags(params.GetVisorParameters().GetMask())
-, xe7_27_enableRender(true)
-, xe7_28_worldLightingDirty(false)
-, xe7_29_drawEnabled(active)
-, xe7_30_doTargetDistanceTest(true)
-, xe7_31_targetable(true) {
-  if (!x64_modelData.null()) {
+, mNonLoopingSfxHandles(CSfxHandle())
+, mNextNonLoopingSfxHandle(0)
+, mNotInSortedLists(true)
+, mTransformDirty(true)
+, mActorLightsDirty(true)
+, mOutOfFrustum(false)
+, mCalculateLighting(true)
+, mShadowEnabled(false)
+, mShadowDirty(false)
+, mMuted(false)
+, mUseInSortedLists(true)
+, mCallTouch(true)
+, mGlobalTimeProvider(params.UseGlobalRenderTime())
+, mRenderUnsorted(params.ForceRenderUnsorted())
+, mPointGeneratorParticles(false)
+, mFluidCounter(0)
+, mThermalVisorFlags(params.IsHotInThermal() ? kTF_Hot : kTF_Cold)
+, mRenderParticleDBInside(true)
+, mEnablePitchBend(false)
+, mTargetableVisorFlags(params.GetVisorParameters().GetMask())
+, mEnableRender(true)
+, mWorldLightingDirty(false)
+, mDrawEnabled(active)
+, mDoTargetDistanceTest(true)
+, mTargetable(true) {
+  if (!mModelData.null()) {
     if (params.GetXRay().first != 0) {
-      x64_modelData->SetXRayModel(params.GetXRay());
+      mModelData->SetXRayModel(params.GetXRay());
     }
     if (params.GetInfra().first != 0) {
-      x64_modelData->SetInfraModel(params.GetInfra());
+      mModelData->SetInfraModel(params.GetInfra());
     }
     const CLightParameters& lighting = params.GetLighting();
     if (!lighting.ShouldMakeLights() || lighting.GetMaxAreaLights() == 0) {
-      x64_modelData->SetAmbientColor(lighting.GetAmbientColor());
+      mModelData->SetAmbientColor(lighting.GetAmbientColor());
     }
-    x64_modelData->SetSortThermal(!params.NoSortThermal());
+    mModelData->SetSortThermal(!params.NoSortThermal());
   }
   const CAssetId scanId = params.GetScannable().GetScannableObject0();
   if (scanId != kInvalidAssetId) {
-    x98_scanObjectInfo = rs_new TCachedToken< CScannableObjectInfo >(
+    mScanObjectInfo = rs_new TCachedToken< CScannableObjectInfo >(
         gpSimplePool->GetObj(SObjectTag('SCAN', scanId)));
-    x98_scanObjectInfo->Lock();
+    mScanObjectInfo->Lock();
   }
 }
 
@@ -115,7 +115,7 @@ CAdvancementDeltas CActor::UpdateAnimation(float dt, CStateManager& mgr, bool ad
   ModelData()->AdvanceParticles(GetTransform(), dt, mgr);
   UpdateSfxEmitters();
   if (HasAnimation()) {
-    ushort maxVol = xd4_maxVol;
+    ushort maxVol = mMaxVol;
     const int aid = GetCurrentAreaId().Value();
 
     const CGameCamera& camera = mgr.GetCameraManager()->GetCurrentCamera(mgr);
@@ -183,10 +183,10 @@ CAdvancementDeltas CActor::UpdateAnimation(float dt, CStateManager& mgr, bool ad
 }
 
 void CActor::RemoveEmitter() {
-  if (CSfxHandle handle = x8c_loopingSfxHandle) {
+  if (CSfxHandle handle = mLoopingSfxHandle) {
     CSfxManager::RemoveEmitter(handle);
-    x88_sfxId = -1;
-    x8c_loopingSfxHandle = CSfxHandle();
+    mSfxId = -1;
+    mLoopingSfxHandle = CSfxHandle();
   }
 }
 
@@ -211,26 +211,26 @@ void CActor::CalculateRenderBounds() {
 }
 
 void CActor::SetModelData(const CModelData& modelData) {
-  x64_modelData = modelData.IsNull() ? nullptr : rs_new CModelData(modelData);
+  mModelData = modelData.IsNull() ? nullptr : rs_new CModelData(modelData);
 }
 
 void CActor::PreRender(CStateManager& mgr, const CFrustumPlanes& planes) {
   if (HasModelData()) {
-    SetPreRenderClipped(!planes.BoxInFrustumPlanes(x9c_renderBounds));
+    SetPreRenderClipped(!planes.BoxInFrustumPlanes(mRenderBounds));
     if (!GetPreRenderClipped()) {
       bool lightsDirty = false;
       if (GetPreRenderHasMoved()) {
         SetPreRenderHasMoved(false);
         SetShadowDirty(true);
         lightsDirty = true;
-      } else if (xe7_28_worldLightingDirty) {
+      } else if (mWorldLightingDirty) {
         lightsDirty = true;
       } else if (HasActorLights() && GetActorLights()->GetNeedsRelight()) {
         lightsDirty = true;
       }
 
       // TODO why doesn't GetDrawShadow() work?
-      if (GetShadowDirty() && xe5_24_shadowEnabled && HasShadow()) {
+      if (GetShadowDirty() && mShadowEnabled && HasShadow()) {
         Shadow()->Calculate(GetModelData()->GetBounds(), GetTransform(), mgr);
         SetShadowDirty(false);
       }
@@ -244,7 +244,7 @@ void CActor::PreRender(CStateManager& mgr, const CFrustumPlanes& planes) {
             const CWorld* world = mgr.GetWorld();
             if (world->IsAreaValid(GetCurrentAreaId()) &&
                 ActorLights()->BuildAreaLightList(mgr, *world->GetArea(GetCurrentAreaId()), bounds)) {
-              xe7_28_worldLightingDirty = false;
+              mWorldLightingDirty = false;
             }
           }
           ActorLights()->BuildDynamicLightList(mgr, bounds);
@@ -261,7 +261,7 @@ void CActor::PreRender(CStateManager& mgr, const CFrustumPlanes& planes) {
         SetShadowDirty(true);
       }
       // TODO why doesn't GetDrawShadow() work?
-      if (GetShadowDirty() && xe5_24_shadowEnabled && HasShadow()) {
+      if (GetShadowDirty() && mShadowEnabled && HasShadow()) {
         if (planes.BoxInFrustumPlanes(
                 GetShadow()->GetMaxShadowBox(GetModelData()->GetBounds(GetTransform()))) == true) {
           Shadow()->Calculate(GetModelData()->GetBounds(), GetTransform(), mgr);
@@ -319,7 +319,7 @@ bool CActor::CanRenderUnsorted(const CStateManager& mgr) const {
       GetRenderParticleDatabaseInside()) {
     result = false;
   } else {
-    result = xe5_30_renderUnsorted || IsModelOpaque(mgr);
+    result = mRenderUnsorted || IsModelOpaque(mgr);
   }
   return result;
 }
@@ -331,18 +331,18 @@ void CActor::Render(const CStateManager& mgr) const {
       GetAnimationData()->GetParticleDB().RenderSystemsToBeDrawnFirst();
     }
 
-    if (xe7_27_enableRender) {
-      if (xe5_31_pointGeneratorParticles) {
+    if (mEnableRender) {
+      if (mPointGeneratorParticles) {
         mgr.SetupParticleHook(*this);
       }
-      if (xe5_29_globalTimeProvider) {
+      if (mGlobalTimeProvider) {
         RenderInternal(mgr);
       } else {
-        const float timeSince = CGraphics::GetSecondsMod900() - xbc_time;
+        const float timeSince = CGraphics::GetSecondsMod900() - mTime;
         CTimeProvider tp(CMath::FastFmod(timeSince, 900.f));
         RenderInternal(mgr);
       }
-      if (xe5_31_pointGeneratorParticles) {
+      if (mPointGeneratorParticles) {
         CSkinnedModel::ClearPointGeneratorFunc();
         mgr.GetActorModelParticles()->Render(mgr, *this);
       }
@@ -359,55 +359,55 @@ void CActor::RenderInternal(const CStateManager& mgr) const {
   CModelData::EWhichModel which = CModelData::GetRenderingModel(mgr);
   if (which == CModelData::kWM_ThermalHot) {
     if (GetModelData()->GetSortThermal()) {
-      const float alpha = xb4_drawFlags.GetColorRef().GetAlpha();
+      const float alpha = mDrawFlags.GetColorRef().GetAlpha();
       uchar addMag;
       float mulMag;
-      if (xd0_damageMag <= 1.f) {
-        mulMag = xd0_damageMag;
+      if (mDamageMag <= 1.f) {
+        mulMag = mDamageMag;
         addMag = 0;
-      } else if (xd0_damageMag < 2.f) {
+      } else if (mDamageMag < 2.f) {
         mulMag = 1.f;
-        addMag = CCast::ToUint8((xd0_damageMag - 1.f) * 255.f);
+        addMag = CCast::ToUint8((mDamageMag - 1.f) * 255.f);
       } else {
         mulMag = 1.f;
         addMag = 255;
       }
 
       const uchar rgb = CCast::ToUint8((255.f * mulMag) * alpha);
-      CColor mulColor(rgb, rgb, rgb, xb4_drawFlags.GetColorRef().GetAlphau8());
-      CColor addColor(addMag, addMag, addMag, xb4_drawFlags.GetColorRef().GetAlphau8() / 4);
-      GetModelData()->RenderThermal(x34_transform, mulColor, addColor, xb4_drawFlags);
+      CColor mulColor(rgb, rgb, rgb, mDrawFlags.GetColorRef().GetAlphau8());
+      CColor addColor(addMag, addMag, addMag, mDrawFlags.GetColorRef().GetAlphau8() / 4);
+      GetModelData()->RenderThermal(mTransform, mulColor, addColor, mDrawFlags);
       return;
-    } else if (mgr.GetThermalColdScale2() > 0.0001f && xb4_drawFlags.GetTrans() == 0) {
+    } else if (mgr.GetThermalColdScale2() > 0.0001f && mDrawFlags.GetTrans() == 0) {
       const float scale = rstl::max_val< float >(
           (mgr.GetThermalColdScale2() + mgr.GetThermalColdScale1()) * mgr.GetThermalColdScale2(),
           mgr.GetThermalColdScale2());
       const uchar rgb = CCast::ToUint8(CMath::Clamp(0.f, scale * 255.f, 255.f));
       CColor color(rgb, rgb, rgb, 255);
-      CModelFlags flags = xb4_drawFlags;
-      flags.x0_blendMode = CModelFlags::kT_Two;
-      flags.x4_color = color;
-      GetModelData()->Render(which, x34_transform, x90_actorLights.get(), flags);
+      CModelFlags flags = mDrawFlags;
+      flags.mBlendMode = CModelFlags::kT_Two;
+      flags.mColor = color;
+      GetModelData()->Render(which, mTransform, mActorLights.get(), flags);
       return;
     }
   }
-  GetModelData()->Render(which, x34_transform, x90_actorLights.get(), xb4_drawFlags);
+  GetModelData()->Render(which, mTransform, mActorLights.get(), mDrawFlags);
 }
 
 float CActor::GetYaw() const {
-  float sq = sqrt(x34_transform.Get11() * x34_transform.Get11() +
-                  x34_transform.Get01() * x34_transform.Get01());
+  float sq = sqrt(mTransform.Get11() * mTransform.Get11() +
+                  mTransform.Get01() * mTransform.Get01());
   if (sq > 0.001f) {
-    double ret = -atan2(x34_transform.Get01(), x34_transform.Get11());
+    double ret = -atan2(mTransform.Get01(), mTransform.Get11());
     return ret;
   }
   return 0.f;
 }
 
 float CActor::GetPitch() const {
-  float sq = CMath::SqrtF(x34_transform.Get11() * x34_transform.Get11() +
-                          x34_transform.Get01() * x34_transform.Get01());
-  double ret = -atan2(-x34_transform.Get21(), sq);
+  float sq = CMath::SqrtF(mTransform.Get11() * mTransform.Get11() +
+                          mTransform.Get01() * mTransform.Get01());
+  double ret = -atan2(-mTransform.Get21(), sq);
   return ret;
 }
 
@@ -428,80 +428,80 @@ rstl::optional_object< CAABox > CActor::GetTouchBounds() const {
 
 void CActor::Touch(CActor&, CStateManager&) {}
 
-bool CActor::GetUseInSortedLists() const { return xe5_27_useInSortedLists; }
+bool CActor::GetUseInSortedLists() const { return mUseInSortedLists; }
 
-void CActor::SetUseInSortedLists(bool use) { xe5_27_useInSortedLists = use; }
+void CActor::SetUseInSortedLists(bool use) { mUseInSortedLists = use; }
 
-bool CActor::GetCallTouch() const { return xe5_28_callTouch; }
+bool CActor::GetCallTouch() const { return mCallTouch; }
 
-void CActor::SetCallTouch(bool value) { xe5_28_callTouch = value; }
+void CActor::SetCallTouch(bool value) { mCallTouch = value; }
 
 void CActor::AddMaterial(EMaterialTypes mat1, CStateManager& mgr) {
-  x68_material.Add(mat1);
+  mMaterial.Add(mat1);
   mgr.UpdateObjectInLists(*this);
 }
 
 void CActor::AddMaterial(EMaterialTypes mat1, EMaterialTypes mat2, CStateManager& mgr) {
-  x68_material.Add(mat1);
-  x68_material.Add(mat2);
+  mMaterial.Add(mat1);
+  mMaterial.Add(mat2);
   mgr.UpdateObjectInLists(*this);
 }
 
 void CActor::AddMaterial(EMaterialTypes mat1, EMaterialTypes mat2, EMaterialTypes mat3,
                          CStateManager& mgr) {
-  x68_material.Add(mat1);
-  x68_material.Add(mat2);
-  x68_material.Add(mat3);
+  mMaterial.Add(mat1);
+  mMaterial.Add(mat2);
+  mMaterial.Add(mat3);
   mgr.UpdateObjectInLists(*this);
 }
 
 void CActor::AddMaterial(EMaterialTypes mat1, EMaterialTypes mat2, EMaterialTypes mat3,
                          EMaterialTypes mat4, CStateManager& mgr) {
-  x68_material.Add(mat1);
-  x68_material.Add(mat2);
-  x68_material.Add(mat3);
-  x68_material.Add(mat4);
+  mMaterial.Add(mat1);
+  mMaterial.Add(mat2);
+  mMaterial.Add(mat3);
+  mMaterial.Add(mat4);
   mgr.UpdateObjectInLists(*this);
 }
 
 void CActor::AddMaterial(EMaterialTypes mat1, EMaterialTypes mat2, EMaterialTypes mat3,
                          EMaterialTypes mat4, EMaterialTypes mat5, CStateManager& mgr) {
-  x68_material.Add(mat1);
-  x68_material.Add(mat2);
-  x68_material.Add(mat3);
-  x68_material.Add(mat4);
-  x68_material.Add(mat5);
+  mMaterial.Add(mat1);
+  mMaterial.Add(mat2);
+  mMaterial.Add(mat3);
+  mMaterial.Add(mat4);
+  mMaterial.Add(mat5);
   mgr.UpdateObjectInLists(*this);
 }
 
 void CActor::RemoveMaterial(EMaterialTypes mat1, CStateManager& mgr) {
-  x68_material.Remove(mat1);
+  mMaterial.Remove(mat1);
   mgr.UpdateObjectInLists(*this);
 }
 
 void CActor::RemoveMaterial(EMaterialTypes mat1, EMaterialTypes mat2, CStateManager& mgr) {
 
-  x68_material.Remove(mat1);
-  x68_material.Remove(mat2);
+  mMaterial.Remove(mat1);
+  mMaterial.Remove(mat2);
   mgr.UpdateObjectInLists(*this);
 }
 
 void CActor::RemoveMaterial(EMaterialTypes mat1, EMaterialTypes mat2, EMaterialTypes mat3,
                             CStateManager& mgr) {
 
-  x68_material.Remove(mat1);
-  x68_material.Remove(mat2);
-  x68_material.Remove(mat3);
+  mMaterial.Remove(mat1);
+  mMaterial.Remove(mat2);
+  mMaterial.Remove(mat3);
   mgr.UpdateObjectInLists(*this);
 }
 
 void CActor::RemoveMaterial(EMaterialTypes mat1, EMaterialTypes mat2, EMaterialTypes mat3,
                             EMaterialTypes mat4, CStateManager& mgr) {
 
-  x68_material.Remove(mat1);
-  x68_material.Remove(mat2);
-  x68_material.Remove(mat3);
-  x68_material.Remove(mat4);
+  mMaterial.Remove(mat1);
+  mMaterial.Remove(mat2);
+  mMaterial.Remove(mat3);
+  mMaterial.Remove(mat4);
   mgr.UpdateObjectInLists(*this);
 }
 
@@ -511,11 +511,11 @@ EWeaponCollisionResponseTypes CActor::GetCollisionResponseType(const CVector3f&,
 }
 
 CVector3f CActor::GetOrbitPosition(const CStateManager&) const {
-  return x34_transform.GetTranslation();
+  return mTransform.GetTranslation();
 }
 
 CVector3f CActor::GetAimPosition(const CStateManager&, float) const {
-  return x34_transform.GetTranslation();
+  return mTransform.GetTranslation();
 }
 
 CVector3f CActor::GetHomingPosition(const CStateManager& mgr, float f) const {
@@ -526,46 +526,46 @@ CVector3f CActor::GetScanObjectIndicatorPosition(const CStateManager& mgr) const
   const CGameCamera& cam = mgr.GetCameraManager()->GetCurrentCamera(mgr);
   CVector3f orbitPos = GetOrbitPosition(mgr);
   float mag = (cam.GetTranslation() - orbitPos).Magnitude();
-  float max = rstl::max_val(rstl::max_val(x9c_renderBounds.GetDepth(), x9c_renderBounds.GetWidth()),
-                           x9c_renderBounds.GetHeight()) * 0.5f;
+  float max = rstl::max_val(rstl::max_val(mRenderBounds.GetDepth(), mRenderBounds.GetWidth()),
+                           mRenderBounds.GetHeight()) * 0.5f;
   max = rstl::min_val(max, mag - cam.GetNearClipDistance() - 0.1f);
   return orbitPos - (orbitPos - cam.GetTranslation()).AsNormalized() * max;
 }
 
 bool CActor::IsModelOpaque(const CStateManager& mgr) const {
-  if (xe5_31_pointGeneratorParticles) {
+  if (mPointGeneratorParticles) {
     return false;
   } else if (!HasModelData()) {
     return true;
-  } else if (static_cast< char >(xb4_drawFlags.GetTrans()) > 4) {
+  } else if (static_cast< char >(mDrawFlags.GetTrans()) > 4) {
     return false;
   } else {
     CModelData::EWhichModel which = CModelData::GetRenderingModel(mgr);
-    return x64_modelData->IsDefinitelyOpaque(which);
+    return mModelData->IsDefinitelyOpaque(which);
   }
 }
 
 void CActor::SetCalculateLighting(bool b) {
-  if (x90_actorLights.null()) {
-    x90_actorLights = rs_new CActorLights(8, CVector3f::Zero(), 4, 4);
+  if (mActorLights.null()) {
+    mActorLights = rs_new CActorLights(8, CVector3f::Zero(), 4, 4);
   }
-  xe4_31_calculateLighting = b;
+  mCalculateLighting = b;
 }
 
 void CActor::SetActorLights(rstl::auto_ptr< CActorLights > lights) {
-  x90_actorLights = lights.release();
-  xe4_31_calculateLighting = true;
+  mActorLights = lights.release();
+  mCalculateLighting = true;
 }
 
-const CMaterialFilter& CActor::GetMaterialFilter() const { return x70_materialFilter; }
+const CMaterialFilter& CActor::GetMaterialFilter() const { return mMaterialFilter; }
 
-void CActor::SetMaterialFilter(const CMaterialFilter& filter) { x70_materialFilter = filter; }
+void CActor::SetMaterialFilter(const CMaterialFilter& filter) { mMaterialFilter = filter; }
 
 void CActor::SetActive(const bool active) {
   SetTransformDirty(true);
   SetTransformDirtySpare(true);
   SetPreRenderHasMoved(true);
-  xe7_29_drawEnabled = active; // no setter?
+  mDrawEnabled = active; // no setter?
   CEntity::SetActive(active);
 }
 
@@ -573,7 +573,7 @@ void CActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMana
   switch (msg) {
   case kSM_Activate: {
     if (!GetActive()) {
-      xbc_time = CGraphics::GetSecondsMod900();
+      mTime = CGraphics::GetSecondsMod900();
     }
     break;
   }
@@ -589,7 +589,7 @@ void CActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMana
     break;
   }
   case kSM_Registered: {
-    if (!x98_scanObjectInfo.null()) {
+    if (!mScanObjectInfo.null()) {
       AddMaterial(kMT_Scannable, mgr);
     } else {
       RemoveMaterial(kMT_Scannable, mgr);
@@ -604,7 +604,7 @@ void CActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMana
     break;
   }
   case kSM_RemoveSplashInhabitant: {
-#if VERSION >= VERSION_GM8P_00
+#if VERSION >= VERSION_GM8E_02
     SetInFluid(false, uid);
 #else
     SetInFluid(false, kInvalidUniqueId);
@@ -614,12 +614,12 @@ void CActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMana
   case kSM_InitializedInArea: {
     rstl::vector< SConnection >::const_iterator iter = GetConnectionList().begin();
     for (; iter != GetConnectionList().end(); ++iter) {
-      if (iter->x0_state != kSS_Default) {
+      if (iter->mState != kSS_Default) {
         continue;
       }
-      CActor* act = TCastToPtr< CActor >(mgr.ObjectById(mgr.GetIdForScript(iter->x8_objId)));
-      if (act != nullptr && xc6_nextDrawNode == kInvalidUniqueId) {
-        xc6_nextDrawNode = act->GetUniqueId();
+      CActor* act = TCastToPtr< CActor >(mgr.ObjectById(mgr.GetIdForScript(iter->mObjId)));
+      if (act != nullptr && mNextDrawNode == kInvalidUniqueId) {
+        mNextDrawNode = act->GetUniqueId();
       }
     }
     break;
@@ -649,12 +649,12 @@ void CActor::OnScanStateChange(EScanState state, CStateManager& mgr) {
 }
 
 CScannableObjectInfo* CActor::GetScannableObjectInfo() const {
-  if (x98_scanObjectInfo.null()) {
+  if (mScanObjectInfo.null()) {
     return nullptr;
   }
 
-  if (x98_scanObjectInfo->TryCache()) {
-    return x98_scanObjectInfo->GetObject();
+  if (mScanObjectInfo->TryCache()) {
+    return mScanObjectInfo->GetObject();
   }
 
   return nullptr;
@@ -665,73 +665,73 @@ void CActor::MoveScannableObjectInfoToActor(CActor* actor, CStateManager& mgr) {
     return;
   }
 
-  actor->x98_scanObjectInfo = x98_scanObjectInfo;
+  actor->mScanObjectInfo = mScanObjectInfo;
   actor->AddMaterial(kMT_Scannable, mgr);
   RemoveMaterial(kMT_Scannable, mgr);
 }
 
 void CActor::SetMuted(bool b) {
-  xe5_26_muted = b;
+  mMuted = b;
   RemoveEmitter();
 }
 
 void CActor::SetVolume(const uchar volume) {
-  if (CSfxHandle handle = x8c_loopingSfxHandle) {
+  if (CSfxHandle handle = mLoopingSfxHandle) {
     CSfxManager::UpdateEmitter(handle, GetTranslation(), CVector3f::Zero(), volume);
   }
-  xd4_maxVol = volume;
+  mMaxVol = volume;
 }
 
 void CActor::SetSoundEventPitchBend(int v) {
-  xe6_30_enablePitchBend = true;
-  xc0_pitchBend = v;
-  if (x8c_loopingSfxHandle) {
-    CSfxManager::PitchBend(x8c_loopingSfxHandle, v);
+  mEnablePitchBend = true;
+  mPitchBend = v;
+  if (mLoopingSfxHandle) {
+    CSfxManager::PitchBend(mLoopingSfxHandle, v);
   }
 }
 
-CSfxHandle CActor::GetSfxHandle() const { return x8c_loopingSfxHandle; }
+CSfxHandle CActor::GetSfxHandle() const { return mLoopingSfxHandle; }
 
 void CActor::SetInFluid(bool in, TUniqueId uid) {
-#if VERSION >= VERSION_GM8P_00
+#if VERSION >= VERSION_GM8E_02
   if (in) {
     bool found = false;
     for (int i = 0; i < 4; ++i) {
-      if (xd8_fluidIds[i] == uid) {
+      if (mFluidIds[i] == uid) {
         found = true;
         break;
       }
     }
     if (!found) {
       for (int i = 3; i > 0; --i) {
-        xd8_fluidIds[i] = xd8_fluidIds[i - 1];
+        mFluidIds[i] = mFluidIds[i - 1];
       }
-      xd8_fluidIds[0] = uid;
-      if (xe6_24_fluidCounter < 4) {
-        ++xe6_24_fluidCounter;
+      mFluidIds[0] = uid;
+      if (mFluidCounter < 4) {
+        ++mFluidCounter;
       }
     }
   } else {
     for (int i = 0; i < 4; ++i) {
-      if (xd8_fluidIds[i] == uid) {
-        --xe6_24_fluidCounter;
+      if (mFluidIds[i] == uid) {
+        --mFluidCounter;
         for (int j = i + 1; j < 4; ++j) {
-          xd8_fluidIds[j - 1] = xd8_fluidIds[j];
+          mFluidIds[j - 1] = mFluidIds[j];
         }
-        xd8_fluidIds[3] = kInvalidUniqueId;
+        mFluidIds[3] = kInvalidUniqueId;
         break;
       }
     }
   }
-  xc4_fluidId = xd8_fluidIds[0];
+  mFluidId = mFluidIds[0];
 #else
   if (in) {
-    xe6_24_fluidCounter += 1;
-    xc4_fluidId = uid;
-  } else if (xe6_24_fluidCounter != 0) {
-    xe6_24_fluidCounter--;
-    if (xe6_24_fluidCounter == 0) {
-      xc4_fluidId = kInvalidUniqueId;
+    mFluidCounter += 1;
+    mFluidId = uid;
+  } else if (mFluidCounter != 0) {
+    mFluidCounter--;
+    if (mFluidCounter == 0) {
+      mFluidId = kInvalidUniqueId;
     }
   }
 #endif
@@ -758,14 +758,14 @@ void CActor::ProcessSoundEvent(const int sfxId, const float weight, const int fl
     }
 
     CAudioSys::C3DEmitterParmData parms(maxDist, fallOff, musyxFlags, maxVol, minVol);
-    parms.x0_pos = position;
-    parms.xc_dir = CVector3f::Zero();
-    parms.x24_sfxId = id;
+    parms.mPos = position;
+    parms.mDir = CVector3f::Zero();
+    parms.mSfxId = id;
 
     if (mgr.Random()->Float() <= weight) {
       if (looping) {
-        const CSfxHandle curHandle = x8c_loopingSfxHandle;
-        const TSfxId curId = x88_sfxId;
+        const CSfxHandle curHandle = mLoopingSfxHandle;
+        const TSfxId curId = mSfxId;
         if (!curHandle) {
           CSfxHandle handle;
           if (nonEmitter) {
@@ -776,23 +776,23 @@ void CActor::ProcessSoundEvent(const int sfxId, const float weight, const int fl
                 CSfxManager::AddEmitter(parms, useAcoustics, CSfxManager::kMedPriority, true, aid);
           }
           if (handle) {
-            x88_sfxId = id;
-            x8c_loopingSfxHandle = handle;
-            if (xe6_30_enablePitchBend) {
-              CSfxManager::PitchBend(handle, xc0_pitchBend);
+            mSfxId = id;
+            mLoopingSfxHandle = handle;
+            if (mEnablePitchBend) {
+              CSfxManager::PitchBend(handle, mPitchBend);
             }
           }
         } else if (curId == id) {
-          CSfxManager::UpdateEmitter(curHandle, parms.x0_pos, parms.xc_dir, maxVol);
+          CSfxManager::UpdateEmitter(curHandle, parms.mPos, parms.mDir, maxVol);
         } else if (flags & 0x4) {
           CSfxManager::RemoveEmitter(curHandle);
           CSfxHandle handle =
               CSfxManager::AddEmitter(parms, useAcoustics, CSfxManager::kMedPriority, true, aid);
           if (handle) {
-            x88_sfxId = id;
-            x8c_loopingSfxHandle = handle;
-            if (xe6_30_enablePitchBend && handle) {
-              CSfxManager::PitchBend(handle, xc0_pitchBend);
+            mSfxId = id;
+            mLoopingSfxHandle = handle;
+            if (mEnablePitchBend && handle) {
+              CSfxManager::PitchBend(handle, mPitchBend);
             }
           }
         }
@@ -806,13 +806,13 @@ void CActor::ProcessSoundEvent(const int sfxId, const float weight, const int fl
               CSfxManager::AddEmitter(parms, useAcoustics, CSfxManager::kMedPriority, false, aid);
         }
         if (continuousUpdate) {
-          xd8_nonLoopingSfxHandles[xe4_24_nextNonLoopingSfxHandle] = handle;
-          xe4_24_nextNonLoopingSfxHandle =
-              (xe4_24_nextNonLoopingSfxHandle + 1) % xd8_nonLoopingSfxHandles.size();
+          mNonLoopingSfxHandles[mNextNonLoopingSfxHandle] = handle;
+          mNextNonLoopingSfxHandle =
+              (mNextNonLoopingSfxHandle + 1) % mNonLoopingSfxHandles.size();
         }
 
-        if (xe6_30_enablePitchBend) {
-          CSfxManager::PitchBend(handle, xc0_pitchBend);
+        if (mEnablePitchBend) {
+          CSfxManager::PitchBend(handle, mPitchBend);
         }
       }
     }
@@ -828,46 +828,47 @@ CTransform4f CActor::GetScaledLocatorTransform(const rstl::string& segName) cons
 }
 
 void CActor::SetTranslation(const CVector3f& vec) {
-  x34_transform.SetTranslation(vec);
+  mTransform.SetTranslation(vec);
   SetTransformDirty(true);
   SetTransformDirtySpare(true);
   SetPreRenderHasMoved(true);
 }
 
 void CActor::CreateShadowIfNeeded() {
-  if (!x94_simpleShadow.null()) {
+  if (!mSimpleShadow.null()) {
     return;
   }
 
   if (HasModelData()) {
-    x94_simpleShadow = rs_new CSimpleShadow(1.f, 1.f, 20.f, 0.05f);
+    mSimpleShadow = rs_new CSimpleShadow(1.f, 1.f, 20.f, 0.05f);
   }
 }
 
 void CActor::SetDrawShadow(bool enabled) {
   if (enabled) {
     CreateShadowIfNeeded();
-    if (!xe5_24_shadowEnabled && !x94_simpleShadow.null()) {
-      xe5_25_shadowDirty = true;
+    if (!mShadowEnabled && !mSimpleShadow.null()) {
+      mShadowDirty = true;
     }
   }
-  xe5_24_shadowEnabled = enabled;
+  mShadowEnabled = enabled;
 }
 
 bool CActor::CanDrawStatic() const {
-  if (!GetActive() || !HasModelData() || static_cast< char >(xb4_drawFlags.GetBlendMode()) > 4) {
+  if (!GetActive() || !HasModelData() || static_cast< char >(mDrawFlags.GetBlendMode()) > 4) {
     return false;
   }
-  if (GetModelData()->IsNull() || GetModelData()->HasAnimation()) {
+  const CModelData* modelData = GetModelData();
+  if (modelData->IsNull() || modelData->HasAnimation()) {
     return false;
   }
   return true;
 }
 
 void CActor::UpdateSfxEmitters() {
-  uint count = xd8_nonLoopingSfxHandles.size();
+  uint count = mNonLoopingSfxHandles.size();
   for (uint i = 0; i < count; ++i) {
-    CSfxManager::UpdateEmitter(xd8_nonLoopingSfxHandles[i], GetTranslation(), CVector3f::Zero(),
-                               xd4_maxVol);
+    CSfxManager::UpdateEmitter(mNonLoopingSfxHandles[i], GetTranslation(), CVector3f::Zero(),
+                               mMaxVol);
   }
 }

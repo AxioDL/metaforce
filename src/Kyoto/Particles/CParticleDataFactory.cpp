@@ -73,7 +73,7 @@ void IElement::CElementAllocator::Free(void* ptr, size_t) {
 
 const CFactoryFnReturn FParticleFactory(const SObjectTag& tag, CInputStream& in,
                                   const CVParamTransfer& xfer) {
-  rstl::rc_ptr< IVParamObj > obj = xfer.x0_obj;
+  rstl::rc_ptr< IVParamObj > obj = xfer.mObj;
   CSimplePool* pool = static_cast< TObjOwnerParam< CSimplePool* >* >(obj.GetPtr())->GetData();
   CGenDescription* desc = CParticleDataFactory::GetGeneratorDesc(in, pool, tag.GetId());
   return desc;
@@ -105,20 +105,20 @@ CGenDescription* CParticleDataFactory::CreateGeneratorDescription(CInputStream& 
 }
 
 void CParticleDataFactory::LoadGPSMTokens(CGenDescription* desc) {
-  if (desc->x48_PMDL) {
-    desc->x48_PMDL->ForceCache();
+  if (desc->mPMDL) {
+    desc->mPMDL->ForceCache();
   }
-  if (desc->x78_ICTS) {
-    desc->x78_ICTS->ForceCache();
+  if (desc->mICTS) {
+    desc->mICTS->ForceCache();
   }
-  if (desc->x90_IDTS) {
-    desc->x90_IDTS->ForceCache();
+  if (desc->mIDTS) {
+    desc->mIDTS->ForceCache();
   }
-  if (desc->xa4_IITS) {
-    desc->xa4_IITS->ForceCache();
+  if (desc->mIITS) {
+    desc->mIITS->ForceCache();
   }
-  if (desc->xc0_SSWH) {
-    desc->xc0_SSWH->ForceCache();
+  if (desc->mSSWH) {
+    desc->mSSWH->ForceCache();
   }
 }
 
@@ -140,43 +140,43 @@ bool CParticleDataFactory::CreateGPSM(CGenDescription* desc, CInputStream& in,
       delete GetVectorElement(in);
       break;
     case SBIG('PSTS'):
-      desc->x8_PSTS = GetRealElement(in);
+      desc->mPSTS = GetRealElement(in);
       break;
     case SBIG('PSLT'):
-      desc->x0_PSLT = GetIntElement(in);
+      desc->mPSLT = GetIntElement(in);
       break;
     case SBIG('PSWT'):
-      desc->x4_PSWT = GetIntElement(in);
+      desc->mPSWT = GetIntElement(in);
       break;
     case SBIG('LIT_'):
-      desc->x30_29_LIT_ = GetBool(in);
+      desc->mLIT_ = GetBool(in);
       break;
     case SBIG('ORNT'):
-      desc->x30_30_ORNT = GetBool(in);
+      desc->mORNT = GetBool(in);
       break;
     case SBIG('RSOP'):
-      desc->x30_31_RSOP = GetBool(in);
+      desc->mRSOP = GetBool(in);
       break;
     case SBIG('AAPH'):
-      desc->x30_26_AAPH = GetBool(in);
+      desc->mAAPH = GetBool(in);
       break;
     case SBIG('ZBUF'):
-      desc->x30_27_ZBUF = GetBool(in);
+      desc->mZBUF = GetBool(in);
       break;
     case SBIG('SORT'):
-      desc->x30_28_SORT = GetBool(in);
+      desc->mSORT = GetBool(in);
       break;
     case SBIG('MBLR'):
-      desc->x31_24_MBLR = GetBool(in);
+      desc->mMBLR = GetBool(in);
       break;
     case SBIG('MBSP'):
-      desc->x34_MBSP = GetIntElement(in);
+      desc->mMBSP = GetIntElement(in);
       break;
     case SBIG('MAXP'):
-      desc->x1c_MAXP = GetIntElement(in);
+      desc->mMAXP = GetIntElement(in);
       break;
     case SBIG('GRTE'):
-      desc->x20_GRTE = GetRealElement(in);
+      desc->mGRTE = GetRealElement(in);
       break;
     case SBIG('ILOC'):
       delete GetVectorElement(in);
@@ -185,232 +185,232 @@ bool CParticleDataFactory::CreateGPSM(CGenDescription* desc, CInputStream& in,
       delete GetVectorElement(in);
       break;
     case SBIG('EMTR'):
-      desc->x2c_EMTR = GetEmitterElement(in);
+      desc->mEMTR = GetEmitterElement(in);
       break;
     case SBIG('SIZE'):
-      desc->x38_SIZE = GetRealElement(in);
+      desc->mSIZE = GetRealElement(in);
       break;
     case SBIG('COLR'):
-      desc->x24_COLR = GetColorElement(in);
+      desc->mCOLR = GetColorElement(in);
       break;
     case SBIG('POFS'):
-      desc->xc_POFS = GetVectorElement(in);
+      desc->mPOFS = GetVectorElement(in);
       break;
     case SBIG('VMD1'):
-      desc->x31_28_VMD1 = GetBool(in);
+      desc->mVMD1 = GetBool(in);
       break;
     case SBIG('VMD2'):
-      desc->x31_29_VMD2 = GetBool(in);
+      desc->mVMD2 = GetBool(in);
       break;
     case SBIG('VMD3'):
-      desc->x31_30_VMD3 = GetBool(in);
+      desc->mVMD3 = GetBool(in);
       break;
     case SBIG('VMD4'):
-      desc->x31_31_VMD4 = GetBool(in);
+      desc->mVMD4 = GetBool(in);
       break;
     case SBIG('VEL1'):
-      desc->x68_VEL1 = GetModVectorElement(in);
+      desc->mVEL1 = GetModVectorElement(in);
       break;
     case SBIG('VEL2'):
-      desc->x6c_VEL2 = GetModVectorElement(in);
+      desc->mVEL2 = GetModVectorElement(in);
       break;
     case SBIG('VEL3'):
-      desc->x70_VEL3 = GetModVectorElement(in);
+      desc->mVEL3 = GetModVectorElement(in);
       break;
     case SBIG('VEL4'):
-      desc->x74_VEL4 = GetModVectorElement(in);
+      desc->mVEL4 = GetModVectorElement(in);
       break;
     case SBIG('LTME'):
-      desc->x28_LTME = GetIntElement(in);
+      desc->mLTME = GetIntElement(in);
       break;
     case SBIG('ROTA'):
-      desc->x3c_ROTA = GetRealElement(in);
+      desc->mROTA = GetRealElement(in);
       break;
     case SBIG('LENG'):
-      desc->x14_LENG = GetRealElement(in);
+      desc->mLENG = GetRealElement(in);
       break;
     case SBIG('WIDT'):
-      desc->x18_WIDT = GetRealElement(in);
+      desc->mWIDT = GetRealElement(in);
       break;
     case SBIG('TEXR'):
-      desc->x40_TEXR = GetTextureElement(in, pool);
+      desc->mTEXR = GetTextureElement(in, pool);
       break;
     case SBIG('TIND'):
-      desc->x44_TIND = GetTextureElement(in, pool);
+      desc->mTIND = GetTextureElement(in, pool);
       break;
     case SBIG('CIND'):
-      desc->x32_24_CIND = GetBool(in);
+      desc->mCIND = GetBool(in);
       break;
     case SBIG('PMDL'): {
       rstl::optional_object< TToken< CModel > > model(GetModel(in, pool));
       if (model) {
-        desc->x48_PMDL = TCachedToken< CModel >(*model);
+        desc->mPMDL = TCachedToken< CModel >(*model);
       } else {
-        desc->x48_PMDL = rstl::optional_object_null();
+        desc->mPMDL = rstl::optional_object_null();
       }
     } break;
     case SBIG('PMOP'):
-      desc->x58_PMOP = GetVectorElement(in);
+      desc->mPMOP = GetVectorElement(in);
       break;
     case SBIG('PMRT'):
-      desc->x5c_PMRT = GetVectorElement(in);
+      desc->mPMRT = GetVectorElement(in);
       break;
     case SBIG('PMSC'):
-      desc->x60_PMSC = GetVectorElement(in);
+      desc->mPMSC = GetVectorElement(in);
       break;
     case SBIG('PMCL'):
-      desc->x64_PMCL = GetColorElement(in);
+      desc->mPMCL = GetColorElement(in);
       break;
     case SBIG('PMAB'):
-      desc->x31_25_PMAB = GetBool(in);
+      desc->mPMAB = GetBool(in);
       break;
     case SBIG('PMUS'):
-      desc->x31_26_PMUS = GetBool(in);
+      desc->mPMUS = GetBool(in);
       break;
     case SBIG('PMOO'):
-      desc->x31_27_PMOO = GetBool(in);
+      desc->mPMOO = GetBool(in);
       break;
     case SBIG('SEED'):
-      desc->x10_SEED = GetIntElement(in);
+      desc->mSEED = GetIntElement(in);
       break;
     case SBIG('ICTS'): {
       rstl::optional_object< TToken< CGenDescription > > child(
           GetChildGeneratorDesc(in, pool, resources));
       if (child) {
-        desc->x78_ICTS = TCachedToken< CGenDescription >(*child);
+        desc->mICTS = TCachedToken< CGenDescription >(*child);
       } else {
-        desc->x78_ICTS = rstl::optional_object_null();
+        desc->mICTS = rstl::optional_object_null();
       }
       break;
     }
     case SBIG('NCSY'):
-      desc->x88_NCSY = GetIntElement(in);
+      desc->mNCSY = GetIntElement(in);
       break;
     case SBIG('CSSD'):
-      desc->x8c_CSSD = GetIntElement(in);
+      desc->mCSSD = GetIntElement(in);
       break;
     case SBIG('IDTS'): {
       rstl::optional_object< TToken< CGenDescription > > child(
           GetChildGeneratorDesc(in, pool, resources));
       if (child) {
-        desc->x90_IDTS = TCachedToken< CGenDescription >(*child);
+        desc->mIDTS = TCachedToken< CGenDescription >(*child);
       } else {
-        desc->x90_IDTS = rstl::optional_object_null();
+        desc->mIDTS = rstl::optional_object_null();
       }
       break;
     }
     case SBIG('NDSY'):
-      desc->xa0_NDSY = GetIntElement(in);
+      desc->mNDSY = GetIntElement(in);
       break;
     case SBIG('IITS'): {
       rstl::optional_object< TToken< CGenDescription > > child(
           GetChildGeneratorDesc(in, pool, resources));
       if (child) {
-        desc->xa4_IITS = TCachedToken< CGenDescription >(*child);
+        desc->mIITS = TCachedToken< CGenDescription >(*child);
       } else {
-        desc->xa4_IITS = rstl::optional_object_null();
+        desc->mIITS = rstl::optional_object_null();
       }
       break;
     }
     case SBIG('PISY'):
-      desc->xb4_PISY = GetIntElement(in);
+      desc->mPISY = GetIntElement(in);
       break;
     case SBIG('SISY'):
-      desc->xb8_SISY = GetIntElement(in);
+      desc->mSISY = GetIntElement(in);
       break;
     case SBIG('SSWH'): {
       rstl::optional_object< TToken< CSwooshDescription > > child(GetSwooshGeneratorDesc(in, pool));
       if (child) {
-        desc->xc0_SSWH = TCachedToken< CSwooshDescription >(*child);
+        desc->mSSWH = TCachedToken< CSwooshDescription >(*child);
       } else {
-        desc->xc0_SSWH = rstl::optional_object_null();
+        desc->mSSWH = rstl::optional_object_null();
       }
       break;
     }
     case SBIG('SSSD'):
-      desc->xd0_SSSD = GetIntElement(in);
+      desc->mSSSD = GetIntElement(in);
       break;
     case SBIG('SSPO'):
-      desc->xd4_SSPO = GetVectorElement(in);
+      desc->mSSPO = GetVectorElement(in);
       break;
     case SBIG('SELC'): {
       rstl::optional_object< TToken< CElectricDescription > > electric =
           GetElectricGeneratorDesc(in, pool);
       if (electric) {
-        desc->xd8_SELC = *electric;
+        desc->mSELC = *electric;
       } else {
-        desc->xd8_SELC = rstl::optional_object_null();
+        desc->mSELC = rstl::optional_object_null();
       }
       break;
     }
     case SBIG('SESD'):
-      desc->xe4_SESD = GetIntElement(in);
+      desc->mSESD = GetIntElement(in);
       break;
     case SBIG('SEPO'):
-      desc->xe8_SEPO = GetVectorElement(in);
+      desc->mSEPO = GetVectorElement(in);
       break;
     case SBIG('KSSM'):
       if (GetClassID(in) == SBIG('CNST')) {
-        desc->xbc_KSSM = rs_new CSpawnSystemKeyframeData(in);
-        desc->xbc_KSSM->LoadAllSpawnedSystemTokens(pool);
+        desc->mKSSM = rs_new CSpawnSystemKeyframeData(in);
+        desc->mKSSM->LoadAllSpawnedSystemTokens(pool);
       }
       break;
     case SBIG('LINE'):
-      desc->x30_24_LINE = GetBool(in);
+      desc->mLINE = GetBool(in);
       break;
     case SBIG('FXLL'):
-      desc->x30_25_FXLL = GetBool(in);
+      desc->mFXLL = GetBool(in);
       break;
     case SBIG('LTYP'):
-      desc->xec_LTYP = GetIntElement(in);
+      desc->mLTYP = GetIntElement(in);
       break;
     case SBIG('LCLR'):
-      desc->xf0_LCLR = GetColorElement(in);
+      desc->mLCLR = GetColorElement(in);
       break;
     case SBIG('LINT'):
-      desc->xf4_LINT = GetRealElement(in);
+      desc->mLINT = GetRealElement(in);
       break;
     case SBIG('LOFF'):
-      desc->xf8_LOFF = GetVectorElement(in);
+      desc->mLOFF = GetVectorElement(in);
       break;
     case SBIG('LDIR'):
-      desc->xfc_LDIR = GetVectorElement(in);
+      desc->mLDIR = GetVectorElement(in);
       break;
     case SBIG('LFOT'):
-      desc->x100_LFOT = GetIntElement(in);
+      desc->mLFOT = GetIntElement(in);
       break;
     case SBIG('LFOR'):
-      desc->x104_LFOR = GetRealElement(in);
+      desc->mLFOR = GetRealElement(in);
       break;
     case SBIG('LSLA'):
-      desc->x108_LSLA = GetRealElement(in);
+      desc->mLSLA = GetRealElement(in);
       break;
     case SBIG('OPTS'):
-      desc->x32_25_OPTS = GetBool(in);
+      desc->mOPTS = GetBool(in);
       break;
     case SBIG('ADV1'):
-      desc->x10c_ADV1 = GetRealElement(in);
+      desc->mADV1 = GetRealElement(in);
       break;
     case SBIG('ADV2'):
-      desc->x110_ADV2 = GetRealElement(in);
+      desc->mADV2 = GetRealElement(in);
       break;
     case SBIG('ADV3'):
-      desc->x114_ADV3 = GetRealElement(in);
+      desc->mADV3 = GetRealElement(in);
       break;
     case SBIG('ADV4'):
-      desc->x118_ADV4 = GetRealElement(in);
+      desc->mADV4 = GetRealElement(in);
       break;
     case SBIG('ADV5'):
-      desc->x11c_ADV5 = GetRealElement(in);
+      desc->mADV5 = GetRealElement(in);
       break;
     case SBIG('ADV6'):
-      desc->x120_ADV6 = GetRealElement(in);
+      desc->mADV6 = GetRealElement(in);
       break;
     case SBIG('ADV7'):
-      desc->x124_ADV7 = GetRealElement(in);
+      desc->mADV7 = GetRealElement(in);
       break;
     case SBIG('ADV8'):
-      desc->x128_ADV8 = GetRealElement(in);
+      desc->mADV8 = GetRealElement(in);
       break;
     case SBIG('_END'):
       done = true;

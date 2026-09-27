@@ -17,13 +17,13 @@ public:
   void MoveInWorld(const CVector3f& offset);
   CVector3f GetWorldPosition() const;
   CVector3f GetLocalPosition() const;
-  const CTransform4f& GetWorldTransform() const { return x34_worldXF; }
+  const CTransform4f& GetWorldTransform() const { return mWorldXF; }
   void SetLocalPosition(const CVector3f& pos);
-  CTransform4f& LocalTransform() { return x4_localXF; }
-  const CTransform4f& GetO2PTransform() const { return x4_localXF; }
+  CTransform4f& LocalTransform() { return mLocalXF; }
+  const CTransform4f& GetO2PTransform() const { return mLocalXF; }
   void SetLocalTransform(const CTransform4f& xf);
   void SetO2PTransform(const CTransform4f& xf) {
-    x4_localXF = xf;
+    mLocalXF = xf;
     RecalculateTransforms();
   }
   void SetO2WTransform(const CTransform4f& xf);
@@ -32,7 +32,7 @@ public:
 
   CVector3f RotateO2P(const CVector3f& vec) const;
   CVector3f RotateW2O(const CVector3f& vec) const {
-    return x34_worldXF.TransposeRotate(vec);
+    return mWorldXF.TransposeRotate(vec);
   }
   CVector3f RotateTranslateW2O(const CVector3f& vec) const;
   void MultiplyO2P(const CTransform4f& xf);
@@ -40,10 +40,10 @@ public:
 
   void AddChildObject(CGuiObject* child, bool makeWorldLocal, bool atEnd);
 
-  void SetParent(CGuiObject* obj) { x64_parent = obj; }
+  void SetParent(CGuiObject* obj) { mParent = obj; }
 
   CGuiObject* Parent();
-  const CGuiObject* GetParent() const { return x64_parent; }
+  const CGuiObject* GetParent() const { return mParent; }
   const CGuiObject* GetChildObject() const;
   CGuiObject* ChildObject();
   const CGuiObject* GetNextSibling() const;
@@ -54,11 +54,11 @@ public:
   }
 
 private:
-  CTransform4f x4_localXF;
-  CTransform4f x34_worldXF;
-  CGuiObject* x64_parent;
-  CGuiObject* x68_child;
-  CGuiObject* x6c_nextSibling;
+  CTransform4f mLocalXF;
+  CTransform4f mWorldXF;
+  CGuiObject* mParent;
+  CGuiObject* mChild;
+  CGuiObject* mNextSibling;
 };
 CHECK_SIZEOF(CGuiObject, 0x70)
 

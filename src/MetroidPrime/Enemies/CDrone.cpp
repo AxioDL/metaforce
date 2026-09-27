@@ -43,51 +43,51 @@ CDroneLaser::CDroneLaser(TUniqueId uid, TAreaId areaId, const CTransform4f& xf, 
 : CActor(uid, true, rstl::string_l("DroneLaser"), CEntityInfo(areaId, NullConnectionList), xf,
          CModelData::CModelDataNull(), CMaterialList(kMT_NoStepLogic),
          CActorParameters::None().HotInThermal(true), kInvalidUniqueId)
-, xe8_wallIntersection(CVector3f::Zero())
-, xf4_scannerLight(kInvalidUniqueId)
-, xf8_beamDesc(gpSimplePool->GetObj(SObjectTag('PART', particle)))
-, x104_beamParticle(
-      rs_new CElementGen(xf8_beamDesc, CElementGen::kMOT_Normal, CElementGen::kOSF_One)) {}
+, mWallIntersection(CVector3f::Zero())
+, mScannerLight(kInvalidUniqueId)
+, mBeamDesc(gpSimplePool->GetObj(SObjectTag('PART', particle)))
+, mBeamParticle(
+      rs_new CElementGen(mBeamDesc, CElementGen::kMOT_Normal, CElementGen::kOSF_One)) {}
 
 void CDroneLaser::SetWallIntersection(CStateManager& mgr, const CVector3f& pos,
                                       const CVector3f& direction) {
-  xe8_wallIntersection = pos;
+  mWallIntersection = pos;
   const CVector3f beamDirection = (pos - GetTranslation()).AsNormalized();
-  if (xf4_scannerLight != kInvalidUniqueId) {
-    if (CGameLight* light = TCastToPtr< CGameLight >(mgr.ObjectById(xf4_scannerLight))) {
+  if (mScannerLight != kInvalidUniqueId) {
+    if (CGameLight* light = TCastToPtr< CGameLight >(mgr.ObjectById(mScannerLight))) {
       light->SetTranslation(pos - 0.5f * beamDirection);
     }
   }
-  x104_beamParticle->SetOrientation(CTransform4f::LookAt(CVector3f::Zero(), direction));
-  x104_beamParticle->SetTranslation(pos);
+  mBeamParticle->SetOrientation(CTransform4f::LookAt(CVector3f::Zero(), direction));
+  mBeamParticle->SetTranslation(pos);
 }
 
-void CDroneLaser::Think(float dt, CStateManager&) { x104_beamParticle->Update(dt); }
+void CDroneLaser::Think(float dt, CStateManager&) { mBeamParticle->Update(dt); }
 
 void CDroneLaser::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) {
   CActor::AcceptScriptMsg(msg, sender, mgr);
   switch (msg) {
   case kSM_Activate:
     SetScannerLightActive(mgr, true);
-    x104_beamParticle->SetParticleEmission(true);
+    mBeamParticle->SetParticleEmission(true);
     break;
   case kSM_Deactivate:
     SetScannerLightActive(mgr, false);
-    x104_beamParticle->SetParticleEmission(false);
+    mBeamParticle->SetParticleEmission(false);
     break;
   case kSM_Registered: {
-    xf4_scannerLight = mgr.AllocateUniqueId();
+    mScannerLight = mgr.AllocateUniqueId();
     const CLight light(CLight::BuildPoint(CVector3f::Zero(), CColor::Red()));
     CGameLight* const scanner = rs_new CGameLight(
-        xf4_scannerLight, GetCurrentAreaId(), GetActive(), rstl::string_l("LaserScanner"),
+        mScannerLight, GetCurrentAreaId(), GetActive(), rstl::string_l("LaserScanner"),
         CTransform4f::Identity(), GetUniqueId(), light, 0, 0, 0.f);
     mgr.AddObject(*scanner);
     break;
   }
   case kSM_Deleted:
-    if (xf4_scannerLight != kInvalidUniqueId) {
-      mgr.DeleteObjectRequest(xf4_scannerLight);
-      xf4_scannerLight = kInvalidUniqueId;
+    if (mScannerLight != kInvalidUniqueId) {
+      mgr.DeleteObjectRequest(mScannerLight);
+      mScannerLight = kInvalidUniqueId;
     }
     break;
   }
@@ -97,16 +97,16 @@ ENTITY_ACCEPT_IMPL(CDroneLaser)
 
 void CDroneLaser::CalculateRenderBounds() {
   CAABox bounds = CAABox::MakeMaxInvertedBox();
-  const CVector3f diff = xe8_wallIntersection - GetTranslation();
+  const CVector3f diff = mWallIntersection - GetTranslation();
   const float length = diff.Magnitude();
   bounds.AccumulateBounds(GetTranslation());
-  bounds.AccumulateBounds(xe8_wallIntersection + (0.1f * length) * GetTransform().GetUp());
-  bounds.AccumulateBounds(xe8_wallIntersection - (0.1f * length) * GetTransform().GetUp());
+  bounds.AccumulateBounds(mWallIntersection + (0.1f * length) * GetTransform().GetUp());
+  bounds.AccumulateBounds(mWallIntersection - (0.1f * length) * GetTransform().GetUp());
   SetRenderBounds(bounds);
 }
 
 void CDroneLaser::AddToRenderer(const CFrustumPlanes&, const CStateManager& mgr) const {
-  gpRender->AddParticleGen(*x104_beamParticle);
+  gpRender->AddParticleGen(*mBeamParticle);
   EnsureRendered(mgr);
 }
 
@@ -121,9 +121,9 @@ void CDroneLaser::Render(const CStateManager&) const {
 void CDroneLaser::RenderBeam(uint subdivisions, float radius, const CColor& color,
                              bool additive) const {
   if (GetActive()) {
-    const CVector3f diff = xe8_wallIntersection - GetTranslation();
+    const CVector3f diff = mWallIntersection - GetTranslation();
     const float length = diff.Magnitude();
-    const CTransform4f xf(CTransform4f::LookAt(GetTranslation(), xe8_wallIntersection));
+    const CTransform4f xf(CTransform4f::LookAt(GetTranslation(), mWallIntersection));
     CGraphics::DisableAllLights();
     CGX::SetNumTexGens(0);
     CGX::SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD_NULL, GX_TEXMAP_NULL, GX_COLOR0A0);
@@ -157,7 +157,7 @@ void CDroneLaser::RenderBeam(uint subdivisions, float radius, const CColor& colo
 }
 
 void CDroneLaser::SetScannerLightActive(CStateManager& mgr, bool active) {
-  mgr.SendScriptMsgAlways(xf4_scannerLight, GetUniqueId(), active ? kSM_Activate : kSM_Deactivate);
+  mgr.SendScriptMsgAlways(mScannerLight, GetUniqueId(), active ? kSM_Activate : kSM_Deactivate);
 }
 
 CDrone::CDrone(TUniqueId uid, const rstl::string& name, EFlavorType flavor, const CEntityInfo& info,
@@ -172,14 +172,14 @@ CDrone::CDrone(TUniqueId uid, const rstl::string& name, EFlavorType flavor, cons
                bool b1)
 : CPatterned(kC_Drone, uid, name, flavor, info, xf, mData, pInfo, moveType, collider, bodyType,
              aParms, flavor == kFT_Zero ? kCS_Medium : kCS_Large)
-, x568_laserParticlesId(aId1)
-, x56c_collisionResponse(gpSimplePool->GetObj(SObjectTag('CRSC', crscId)))
-, x578_lightId(kInvalidUniqueId)
-, x57a_visorFlareId(kInvalidUniqueId)
-, x57c_flares(flares)
-, x58c_prevDodgeDir(pas::kSD_Left)
-, x590_damageInfo(dInfo1)
-, x5ac_laserDamageInfo(dInfo2)
+, mLaserParticlesId(aId1)
+, mCollisionResponse(gpSimplePool->GetObj(SObjectTag('CRSC', crscId)))
+, mLightId(kInvalidUniqueId)
+, mVisorFlareId(kInvalidUniqueId)
+, mFlares(flares)
+, mPrevDodgeDir(pas::kSD_Left)
+, mDamageInfo(dInfo1)
+, mLaserDamageInfo(dInfo2)
 , x5c8_(0.f)
 , x5cc_(0.f)
 , x5d0_(0.f)
@@ -188,8 +188,8 @@ CDrone::CDrone(TUniqueId uid, const rstl::string& name, EFlavorType flavor, cons
 , x5dc_(0.f)
 , x5e0_(0.f)
 , x5e4_(f23)
-, x5e8_shieldTime(0.f)
-, x5ec_turnSpeed(f1)
+, mShieldTime(0.f)
+, mTurnSpeed(f1)
 , x5f0_(f2)
 , x5f4_(f3)
 , x5f8_(f4)
@@ -224,45 +224,45 @@ CDrone::CDrone(TUniqueId uid, const rstl::string& name, EFlavorType flavor, cons
 , x66c_(0.f)
 , x670_(CVector3f::Zero())
 , x67c_(CVector3f::Zero())
-, x688_teamMgr(kInvalidUniqueId)
-, x690_colSphere(CSphere(CVector3f(0.f, 0.f, 1.8f), 1.1f), GetMaterialList())
-, x6b0_pathFind(nullptr, b1 ? 4 : 3, pInfo.GetPathfindingIndex(), 1.f, 2.4f)
+, mTeamMgr(kInvalidUniqueId)
+, mColSphere(CSphere(CVector3f(0.f, 0.f, 1.8f), 1.1f), GetMaterialList())
+, mPathFind(nullptr, b1 ? 4 : 3, pInfo.GetPathfindingIndex(), 1.f, 2.4f)
 , x794_(CAxisAngle::Identity())
 , x7a0_(CVector3f::Zero())
-, x7ac_lightPos(0.f, 0.f, 0.f)
+, mLightPos(0.f, 0.f, 0.f)
 , x7b8_(0.f)
 , x7bc_(0.f)
 , x7c0_(0.f)
 , x7c4_(0.f)
 , x7c8_(0)
-, x7cc_laserSfx(CSfxManager::TranslateSFXID(soundId))
-, x7d0_laserSfxHandle()
-, x7d8_laserIds(kInvalidUniqueId)
-, x7e0_lasersStart(CVector3f::Zero())
-, x7fc_lasersEnd(CVector3f::Zero())
-, x818_lasersTime(0.f)
-, x824_activeLasers(false)
-, x82c_shieldModel(rs_new CModelData(CStaticRes(aId2, CVector3f(1.f, 1.f, 1.f))))
+, mLaserSfx(CSfxManager::TranslateSFXID(soundId))
+, mLaserSfxHandle()
+, mLaserIds(kInvalidUniqueId)
+, mLasersStart(CVector3f::Zero())
+, mLasersEnd(CVector3f::Zero())
+, mLasersTime(0.f)
+, mActiveLasers(false)
+, mShieldModel(rs_new CModelData(CStaticRes(aId2, CVector3f(1.f, 1.f, 1.f))))
 , x830_(0)
 , x832_24_(0)
 , x832_27_(0)
-, x834_24_waveHit(false)
+, mWaveHit(false)
 , x834_25_(false)
 , x834_26_(false)
 , x834_27_(false)
 , x834_28_(false)
-, x834_29_codeTrigger(false)
-, x834_30_visible(false)
-, x834_31_attackOver(false)
+, mCodeTrigger(false)
+, mVisible(false)
+, mAttackOver(false)
 , x835_24_(false)
 , x835_25_(b1)
 , x835_26_(false) {
   UpdateTouchBounds(pInfo.GetHalfExtent());
-  x460_knockBackController.SetEnableShock(true);
-  x460_knockBackController.EnableAnimReaction(kAR_Hurled, false);
-  x460_knockBackController.SetLocomotionDuringElectrocution(true);
+  mKnockBackController.SetEnableShock(true);
+  mKnockBackController.EnableAnimReaction(kAR_Hurled, false);
+  mKnockBackController.SetLocomotionDuringElectrocution(true);
   MakeThermalColdAndHot();
-  SetDrawShadow(x3fc_flavor != kFT_One);
+  SetDrawShadow(mFlavor != kFT_One);
 }
 
 ENTITY_ACCEPT_IMPL(CDrone)
@@ -276,25 +276,25 @@ void CDrone::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateM
     break;
   case kSM_Deactivate:
   case kSM_Deleted:
-    for (int i = 0; i < x7d8_laserIds.size(); ++i) {
-      if (x7d8_laserIds[i] != kInvalidUniqueId) {
-        mgr.DeleteObjectRequest(x7d8_laserIds[i]);
-        x7d8_laserIds[i] = kInvalidUniqueId;
+    for (int i = 0; i < mLaserIds.size(); ++i) {
+      if (mLaserIds[i] != kInvalidUniqueId) {
+        mgr.DeleteObjectRequest(mLaserIds[i]);
+        mLaserIds[i] = kInvalidUniqueId;
       }
     }
     SquadRemove(mgr);
     mgr.PlayerState()->StaticInterference().RemoveSource(GetUniqueId());
-    if (x578_lightId != kInvalidUniqueId) {
-      mgr.DeleteObjectRequest(x578_lightId);
-      x578_lightId = kInvalidUniqueId;
+    if (mLightId != kInvalidUniqueId) {
+      mgr.DeleteObjectRequest(mLightId);
+      mLightId = kInvalidUniqueId;
     }
-    if (x57a_visorFlareId != kInvalidUniqueId) {
-      mgr.DeleteObjectRequest(x57a_visorFlareId);
-      x57a_visorFlareId = kInvalidUniqueId;
+    if (mVisorFlareId != kInvalidUniqueId) {
+      mgr.DeleteObjectRequest(mVisorFlareId);
+      mVisorFlareId = kInvalidUniqueId;
     }
-    if (x7d0_laserSfxHandle) {
-      CSfxManager::RemoveEmitter(x7d0_laserSfxHandle);
-      x7d0_laserSfxHandle = CSfxHandle();
+    if (mLaserSfxHandle) {
+      CSfxManager::RemoveEmitter(mLaserSfxHandle);
+      mLaserSfxHandle = CSfxHandle();
     }
     break;
   case kSM_Registered: {
@@ -302,38 +302,38 @@ void CDrone::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateM
     BodyCtrl()->SetLocomotionType(pas::kLT_Lurk);
     BodyCtrl()->BodyStateInfo().SetMaximumPitch(0.f);
     x5cc_ = 0.f;
-    x460_knockBackController.SetEnableFreeze(false);
+    mKnockBackController.SetEnableFreeze(false);
     AddMaterial(kMT_AIJoint, mgr);
-    x578_lightId = mgr.AllocateUniqueId();
+    mLightId = mgr.AllocateUniqueId();
     const CLight light(CLight::BuildPoint(CVector3f::Zero(), CColor::Red()));
     CGameLight* const laserLight = rs_new CGameLight(
-        x578_lightId, GetCurrentAreaId(), GetActive(), rstl::string_l("LaserLight"),
+        mLightId, GetCurrentAreaId(), GetActive(), rstl::string_l("LaserLight"),
         CTransform4f::Identity(), GetUniqueId(), light, 0, 0, 0.f);
     mgr.AddObject(*laserLight);
     break;
   }
   case kSM_Alert:
-    x834_29_codeTrigger = true;
+    mCodeTrigger = true;
     break;
   case kSM_InitializedInArea: {
     const TAreaId area = GetCurrentAreaId();
-    x6b0_pathFind.SetArea(mgr.GetWorld()->GetAreaAlways(area).GetPostConstructed()->x10bc_pathArea);
-    if (x688_teamMgr == kInvalidUniqueId) {
-      x688_teamMgr = CTeamAiMgr::GetTeamAiMgr(*this, mgr);
+    mPathFind.SetArea(mgr.GetWorld()->GetAreaAlways(area).GetPostConstructed()->mPathArea);
+    if (mTeamMgr == kInvalidUniqueId) {
+      mTeamMgr = CTeamAiMgr::GetTeamAiMgr(*this, mgr);
       if (GetActive()) {
         SquadAdd(mgr);
       }
     }
     x604_ = HealthInfo(mgr)->GetHP();
     const CVector3f& scale = GetModelData()->GetScale();
-    x55c_moveScale = CVector3f(1.f / scale.GetX(), 1.f / scale.GetY(), 1.f / scale.GetZ());
+    mMoveScale = CVector3f(1.f / scale.GetX(), 1.f / scale.GetY(), 1.f / scale.GetZ());
     if (x835_25_) {
       SetSoundEventPitchBend(0);
     }
     break;
   }
   case kSM_OnFloor:
-    if (!x835_26_ && x834_24_waveHit && !IsAlive()) {
+    if (!x835_26_ && mWaveHit && !IsAlive()) {
       x835_26_ = true;
       MassiveFrozenDeath(mgr);
     }
@@ -342,19 +342,19 @@ void CDrone::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateM
 }
 
 void CDrone::SetLightEnabled(CStateManager& mgr, bool active) {
-  mgr.SendScriptMsgAlways(x578_lightId, GetUniqueId(), active ? kSM_Activate : kSM_Deactivate);
+  mgr.SendScriptMsgAlways(mLightId, GetUniqueId(), active ? kSM_Activate : kSM_Deactivate);
 }
 
 void CDrone::SetVisorFlareEnabled(CStateManager& mgr, bool active) {
   if (IsAlive()) {
-    CScriptVisorFlare* flare = TCastToPtr< CScriptVisorFlare >(mgr.ObjectById(x57a_visorFlareId));
+    CScriptVisorFlare* flare = TCastToPtr< CScriptVisorFlare >(mgr.ObjectById(mVisorFlareId));
     if (flare == nullptr && active) {
-      x57a_visorFlareId = mgr.AllocateUniqueId();
+      mVisorFlareId = mgr.AllocateUniqueId();
       const CTransform4f xf(GetLctrTransform(rstl::string_l("Beacon_LCTR")));
-      flare = rs_new CScriptVisorFlare(x57a_visorFlareId, rstl::string_l("DroneVisorFlare"),
+      flare = rs_new CScriptVisorFlare(mVisorFlareId, rstl::string_l("DroneVisorFlare"),
                                        CEntityInfo(GetCurrentAreaId(), NullConnectionList), active,
                                        xf.GetTranslation(), CVisorFlare::kBM_Additive, true, 0.1f,
-                                       1.f, 2.f, 0, 0, x57c_flares);
+                                       1.f, 2.f, 0, 0, mFlares);
       mgr.AddObject(*flare);
     }
     mgr.DeliverScriptMsg(flare, GetUniqueId(), active ? kSM_Activate : kSM_Deactivate);
@@ -362,7 +362,7 @@ void CDrone::SetVisorFlareEnabled(CStateManager& mgr, bool active) {
 }
 
 void CDrone::UpdateVisorFlare(CStateManager& mgr) {
-  CScriptVisorFlare* flare = TCastToPtr< CScriptVisorFlare >(mgr.ObjectById(x57a_visorFlareId));
+  CScriptVisorFlare* flare = TCastToPtr< CScriptVisorFlare >(mgr.ObjectById(mVisorFlareId));
   const CVector3f& direction =
       (mgr.GetPlayer()->GetTranslation() - GetTranslation()).AsNormalized();
   SetVisorFlareEnabled(mgr, CVector3f::Dot(direction, GetTransform().GetForward()) > 0.f);
@@ -384,44 +384,44 @@ void CDrone::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUse
   }
   case kUE_DamageOn:
     if (IsAlive() && x835_24_) {
-      if (!x824_activeLasers[0]) {
+      if (!mActiveLasers[0]) {
         SetLaserActive(mgr, 0, true);
-        x824_activeLasers[0] = true;
+        mActiveLasers[0] = true;
         SetVisorFlareEnabled(mgr, true);
-      } else if (x3fc_flavor == kFT_One) {
+      } else if (mFlavor == kFT_One) {
         SetLaserActive(mgr, 1, true);
-        x824_activeLasers[1] = true;
+        mActiveLasers[1] = true;
       }
     }
     handled = true;
     break;
   case kUE_DamageOff:
-    if (x824_activeLasers[0]) {
+    if (mActiveLasers[0]) {
       SetLaserActive(mgr, 0, false);
-      x824_activeLasers[0] = false;
+      mActiveLasers[0] = false;
       SetVisorFlareEnabled(mgr, false);
-    } else if (x3fc_flavor == kFT_One) {
+    } else if (mFlavor == kFT_One) {
       SetLaserActive(mgr, 1, false);
-      x824_activeLasers[1] = false;
+      mActiveLasers[1] = false;
     }
     handled = true;
     break;
   case kUE_FadeIn:
-    if (x3fc_flavor == kFT_One) {
-      x834_30_visible = true;
+    if (mFlavor == kFT_One) {
+      mVisible = true;
     }
     handled = true;
     break;
   case kUE_FadeOut:
-    if (x3fc_flavor == kFT_One) {
-      x834_30_visible = false;
+    if (mFlavor == kFT_One) {
+      mVisible = false;
     }
     handled = true;
     break;
   case kUE_Delete:
-    if (x7d0_laserSfxHandle) {
-      CSfxManager::RemoveEmitter(x7d0_laserSfxHandle);
-      x7d0_laserSfxHandle = CSfxHandle();
+    if (mLaserSfxHandle) {
+      CSfxManager::RemoveEmitter(mLaserSfxHandle);
+      mLaserSfxHandle = CSfxHandle();
     }
     MassiveDeath(mgr);
     break;
@@ -435,11 +435,11 @@ void CDrone::Touch(CActor& actor, CStateManager& mgr) {
   CPatterned::Touch(actor, mgr);
   if (CWeapon* weapon = TCastToPtr< CWeapon >(actor)) {
     if (IsAlive()) {
-      x834_24_waveHit = weapon->GetType() == kWT_Wave;
-      if (x3fc_flavor == kFT_One) {
+      mWaveHit = weapon->GetType() == kWT_Wave;
+      if (mFlavor == kFT_One) {
         const CVector3f direction = weapon->GetTranslation() - GetTranslation();
         if (HitShield(direction)) {
-          x5e8_shieldTime = 1.f;
+          mShieldTime = 1.f;
         }
       }
     }
@@ -475,18 +475,18 @@ void CDrone::LaunchProjectile(const CTransform4f& xf, CStateManager& mgr) {
   if (result.IsValid()) {
     if (hitId == mgr.GetPlayer()->GetUniqueId()) {
       mgr.ApplyDamage(
-          GetUniqueId(), hitId, GetUniqueId(), x5ac_laserDamageInfo,
+          GetUniqueId(), hitId, GetUniqueId(), mLaserDamageInfo,
           CMaterialFilter::MakeIncludeExclude(CMaterialList(SolidMaterial), CMaterialList()),
           CVector3f::Zero());
     }
     const bool hot = (GetThermalFlags() & kTF_Hot) != 0;
-    mgr.DoCollisionResponse(**x56c_collisionResponse, result, hitId,
-                            x5ac_laserDamageInfo.GetWeaponMode(), true, hot);
+    mgr.DoCollisionResponse(**mCollisionResponse, result, hitId,
+                            mLaserDamageInfo.GetWeaponMode(), true, hot);
   }
 }
 
 bool CDrone::HitShield(const CVector3f& dir) const {
-  if (x3fc_flavor != kFT_One) {
+  if (mFlavor != kFT_One) {
     return false;
   }
   if (close_enough(x5dc_, 0.f)) {
@@ -500,8 +500,8 @@ EWeaponCollisionResponseTypes CDrone::GetCollisionResponseType(const CVector3f&,
                                                                const CVector3f& dir,
                                                                const CWeaponMode&, int) const {
   EWeaponCollisionResponseTypes result = kWCR_Unknown36;
-  if (x3fc_flavor == kFT_One && HitShield(-dir)) {
-    x5e8_shieldTime = 1.f;
+  if (mFlavor == kFT_One && HitShield(-dir)) {
+    mShieldTime = 1.f;
     result = kWCR_Unknown86;
   }
   return result;
@@ -509,26 +509,26 @@ EWeaponCollisionResponseTypes CDrone::GetCollisionResponseType(const CVector3f&,
 
 const CDamageVulnerability* CDrone::GetDamageVulnerability(const CVector3f&, const CVector3f& dir,
                                                            const CDamageInfo&) const {
-  if (x3fc_flavor == kFT_One && HitShield(-dir)) {
-    x5e8_shieldTime = 1.f;
+  if (mFlavor == kFT_One && HitShield(-dir)) {
+    mShieldTime = 1.f;
     return &CDamageVulnerability::ReflectVulnerability();
   }
   return CAi::GetDamageVulnerability();
 }
 
 void CDrone::Think(float dt, CStateManager& mgr) {
-  if (x3fc_flavor == kFT_One) {
+  if (mFlavor == kFT_One) {
     const bool xray = mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::kPV_XRay;
     float alpha = 1.f;
     if (!xray) {
-      alpha = rstl::max_val(0.f, x428_damageCooldownTimer / skDamageHitTime);
+      alpha = rstl::max_val(0.f, mDamageCooldownTimer / skDamageHitTime);
     }
-    x42c_color.SetAlpha(alpha);
+    mColor.SetAlpha(alpha);
   }
-  x403_25_enableStateMachine = !BodyCtrl()->IsElectrocuting();
-  if (BodyCtrl()->IsElectrocuting() && (x824_activeLasers[0] || x824_activeLasers[1])) {
-    x824_activeLasers[0] = false;
-    x824_activeLasers[1] = false;
+  mEnableStateMachine = !BodyCtrl()->IsElectrocuting();
+  if (BodyCtrl()->IsElectrocuting() && (mActiveLasers[0] || mActiveLasers[1])) {
+    mActiveLasers[0] = false;
+    mActiveLasers[1] = false;
     SetLaserActive(mgr, 0, false);
     SetLaserActive(mgr, 1, false);
     SetVisorFlareEnabled(mgr, false);
@@ -554,7 +554,7 @@ void CDrone::Think(float dt, CStateManager& mgr) {
   if (x644_ >= 0.f) {
     x644_ -= dt;
   }
-  if (x824_activeLasers[0] || (x824_activeLasers[1] && IsAlive())) {
+  if (mActiveLasers[0] || (mActiveLasers[1] && IsAlive())) {
     UpdateLaser(mgr, dt);
     UpdateVisorFlare(mgr);
   }
@@ -587,22 +587,22 @@ void CDrone::Think(float dt, CStateManager& mgr) {
     x624_ -= healthDiff / x600_;
   }
   x604_ = HealthInfo(mgr)->GetHP();
-  if (x3fc_flavor == kFT_One) {
-    if (x834_30_visible) {
+  if (mFlavor == kFT_One) {
+    if (mVisible) {
       x5dc_ = rstl::min_val(1.f, x5dc_ + 3.f * dt);
     } else {
       x5dc_ = rstl::max_val(0.f, x5dc_ - 3.f * dt);
     }
-    x5e8_shieldTime = rstl::max_val(0.f, x5e8_shieldTime - dt);
+    mShieldTime = rstl::max_val(0.f, mShieldTime - dt);
     if (!close_enough(x5dc_, 0.f)) {
-      if (!x7d0_laserSfxHandle && IsAlive()) {
-        x7d0_laserSfxHandle =
+      if (!mLaserSfxHandle && IsAlive()) {
+        mLaserSfxHandle =
             CSfxManager::AddEmitter(0xdd, GetTranslation(), CVector3f::Zero(), true, true,
                                     CSfxManager::kMedPriority, GetCurrentAreaId().Value());
       }
-    } else if (x7d0_laserSfxHandle) {
-      CSfxManager::RemoveEmitter(x7d0_laserSfxHandle);
-      x7d0_laserSfxHandle.Clear();
+    } else if (mLaserSfxHandle) {
+      CSfxManager::RemoveEmitter(mLaserSfxHandle);
+      mLaserSfxHandle.Clear();
     }
   }
   UpdateThermal(mgr, dt);
@@ -653,9 +653,9 @@ void CDrone::UpdateTouchBounds(float radius) {
   const CVector3f center = xf.GetTranslation() - GetTranslation();
   const CVector3f extent(radius, radius, radius);
   const CAABox bounds(center - extent, center + extent);
-  x690_colSphere.SetSphere(CSphere(center, radius));
+  mColSphere.SetSphere(CSphere(center, radius));
   SetBoundingBox(bounds);
-  x6b0_pathFind.SetCharacterRadius(0.25f + radius);
+  mPathFind.SetCharacterRadius(0.25f + radius);
 }
 
 void CDrone::Patrol(CStateManager& mgr, EStateMsg msg, float dt) {
@@ -671,7 +671,7 @@ void CDrone::Patrol(CStateManager& mgr, EStateMsg msg, float dt) {
     if (!nearList.empty()) {
       const CActor* actor = static_cast< const CActor* >(mgr.GetObjectById(nearList[0]));
       const CVector3f separation =
-          x45c_steeringBehaviors.Separation(*this, actor->GetTranslation(), 5.f);
+          mSteeringBehaviors.Separation(*this, actor->GetTranslation(), 5.f);
       if (!(separation == CVector3f::Zero())) {
         BodyCtrl()->CommandMgr().DeliverCmd(CBCLocomotionCmd(separation, CVector3f::Zero(), 0.5f));
       }
@@ -690,7 +690,7 @@ const CCollisionPrimitive* CDrone::GetCollisionPrimitive() const {
   if (x834_28_) {
     return CPhysicsActor::GetCollisionPrimitive();
   }
-  return &x690_colSphere;
+  return &mColSphere;
 }
 
 void CDrone::UpdateScanner(CStateManager& mgr, float dt) {
@@ -722,10 +722,10 @@ void CDrone::UpdateScanner(CStateManager& mgr, float dt) {
   nearList.push_back(mgr.GetPlayer()->GetUniqueId());
   const CRayCastResult result = mgr.RayWorldIntersection(
       hitId, beacon.GetTranslation() + 0.2f * direction, direction, 10000.f, filter, nearList);
-  if (result.IsValid() && x578_lightId != kInvalidUniqueId) {
-    if (CGameLight* light = TCastToPtr< CGameLight >(mgr.ObjectById(x578_lightId))) {
+  if (result.IsValid() && mLightId != kInvalidUniqueId) {
+    if (CGameLight* light = TCastToPtr< CGameLight >(mgr.ObjectById(mLightId))) {
       light->SetTranslation(result.GetPoint());
-      x7ac_lightPos = result.GetPoint();
+      mLightPos = result.GetPoint();
     }
   }
 }
@@ -734,11 +734,11 @@ void CDrone::UpdateLaser(CStateManager& mgr, float dt) {
   static const CMaterialFilter filter = CMaterialFilter::MakeIncludeExclude(
       CMaterialList(kMT_Solid), CMaterialList(kMT_ProjectilePassthrough));
   const CTransform4f beacon(GetLctrTransform(rstl::string_l(sBeaconLocator)));
-  for (int i = 0; i < x818_lasersTime.size(); ++i) {
-    if (x818_lasersTime[i] < 1.f && x824_activeLasers[i]) {
-      x818_lasersTime[i] += dt;
+  for (int i = 0; i < mLasersTime.size(); ++i) {
+    if (mLasersTime[i] < 1.f && mActiveLasers[i]) {
+      mLasersTime[i] += dt;
       const CVector3f target =
-          CVector3f::Lerp(x7e0_lasersStart[i], x7fc_lasersEnd[i], x818_lasersTime[i]);
+          CVector3f::Lerp(mLasersStart[i], mLasersEnd[i], mLasersTime[i]);
       const CVector3f direction = (target - beacon.GetTranslation()).AsNormalized();
       TUniqueId hitId = kInvalidUniqueId;
       CAABox bounds = CAABox::MakeMaxInvertedBox();
@@ -749,29 +749,29 @@ void CDrone::UpdateLaser(CStateManager& mgr, float dt) {
       const CRayCastResult result = mgr.RayWorldIntersection(
           hitId, beacon.GetTranslation() + 2.f * direction, direction, 10000.f, filter, nearList);
       if (result.IsValid()) {
-        if (x7d8_laserIds[i] != kInvalidUniqueId) {
-          if (CDroneLaser* laser = static_cast< CDroneLaser* >(mgr.ObjectById(x7d8_laserIds[i]))) {
+        if (mLaserIds[i] != kInvalidUniqueId) {
+          if (CDroneLaser* laser = static_cast< CDroneLaser* >(mgr.ObjectById(mLaserIds[i]))) {
             laser->SetTransform(beacon);
             laser->SetWallIntersection(mgr, result.GetPoint(), result.GetPlane().GetNormal());
           }
         }
         if (CPlayer* player = TCastToPtr< CPlayer >(mgr.ObjectById(hitId))) {
-          if (x420_curDamageRemTime <= 0.f) {
+          if (mCurDamageRemTime <= 0.f) {
             mgr.ApplyDamage(
                 GetUniqueId(), player->GetUniqueId(), GetUniqueId(), GetContactDamage(),
                 CMaterialFilter::MakeIncludeExclude(CMaterialList(SolidMaterial), CMaterialList()),
                 CVector3f::Zero());
-            x420_curDamageRemTime = x424_damageWaitTime;
+            mCurDamageRemTime = mDamageWaitTime;
             mgr.PlayerState()->StaticInterference().AddSource(GetUniqueId(), 0.3f, 1.f);
             x628_ = 0.5f;
-            CSfxManager::AddEmitter(x7cc_laserSfx, result.GetPoint(), CVector3f(0.f, 0.f, 0.f),
+            CSfxManager::AddEmitter(mLaserSfx, result.GetPoint(), CVector3f(0.f, 0.f, 0.f),
                                     true, false, CSfxManager::kMedPriority,
                                     GetCurrentAreaId().Value());
           }
         }
         if (hitId != GetUniqueId()) {
           if (CPatterned* patterned = TCastToPtr< CPatterned >(mgr.ObjectById(hitId))) {
-            x834_31_attackOver = true;
+            mAttackOver = true;
             UpdateAnimation(GetModelData()->GetAnimationData()->GetAnimTimeRemaining(
                                 rstl::string_l("Whole Body")),
                             mgr, true);
@@ -846,12 +846,12 @@ void CDrone::UpdateWaterRipples(CStateManager& mgr) {
 }
 
 void CDrone::SetLaserActive(CStateManager& mgr, int laserIdx, bool active) {
-  if (active && x7d8_laserIds[laserIdx] == kInvalidUniqueId) {
-    x7d8_laserIds[laserIdx] = mgr.AllocateUniqueId();
-    mgr.AddObject(*rs_new CDroneLaser(x7d8_laserIds[laserIdx], GetCurrentAreaId(), GetTransform(),
-                                      x568_laserParticlesId));
+  if (active && mLaserIds[laserIdx] == kInvalidUniqueId) {
+    mLaserIds[laserIdx] = mgr.AllocateUniqueId();
+    mgr.AddObject(*rs_new CDroneLaser(mLaserIds[laserIdx], GetCurrentAreaId(), GetTransform(),
+                                      mLaserParticlesId));
   }
-  if (CEntity* laser = mgr.ObjectById(x7d8_laserIds[laserIdx])) {
+  if (CEntity* laser = mgr.ObjectById(mLaserIds[laserIdx])) {
     mgr.DeliverScriptMsg(laser, GetUniqueId(), active ? kSM_Activate : kSM_Deactivate);
   }
 }
@@ -860,7 +860,7 @@ void CDrone::KnockBack(const CVector3f& dir, CStateManager& mgr, const CDamageIn
                        float magnitude, bool direct, const bool inDeferred) {
   if (IsAlive()) {
     CPatterned::KnockBack(dir, mgr, info, magnitude, direct, inDeferred);
-    if (x460_knockBackController.GetActiveParms().x0_animState != kAR_Invalid) {
+    if (mKnockBackController.GetActiveParms().mAnimState != kAR_Invalid) {
       x630_ = 0.5f;
       x634_ = 1.f;
     }
@@ -869,7 +869,7 @@ void CDrone::KnockBack(const CVector3f& dir, CStateManager& mgr, const CDamageIn
 
 bool CDrone::ShouldAttack(CStateManager& mgr, float) {
   if (x5d0_ <= 0.f) {
-    if (CTeamAiMgr* team = TCastToPtr< CTeamAiMgr >(mgr.ObjectById(x688_teamMgr))) {
+    if (CTeamAiMgr* team = TCastToPtr< CTeamAiMgr >(mgr.ObjectById(mTeamMgr))) {
       if (team->HasTeamAiRole(GetUniqueId())) {
         return team->AddProjectileAttacker(GetUniqueId());
       }
@@ -904,13 +904,13 @@ void CDrone::BuildNearList(EMaterialTypes includeMat, EMaterialTypes excludeMat,
 
 bool CDrone::InRange(CStateManager& mgr, float) {
   const float distance = (mgr.GetPlayer()->GetTranslation() - GetTranslation()).MagSquared();
-  return distance > x2fc_minAttackRange * x2fc_minAttackRange &&
-         distance < x300_maxAttackRange * x300_maxAttackRange;
+  return distance > mMinAttackRange * mMinAttackRange &&
+         distance < mMaxAttackRange * mMaxAttackRange;
 }
 
-bool CDrone::CodeTrigger(CStateManager&, float) { return x834_29_codeTrigger; }
+bool CDrone::CodeTrigger(CStateManager&, float) { return mCodeTrigger; }
 
-bool CDrone::AttackOver(CStateManager&, float) { return x834_31_attackOver; }
+bool CDrone::AttackOver(CStateManager&, float) { return mAttackOver; }
 
 void CDrone::Dodge(CStateManager& mgr, EStateMsg msg, float) {
   switch (msg) {
@@ -918,30 +918,30 @@ void CDrone::Dodge(CStateManager& mgr, EStateMsg msg, float) {
     x7c8_ = 0;
     x630_ = 0.5f;
     x634_ = 1.f;
-    if (x3fc_flavor == kFT_One) {
-      x834_30_visible = true;
+    if (mFlavor == kFT_One) {
+      mVisible = true;
     }
     break;
   case kStateMsg_Update:
     switch (x7c8_) {
     case 0:
       BodyCtrl()->CommandMgr().DeliverCmd(CBodyStateCmd(kBSC_NextState));
-      switch (x58c_prevDodgeDir) {
+      switch (mPrevDodgeDir) {
       case pas::kSD_Left:
         BodyCtrl()->CommandMgr().DeliverCmd(CBCStepCmd(pas::kSD_Right, pas::kStep_Dodge));
-        x58c_prevDodgeDir = pas::kSD_Right;
+        mPrevDodgeDir = pas::kSD_Right;
         break;
       case pas::kSD_Right:
         BodyCtrl()->CommandMgr().DeliverCmd(CBCStepCmd(pas::kSD_Up, pas::kStep_Dodge));
-        x58c_prevDodgeDir = pas::kSD_Up;
+        mPrevDodgeDir = pas::kSD_Up;
         break;
       case pas::kSD_Up:
         BodyCtrl()->CommandMgr().DeliverCmd(CBCStepCmd(pas::kSD_Down, pas::kStep_Dodge));
-        x58c_prevDodgeDir = pas::kSD_Down;
+        mPrevDodgeDir = pas::kSD_Down;
         break;
       case pas::kSD_Down:
         BodyCtrl()->CommandMgr().DeliverCmd(CBCStepCmd(pas::kSD_Left, pas::kStep_Dodge));
-        x58c_prevDodgeDir = pas::kSD_Left;
+        mPrevDodgeDir = pas::kSD_Left;
         break;
       }
       x7c8_ = 1;
@@ -996,7 +996,7 @@ bool CDrone::ShouldFire(CStateManager& mgr, float) {
 
 bool CDrone::SpotPlayer(CStateManager& mgr, float) {
   if ((mgr.GetPlayer()->GetTranslation() - GetTranslation()).MagSquared() >
-      x3bc_detectionRange * x3bc_detectionRange) {
+      mDetectionRange * mDetectionRange) {
     return false;
   }
   if (!LineOfSight(mgr, 0.f)) {
@@ -1012,15 +1012,15 @@ bool CDrone::SpotPlayer(CStateManager& mgr, float) {
 void CDrone::Dead(CStateManager& mgr, EStateMsg msg, float) {
   switch (msg) {
   case kStateMsg_Activate:
-    x460_knockBackController.SetAutoResetImpulse(false);
-    if (x834_24_waveHit) {
+    mKnockBackController.SetAutoResetImpulse(false);
+    if (mWaveHit) {
       SetMomentumWR(CVector3f(0.f, 0.f, -GetWeight()));
     } else {
       Stop();
       SetVelocityWR(CVector3f::Zero());
       SetMomentumWR(CVector3f::Zero());
     }
-    x401_26_disableMove = true;
+    mDisableMove = true;
     x5c8_ = 0.f;
     SetVisorFlareEnabled(mgr, false);
     x7c8_ = 0;
@@ -1028,7 +1028,7 @@ void CDrone::Dead(CStateManager& mgr, EStateMsg msg, float) {
   case kStateMsg_Update:
     switch (x7c8_) {
     case 0:
-      if (x834_24_waveHit) {
+      if (mWaveHit) {
         BodyCtrl()->CommandMgr().DeliverCmd(
             CBCHurledCmd(CVector3f::Zero(), CVector3f::Zero(), false));
         x7c8_ = 1;
@@ -1047,14 +1047,14 @@ void CDrone::Dead(CStateManager& mgr, EStateMsg msg, float) {
 
 void CDrone::Death(CStateManager& mgr, const CVector3f& direction, EScriptObjectState state) {
   if (IsAlive()) {
-    x824_activeLasers[0] = false;
-    x824_activeLasers[1] = false;
+    mActiveLasers[0] = false;
+    mActiveLasers[1] = false;
     SetLaserActive(mgr, 0, false);
     SetLaserActive(mgr, 1, false);
     SetVisorFlareEnabled(mgr, false);
-    if (x3e4_lastHP - HealthInfo(mgr)->GetHP() >= x3d8_xDamageThreshold && !x834_24_waveHit) {
-      x400_28_pendingMassiveDeath = true;
-      if (x3e0_xDamageDelay <= 0.f) {
+    if (mLastHP - HealthInfo(mgr)->GetHP() >= mXDamageThreshold && !mWaveHit) {
+      mPendingMassiveDeath = true;
+      if (mXDamageDelay <= 0.f) {
         const CVector3f pos = GetTranslation();
         const CVector3f target = pos - direction;
         const CTransform4f xf(CTransform4f::LookAt(pos, target) *
@@ -1067,14 +1067,14 @@ void CDrone::Death(CStateManager& mgr, const CVector3f& direction, EScriptObject
     if (BodyCtrl()->GetPercentageFrozen() > 0.f) {
       BodyCtrl()->UnFreeze();
     }
-    x400_25_alive = false;
+    mAlive = false;
     SendScriptMsgs(state, mgr, kSM_None);
   }
 }
 
 void CDrone::PreRender(CStateManager& mgr, const CFrustumPlanes& frustum) {
   CPatterned::PreRender(mgr, frustum);
-  if (x3fc_flavor == kFT_One) {
+  if (mFlavor == kFT_One) {
     if (HasModelData() && HasAnimation()) {
       const bool visible = GetModelAlphau8(mgr);
       if (!visible) {
@@ -1086,7 +1086,7 @@ void CDrone::PreRender(CStateManager& mgr, const CFrustumPlanes& frustum) {
 
 void CDrone::Render(const CStateManager& mgr) const {
   const TAreaId area = GetCurrentAreaId();
-  const bool isOne = x3fc_flavor == kFT_One;
+  const bool isOne = mFlavor == kFT_One;
   const bool visible = GetModelAlphau8(mgr) != 0;
   if (!isOne || visible) {
     const bool xray = mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::kPV_XRay;
@@ -1107,11 +1107,11 @@ void CDrone::Render(const CStateManager& mgr) const {
     }
     if (isOne && !close_enough(x5dc_, 0.f)) {
       const CColor base = CColor(1.f, 1.f, 1.f, x5dc_);
-      const CColor color = CColor::Lerp(base, CColor(1.f, 0.f, 0.f, 1.f), x5e8_shieldTime);
+      const CColor color = CColor::Lerp(base, CColor(1.f, 0.f, 0.f, 1.f), mShieldTime);
       const CTransform4f xf(GetLctrTransform(rstl::string_l("Shield_LCTR")));
       const CModelFlags flags =
           CModelFlags(CModelFlags::kT_Additive2, color).DepthCompareUpdate(true, true);
-      x82c_shieldModel->Render(mgr, xf, GetActorLights(), flags);
+      mShieldModel->Render(mgr, xf, GetActorLights(), flags);
     }
   }
 }
@@ -1123,16 +1123,16 @@ void CDrone::AddToRenderer(const CFrustumPlanes& frustum, const CStateManager& m
 void CDrone::TargetPlayer(CStateManager& mgr, EStateMsg msg, float) {
   switch (msg) {
   case kStateMsg_Activate:
-    x3b8_turnSpeed = x5ec_turnSpeed;
-    BodyCtrl()->SetTurnSpeed(x5ec_turnSpeed);
+    CPatterned::mTurnSpeed = mTurnSpeed;
+    BodyCtrl()->SetTurnSpeed(mTurnSpeed);
     if (BodyCtrl()->GetLocomotionType() != pas::kLT_Combat) {
       BodyCtrl()->SetLocomotionType(pas::kLT_Combat);
     }
     BodyCtrl()->BodyStateInfo().SetMaximumPitch(CMath::Deg2Rad(60.f));
     SetDestPos(mgr.GetPlayer()->GetAimPosition(mgr, 0.f));
-    x400_24_hitByPlayerProjectile = false;
-    if (x3fc_flavor == kFT_One) {
-      x834_30_visible = true;
+    mHitByPlayerProjectile = false;
+    if (mFlavor == kFT_One) {
+      mVisible = true;
     }
     StateMachineState().SetDelay(rstl::max_val(0.3f, x624_));
     break;
@@ -1158,8 +1158,8 @@ void CDrone::Retreat(CStateManager& mgr, EStateMsg msg, float) {
   switch (msg) {
   case kStateMsg_Activate:
     x7c8_ = 0;
-    if (x3fc_flavor == kFT_One) {
-      x834_30_visible = true;
+    if (mFlavor == kFT_One) {
+      mVisible = true;
     }
     StateMachineState().SetDelay(x65c_);
     break;
@@ -1195,8 +1195,8 @@ void CDrone::Retreat(CStateManager& mgr, EStateMsg msg, float) {
 void CDrone::SpecialAttack(CStateManager& mgr, EStateMsg msg, float dt) {
   switch (msg) {
   case kStateMsg_Activate:
-    if (x3fc_flavor == kFT_One) {
-      x834_30_visible = true;
+    if (mFlavor == kFT_One) {
+      mVisible = true;
     }
     StateMachineState().SetDelay(x660_);
     BodyCtrl()->SetLocomotionType(pas::kLT_Internal10);
@@ -1307,7 +1307,7 @@ void CDrone::ProjectileAttack(CStateManager& mgr, EStateMsg msg, float) {
   case kStateMsg_Activate: {
     x7c8_ = 0;
     BodyCtrl()->BodyStateInfo().SetMaximumPitch(CMath::Deg2Rad(60.f));
-    CTeamAiMgr* team = TCastToPtr< CTeamAiMgr >(mgr.ObjectById(x688_teamMgr));
+    CTeamAiMgr* team = TCastToPtr< CTeamAiMgr >(mgr.ObjectById(mTeamMgr));
     if (team && team->HasTeamAiRole(GetUniqueId())) {
       const bool added = team->AddProjectileAttacker(GetUniqueId());
       int state = 2;
@@ -1365,7 +1365,7 @@ void CDrone::ProjectileAttack(CStateManager& mgr, EStateMsg msg, float) {
     break;
   case kStateMsg_Deactivate:
     BodyCtrl()->BodyStateInfo().SetMaximumPitch(0.f);
-    if (CTeamAiMgr* team = TCastToPtr< CTeamAiMgr >(mgr.ObjectById(x688_teamMgr))) {
+    if (CTeamAiMgr* team = TCastToPtr< CTeamAiMgr >(mgr.ObjectById(mTeamMgr))) {
       if (team->IsProjectileAttacker(GetUniqueId())) {
         team->RemoveProjectileAttacker(GetUniqueId());
       }
@@ -1394,7 +1394,7 @@ void CDrone::Attack(CStateManager& mgr, EStateMsg msg, float) {
   switch (msg) {
   case kStateMsg_Activate: {
     x7c8_ = 0;
-    x834_31_attackOver = false;
+    mAttackOver = false;
     const CVector3f aim = mgr.GetPlayer()->GetAimPosition(mgr, 0.f);
     const CTransform4f& xf = GetTransform();
     const CVector3f direction = (aim - GetTranslation()).AsNormalized();
@@ -1406,22 +1406,22 @@ void CDrone::Attack(CStateManager& mgr, EStateMsg msg, float) {
       {
         const CVector3f right(3.f * xf.Get00(), 3.f * xf.Get10(), 3.f * xf.Get20());
         const CVector3f up(4.f * xf.Get02(), 4.f * xf.Get12(), 4.f * xf.Get22());
-        x7e0_lasersStart[0] = target + right - up;
+        mLasersStart[0] = target + right - up;
       }
       {
         const CVector3f right(3.f * xf.Get00(), 3.f * xf.Get10(), 3.f * xf.Get20());
         const CVector3f up(4.f * xf.Get02(), 4.f * xf.Get12(), 4.f * xf.Get22());
-        x7fc_lasersEnd[0] = target - right + up;
+        mLasersEnd[0] = target - right + up;
       }
       {
         const CVector3f right(3.f * xf.Get00(), 3.f * xf.Get10(), 3.f * xf.Get20());
         const CVector3f up(4.f * xf.Get02(), 4.f * xf.Get12(), 4.f * xf.Get22());
-        x7e0_lasersStart[1] = target - right - up;
+        mLasersStart[1] = target - right - up;
       }
       {
         const CVector3f right(3.f * xf.Get00(), 3.f * xf.Get10(), 3.f * xf.Get20());
         const CVector3f up(4.f * xf.Get02(), 4.f * xf.Get12(), 4.f * xf.Get22());
-        x7fc_lasersEnd[1] = target + right + up;
+        mLasersEnd[1] = target + right + up;
       }
       break;
     }
@@ -1429,22 +1429,22 @@ void CDrone::Attack(CStateManager& mgr, EStateMsg msg, float) {
       {
         const CVector3f right(3.f * xf.Get00(), 3.f * xf.Get10(), 3.f * xf.Get20());
         const CVector3f up(4.f * xf.Get02(), 4.f * xf.Get12(), 4.f * xf.Get22());
-        x7e0_lasersStart[0] = target + right + up;
+        mLasersStart[0] = target + right + up;
       }
       {
         const CVector3f right(3.f * xf.Get00(), 3.f * xf.Get10(), 3.f * xf.Get20());
         const CVector3f up(4.f * xf.Get02(), 4.f * xf.Get12(), 4.f * xf.Get22());
-        x7fc_lasersEnd[0] = target - right - up;
+        mLasersEnd[0] = target - right - up;
       }
       {
         const CVector3f right(3.f * xf.Get00(), 3.f * xf.Get10(), 3.f * xf.Get20());
         const CVector3f up(4.f * xf.Get02(), 4.f * xf.Get12(), 4.f * xf.Get22());
-        x7e0_lasersStart[1] = target - right + up;
+        mLasersStart[1] = target - right + up;
       }
       {
         const CVector3f right(3.f * xf.Get00(), 3.f * xf.Get10(), 3.f * xf.Get20());
         const CVector3f up(4.f * xf.Get02(), 4.f * xf.Get12(), 4.f * xf.Get22());
-        x7fc_lasersEnd[1] = target + right - up;
+        mLasersEnd[1] = target + right - up;
       }
       break;
     }
@@ -1452,22 +1452,22 @@ void CDrone::Attack(CStateManager& mgr, EStateMsg msg, float) {
       {
         const CVector3f right(4.f * xf.Get00(), 4.f * xf.Get10(), 4.f * xf.Get20());
         const CVector3f up(3.f * xf.Get02(), 3.f * xf.Get12(), 3.f * xf.Get22());
-        x7e0_lasersStart[0] = target - right - up;
+        mLasersStart[0] = target - right - up;
       }
       {
         const CVector3f right(4.f * xf.Get00(), 4.f * xf.Get10(), 4.f * xf.Get20());
         const CVector3f up(3.f * xf.Get02(), 3.f * xf.Get12(), 3.f * xf.Get22());
-        x7fc_lasersEnd[0] = target + right + up;
+        mLasersEnd[0] = target + right + up;
       }
       {
         const CVector3f right(4.f * xf.Get00(), 4.f * xf.Get10(), 4.f * xf.Get20());
         const CVector3f up(3.f * xf.Get02(), 3.f * xf.Get12(), 3.f * xf.Get22());
-        x7e0_lasersStart[1] = target + right - up;
+        mLasersStart[1] = target + right - up;
       }
       {
         const CVector3f right(4.f * xf.Get00(), 4.f * xf.Get10(), 4.f * xf.Get20());
         const CVector3f up(3.f * xf.Get02(), 3.f * xf.Get12(), 3.f * xf.Get22());
-        x7fc_lasersEnd[1] = target - right + up;
+        mLasersEnd[1] = target - right + up;
       }
       break;
     }
@@ -1475,28 +1475,28 @@ void CDrone::Attack(CStateManager& mgr, EStateMsg msg, float) {
       {
         const CVector3f right(4.f * xf.Get00(), 4.f * xf.Get10(), 4.f * xf.Get20());
         const CVector3f up(3.f * xf.Get02(), 3.f * xf.Get12(), 3.f * xf.Get22());
-        x7e0_lasersStart[0] = target - right + up;
+        mLasersStart[0] = target - right + up;
       }
       {
         const CVector3f right(4.f * xf.Get00(), 4.f * xf.Get10(), 4.f * xf.Get20());
         const CVector3f up(3.f * xf.Get02(), 3.f * xf.Get12(), 3.f * xf.Get22());
-        x7fc_lasersEnd[0] = target + right - up;
+        mLasersEnd[0] = target + right - up;
       }
       {
         const CVector3f right(4.f * xf.Get00(), 4.f * xf.Get10(), 4.f * xf.Get20());
         const CVector3f up(3.f * xf.Get02(), 3.f * xf.Get12(), 3.f * xf.Get22());
-        x7e0_lasersStart[1] = target + right + up;
+        mLasersStart[1] = target + right + up;
       }
       {
         const CVector3f right(4.f * xf.Get00(), 4.f * xf.Get10(), 4.f * xf.Get20());
         const CVector3f up(3.f * xf.Get02(), 3.f * xf.Get12(), 3.f * xf.Get22());
-        x7fc_lasersEnd[1] = target - right - up;
+        mLasersEnd[1] = target - right - up;
       }
       break;
     }
     }
-    x818_lasersTime[0] = 0.f;
-    x818_lasersTime[1] = 0.f;
+    mLasersTime[0] = 0.f;
+    mLasersTime[1] = 0.f;
     x835_24_ = true;
     break;
   }
@@ -1522,8 +1522,8 @@ void CDrone::Attack(CStateManager& mgr, EStateMsg msg, float) {
     }
     break;
   case kStateMsg_Deactivate:
-    x824_activeLasers[0] = false;
-    x824_activeLasers[1] = false;
+    mActiveLasers[0] = false;
+    mActiveLasers[1] = false;
     SetLaserActive(mgr, 0, false);
     SetLaserActive(mgr, 1, false);
     SetVisorFlareEnabled(mgr, false);
@@ -1558,7 +1558,7 @@ void CDrone::PathFindEx(CStateManager& mgr, EStateMsg msg, float dt) {
 void CDrone::PathFind(CStateManager& mgr, EStateMsg msg, float dt) {
   switch (msg) {
   case kStateMsg_Activate: {
-    CVector3f target = x2e0_destPos;
+    CVector3f target = mDestPos;
     if (GetSearchPath()->Search(GetTranslation(), target) != CPathFindSearch::kR_Success &&
         (GetSearchPath()->GetResult() == CPathFindSearch::kR_NoDestPoint ||
          GetSearchPath()->GetResult() == CPathFindSearch::kR_NoPath)) {
@@ -1568,8 +1568,8 @@ void CDrone::PathFind(CStateManager& mgr, EStateMsg msg, float dt) {
         SetDestPos(target);
       }
     }
-    if (x3fc_flavor == kFT_One) {
-      x834_30_visible = true;
+    if (mFlavor == kFT_One) {
+      mVisible = true;
     }
     break;
   }
@@ -1618,7 +1618,7 @@ void CDrone::TargetCover(CStateManager&, EStateMsg msg, float) {
 
 bool CDrone::Leash(CStateManager& mgr, float) {
   return (mgr.GetPlayer()->GetTranslation() - GetTranslation()).MagSquared() <
-         x3c8_leashRadius * x3c8_leashRadius;
+         mLeashRadius * mLeashRadius;
 }
 
 bool CDrone::ShouldMove(CStateManager&, float) { return x644_ <= 0.f; }
@@ -1718,8 +1718,8 @@ void CDrone::AvoidOtherAIs(CStateManager& mgr) {
 }
 
 void CDrone::SquadAdd(CStateManager& mgr) {
-  if (x688_teamMgr != kInvalidUniqueId) {
-    if (CTeamAiMgr* team = TCastToPtr< CTeamAiMgr >(mgr.ObjectById(x688_teamMgr))) {
+  if (mTeamMgr != kInvalidUniqueId) {
+    if (CTeamAiMgr* team = TCastToPtr< CTeamAiMgr >(mgr.ObjectById(mTeamMgr))) {
       team->AssignTeamAiRole(*this, CTeamAiRole::kTAR_Projectile, CTeamAiRole::kTAR_Melee,
                              CTeamAiRole::kTAR_Invalid);
     }
@@ -1727,8 +1727,8 @@ void CDrone::SquadAdd(CStateManager& mgr) {
 }
 
 void CDrone::SquadRemove(CStateManager& mgr) {
-  if (x688_teamMgr != kInvalidUniqueId) {
-    if (CTeamAiMgr* team = TCastToPtr< CTeamAiMgr >(mgr.ObjectById(x688_teamMgr))) {
+  if (mTeamMgr != kInvalidUniqueId) {
+    if (CTeamAiMgr* team = TCastToPtr< CTeamAiMgr >(mgr.ObjectById(mTeamMgr))) {
       if (team->IsPartOfTeam(GetUniqueId())) {
         team->RemoveTeamAiRole(GetUniqueId());
       }

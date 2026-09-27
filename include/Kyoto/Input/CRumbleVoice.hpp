@@ -36,14 +36,14 @@ struct SAdsrData {
   SAdsrData(float attackGain, float autoReleaseDur, float attackDur, float decayDur,
             float sustainGain, float releaseDur, bool hasSustain, bool autoRelease);
 
-  float x0_attackGain;
-  float x4_autoReleaseDur;
-  float x8_attackDur;
-  float xc_decayDur;
-  float x10_sustainGain;
-  float x14_releaseDur;
-  bool x18_24_hasSustain : 1;
-  bool x18_25_autoRelease : 1;
+  float mAttackGain;
+  float mAutoReleaseDur;
+  float mAttackDur;
+  float mDecayDur;
+  float mSustainGain;
+  float mReleaseDur;
+  bool mHasSustain : 1;
+  bool mAutoRelease : 1;
 };
 
 struct SAdsrDelta {
@@ -61,15 +61,15 @@ struct SAdsrDelta {
   static SAdsrDelta Stopped();
   static SAdsrDelta Start(ERumblePriority priority, bool prePulse);
 
-  float x0_curIntensity;
-  float x4_attackTime;
-  float x8_decayTime;
-  float xc_releaseTime;
-  float x10_autoReleaseTime;
-  float x14_attackIntensity;
-  float x18_sustainIntensity;
-  ERumblePriority x1c_priority;
-  EPhase x20_phase;
+  float mCurIntensity;
+  float mAttackTime;
+  float mDecayTime;
+  float mReleaseTime;
+  float mAutoReleaseTime;
+  float mAttackIntensity;
+  float mSustainIntensity;
+  ERumblePriority mPriority;
+  EPhase mPhase;
 };
 
 class CRumbleVoice {
@@ -79,11 +79,11 @@ private:
                           float start, float end, float duration, SAdsrDelta::EPhase nextPhase,
                           float dt);
 
-  rstl::vector< SAdsrData > x0_datas;
-  rstl::vector< SAdsrDelta > x10_deltas;
-  rstl::reserved_vector< ushort, 4 > x20_handleIds;
-  ushort x2c_usedChannels;
-  uchar x2e_lastId;
+  rstl::vector< SAdsrData > mDatas;
+  rstl::vector< SAdsrDelta > mDeltas;
+  rstl::reserved_vector< ushort, 4 > mHandleIds;
+  ushort mUsedChannels;
+  uchar mLastId;
 
 public:
   CRumbleVoice();
@@ -99,7 +99,7 @@ public:
   short CreateRumbleHandle(ushort idx);
   ushort GetChannelId(short handle) const { return handle & 0xf; }
   ushort GetOwnerId(short handle) const { return ((handle >> 8) & 0xFF); }
-  ERumblePriority GetPriority(uint idx) { return x10_deltas[idx].x1c_priority; }
+  ERumblePriority GetPriority(uint idx) { return mDeltas[idx].mPriority; }
 };
 
 #endif // _CRUMBLEVOICE

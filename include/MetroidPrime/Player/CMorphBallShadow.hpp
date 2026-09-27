@@ -25,15 +25,15 @@ private:
   void GatherAreas(CStateManager& mgr);
   bool AreasValid(const CStateManager& mgr) const;
 
-  rstl::list< CActor* > x0_actors;
-  rstl::list< TAreaId > x18_areas;
-  rstl::vector< uint > x30_worldModelBits;
-  CTexture x40_texture;
-  TToken< CTexture > xa8_ballFade;
-  int xb0_width;
-  int xb4_height;
-  CAABox xb8_shadowVolume;
-  bool xd0_hasIds;
+  rstl::list< CActor* > mActors;
+  rstl::list< TAreaId > mAreas;
+  rstl::vector< uint > mWorldModelBits;
+  CTexture mTexture;
+  TToken< CTexture > mBallFade;
+  int mWidth;
+  int mHeight;
+  CAABox mShadowVolume;
+  bool mHasIds;
 };
 CHECK_SIZEOF(CMorphBallShadow, 0xd4)
 

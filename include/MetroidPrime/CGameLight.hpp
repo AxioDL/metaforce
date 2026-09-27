@@ -14,18 +14,18 @@ public:
 
   void SetLight(const CLight& light);
   CLight GetLight() const;
-  TUniqueId GetParentId() const { return xe8_parentId; }
+  TUniqueId GetParentId() const { return mParentId; }
   void Think(float dt, CStateManager& mgr) override;
   DECLARE_TYPES_MATCH_OR_ACCEPT;
   void SetLightPriorityAndId();
 
 private:
-  TUniqueId xe8_parentId;
-  CLight xec_light;
-  uint x13c_lightId;
-  uint x140_priority;
-  float x144_lifeTime;
+  TUniqueId mParentId;
+  CLight mLight;
+  uint mLightId;
+  uint mPriority;
+  float mLifeTime;
 };
-CHECK_SIZEOF(CGameLight, (VERSION >= VERSION_GM8P_00 ? 0x158 : 0x148))
+CHECK_SIZEOF(CGameLight, (VERSION >= VERSION_GM8E_02 ? 0x158 : 0x148))
 
 #endif // _CGAMELIGHT

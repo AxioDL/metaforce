@@ -59,56 +59,56 @@ CScriptWater::CScriptWater(
     int bitVal0, int bitVal1, const uint* bitset)
 : CScriptTrigger(uid, name, info, pos, box, dInfo, orientedForce, triggerFlags, active, false,
                  false)
-, x1b4_fluidPlane(NULL)
-, x1b8_positionMorphed(pos)
-, x1c4_extentMorphed(box.GetWidth(), box.GetHeight(), box.GetDepth())
-, x1d0_morphInTime(morphInTime)
-, x1d4_positionOrig(pos)
-, x1e0_extentOrig(box.GetWidth(), box.GetHeight(), box.GetDepth())
-, x1ec_damageOrig(dInfo.GetDamage())
-, x1f0_damageMorphed(dInfo.GetDamage())
-, x1f4_morphOutTime(morphOutTime)
-, x1f8_morphFactor(0.f)
-, x214_fogBias(fogBias)
-, x218_fogMagnitude(fogMagnitude)
-, x21c_origFogBias(fogBias)
-, x220_origFogMagnitude(fogMagnitude)
-, x224_fogSpeed(fogSpeed)
-, x228_fogColor(fogColor)
-, x22c_splashParticle1Id(splashParticle1)
-, x230_splashParticle2Id(splashParticle2)
-, x234_splashParticle3Id(splashParticle3)
-, x238_visorRunoffParticleId(visorRunoffParticle)
-, x24c_unmorphVisorRunoffParticleId(unmorphVisorRunoffParticle)
-, x260_visorRunoffSfx(CSfxManager::TranslateSFXID(visorRunoffSfx))
-, x262_unmorphVisorRunoffSfx(CSfxManager::TranslateSFXID(unmorphVisorRunoffSfx))
-, x2a4_splashColor(splashColor)
-, x2a8_insideFogColor(insideFogColor)
-, x2ac_alphaInTime(alphaInTime)
-, x2b0_alphaOutTime(alphaOutTime)
-, x2b4_alphaInRecip(alphaInTime ? 1.f / alphaInTime : 0.f)
-, x2b8_alphaOutRecip(alphaOutTime ? 1.f / alphaOutTime : 0.f)
-, x2bc_alpha(alpha)
-, x2c0_tileSize(tileSize)
-, x2c4_gridDimX(
-      (int)CMath::FloorF((x2c0_tileSize + GetTriggerBoundsWR().GetWidth() - 0.01f) / x2c0_tileSize))
-, x2c8_gridDimY((int)CMath::FloorF((x2c0_tileSize + GetTriggerBoundsWR().GetHeight() - 0.01f) /
-                                   x2c0_tileSize))
-, x2cc_gridCellCount((x2c4_gridDimX + 1) * (x2c8_gridDimY + 1))
-, x2d0_patchDimX(0)
-, x2d4_patchDimY(0)
-, x2d8_tileIntersects(NULL)
-, x2dc_vertIntersects(NULL)
-, x2e0_patchIntersects(NULL)
-, x2e4_computedGridCellCount(0)
-, x2e8_24_b4(b4)
-, x2e8_25_morphIn(false)
-, x2e8_26_morphing(false)
-, x2e8_27_allowRender(displaySurface)
-, x2e8_28_recomputeClipping(true)
-, x2e8_29_alphaIn(false)
-, x2e8_30_alphaOut(false) {
-  x1b4_fluidPlane = rs_new CFluidPlaneCPU(
+, mFluidPlane(NULL)
+, mPositionMorphed(pos)
+, mExtentMorphed(box.GetWidth(), box.GetHeight(), box.GetDepth())
+, mMorphInTime(morphInTime)
+, mPositionOrig(pos)
+, mExtentOrig(box.GetWidth(), box.GetHeight(), box.GetDepth())
+, mDamageOrig(dInfo.GetDamage())
+, mDamageMorphed(dInfo.GetDamage())
+, mMorphOutTime(morphOutTime)
+, mMorphFactor(0.f)
+, mFogBias(fogBias)
+, mFogMagnitude(fogMagnitude)
+, mOrigFogBias(fogBias)
+, mOrigFogMagnitude(fogMagnitude)
+, mFogSpeed(fogSpeed)
+, mFogColor(fogColor)
+, mSplashParticle1Id(splashParticle1)
+, mSplashParticle2Id(splashParticle2)
+, mSplashParticle3Id(splashParticle3)
+, mVisorRunoffParticleId(visorRunoffParticle)
+, mUnmorphVisorRunoffParticleId(unmorphVisorRunoffParticle)
+, mVisorRunoffSfx(CSfxManager::TranslateSFXID(visorRunoffSfx))
+, mUnmorphVisorRunoffSfx(CSfxManager::TranslateSFXID(unmorphVisorRunoffSfx))
+, mSplashColor(splashColor)
+, mInsideFogColor(insideFogColor)
+, mAlphaInTime(alphaInTime)
+, mAlphaOutTime(alphaOutTime)
+, mAlphaInRecip(alphaInTime ? 1.f / alphaInTime : 0.f)
+, mAlphaOutRecip(alphaOutTime ? 1.f / alphaOutTime : 0.f)
+, mAlpha(alpha)
+, mTileSize(tileSize)
+, mGridDimX(
+      (int)CMath::FloorF((mTileSize + GetTriggerBoundsWR().GetWidth() - 0.01f) / mTileSize))
+, mGridDimY((int)CMath::FloorF((mTileSize + GetTriggerBoundsWR().GetHeight() - 0.01f) /
+                                   mTileSize))
+, mGridCellCount((mGridDimX + 1) * (mGridDimY + 1))
+, mPatchDimX(0)
+, mPatchDimY(0)
+, mTileIntersects(NULL)
+, mVertIntersects(NULL)
+, mPatchIntersects(NULL)
+, mComputedGridCellCount(0)
+, mB4(b4)
+, mMorphIn(false)
+, mMorphing(false)
+, mAllowRender(displaySurface)
+, mRecomputeClipping(true)
+, mAlphaIn(false)
+, mAlphaOut(false) {
+  mFluidPlane = rs_new CFluidPlaneCPU(
       patternMap1, patternMap2, colorMap, bumpMap, envMap, envBumpMap, unitsPerLightmapTexel,
       lightmap, tileSubdivisions, fluidType, tileSize, bumpLightDir, alpha, uvMotion, bumpScale,
       turbSpeed, turbDistance, turbFreqMax, turbFreqMin, turbPhaseMax, turbPhaseMin,
@@ -117,35 +117,35 @@ CScriptWater::CScriptWater(
 
   delete const_cast< uint* >(bitset);
 
-  x264_splashEffects.push_back(rstl::optional_object< TLockedToken< CGenDescription > >());
-  x264_splashEffects.push_back(rstl::optional_object< TLockedToken< CGenDescription > >());
-  x264_splashEffects.push_back(rstl::optional_object< TLockedToken< CGenDescription > >());
+  mSplashEffects.push_back(rstl::optional_object< TLockedToken< CGenDescription > >());
+  mSplashEffects.push_back(rstl::optional_object< TLockedToken< CGenDescription > >());
+  mSplashEffects.push_back(rstl::optional_object< TLockedToken< CGenDescription > >());
 
-  if (x22c_splashParticle1Id != kInvalidAssetId) {
-    x264_splashEffects[0] = TLockedToken< CGenDescription >(TToken< CGenDescription >(
-        gpSimplePool->GetObj(SObjectTag('PART', x22c_splashParticle1Id))));
+  if (mSplashParticle1Id != kInvalidAssetId) {
+    mSplashEffects[0] = TLockedToken< CGenDescription >(TToken< CGenDescription >(
+        gpSimplePool->GetObj(SObjectTag('PART', mSplashParticle1Id))));
   }
-  if (x230_splashParticle2Id != kInvalidAssetId) {
-    x264_splashEffects[1] = TLockedToken< CGenDescription >(TToken< CGenDescription >(
-        gpSimplePool->GetObj(SObjectTag('PART', x230_splashParticle2Id))));
+  if (mSplashParticle2Id != kInvalidAssetId) {
+    mSplashEffects[1] = TLockedToken< CGenDescription >(TToken< CGenDescription >(
+        gpSimplePool->GetObj(SObjectTag('PART', mSplashParticle2Id))));
   }
-  if (x234_splashParticle3Id != kInvalidAssetId) {
-    x264_splashEffects[2] = TLockedToken< CGenDescription >(TToken< CGenDescription >(
-        gpSimplePool->GetObj(SObjectTag('PART', x234_splashParticle3Id))));
-  }
-
-  if (x238_visorRunoffParticleId != kInvalidAssetId) {
-    x23c_visorRunoffEffect = TLockedToken< CGenDescription >(TToken< CGenDescription >(
-        gpSimplePool->GetObj(SObjectTag('PART', x238_visorRunoffParticleId))));
-  }
-  if (x24c_unmorphVisorRunoffParticleId != kInvalidAssetId) {
-    x250_unmorphVisorRunoffEffect = TLockedToken< CGenDescription >(TToken< CGenDescription >(
-        gpSimplePool->GetObj(SObjectTag('PART', x24c_unmorphVisorRunoffParticleId))));
+  if (mSplashParticle3Id != kInvalidAssetId) {
+    mSplashEffects[2] = TLockedToken< CGenDescription >(TToken< CGenDescription >(
+        gpSimplePool->GetObj(SObjectTag('PART', mSplashParticle3Id))));
   }
 
-  x298_splashSounds.push_back(CSfxManager::TranslateSFXID(splashSfx1));
-  x298_splashSounds.push_back(CSfxManager::TranslateSFXID(splashSfx2));
-  x298_splashSounds.push_back(CSfxManager::TranslateSFXID(splashSfx3));
+  if (mVisorRunoffParticleId != kInvalidAssetId) {
+    mVisorRunoffEffect = TLockedToken< CGenDescription >(TToken< CGenDescription >(
+        gpSimplePool->GetObj(SObjectTag('PART', mVisorRunoffParticleId))));
+  }
+  if (mUnmorphVisorRunoffParticleId != kInvalidAssetId) {
+    mUnmorphVisorRunoffEffect = TLockedToken< CGenDescription >(TToken< CGenDescription >(
+        gpSimplePool->GetObj(SObjectTag('PART', mUnmorphVisorRunoffParticleId))));
+  }
+
+  mSplashSounds.push_back(CSfxManager::TranslateSFXID(splashSfx1));
+  mSplashSounds.push_back(CSfxManager::TranslateSFXID(splashSfx2));
+  mSplashSounds.push_back(CSfxManager::TranslateSFXID(splashSfx3));
 
   SetCalculateLighting(true);
   if (lightmap != kInvalidAssetId) {
@@ -156,13 +156,13 @@ CScriptWater::CScriptWater(
   ActorLights()->SetCastShadows(false);
   ActorLights()->SetAmbienceGenerated(false);
   ActorLights()->SetFindNearestDynamicLights(true);
-  x148_24_detectCamera = true;
+  mDetectCamera = true;
   CalculateRenderBounds();
   SetThermalFlags(thermalCold ? kTF_Hot : kTF_Cold);
   if (!GetActive()) {
-    x2bc_alpha = 0.f;
-    x214_fogBias = 0.f;
-    x218_fogMagnitude = 0.f;
+    mAlpha = 0.f;
+    mFogBias = 0.f;
+    mFogMagnitude = 0.f;
   }
   SetupGrid(true);
 }
@@ -178,12 +178,12 @@ int CScriptWater::GetSplashIndex(float scale) const {
 
 const rstl::optional_object< TLockedToken< CGenDescription > >&
 CScriptWater::GetSplashEffect(float scale) const {
-  return x264_splashEffects[GetSplashIndex(scale)];
+  return mSplashEffects[GetSplashIndex(scale)];
 }
 
 const ushort CScriptWater::GetSplashSound(float scale) const {
   int idx = GetSplashIndex(scale);
-  return x298_splashSounds[idx];
+  return mSplashSounds[idx];
 }
 
 float CScriptWater::GetSplashEffectScale(float scale) const {
@@ -215,7 +215,7 @@ void CScriptWater::CalculateRenderBounds() {
 CAABox CScriptWater::GetSortingBounds(const CStateManager&) const {
   const CAABox& bounds = GetRenderBoundsCached();
   CVector3f maxPoint = bounds.GetMaxPoint();
-  float fogZ = x218_fogMagnitude + (x214_fogBias + (maxPoint.GetZ() - 1.f));
+  float fogZ = mFogMagnitude + (mFogBias + (maxPoint.GetZ() - 1.f));
   if (fogZ > maxPoint.GetZ()) {
     maxPoint[kDZ] = fogZ;
   }
@@ -223,7 +223,7 @@ CAABox CScriptWater::GetSortingBounds(const CStateManager&) const {
 }
 
 void CScriptWater::PreRender(CStateManager& mgr, const CFrustumPlanes& frustum) {
-  if (x2e8_27_allowRender) {
+  if (mAllowRender) {
     SetPreRenderClipped(!frustum.BoxInFrustumPlanes(GetSortingBounds(mgr)));
     if (!GetPreRenderClipped()) {
       if (GetCurrentAreaId() != kInvalidAreaId) {
@@ -239,7 +239,7 @@ void CScriptWater::PreRender(CStateManager& mgr, const CFrustumPlanes& frustum) 
         }
         ActorLights()->BuildDynamicLightList(mgr, GetTriggerBoundsWR());
       }
-      x150_frustum = frustum;
+      mFrustum = frustum;
     }
   } else {
     SetPreRenderClipped(true);
@@ -251,7 +251,7 @@ void CScriptWater::AddToRenderer(const CFrustumPlanes&, const CStateManager& mgr
     return;
   }
   const float transZ = GetTranslation().GetZ();
-  const float boundsMaxZ = x130_bounds.GetMaxPoint().GetZ();
+  const float boundsMaxZ = mBounds.GetMaxPoint().GetZ();
   mgr.AddDrawableActorPlane(
       *this, CPlane(boundsMaxZ + transZ, CUnitVector3f(0.f, 0.f, 1.f, CUnitVector3f::kN_Yes)),
       GetSortingBounds(mgr));
@@ -269,15 +269,15 @@ void CScriptWater::Render(const CStateManager& mgr) const {
     xf.AddTranslationZ(zOffset);
     const CVector3f& areaCenter =
         mgr.GetWorld()->GetAreaAlways(mgr.GetNextAreaId()).GetAABB().GetCenterPoint();
-    x1b4_fluidPlane->Render(
-        mgr, x2bc_alpha, aabb, xf, mgr.GetWorld()->GetAreaAlways(GetCurrentAreaId()).GetTM(), false,
-        x150_frustum, mgr.GetFluidPlaneManager()->GetRippleManager(), GetUniqueId(),
-        x2d8_tileIntersects.get(), x2c4_gridDimX, x2c8_gridDimY, areaCenter);
-    if (x214_fogBias) {
+    mFluidPlane->Render(
+        mgr, mAlpha, aabb, xf, mgr.GetWorld()->GetAreaAlways(GetCurrentAreaId()).GetTM(), false,
+        mFrustum, mgr.GetFluidPlaneManager()->GetRippleManager(), GetUniqueId(),
+        mTileIntersects.get(), mGridDimX, mGridDimY, areaCenter);
+    if (mFogBias) {
       if (mgr.GetPlayerState()->CanVisorSeeFog(mgr)) {
         if (gkWaterFog) {
-          float sinVal = CMath::FastSinR(x224_fogSpeed * CGraphics::GetSecondsMod900());
-          float fogLevel = mgr.IntegrateVisorFog(x218_fogMagnitude * sinVal + x214_fogBias);
+          float sinVal = CMath::FastSinR(mFogSpeed * CGraphics::GetSecondsMod900());
+          float fogLevel = mgr.IntegrateVisorFog(mFogMagnitude * sinVal + mFogBias);
           if (fogLevel > 0.f) {
             const CAABox fogBox = GetTriggerBoundsWR();
             const CVector3f& fogMin = fogBox.GetMinPoint();
@@ -292,7 +292,7 @@ void CScriptWater::Render(const CStateManager& mgr) const {
             CAABox renderAABB(CVector3f(-1.f, -1.f, -1.f), CVector3f(1.f, 1.f, 1.f));
             gpRender->SetModelMatrix(modelXf);
             gpRender->SetAmbientColor(CColor::White());
-            gpRender->RenderFogVolume(x228_fogColor, renderAABB, NULL, NULL);
+            gpRender->RenderFogVolume(mFogColor, renderAABB, NULL, NULL);
           }
         }
       }
@@ -310,25 +310,25 @@ EWeaponCollisionResponseTypes CScriptWater::GetCollisionResponseType(const CVect
 }
 
 void CScriptWater::SetMorphing(const bool m) {
-  if (m != x2e8_26_morphing) {
-    x2e8_26_morphing = m;
+  if (m != mMorphing) {
+    mMorphing = m;
     SetupGrid(!m);
   }
 }
 
 void CScriptWater::SetupGridClipping(CStateManager& mgr, int computeVerts) {
-  if (x2e8_28_recomputeClipping) {
-    x2e4_computedGridCellCount = 0;
-    x2dc_vertIntersects = static_cast< bool* >(nullptr);
-    x2e8_28_recomputeClipping = false;
+  if (mRecomputeClipping) {
+    mComputedGridCellCount = 0;
+    mVertIntersects = static_cast< bool* >(nullptr);
+    mRecomputeClipping = false;
   }
 
-  if (x2e4_computedGridCellCount < x2cc_gridCellCount) {
+  if (mComputedGridCellCount < mGridCellCount) {
     static CMaterialFilter kSolidFilter =
         CMaterialFilter::MakeInclude(CMaterialList(SolidMaterial));
 
-    if (x2dc_vertIntersects.get() == NULL) {
-      x2dc_vertIntersects = rs_new bool[(x2c4_gridDimX + 1) * (x2c8_gridDimY + 1)];
+    if (mVertIntersects.get() == NULL) {
+      mVertIntersects = rs_new bool[(mGridDimX + 1) * (mGridDimY + 1)];
     }
 
     CVector3f downVec(0.f, 0.f, -1.f);
@@ -336,44 +336,44 @@ void CScriptWater::SetupGridClipping(CStateManager& mgr, int computeVerts) {
     float baseZ = gkFluidMaxCrest + trigBounds.GetMaxPoint().GetZ();
     CAABox trigBounds2 = GetTriggerBoundsWR();
 
-    int gridDimXP1 = x2c4_gridDimX + 1;
-    int curCell = x2e4_computedGridCellCount;
+    int gridDimXP1 = mGridDimX + 1;
+    int curCell = mComputedGridCellCount;
     int row = curCell / gridDimXP1;
     int col = curCell % gridDimXP1;
-    bool* vertPtr = x2dc_vertIntersects.get() + curCell;
-    float zDiff = x130_bounds.GetMaxPoint().GetZ() - x130_bounds.GetMinPoint().GetZ();
+    bool* vertPtr = mVertIntersects.get() + curCell;
+    float zDiff = mBounds.GetMaxPoint().GetZ() - mBounds.GetMinPoint().GetZ();
     float baseX = trigBounds2.GetMinPoint().GetX();
-    float yOffset = x2c0_tileSize * (float)row;
+    float yOffset = mTileSize * (float)row;
     float baseY = trigBounds2.GetMinPoint().GetY();
-    float xOffset = x2c0_tileSize * (float)col;
+    float xOffset = mTileSize * (float)col;
     float mag = 2.f * zDiff + gkFluidMaxCrest;
     float useMag = rstl::min_val(mag, kMaxRayLength);
 
-    int i = x2e4_computedGridCellCount;
-    for (; i < rstl::min_val(x2cc_gridCellCount, x2e4_computedGridCellCount + computeVerts);
+    int i = mComputedGridCellCount;
+    for (; i < rstl::min_val(mGridCellCount, mComputedGridCellCount + computeVerts);
          ++i, ++vertPtr) {
       CVector3f pos(xOffset + baseX, yOffset + baseY, baseZ);
       CRayCastResult result = mgr.RayStaticIntersection(pos, downVec, useMag, kSolidFilter);
       col += 1;
       *vertPtr = result.GetValid();
-      xOffset += x2c0_tileSize;
-      if (col > x2c4_gridDimX) {
-        yOffset += x2c0_tileSize;
+      xOffset += mTileSize;
+      if (col > mGridDimX) {
+        yOffset += mTileSize;
         xOffset = 0.f;
         col = 0;
       }
     }
 
-    x2e4_computedGridCellCount += computeVerts;
-    if (x2e4_computedGridCellCount >= x2cc_gridCellCount) {
-      x2e4_computedGridCellCount = x2cc_gridCellCount;
-      x2d8_tileIntersects = rs_new char[x2c4_gridDimX * x2c8_gridDimY];
+    mComputedGridCellCount += computeVerts;
+    if (mComputedGridCellCount >= mGridCellCount) {
+      mComputedGridCellCount = mGridCellCount;
+      mTileIntersects = rs_new char[mGridDimX * mGridDimY];
 
-      for (int i = 0; i < x2c8_gridDimY; ++i) {
-        char* tileRow = x2d8_tileIntersects.get() + i * x2c4_gridDimX;
-        const char* vertRow = (const char*)(x2dc_vertIntersects.get()) + i * (x2c4_gridDimX + 1);
-        for (int j = 0; j < x2c4_gridDimX; ++j, ++tileRow, ++vertRow) {
-          int dimX = x2c4_gridDimX;
+      for (int i = 0; i < mGridDimY; ++i) {
+        char* tileRow = mTileIntersects.get() + i * mGridDimX;
+        const char* vertRow = (const char*)(mVertIntersects.get()) + i * (mGridDimX + 1);
+        for (int j = 0; j < mGridDimX; ++j, ++tileRow, ++vertRow) {
+          int dimX = mGridDimX;
           if (vertRow[0] != 0 || vertRow[1] != 0 || vertRow[dimX + 1] != 0 ||
               vertRow[dimX + 2] != 0) {
             *tileRow = true;
@@ -386,25 +386,25 @@ void CScriptWater::SetupGridClipping(CStateManager& mgr, int computeVerts) {
       const int tilesPerPatch = rstl::min_val(
           kMaxTilesPerPatch, static_cast< int >(42u / GetFluidPlane().GetTileSubdivisions()));
 
-      x2d0_patchDimX = (tilesPerPatch + x2c4_gridDimX - 1) / tilesPerPatch;
-      x2d4_patchDimY = (tilesPerPatch + x2c8_gridDimY - 1) / tilesPerPatch;
-      x2e0_patchIntersects = rs_new char[x2d0_patchDimX * x2d4_patchDimY];
+      mPatchDimX = (tilesPerPatch + mGridDimX - 1) / tilesPerPatch;
+      mPatchDimY = (tilesPerPatch + mGridDimY - 1) / tilesPerPatch;
+      mPatchIntersects = rs_new char[mPatchDimX * mPatchDimY];
 
       int curTileY = 0;
       int patchIdx = 0;
-      for (; patchIdx < x2d4_patchDimY; ++patchIdx) {
+      for (; patchIdx < mPatchDimY; ++patchIdx) {
         int curTileX = 0;
         int patchJ = 0;
-        char* const patchRow = x2e0_patchIntersects.get() + patchIdx * x2d0_patchDimX;
-        for (; patchJ < x2d0_patchDimX; ++patchJ) {
+        char* const patchRow = mPatchIntersects.get() + patchIdx * mPatchDimX;
+        for (; patchJ < mPatchDimX; ++patchJ) {
           bool allClear = true;
           bool allIntersect = true;
-          for (int k = curTileY; k < rstl::min_val(x2c8_gridDimY, curTileY + tilesPerPatch); ++k) {
+          for (int k = curTileY; k < rstl::min_val(mGridDimY, curTileY + tilesPerPatch); ++k) {
             if (!allClear && !allIntersect)
               break;
-            for (int l = curTileX; l < rstl::min_val(x2c4_gridDimX, curTileX + tilesPerPatch);
+            for (int l = curTileX; l < rstl::min_val(mGridDimX, curTileX + tilesPerPatch);
                  ++l) {
-              if (((const char*)x2d8_tileIntersects.get())[l + k * x2c4_gridDimX] != 0) {
+              if (((const char*)mTileIntersects.get())[l + k * mGridDimX] != 0) {
                 allClear = false;
                 if (!allIntersect)
                   break;
@@ -431,76 +431,76 @@ void CScriptWater::SetupGridClipping(CStateManager& mgr, int computeVerts) {
         curTileY += tilesPerPatch;
       }
 
-      x2dc_vertIntersects = static_cast< bool* >(nullptr);
+      mVertIntersects = static_cast< bool* >(nullptr);
     }
   }
 }
 
 void CScriptWater::SetupGrid(bool recomputeClipping) {
   CAABox trigBoundsX = GetTriggerBoundsWR();
-  float tileSize = x2c0_tileSize;
+  float tileSize = mTileSize;
   int dimX = (int)CMath::FloorF(
       (tileSize + (trigBoundsX.GetMaxPoint().GetX() - trigBoundsX.GetMinPoint().GetX()) - 0.01f) /
       tileSize);
 
   CAABox trigBoundsY = GetTriggerBoundsWR();
-  tileSize = x2c0_tileSize;
+  tileSize = mTileSize;
   int dimY = (int)CMath::FloorF(
       (tileSize + (trigBoundsY.GetMaxPoint().GetY() - trigBoundsY.GetMinPoint().GetY()) - 0.01f) /
       tileSize);
 
-  x2cc_gridCellCount = (dimX + 1) * (dimY + 1);
-  x2e4_computedGridCellCount = x2cc_gridCellCount;
+  mGridCellCount = (dimX + 1) * (dimY + 1);
+  mComputedGridCellCount = mGridCellCount;
 
-  x2dc_vertIntersects = static_cast< bool* >(nullptr);
+  mVertIntersects = static_cast< bool* >(nullptr);
 
-  if (x2d8_tileIntersects.get() == NULL || dimX != x2c4_gridDimX || dimY != x2c8_gridDimY) {
-    x2d8_tileIntersects = rs_new char[dimX * dimY];
+  if (mTileIntersects.get() == NULL || dimX != mGridDimX || dimY != mGridDimY) {
+    mTileIntersects = rs_new char[dimX * dimY];
   }
 
-  x2c4_gridDimX = dimX;
-  x2c8_gridDimY = dimY;
+  mGridDimX = dimX;
+  mGridDimY = dimY;
 
-  for (int i = 0; i < x2c8_gridDimY; ++i) {
-    char* row = x2d8_tileIntersects.get() + i * x2c4_gridDimX;
-    for (int j = 0; j < x2c4_gridDimX; ++j, ++row) {
+  for (int i = 0; i < mGridDimY; ++i) {
+    char* row = mTileIntersects.get() + i * mGridDimX;
+    for (int j = 0; j < mGridDimX; ++j, ++row) {
       *row = true;
     }
   }
 
-  if (x2e0_patchIntersects.get() == NULL || x2d0_patchDimX != 0 || x2d4_patchDimY != 0) {
-    x2e0_patchIntersects = rs_new char[32];
+  if (mPatchIntersects.get() == NULL || mPatchDimX != 0 || mPatchDimY != 0) {
+    mPatchIntersects = rs_new char[32];
   }
 
   for (int i = 0; i < 32; ++i) {
-    x2e0_patchIntersects.get()[i] = 1;
+    mPatchIntersects.get()[i] = 1;
   }
 
-  x2d4_patchDimY = 0;
-  x2d0_patchDimX = 0;
-  x2e8_28_recomputeClipping = recomputeClipping;
+  mPatchDimY = 0;
+  mPatchDimX = 0;
+  mRecomputeClipping = recomputeClipping;
 }
 
 bool CScriptWater::CanRippleAtPoint(const CVector3f& point) const {
-  if (x2d8_tileIntersects.null()) {
+  if (mTileIntersects.null()) {
     return true;
   }
 
-  int xTile = (int)((point.GetX() - GetTriggerBoundsWR().GetMinPoint().GetX()) / x2c0_tileSize);
-  if (xTile < 0 || xTile >= x2c4_gridDimX) {
+  int xTile = (int)((point.GetX() - GetTriggerBoundsWR().GetMinPoint().GetX()) / mTileSize);
+  if (xTile < 0 || xTile >= mGridDimX) {
     return false;
   }
 
-  int yTile = (int)((point.GetY() - GetTriggerBoundsWR().GetMinPoint().GetY()) / x2c0_tileSize);
-  if (yTile < 0 || yTile >= x2c8_gridDimY) {
+  int yTile = (int)((point.GetY() - GetTriggerBoundsWR().GetMinPoint().GetY()) / mTileSize);
+  if (yTile < 0 || yTile >= mGridDimY) {
     return false;
   }
 
-  return x2d8_tileIntersects.get()[xTile + yTile * x2c4_gridDimX] != 0;
+  return mTileIntersects.get()[xTile + yTile * mGridDimX] != 0;
 }
 
 int CScriptWater::GetPatchRenderFlags(int x, int y) const {
-  return x2e0_patchIntersects.get()[CalculateIndex(x, y, x2d0_patchDimX)];
+  return mPatchIntersects.get()[CalculateIndex(x, y, mPatchDimX)];
 }
 
 CScriptWater::~CScriptWater() {}
@@ -511,26 +511,26 @@ void CScriptWater::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
   switch (msg) {
   case kSM_Next:
     if (GetActive()) {
-      x2e8_25_morphIn = !x2e8_25_morphIn;
-      if (x2e8_25_morphIn) {
+      mMorphIn = !mMorphIn;
+      if (mMorphIn) {
         rstl::vector< SConnection >::const_iterator conn = GetConnectionList().begin();
         for (; conn != GetConnectionList().end(); ++conn) {
-          if (conn->x0_state != kSS_Play || conn->x4_msg != kSM_Activate) {
+          if (conn->mState != kSS_Play || conn->mMsg != kSM_Activate) {
             continue;
           }
-          CStateManager::TIdListResult search = mgr.GetIdListForScript(conn->x8_objId);
+          CStateManager::TIdListResult search = mgr.GetIdListForScript(conn->mObjId);
           if (search.first != search.second) {
             if (const CScriptTrigger* trig =
                     TCastToConstPtr< CScriptTrigger >(mgr.GetObjectById(search.first->second))) {
-              x1b8_positionMorphed = trig->GetTranslation();
-              x1c4_extentMorphed =
-                  CVector3f(trig->x130_bounds.GetWidth(), trig->x130_bounds.GetHeight(),
-                            trig->x130_bounds.GetDepth());
-              x1f0_damageMorphed = trig->x100_damageInfo.GetDamage();
-              x1d4_positionOrig = GetTranslation();
-              x1e0_extentOrig = CVector3f(x130_bounds.GetWidth(), x130_bounds.GetHeight(),
-                                          x130_bounds.GetDepth());
-              x1ec_damageOrig = x100_damageInfo.GetDamage();
+              mPositionMorphed = trig->GetTranslation();
+              mExtentMorphed =
+                  CVector3f(trig->mBounds.GetWidth(), trig->mBounds.GetHeight(),
+                            trig->mBounds.GetDepth());
+              mDamageMorphed = trig->mDamageInfo.GetDamage();
+              mPositionOrig = GetTranslation();
+              mExtentOrig = CVector3f(mBounds.GetWidth(), mBounds.GetHeight(),
+                                          mBounds.GetDepth());
+              mDamageOrig = mDamageInfo.GetDamage();
               break;
             }
           }
@@ -540,23 +540,23 @@ void CScriptWater::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
     }
     break;
   case kSM_Activate:
-    x2e8_30_alphaOut = false;
-    if (close_enough(x2ac_alphaInTime, 0.f)) {
-      x2bc_alpha = x1b4_fluidPlane->GetAlpha();
-      x214_fogBias = x21c_origFogBias;
-      x218_fogMagnitude = x220_origFogMagnitude;
+    mAlphaOut = false;
+    if (close_enough(mAlphaInTime, 0.f)) {
+      mAlpha = mFluidPlane->GetAlpha();
+      mFogBias = mOrigFogBias;
+      mFogMagnitude = mOrigFogMagnitude;
     } else {
-      x2e8_29_alphaIn = true;
+      mAlphaIn = true;
     }
     break;
   case kSM_Action:
-    x2e8_29_alphaIn = false;
-    if (close_enough(x2b0_alphaOutTime, 0.f)) {
-      x2bc_alpha = 0.f;
-      x214_fogBias = 0.f;
-      x218_fogMagnitude = 0.f;
+    mAlphaIn = false;
+    if (close_enough(mAlphaOutTime, 0.f)) {
+      mAlpha = 0.f;
+      mFogBias = 0.f;
+      mFogMagnitude = 0.f;
     } else {
-      x2e8_30_alphaOut = true;
+      mAlphaOut = true;
     }
     break;
   default:
@@ -590,58 +590,58 @@ void CScriptWater::Think(float dt, CStateManager& mgr) {
   CScriptTrigger::Think(dt, mgr);
 
   CEntity* curCam = &mgr.CameraManager()->CurrentCamera(mgr);
-  if (x148_25_camSubmerged && !oldCamSubmerged) {
+  if (mCamSubmerged && !oldCamSubmerged) {
     mgr.DeliverScriptMsg(curCam, GetUniqueId(), kSM_AddSplashInhabitant);
-  } else if (!x148_25_camSubmerged && oldCamSubmerged) {
+  } else if (!mCamSubmerged && oldCamSubmerged) {
     mgr.DeliverScriptMsg(curCam, GetUniqueId(), kSM_RemoveSplashInhabitant);
   }
 
   UpdateSplashInhabitants(mgr);
 
-  if (x2e8_30_alphaOut) {
-    x2bc_alpha -= dt * x1b4_fluidPlane->GetAlpha() * x2b8_alphaOutRecip;
-    x214_fogBias -= dt * x21c_origFogBias * x2b8_alphaOutRecip;
-    x218_fogMagnitude -= dt * x220_origFogMagnitude * x2b8_alphaOutRecip;
-    if (x2bc_alpha <= 0.f) {
-      x218_fogMagnitude = 0.f;
-      x214_fogBias = 0.f;
-      x2bc_alpha = 0.f;
-      x2e8_30_alphaOut = false;
+  if (mAlphaOut) {
+    mAlpha -= dt * mFluidPlane->GetAlpha() * mAlphaOutRecip;
+    mFogBias -= dt * mOrigFogBias * mAlphaOutRecip;
+    mFogMagnitude -= dt * mOrigFogMagnitude * mAlphaOutRecip;
+    if (mAlpha <= 0.f) {
+      mFogMagnitude = 0.f;
+      mFogBias = 0.f;
+      mAlpha = 0.f;
+      mAlphaOut = false;
     }
-  } else if (x2e8_29_alphaIn) {
-    x2bc_alpha += dt * x1b4_fluidPlane->GetAlpha() * x2b4_alphaInRecip;
-    x214_fogBias -= dt * x21c_origFogBias * x2b4_alphaInRecip;
-    x218_fogMagnitude -= dt * x220_origFogMagnitude * x2b4_alphaInRecip;
-    if (x2bc_alpha > x1b4_fluidPlane->GetAlpha()) {
-      x2bc_alpha = x1b4_fluidPlane->GetAlpha();
-      x214_fogBias = x21c_origFogBias;
-      x218_fogMagnitude = x220_origFogMagnitude;
-      x2e8_29_alphaIn = false;
+  } else if (mAlphaIn) {
+    mAlpha += dt * mFluidPlane->GetAlpha() * mAlphaInRecip;
+    mFogBias -= dt * mOrigFogBias * mAlphaInRecip;
+    mFogMagnitude -= dt * mOrigFogMagnitude * mAlphaInRecip;
+    if (mAlpha > mFluidPlane->GetAlpha()) {
+      mAlpha = mFluidPlane->GetAlpha();
+      mFogBias = mOrigFogBias;
+      mFogMagnitude = mOrigFogMagnitude;
+      mAlphaIn = false;
     }
   }
 
   if (IsMorphing()) {
     bool stillMorphing = true;
-    if (x2e8_25_morphIn) {
-      x1f8_morphFactor += dt / x1d0_morphInTime;
-      if (x1f8_morphFactor > 1.f) {
-        x1f8_morphFactor = 1.f;
+    if (mMorphIn) {
+      mMorphFactor += dt / mMorphInTime;
+      if (mMorphFactor > 1.f) {
+        mMorphFactor = 1.f;
         stillMorphing = false;
       }
     } else {
-      x1f8_morphFactor -= dt / x1f4_morphOutTime;
-      if (x1f8_morphFactor < 0.f) {
-        x1f8_morphFactor = 0.f;
+      mMorphFactor -= dt / mMorphOutTime;
+      if (mMorphFactor < 0.f) {
+        mMorphFactor = 0.f;
         stillMorphing = false;
       }
     }
 
-    SetTranslation(FakeLerp(x1d4_positionOrig, x1b8_positionMorphed, x1f8_morphFactor));
+    SetTranslation(FakeLerp(mPositionOrig, mPositionMorphed, mMorphFactor));
 
-    x100_damageInfo.SetDamage(x1ec_damageOrig * (1.f - x1f8_morphFactor) +
-                              x1f0_damageMorphed * x1f8_morphFactor);
+    mDamageInfo.SetDamage(mDamageOrig * (1.f - mMorphFactor) +
+                              mDamageMorphed * mMorphFactor);
 
-    CVector3f lerpExtent = FakeLerp(x1e0_extentOrig, x1c4_extentMorphed, x1f8_morphFactor);
+    CVector3f lerpExtent = FakeLerp(mExtentOrig, mExtentMorphed, mMorphFactor);
     CAABox bounds = CAABox(lerpExtent * -0.5f, lerpExtent * 0.5f);
     SetTriggerBounds(bounds);
     CalculateRenderBounds();
@@ -657,8 +657,8 @@ void CScriptWater::Think(float dt, CStateManager& mgr) {
 }
 
 void CScriptWater::UpdateSplashInhabitants(CStateManager& mgr) {
-  rstl::list< rstl::pair< TUniqueId, bool > >::iterator it = x1fc_waterInhabitants.begin();
-  while (it != x1fc_waterInhabitants.end()) {
+  rstl::list< rstl::pair< TUniqueId, bool > >::iterator it = mWaterInhabitants.begin();
+  while (it != mWaterInhabitants.end()) {
     rstl::list< rstl::pair< TUniqueId, bool > >::iterator next = it;
     ++next;
     CActor* const act = TCastToPtr< CActor >(mgr.ObjectById(it->first));
@@ -682,7 +682,7 @@ void CScriptWater::UpdateSplashInhabitants(CStateManager& mgr) {
       mgr.DeliverScriptMsg(act, GetUniqueId(), kSM_UpdateSplashInhabitant);
       it->second = false;
     } else {
-      x1fc_waterInhabitants.erase(it);
+      mWaterInhabitants.erase(it);
       if (act != NULL) {
         if (intersects) {
           act->FluidFXThink(kFS_LeftFluid, *this, mgr);
@@ -704,8 +704,8 @@ void CScriptWater::Touch(CActor& otherAct, CStateManager& mgr) {
     return;
   }
 
-  rstl::list< rstl::pair< TUniqueId, bool > >::iterator it = x1fc_waterInhabitants.begin();
-  for (; it != x1fc_waterInhabitants.end(); ++it) {
+  rstl::list< rstl::pair< TUniqueId, bool > >::iterator it = mWaterInhabitants.begin();
+  for (; it != mWaterInhabitants.end(); ++it) {
     if (it->first == otherAct.GetUniqueId()) {
       it->second = true;
       return;
@@ -717,7 +717,7 @@ void CScriptWater::Touch(CActor& otherAct, CStateManager& mgr) {
     return;
   }
 
-  x1fc_waterInhabitants.push_back(rstl::pair< TUniqueId, bool >(otherAct.GetUniqueId(), true));
+  mWaterInhabitants.push_back(rstl::pair< TUniqueId, bool >(otherAct.GetUniqueId(), true));
   CAABox trigBounds = GetTriggerBoundsWR();
   float trigMaxZ = trigBounds.GetMaxPoint().GetZ();
   if (touchBounds.data().GetMinPoint().GetZ() <= trigMaxZ &&
@@ -730,10 +730,10 @@ void CScriptWater::Touch(CActor& otherAct, CStateManager& mgr) {
 const CScriptWater* CScriptWater::GetNextConnectedWater(const CStateManager& mgr) const {
   rstl::vector< SConnection >::const_iterator conn = GetConnectionList().begin();
   for (; conn != GetConnectionList().end(); ++conn) {
-    if (conn->x0_state != kSS_Play || conn->x4_msg != kSM_Activate) {
+    if (conn->mState != kSS_Play || conn->mMsg != kSM_Activate) {
       continue;
     }
-    CStateManager::TIdListResult search = mgr.GetIdListForScript(conn->x8_objId);
+    CStateManager::TIdListResult search = mgr.GetIdListForScript(conn->mObjId);
     if (search.first != search.second) {
       if (const CScriptWater* water =
               TCastToConstPtr< CScriptWater >(mgr.GetObjectById(search.first->second))) {

@@ -16,19 +16,19 @@ public:
 
 private:
   bool x150_;
-  CAssetId x154_texture;
-  float x158_strength;
-  float x15c_alphaInDur;
-  float x160_alphaOutDur;
-  float x164_maxDist;
-  float x168_ooMaxDist;
+  CAssetId mTexture;
+  float mStrength;
+  float mAlphaInDur;
+  float mAlphaOutDur;
+  float mMaxDist;
+  float mOoMaxDist;
 
-  float GetMaxDist() const { return x164_maxDist; }
-  float GetStrength() const { return x158_strength; }
-  float GetOOMaxDist() const { return x168_ooMaxDist; }
-  CAssetId GetTextureId() const { return x154_texture; }
-  float GetFadeOutRate() const { return x160_alphaOutDur; }
-  float GetFadeInRate() const { return x15c_alphaInDur; }
+  float GetMaxDist() const { return mMaxDist; }
+  float GetStrength() const { return mStrength; }
+  float GetOOMaxDist() const { return mOoMaxDist; }
+  CAssetId GetTextureId() const { return mTexture; }
+  float GetFadeOutRate() const { return mAlphaOutDur; }
+  float GetFadeInRate() const { return mAlphaInDur; }
 };
 
 #endif // _CSCRIPTSTEAM

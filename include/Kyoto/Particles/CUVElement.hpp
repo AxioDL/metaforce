@@ -9,7 +9,7 @@
 class CTexture;
 
 class CUVEConstant : public CUVElement {
-  TLockedToken< CTexture > x4_tex;
+  TLockedToken< CTexture > mTex;
 
 public:
   CUVEConstant(TToken< CTexture > tex);
@@ -21,15 +21,15 @@ public:
 };
 
 class CUVEAnimTexture : public CUVElement {
-  TLockedToken< CTexture > x4_tex;
-  int x10_tileW;
-  int x14_tileH;
-  int x18_strideW;
-  int x1c_strideH;
-  int x20_tiles;
-  bool x24_loop;
-  CIntElement* x28_cycleFrames;
-  rstl::vector< SUVElementSet > x2c_uvElems;
+  TLockedToken< CTexture > mTex;
+  int mTileW;
+  int mTileH;
+  int mStrideW;
+  int mStrideH;
+  int mTiles;
+  bool mLoop;
+  CIntElement* mCycleFrames;
+  rstl::vector< SUVElementSet > mUvElems;
 
 public:
   CUVEAnimTexture(TToken< CTexture > tex, CIntElement* tileW, CIntElement* tileH,

@@ -10,19 +10,19 @@
 const float CRipple::kDefaultScale = 0.5f;
 
 CRipple::CRipple(const TUniqueId id, const CVector3f& center, const float intensity)
-: x0_id(id)
-, x4_time(0.f)
-, x8_center(center)
-, x14_timeFalloff(2.f)
-, x18_distFalloff(12.f)
-, x1c_frequency(3.f)
-, x20_amplitude(0.25f)
-, x24_lookupAmplitude(0.0009803922f)
-, x28_ooTimeFalloff(0.f)
-, x2c_ooDistFalloff(0.f)
-, x30_ooPhase(0.f)
-, x34_phase(0.f)
-, x38_lookupPhase(0.f)
+: mId(id)
+, mTime(0.f)
+, mCenter(center)
+, mTimeFalloff(2.f)
+, mDistFalloff(12.f)
+, mFrequency(3.f)
+, mAmplitude(0.25f)
+, mLookupAmplitude(0.0009803922f)
+, mOoTimeFalloff(0.f)
+, mOoDistFalloff(0.f)
+, mOoPhase(0.f)
+, mPhase(0.f)
+, mLookupPhase(0.f)
 , x3c_(CFluidPlaneManager::GetFreqTableIndex(intensity)) {
   if (intensity < 0.f || intensity > 1.f) {
     // lmao
@@ -38,16 +38,16 @@ CRipple::CRipple(const TUniqueId id, const CVector3f& center, const float intens
     }
 
     intensityScale = intensityScale * 2.f;
-    x14_timeFalloff = (intensityScale * .5f) + 1.5f;
-    x18_distFalloff = (intensityScale * 4.f) + 8.f;
-    x1c_frequency = intensityScale + 2.f;
-    x20_amplitude = (intensityScale * .15f) + 0.099999994f;
-    x24_lookupAmplitude = x20_amplitude / 255.f;
+    mTimeFalloff = (intensityScale * .5f) + 1.5f;
+    mDistFalloff = (intensityScale * 4.f) + 8.f;
+    mFrequency = intensityScale + 2.f;
+    mAmplitude = (intensityScale * .15f) + 0.099999994f;
+    mLookupAmplitude = mAmplitude / 255.f;
   }
 
-  x28_ooTimeFalloff = 1.f / x14_timeFalloff;
-  x2c_ooDistFalloff = 1.f / x18_distFalloff;
-  x30_ooPhase = x18_distFalloff / 2.5f;
-  x34_phase = 1.f / x30_ooPhase;
-  x38_lookupPhase = x34_phase * 256.f;
+  mOoTimeFalloff = 1.f / mTimeFalloff;
+  mOoDistFalloff = 1.f / mDistFalloff;
+  mOoPhase = mDistFalloff / 2.5f;
+  mPhase = 1.f / mOoPhase;
+  mLookupPhase = mPhase * 256.f;
 }

@@ -19,20 +19,20 @@ public:
   CBodyStateInfo(CActor& actor, EBodyType type);
   ~CBodyStateInfo();
 
-  void SetBodyController(CBodyController* controller) { x18_bodyController = controller; }
-  const float& GetMaximumPitch() const { return x30_maxPitch; }
-  void SetMaximumPitch(float pitch) { x30_maxPitch = pitch; }
-  bool GetLocoAnimChangeAtEndOfAnimOnly() const { return x34_24_changeLocoAtEndOfAnimOnly; }
-  void SetLocoAnimChangeAtEndOfAnimOnly(bool s) { x34_24_changeLocoAtEndOfAnimOnly = s; }
-  pas::EAnimationState GetCurrentStateId() const { return x14_state; }
-  pas::EAnimationState GetCurrentAdditiveStateId() const { return x2c_additiveState; }
+  void SetBodyController(CBodyController* controller) { mBodyController = controller; }
+  const float& GetMaximumPitch() const { return mMaxPitch; }
+  void SetMaximumPitch(float pitch) { mMaxPitch = pitch; }
+  bool GetLocoAnimChangeAtEndOfAnimOnly() const { return mChangeLocoAtEndOfAnimOnly; }
+  void SetLocoAnimChangeAtEndOfAnimOnly(bool s) { mChangeLocoAtEndOfAnimOnly = s; }
+  pas::EAnimationState GetCurrentStateId() const { return mState; }
+  pas::EAnimationState GetCurrentAdditiveStateId() const { return mAdditiveState; }
 
   void SetState(pas::EAnimationState s);
   const CBodyState* GetCurrentState() const;
   CBodyState* GetCurrentState();
   bool ApplyHeadTracking() const;
   bool IsDead() const { return GetCurrentState()->IsDead(); }
-  bool IsInAir() const { return GetCurrentState()->IsInAir(*x18_bodyController); }
+  bool IsInAir() const { return GetCurrentState()->IsInAir(*mBodyController); }
   void SetAdditiveState(pas::EAnimationState s);
   CAdditiveBodyState* GetCurrentAdditiveState();
   float GetMaxSpeed() const;
@@ -40,13 +40,13 @@ public:
 
 private:
   friend class CBodyController;
-  rstl::map< int, CBodyState* > x0_stateMap;
-  pas::EAnimationState x14_state;
-  CBodyController* x18_bodyController;
-  rstl::vector< rstl::pair< int, rstl::auto_ptr< CAdditiveBodyState > > > x1c_additiveStates;
-  pas::EAnimationState x2c_additiveState;
-  float x30_maxPitch;
-  bool x34_24_changeLocoAtEndOfAnimOnly : 1;
+  rstl::map< int, CBodyState* > mStateMap;
+  pas::EAnimationState mState;
+  CBodyController* mBodyController;
+  rstl::vector< rstl::pair< int, rstl::auto_ptr< CAdditiveBodyState > > > mAdditiveStates;
+  pas::EAnimationState mAdditiveState;
+  float mMaxPitch;
+  bool mChangeLocoAtEndOfAnimOnly : 1;
 
   CBodyState* SetupRestrictedFlyerBodyStates(int stateId, CActor& actor);
   CBodyState* SetupNewFlyerBodyStates(int stateId, CActor& actor);

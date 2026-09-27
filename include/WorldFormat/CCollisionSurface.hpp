@@ -12,15 +12,15 @@ public:
 
   CUnitVector3f GetNormal() const;
   CPlane GetPlane() const;
-  uint GetSurfaceFlags() const { return x24_flags; }
-  const CVector3f& GetVert(int i) const { return (&x0_a)[i]; }
-  const CVector3f& GetPoint(int i) const { return (&x0_a)[i]; }
+  uint GetSurfaceFlags() const { return mFlags; }
+  const CVector3f& GetVert(int i) const { return (&mA)[i]; }
+  const CVector3f& GetPoint(int i) const { return (&mA)[i]; }
 
 private:
-  CVector3f x0_a;
-  CVector3f xc_b;
-  CVector3f x18_c;
-  uint x24_flags;
+  CVector3f mA;
+  CVector3f mB;
+  CVector3f mC;
+  uint mFlags;
 };
 CHECK_SIZEOF(CCollisionSurface, 0x28)
 

@@ -20,20 +20,20 @@ public:
               const float rightDiv);
   CFinalInput(int channel, float dt, const COsContext& context);
   CFinalInput(const CFinalInput& other)
-  : x0_dt(other.x0_dt)
-  , x4_controllerIdx(other.x4_controllerIdx)
-  , x8_anaLeftX(other.x8_anaLeftX)
-  , xc_anaLeftY(other.xc_anaLeftY)
-  , x10_anaRightX(other.x10_anaRightX)
-  , x14_anaRightY(other.x14_anaRightY)
-  , x18_anaLeftTrigger(other.x18_anaLeftTrigger)
-  , x1c_anaRightTrigger(other.x1c_anaRightTrigger)
-  , x20_enableAnaLeftXP(other.x20_enableAnaLeftXP)
-  , x21_enableAnaLeftYP(other.x21_enableAnaLeftYP)
-  , x22_enableAnaRightXP(other.x22_enableAnaRightXP)
-  , x23_enableAnaRightYP(other.x23_enableAnaRightYP)
-  , x24_anaLeftTriggerP(other.x24_anaLeftTriggerP)
-  , x28_anaRightTriggerP(other.x28_anaRightTriggerP)
+  : mDt(other.mDt)
+  , mControllerIdx(other.mControllerIdx)
+  , mAnaLeftX(other.mAnaLeftX)
+  , mAnaLeftY(other.mAnaLeftY)
+  , mAnaRightX(other.mAnaRightX)
+  , mAnaRightY(other.mAnaRightY)
+  , mAnaLeftTrigger(other.mAnaLeftTrigger)
+  , mAnaRightTrigger(other.mAnaRightTrigger)
+  , mEnableAnaLeftXP(other.mEnableAnaLeftXP)
+  , mEnableAnaLeftYP(other.mEnableAnaLeftYP)
+  , mEnableAnaRightXP(other.mEnableAnaRightXP)
+  , mEnableAnaRightYP(other.mEnableAnaRightYP)
+  , mAnaLeftTriggerP(other.mAnaLeftTriggerP)
+  , mAnaRightTriggerP(other.mAnaRightTriggerP)
   , btns1(other.btns1)
   , btns2(other.btns2)
   , btns3(other.btns3) {}
@@ -42,205 +42,205 @@ public:
 
   CFinalInput ScaleAnalogueSticks(float leftDiv, float rightDiv) const;
 
-  float Time() const { return x0_dt; }
-  void SetTime(float time) { x0_dt = time; }
+  float Time() const { return mDt; }
+  void SetTime(float time) { mDt = time; }
 
-  int ControllerNumber() const { return x4_controllerIdx; }
+  int ControllerNumber() const { return mControllerIdx; }
 
-  float ALAUp() const { return xc_anaLeftY > 0.f ? xc_anaLeftY : 0.f; }
+  float ALAUp() const { return mAnaLeftY > 0.f ? mAnaLeftY : 0.f; }
 
-  float ALADown() const { return xc_anaLeftY < 0.f ? -xc_anaLeftY : 0.f; }
+  float ALADown() const { return mAnaLeftY < 0.f ? -mAnaLeftY : 0.f; }
 
-  float ALALeft() const { return x8_anaLeftX < 0.f ? -x8_anaLeftX : 0.f; }
+  float ALALeft() const { return mAnaLeftX < 0.f ? -mAnaLeftX : 0.f; }
 
-  float ALARight() const { return x8_anaLeftX > 0.f ? x8_anaLeftX : 0.f; }
+  float ALARight() const { return mAnaLeftX > 0.f ? mAnaLeftX : 0.f; }
 
-  float ARAUp() const { return x14_anaRightY > 0.f ? x14_anaRightY : 0.f; }
+  float ARAUp() const { return mAnaRightY > 0.f ? mAnaRightY : 0.f; }
 
-  float ARADown() const { return x14_anaRightY < 0.f ? -x14_anaRightY : 0.f; }
+  float ARADown() const { return mAnaRightY < 0.f ? -mAnaRightY : 0.f; }
 
-  float ARALeft() const { return x10_anaRightX < 0.f ? -x10_anaRightX : 0.f; }
+  float ARALeft() const { return mAnaRightX < 0.f ? -mAnaRightX : 0.f; }
 
-  float ARARight() const { return x10_anaRightX > 0.f ? x10_anaRightX : 0.f; }
+  float ARARight() const { return mAnaRightX > 0.f ? mAnaRightX : 0.f; }
 
-  float ALTrigger() const { return x18_anaLeftTrigger; }
+  float ALTrigger() const { return mAnaLeftTrigger; }
 
-  float ARTrigger() const { return x1c_anaRightTrigger; }
+  float ARTrigger() const { return mAnaRightTrigger; }
 
-  float ADPUp() const { return x2c_b31_DPUp ? 1.f : 0.f; }
+  float ADPUp() const { return mB31_DPUp ? 1.f : 0.f; }
 
-  float ADPDown() const { return x2d_b25_DPDown ? 1.f : 0.f; }
+  float ADPDown() const { return mB25_DPDown ? 1.f : 0.f; }
 
-  float ADPLeft() const { return x2d_b26_DPLeft ? 1.f : 0.f; }
+  float ADPLeft() const { return mB26_DPLeft ? 1.f : 0.f; }
 
-  float ADPRight() const { return x2d_b24_DPRight ? 1.f : 0.f; }
+  float ADPRight() const { return mB24_DPRight ? 1.f : 0.f; }
 
-  float AA() const { return x2c_b24_A ? 1.f : 0.f; }
+  float AA() const { return mB24_A ? 1.f : 0.f; }
 
-  float AB() const { return x2c_b25_B ? 1.f : 0.f; }
+  float AB() const { return mB25_B ? 1.f : 0.f; }
 
-  float AX() const { return x2c_b26_X ? 1.f : 0.f; }
+  float AX() const { return mB26_X ? 1.f : 0.f; }
 
-  float AY() const { return x2c_b27_Y ? 1.f : 0.f; }
+  float AY() const { return mB27_Y ? 1.f : 0.f; }
 
-  float AZ() const { return x2c_b28_Z ? 1.f : 0.f; }
+  float AZ() const { return mB28_Z ? 1.f : 0.f; }
 
-  float AL() const { return x2c_b29_L ? 1.f : 0.f; }
+  float AL() const { return mB29_L ? 1.f : 0.f; }
 
-  float AR() const { return x2c_b30_R ? 1.f : 0.f; }
+  float AR() const { return mB30_R ? 1.f : 0.f; }
 
-  float AStart() const { return x2d_b27_Start ? 1.f : 0.f; }
+  float AStart() const { return mB27_Start ? 1.f : 0.f; }
 
-  float ALeftX() const { return x8_anaLeftX; }
+  float ALeftX() const { return mAnaLeftX; }
 
-  float ALeftY() const { return xc_anaLeftY; }
+  float ALeftY() const { return mAnaLeftY; }
 
-  bool DLAUp() const { return kInput_AnalogOnThreshhold < xc_anaLeftY ? true : false; }
+  bool DLAUp() const { return kInput_AnalogOnThreshhold < mAnaLeftY ? true : false; }
 
-  bool DLADown() const { return -kInput_AnalogOnThreshhold > xc_anaLeftY ? true : false; }
+  bool DLADown() const { return -kInput_AnalogOnThreshhold > mAnaLeftY ? true : false; }
 
-  bool DLALeft() const { return -kInput_AnalogOnThreshhold > x8_anaLeftX ? true : false; }
+  bool DLALeft() const { return -kInput_AnalogOnThreshhold > mAnaLeftX ? true : false; }
 
-  bool DLARight() const { return kInput_AnalogOnThreshhold < x8_anaLeftX ? true : false; }
+  bool DLARight() const { return kInput_AnalogOnThreshhold < mAnaLeftX ? true : false; }
 
-  bool DRAUp() const { return kInput_AnalogOnThreshhold < x14_anaRightY ? true : false; }
+  bool DRAUp() const { return kInput_AnalogOnThreshhold < mAnaRightY ? true : false; }
 
-  bool DRADown() const { return -kInput_AnalogOnThreshhold > x14_anaRightY ? true : false; }
+  bool DRADown() const { return -kInput_AnalogOnThreshhold > mAnaRightY ? true : false; }
 
-  bool DRALeft() const { return -kInput_AnalogOnThreshhold > x10_anaRightX ? true : false; }
+  bool DRALeft() const { return -kInput_AnalogOnThreshhold > mAnaRightX ? true : false; }
 
-  bool DRARight() const { return kInput_AnalogOnThreshhold < x10_anaRightX ? true : false; }
+  bool DRARight() const { return kInput_AnalogOnThreshhold < mAnaRightX ? true : false; }
 
   bool DLTrigger() const {
-    return kInput_AnalogTriggerOnThreshhold < x18_anaLeftTrigger ? true : false;
+    return kInput_AnalogTriggerOnThreshhold < mAnaLeftTrigger ? true : false;
   }
 
   bool DRTrigger() const {
-    return kInput_AnalogTriggerOnThreshhold < x1c_anaRightTrigger ? true : false;
+    return kInput_AnalogTriggerOnThreshhold < mAnaRightTrigger ? true : false;
   }
 
-  bool DDPUp() const { return x2c_b31_DPUp; }
+  bool DDPUp() const { return mB31_DPUp; }
 
-  bool DDPDown() const { return x2d_b25_DPDown; }
+  bool DDPDown() const { return mB25_DPDown; }
 
-  bool DDPLeft() const { return x2d_b26_DPLeft; }
+  bool DDPLeft() const { return mB26_DPLeft; }
 
-  bool DDPRight() const { return x2d_b24_DPRight; }
+  bool DDPRight() const { return mB24_DPRight; }
 
-  bool DA() const { return x2c_b24_A; }
+  bool DA() const { return mB24_A; }
 
-  bool DB() const { return x2c_b25_B; }
+  bool DB() const { return mB25_B; }
 
-  bool DX() const { return x2c_b26_X; }
+  bool DX() const { return mB26_X; }
 
-  bool DY() const { return x2c_b27_Y; }
+  bool DY() const { return mB27_Y; }
 
-  bool DZ() const { return x2c_b28_Z; }
+  bool DZ() const { return mB28_Z; }
 
-  bool DL() const { return x2c_b29_L; }
+  bool DL() const { return mB29_L; }
 
-  bool DR() const { return x2c_b30_R; }
+  bool DR() const { return mB30_R; }
 
-  bool DStart() const { return x2d_b27_Start; }
+  bool DStart() const { return mB27_Start; }
 
-  bool PLAUp() const { return DLAUp() && x21_enableAnaLeftYP ? true : false; }
+  bool PLAUp() const { return DLAUp() && mEnableAnaLeftYP ? true : false; }
 
-  bool PLADown() const { return -kInput_AnalogOnThreshhold > xc_anaLeftY && x21_enableAnaLeftYP ? true : false; }
+  bool PLADown() const { return -kInput_AnalogOnThreshhold > mAnaLeftY && mEnableAnaLeftYP ? true : false; }
 
-  bool PLALeft() const { return -kInput_AnalogOnThreshhold > x8_anaLeftX && x20_enableAnaLeftXP ? true : false; }
+  bool PLALeft() const { return -kInput_AnalogOnThreshhold > mAnaLeftX && mEnableAnaLeftXP ? true : false; }
 
-  bool PLARight() const { return kInput_AnalogOnThreshhold < x8_anaLeftX && x20_enableAnaLeftXP ? true : false; }
+  bool PLARight() const { return kInput_AnalogOnThreshhold < mAnaLeftX && mEnableAnaLeftXP ? true : false; }
 
-  bool PRAUp() const { return kInput_AnalogOnThreshhold < x14_anaRightY && x23_enableAnaRightYP ? true : false; }
+  bool PRAUp() const { return kInput_AnalogOnThreshhold < mAnaRightY && mEnableAnaRightYP ? true : false; }
 
-  bool PRADown() const { return -kInput_AnalogOnThreshhold > x14_anaRightY && x23_enableAnaRightYP ? true : false; }
+  bool PRADown() const { return -kInput_AnalogOnThreshhold > mAnaRightY && mEnableAnaRightYP ? true : false; }
 
-  bool PRALeft() const { return -kInput_AnalogOnThreshhold > x10_anaRightX && x22_enableAnaRightXP ? true : false; }
+  bool PRALeft() const { return -kInput_AnalogOnThreshhold > mAnaRightX && mEnableAnaRightXP ? true : false; }
 
-  bool PRARight() const { return kInput_AnalogOnThreshhold < x10_anaRightX && x22_enableAnaRightXP ? true : false; }
+  bool PRARight() const { return kInput_AnalogOnThreshhold < mAnaRightX && mEnableAnaRightXP ? true : false; }
 
-  bool PLTrigger() const { return kInput_AnalogTriggerOnThreshhold < x24_anaLeftTriggerP ? true : false; }
+  bool PLTrigger() const { return kInput_AnalogTriggerOnThreshhold < mAnaLeftTriggerP ? true : false; }
 
-  bool PRTrigger() const { return kInput_AnalogTriggerOnThreshhold < x28_anaRightTriggerP ? true : false; }
+  bool PRTrigger() const { return kInput_AnalogTriggerOnThreshhold < mAnaRightTriggerP ? true : false; }
 
-  bool PDPUp() const { return x2e_b27_PDPUp; }
+  bool PDPUp() const { return mB27_PDPUp; }
   
-  bool PDPDown() const { return x2e_b29_PDPDown; }
+  bool PDPDown() const { return mB29_PDPDown; }
   
-  bool PDPLeft() const { return x2e_b30_PDPLeft; }
+  bool PDPLeft() const { return mB30_PDPLeft; }
   
-  bool PDPRight() const { return x2e_b28_PDPRight; }
+  bool PDPRight() const { return mB28_PDPRight; }
 
-  bool PA() const { return x2d_b28_PA; }
+  bool PA() const { return mB28_PA; }
 
-  bool PB() const { return x2d_b29_PB; }
+  bool PB() const { return mB29_PB; }
 
-  bool PX() const { return x2d_b30_PX; }
+  bool PX() const { return mB30_PX; }
 
-  bool PY() const { return x2d_b31_PY; }
+  bool PY() const { return mB31_PY; }
 
-  bool PZ() const { return x2e_b24_PZ; }
+  bool PZ() const { return mB24_PZ; }
 
-  bool PL() const { return x2e_b25_PL; }
+  bool PL() const { return mB25_PL; }
 
-  bool PR() const { return x2e_b26_PR; }
+  bool PR() const { return mB26_PR; }
 
-  bool PStart() const { return x2e_b31_PStart; }
+  bool PStart() const { return mB31_PStart; }
 
 private:
-  float x0_dt;
-  int x4_controllerIdx;
-  float x8_anaLeftX;
-  float xc_anaLeftY;
-  float x10_anaRightX;
-  float x14_anaRightY;
-  float x18_anaLeftTrigger;
-  float x1c_anaRightTrigger;
+  float mDt;
+  int mControllerIdx;
+  float mAnaLeftX;
+  float mAnaLeftY;
+  float mAnaRightX;
+  float mAnaRightY;
+  float mAnaLeftTrigger;
+  float mAnaRightTrigger;
 
-  bool x20_enableAnaLeftXP;
-  bool x21_enableAnaLeftYP;
-  bool x22_enableAnaRightXP;
-  bool x23_enableAnaRightYP;
+  bool mEnableAnaLeftXP;
+  bool mEnableAnaLeftYP;
+  bool mEnableAnaRightXP;
+  bool mEnableAnaRightYP;
 
-  float x24_anaLeftTriggerP;
-  float x28_anaRightTriggerP;
+  float mAnaLeftTriggerP;
+  float mAnaRightTriggerP;
 
   union {
     struct {
-      uchar x2c_b24_A : 1;
-      uchar x2c_b25_B : 1;
-      uchar x2c_b26_X : 1;
-      uchar x2c_b27_Y : 1;
-      uchar x2c_b28_Z : 1;
-      uchar x2c_b29_L : 1;
-      uchar x2c_b30_R : 1;
-      uchar x2c_b31_DPUp : 1;
+      uchar mB24_A : 1;
+      uchar mB25_B : 1;
+      uchar mB26_X : 1;
+      uchar mB27_Y : 1;
+      uchar mB28_Z : 1;
+      uchar mB29_L : 1;
+      uchar mB30_R : 1;
+      uchar mB31_DPUp : 1;
     };
     uchar btns1;
   };
   union {
     struct {
-      uchar x2d_b24_DPRight : 1;
-      uchar x2d_b25_DPDown : 1;
-      uchar x2d_b26_DPLeft : 1;
-      uchar x2d_b27_Start : 1;
-      uchar x2d_b28_PA : 1;
-      uchar x2d_b29_PB : 1;
-      uchar x2d_b30_PX : 1;
-      uchar x2d_b31_PY : 1;
+      uchar mB24_DPRight : 1;
+      uchar mB25_DPDown : 1;
+      uchar mB26_DPLeft : 1;
+      uchar mB27_Start : 1;
+      uchar mB28_PA : 1;
+      uchar mB29_PB : 1;
+      uchar mB30_PX : 1;
+      uchar mB31_PY : 1;
     };
     uchar btns2;
   };
   union {
     struct {
-      uchar x2e_b24_PZ : 1;
-      uchar x2e_b25_PL : 1;
-      uchar x2e_b26_PR : 1;
-      uchar x2e_b27_PDPUp : 1;
-      uchar x2e_b28_PDPRight : 1;
-      uchar x2e_b29_PDPDown : 1;
-      uchar x2e_b30_PDPLeft : 1;
-      uchar x2e_b31_PStart : 1;
+      uchar mB24_PZ : 1;
+      uchar mB25_PL : 1;
+      uchar mB26_PR : 1;
+      uchar mB27_PDPUp : 1;
+      uchar mB28_PDPRight : 1;
+      uchar mB29_PDPDown : 1;
+      uchar mB30_PDPLeft : 1;
+      uchar mB31_PStart : 1;
     };
     uchar btns3;
   };

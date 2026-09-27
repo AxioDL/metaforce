@@ -4,10 +4,10 @@
 #include "MetroidPrime/CActor.hpp"
 
 class CFishCloudModifier : public CActor {
-  float xe8_radius;
-  float xec_priority;
-  bool xf0_isRepulsor;
-  bool xf1_swirl;
+  float mRadius;
+  float mPriority;
+  bool mIsRepulsor;
+  bool mSwirl;
 
 public:
   CFishCloudModifier(TUniqueId uid, bool active, const rstl::string& name, const CEntityInfo& info,
@@ -20,12 +20,12 @@ public:
   void AddSelf(CStateManager& mgr);
   void RemoveSelf(CStateManager& mgr);
 
-  float GetRadius() const { return xe8_radius; }
-  float GetPriority() const { return xec_priority; }
-  bool IsRepulsor() const { return xf0_isRepulsor; }
-  bool GetSwirl() const { return xf1_swirl; }
+  float GetRadius() const { return mRadius; }
+  float GetPriority() const { return mPriority; }
+  bool IsRepulsor() const { return mIsRepulsor; }
+  bool GetSwirl() const { return mSwirl; }
 };
 
-CHECK_SIZEOF(CFishCloudModifier, (VERSION >= VERSION_GM8P_00 ? 0x108 : 0xf8))
+CHECK_SIZEOF(CFishCloudModifier, (VERSION >= VERSION_GM8E_02 ? 0x108 : 0xf8))
 
 #endif // _CFISHCLOUDMODIFIER

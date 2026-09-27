@@ -39,34 +39,34 @@ CNewFlameThrower::CNewFlameThrower(const TToken< CWeaponDescription >& desc,
 : CGameProjectile(false, desc, name, wType, xf, matType, dInfo, uid, aid, owner, kInvalidUniqueId,
                   attribs, false, CVector3f(1.f, 1.f, 1.f), rstl::optional_object_null(),
                   CSfxManager::kInternalInvalidSfxId, false)
-, x2e8_rand(99)
-, x2ec_particlesDoneTimer(0.f)
-, x2f0_flamesDoneTimer(0.f)
-, x2f4_lastParticleCollisionLoc()
-, x304_mainFire(gpSimplePool->GetObj(SObjectTag('PART', resInfo.data[0])))
-, x310_mainSmoke(gpSimplePool->GetObj(SObjectTag('PART', resInfo.data[1])))
-, x31c_secondarySmoke(gpSimplePool->GetObj(SObjectTag('PART', resInfo.data[4])))
-, x328_secondaryFire(gpSimplePool->GetObj(SObjectTag('PART', resInfo.data[5])))
-, x334_secondarySparks(gpSimplePool->GetObj(SObjectTag('PART', resInfo.data[6])))
-, x340_swooshCenter(gpSimplePool->GetObj(SObjectTag('SWHC', resInfo.data[2])))
-, x34c_swooshFire(gpSimplePool->GetObj(SObjectTag('SWHC', resInfo.data[3])))
-, x358_mainFireGen(nullptr)
-, x35c_mainSmokeGen(nullptr)
-, x360_secondarySmokeGen(nullptr)
-, x364_secondaryFireGen(nullptr)
-, x368_secondarySparksGen(nullptr)
-, x36c_swooshCenterGen(nullptr)
-, x370_swooshFireGen(nullptr)
-, x374_flameState(kFS_Default)
-, x378_currentLitArea(kInvalidAreaId)
-, x37c_24_renderAuxEffects(false)
-, x37c_25_firing(false)
-, x37c_26_runningSlowish(false)
-, x37c_27_newPointAdded(true)
-, x37c_28_activeLighting(false)
-, x380_flameContactPoints(3, rstl::vector< SSortedListEntry >())
-, x3b4_numSmokeParticlesSpawned(0)
-, x3b8_lightIds() {}
+, mRand(99)
+, mParticlesDoneTimer(0.f)
+, mFlamesDoneTimer(0.f)
+, mLastParticleCollisionLoc()
+, mMainFire(gpSimplePool->GetObj(SObjectTag('PART', resInfo.data[0])))
+, mMainSmoke(gpSimplePool->GetObj(SObjectTag('PART', resInfo.data[1])))
+, mSecondarySmoke(gpSimplePool->GetObj(SObjectTag('PART', resInfo.data[4])))
+, mSecondaryFire(gpSimplePool->GetObj(SObjectTag('PART', resInfo.data[5])))
+, mSecondarySparks(gpSimplePool->GetObj(SObjectTag('PART', resInfo.data[6])))
+, mSwooshCenter(gpSimplePool->GetObj(SObjectTag('SWHC', resInfo.data[2])))
+, mSwooshFire(gpSimplePool->GetObj(SObjectTag('SWHC', resInfo.data[3])))
+, mMainFireGen(nullptr)
+, mMainSmokeGen(nullptr)
+, mSecondarySmokeGen(nullptr)
+, mSecondaryFireGen(nullptr)
+, mSecondarySparksGen(nullptr)
+, mSwooshCenterGen(nullptr)
+, mSwooshFireGen(nullptr)
+, mFlameState(kFS_Default)
+, mCurrentLitArea(kInvalidAreaId)
+, mRenderAuxEffects(false)
+, mFiring(false)
+, mRunningSlowish(false)
+, mNewPointAdded(true)
+, mActiveLighting(false)
+, mFlameContactPoints(3, rstl::vector< SSortedListEntry >())
+, mNumSmokeParticlesSpawned(0)
+, mLightIds() {}
 
 rstl::optional_object< CAABox > CNewFlameThrower::GetTouchBounds() const {
   return rstl::optional_object_null();
@@ -80,38 +80,38 @@ void CNewFlameThrower::Think(float dt, CStateManager& mgr) {
   CWeapon::Think(dt, mgr);
   const TAreaId area = mgr.GetWorld()->GetCurrentAreaId();
   mgr.SetActorAreaId(*this, area);
-  for (int i = 0; i < x3b8_lightIds.size(); ++i) {
-    CEntity* light = mgr.ObjectById(x3b8_lightIds[i]);
+  for (int i = 0; i < mLightIds.size(); ++i) {
+    CEntity* light = mgr.ObjectById(mLightIds[i]);
     if (light != nullptr) {
       mgr.SetActorAreaId(static_cast< CActor& >(*light), area);
     } else {
-      x3b8_lightIds[i] = kInvalidUniqueId;
+      mLightIds[i] = kInvalidUniqueId;
     }
   }
 }
 
 float CNewFlameThrower::UpdateFlameState(float dt, CStateManager& mgr) {
   bool activeLighting = false;
-  switch (x374_flameState) {
+  switch (mFlameState) {
   case kFS_FireStart:
-    x374_flameState = kFS_FireActive;
+    mFlameState = kFS_FireActive;
     break;
   case kFS_FireActive:
     activeLighting = true;
     break;
   case kFS_FireStopTimer:
     activeLighting = true;
-    x2f0_flamesDoneTimer = 4.f * dt + x2f0_flamesDoneTimer;
-    if (x2f0_flamesDoneTimer > 1.f) {
-      x2f0_flamesDoneTimer = 1.f;
-      x374_flameState = kFS_FireWaitForParticlesDone;
-      x37c_24_renderAuxEffects = false;
+    mFlamesDoneTimer = 4.f * dt + mFlamesDoneTimer;
+    if (mFlamesDoneTimer > 1.f) {
+      mFlamesDoneTimer = 1.f;
+      mFlameState = kFS_FireWaitForParticlesDone;
+      mRenderAuxEffects = false;
     }
     break;
   case kFS_FireWaitForParticlesDone:
-    x2ec_particlesDoneTimer += dt;
-    if (x2ec_particlesDoneTimer > 0.1f && AreEffectsFinished()) {
-      x374_flameState = kFS_Default;
+    mParticlesDoneTimer += dt;
+    if (mParticlesDoneTimer > 0.1f && AreEffectsFinished()) {
+      mFlameState = kFS_Default;
       Reset(mgr, true);
     }
     break;
@@ -126,28 +126,28 @@ float CNewFlameThrower::UpdateFlameState(float dt, CStateManager& mgr) {
 
 void CNewFlameThrower::UpdateFx(const CTransform4f& xf, float dt, CStateManager& mgr) {
   if (GetActive()) {
-    x37c_26_runningSlowish = gpMain->GetAverageDrawTime() + gpMain->GetAverageTickTime() > 0.65f;
+    mRunningSlowish = gpMain->GetAverageDrawTime() + gpMain->GetAverageTickTime() > 0.65f;
     UpdateFlameState(dt, mgr);
     const CVector3f pos = xf.GetTranslation();
     const CTransform4f rotation = xf.GetRotation();
-    x358_mainFireGen->SetTranslation(pos);
-    x358_mainFireGen->SetOrientation(rotation);
-    x36c_swooshCenterGen->SetTranslation(pos);
-    x36c_swooshCenterGen->SetOrientation(rotation);
-    x370_swooshFireGen->SetTranslation(pos);
-    x370_swooshFireGen->SetOrientation(rotation);
-    x358_mainFireGen->SetGeneratorRate(x37c_26_runningSlowish ? 0.5f : 1.f);
-    x358_mainFireGen->Update(dt);
-    x35c_mainSmokeGen->Update(dt);
-    x360_secondarySmokeGen->Update(dt);
-    x364_secondaryFireGen->Update(dt);
-    x368_secondarySparksGen->Update(dt);
-    x36c_swooshCenterGen->Update(dt);
-    x370_swooshFireGen->Update(dt);
+    mMainFireGen->SetTranslation(pos);
+    mMainFireGen->SetOrientation(rotation);
+    mSwooshCenterGen->SetTranslation(pos);
+    mSwooshCenterGen->SetOrientation(rotation);
+    mSwooshFireGen->SetTranslation(pos);
+    mSwooshFireGen->SetOrientation(rotation);
+    mMainFireGen->SetGeneratorRate(mRunningSlowish ? 0.5f : 1.f);
+    mMainFireGen->Update(dt);
+    mMainSmokeGen->Update(dt);
+    mSecondarySmokeGen->Update(dt);
+    mSecondaryFireGen->Update(dt);
+    mSecondarySparksGen->Update(dt);
+    mSwooshCenterGen->Update(dt);
+    mSwooshFireGen->Update(dt);
     rstl::reserved_vector< CSphere, 32 > collisions;
     DoCollisionCheck(mgr, collisions, dt);
     if (collisions.size() > 0) {
-      rstl::vector< CParticleSwoosh::SSwooshData >& swooshes = x36c_swooshCenterGen->Swooshes();
+      rstl::vector< CParticleSwoosh::SSwooshData >& swooshes = mSwooshCenterGen->Swooshes();
       for (int i = 0; i < swooshes.size(); ++i) {
         CParticleSwoosh::SSwooshData& swoosh = swooshes[i];
         if (swoosh.mActive) {
@@ -161,37 +161,37 @@ void CNewFlameThrower::UpdateFx(const CTransform4f& xf, float dt, CStateManager&
           }
         }
       }
-      for (int i = 0; i < x358_mainFireGen->GetParticleCount(); ++i) {
+      for (int i = 0; i < mMainFireGen->GetParticleCount(); ++i) {
         const int index = i;
-        CElementGen::CParticle& particle = x358_mainFireGen->Particles()[index];
+        CElementGen::CParticle& particle = mMainFireGen->Particles()[index];
         for (int j = 0; j < collisions.size(); ++j) {
           const CSphere& sphere = collisions[j];
           const float radiusSquared = sphere.GetRadius() * sphere.GetRadius();
-          const float distance = (sphere.GetCenter() - particle.x4_pos).MagSquared();
+          const float distance = (sphere.GetCenter() - particle.mPos).MagSquared();
           if (distance < radiusSquared) {
-            particle.x0_endFrame = -1;
+            particle.mEndFrame = -1;
           }
         }
       }
-      for (int i = 0; i < x35c_mainSmokeGen->GetParticleCount(); ++i) {
+      for (int i = 0; i < mMainSmokeGen->GetParticleCount(); ++i) {
         const int index = i;
-        CElementGen::CParticle& particle = x35c_mainSmokeGen->Particles()[index];
+        CElementGen::CParticle& particle = mMainSmokeGen->Particles()[index];
         for (int j = 0; j < collisions.size(); ++j) {
           const CSphere& sphere = collisions[j];
           const float radiusSquared = sphere.GetRadius() * sphere.GetRadius();
-          const float distance = (sphere.GetCenter() - particle.x4_pos).MagSquared();
+          const float distance = (sphere.GetCenter() - particle.mPos).MagSquared();
           if (distance < radiusSquared) {
-            particle.x0_endFrame = -1;
+            particle.mEndFrame = -1;
           }
         }
       }
     }
-    if (x374_flameState == kFS_FireActive) {
+    if (mFlameState == kFS_FireActive) {
       const rstl::vector< CParticleSwoosh::SSwooshData >& swooshes =
-          x36c_swooshCenterGen->GetSwooshes();
+          mSwooshCenterGen->GetSwooshes();
       if (swooshes.capacity() - swooshes.size() < 4) {
         const int step = (swooshes.size() / 2 * 3) / 2;
-        const int index = (step + x36c_swooshCenterGen->GetCurParticle()) % swooshes.size();
+        const int index = (step + mSwooshCenterGen->GetCurParticle()) % swooshes.size();
         const CParticleSwoosh::SSwooshData& swoosh = swooshes[index];
         if (swoosh.mActive) {
           const CVector3f& position = swoosh.mTranslation;
@@ -199,14 +199,14 @@ void CNewFlameThrower::UpdateFx(const CTransform4f& xf, float dt, CStateManager&
           CVector3f delta = position - swooshes[(index + 1) % swooshes.size()].mTranslation;
           delta -= CVector3f::Dot(delta, orientation.GetForward()) * orientation.GetForward();
           const float magnitude = delta.Magnitude();
-          const float maxRate = x37c_26_runningSlowish ? 2.f : 4.f;
+          const float maxRate = mRunningSlowish ? 2.f : 4.f;
           const float rate = rstl::min_val(rstl::max_val(1.f, magnitude * 30.f), maxRate);
           const int particles = int(rate);
-          x3b4_numSmokeParticlesSpawned =
-              rstl::max_val(x3b4_numSmokeParticlesSpawned - 1, particles);
-          x35c_mainSmokeGen->SetTranslation(position);
-          x35c_mainSmokeGen->SetOrientation(orientation);
-          x35c_mainSmokeGen->ForceParticleCreation(x3b4_numSmokeParticlesSpawned);
+          mNumSmokeParticlesSpawned =
+              rstl::max_val(mNumSmokeParticlesSpawned - 1, particles);
+          mMainSmokeGen->SetTranslation(position);
+          mMainSmokeGen->SetOrientation(orientation);
+          mMainSmokeGen->ForceParticleCreation(mNumSmokeParticlesSpawned);
         }
       }
     }
@@ -220,23 +220,23 @@ void CNewFlameThrower::AddToRenderer(const CFrustumPlanes& planes, const CStateM
 
 void CNewFlameThrower::Render(const CStateManager& mgr) const {
   if (GetActive()) {
-    x36c_swooshCenterGen->Render();
-    x370_swooshFireGen->Render();
+    mSwooshCenterGen->Render();
+    mSwooshFireGen->Render();
     CElementGen* gens[5];
-    gens[0] = x358_mainFireGen.get();
-    gens[1] = x35c_mainSmokeGen.get();
-    gens[2] = x360_secondarySmokeGen.get();
-    gens[3] = x364_secondaryFireGen.get();
-    gens[4] = x368_secondarySparksGen.get();
+    gens[0] = mMainFireGen.get();
+    gens[1] = mMainSmokeGen.get();
+    gens[2] = mSecondarySmokeGen.get();
+    gens[3] = mSecondaryFireGen.get();
+    gens[4] = mSecondarySparksGen.get();
     CElementGen::RenderParticlesFlameThrower(gens, 5);
   }
 }
 
 void CNewFlameThrower::Fire(const CTransform4f& xf, CStateManager& mgr, bool) {
   SetActive(true);
-  x37c_25_firing = true;
-  x37c_24_renderAuxEffects = true;
-  x374_flameState = kFS_FireStart;
+  mFiring = true;
+  mRenderAuxEffects = true;
+  mFlameState = kFS_FireStart;
   CreateFlameParticles(mgr);
 }
 
@@ -244,31 +244,31 @@ void CNewFlameThrower::Reset(CStateManager& mgr, bool deactivate) {
   if (deactivate) {
     SetLightsActive(mgr, false);
     SetActive(false);
-    x374_flameState = kFS_Default;
-    x2ec_particlesDoneTimer = 0.f;
-    x2f0_flamesDoneTimer = 0.f;
+    mFlameState = kFS_Default;
+    mParticlesDoneTimer = 0.f;
+    mFlamesDoneTimer = 0.f;
   } else {
-    x374_flameState = kFS_FireStopTimer;
+    mFlameState = kFS_FireStopTimer;
   }
-  x37c_25_firing = false;
-  x358_mainFireGen->SetParticleEmission(false);
-  x35c_mainSmokeGen->SetParticleEmission(false);
-  x36c_swooshCenterGen->SetParticleEmission(false);
-  x370_swooshFireGen->SetParticleEmission(false);
+  mFiring = false;
+  mMainFireGen->SetParticleEmission(false);
+  mMainSmokeGen->SetParticleEmission(false);
+  mSwooshCenterGen->SetParticleEmission(false);
+  mSwooshFireGen->SetParticleEmission(false);
 }
 
 void CNewFlameThrower::CreateFlameParticles(CStateManager& mgr) {
   DeleteProjectileLight(mgr);
-  x358_mainFireGen = rs_new CElementGen(x304_mainFire);
-  x35c_mainSmokeGen = rs_new CElementGen(x310_mainSmoke);
-  x360_secondarySmokeGen = rs_new CElementGen(x31c_secondarySmoke);
-  x364_secondaryFireGen = rs_new CElementGen(x328_secondaryFire);
-  x368_secondarySparksGen = rs_new CElementGen(x334_secondarySparks);
-  x36c_swooshCenterGen = rs_new CParticleSwoosh(x340_swooshCenter, 0);
-  x36c_swooshCenterGen->SetRenderGaps(true);
-  x370_swooshFireGen = rs_new CParticleSwoosh(x34c_swooshFire, 0);
-  x370_swooshFireGen->SetRenderGaps(true);
-  if (!x358_mainFireGen.null() && x358_mainFireGen->SystemHasLight() && x3b8_lightIds.empty()) {
+  mMainFireGen = rs_new CElementGen(mMainFire);
+  mMainSmokeGen = rs_new CElementGen(mMainSmoke);
+  mSecondarySmokeGen = rs_new CElementGen(mSecondarySmoke);
+  mSecondaryFireGen = rs_new CElementGen(mSecondaryFire);
+  mSecondarySparksGen = rs_new CElementGen(mSecondarySparks);
+  mSwooshCenterGen = rs_new CParticleSwoosh(mSwooshCenter, 0);
+  mSwooshCenterGen->SetRenderGaps(true);
+  mSwooshFireGen = rs_new CParticleSwoosh(mSwooshFire, 0);
+  mSwooshFireGen->SetRenderGaps(true);
+  if (!mMainFireGen.null() && mMainFireGen->SystemHasLight() && mLightIds.empty()) {
     CreateLights(mgr);
   }
 }
@@ -294,13 +294,13 @@ bool CNewFlameThrower::DoCollisionCheck(CStateManager& mgr,
                                         rstl::reserved_vector< CSphere, 32 >& collisions,
                                         float dt) {
   bool collided = false;
-  x2f4_lastParticleCollisionLoc = rstl::optional_object_null();
-  rstl::vector< CParticleSwoosh::SSwooshData >& swooshes = x370_swooshFireGen->Swooshes();
+  mLastParticleCollisionLoc = rstl::optional_object_null();
+  rstl::vector< CParticleSwoosh::SSwooshData >& swooshes = mSwooshFireGen->Swooshes();
   TEntityList nearList;
   const int batchSize = rstl::max_val(swooshes.size() / 4, 6);
-  const int count = x370_swooshFireGen->GetSwooshCount();
+  const int count = mSwooshFireGen->GetSwooshCount();
   int current = count;
-  current += x370_swooshFireGen->GetCurParticle();
+  current += mSwooshFireGen->GetCurParticle();
   --current;
   const int previous = current % count;
   for (int start = 0; start < swooshes.size(); start += batchSize) {
@@ -354,37 +354,37 @@ bool CNewFlameThrower::DoCollisionCheck(CStateManager& mgr,
                 break;
               }
               const CCollisionInfo& info = filteredContacts[j];
-              const CSphere contactSphere(info.GetPoint(), x37c_26_runningSlowish ? 1.f : 0.75f);
+              const CSphere contactSphere(info.GetPoint(), mRunningSlowish ? 1.f : 0.75f);
               const int nearbyPoints = GetApproxNumSortedListPointsInSphere(contactSphere);
-              if (nearbyPoints < (x37c_26_runningSlowish ? 2 : 3)) {
+              if (nearbyPoints < (mRunningSlowish ? 2 : 3)) {
                 AddToSortedLists(info, 10);
                 const CTransform4f rotation =
                     CTransform4f::LookAt(CVector3f::Zero(), info.GetNormalLeft(), CVector3f::Up());
-                x360_secondarySmokeGen->SetOrientation(rotation);
-                x364_secondaryFireGen->SetOrientation(rotation);
-                x368_secondarySparksGen->SetOrientation(rotation);
-                x360_secondarySmokeGen->SetTranslation(info.GetPoint());
-                x364_secondaryFireGen->SetTranslation(info.GetPoint());
-                x368_secondarySparksGen->SetTranslation(info.GetPoint());
-                x360_secondarySmokeGen->ForceParticleCreation(1);
-                x364_secondaryFireGen->ForceParticleCreation(x37c_26_runningSlowish ? 2 : 3);
-                x368_secondarySparksGen->ForceParticleCreation(x37c_26_runningSlowish ? 3 : 5);
-                if (x37c_26_runningSlowish) {
+                mSecondarySmokeGen->SetOrientation(rotation);
+                mSecondaryFireGen->SetOrientation(rotation);
+                mSecondarySparksGen->SetOrientation(rotation);
+                mSecondarySmokeGen->SetTranslation(info.GetPoint());
+                mSecondaryFireGen->SetTranslation(info.GetPoint());
+                mSecondarySparksGen->SetTranslation(info.GetPoint());
+                mSecondarySmokeGen->ForceParticleCreation(1);
+                mSecondaryFireGen->ForceParticleCreation(mRunningSlowish ? 2 : 3);
+                mSecondarySparksGen->ForceParticleCreation(mRunningSlowish ? 3 : 5);
+                if (mRunningSlowish) {
                   break;
                 }
                 lastPoint = info.GetPoint();
               }
             }
-            if (!x37c_26_runningSlowish && x2f4_lastParticleCollisionLoc) {
+            if (!mRunningSlowish && mLastParticleCollisionLoc) {
               if (filteredContacts.GetCount() < 3 ||
-                  (*x2f4_lastParticleCollisionLoc - lastPoint).MagSquared() > 3.f) {
+                  (*mLastParticleCollisionLoc - lastPoint).MagSquared() > 3.f) {
                 const CVector3f midpoint =
-                    CVector3f::Lerp(lastPoint, *x2f4_lastParticleCollisionLoc, 0.5f);
-                x364_secondaryFireGen->SetTranslation(midpoint);
-                x364_secondaryFireGen->ForceParticleCreation(2);
+                    CVector3f::Lerp(lastPoint, *mLastParticleCollisionLoc, 0.5f);
+                mSecondaryFireGen->SetTranslation(midpoint);
+                mSecondaryFireGen->ForceParticleCreation(2);
               }
             }
-            x2f4_lastParticleCollisionLoc = lastPoint;
+            mLastParticleCollisionLoc = lastPoint;
             if (firstCollision != kInvalidUniqueId) {
               if (CActor* actor = TCastToPtr< CActor >(mgr.ObjectById(firstCollision))) {
                 if (CanDamage(*actor, mgr)) {
@@ -486,20 +486,20 @@ bool CNewFlameThrower::DynamicObjectCollision(CStateManager& mgr, const TEntityL
 
 const bool CNewFlameThrower::AreEffectsFinished() const {
   bool finished = false;
-  if (!x358_mainFireGen.null()) {
-    finished = x358_mainFireGen->GetParticleCount() == 0;
+  if (!mMainFireGen.null()) {
+    finished = mMainFireGen->GetParticleCount() == 0;
   }
-  if (finished && !x35c_mainSmokeGen.null()) {
-    finished = x35c_mainSmokeGen->GetParticleCount() == 0;
+  if (finished && !mMainSmokeGen.null()) {
+    finished = mMainSmokeGen->GetParticleCount() == 0;
   }
-  if (finished && !x360_secondarySmokeGen.null()) {
-    finished = x360_secondarySmokeGen->GetParticleCount() == 0;
+  if (finished && !mSecondarySmokeGen.null()) {
+    finished = mSecondarySmokeGen->GetParticleCount() == 0;
   }
-  if (finished && !x364_secondaryFireGen.null()) {
-    finished = x364_secondaryFireGen->GetParticleCount() == 0;
+  if (finished && !mSecondaryFireGen.null()) {
+    finished = mSecondaryFireGen->GetParticleCount() == 0;
   }
-  if (finished && !x368_secondarySparksGen.null()) {
-    finished = x368_secondarySparksGen->GetParticleCount() == 0;
+  if (finished && !mSecondarySparksGen.null()) {
+    finished = mSecondarySparksGen->GetParticleCount() == 0;
   }
   return finished;
 }
@@ -512,24 +512,24 @@ void CNewFlameThrower::CreateLights(CStateManager& mgr) {
       const CAssetId lightId = static_cast< uint >(reinterpret_cast< uintptr_t >(this)) + (i & 1);
       CEntity* light = rs_new CGameLight(
           uid, GetAreaId(), false, rstl::string_l("FlamethrowerLight"), CTransform4f::Identity(),
-          GetUniqueId(), x358_mainFireGen->GetLight(), lightId, 0, 0.f);
+          GetUniqueId(), mMainFireGen->GetLight(), lightId, 0, 0.f);
       mgr.AddObject(light);
-      x3b8_lightIds.push_back(uid);
+      mLightIds.push_back(uid);
     }
   }
 }
 
 void CNewFlameThrower::UpdateLights(CStateManager& mgr) {
-  CGlobalRandom globalRandom(x2e8_rand);
-  CParticleSwoosh* const swooshGen = x370_swooshFireGen.get();
+  CGlobalRandom globalRandom(mRand);
+  CParticleSwoosh* const swooshGen = mSwooshFireGen.get();
   const int count = swooshGen->GetSwooshCount();
   int current = count;
   current += swooshGen->GetCurParticle();
   --current;
   const int previous = current % count;
   const int stride = rstl::max_val(2, count / 4);
-  for (int i = 0, offset = 0; i < x3b8_lightIds.size(); ++i, offset += stride) {
-    if (CGameLight* light = TCastToPtr< CGameLight >(mgr.ObjectById(x3b8_lightIds[i]))) {
+  for (int i = 0, offset = 0; i < mLightIds.size(); ++i, offset += stride) {
+    if (CGameLight* light = TCastToPtr< CGameLight >(mgr.ObjectById(mLightIds[i]))) {
       bool active = true;
       if (offset >= swooshGen->GetSwooshCount()) {
         active = false;
@@ -541,16 +541,16 @@ void CNewFlameThrower::UpdateLights(CStateManager& mgr) {
       }
       light->SetActive(static_cast< bool >(active));
       if (active) {
-        CLight lightData = x358_mainFireGen->GetLight();
-        if (CColorElement* color = x304_mainFire->xf0_LCLR) {
-          int time = x2e8_rand.Range(0, 16);
+        CLight lightData = mMainFireGen->GetLight();
+        if (CColorElement* color = mMainFire->mLCLR) {
+          int time = mRand.Range(0, 16);
           CParticleGlobals::SetEmitterTime(time);
           CColor value = CColor::Yellow();
           color->GetValue(time, value);
           lightData.SetColor(value);
         }
-        if (CRealElement* intensity = x304_mainFire->xf4_LINT) {
-          int time = x2e8_rand.Range(0, 16);
+        if (CRealElement* intensity = mMainFire->mLINT) {
+          int time = mRand.Range(0, 16);
           CParticleGlobals::SetEmitterTime(time);
           float value = 1.f;
           intensity->GetValue(time, value);
@@ -564,15 +564,15 @@ void CNewFlameThrower::UpdateLights(CStateManager& mgr) {
 }
 
 void CNewFlameThrower::DestroyLights(CStateManager& mgr) {
-  for (int i = 0; i < x3b8_lightIds.size(); ++i) {
-    mgr.DeleteObjectRequest(x3b8_lightIds[i]);
+  for (int i = 0; i < mLightIds.size(); ++i) {
+    mgr.DeleteObjectRequest(mLightIds[i]);
   }
-  x3b8_lightIds.clear();
+  mLightIds.clear();
 }
 
 void CNewFlameThrower::SetLightsActive(CStateManager& mgr, bool active) {
-  for (int i = 0; i < x3b8_lightIds.size(); ++i) {
-    if (CGameLight* light = TCastToPtr< CGameLight >(mgr.ObjectById(x3b8_lightIds[i]))) {
+  for (int i = 0; i < mLightIds.size(); ++i) {
+    if (CGameLight* light = TCastToPtr< CGameLight >(mgr.ObjectById(mLightIds[i]))) {
       light->SetActive(active);
     }
   }
@@ -580,25 +580,25 @@ void CNewFlameThrower::SetLightsActive(CStateManager& mgr, bool active) {
 
 void CNewFlameThrower::AddToSortedLists(const CCollisionInfo& info, int time) {
   for (int i = 0; i < 3; ++i) {
-    rstl::vector< SSortedListEntry >& entries = x380_flameContactPoints[i];
+    rstl::vector< SSortedListEntry >& entries = mFlameContactPoints[i];
     if (entries.size() == entries.capacity()) {
       entries.reserve(entries.capacity() > 0 ? entries.capacity() * 2 : 10);
     }
     entries.push_back(SSortedListEntry(info.GetPoint()[i], time));
   }
-  x37c_27_newPointAdded = true;
+  mNewPointAdded = true;
 }
 
 int CNewFlameThrower::GetApproxNumSortedListPointsInSphere(const CSphere& sphere) {
-  if (x37c_27_newPointAdded) {
+  if (mNewPointAdded) {
     for (int i = 0; i < 3; ++i) {
-      rstl::vector< SSortedListEntry >& entries = x380_flameContactPoints[i];
+      rstl::vector< SSortedListEntry >& entries = mFlameContactPoints[i];
       rstl::sort(entries.begin(), entries.end());
     }
   }
   int count = 0x7fffffff;
   for (int i = 0; i < 3; ++i) {
-    const rstl::vector< SSortedListEntry >& entries = x380_flameContactPoints[i];
+    const rstl::vector< SSortedListEntry >& entries = mFlameContactPoints[i];
     count = rstl::min_val(
         count,
         int(rstl::upper_bound(entries.begin(), entries.end(),
@@ -614,11 +614,11 @@ int CNewFlameThrower::GetApproxNumSortedListPointsInSphere(const CSphere& sphere
 
 void CNewFlameThrower::RemoveDeadEntriesFromSortedLists() {
   for (int i = 0; i < 3; ++i) {
-    rstl::vector< SSortedListEntry >& entries = x380_flameContactPoints[i];
+    rstl::vector< SSortedListEntry >& entries = mFlameContactPoints[i];
     int last = entries.size() - 1;
     for (int j = 0; j < entries.size(); ++j) {
-      --entries[j].x4_remainingTime;
-      if (entries[j].x4_remainingTime == 0) {
+      --entries[j].mRemainingTime;
+      if (entries[j].mRemainingTime == 0) {
         entries[j] = entries[last];
         entries.pop_back();
         --last;
@@ -629,17 +629,17 @@ void CNewFlameThrower::RemoveDeadEntriesFromSortedLists() {
 
 void CNewFlameThrower::SetWorldDarkening(CStateManager& mgr, TAreaId area, float speed,
                                          float target) {
-  if (x37c_28_activeLighting && x378_currentLitArea != area &&
-      x378_currentLitArea != kInvalidAreaId) {
-    CGameArea* litArea = mgr.World()->Area(x378_currentLitArea);
+  if (mActiveLighting && mCurrentLitArea != area &&
+      mCurrentLitArea != kInvalidAreaId) {
+    CGameArea* litArea = mgr.World()->Area(mCurrentLitArea);
     if (litArea->IsPostConstructed()) {
       litArea->SetWeaponWorldLighting(1.f, 1.f);
     }
   }
-  x378_currentLitArea = area;
-  x37c_28_activeLighting = target != 1.f;
-  if (x378_currentLitArea != kInvalidAreaId) {
-    CGameArea* litArea = mgr.World()->Area(x378_currentLitArea);
+  mCurrentLitArea = area;
+  mActiveLighting = target != 1.f;
+  if (mCurrentLitArea != kInvalidAreaId) {
+    CGameArea* litArea = mgr.World()->Area(mCurrentLitArea);
     if (litArea->IsPostConstructed()) {
       litArea->SetWeaponWorldLighting(speed, target);
     }
@@ -648,7 +648,7 @@ void CNewFlameThrower::SetWorldDarkening(CStateManager& mgr, TAreaId area, float
 
 bool CNewFlameThrower::CanDamage(CActor& actor, CStateManager& mgr) {
   if (actor.GetDamageVulnerability()->GetVulnerability(
-          x12c_curDamageInfo.GetWeaponMode(), CDamageVulnerability::kRD_No) == kVN_PassThrough) {
+          mCurDamageInfo.GetWeaponMode(), CDamageVulnerability::kRD_No) == kVN_PassThrough) {
     return false;
   }
   if (TCastToPtr< CScriptTrigger >(actor)) {

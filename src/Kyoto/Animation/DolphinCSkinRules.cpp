@@ -27,15 +27,15 @@ static int StreamFloatToShort(CInputStream& in) {
 }
 
 CSkinRules::CSkinRules(CInputStream& in)
-: x0_virtualBones(in)
-, x10_vertexCount(StreamFloatToShort(in))
-, x14_normalCount(StreamFloatToShort(in)) {
+: mVirtualBones(in)
+, mVertexCount(StreamFloatToShort(in))
+, mNormalCount(StreamFloatToShort(in)) {
 
-  CModel::AddToTotal(x0_virtualBones.size() * sizeof(CVirtualBone) + sizeof(CSkinRules));
+  CModel::AddToTotal(mVirtualBones.size() * sizeof(CVirtualBone) + sizeof(CSkinRules));
 }
 
 CSkinRules::~CSkinRules() {
-  CModel::RemoveFromTotal(x0_virtualBones.size() * sizeof(CVirtualBone) + sizeof(CSkinRules));
+  CModel::RemoveFromTotal(mVirtualBones.size() * sizeof(CVirtualBone) + sizeof(CSkinRules));
 }
 
 void CSkinRules::BuildAccumulatedTransforms(const CPoseAsTransforms& pose,
@@ -50,18 +50,18 @@ void CSkinRules::BuildAccumulatedTransforms(const CPoseAsTransforms& pose,
     id = pose.GetTransforms().GetIdAfter(id);
   }
 
-  for (int i = 0; i < x0_virtualBones.size(); ++i) {
-    x0_virtualBones[i].BuildAccumulatedTransform(pose, points);
+  for (int i = 0; i < mVirtualBones.size(); ++i) {
+    mVirtualBones[i].BuildAccumulatedTransform(pose, points);
   }
 }
 
 void CSkinRules::BuildPoints(volatile void* pipe) const {
-  for (int i = 0; i < x0_virtualBones.size(); ++i) {
-    int vertexCount = x0_virtualBones[i].GetNumIndices();
+  for (int i = 0; i < mVirtualBones.size(); ++i) {
+    int vertexCount = mVirtualBones[i].GetNumIndices();
     ushort* buffer = nullptr;
     for (int done = 0; done < vertexCount;) {
       const int count = ProcessingPoints(vertexCount - done, &buffer);
-      x0_virtualBones[i].BuildPoints(buffer, pipe, count);
+      mVirtualBones[i].BuildPoints(buffer, pipe, count);
 #if defined(TARGET_PC)
       pipe = static_cast< volatile float* >(pipe) + count * 3;
 #endif
@@ -71,12 +71,12 @@ void CSkinRules::BuildPoints(volatile void* pipe) const {
 }
 
 void CSkinRules::BuildNormals(volatile void* pipe) const {
-  for (int i = 0; i < x0_virtualBones.size(); ++i) {
-    int vertexCount = x0_virtualBones[i].GetNumIndices();
+  for (int i = 0; i < mVirtualBones.size(); ++i) {
+    int vertexCount = mVirtualBones[i].GetNumIndices();
     ushort* buffer = nullptr;
     for (int done = 0; done < vertexCount;) {
       const int count = ProcessingNormals(vertexCount - done, &buffer);
-      x0_virtualBones[i].BuildNormals(buffer, pipe, count);
+      mVirtualBones[i].BuildNormals(buffer, pipe, count);
 #if defined(TARGET_PC)
       pipe = static_cast< volatile float* >(pipe) + count * 3;
 #endif
@@ -87,8 +87,8 @@ void CSkinRules::BuildNormals(volatile void* pipe) const {
 
 void CSkinRules::BuildNormalsFrom(const CVector3f* averageNormals, CVector3f* out) const {
   int offset = 0;
-  for (int i = 0; i < x0_virtualBones.size(); ++i) {
-    const CVirtualBone& bone = x0_virtualBones[i];
+  for (int i = 0; i < mVirtualBones.size(); ++i) {
+    const CVirtualBone& bone = mVirtualBones[i];
     int count = bone.GetNumIndices();
     bone.BuildNormals(averageNormals + offset, out + offset, count);
     offset += count;

@@ -17,20 +17,20 @@ CMetaree::CMetaree(TUniqueId uid, const rstl::string& name, EFlavorType flavor,
                    const CActorParameters& aParms)
 : CPatterned(kC_Metaree, uid, name, flavor, info, xf, mData, pInfo, kMT_Flyer, kCT_Zero, bodyType,
              aParms, kCS_Small)
-, x568_delay(f3)
-, x56c_haltDelay(f4)
-, x570_dropHeight(f1)
-, x574_offset(v1)
-, x580_attackSpeed(f2)
-, x584_lookPos(CVector3f::Zero())
-, x590_projectileDelta(0.f, 0.f, 0.f)
-, x59c_velocity(CVector3f::Zero())
+, mDelay(f3)
+, mHaltDelay(f4)
+, mDropHeight(f1)
+, mOffset(v1)
+, mAttackSpeed(f2)
+, mLookPos(CVector3f::Zero())
+, mProjectileDelta(0.f, 0.f, 0.f)
+, mVelocity(CVector3f::Zero())
 , x5a8_(0)
-, x5ac_damageInfo(dInfo)
-, x5c8_attackSfx(SFXmtr_a_scream_01)
+, mDamageInfo(dInfo)
+, mAttackSfx(SFXmtr_a_scream_01)
 , x5ca_24_(true)
-, x5ca_25_started(false)
-, x5ca_26_deactivated(false) {}
+, mStarted(false)
+, mDeactivated(false) {}
 
 ENTITY_ACCEPT_IMPL(CMetaree)
 
@@ -43,7 +43,7 @@ void CMetaree::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMa
     BodyCtrl()->Activate(mgr);
     break;
   case kSM_Start:
-    x5ca_25_started = true;
+    mStarted = true;
     break;
   case kSM_Activate:
   default:
@@ -56,7 +56,7 @@ void CMetaree::ThinkAboutMove(float) {}
 void CMetaree::CollidedWith(const TUniqueId& id, const CCollisionInfoList& colList,
                             CStateManager& mgr) {
   if (IsAlive() && colList.GetCount() > 0) {
-    mgr.ApplyDamageToWorld(GetUniqueId(), *this, GetTranslation(), x5ac_damageInfo,
+    mgr.ApplyDamageToWorld(GetUniqueId(), *this, GetTranslation(), mDamageInfo,
                            CMaterialFilter::MakeInclude(CMaterialList(kMT_Player)));
     SendScriptMsgs(kSS_Arrived, mgr, kSM_None);
     MassiveDeath(mgr);
@@ -74,22 +74,22 @@ void CMetaree::Touch(CActor& act, CStateManager& mgr) {
     }
 
     SetWasHit(true);
-    x590_projectileDelta = projectile->GetTranslation() - projectile->GetPreviousPos();
+    mProjectileDelta = projectile->GetTranslation() - projectile->GetPreviousPos();
   }
 }
 
 bool CMetaree::ShouldAttack(CStateManager&, float) {
-  return GetTranslation().GetZ() < x584_lookPos.GetZ();
+  return GetTranslation().GetZ() < mLookPos.GetZ();
 }
 
 bool CMetaree::InRange(CStateManager& mgr, float arg) {
-  return x5ca_25_started || CPatterned::InRange(mgr, arg);
+  return mStarted || CPatterned::InRange(mgr, arg);
 }
 
 void CMetaree::InActive(CStateManager&, EStateMsg msg, float) {
   switch (msg) {
   case kStateMsg_Activate:
-    if (!x5ca_26_deactivated) {
+    if (!mDeactivated) {
       BodyCtrl()->SetLocomotionType(pas::kLT_Relaxed);
     } else {
       BodyCtrl()->SetLocomotionType(pas::kLT_Crouch);
@@ -98,7 +98,7 @@ void CMetaree::InActive(CStateManager&, EStateMsg msg, float) {
   case kStateMsg_Update:
     break;
   case kStateMsg_Deactivate:
-    x5ca_26_deactivated = true;
+    mDeactivated = true;
     break;
   }
 }
@@ -108,9 +108,9 @@ void CMetaree::Active(CStateManager& mgr, EStateMsg msg, float) {
   case kStateMsg_Activate: {
     SetWasHit(false);
     const CVector3f translation = GetTranslation();
-    const CVector3f dropVector(0.f, 0.f, x570_dropHeight);
-    x584_lookPos = GetTranslation() - dropVector;
-    BodyCtrl()->CommandMgr().DeliverCmd(CBCGenerateCmd(pas::kGType_Zero, x584_lookPos, true));
+    const CVector3f dropVector(0.f, 0.f, mDropHeight);
+    mLookPos = GetTranslation() - dropVector;
+    BodyCtrl()->CommandMgr().DeliverCmd(CBCGenerateCmd(pas::kGType_Zero, mLookPos, true));
     SetMomentumWR(CVector3f(0.f, 0.f, -GetGravityConstant() * GetMass()));
     break;
   }
@@ -131,9 +131,9 @@ void CMetaree::Halt(CStateManager& mgr, EStateMsg msg, float) {
     SetVelocityWR(CVector3f::Zero());
     SetMomentumWR(CVector3f::Zero());
     BodyCtrl()->SetLocomotionType(pas::kLT_Lurk);
-    x584_lookPos = mgr.GetPlayer()->GetTranslation() + x574_offset;
-    SetTransform(CTransform4f::LookAt(GetTranslation(), x584_lookPos));
-    StateMachineState().SetDelay(x56c_haltDelay);
+    mLookPos = mgr.GetPlayer()->GetTranslation() + mOffset;
+    SetTransform(CTransform4f::LookAt(GetTranslation(), mLookPos));
+    StateMachineState().SetDelay(mHaltDelay);
     break;
   }
   case kStateMsg_Update:
@@ -146,16 +146,16 @@ void CMetaree::Attack(CStateManager&, EStateMsg msg, float) {
   switch (msg) {
   case kStateMsg_Activate: {
     x5a8_ = 0;
-    CVector3f dir = (x584_lookPos - GetTranslation()).AsNormalized();
-    SetVelocityWR(x580_attackSpeed * dir);
-    CSfxManager::AddEmitter(x5c8_attackSfx, GetTranslation(), CVector3f::Zero(), true, false);
+    CVector3f dir = (mLookPos - GetTranslation()).AsNormalized();
+    SetVelocityWR(mAttackSpeed * dir);
+    CSfxManager::AddEmitter(mAttackSfx, GetTranslation(), CVector3f::Zero(), true, false);
     BodyCtrl()->SetLocomotionType(pas::kLT_Combat);
-    x59c_velocity = x580_attackSpeed * dir;
+    mVelocity = mAttackSpeed * dir;
     break;
   }
   case kStateMsg_Update:
     if (GetBodyCtrl()->GetPercentageFrozen() == 0.f) {
-      SetVelocityWR(x59c_velocity);
+      SetVelocityWR(mVelocity);
     } else {
       Stop();
       SetVelocityWR(CVector3f::Zero());
@@ -170,7 +170,7 @@ void CMetaree::Dead(CStateManager& mgr, EStateMsg msg, float) {
   switch (msg) {
   case kStateMsg_Activate:
     mgr.ApplyDamageToWorld(
-        GetUniqueId(), *this, GetTranslation(), x5ac_damageInfo,
+        GetUniqueId(), *this, GetTranslation(), mDamageInfo,
         CMaterialFilter::MakeIncludeExclude(CMaterialList(kMT_Player), CMaterialList()));
     DeathDelete(mgr);
     break;
@@ -183,7 +183,7 @@ void CMetaree::Flee(CStateManager& mgr, EStateMsg msg, float) {
   switch (msg) {
   case kStateMsg_Activate: {
     CVector3f ang =
-        GetMass() * CVector3f(x590_projectileDelta.GetX(), x590_projectileDelta.GetY(), 0.f) * 5.f;
+        GetMass() * CVector3f(mProjectileDelta.GetX(), mProjectileDelta.GetY(), 0.f) * 5.f;
     ApplyImpulseWR(ang, CAxisAngle::Identity());
 
     SetMomentumWR(CVector3f(0.f, 0.f, -GetGravityConstant() * GetMass()));
@@ -215,7 +215,7 @@ void CMetaree::Flee(CStateManager& mgr, EStateMsg msg, float) {
 void CMetaree::Explode(CStateManager& mgr, EStateMsg msg, float) {
   switch (msg) {
   case kStateMsg_Activate:
-    mgr.ApplyDamage(GetUniqueId(), mgr.GetPlayer()->GetUniqueId(), GetUniqueId(), x5ac_damageInfo,
+    mgr.ApplyDamage(GetUniqueId(), mgr.GetPlayer()->GetUniqueId(), GetUniqueId(), mDamageInfo,
                     CMaterialFilter::MakeIncludeExclude(CMaterialList(SolidMaterial), CMaterialList()),
                     CVector3f::Zero());
     MassiveDeath(mgr);
@@ -228,10 +228,10 @@ void CMetaree::Explode(CStateManager& mgr, EStateMsg msg, float) {
 void CMetaree::Think(float dt, CStateManager& mgr) {
   SetTargetable((mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::kPV_Thermal ||
                  mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::kPV_Scan) ||
-                x5ca_26_deactivated);
+                mDeactivated);
   CPatterned::Think(dt, mgr);
 }
 
 bool CMetaree::Delay(CStateManager&, float) {
-  return GetStateMachineState().GetTime() > x568_delay;
+  return GetStateMachineState().GetTime() > mDelay;
 }

@@ -45,113 +45,113 @@ void CWorldLayers::ReadWorldLayers(CInputStream& in, int version, CAssetId mlvlI
 }
 
 CRelay::CRelay(CInputStream& in)
-: x0_relay(in.ReadLong())
-, x4_target(in.ReadLong())
-, x8_msg(in.ReadShort())
-, xa_active(in.ReadBool()) {}
+: mRelay(in.ReadLong())
+, mTarget(in.ReadLong())
+, mMsg(in.ReadShort())
+, mActive(in.ReadBool()) {}
 
 IWorld::~IWorld() {}
 
 CWorld::CSoundGroupData::CSoundGroupData(int grpId, CAssetId agsc)
-: x0_groupId(grpId)
-, x4_agscId(agsc)
-, x8_24_loadedIntoAram(false)
-, x8_25_loaded(false)
-, xc_name()
-, x1c_groupData() {
+: mGroupId(grpId)
+, mAgscId(agsc)
+, mLoadedIntoAram(false)
+, mLoaded(false)
+, mName()
+, mGroupData() {
   if (!CAudioSys::SysIsGroupSetLoaded(CAudioSys::SysGetGroupSetName(agsc))) {
-    x1c_groupData = gpSimplePool->GetObj(SObjectTag('AGSC', agsc));
+    mGroupData = gpSimplePool->GetObj(SObjectTag('AGSC', agsc));
   }
 }
 
 CWorld::CWorld(IObjectStore& objStore, CResFactory& resFactory, CAssetId mlvlId)
-: x4_phase(kP_Loading)
-, x8_mlvlId(mlvlId)
-, xc_strgId(kInvalidAssetId)
-, x10_savwId(kInvalidAssetId)
-, x18_areas()
-, x24_mapwId(kInvalidAssetId)
-, x28_mapWorld()
-, x2c_relays()
-, x3c_loadToken()
-, x40_loadBuf()
-, x44_bufSz(0)
-, x48_chainHeads()
-, x60_objectStore(&objStore)
-, x64_resFactory(&resFactory)
-, x68_curAreaId(kInvalidAreaId)
-, x6c_loadedAudioGrpCount(0)
-, x70_24_currentAreaNeedsAllocation(true)
-, x70_25_loadPaused(false)
-, x70_26_skyboxActive(false)
-, x70_27_skyboxVisible(false)
-, x74_soundGroupData()
-, x84_defAudioTrack()
-, x94_skyboxWorld()
-, xa4_skyboxWorldLoaded()
-, xb4_skyboxOverride()
-, xc4_neededFx(kEFX_None)
-, xc8_globalSfxHandles() {
+: mPhase(kP_Loading)
+, mMlvlId(mlvlId)
+, mStrgId(kInvalidAssetId)
+, mSavwId(kInvalidAssetId)
+, mAreas()
+, mMapwId(kInvalidAssetId)
+, mMapWorld()
+, mRelays()
+, mLoadToken()
+, mLoadBuf()
+, mBufSz(0)
+, mChainHeads()
+, mObjectStore(&objStore)
+, mResFactory(&resFactory)
+, mCurAreaId(kInvalidAreaId)
+, mLoadedAudioGrpCount(0)
+, mCurrentAreaNeedsAllocation(true)
+, mLoadPaused(false)
+, mSkyboxActive(false)
+, mSkyboxVisible(false)
+, mSoundGroupData()
+, mDefAudioTrack()
+, mSkyboxWorld()
+, mSkyboxWorldLoaded()
+, mSkyboxOverride()
+, mNeededFx(kEFX_None)
+, mGlobalSfxHandles() {
   SObjectTag mlvl('MLVL', mlvlId);
-  x44_bufSz = gpResourceFactory->ResourceSize(mlvl);
-  x40_loadBuf = static_cast< char* >(CMemory::Alloc(x44_bufSz, IAllocator::kHI_RoundUpLen));
-  x3c_loadToken = resFactory.GetResLoader().LoadResourceAsync(mlvl, x40_loadBuf.get());
+  mBufSz = gpResourceFactory->ResourceSize(mlvl);
+  mLoadBuf = static_cast< char* >(CMemory::Alloc(mBufSz, IAllocator::kHI_RoundUpLen));
+  mLoadToken = resFactory.GetResLoader().LoadResourceAsync(mlvl, mLoadBuf.get());
 }
 
 bool CWorld::CheckWorldComplete(CStateManager* mgr, TAreaId aid, CAssetId mreaId) {
   if (mreaId != kInvalidAssetId) {
-    x68_curAreaId = TAreaId(0);
-    int areaCount = x18_areas.size();
+    mCurAreaId = TAreaId(0);
+    int areaCount = mAreas.size();
     for (int i = 0; i < areaCount; ++i) {
       if (GetArea(TAreaId(i))->GetAreaAssetId() == mreaId) {
-        x68_curAreaId = TAreaId(i);
+        mCurAreaId = TAreaId(i);
         break;
       }
     }
   } else {
-    x68_curAreaId = aid;
+    mCurAreaId = aid;
   }
 
   const bool loadSky = mgr != nullptr;
-  switch (x4_phase) {
+  switch (mPhase) {
   case kP_Loading: {
-    if (!x3c_loadToken->IsComplete()) {
+    if (!mLoadToken->IsComplete()) {
       return false;
     }
-    CMemoryInStream in(x40_loadBuf.get(), x44_bufSz);
+    CMemoryInStream in(mLoadBuf.get(), mBufSz);
     in.ReadLong();
     int version = in.Get< int >();
-    xc_strgId = in.Get< CAssetId >();
+    mStrgId = in.Get< CAssetId >();
     if (static_cast< uint >(version) >= 15) {
-      x10_savwId = in.Get< CAssetId >();
+      mSavwId = in.Get< CAssetId >();
     }
     if (static_cast< uint >(version) >= 12) {
       CAssetId skyboxId = in.Get< CAssetId >();
       if (skyboxId != kInvalidAssetId && loadSky) {
-        x94_skyboxWorld =
+        mSkyboxWorld =
             TCachedToken< CModel >(gpSimplePool->GetObj(SObjectTag('CMDL', skyboxId)));
-        x94_skyboxWorld->Lock();
+        mSkyboxWorld->Lock();
       }
     }
     if (static_cast< uint >(version) >= 17) {
-      x2c_relays = rstl::vector< CRelay >(in);
+      mRelays = rstl::vector< CRelay >(in);
     }
 
     int areaCount = in.Get< int >();
     in.ReadLong();
-    x18_areas.reserve(areaCount);
+    mAreas.reserve(areaCount);
     for (int i = 0; i < areaCount; ++i) {
-      x18_areas.push_back(rs_new CGameArea(in, i, version));
+      mAreas.push_back(rs_new CGameArea(in, i, version));
     }
-    x48_chainHeads.resize(5, nullptr);
+    mChainHeads.resize(5, nullptr);
     for (int i = 0; i < areaCount; ++i) {
-      MoveToChain(x18_areas[i].get(), kC_Deallocated);
+      MoveToChain(mAreas[i].get(), kC_Deallocated);
     }
 
-    x24_mapwId = in.Get< CAssetId >();
-    x28_mapWorld =
-        rs_new TCachedToken< CMapWorld >(gpSimplePool->GetObj(SObjectTag('MAPW', x24_mapwId)));
-    x28_mapWorld->Lock();
+    mMapwId = in.Get< CAssetId >();
+    mMapWorld =
+        rs_new TCachedToken< CMapWorld >(gpSimplePool->GetObj(SObjectTag('MAPW', mMapwId)));
+    mMapWorld->Lock();
     if (mgr) {
       rstl::vector< TEditorId > ids;
       mgr->LoadScriptObjects(kInvalidAreaId, in, ids);
@@ -160,78 +160,78 @@ bool CWorld::CheckWorldComplete(CStateManager* mgr, TAreaId aid, CAssetId mreaId
 
     if (static_cast< uint >(version) > 10) {
       int audioGroupCount = in.Get< int >();
-      x74_soundGroupData.reserve(audioGroupCount);
+      mSoundGroupData.reserve(audioGroupCount);
       for (int i = 0; i < audioGroupCount; ++i) {
         int groupId = in.Get< int >();
         CAssetId agscId = in.Get< CAssetId >();
-        x74_soundGroupData.push_back(CSoundGroupData(groupId, agscId));
+        mSoundGroupData.push_back(CSoundGroupData(groupId, agscId));
       }
       CAudioSys::GetVerbose();
     }
     if (static_cast< uint >(version) > 12) {
-      x84_defAudioTrack = rstl::string(in);
-      rstl::string trackKey = CInGameTweakManager::GetIdentifierForWorldDefaultMusic(x8_mlvlId);
+      mDefAudioTrack = rstl::string(in);
+      rstl::string trackKey = CInGameTweakManager::GetIdentifierForWorldDefaultMusic(mMlvlId);
       char volume = 127;
       if (gpTweakManager->HasTweakValue(trackKey)) {
-        x84_defAudioTrack = gpTweakManager->GetTweakValue(trackKey)->GetAudio().GetFileName();
+        mDefAudioTrack = gpTweakManager->GetTweakValue(trackKey)->GetAudio().GetFileName();
         volume =
             CCast::ToInt8(127.f * gpTweakManager->GetTweakValue(trackKey)->GetAudio().GetVolume());
       }
-      if (!CScriptStreamedMusic::IsAudioTrackNameSoftware(x84_defAudioTrack)) {
-        CStreamAudioManager::SetDefaultAudio(x84_defAudioTrack, 0.f, 0.f, volume);
+      if (!CScriptStreamedMusic::IsAudioTrackNameSoftware(mDefAudioTrack)) {
+        CStreamAudioManager::SetDefaultAudio(mDefAudioTrack, 0.f, 0.f, volume);
       }
     }
-    CWorldLayers::ReadWorldLayers(in, version, x8_mlvlId);
-    x3c_loadToken = nullptr;
-    x40_loadBuf = nullptr;
-    x44_bufSz = 0;
-    x4_phase = kP_LoadingMap;
+    CWorldLayers::ReadWorldLayers(in, version, mMlvlId);
+    mLoadToken = nullptr;
+    mLoadBuf = nullptr;
+    mBufSz = 0;
+    mPhase = kP_LoadingMap;
   }
   case kP_LoadingMap: {
-    if (!x28_mapWorld->TryCache()) {
+    if (!mMapWorld->TryCache()) {
       return false;
     }
-    if (x68_curAreaId == kInvalidAreaId) {
+    if (mCurAreaId == kInvalidAreaId) {
       GetMapWorld()->SetWhichMapAreasLoaded(*this, 0, 9999);
     } else {
-      GetMapWorld()->SetWhichMapAreasLoaded(*this, x68_curAreaId.Value(), 3);
+      GetMapWorld()->SetWhichMapAreasLoaded(*this, mCurAreaId.Value(), 3);
     }
-    x4_phase = kP_LoadingMapAreas;
+    mPhase = kP_LoadingMapAreas;
   }
   case kP_LoadingMapAreas: {
-    if (x28_mapWorld->GetObject()->IsMapAreasStreaming()) {
+    if (mMapWorld->GetObject()->IsMapAreasStreaming()) {
       return false;
     }
-    x4_phase = kP_LoadingSkyBox;
+    mPhase = kP_LoadingSkyBox;
   }
   case kP_LoadingSkyBox: {
-    x70_26_skyboxActive = true;
-    x70_27_skyboxVisible = false;
-    if (x94_skyboxWorld) {
-      if (!x94_skyboxWorld->TryCache()) {
+    mSkyboxActive = true;
+    mSkyboxVisible = false;
+    if (mSkyboxWorld) {
+      if (!mSkyboxWorld->TryCache()) {
         return false;
       }
-      CModel* skybox = x94_skyboxWorld->GetObject();
+      CModel* skybox = mSkyboxWorld->GetObject();
       skybox->Touch(0);
       if (!skybox->IsLoaded(0)) {
         return false;
       }
-      xa4_skyboxWorldLoaded = TLockedToken< CModel >(*x94_skyboxWorld);
+      mSkyboxWorldLoaded = TLockedToken< CModel >(*mSkyboxWorld);
     }
-    for (AUTO(it, x74_soundGroupData.begin()); it != x74_soundGroupData.end(); ++it) {
-      if (it->x1c_groupData) {
-        it->x1c_groupData->Lock();
+    for (AUTO(it, mSoundGroupData.begin()); it != mSoundGroupData.end(); ++it) {
+      if (it->mGroupData) {
+        it->mGroupData->Lock();
       }
     }
-    x4_phase = kP_LoadingSoundGroups;
+    mPhase = kP_LoadingSoundGroups;
   }
   case kP_LoadingSoundGroups: {
     bool allLoaded = true;
-    for (AUTO(it, x74_soundGroupData.begin()); it != x74_soundGroupData.end(); ++it) {
-      if (it->x1c_groupData) {
-        if (it->x1c_groupData->IsLoaded()) {
-          if (!it->x8_25_loaded) {
-            LoadSoundGroup(it->x0_groupId, it->x4_agscId, *it);
+    for (AUTO(it, mSoundGroupData.begin()); it != mSoundGroupData.end(); ++it) {
+      if (it->mGroupData) {
+        if (it->mGroupData->IsLoaded()) {
+          if (!it->mLoaded) {
+            LoadSoundGroup(it->mGroupId, it->mAgscId, *it);
           }
         } else {
           allLoaded = false;
@@ -242,7 +242,7 @@ bool CWorld::CheckWorldComplete(CStateManager* mgr, TAreaId aid, CAssetId mreaId
       return false;
     }
     LoadSoundGroups();
-    x4_phase = kP_Done;
+    mPhase = kP_Done;
   }
   case kP_Done:
     return true;
@@ -272,7 +272,7 @@ bool CWorld::ScheduleAreaToLoad(CGameArea* area, CStateManager& mgr) {
   } else {
     if (area->GetCurChain() != kC_Alive) {
       if (area->GetCurChain() != kC_AliveJudgement) {
-        x70_24_currentAreaNeedsAllocation = true;
+        mCurrentAreaNeedsAllocation = true;
       }
       MoveToChain(area, kC_Alive);
     }
@@ -281,11 +281,11 @@ bool CWorld::ScheduleAreaToLoad(CGameArea* area, CStateManager& mgr) {
 }
 
 void CWorld::TravelToArea(const TAreaId& aid, CStateManager& mgr, EAreaTravelType travelType) {
-  if (aid.Value() < 0 || aid.Value() >= x18_areas.size())
+  if (aid.Value() < 0 || aid.Value() >= mAreas.size())
     return;
-  x70_24_currentAreaNeedsAllocation = false;
-  x68_curAreaId = aid;
-  CGameArea* toDeallocateAreas = x48_chainHeads[0];
+  mCurrentAreaNeedsAllocation = false;
+  mCurAreaId = aid;
+  CGameArea* toDeallocateAreas = mChainHeads[0];
   while (toDeallocateAreas) {
     if (toDeallocateAreas->Invalidate(&mgr)) {
       MoveToChain(toDeallocateAreas, kC_Deallocated);
@@ -294,22 +294,22 @@ void CWorld::TravelToArea(const TAreaId& aid, CStateManager& mgr, EAreaTravelTyp
     toDeallocateAreas = toDeallocateAreas->GetNext();
   }
 
-  CGameArea* aliveAreas = x48_chainHeads[3];
+  CGameArea* aliveAreas = mChainHeads[3];
   while (aliveAreas) {
     CGameArea* aliveArea = aliveAreas;
     aliveAreas = aliveAreas->GetNext();
     MoveToChain(aliveArea, kC_AliveJudgement);
   }
-  CGameArea* loadingAreas = x48_chainHeads[2];
+  CGameArea* loadingAreas = mChainHeads[2];
   while (loadingAreas) {
     CGameArea* loadingArea = loadingAreas;
     loadingAreas = loadingAreas->GetNext();
     MoveToChain(loadingArea, kC_ToDeallocate);
   }
 
-  CGameArea* const area = x18_areas[aid.Value()].get();
+  CGameArea* const area = mAreas[aid.Value()].get();
   if (area->GetCurChain() != kC_AliveJudgement)
-    x70_24_currentAreaNeedsAllocation = true;
+    mCurrentAreaNeedsAllocation = true;
   area->Validate(mgr);
   MoveToChain(area, kC_Alive);
   area->SetOcclusionState(CGameArea::kOS_Visible);
@@ -337,21 +337,21 @@ void CWorld::TravelToArea(const TAreaId& aid, CStateManager& mgr, EAreaTravelTyp
     }
   }
   int toStreamCount = 0;
-  CGameArea* judgementAreas = x48_chainHeads[4];
+  CGameArea* judgementAreas = mChainHeads[4];
   while (judgementAreas) {
     CGameArea* judgementArea = judgementAreas;
     judgementAreas = judgementArea->GetNext();
     MoveToChain(judgementArea, kC_ToDeallocate);
   }
 
-  toDeallocateAreas = x48_chainHeads[0];
+  toDeallocateAreas = mChainHeads[0];
   while (toDeallocateAreas) {
     toDeallocateAreas->RemoveStaticGeometry();
     toDeallocateAreas = toDeallocateAreas->GetNext();
     ++toStreamCount;
   }
 
-  if (!toStreamCount && otherLoadArea && !x70_25_loadPaused)
+  if (!toStreamCount && otherLoadArea && !mLoadPaused)
     otherLoadArea->StartStreamIn(mgr);
 
   MapWorld()->SetWhichMapAreasLoaded(*this, aid.Value(), 3);
@@ -363,13 +363,13 @@ void CWorld::MoveToChain(CGameArea* area, EChain chain) {
   }
 
   if (area->GetCurChain() != kC_Invalid) {
-    CGameArea*& head = x48_chainHeads[area->GetCurChain()];
+    CGameArea*& head = mChainHeads[area->GetCurChain()];
     if (head == area) {
       head = area->GetNext();
     }
   }
 
-  CGameArea*& newHead = x48_chainHeads[chain];
+  CGameArea*& newHead = mChainHeads[chain];
   area->SetChain(newHead, chain);
   newHead = area;
 }
@@ -377,29 +377,29 @@ void CWorld::MoveToChain(CGameArea* area, EChain chain) {
 void CWorld::LoadSoundGroups() {
   rstl::vector< CAssetId > songAssets = gpTweakManager->GetSongAssetsInWorld(IGetWorldAssetId());
   if (songAssets.size() > 0) {
-    x74_soundGroupData.reserve(x74_soundGroupData.size() + songAssets.size());
+    mSoundGroupData.reserve(mSoundGroupData.size() + songAssets.size());
     for (AUTO(it, songAssets.begin()); it != songAssets.end(); ++it) {
       TToken< CMidiManager::CMidiData > token = gpSimplePool->GetObj(SObjectTag('CSNG', *it));
-      x74_soundGroupData.push_back(
+      mSoundGroupData.push_back(
           CSoundGroupData(token.GetT()->GetGroupId(), token.GetT()->GetAGSCAssetId()));
     }
   }
-  for (rstl::vector< CSoundGroupData >::iterator it = x74_soundGroupData.begin();
-       it != x74_soundGroupData.end(); ++it) {
-    if (!it->x8_25_loaded) {
-      LoadSoundGroup(it->x0_groupId, it->x4_agscId, *it);
+  for (rstl::vector< CSoundGroupData >::iterator it = mSoundGroupData.begin();
+       it != mSoundGroupData.end(); ++it) {
+    if (!it->mLoaded) {
+      LoadSoundGroup(it->mGroupId, it->mAgscId, *it);
     }
   }
 }
 
 void CWorld::LoadSoundGroup(uchar groupId, CAssetId agscId, CSoundGroupData& data) {
-  data.x8_25_loaded = true;
+  data.mLoaded = true;
   if (!CAudioSys::SysLoadGroupSet(gpSimplePool, agscId)) {
     rstl::string name = CAudioSys::SysGetGroupSetName(agscId);
     if (CAudioSys::SysPushGroupIntoARAM(name, groupId)) {
-      data.x8_24_loadedIntoAram = true;
-      data.xc_name = name;
-      ++x6c_loadedAudioGrpCount;
+      data.mLoadedIntoAram = true;
+      data.mName = name;
+      ++mLoadedAudioGrpCount;
       CAudioSys::SysUnloadSampleData(name);
     } else {
       CAudioSys::SysUnloadGroupSet(name);
@@ -408,24 +408,24 @@ void CWorld::LoadSoundGroup(uchar groupId, CAssetId agscId, CSoundGroupData& dat
 }
 
 void CWorld::UnloadSoundGroups() {
-  for (int i = 0; i < x6c_loadedAudioGrpCount; ++i) {
+  for (int i = 0; i < mLoadedAudioGrpCount; ++i) {
     CAudioSys::SysPopGroupFromARAM();
   }
-  for (rstl::vector< CSoundGroupData >::iterator it = x74_soundGroupData.begin();
-       it != x74_soundGroupData.end(); ++it) {
-    if (it->x8_24_loadedIntoAram) {
-      CAudioSys::SysUnloadGroupSet(it->xc_name);
+  for (rstl::vector< CSoundGroupData >::iterator it = mSoundGroupData.begin();
+       it != mSoundGroupData.end(); ++it) {
+    if (it->mLoadedIntoAram) {
+      CAudioSys::SysUnloadGroupSet(it->mName);
     }
   }
 }
 
-CMapWorld* CWorld::GetMapWorld() const { return x28_mapWorld->GetObject(); }
+CMapWorld* CWorld::GetMapWorld() const { return mMapWorld->GetObject(); }
 
 CAssetId CWorld::IGetWorldAssetId() const { return GetWorldAssetId(); }
 
-CAssetId CWorld::IGetStringTableAssetId() const { return xc_strgId; }
+CAssetId CWorld::IGetStringTableAssetId() const { return mStrgId; }
 
-CAssetId CWorld::IGetSaveWorldAssetId() const { return x10_savwId; }
+CAssetId CWorld::IGetSaveWorldAssetId() const { return mSavwId; }
 
 const CMapWorld* CWorld::IGetMapWorld() const { return GetMapWorld(); }
 
@@ -433,53 +433,53 @@ CMapWorld* CWorld::IMapWorld() { return GetMapWorld(); }
 
 const IGameArea* CWorld::IGetAreaAlways(TAreaId id) const { return &GetAreaAlways(id); }
 
-TAreaId CWorld::IGetCurrentAreaId() const { return x68_curAreaId; }
+TAreaId CWorld::IGetCurrentAreaId() const { return mCurAreaId; }
 
 bool CWorld::ICheckWorldComplete() {
   return CheckWorldComplete(nullptr, kInvalidAreaId, kInvalidAssetId);
 }
 
-rstl::string CWorld::IGetDefaultAudioTrack() const { return x84_defAudioTrack; }
+rstl::string CWorld::IGetDefaultAudioTrack() const { return mDefAudioTrack; }
 
-int CWorld::IGetAreaCount() const { return x18_areas.size(); }
+int CWorld::IGetAreaCount() const { return mAreas.size(); }
 
 CDummyWorld::CDummyWorld(CAssetId mlvlId, const bool loadMap)
-: x4_loadMap(loadMap)
-, x8_phase(kP_Loading)
-, xc_mlvlId(mlvlId)
+: mLoadMap(loadMap)
+, mPhase(kP_Loading)
+, mMlvlId(mlvlId)
 #if NONMATCHING
-, x10_strgId(kInvalidAssetId)
+, mStrgId(kInvalidAssetId)
 #endif
-, x14_savwId(kInvalidAssetId)
-, x18_areas()
-, x28_mapWorldId(kInvalidAssetId)
-, x2c_mapWorld()
-, x30_loadToken()
-, x34_loadBuf()
-, x38_bufSz(0)
-, x3c_curAreaId(kInvalidAreaId) {
+, mSavwId(kInvalidAssetId)
+, mAreas()
+, mMapWorldId(kInvalidAssetId)
+, mMapWorld()
+, mLoadToken()
+, mLoadBuf()
+, mBufSz(0)
+, mCurAreaId(kInvalidAreaId) {
   const SObjectTag mlvl('MLVL', mlvlId);
-  x38_bufSz = gpResourceFactory->ResourceSize(mlvl);
-  x34_loadBuf = static_cast< char* >(CMemory::Alloc(x38_bufSz, IAllocator::kHI_RoundUpLen));
-  x30_loadToken = gpResourceFactory->GetResLoader().LoadResourceAsync(mlvl, x34_loadBuf.get());
+  mBufSz = gpResourceFactory->ResourceSize(mlvl);
+  mLoadBuf = static_cast< char* >(CMemory::Alloc(mBufSz, IAllocator::kHI_RoundUpLen));
+  mLoadToken = gpResourceFactory->GetResLoader().LoadResourceAsync(mlvl, mLoadBuf.get());
 }
 
 CDummyWorld::~CDummyWorld() {}
 
 bool CDummyWorld::ICheckWorldComplete() {
-  switch (x8_phase) {
+  switch (mPhase) {
   case kP_Loading: {
-    if (!x30_loadToken->IsComplete()) {
+    if (!mLoadToken->IsComplete()) {
       return false;
     }
 
-    CMemoryInStream r(x34_loadBuf.get(), x38_bufSz);
+    CMemoryInStream r(mLoadBuf.get(), mBufSz);
     uint magic = r.ReadLong();
     int version = r.Get< int >();
-    x10_strgId = r.Get< CAssetId >();
+    mStrgId = r.Get< CAssetId >();
 
     if (static_cast< uint >(version) >= 15) {
-      x14_savwId = r.Get< CAssetId >();
+      mSavwId = r.Get< CAssetId >();
     }
     if (static_cast< uint >(version) >= 12) {
       uint sky = r.ReadLong();
@@ -491,16 +491,16 @@ bool CDummyWorld::ICheckWorldComplete() {
     int areaCount = r.Get< int >();
     uint unk = r.ReadLong();
 
-    x18_areas.reserve(areaCount);
+    mAreas.reserve(areaCount);
     for (int i = 0; i < areaCount; ++i) {
-      x18_areas.push_back(rs_new CDummyGameArea(r, i, version));
+      mAreas.push_back(rs_new CDummyGameArea(r, i, version));
     }
 
-    x28_mapWorldId = r.Get< CAssetId >();
-    if (x4_loadMap) {
-      x2c_mapWorld = rs_new TCachedToken< CMapWorld >(
-          gpSimplePool->GetObj(SObjectTag('MAPW', x28_mapWorldId)));
-      x2c_mapWorld->Lock();
+    mMapWorldId = r.Get< CAssetId >();
+    if (mLoadMap) {
+      mMapWorld = rs_new TCachedToken< CMapWorld >(
+          gpSimplePool->GetObj(SObjectTag('MAPW', mMapWorldId)));
+      mMapWorld->Lock();
     }
 
     r.ReadChar();
@@ -518,32 +518,32 @@ bool CDummyWorld::ICheckWorldComplete() {
       rstl::string s(r);
     }
 
-    CWorldLayers::ReadWorldLayers(r, version, xc_mlvlId);
+    CWorldLayers::ReadWorldLayers(r, version, mMlvlId);
 
-    x30_loadToken = nullptr;
-    x34_loadBuf = nullptr;
-    x38_bufSz = 0;
+    mLoadToken = nullptr;
+    mLoadBuf = nullptr;
+    mBufSz = 0;
 
-    if (!x4_loadMap) {
-      x8_phase = kP_Done;
+    if (!mLoadMap) {
+      mPhase = kP_Done;
       break;
     }
-    x8_phase = kP_LoadingMap;
+    mPhase = kP_LoadingMap;
   }
   case kP_LoadingMap: {
-    if (!x2c_mapWorld->TryCache()) {
+    if (!mMapWorld->TryCache()) {
       return false;
     }
 
     IMapWorld()->SetWhichMapAreasLoaded(*this, 0, 9999);
-    x8_phase = kP_LoadingMapAreas;
+    mPhase = kP_LoadingMapAreas;
   }
   case kP_LoadingMapAreas: {
-    if (x2c_mapWorld->GetObject()->IsMapAreasStreaming()) {
+    if (mMapWorld->GetObject()->IsMapAreasStreaming()) {
       return false;
     }
 
-    x8_phase = kP_Done;
+    mPhase = kP_Done;
   }
   case kP_Done:
     return true;
@@ -553,23 +553,23 @@ bool CDummyWorld::ICheckWorldComplete() {
   return false;
 }
 
-CAssetId CDummyWorld::IGetWorldAssetId() const { return xc_mlvlId; }
+CAssetId CDummyWorld::IGetWorldAssetId() const { return mMlvlId; }
 
-CAssetId CDummyWorld::IGetSaveWorldAssetId() const { return x14_savwId; }
+CAssetId CDummyWorld::IGetSaveWorldAssetId() const { return mSavwId; }
 
-CAssetId CDummyWorld::IGetStringTableAssetId() const { return x10_strgId; }
+CAssetId CDummyWorld::IGetStringTableAssetId() const { return mStrgId; }
 
-const CMapWorld* CDummyWorld::IGetMapWorld() const { return x2c_mapWorld->GetObject(); }
+const CMapWorld* CDummyWorld::IGetMapWorld() const { return mMapWorld->GetObject(); }
 
-CMapWorld* CDummyWorld::IMapWorld() { return x2c_mapWorld->GetObject(); }
+CMapWorld* CDummyWorld::IMapWorld() { return mMapWorld->GetObject(); }
 
-const IGameArea* CDummyWorld::IGetAreaAlways(TAreaId id) const { return &*x18_areas[id.Value()]; }
+const IGameArea* CDummyWorld::IGetAreaAlways(TAreaId id) const { return &*mAreas[id.Value()]; }
 
-TAreaId CDummyWorld::IGetCurrentAreaId() const { return x3c_curAreaId; }
+TAreaId CDummyWorld::IGetCurrentAreaId() const { return mCurAreaId; }
 
 TAreaId CDummyWorld::IGetAreaId(CAssetId id) const {
   if (id != kInvalidAssetId) {
-    int areaCount = x18_areas.size();
+    int areaCount = mAreas.size();
     for (int i = 0; i < areaCount; ++i) {
       if (IGetAreaAlways(TAreaId(i))->IGetAreaAssetId() == id) {
         return TAreaId(i);
@@ -585,19 +585,19 @@ TAreaId CDummyWorld::IGetAreaId(CAssetId id) const {
 
 rstl::string CDummyWorld::IGetDefaultAudioTrack() const { return rstl::string_l(""); }
 
-int CDummyWorld::IGetAreaCount() const { return x18_areas.size(); }
+int CDummyWorld::IGetAreaCount() const { return mAreas.size(); }
 
 void CWorld::TouchSky() const {
-  if (xa4_skyboxWorldLoaded) {
-    (*xa4_skyboxWorldLoaded)->Touch(0);
+  if (mSkyboxWorldLoaded) {
+    (*mSkyboxWorldLoaded)->Touch(0);
   }
-  if (xb4_skyboxOverride) {
-    (*xb4_skyboxOverride)->Touch(0);
+  if (mSkyboxOverride) {
+    (*mSkyboxOverride)->Touch(0);
   }
 }
 
 void CWorld::Update(float dt) {
-  xc4_neededFx = kEFX_None;
+  mNeededFx = kEFX_None;
   bool needsSky = false;
   bool skyVisible = false;
   int areaCount = 0;
@@ -607,7 +607,7 @@ void CWorld::Update(float dt) {
        ++it, ++areaCount) {
     it->AliveUpdate(dt);
     if (it->DoesAreaNeedSkyNow()) {
-      const CScriptAreaAttributes* attrs = it->GetPostConstructed()->x10d8_areaAttributes;
+      const CScriptAreaAttributes* attrs = it->GetPostConstructed()->mAreaAttributes;
       if (attrs && attrs->GetSkyModel() != kInvalidAssetId) {
         overrideSkyId = attrs->GetSkyModel();
       }
@@ -618,7 +618,7 @@ void CWorld::Update(float dt) {
     }
     EEnvFxType envFx = it->DoesAreaNeedEnvFx();
     if (envFx != kEFX_None) {
-      xc4_neededFx = envFx;
+      mNeededFx = envFx;
     }
   }
 
@@ -626,37 +626,37 @@ void CWorld::Update(float dt) {
     return;
   }
   if (overrideSkyId != kInvalidAssetId && needsSky) {
-    x70_26_skyboxActive = true;
-    x70_27_skyboxVisible = skyVisible;
-    xb4_skyboxOverride =
+    mSkyboxActive = true;
+    mSkyboxVisible = skyVisible;
+    mSkyboxOverride =
         TLockedToken< CModel >(gpSimplePool->GetObj(SObjectTag('CMDL', overrideSkyId)));
-    xa4_skyboxWorldLoaded = rstl::optional_object_null();
-    if (x94_skyboxWorld) {
-      x94_skyboxWorld->Unlock();
+    mSkyboxWorldLoaded = rstl::optional_object_null();
+    if (mSkyboxWorld) {
+      mSkyboxWorld->Unlock();
     }
   } else {
-    xb4_skyboxOverride = rstl::optional_object_null();
-    if (!x94_skyboxWorld) {
-      x70_26_skyboxActive = false;
-      x70_27_skyboxVisible = false;
+    mSkyboxOverride = rstl::optional_object_null();
+    if (!mSkyboxWorld) {
+      mSkyboxActive = false;
+      mSkyboxVisible = false;
     } else if (!needsSky) {
-      xa4_skyboxWorldLoaded = rstl::optional_object_null();
-      x94_skyboxWorld->Unlock();
-      x70_26_skyboxActive = false;
-      x70_27_skyboxVisible = false;
+      mSkyboxWorldLoaded = rstl::optional_object_null();
+      mSkyboxWorld->Unlock();
+      mSkyboxActive = false;
+      mSkyboxVisible = false;
     } else {
-      if (!xa4_skyboxWorldLoaded) {
-        x94_skyboxWorld->Lock();
-        if (x94_skyboxWorld->TryCache()) {
-          CModel* skybox = x94_skyboxWorld->GetObject();
+      if (!mSkyboxWorldLoaded) {
+        mSkyboxWorld->Lock();
+        if (mSkyboxWorld->TryCache()) {
+          CModel* skybox = mSkyboxWorld->GetObject();
           skybox->Touch(0);
           if (skybox->IsLoaded(0)) {
-            xa4_skyboxWorldLoaded = TLockedToken< CModel >(*x94_skyboxWorld);
+            mSkyboxWorldLoaded = TLockedToken< CModel >(*mSkyboxWorld);
           }
         }
       }
-      x70_26_skyboxActive = true;
-      x70_27_skyboxVisible = skyVisible;
+      mSkyboxActive = true;
+      mSkyboxVisible = skyVisible;
     }
   }
 }
@@ -668,24 +668,24 @@ void CWorld::PreRender() {
 }
 
 void CWorld::DrawSky(const CTransform4f& xf) const {
-  if ((xa4_skyboxWorldLoaded || xb4_skyboxOverride) && x70_27_skyboxVisible) {
+  if ((mSkyboxWorldLoaded || mSkyboxOverride) && mSkyboxVisible) {
     CGraphics::DisableAllLights();
     gpRender->SetModelMatrix(xf);
     gpRender->SetAmbientColor(CColor::White());
     CGraphics::SetDepthRange(0.999f, 1.f);
-    (*(xb4_skyboxOverride ? xb4_skyboxOverride : xa4_skyboxWorldLoaded))
+    (*(mSkyboxOverride ? mSkyboxOverride : mSkyboxWorldLoaded))
         ->Draw(CModelFlags::Normal().DepthCompareUpdate(true, false));
     CGraphics::SetDepthRange(0.125f, 1.f);
   }
 }
 
 bool CWorld::AreSkyNeedsMet() const {
-  if (x70_26_skyboxActive) {
-    if (xb4_skyboxOverride) {
-      return (*xb4_skyboxOverride)->IsLoaded(0);
+  if (mSkyboxActive) {
+    if (mSkyboxOverride) {
+      return (*mSkyboxOverride)->IsLoaded(0);
     }
-    if (xa4_skyboxWorldLoaded) {
-      return (*xa4_skyboxWorldLoaded)->IsLoaded(0);
+    if (mSkyboxWorldLoaded) {
+      return (*mSkyboxWorldLoaded)->IsLoaded(0);
     }
     return false;
   }
@@ -695,7 +695,7 @@ bool CWorld::AreSkyNeedsMet() const {
 TAreaId CWorld::GetAreaId(CAssetId assetId) const {
   TAreaId result(-1);
   if (assetId != kInvalidAssetId) {
-    int areaCount = x18_areas.size();
+    int areaCount = mAreas.size();
     for (int i = 0; i < areaCount; ++i) {
       if (assetId == GetArea(TAreaId(i))->GetAreaAssetId()) {
         result = TAreaId(i);
@@ -711,7 +711,7 @@ TAreaId CWorld::IGetAreaId(CAssetId assetId) const { return GetAreaId(assetId); 
 TAreaId CWorld::GetAreaIdForSaveId(uint saveId) const {
   TAreaId result(-1);
   if (saveId != kInvalidAssetId) {
-    int areaCount = x18_areas.size();
+    int areaCount = mAreas.size();
     for (int i = 0; i < areaCount; ++i) {
       if (saveId == GetArea(TAreaId(i))->GetAreaSaveId()) {
         result = TAreaId(i);
@@ -726,13 +726,13 @@ void CWorld::SetLoadPauseState(bool paused) {
   for (CGameArea::CConstChainIterator it = GetChainHead(kC_Loading); skGlobalEnd != it; ++it) {
     const_cast< CGameArea& >(*it).SetLoadPauseState(paused);
   }
-  x70_25_loadPaused = paused;
+  mLoadPaused = paused;
 }
 
 void CWorld::MoveAreaToChain3(TAreaId aid) { MoveToChain(Area(aid), kC_Alive); }
 
 bool CWorld::HasGlobalSound(ushort soundId) const {
-  for (AUTO(it, xc8_globalSfxHandles.begin()); it != xc8_globalSfxHandles.end(); ++it) {
+  for (AUTO(it, mGlobalSfxHandles.begin()); it != mGlobalSfxHandles.end(); ++it) {
     if (it->first == soundId) {
       return true;
     }
@@ -741,31 +741,31 @@ bool CWorld::HasGlobalSound(ushort soundId) const {
 }
 
 void CWorld::AddGlobalSound(ushort soundId, CSfxHandle handle) {
-  if (xc8_globalSfxHandles.size() >= xc8_globalSfxHandles.capacity()) {
+  if (mGlobalSfxHandles.size() >= mGlobalSfxHandles.capacity()) {
     return;
   }
-  xc8_globalSfxHandles.push_back(rstl::pair< ushort, CSfxHandle >(soundId, handle));
+  mGlobalSfxHandles.push_back(rstl::pair< ushort, CSfxHandle >(soundId, handle));
 }
 
 void CWorld::StopGlobalSound(ushort soundId) {
-  for (AUTO(it, xc8_globalSfxHandles.begin()); it != xc8_globalSfxHandles.end(); ++it) {
+  for (AUTO(it, mGlobalSfxHandles.begin()); it != mGlobalSfxHandles.end(); ++it) {
     if (it->first == soundId) {
       CSfxManager::RemoveEmitter(it->second);
-      xc8_globalSfxHandles.erase(it);
+      mGlobalSfxHandles.erase(it);
       return;
     }
   }
 }
 
 void CWorld::StopSounds() {
-  for (AUTO(it, xc8_globalSfxHandles.begin()); it != xc8_globalSfxHandles.end(); ++it) {
+  for (AUTO(it, mGlobalSfxHandles.begin()); it != mGlobalSfxHandles.end(); ++it) {
     CSfxManager::RemoveEmitter(it->second);
   }
-  xc8_globalSfxHandles.clear();
+  mGlobalSfxHandles.clear();
 }
 
 void CWorld::CyclePauseState() {
-  if (!x70_25_loadPaused) {
+  if (!mLoadPaused) {
     SetLoadPauseState(true);
     SetLoadPauseState(false);
   }

@@ -9,39 +9,39 @@ CScriptBeam::CScriptBeam(TUniqueId uid, const rstl::string& name, const CEntityI
                          const CDamageInfo& dInfo)
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(),
          CActorParameters::None(), kInvalidUniqueId)
-, xe8_weaponDescription(weaponDesc)
-, xf4_beamInfo(bInfo)
-, x138_damageInfo(dInfo)
-, x154_projectileId(kInvalidUniqueId) {}
+, mWeaponDescription(weaponDesc)
+, mBeamInfo(bInfo)
+, mDamageInfo(dInfo)
+, mProjectileId(kInvalidUniqueId) {}
 
 void CScriptBeam::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& mgr) {
   switch (msg) {
 
   case kSM_Registered: {
-    x154_projectileId = mgr.AllocateUniqueId();
+    mProjectileId = mgr.AllocateUniqueId();
     mgr.AddObject(rs_new CPlasmaProjectile(
-        xe8_weaponDescription, GetDebugName() + rstl::string_l("-Projectile"),
-        x138_damageInfo.GetWeaponMode().GetType(), xf4_beamInfo, GetTransform(), kMT_Projectile,
-        x138_damageInfo, x154_projectileId, GetCurrentAreaId(), GetUniqueId(), CWeaponAssetInfo(),
+        mWeaponDescription, GetDebugName() + rstl::string_l("-Projectile"),
+        mDamageInfo.GetWeaponMode().GetType(), mBeamInfo, GetTransform(), kMT_Projectile,
+        mDamageInfo, mProjectileId, GetCurrentAreaId(), GetUniqueId(), CWeaponAssetInfo(),
         false,
         CWeapon::kPA_KeepInCinematic // TODO: wrong attrib definition?
         ));
   } break;
 
   case kSM_Deleted:
-    mgr.DeleteObjectRequest(x154_projectileId);
+    mgr.DeleteObjectRequest(mProjectileId);
     break;
 
   case kSM_Increment:
     if (CPlasmaProjectile* proj =
-            static_cast< CPlasmaProjectile* >(mgr.ObjectById(x154_projectileId))) {
+            static_cast< CPlasmaProjectile* >(mgr.ObjectById(mProjectileId))) {
       proj->ResetBeam(mgr, true);
       proj->Fire(GetTransform(), mgr, false);
     }
     break;
   case kSM_Decrement:
     if (CPlasmaProjectile* proj =
-            static_cast< CPlasmaProjectile* >(mgr.ObjectById(x154_projectileId))) {
+            static_cast< CPlasmaProjectile* >(mgr.ObjectById(mProjectileId))) {
       if (proj->GetActive()) {
         proj->ResetBeam(mgr, false);
       }
@@ -55,11 +55,11 @@ ENTITY_ACCEPT_IMPL(CScriptBeam)
 
 void CScriptBeam::Think(float dt, CStateManager& mgr) {
   if (CPlasmaProjectile* proj =
-          static_cast< CPlasmaProjectile* >(mgr.ObjectById(x154_projectileId))) {
+          static_cast< CPlasmaProjectile* >(mgr.ObjectById(mProjectileId))) {
     if (proj->GetActive()) {
       proj->UpdateFx(GetTransform(), dt, mgr);
     }
   } else {
-    x154_projectileId = kInvalidUniqueId;
+    mProjectileId = kInvalidUniqueId;
   }
 }

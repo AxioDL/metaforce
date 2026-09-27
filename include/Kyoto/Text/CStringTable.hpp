@@ -19,16 +19,16 @@ class CDvdRequest;
 class CStringTable {
 public:
   struct SReloadData {
-    uint x0_size;
-    rstl::single_ptr< CDvdRequest > x4_request;
-    rstl::auto_ptr< uchar > x8_buffer;
+    uint mSize;
+    rstl::single_ptr< CDvdRequest > mRequest;
+    rstl::auto_ptr< uchar > mBuffer;
 
     SReloadData(CAssetId id, CResFactory& factory);
     ~SReloadData();
   };
 
   CStringTable(CInputStream& in);
-#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+#if VERSION >= VERSION_GM8P_00
   ~CStringTable();
 #endif
 
@@ -40,20 +40,20 @@ public:
   bool IsReloading() const;
 
   const wchar_t* GetString(int idx) const;
-  int GetStringCount() const { return x0_stringCount; }
+  int GetStringCount() const { return mStringCount; }
 
 private:
-  int x0_stringCount;
-  rstl::single_ptr< uchar > x4_data;
-#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
-  rstl::single_ptr< SReloadData > x8_reloadData;
+  int mStringCount;
+  rstl::single_ptr< uchar > mData;
+#if VERSION >= VERSION_GM8P_00
+  rstl::single_ptr< SReloadData > mReloadData;
 #endif
 #if TARGET_LITTLE_ENDIAN || WCHAR_MAX > 0xffff
   rstl::vector< rstl::vector< wchar_t > > mNativeStrings;
 #endif
 };
 
-#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+#if VERSION >= VERSION_GM8P_00
 CHECK_SIZEOF(CStringTable, 0xc)
 #else
 CHECK_SIZEOF(CStringTable, 0x8)

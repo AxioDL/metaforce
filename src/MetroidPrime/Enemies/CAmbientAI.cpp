@@ -16,23 +16,23 @@ CAmbientAI::CAmbientAI(TUniqueId uid, const rstl::string& name, const CEntityInf
                        bool active)
 : CPhysicsActor(uid, active, name, info, xf, mData, materialList, aabox, SMoverData(mass), aParms,
                 0.3f, 0.1f)
-, x258_initialHealthInfo(hInfo)
-, x260_healthInfo(hInfo)
-, x268_dVuln(dVuln)
-, x2d0_animState(kAS_Ready)
-, x2d4_alertRange(alertRange)
-, x2d8_impactRange(impactRange)
-, x2dc_currentAnim(GetModelData()->GetAnimationData()->GetCurrentAnimation())
-, x2e0_alertAnim(alertAnim)
-, x2e4_impactAnim(impactAnim)
-, x2e8_24_dead(false)
-, x2e8_25_animating(false) {
+, mInitialHealthInfo(hInfo)
+, mHealthInfo(hInfo)
+, mDVuln(dVuln)
+, mAnimState(kAS_Ready)
+, mAlertRange(alertRange)
+, mImpactRange(impactRange)
+, mCurrentAnim(GetModelData()->GetAnimationData()->GetCurrentAnimation())
+, mAlertAnim(alertAnim)
+, mImpactAnim(impactAnim)
+, mDead(false)
+, mAnimating(false) {
   ModelData()->EnableLooping(true);
 }
 
-CHealthInfo* CAmbientAI::HealthInfo(CStateManager& mgr) { return &x260_healthInfo; }
+CHealthInfo* CAmbientAI::HealthInfo(CStateManager& mgr) { return &mHealthInfo; }
 
-const CDamageVulnerability* CAmbientAI::GetDamageVulnerability() const { return &x268_dVuln; }
+const CDamageVulnerability* CAmbientAI::GetDamageVulnerability() const { return &mDVuln; }
 
 void CAmbientAI::Touch(CActor& actor, CStateManager& mgr) {}
 
@@ -57,29 +57,29 @@ void CAmbientAI::Think(float dt, CStateManager& mgr) {
     bool isLooping = GetModelData()->GetIsLoop();
 
     if (hasAnimTime || isLooping) {
-      x2e8_25_animating = true;
+      mAnimating = true;
       CAdvancementDeltas deltas = UpdateAnimation(dt, mgr, true);
       MoveToOR(deltas.GetOffsetDelta(), dt);
       RotateToOR(deltas.GetOrientationDelta(), dt);
     }
 
     if (hasAnimTime) {
-    } else if (x2e8_25_animating && !isLooping) {
+    } else if (mAnimating && !isLooping) {
       SendScriptMsgs(kSS_MaxReached, mgr, kSM_None);
-      x2e8_25_animating = false;
+      mAnimating = false;
     }
   }
 
   bool inAlertRange =
-      (mgr.GetPlayer()->GetTranslation() - GetTranslation()).Magnitude() < x2d4_alertRange;
+      (mgr.GetPlayer()->GetTranslation() - GetTranslation()).Magnitude() < mAlertRange;
   bool inImpactRange =
-      (mgr.GetPlayer()->GetTranslation() - GetTranslation()).Magnitude() < x2d8_impactRange;
+      (mgr.GetPlayer()->GetTranslation() - GetTranslation()).Magnitude() < mImpactRange;
 
-  switch (x2d0_animState) {
+  switch (mAnimState) {
   case kAS_Ready: {
     if (inAlertRange) {
-      x2d0_animState = kAS_Alert;
-      ModelData()->AnimationData()->SetAnimation(CAnimPlaybackParms(x2e0_alertAnim, -1, 1.f, true),
+      mAnimState = kAS_Alert;
+      ModelData()->AnimationData()->SetAnimation(CAnimPlaybackParms(mAlertAnim, -1, 1.f, true),
                                                  false);
       ModelData()->EnableLooping(true);
       RandomizePlaybackRate(mgr);
@@ -88,9 +88,9 @@ void CAmbientAI::Think(float dt, CStateManager& mgr) {
   }
   case kAS_Alert: {
     if (!inAlertRange) {
-      x2d0_animState = kAS_Ready;
+      mAnimState = kAS_Ready;
       ModelData()->AnimationData()->SetAnimation(
-          CAnimPlaybackParms(x2dc_currentAnim, -1, 1.f, true), false);
+          CAnimPlaybackParms(mCurrentAnim, -1, 1.f, true), false);
       ModelData()->EnableLooping(true);
       RandomizePlaybackRate(mgr);
     } else if (inImpactRange) {
@@ -101,10 +101,10 @@ void CAmbientAI::Think(float dt, CStateManager& mgr) {
     break;
   }
   case kAS_Impact: {
-    if (!x2e8_25_animating) {
-      x2d0_animState = kAS_Ready;
+    if (!mAnimating) {
+      mAnimState = kAS_Ready;
       ModelData()->AnimationData()->SetAnimation(
-          CAnimPlaybackParms(x2dc_currentAnim, -1, 1.f, true), false);
+          CAnimPlaybackParms(mCurrentAnim, -1, 1.f, true), false);
       ModelData()->EnableLooping(true);
       RandomizePlaybackRate(mgr);
     }
@@ -112,12 +112,12 @@ void CAmbientAI::Think(float dt, CStateManager& mgr) {
   }
   }
 
-  if (x2e8_24_dead) {
+  if (mDead) {
     return;
   }
   CHealthInfo* hInfo = HealthInfo(mgr);
   if (hInfo->GetHP() <= 0.f) {
-    x2e8_24_dead = true;
+    mDead = true;
     SendScriptMsgs(kSS_Dead, mgr, kSM_None);
     RemoveEmitter();
     SetActive(false);
@@ -129,13 +129,13 @@ void CAmbientAI::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CState
   case kSM_Reset: {
     if (!GetActive())
       SetActive(true);
-    x2d0_animState = kAS_Ready;
-    ModelData()->AnimationData()->SetAnimation(CAnimPlaybackParms(x2dc_currentAnim, -1, 1.f, true),
+    mAnimState = kAS_Ready;
+    ModelData()->AnimationData()->SetAnimation(CAnimPlaybackParms(mCurrentAnim, -1, 1.f, true),
                                                false);
     ModelData()->EnableLooping(true);
     RandomizePlaybackRate(mgr);
-    x2e8_24_dead = false;
-    x260_healthInfo = x258_initialHealthInfo;
+    mDead = false;
+    mHealthInfo = mInitialHealthInfo;
     break;
   }
   case kSM_InitializedInArea:
@@ -143,8 +143,8 @@ void CAmbientAI::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CState
     break;
   case kSM_Damage: {
     if (GetActive()) {
-      x2d0_animState = kAS_Impact;
-      ModelData()->AnimationData()->SetAnimation(CAnimPlaybackParms(x2e4_impactAnim, -1, 1.f, true),
+      mAnimState = kAS_Impact;
+      ModelData()->AnimationData()->SetAnimation(CAnimPlaybackParms(mImpactAnim, -1, 1.f, true),
                                                  false);
       ModelData()->EnableLooping(false);
       RandomizePlaybackRate(mgr);

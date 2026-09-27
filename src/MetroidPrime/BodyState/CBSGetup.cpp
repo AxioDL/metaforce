@@ -7,7 +7,7 @@
 #include "Kyoto/Animation/CPASAnimParmData.hpp"
 #include "Kyoto/Animation/CPASDatabase.hpp"
 
-CBSGetup::CBSGetup() : x4_fallState(pas::kFS_Invalid) {}
+CBSGetup::CBSGetup() : mFallState(pas::kFS_Invalid) {}
 
 void CBSGetup::Start(CBodyController& bc, CStateManager& mgr) {
   const CBCGetupCmd* cmd = static_cast< const CBCGetupCmd* >(bc.CommandMgr().GetCmd(kBSC_Getup));
@@ -25,9 +25,9 @@ void CBSGetup::Start(CBodyController& bc, CStateManager& mgr) {
       bc.SetCurrentAnimation(playParms, false, false);
     }
     CPASAnimParm animParm = db.GetAnimState(pas::kAS_Getup)->GetAnimParmData(f, 2);
-    x4_fallState = pas::EFallState(animParm.GetEnumValue());
+    mFallState = pas::EFallState(animParm.GetEnumValue());
   } else {
-    x4_fallState = pas::kFS_Zero;
+    mFallState = pas::kFS_Zero;
   }
 }
 
@@ -35,7 +35,7 @@ pas::EAnimationState CBSGetup::UpdateBody(float dt, CBodyController& bc, CStateM
   return GetBodyStateTransition(dt, bc);
 }
 
-void CBSGetup::Shutdown(CBodyController& bc) { bc.SetFallState(x4_fallState); }
+void CBSGetup::Shutdown(CBodyController& bc) { bc.SetFallState(mFallState); }
 
 pas::EAnimationState CBSGetup::GetBodyStateTransition(float dt, CBodyController& bc) {
   CBodyStateCmdMgr& commandMgr = bc.CommandMgr();
@@ -46,7 +46,7 @@ pas::EAnimationState CBSGetup::GetBodyStateTransition(float dt, CBodyController&
     return pas::kAS_Fall;
   }
   if (bc.IsAnimationOver()) {
-    if (x4_fallState == pas::kFS_Zero) {
+    if (mFallState == pas::kFS_Zero) {
       return pas::kAS_Locomotion;
     }
     return pas::kAS_Getup;

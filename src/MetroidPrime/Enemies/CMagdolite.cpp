@@ -49,29 +49,29 @@ CMagdolite::CMagdolite(TUniqueId uid, const rstl::string& name, const CEntityInf
                        const CFlameInfo& flameInfo, float f7, float f8, float f9)
 : CPatterned(kC_Magdolite, uid, name, kFT_Zero, info, xf, mData, pInfo, kMT_Flyer, kCT_One,
              kBT_BiPedal, actParms, kCS_Large)
-, x568_initialDelay(initialDelay)
-, x56c_minDelay(minDelay)
-, x570_maxDelay(maxDelay)
-, x574_minHp(minHp)
-, x578_losMaxDistance(cosf(CRelAngle::FromDegrees(losAngle).AsRadians()))
-, x57c_headTrackAngle(headTrackAngle)
-, x580_collisionManager(nullptr)
-, x584_boneTracker(*GetAnimationData(), rstl::string_l(skHeadBone),
+, mInitialDelay(initialDelay)
+, mMinDelay(minDelay)
+, mMaxDelay(maxDelay)
+, mMinHp(minHp)
+, mLosMaxDistance(cosf(CRelAngle::FromDegrees(losAngle).AsRadians()))
+, mHeadTrackAngle(headTrackAngle)
+, mCollisionManager(nullptr)
+, mBoneTracker(*GetAnimationData(), rstl::string_l(skHeadBone),
                    CRelAngle::FromDegrees(headTrackAngle).AsRadians(), M_PIF / 2.f, kBTF_ParentIk)
-, x5bc_instaKillVulnerability(headVuln)
-, x624_normalVulnerability(bodyVuln)
-, x690_headlessModel(TLockedToken< CSkinnedModel >(rs_new CSkinnedModel(
+, mInstaKillVulnerability(headVuln)
+, mNormalVulnerability(bodyVuln)
+, mHeadlessModel(TLockedToken< CSkinnedModel >(rs_new CSkinnedModel(
       gpSimplePool->GetObj(SObjectTag('CMDL', headlessModel)),
       gpSimplePool->GetObj(SObjectTag('CSKR', headlessSkin)),
       GetAnimationData()->GetModelData()->GetLayoutInfo(), CSkinnedModel::kDO_Owned)))
-, x6a8_flameInfo(flameInfo)
-, x6c8_flameThrowerId(kInvalidUniqueId)
-, x6cc_flameThrowerDesc(gpSimplePool->GetObj("FlameThrower"))
-, x6d4_flameThrowerDamage(flameThrowerDamage)
-, x6f0_headContactDamage(headContactDamage)
-, x710_attackOffset(CVector3f::Zero())
-, x71c_attackTarget(xf.GetTranslation())
-, x728_cachedTarget(CVector3f::Zero())
+, mFlameInfo(flameInfo)
+, mFlameThrowerId(kInvalidUniqueId)
+, mFlameThrowerDesc(gpSimplePool->GetObj("FlameThrower"))
+, mFlameThrowerDamage(flameThrowerDamage)
+, mHeadContactDamage(headContactDamage)
+, mAttackOffset(CVector3f::Zero())
+, mAttackTarget(xf.GetTranslation())
+, mCachedTarget(CVector3f::Zero())
 , x734_(0.f)
 , x738_(0.f)
 , x73c_(0.f)
@@ -79,18 +79,18 @@ CMagdolite::CMagdolite(TUniqueId uid, const rstl::string& name, const CEntityInf
 , x744_(f7)
 , x748_(f8)
 , x74c_(f9)
-, x750_aiStage(0)
-, x754_24_retreat(false)
-, x754_25_up(false)
-, x754_26_lostMyHead(false)
-, x754_27_flameThrowerActive(false)
-, x754_28_alert(false)
-, x754_29_useDetectionRange(true)
-, x754_30_inProjectileAttack(false)
+, mAiStage(0)
+, mRetreat(false)
+, mUp(false)
+, mLostMyHead(false)
+, mFlameThrowerActive(false)
+, mAlert(false)
+, mUseDetectionRange(true)
+, mInProjectileAttack(false)
 , x758_(0.f) {
-  x460_knockBackController.SetAutoResetImpulse(false);
-  x460_knockBackController.SetEnableBurn(false);
-  x690_headlessModel->SetLayoutInfo(GetAnimationData()->GetModelData()->GetLayoutInfo());
+  mKnockBackController.SetAutoResetImpulse(false);
+  mKnockBackController.SetEnableBurn(false);
+  mHeadlessModel->SetLayoutInfo(GetAnimationData()->GetModelData()->GetLayoutInfo());
 }
 
 ENTITY_ACCEPT_IMPL(CMagdolite)
@@ -101,11 +101,11 @@ void CMagdolite::Think(float dt, CStateManager& mgr) {
     return;
   }
   x758_ += dt;
-  if (GetBodyCtrl()->GetPercentageFrozen() > 0.f && x754_27_flameThrowerActive) {
+  if (GetBodyCtrl()->GetPercentageFrozen() > 0.f && mFlameThrowerActive) {
     SetFlameThrowerActive(mgr, false);
   }
   if (!IsAlive()) {
-    if (CFlameThrower* flame = static_cast< CFlameThrower* >(mgr.ObjectById(x6c8_flameThrowerId))) {
+    if (CFlameThrower* flame = static_cast< CFlameThrower* >(mgr.ObjectById(mFlameThrowerId))) {
       const CTransform4f xf = GetLctrTransform(rstl::string_l(skMouthLocator));
       flame->SetTransform(xf, mgr, dt);
     }
@@ -115,27 +115,27 @@ void CMagdolite::Think(float dt, CStateManager& mgr) {
   const CVector3f aimPos = mgr.GetPlayer()->GetAimPosition(mgr, 0.f);
   const CTransform4f mouthXf = GetLctrTransform(rstl::string_l(skMouthLocator));
   const CVector3f aimDir = (aimPos - mouthXf.GetTranslation()).AsNormalized();
-  const float maxAngle = CRelAngle::FromDegrees(x57c_headTrackAngle).AsRadians();
+  const float maxAngle = CRelAngle::FromDegrees(mHeadTrackAngle).AsRadians();
   float angle = CMath::Min(CVector3f::GetAngleDiff(mouthXf.GetForward(), aimDir), maxAngle);
   if (CVector3f::Dot(mouthXf.GetUp(), aimDir) < 0.f) {
     angle = -angle;
   }
   const float blend = (angle + maxAngle) / (2.f * maxAngle);
-  x710_attackOffset = CVector3f::Lerp(playerPos, aimPos, blend);
+  mAttackOffset = CVector3f::Lerp(playerPos, aimPos, blend);
 
   if (GetActive()) {
     if (IsAlive()) {
       AnimationData()->PreRender();
-      x584_boneTracker.Update(dt);
-      x584_boneTracker.PreRender(mgr, *AnimationData(), GetTransform(), GetModelScale(),
+      mBoneTracker.Update(dt);
+      mBoneTracker.PreRender(mgr, *AnimationData(), GetTransform(), GetModelScale(),
                                  *GetBodyCtrl());
       if (CFlameThrower* flame =
-              static_cast< CFlameThrower* >(mgr.ObjectById(x6c8_flameThrowerId))) {
+              static_cast< CFlameThrower* >(mgr.ObjectById(mFlameThrowerId))) {
         const CTransform4f xf = GetLctrTransform(rstl::string_l(skMouthLocator));
         flame->SetTransform(xf, mgr, dt);
       }
     }
-    x580_collisionManager->Update(dt, mgr, CCollisionActorManager::kUO_ObjectSpace);
+    mCollisionManager->Update(dt, mgr, CCollisionActorManager::kUO_ObjectSpace);
     const CVector3f scale = GetModelScale();
     const CVector3f headPos = GetLocatorTransform(rstl::string_l(skHeadBone)).GetTranslation();
     CVector3f offset(scale.GetX() * headPos.GetX(), scale.GetY() * headPos.GetY(),
@@ -145,7 +145,7 @@ void CMagdolite::Think(float dt, CStateManager& mgr) {
     SetTransformDirty(true);
   }
 
-  switch (x750_aiStage) {
+  switch (mAiStage) {
   case 1:
     if (x734_ < x738_ / 2.f) {
       x740_ += x73c_ * dt;
@@ -157,9 +157,9 @@ void CMagdolite::Think(float dt, CStateManager& mgr) {
       const CVector3f pos = GetTranslation();
       SetTranslation(pos + CVector3f(0.f, 0.f, x740_ * dt));
     }
-    if (GetTranslation().GetZ() > x728_cachedTarget.GetZ()) {
-      SetTranslation(x728_cachedTarget);
-      x750_aiStage = 0;
+    if (GetTranslation().GetZ() > mCachedTarget.GetZ()) {
+      SetTranslation(mCachedTarget);
+      mAiStage = 0;
     }
     break;
   case 2:
@@ -173,9 +173,9 @@ void CMagdolite::Think(float dt, CStateManager& mgr) {
       const CVector3f pos = GetTranslation();
       SetTranslation(pos - CVector3f(0.f, 0.f, x740_ * dt));
     }
-    if (GetTranslation().GetZ() < x728_cachedTarget.GetZ()) {
-      SetTranslation(x728_cachedTarget);
-      x750_aiStage = 0;
+    if (GetTranslation().GetZ() < mCachedTarget.GetZ()) {
+      SetTranslation(mCachedTarget);
+      mAiStage = 0;
     }
     break;
   }
@@ -196,21 +196,21 @@ void CMagdolite::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CState
     if (const CGameProjectile* proj = TCastToConstPtr< CGameProjectile >(mgr.GetObjectById(uid))) {
       if (proj->GetOwnerId() == mgr.GetPlayer()->GetUniqueId()) {
         if (GetBodyCtrl()->GetPercentageFrozen() > 0.f &&
-            x5bc_instaKillVulnerability.GetVulnerability(
+            mInstaKillVulnerability.GetVulnerability(
                 proj->GetCurrentDamageInfo().GetWeaponMode(), CDamageVulnerability::kRD_No) !=
                 kVN_Deflect) {
           if (IsAlive()) {
-            x754_26_lostMyHead = true;
-            x401_30_pendingDeath = true;
+            mLostMyHead = true;
+            mPendingDeath = true;
           }
         } else {
-          if (x70c_curHealth - HealthInfo(mgr)->GetHP() > x574_minHp) {
-            x70c_curHealth = HealthInfo(mgr)->GetHP();
-            x754_24_retreat = true;
-          } else if (x624_normalVulnerability.GetVulnerability(
+          if (mCurHealth - HealthInfo(mgr)->GetHP() > mMinHp) {
+            mCurHealth = HealthInfo(mgr)->GetHP();
+            mRetreat = true;
+          } else if (mNormalVulnerability.GetVulnerability(
                          proj->GetCurrentDamageInfo().GetWeaponMode(),
                          CDamageVulnerability::kRD_No) != kVN_Deflect) {
-            x400_24_hitByPlayerProjectile = true;
+            mHitByPlayerProjectile = true;
           }
         }
       }
@@ -221,7 +221,7 @@ void CMagdolite::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CState
     BodyCtrl()->Activate(mgr);
     RemoveMaterial(kMT_Solid, mgr);
     AddMaterial(kMT_NonSolidDamageable, mgr);
-    x584_boneTracker.SetActive(false);
+    mBoneTracker.SetActive(false);
     SetDrawShadow(false);
     const CAABox bounds = GetBoundingBox();
     const float x = bounds.GetWidth() * 0.5f;
@@ -229,24 +229,24 @@ void CMagdolite::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CState
     const float y = bounds.GetHeight() * 0.5f;
     SetBoundingBox(CAABox(-x, -y, -z, x, y, z));
     CreateCollisionActors(mgr);
-    x330_stateMachineState.SetDelay(0.f);
+    mStateMachineState.SetDelay(0.f);
     CreateFlameThrower(mgr);
-    x70c_curHealth = HealthInfo(mgr)->GetHP();
+    mCurHealth = HealthInfo(mgr)->GetHP();
     break;
   }
   case kSM_Deleted:
-    x580_collisionManager->Destroy(mgr);
-    if (x6c8_flameThrowerId != kInvalidUniqueId) {
-      mgr.DeleteObjectRequest(x6c8_flameThrowerId);
-      x6c8_flameThrowerId = kInvalidUniqueId;
+    mCollisionManager->Destroy(mgr);
+    if (mFlameThrowerId != kInvalidUniqueId) {
+      mgr.DeleteObjectRequest(mFlameThrowerId);
+      mFlameThrowerId = kInvalidUniqueId;
     }
     break;
   case kSM_Touched:
     DoContactDamage(uid, mgr);
     break;
   case kSM_SuspendedMove:
-    if (x580_collisionManager.get()) {
-      x580_collisionManager->SetMovable(mgr, false);
+    if (mCollisionManager.get()) {
+      mCollisionManager->SetMovable(mgr, false);
     }
     break;
   }
@@ -275,23 +275,23 @@ void CMagdolite::CreateCollisionActors(CStateManager& mgr) {
         CJointCollisionDescription::kOT_One, rstl::string_l(info.to), 200.f);
     joints.push_back(desc);
   }
-  x580_collisionManager =
+  mCollisionManager =
       rs_new CCollisionActorManager(mgr, GetUniqueId(), GetCurrentAreaId(), joints, GetActive());
-  for (uint i = 0; i < x580_collisionManager->GetNumCollisionActors(); ++i) {
-    const CJointCollisionDescription& desc = x580_collisionManager->GetCollisionDescFromIndex(i);
+  for (uint i = 0; i < mCollisionManager->GetNumCollisionActors(); ++i) {
+    const CJointCollisionDescription& desc = mCollisionManager->GetCollisionDescFromIndex(i);
     const TUniqueId id = desc.GetCollisionActorId();
     if (CCollisionActor* actor = TCastToPtr< CCollisionActor >(mgr.ObjectById(id))) {
       actor->AddMaterial(kMT_AIJoint, mgr);
     }
   }
-  for (uint i = 0; i < x580_collisionManager->GetNumCollisionActors(); ++i) {
-    const CJointCollisionDescription& desc = x580_collisionManager->GetCollisionDescFromIndex(i);
+  for (uint i = 0; i < mCollisionManager->GetNumCollisionActors(); ++i) {
+    const CJointCollisionDescription& desc = mCollisionManager->GetCollisionDescFromIndex(i);
     if (desc.GetName() == rstl::string_l(skTopLocator) ||
         desc.GetName() == rstl::string_l(skBottomLocator)) {
       const TUniqueId id = desc.GetCollisionActorId();
       if (CCollisionActor* actor = TCastToPtr< CCollisionActor >(mgr.ObjectById(id))) {
         actor->AddMaterial(kMT_ProjectilePassthrough, mgr);
-        x69c_headCollisionActors.push_back(actor->GetUniqueId());
+        mHeadCollisionActors.push_back(actor->GetUniqueId());
       }
     }
   }
@@ -350,7 +350,7 @@ void CMagdolite::InActive(CStateManager& mgr, EStateMsg msg, float arg) {
     break;
   case kStateMsg_Deactivate:
     AddMaterial(kMT_Orbit, kMT_Target, mgr);
-    x754_25_up = false;
+    mUp = false;
     SnapToFacePlayer(mgr);
     SetEnableRender(true);
     break;
@@ -361,12 +361,12 @@ void CMagdolite::Lurk(CStateManager& mgr, EStateMsg msg, float arg) {
   switch (msg) {
   case kStateMsg_Activate:
     BodyCtrl()->SetLocomotionType(pas::kLT_Relaxed);
-    x584_boneTracker.SetActive(false);
-    x330_stateMachineState.SetDelay(0.f);
+    mBoneTracker.SetActive(false);
+    mStateMachineState.SetDelay(0.f);
     AddMaterial(kMT_Target, kMT_Orbit, mgr);
     break;
   case kStateMsg_Deactivate:
-    x754_25_up = true;
+    mUp = true;
     break;
   }
 }
@@ -375,18 +375,18 @@ void CMagdolite::Active(CStateManager& mgr, EStateMsg msg, float arg) {
   switch (msg) {
   case kStateMsg_Activate:
     BodyCtrl()->SetLocomotionType(pas::kLT_Lurk);
-    x584_boneTracker.SetActive(true);
-    x584_boneTracker.SetTarget(mgr.GetPlayer()->GetUniqueId());
-    x400_24_hitByPlayerProjectile = false;
-    x754_29_useDetectionRange = false;
-    x330_stateMachineState.SetDelay(x568_initialDelay);
+    mBoneTracker.SetActive(true);
+    mBoneTracker.SetTarget(mgr.GetPlayer()->GetUniqueId());
+    mHitByPlayerProjectile = false;
+    mUseDetectionRange = false;
+    mStateMachineState.SetDelay(mInitialDelay);
     break;
   case kStateMsg_Update: {
     CVector3f direction = mgr.GetPlayer()->GetTranslation() - GetTranslation();
     direction.SetZ(0.f);
     if (direction.CanBeNormalized()) {
       const CVector3f& normal = direction.AsNormalized();
-      if (CVector3f::Dot(GetTransform().GetForward(), normal) < x578_losMaxDistance) {
+      if (CVector3f::Dot(GetTransform().GetForward(), normal) < mLosMaxDistance) {
         BodyCtrl()->CommandMgr().DeliverCmd(
             CBCLocomotionCmd(CVector3f::Zero(), direction.AsNormalized(), 1.f));
       }
@@ -394,8 +394,8 @@ void CMagdolite::Active(CStateManager& mgr, EStateMsg msg, float arg) {
     break;
   }
   case kStateMsg_Deactivate:
-    x330_stateMachineState.SetDelay((x570_maxDelay - x56c_minDelay) * mgr.Random()->Float() +
-                                    x56c_minDelay);
+    mStateMachineState.SetDelay((mMaxDelay - mMinDelay) * mgr.Random()->Float() +
+                                    mMinDelay);
     break;
   }
 }
@@ -403,15 +403,15 @@ void CMagdolite::Active(CStateManager& mgr, EStateMsg msg, float arg) {
 void CMagdolite::Taunt(CStateManager& mgr, EStateMsg msg, float arg) {
   switch (msg) {
   case kStateMsg_Activate:
-    x32c_animState = kAS_Ready;
-    x584_boneTracker.SetActive(true);
+    mAnimState = kAS_Ready;
+    mBoneTracker.SetActive(true);
     break;
   case kStateMsg_Update:
     TryCommand(mgr, pas::kAS_Taunt, &CPatterned::TryTaunt, 1);
     break;
   case kStateMsg_Deactivate:
-    x32c_animState = kAS_NotReady;
-    x584_boneTracker.SetActive(false);
+    mAnimState = kAS_NotReady;
+    mBoneTracker.SetActive(false);
     break;
   }
 }
@@ -419,8 +419,8 @@ void CMagdolite::Taunt(CStateManager& mgr, EStateMsg msg, float arg) {
 void CMagdolite::Attack(CStateManager& mgr, EStateMsg msg, float arg) {
   switch (msg) {
   case kStateMsg_Activate: {
-    x32c_animState = kAS_Ready;
-    x584_boneTracker.SetActive(false);
+    mAnimState = kAS_Ready;
+    mBoneTracker.SetActive(false);
     const float zDiff = (GetLctrTransform(rstl::string_l(skHeadLocator)).GetTranslation() -
                          mgr.GetPlayer()->GetTranslation())
                             .GetZ();
@@ -430,17 +430,17 @@ void CMagdolite::Attack(CStateManager& mgr, EStateMsg msg, float arg) {
     } else if (height > x748_) {
       height = x748_;
     }
-    x728_cachedTarget = x71c_attackTarget - CVector3f(0.f, 0.f, height);
+    mCachedTarget = mAttackTarget - CVector3f(0.f, 0.f, height);
     x740_ = 0.f;
     x734_ = 0.f;
     x738_ = height;
     x73c_ = (2.f * x738_) / (x744_ * x744_);
-    if (x728_cachedTarget.GetZ() < GetTranslation().GetZ()) {
-      x750_aiStage = 2;
+    if (mCachedTarget.GetZ() < GetTranslation().GetZ()) {
+      mAiStage = 2;
     } else {
-      x750_aiStage = 1;
+      mAiStage = 1;
     }
-    x754_30_inProjectileAttack = true;
+    mInProjectileAttack = true;
     break;
   }
   case kStateMsg_Update: {
@@ -452,25 +452,25 @@ void CMagdolite::Attack(CStateManager& mgr, EStateMsg msg, float arg) {
     if (CVector3f::Dot(GetTransform().GetRight(), direction) > 0.f) {
       angle *= -1.f;
     }
-    if (angle.AsDegrees() > x3b8_turnSpeed) {
-      angle = CRelAngle::FromDegrees(x3b8_turnSpeed);
-    } else if (angle.AsDegrees() < -x3b8_turnSpeed) {
-      angle = CRelAngle::FromDegrees(-x3b8_turnSpeed);
+    if (angle.AsDegrees() > mTurnSpeed) {
+      angle = CRelAngle::FromDegrees(mTurnSpeed);
+    } else if (angle.AsDegrees() < -mTurnSpeed) {
+      angle = CRelAngle::FromDegrees(-mTurnSpeed);
     }
     angle *= arg;
     RotateInOneFrameOR(CQuaternion::ZRotation(angle), arg);
     break;
   }
   case kStateMsg_Deactivate:
-    x32c_animState = kAS_NotReady;
+    mAnimState = kAS_NotReady;
     SetFlameThrowerActive(mgr, false);
-    x750_aiStage = 1;
-    x728_cachedTarget = x71c_attackTarget;
+    mAiStage = 1;
+    mCachedTarget = mAttackTarget;
     x740_ = 0.f;
     x734_ = 0.f;
-    x738_ = x728_cachedTarget.GetZ() - GetTranslation().GetZ();
+    x738_ = mCachedTarget.GetZ() - GetTranslation().GetZ();
     x73c_ = (2.f * x738_) / (x744_ * x744_);
-    x754_30_inProjectileAttack = false;
+    mInProjectileAttack = false;
     break;
   }
 }
@@ -478,11 +478,11 @@ void CMagdolite::Attack(CStateManager& mgr, EStateMsg msg, float arg) {
 void CMagdolite::ProjectileAttack(CStateManager& mgr, EStateMsg msg, float arg) {
   switch (msg) {
   case kStateMsg_Activate:
-    x32c_animState = kAS_Ready;
-    x584_boneTracker.SetActive(true);
-    x584_boneTracker.SetNoHorizontalAim(true);
-    x584_boneTracker.SetTarget(kInvalidUniqueId);
-    x754_30_inProjectileAttack = true;
+    mAnimState = kAS_Ready;
+    mBoneTracker.SetActive(true);
+    mBoneTracker.SetNoHorizontalAim(true);
+    mBoneTracker.SetTarget(kInvalidUniqueId);
+    mInProjectileAttack = true;
     break;
   case kStateMsg_Update:
     if (TooClose(mgr, 0.f)) {
@@ -490,15 +490,15 @@ void CMagdolite::ProjectileAttack(CStateManager& mgr, EStateMsg msg, float arg) 
     } else {
       TryCommand(mgr, pas::kAS_ProjectileAttack, &CPatterned::TryProjectileAttack, 1);
     }
-    x584_boneTracker.SetTargetPosition(x710_attackOffset);
+    mBoneTracker.SetTargetPosition(mAttackOffset);
     break;
   case kStateMsg_Deactivate:
-    x32c_animState = kAS_NotReady;
+    mAnimState = kAS_NotReady;
     SetFlameThrowerActive(mgr, false);
-    x584_boneTracker.SetActive(false);
-    x584_boneTracker.SetNoHorizontalAim(false);
-    x754_30_inProjectileAttack = false;
-    x584_boneTracker.SetTarget(mgr.GetPlayer()->GetUniqueId());
+    mBoneTracker.SetActive(false);
+    mBoneTracker.SetNoHorizontalAim(false);
+    mInProjectileAttack = false;
+    mBoneTracker.SetTarget(mgr.GetPlayer()->GetUniqueId());
     break;
   }
 }
@@ -506,15 +506,15 @@ void CMagdolite::ProjectileAttack(CStateManager& mgr, EStateMsg msg, float arg) 
 void CMagdolite::Flinch(CStateManager& mgr, EStateMsg msg, float arg) {
   switch (msg) {
   case kStateMsg_Activate:
-    x32c_animState = kAS_Ready;
-    x400_24_hitByPlayerProjectile = false;
-    x584_boneTracker.SetActive(false);
+    mAnimState = kAS_Ready;
+    mHitByPlayerProjectile = false;
+    mBoneTracker.SetActive(false);
     break;
   case kStateMsg_Update:
     TryCommand(mgr, pas::kAS_KnockBack, &CPatterned::TryKnockBack_Front, 0);
     break;
   case kStateMsg_Deactivate:
-    x32c_animState = kAS_NotReady;
+    mAnimState = kAS_NotReady;
     break;
   }
 }
@@ -522,21 +522,21 @@ void CMagdolite::Flinch(CStateManager& mgr, EStateMsg msg, float arg) {
 void CMagdolite::Retreat(CStateManager& mgr, EStateMsg msg, float arg) {
   switch (msg) {
   case kStateMsg_Activate:
-    x32c_animState = kAS_Ready;
-    x754_24_retreat = false;
-    x584_boneTracker.SetActive(false);
+    mAnimState = kAS_Ready;
+    mRetreat = false;
+    mBoneTracker.SetActive(false);
     BodyCtrl()->CommandMgr().DeliverCmd(CBodyStateCmd(kBSC_NextState));
-    x754_28_alert = true;
+    mAlert = true;
     break;
   case kStateMsg_Update:
     TryCommand(mgr, pas::kAS_Generate, &CPatterned::TryGenerateDeactivate, 1);
-    if (x32c_animState == kAS_Repeat) {
+    if (mAnimState == kAS_Repeat) {
       BodyCtrl()->SetLocomotionType(pas::kLT_Internal7);
     }
     break;
   case kStateMsg_Deactivate:
-    x754_28_alert = false;
-    x32c_animState = kAS_NotReady;
+    mAlert = false;
+    mAnimState = kAS_NotReady;
     break;
   }
 }
@@ -544,17 +544,17 @@ void CMagdolite::Retreat(CStateManager& mgr, EStateMsg msg, float arg) {
 void CMagdolite::Generate(CStateManager& mgr, EStateMsg msg, float arg) {
   switch (msg) {
   case kStateMsg_Activate:
-    x32c_animState = kAS_Ready;
-    x754_24_retreat = false;
+    mAnimState = kAS_Ready;
+    mRetreat = false;
     break;
   case kStateMsg_Update:
     TryCommand(mgr, pas::kAS_Generate, &CPatterned::TryGenerate, 0);
-    if (x32c_animState == kAS_Repeat) {
+    if (mAnimState == kAS_Repeat) {
       BodyCtrl()->SetLocomotionType(pas::kLT_Relaxed);
     }
     break;
   case kStateMsg_Deactivate:
-    x32c_animState = kAS_NotReady;
+    mAnimState = kAS_NotReady;
     break;
   }
 }
@@ -562,24 +562,24 @@ void CMagdolite::Generate(CStateManager& mgr, EStateMsg msg, float arg) {
 void CMagdolite::GetUp(CStateManager& mgr, EStateMsg msg, float arg) {
   switch (msg) {
   case kStateMsg_Activate:
-    x32c_animState = kAS_Ready;
-    x754_24_retreat = false;
-    x754_28_alert = true;
+    mAnimState = kAS_Ready;
+    mRetreat = false;
+    mAlert = true;
     AddMaterial(kMT_Orbit, kMT_Target, mgr);
     break;
   case kStateMsg_Update:
-    if (x754_25_up) {
+    if (mUp) {
       TryCommand(mgr, pas::kAS_Step, &CPatterned::TryStep, pas::kSD_Up);
     } else {
       TryCommand(mgr, pas::kAS_Step, &CPatterned::TryStep, pas::kSD_Forward);
     }
-    if (x32c_animState == kAS_Repeat) {
+    if (mAnimState == kAS_Repeat) {
       BodyCtrl()->SetLocomotionType(pas::kLT_Lurk);
     }
     break;
   case kStateMsg_Deactivate:
-    x32c_animState = kAS_NotReady;
-    x754_28_alert = false;
+    mAnimState = kAS_NotReady;
+    mAlert = false;
     break;
   }
 }
@@ -587,18 +587,18 @@ void CMagdolite::GetUp(CStateManager& mgr, EStateMsg msg, float arg) {
 void CMagdolite::Deactivate(CStateManager& mgr, EStateMsg msg, float arg) {
   switch (msg) {
   case kStateMsg_Activate:
-    x32c_animState = kAS_Ready;
-    x754_24_retreat = false;
-    x584_boneTracker.SetActive(false);
+    mAnimState = kAS_Ready;
+    mRetreat = false;
+    mBoneTracker.SetActive(false);
     break;
   case kStateMsg_Update:
     TryCommand(mgr, pas::kAS_Step, &CPatterned::TryStep, pas::kSD_Down);
-    if (x32c_animState == kAS_Repeat) {
+    if (mAnimState == kAS_Repeat) {
       BodyCtrl()->SetLocomotionType(pas::kLT_Internal7);
     }
     break;
   case kStateMsg_Deactivate:
-    x32c_animState = kAS_NotReady;
+    mAnimState = kAS_NotReady;
     break;
   }
 }
@@ -610,13 +610,13 @@ void CMagdolite::Death(CStateManager& mgr, const CVector3f& direction, EScriptOb
     SendScriptMsgs(kSS_MassiveDeath, mgr, kSM_None);
     GenerateDeathExplosion(mgr);
     SetTransform(oldXf);
-    AnimationData()->SubstituteModelData(x690_headlessModel);
-    x460_knockBackController.SetEnableFreeze(false);
+    AnimationData()->SubstituteModelData(mHeadlessModel);
+    mKnockBackController.SetEnableFreeze(false);
     BodyCtrl()->UnFreeze();
-    if (!x754_26_lostMyHead) {
-      x460_knockBackController.SetSeverity(pas::kS_Two);
+    if (!mLostMyHead) {
+      mKnockBackController.SetSeverity(pas::kS_Two);
     } else {
-      AnimationData()->SubstituteModelData(x690_headlessModel);
+      AnimationData()->SubstituteModelData(mHeadlessModel);
     }
     CPatterned::Death(mgr, direction, state);
   }
@@ -624,22 +624,22 @@ void CMagdolite::Death(CStateManager& mgr, const CVector3f& direction, EScriptOb
 
 void CMagdolite::Touch(CActor& actor, CStateManager& mgr) {}
 
-bool CMagdolite::ShouldRetreat(CStateManager& mgr, float arg) { return x754_24_retreat; }
+bool CMagdolite::ShouldRetreat(CStateManager& mgr, float arg) { return mRetreat; }
 
 bool CMagdolite::Leash(CStateManager& mgr, float arg) {
   return (mgr.GetPlayer()->GetTranslation() - GetTranslation()).MagSquared() <
-         x3c8_leashRadius * x3c8_leashRadius;
+         mLeashRadius * mLeashRadius;
 }
 
 bool CMagdolite::LineOfSight(CStateManager& mgr, float arg) {
   const CVector3f mouth = GetLctrTransform(rstl::string_l(skMouthLocator)).GetTranslation();
-  const CVector3f target = x710_attackOffset;
+  const CVector3f target = mAttackOffset;
   CVector3f direction = target - mouth;
   direction.SetZ(0.f);
   const CVector3f forward = GetTransform().GetForward();
   if (direction.CanBeNormalized()) {
     direction = direction.AsNormalized();
-    if (CVector3f::Dot(direction, forward) < x578_losMaxDistance) {
+    if (CVector3f::Dot(direction, forward) < mLosMaxDistance) {
       return false;
     }
   }
@@ -664,7 +664,7 @@ bool CMagdolite::InAttackPosition(CStateManager& mgr, float arg) {
     return false;
   }
   direction *= 1.f / distance;
-  return !(CVector3f::Dot(direction, forward) < x578_losMaxDistance);
+  return !(CVector3f::Dot(direction, forward) < mLosMaxDistance);
 }
 
 TUniqueId CMagdolite::GetBestConnectedObject(CStateManager& mgr, EScriptObjectState state,
@@ -672,12 +672,12 @@ TUniqueId CMagdolite::GetBestConnectedObject(CStateManager& mgr, EScriptObjectSt
   float bestDistance = FLT_MAX;
   TUniqueId bestId = kInvalidUniqueId;
   int count = 0;
-  const float maxDistance = x754_29_useDetectionRange ? x3bc_detectionRange * x3bc_detectionRange
-                                                      : x300_maxAttackRange * x300_maxAttackRange;
+  const float maxDistance = mUseDetectionRange ? mDetectionRange * mDetectionRange
+                                                      : mMaxAttackRange * mMaxAttackRange;
   const CVector3f playerPos = mgr.GetPlayer()->GetTranslation();
   for (AUTO(it, GetConnectionList().begin()); it != GetConnectionList().end(); ++it) {
-    if (it->x0_state == state && it->x4_msg == msg) {
-      TUniqueId id = mgr.GetIdForScript(it->x8_objId);
+    if (it->mState == state && it->mMsg == msg) {
+      TUniqueId id = mgr.GetIdForScript(it->mObjId);
       const CEntity* entity = mgr.GetObjectById(id);
       if (entity && entity->GetActive()) {
         if (const CScriptWaypoint* waypoint = TCastToConstPtr< CScriptWaypoint >(entity)) {
@@ -691,11 +691,11 @@ TUniqueId CMagdolite::GetBestConnectedObject(CStateManager& mgr, EScriptObjectSt
       }
     }
   }
-  if (!x754_29_useDetectionRange) {
+  if (!mUseDetectionRange) {
     int skip = mgr.Random()->Next() % count;
     for (AUTO(it, GetConnectionList().begin()); it != GetConnectionList().end(); ++it) {
-      if (it->x0_state == state && it->x4_msg == msg) {
-        TUniqueId id = mgr.GetIdForScript(it->x8_objId);
+      if (it->mState == state && it->mMsg == msg) {
+        TUniqueId id = mgr.GetIdForScript(it->mObjId);
         const CEntity* entity = mgr.GetObjectById(id);
         if (entity && entity->GetActive()) {
           if (const CScriptWaypoint* waypoint = TCastToConstPtr< CScriptWaypoint >(entity)) {
@@ -724,7 +724,7 @@ void CMagdolite::SelectTarget(CStateManager& mgr, EStateMsg msg, float arg) {
       if (const CScriptWaypoint* waypoint =
               TCastToConstPtr< CScriptWaypoint >(mgr.GetObjectById(target))) {
         SetTransform(waypoint->GetTransform());
-        x71c_attackTarget = GetTranslation();
+        mAttackTarget = GetTranslation();
       }
     }
     break;
@@ -736,11 +736,11 @@ void CMagdolite::SelectTarget(CStateManager& mgr, EStateMsg msg, float arg) {
 }
 
 void CMagdolite::CreateFlameThrower(CStateManager& mgr) {
-  if (x6c8_flameThrowerId == kInvalidUniqueId) {
-    x6c8_flameThrowerId = mgr.AllocateUniqueId();
+  if (mFlameThrowerId == kInvalidUniqueId) {
+    mFlameThrowerId = mgr.AllocateUniqueId();
     CFlameThrower* flame = rs_new CFlameThrower(
-        x6cc_flameThrowerDesc, rstl::string_l("Magdolite_Flame"), kWT_Plasma, x6a8_flameInfo,
-        CTransform4f::Identity(), kMT_CollisionActor, x6d4_flameThrowerDamage, x6c8_flameThrowerId,
+        mFlameThrowerDesc, rstl::string_l("Magdolite_Flame"), kWT_Plasma, mFlameInfo,
+        CTransform4f::Identity(), kMT_CollisionActor, mFlameThrowerDamage, mFlameThrowerId,
         GetCurrentAreaId(), GetUniqueId(), CWeapon::kPA_None, kInvalidAssetId,
         CSfxManager::kInternalInvalidSfxId, kInvalidAssetId);
     mgr.AddObject(*flame);
@@ -748,20 +748,20 @@ void CMagdolite::CreateFlameThrower(CStateManager& mgr) {
 }
 
 void CMagdolite::SetFlameThrowerActive(CStateManager& mgr, bool fire) {
-  if ((!fire || x754_30_inProjectileAttack) && IsAlive()) {
-    if (CFlameThrower* flame = static_cast< CFlameThrower* >(mgr.ObjectById(x6c8_flameThrowerId))) {
+  if ((!fire || mInProjectileAttack) && IsAlive()) {
+    if (CFlameThrower* flame = static_cast< CFlameThrower* >(mgr.ObjectById(mFlameThrowerId))) {
       if (fire) {
         flame->Fire(GetTransform(), mgr, false);
       } else {
         flame->Reset(mgr, false);
       }
     }
-    x754_27_flameThrowerActive = fire;
+    mFlameThrowerActive = fire;
   }
 }
 
 void CMagdolite::FluidFXThink(EFluidState state, CScriptWater& water, CStateManager& mgr) {
-  if (x754_28_alert && state == kFS_InFluid) {
+  if (mAlert && state == kFS_InFluid) {
     if (mgr.GetFluidPlaneManager()->GetLastRippleDeltaTime(GetUniqueId()) >= 2.3f) {
       const CVector3f center(GetTranslation().GetX(), GetTranslation().GetY(),
                              water.GetTriggerBoundsWR().GetMaxPoint().GetZ());
@@ -774,19 +774,19 @@ void CMagdolite::DoContactDamage(TUniqueId uid, CStateManager& mgr) {
   if (const CCollisionActor* actor = TCastToConstPtr< CCollisionActor >(mgr.GetObjectById(uid))) {
     if (IsAlive()) {
       CDamageInfo damage = GetContactDamage();
-      for (AUTO(it, x69c_headCollisionActors.begin()); it != x69c_headCollisionActors.end(); ++it) {
+      for (AUTO(it, mHeadCollisionActors.begin()); it != mHeadCollisionActors.end(); ++it) {
         if (actor->GetUniqueId() == *it) {
-          damage = x6f0_headContactDamage;
+          damage = mHeadContactDamage;
           break;
         }
       }
       const TUniqueId touched = actor->GetLastTouchedObject();
-      if (touched == mgr.GetPlayer()->GetUniqueId() && 0.f >= x420_curDamageRemTime) {
+      if (touched == mgr.GetPlayer()->GetUniqueId() && 0.f >= mCurDamageRemTime) {
         mgr.ApplyDamage(
             GetUniqueId(), mgr.GetPlayer()->GetUniqueId(), GetUniqueId(), damage,
             CMaterialFilter::MakeIncludeExclude(CMaterialList(kMT_Solid), CMaterialList()),
             CVector3f::Zero());
-        x420_curDamageRemTime = x424_damageWaitTime;
+        mCurDamageRemTime = mDamageWaitTime;
       }
     }
   }

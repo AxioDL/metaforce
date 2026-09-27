@@ -15,7 +15,7 @@
 static uint sCurList = 0;
 static rstl::list< void* > sFrameDelayedList[2];
 
-#if defined(__MWERKS__) && (VERSION < VERSION_GM8P_00 || VERSION == VERSION_GM8E_02)
+#if defined(__MWERKS__) && (VERSION < VERSION_GM8P_00)
 #pragma force_active on
 CFrameDelayedKiller::Stats CFrameDelayedKiller::mUnusedStats = {0, 0, 0, 0, 0, 0};
 #pragma force_active reset
@@ -61,44 +61,44 @@ void CFrameDelayedKiller::FlushAllocationsForFrame() {
 }
 
 CElementAllocationChunk::CElementAllocationChunk()
-: x0_capacity(256), x4_allocatedWords(0), x8_allocationCount(0) {}
+: mCapacity(256), mAllocatedWords(0), mAllocationCount(0) {}
 
 bool CElementAllocationChunk::CanAllocate(uint size) const {
-  return x0_capacity > x4_allocatedWords + (size + 3) / 4;
+  return mCapacity > mAllocatedWords + (size + 3) / 4;
 }
 
 bool CElementAllocationChunk::Contains(const void* ptr) const {
 #if NONMATCHING
-  return reinterpret_cast< uintptr_t >(ptr) - reinterpret_cast< uintptr_t >(xc_data) <
-         sizeof(xc_data);
+  return reinterpret_cast< uintptr_t >(ptr) - reinterpret_cast< uintptr_t >(mData) <
+         sizeof(mData);
 #else
-  int offset = static_cast< const char* >(ptr) - reinterpret_cast< const char* >(xc_data);
+  int offset = static_cast< const char* >(ptr) - reinterpret_cast< const char* >(mData);
   int index = offset / 4;
-  return x0_capacity > index;
+  return mCapacity > index;
 #endif
 }
 
 void* CElementAllocationChunk::Allocate(uint size) {
-  void* ptr = &xc_data[x4_allocatedWords];
-  x4_allocatedWords += (size + 3) / 4;
-  ++x8_allocationCount;
+  void* ptr = &mData[mAllocatedWords];
+  mAllocatedWords += (size + 3) / 4;
+  ++mAllocationCount;
   return ptr;
 }
 
-void CElementAllocationChunk::Free(void*) { --x8_allocationCount; }
+void CElementAllocationChunk::Free(void*) { --mAllocationCount; }
 
 void CElementAllocationChunk::Rewind(uint size) {
   uint words = (size + 3) / 4;
-  if (words > x4_allocatedWords) {
-    x4_allocatedWords = 0;
+  if (words > mAllocatedWords) {
+    mAllocatedWords = 0;
   } else {
-    x4_allocatedWords -= words;
+    mAllocatedWords -= words;
   }
 }
 
-uint CElementAllocationChunk::GetAllocatedSize() const { return x4_allocatedWords * 4; }
+uint CElementAllocationChunk::GetAllocatedSize() const { return mAllocatedWords * 4; }
 
-uint CElementAllocationChunk::GetAllocationCount() const { return x8_allocationCount; }
+uint CElementAllocationChunk::GetAllocationCount() const { return mAllocationCount; }
 
 void* IElement::operator new(size_t sz, const char* fileAndLine, const char* type) {
   return CElementAllocator::Alloc(sz, fileAndLine, type);

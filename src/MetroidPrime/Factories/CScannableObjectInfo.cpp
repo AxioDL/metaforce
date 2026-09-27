@@ -17,35 +17,35 @@ const char* CScannableObjectInfo::GetImagePaneName(uint pane) {
 }
 
 CScannableObjectInfo::CScannableObjectInfo(CInputStream& in, CAssetId id)
-: x0_scannableObjectId(id)
-, x4_stringId(-1)
-, x8_totalDownloadTime(0.f)
-, xc_category(0)
-, x10_important(false) {
+: mScannableObjectId(id)
+, mStringId(-1)
+, mTotalDownloadTime(0.f)
+, mCategory(0)
+, mImportant(false) {
   Load(in, in.ReadLong());
 
-  for (int i = 0; i < x14_buckets.size(); ++i) {
-    x14_buckets[i].x4_appearanceRange *= x8_totalDownloadTime;
+  for (int i = 0; i < mBuckets.size(); ++i) {
+    mBuckets[i].mAppearanceRange *= mTotalDownloadTime;
   }
 
   const float appearanceOffset = gpTweakGui->GetScanAppearanceDuration();
-  for (int i = 0; i < x14_buckets.size(); ++i) {
-    if (x14_buckets[i].GetImagePosition() == kPT_Invalid) {
+  for (int i = 0; i < mBuckets.size(); ++i) {
+    if (mBuckets[i].GetImagePosition() == kPT_Invalid) {
       continue;
     }
 
-    x8_totalDownloadTime += appearanceOffset;
-    for (int j = i; j < x14_buckets.size(); j++) {
-      x14_buckets[j].x4_appearanceRange += appearanceOffset;
+    mTotalDownloadTime += appearanceOffset;
+    for (int j = i; j < mBuckets.size(); j++) {
+      mBuckets[j].mAppearanceRange += appearanceOffset;
     }
   }
 
-  for (int i = 0; i < x14_buckets.size() - 1; ++i) {
-    const EPanelType& pos = x14_buckets[i].x8_imagePos;
-    for (int j = i + 1; j < x14_buckets.size(); ++j) {
-      SBucket& bucket = x14_buckets[j];
-      if (pos == bucket.x8_imagePos && pos != kPT_Invalid) {
-        bucket.x8_imagePos = kPT_Invalid;
+  for (int i = 0; i < mBuckets.size() - 1; ++i) {
+    const EPanelType& pos = mBuckets[i].mImagePos;
+    for (int j = i + 1; j < mBuckets.size(); ++j) {
+      SBucket& bucket = mBuckets[j];
+      if (pos == bucket.mImagePos && pos != kPT_Invalid) {
+        bucket.mImagePos = kPT_Invalid;
       }
     }
   }
@@ -54,21 +54,21 @@ CScannableObjectInfo::CScannableObjectInfo(CInputStream& in, CAssetId id)
 void CScannableObjectInfo::Load(CInputStream& in, uint version) {
   in.ReadLong();
   in.ReadLong();
-  x4_stringId = in.ReadLong();
+  mStringId = in.ReadLong();
   if (version < 4) {
-    x8_totalDownloadTime = in.ReadFloat();
+    mTotalDownloadTime = in.ReadFloat();
   } else {
-    x8_totalDownloadTime = gpTweakGui->GetScanSpeed(in.ReadLong());
+    mTotalDownloadTime = gpTweakGui->GetScanSpeed(in.ReadLong());
   }
 
-  xc_category = in.ReadLong();
+  mCategory = in.ReadLong();
 
   if (version > 4) {
-    x10_important = in.ReadBool();
+    mImportant = in.ReadBool();
   }
 
-  for (int i = 0; i < x14_buckets.capacity(); ++i) {
-    x14_buckets.push_back(SBucket(in, version));
+  for (int i = 0; i < mBuckets.capacity(); ++i) {
+    mBuckets.push_back(SBucket(in, version));
   }
 }
 template <>

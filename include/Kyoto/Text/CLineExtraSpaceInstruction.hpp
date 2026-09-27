@@ -5,13 +5,13 @@
 
 class CLineExtraSpaceInstruction : public CInstruction {
 public:
-  CLineExtraSpaceInstruction(int spacing) : x4_spacing(spacing) {}
+  CLineExtraSpaceInstruction(int spacing) : mSpacing(spacing) {}
   ~CLineExtraSpaceInstruction() {}
   
   void Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const;
   void PageInvoke(CFontRenderState& state, CTextRenderBuffer* buf) const;
 private:
-  int x4_spacing;
+  int mSpacing;
 };
 
 #endif // _CLINEEXTRASPACINGINSTRUCTION

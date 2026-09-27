@@ -53,8 +53,8 @@ public:
   int GetAreaLayerCount(TAreaId) const;
 
 private:
-  rstl::vector< CWorldLayers::Area > x0_areaLayers;
-  rstl::bit_vector< rstl::rmemory_allocator > x10_saveLayers;
+  rstl::vector< CWorldLayers::Area > mAreaLayers;
+  rstl::bit_vector< rstl::rmemory_allocator > mSaveLayers;
 };
 
 CHECK_SIZEOF(CScriptLayerManager, 0x24)

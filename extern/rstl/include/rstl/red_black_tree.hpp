@@ -117,51 +117,51 @@ public:
   };
 
   red_black_tree(const S& selector = S(), const Cmp& cmp = Cmp(), const Alloc& alloc = Alloc())
-  : x0_selector(selector), x1_cmp(cmp), x2_allocator(alloc), x4_count(0) {}
+  : mSelector(selector), mCmp(cmp), mAllocator(alloc), mCount(0) {}
   red_black_tree(CInputStream& in, const S& selector = S(), const Cmp& cmp = Cmp(),
                  const Alloc& alloc = Alloc());
   red_black_tree(const red_black_tree& other)
-  : x0_selector(other.x0_selector)
-  , x1_cmp(other.x1_cmp)
-  , x2_allocator(other.x2_allocator)
-  , x4_count(other.x4_count) {
-    node* root = copy_from(other.x8_header.get_root());
-    x8_header.set_leftmost(leftmost(root));
-    x8_header.set_rightmost(rightmost(root));
-    x8_header.set_root(root);
+  : mSelector(other.mSelector)
+  , mCmp(other.mCmp)
+  , mAllocator(other.mAllocator)
+  , mCount(other.mCount) {
+    node* root = copy_from(other.mHeader.get_root());
+    mHeader.set_leftmost(leftmost(root));
+    mHeader.set_rightmost(rightmost(root));
+    mHeader.set_root(root);
   }
   ~red_black_tree() { destroy(); }
 
   pair< iterator, bool > insert_into(node* n, const P& item);
-  pair< iterator, bool > insert(const P& item) { return insert_into(x8_header.get_root(), item); }
+  pair< iterator, bool > insert(const P& item) { return insert_into(mHeader.get_root(), item); }
 
   const_iterator begin() const {
     // TODO
-    return const_iterator(x8_header.get_leftmost(), &x8_header);
+    return const_iterator(mHeader.get_leftmost(), &mHeader);
   }
   const_iterator end() const {
     // TODO
-    return const_iterator(nullptr, &x8_header);
+    return const_iterator(nullptr, &mHeader);
   }
 
   iterator begin() {
     // TODO
-    return iterator(x8_header.get_leftmost(), &x8_header);
+    return iterator(mHeader.get_leftmost(), &mHeader);
   }
   iterator end() {
     // TODO
-    return iterator(nullptr, &x8_header);
+    return iterator(nullptr, &mHeader);
   }
 
-  const_iterator find(const T& key) const { return const_iterator(find_node(key), &x8_header); }
+  const_iterator find(const T& key) const { return const_iterator(find_node(key), &mHeader); }
 
-  iterator find(const T& key) { return iterator(find_node(key), &x8_header); }
+  iterator find(const T& key) { return iterator(find_node(key), &mHeader); }
 
   node* find_node(const T& key) const {
-    node* n = x8_header.get_root();
+    node* n = mHeader.get_root();
     node* needle = nullptr;
     while (n != nullptr) {
-      if (!x1_cmp(x0_selector(*n->get_value()), key)) {
+      if (!mCmp(mSelector(*n->get_value()), key)) {
         needle = n;
         n = n->get_left();
       } else {
@@ -169,20 +169,20 @@ public:
       }
     }
     bool noResult = false;
-    if (needle == nullptr || x1_cmp(key, x0_selector(*needle->get_value()))) {
+    if (needle == nullptr || mCmp(key, mSelector(*needle->get_value()))) {
       noResult = true;
     }
     return noResult ? nullptr : needle;
   }
 
-  iterator lower_bound(const T& key) { return iterator(find_lower_bound(key), &x8_header); }
+  iterator lower_bound(const T& key) { return iterator(find_lower_bound(key), &mHeader); }
   const_iterator lower_bound(const T& key) const {
-    return const_iterator(find_lower_bound(key), &x8_header);
+    return const_iterator(find_lower_bound(key), &mHeader);
   }
 
-  iterator upper_bound(const T& key) { return iterator(find_upper_bound(key), &x8_header); }
+  iterator upper_bound(const T& key) { return iterator(find_upper_bound(key), &mHeader); }
   const_iterator upper_bound(const T& key) const {
-    return const_iterator(find_upper_bound(key), &x8_header);
+    return const_iterator(find_upper_bound(key), &mHeader);
   }
 
   pair< iterator, iterator > equal_range(const T& key) {
@@ -196,7 +196,7 @@ public:
     node* n = it.get_node();
     ++it;
     free_node(rebalance_for_erase(n));
-    x4_count--;
+    mCount--;
     return it;
   }
 
@@ -211,24 +211,24 @@ public:
   }
 
   void clear() {
-    node* root = x8_header.get_root();
+    node* root = mHeader.get_root();
     if (root != nullptr) {
       free_node_and_sub_nodes(root);
     }
-    x8_header.set_root(nullptr);
-    x8_header.set_leftmost(nullptr);
-    x8_header.set_rightmost(nullptr);
-    x4_count = 0;
+    mHeader.set_root(nullptr);
+    mHeader.set_leftmost(nullptr);
+    mHeader.set_rightmost(nullptr);
+    mCount = 0;
   }
 
-  int size() const { return x4_count; }
+  int size() const { return mCount; }
 
 private:
   node* find_lower_bound(const T& key) const {
-    node* n = x8_header.get_root();
+    node* n = mHeader.get_root();
     node* result = nullptr;
     while (n != nullptr) {
-      if (!x1_cmp(x0_selector(*n->get_value()), key)) {
+      if (!mCmp(mSelector(*n->get_value()), key)) {
         result = n;
         n = n->get_left();
       } else {
@@ -239,10 +239,10 @@ private:
   }
 
   node* find_upper_bound(const T& key) const {
-    node* n = x8_header.get_root();
+    node* n = mHeader.get_root();
     node* result = nullptr;
     while (n != nullptr) {
-      if (x1_cmp(key, x0_selector(*n->get_value()))) {
+      if (mCmp(key, mSelector(*n->get_value()))) {
         result = n;
         n = n->get_left();
       } else {
@@ -252,11 +252,11 @@ private:
     return result;
   }
 
-  S x0_selector;
-  Cmp x1_cmp;
-  Alloc x2_allocator;
-  int x4_count;
-  header x8_header;
+  S mSelector;
+  Cmp mCmp;
+  Alloc mAllocator;
+  int mCount;
+  header mHeader;
 
   node* leftmost(node* n) {
     node* ret;
@@ -292,10 +292,10 @@ private:
     Alloc::deallocate(n);
   }
 
-  void rebalance(node* n) { rbtree_rebalance(&x8_header, n); }
+  void rebalance(node* n) { rbtree_rebalance(&mHeader, n); }
 
   node* rebalance_for_erase(node* n) {
-    return static_cast< node* >(rbtree_rebalance_for_erase(&x8_header, n));
+    return static_cast< node* >(rbtree_rebalance_for_erase(&mHeader, n));
   }
 
   void destroy() { clear(); }
@@ -305,26 +305,26 @@ template < typename T, typename P, bool IsMulti, typename S, typename Cmp, typen
 pair< typename red_black_tree< T, P, IsMulti, S, Cmp, Alloc >::iterator, bool >
 red_black_tree< T, P, IsMulti, S, Cmp, Alloc >::insert_into(node* start, const P& item) {
   if (start == nullptr) {
-    x8_header.set_root(create_node(nullptr, nullptr, nullptr, kNC_Black, item));
-    x4_count += 1;
-    x8_header.set_leftmost(x8_header.get_root());
-    x8_header.set_rightmost(x8_header.get_root());
-    return pair< iterator, bool >(iterator(x8_header.get_root(), &x8_header), true);
+    mHeader.set_root(create_node(nullptr, nullptr, nullptr, kNC_Black, item));
+    mCount += 1;
+    mHeader.set_leftmost(mHeader.get_root());
+    mHeader.set_rightmost(mHeader.get_root());
+    return pair< iterator, bool >(iterator(mHeader.get_root(), &mHeader), true);
 
   } else {
     node* n = start;
     node* newNode = nullptr;
     while (newNode == nullptr) {
-      bool firstComp = x1_cmp(x0_selector(item), x0_selector(*n->get_value()));
-      if (!IsMulti && !firstComp && !x1_cmp(x0_selector(*n->get_value()), x0_selector(item))) {
-        return pair< iterator, bool >(iterator(n, &x8_header), false);
+      bool firstComp = mCmp(mSelector(item), mSelector(*n->get_value()));
+      if (!IsMulti && !firstComp && !mCmp(mSelector(*n->get_value()), mSelector(item))) {
+        return pair< iterator, bool >(iterator(n, &mHeader), false);
       }
       if (firstComp) {
         if (n->get_left() == nullptr) {
           newNode = create_node(nullptr, nullptr, n, kNC_Red, item);
           n->set_left(newNode);
-          if (n == x8_header.get_leftmost()) {
-            x8_header.set_leftmost(newNode);
+          if (n == mHeader.get_leftmost()) {
+            mHeader.set_leftmost(newNode);
           }
         } else {
           n = n->get_left();
@@ -333,17 +333,17 @@ red_black_tree< T, P, IsMulti, S, Cmp, Alloc >::insert_into(node* start, const P
         if (n->get_right() == nullptr) {
           newNode = create_node(nullptr, nullptr, n, kNC_Red, item);
           n->set_right(newNode);
-          if (n == x8_header.get_rightmost()) {
-            x8_header.set_rightmost(newNode);
+          if (n == mHeader.get_rightmost()) {
+            mHeader.set_rightmost(newNode);
           }
         } else {
           n = n->get_right();
         }
       }
     }
-    x4_count += 1;
+    mCount += 1;
     rebalance(newNode);
-    return pair< iterator, bool >(iterator(newNode, &x8_header), true);
+    return pair< iterator, bool >(iterator(newNode, &mHeader), true);
   }
 }
 

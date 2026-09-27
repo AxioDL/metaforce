@@ -9,11 +9,11 @@ CScriptRandomRelay::CScriptRandomRelay(TUniqueId uid, const rstl::string& name,
                                        const int sendSetVariance, const bool percentSize,
                                        const bool active)
 : CEntity(uid, info, active, name)
-, x34_sendSetSize(sendSetSize)
-, x38_sendSetVariance(sendSetVariance)
-, x3c_percentSize(percentSize) {
-  if (percentSize && x34_sendSetSize > 100) {
-    x34_sendSetSize = 100;
+, mSendSetSize(sendSetSize)
+, mSendSetVariance(sendSetVariance)
+, mPercentSize(percentSize) {
+  if (percentSize && mSendSetSize > 100) {
+    mSendSetSize = 100;
   }
 }
 
@@ -41,24 +41,24 @@ void CScriptRandomRelay::SendLocalScriptMsgs(EScriptObjectState state, CStateMan
 
     rstl::vector< SConnection >::const_iterator conn = GetConnectionList().begin();
     for (; conn != GetConnectionList().end(); ++conn) {
-      if (conn->x0_state == kSS_Zero) {
+      if (conn->mState == kSS_Zero) {
         CObjectList& objList = stateMgr.ObjectListById(kOL_All);
-        CStateManager::TIdListResult list = stateMgr.GetIdListForScript(conn->x8_objId);
+        CStateManager::TIdListResult list = stateMgr.GetIdListForScript(conn->mObjId);
         if (!(list.first == list.second)) {
           for (CStateManager::TIdList::const_iterator it = list.first; it != list.second; ++it) {
             CEntity* ent = objList.GetObjectById(it->second);
             if (ent && ent->GetActive()) {
-              objs.push_back(rstl::pair< CEntity*, EScriptObjectMessage >(ent, conn->x4_msg));
+              objs.push_back(rstl::pair< CEntity*, EScriptObjectMessage >(ent, conn->mMsg));
             }
           }
         }
       }
     }
 
-    int targetSetSize = x3c_percentSize ? int(0.5f + (float(x34_sendSetSize * objs.size()) / 100.f))
-                                        : x34_sendSetSize;
+    int targetSetSize = mPercentSize ? int(0.5f + (float(mSendSetSize * objs.size()) / 100.f))
+                                        : mSendSetSize;
     targetSetSize +=
-        int(float(x38_sendSetVariance) * (stateMgr.Random()->Float() * 2.0f)) - x38_sendSetVariance;
+        int(float(mSendSetVariance) * (stateMgr.Random()->Float() * 2.0f)) - mSendSetVariance;
 
     targetSetSize = rstl::min_val(rstl::max_val(0, targetSetSize), 64);
 

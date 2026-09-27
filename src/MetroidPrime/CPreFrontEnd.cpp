@@ -7,7 +7,7 @@
 #include "Kyoto/Graphics/CGraphics.hpp"
 
 CPreFrontEnd::CPreFrontEnd()
-: CIOWin(rstl::string_l("Pre front-end window")), x14_resourceTweaksRegistered(false) {}
+: CIOWin(rstl::string_l("Pre front-end window")), mResourceTweaksRegistered(false) {}
 
 CIOWin::EMessageReturn CPreFrontEnd::OnMessage(const CArchitectureMessage& msg,
                                                CArchitectureQueue&) {
@@ -15,9 +15,9 @@ CIOWin::EMessageReturn CPreFrontEnd::OnMessage(const CArchitectureMessage& msg,
     if (!gpResourceFactory->GetResLoader().AreAllPaksLoaded())
       return kMR_Exit;
 
-    if (!x14_resourceTweaksRegistered) {
+    if (!mResourceTweaksRegistered) {
       gpMain->RegisterResourceTweaks();
-      x14_resourceTweaksRegistered = true;
+      mResourceTweaksRegistered = true;
     }
 
     gpResourceFactory->AsyncIdle(1000000);

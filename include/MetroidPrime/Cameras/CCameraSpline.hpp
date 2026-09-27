@@ -33,23 +33,23 @@ public:
   float ClampLength(const CVector3f pos, bool collide, const CMaterialFilter filter,
                     const CStateManager& mgr) const;
   float CalculateSplineLength();
-  void UpdateSplineLength() { x44_length = CalculateSplineLength(); }
+  void UpdateSplineLength() { mLength = CalculateSplineLength(); }
   float ValidateLength(float t) const;
   CVector3f GetInterpolatedSplinePointByTime(float time, float range) const;
   CTransform4f GetInterpolatedSplinePointByLength(float length) const;
   float FindClosestLengthOnSpline(float t, CVector3f point) const;
 
-  int GetSize() const { return x4_positions.size(); }
-  float GetLength() const { return x44_length; }
-  bool IsClosedLoop() const { return x48_closedLoop; }
+  int GetSize() const { return mPositions.size(); }
+  float GetLength() const { return mLength; }
+  bool IsClosedLoop() const { return mClosedLoop; }
 
 private:
-  rstl::vector< CVector3f > x4_positions;
-  rstl::vector< TUniqueId > x14_wpTracker;
-  rstl::vector< float > x24_t;
-  rstl::vector< CVector3f > x34_directions;
-  float x44_length;
-  bool x48_closedLoop;
+  rstl::vector< CVector3f > mPositions;
+  rstl::vector< TUniqueId > mWpTracker;
+  rstl::vector< float > mT;
+  rstl::vector< CVector3f > mDirections;
+  float mLength;
+  bool mClosedLoop;
 };
 CHECK_SIZEOF(CCameraSpline, 0x4c)
 

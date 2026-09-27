@@ -95,14 +95,14 @@ void CScriptCameraHint::CheckLegacyConnections(CStateManager& mgr) {
     rstl::vector< SConnection >& connections = entity->ConnectionList();
     rstl::vector< SConnection >::iterator outer = connections.begin();
     for (; outer != connections.end(); ++outer) {
-      if (mgr.GetIdForScript(outer->x8_objId) != uid ||
-          (outer->x4_msg != kSM_Increment && outer->x4_msg != kSM_Decrement)) {
+      if (mgr.GetIdForScript(outer->mObjId) != uid ||
+          (outer->mMsg != kSM_Increment && outer->mMsg != kSM_Decrement)) {
         continue;
       }
       rstl::vector< SConnection >::iterator inner = connections.begin();
       while (inner != connections.end()) {
-        if (inner->x4_msg == kSM_Increment || inner->x4_msg == kSM_Decrement) {
-          TUniqueId senderId = mgr.GetIdForScript(inner->x8_objId);
+        if (inner->mMsg == kSM_Increment || inner->mMsg == kSM_Decrement) {
+          TUniqueId senderId = mgr.GetIdForScript(inner->mObjId);
           CPathCamera* pathCamera = TCastToPtr< CPathCamera >(mgr.ObjectById(senderId));
           CScriptSpindleCamera* spindleCamera =
               TCastToPtr< CScriptSpindleCamera >(mgr.ObjectById(senderId));

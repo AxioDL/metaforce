@@ -52,64 +52,64 @@ float CGrappleArm::kAmplitudeZ = 0.125f;
 float CGrappleArm::kMetresPerSecond = 5.f;
 
 CGrappleArm::CGrappleArm(const CVector3f& scale)
-: x0_grappleArmModel(
-      CAnimRes(gpTweakGunRes->x8_grappleArm, CAnimRes::kDefaultCharIdx, scale, 41, false))
-, xa0_grappleGearModel(CStaticRes(NWeaponTypes::get_asset_id_from_name(kGrappleGear), scale))
-, xec_grapNoz1Model(CStaticRes(NWeaponTypes::get_asset_id_from_name(kGrappleNoz1), scale))
-, x138_grapNoz2Model(CStaticRes(NWeaponTypes::get_asset_id_from_name(kGrappleNoz2), scale))
-, x184_grappleArm(gpSimplePool->GetObj(SObjectTag('ANCS', gpTweakGunRes->x8_grappleArm)))
-, x220_xf(CTransform4f::Identity())
-, x250_grapLocatorXf(CTransform4f::Identity())
-, x280_grapNozLoc1Xf(CTransform4f::Identity())
-, x2b0_grapNozLoc2Xf(CTransform4f::Identity())
-, x2e0_auxXf(CTransform4f::Identity())
-, x310_grapplePointPos(CVector3f::Zero())
-, x31c_scale(scale)
-, x334_animState(kAS_Done)
-, x338_beamT(0.f)
-, x33c_beamDist(0.f)
-, x340_anglePhase(0.f)
-, x344_xAmplitude(0.f)
-, x348_zAmplitude(0.f)
-, x34c_animSfx(-1, CSfxHandle())
-, x354_grappleSegmentDesc(
-      gpSimplePool->GetObj(SObjectTag('PART', gpTweakGunRes->xb4_grappleSegment)))
-, x360_grappleClawDesc(gpSimplePool->GetObj(SObjectTag('PART', gpTweakGunRes->xb8_grappleClaw)))
-, x36c_grappleHitDesc(gpSimplePool->GetObj(SObjectTag('PART', gpTweakGunRes->xbc_grappleHit)))
-, x378_grappleMuzzleDesc(gpSimplePool->GetObj(SObjectTag('PART', gpTweakGunRes->xc0_grappleMuzzle)))
-, x384_grappleSwooshDesc(gpSimplePool->GetObj(SObjectTag('SWHC', gpTweakGunRes->xc4_grappleSwoosh)))
-, x390_grappleSegmentGen(rs_new CElementGen(x354_grappleSegmentDesc))
-, x394_grappleClawGen(rs_new CElementGen(x360_grappleClawDesc))
-, x398_grappleHitGen(rs_new CElementGen(x36c_grappleHitDesc))
-, x39c_grappleMuzzleGen(rs_new CElementGen(x378_grappleMuzzleDesc))
-, x3a0_grappleSwooshGen(rs_new CParticleSwoosh(x384_grappleSwooshDesc, 0))
-, x3a4_rainSplashGenerator(rs_new CRainSplashGenerator(scale, 20, 2, 0.f, 0.125f))
-, x3a8_loadedSuit(CPlayerState::kPS_Invalid)
-, x3ac_pitchBend(8192)
-, x3b0_rumbleHandle(-1)
-, x3b2_24_active(false)
-, x3b2_25_beamActive(false)
-, x3b2_26_grappleHit(false)
-, x3b2_27_armMoving(false)
-, x3b2_28_isGrappling(false)
-, x3b2_29_suitLoading(false) {
-  x0_grappleArmModel->SetSortThermal(true);
-  xa0_grappleGearModel.SetSortThermal(true);
-  xec_grapNoz1Model.SetSortThermal(true);
-  x138_grapNoz2Model.SetSortThermal(true);
+: mGrappleArmModel(
+      CAnimRes(gpTweakGunRes->mGrappleArm, CAnimRes::kDefaultCharIdx, scale, 41, false))
+, mGrappleGearModel(CStaticRes(NWeaponTypes::get_asset_id_from_name(kGrappleGear), scale))
+, mGrapNoz1Model(CStaticRes(NWeaponTypes::get_asset_id_from_name(kGrappleNoz1), scale))
+, mGrapNoz2Model(CStaticRes(NWeaponTypes::get_asset_id_from_name(kGrappleNoz2), scale))
+, mGrappleArm(gpSimplePool->GetObj(SObjectTag('ANCS', gpTweakGunRes->mGrappleArm)))
+, mXf(CTransform4f::Identity())
+, mGrapLocatorXf(CTransform4f::Identity())
+, mGrapNozLoc1Xf(CTransform4f::Identity())
+, mGrapNozLoc2Xf(CTransform4f::Identity())
+, mAuxXf(CTransform4f::Identity())
+, mGrapplePointPos(CVector3f::Zero())
+, mScale(scale)
+, mAnimState(kAS_Done)
+, mBeamT(0.f)
+, mBeamDist(0.f)
+, mAnglePhase(0.f)
+, mXAmplitude(0.f)
+, mZAmplitude(0.f)
+, mAnimSfx(-1, CSfxHandle())
+, mGrappleSegmentDesc(
+      gpSimplePool->GetObj(SObjectTag('PART', gpTweakGunRes->mGrappleSegment)))
+, mGrappleClawDesc(gpSimplePool->GetObj(SObjectTag('PART', gpTweakGunRes->mGrappleClaw)))
+, mGrappleHitDesc(gpSimplePool->GetObj(SObjectTag('PART', gpTweakGunRes->mGrappleHit)))
+, mGrappleMuzzleDesc(gpSimplePool->GetObj(SObjectTag('PART', gpTweakGunRes->mGrappleMuzzle)))
+, mGrappleSwooshDesc(gpSimplePool->GetObj(SObjectTag('SWHC', gpTweakGunRes->mGrappleSwoosh)))
+, mGrappleSegmentGen(rs_new CElementGen(mGrappleSegmentDesc))
+, mGrappleClawGen(rs_new CElementGen(mGrappleClawDesc))
+, mGrappleHitGen(rs_new CElementGen(mGrappleHitDesc))
+, mGrappleMuzzleGen(rs_new CElementGen(mGrappleMuzzleDesc))
+, mGrappleSwooshGen(rs_new CParticleSwoosh(mGrappleSwooshDesc, 0))
+, mRainSplashGenerator(rs_new CRainSplashGenerator(scale, 20, 2, 0.f, 0.125f))
+, mLoadedSuit(CPlayerState::kPS_Invalid)
+, mPitchBend(8192)
+, mRumbleHandle(-1)
+, mActive(false)
+, mBeamActive(false)
+, mGrappleHit(false)
+, mArmMoving(false)
+, mIsGrappling(false)
+, mSuitLoading(false) {
+  mGrappleArmModel->SetSortThermal(true);
+  mGrappleGearModel.SetSortThermal(true);
+  mGrapNoz1Model.SetSortThermal(true);
+  mGrapNoz2Model.SetSortThermal(true);
 
   kPhaseDelta = gpTweakPlayer->GetGrappleBeamAnglePhaseDelta();
   kAmplitudeX = gpTweakPlayer->GetGrappleBeamXWaveAmplitude();
   kAmplitudeZ = gpTweakPlayer->GetGrappleBeamZWaveAmplitude();
   kMetresPerSecond = gpTweakPlayer->GetGrappleBeamSpeed();
 
-  x39c_grappleMuzzleGen->SetParticleEmission(false);
-  x390_grappleSegmentGen->SetParticleEmission(false);
-  CParticleSwoosh* swoosh = x3a0_grappleSwooshGen.get();
+  mGrappleMuzzleGen->SetParticleEmission(false);
+  mGrappleSegmentGen->SetParticleEmission(false);
+  CParticleSwoosh* swoosh = mGrappleSwooshGen.get();
   int count = 0;
   while (count < swoosh->GetSwooshCount() - 1) {
-    x3a0_grappleSwooshGen->SetWarmUp();
-    x3a0_grappleSwooshGen->Update(0.f);
+    mGrappleSwooshGen->SetWarmUp();
+    mGrappleSwooshGen->Update(0.f);
     count++;
   }
 
@@ -121,15 +121,15 @@ CGrappleArm::~CGrappleArm() {}
 
 void CGrappleArm::TouchModel(const CStateManager& mgr) const {
   if (CanRender()) {
-    x0_grappleArmModel->Touch(mgr, 0);
-    if (x50_grappleArmSkeletonModel) {
-      x50_grappleArmSkeletonModel->Touch(mgr, 0);
+    mGrappleArmModel->Touch(mgr, 0);
+    if (mGrappleArmSkeletonModel) {
+      mGrappleArmSkeletonModel->Touch(mgr, 0);
     }
 
     if (mgr.GetPlayerState()->HasPowerUp(CPlayerState::kIT_GrappleBeam)) {
-      xa0_grappleGearModel.Touch(mgr, 0);
-      xec_grapNoz1Model.Touch(mgr, 0);
-      x138_grapNoz2Model.Touch(mgr, 0);
+      mGrappleGearModel.Touch(mgr, 0);
+      mGrapNoz1Model.Touch(mgr, 0);
+      mGrapNoz2Model.Touch(mgr, 0);
     }
   }
 }
@@ -137,9 +137,9 @@ void CGrappleArm::TouchModel(const CStateManager& mgr) const {
 void CGrappleArm::PreRender(CStateManager& mgr, const CFrustumPlanes& frustum,
                             const CVector3f& camPos) {
   if (CanRender()) {
-    x0_grappleArmModel->AnimationData()->PreRender();
-    if (x50_grappleArmSkeletonModel) {
-      x50_grappleArmSkeletonModel->AnimationData()->PreRender();
+    mGrappleArmModel->AnimationData()->PreRender();
+    if (mGrappleArmSkeletonModel) {
+      mGrappleArmSkeletonModel->AnimationData()->PreRender();
     }
   }
 }
@@ -147,71 +147,71 @@ void CGrappleArm::PreRender(CStateManager& mgr, const CFrustumPlanes& frustum,
 void CGrappleArm::Render(const CStateManager& mgr, const CVector3f& pos, const CModelFlags& flags,
                          const CActorLights* lights) const {
   if (CanRender()) {
-    const CTransform4f xf = CTransform4f::Translate(pos) * x220_xf * x2e0_auxXf;
-    if (x50_grappleArmSkeletonModel) {
+    const CTransform4f xf = CTransform4f::Translate(pos) * mXf * mAuxXf;
+    if (mGrappleArmSkeletonModel) {
       RenderXRayModel(mgr, xf, flags);
     }
     const bool xray = mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::kPV_XRay;
     const CModelFlags useFlags = xray ? CModelFlags::AlphaBlended(0.25f) : flags;
     const CActorLights* useLights = xray ? nullptr : lights;
-    if (x3a4_rainSplashGenerator.get() && x3a4_rainSplashGenerator->IsRaining()) {
-      CSkinnedModel::SetPointGeneratorFunc(x3a4_rainSplashGenerator.get(), PointGenerator);
+    if (mRainSplashGenerator.get() && mRainSplashGenerator->IsRaining()) {
+      CSkinnedModel::SetPointGeneratorFunc(mRainSplashGenerator.get(), PointGenerator);
     }
-    x0_grappleArmModel->Render(mgr, xf, useLights, useFlags);
-    if (x3a4_rainSplashGenerator.get() && x3a4_rainSplashGenerator->IsRaining()) {
+    mGrappleArmModel->Render(mgr, xf, useLights, useFlags);
+    if (mRainSplashGenerator.get() && mRainSplashGenerator->IsRaining()) {
       CSkinnedModel::ClearPointGeneratorFunc();
-      x3a4_rainSplashGenerator->Draw(xf);
+      mRainSplashGenerator->Draw(xf);
     }
     if (mgr.GetPlayerState()->HasPowerUp(CPlayerState::kIT_GrappleBeam)) {
-      xa0_grappleGearModel.Render(mgr, xf * x250_grapLocatorXf, useLights, useFlags);
-      xec_grapNoz1Model.Render(mgr, xf * x280_grapNozLoc1Xf, useLights, useFlags);
-      x138_grapNoz2Model.Render(mgr, xf * x2b0_grapNozLoc2Xf, useLights, useFlags);
+      mGrappleGearModel.Render(mgr, xf * mGrapLocatorXf, useLights, useFlags);
+      mGrapNoz1Model.Render(mgr, xf * mGrapNozLoc1Xf, useLights, useFlags);
+      mGrapNoz2Model.Render(mgr, xf * mGrapNozLoc2Xf, useLights, useFlags);
     }
   }
 }
 
 void CGrappleArm::RenderGrappleBeam(const CStateManager& mgr, const CVector3f& pos) const {
   if (CanRender()) {
-    const CTransform4f xf = CTransform4f::Translate(pos) * x220_xf;
-    if (x3b2_25_beamActive) {
-      if (x3b2_26_grappleHit) {
-        x398_grappleHitGen->Render();
+    const CTransform4f xf = CTransform4f::Translate(pos) * mXf;
+    if (mBeamActive) {
+      if (mGrappleHit) {
+        mGrappleHitGen->Render();
       }
-      x394_grappleClawGen->Render();
-      x3a0_grappleSwooshGen->Render();
-      x390_grappleSegmentGen->Render();
+      mGrappleClawGen->Render();
+      mGrappleSwooshGen->Render();
+      mGrappleSegmentGen->Render();
       const CTransform4f viewMatrix = CGraphics::GetViewMatrix();
       CGraphics::SetViewPointMatrix(xf.GetInverse() * viewMatrix);
       gpRender->SetModelMatrix(CTransform4f::Identity());
-      x39c_grappleMuzzleGen->Render();
+      mGrappleMuzzleGen->Render();
       CGraphics::SetViewPointMatrix(viewMatrix);
     }
   }
 }
 
 void CGrappleArm::UpdateSwingAction(float swingT, float dt, CStateManager& mgr) {
-  if (x3b2_29_suitLoading) {
+  if (mSuitLoading) {
     return;
   }
-  if (x334_animState == kAS_FireGrapple) {
+  if (mAnimState == kAS_FireGrapple) {
     DoUserAnimEvents(mgr);
   }
   const CTransform4f beamLoc =
-      x0_grappleArmModel->GetScaledLocatorTransform(rstl::string_l(kBeamNozzle));
+      mGrappleArmModel->GetScaledLocatorTransform(rstl::string_l(kBeamNozzle));
   const bool connected = UpdateGrappleBeam(dt, beamLoc, mgr);
   if ((swingT > 0.175f && swingT < 0.3f) || (swingT > 0.7f && swingT < 0.9f)) {
-    if (!CSfxManager::IsPlaying(x330_swooshSfx)) {
-      x330_swooshSfx = NWeaponTypes::play_sfx(0x5f8, false, false, 0x36);
-      if (x3b0_rumbleHandle != -1) {
-        mgr.GetRumbleManager()->StopRumble(x3b0_rumbleHandle);
+    if (!CSfxManager::IsPlaying(mSwooshSfx)) {
+      mSwooshSfx = NWeaponTypes::play_sfx(0x5f8, false, false, 0x36);
+      if (mRumbleHandle != -1) {
+        mgr.GetRumbleManager()->StopRumble(mRumbleHandle);
       }
-      x3b0_rumbleHandle =
+      mRumbleHandle =
           mgr.GetRumbleManager()->Rumble(mgr, kRFX_PlayerGrappleSwoosh, 1.f, kRP_Three);
     }
   }
-  const CAnimData& animData = *x0_grappleArmModel->GetAnimationData();
+  const CAnimData& animData = *mGrappleArmModel->GetAnimationData();
   if (!animData.IsAnimTimeRemaining(dt, rstl::string_l("Whole Body"))) {
-    switch (x334_animState) {
+    switch (mAnimState) {
     case kAS_IntoGrapple:
     case kAS_Seven:
       SetAnimState(kAS_IntoGrappleIdle);
@@ -219,44 +219,44 @@ void CGrappleArm::UpdateSwingAction(float swingT, float dt, CStateManager& mgr) 
     case kAS_FireGrapple:
       if (connected) {
         SetAnimState(kAS_ConnectGrapple);
-        x3b2_26_grappleHit = true;
-        x398_grappleHitGen->SetParticleEmission(true);
+        mGrappleHit = true;
+        mGrappleHitGen->SetParticleEmission(true);
         GrappleBeamConnected();
-        if (x3b0_rumbleHandle != -1) {
-          mgr.GetRumbleManager()->StopRumble(x3b0_rumbleHandle);
+        if (mRumbleHandle != -1) {
+          mgr.GetRumbleManager()->StopRumble(mRumbleHandle);
         }
       }
       break;
     case kAS_ConnectGrapple:
-      if (x344_xAmplitude == 0.f) {
+      if (mXAmplitude == 0.f) {
         SetAnimState(kAS_Connected);
       }
       break;
     case kAS_OutOfGrapple:
-      if (x3b0_rumbleHandle != -1) {
-        mgr.GetRumbleManager()->StopRumble(x3b0_rumbleHandle);
+      if (mRumbleHandle != -1) {
+        mgr.GetRumbleManager()->StopRumble(mRumbleHandle);
       }
       SetAnimState(kAS_Done);
-      x3b2_24_active = false;
+      mActive = false;
       break;
     default:
       break;
     }
   }
-  if (x3b2_25_beamActive) {
-    x39c_grappleMuzzleGen->SetTranslation(beamLoc.GetTranslation());
-    x39c_grappleMuzzleGen->Update(dt);
-    if (x3b2_26_grappleHit) {
-      x3b2_26_grappleHit = !x398_grappleHitGen->IsSystemDeletable();
-      x398_grappleHitGen->SetTranslation(x310_grapplePointPos);
-      x398_grappleHitGen->Update(dt);
+  if (mBeamActive) {
+    mGrappleMuzzleGen->SetTranslation(beamLoc.GetTranslation());
+    mGrappleMuzzleGen->Update(dt);
+    if (mGrappleHit) {
+      mGrappleHit = !mGrappleHitGen->IsSystemDeletable();
+      mGrappleHitGen->SetTranslation(mGrapplePointPos);
+      mGrappleHitGen->Update(dt);
     }
   }
 }
 
 void CGrappleArm::UpdateArmMovement(float dt, CStateManager& mgr) {
   DoUserAnimEvents(mgr);
-  switch (x328_gunController->Update(dt, mgr)) {
+  switch (mGunController->Update(dt, mgr)) {
   case 1:
     ResetAuxParams(false);
     break;
@@ -267,41 +267,41 @@ void CGrappleArm::UpdateArmMovement(float dt, CStateManager& mgr) {
 
 void CGrappleArm::Update(float swingT, float dt, CStateManager& mgr) {
   if (!CanRender()) {
-    if (x3b2_29_suitLoading) {
+    if (mSuitLoading) {
       LoadSuitPoll();
     }
     return;
   }
   if (mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::kPV_XRay) {
-    if (!x50_grappleArmSkeletonModel) {
+    if (!mGrappleArmSkeletonModel) {
       BuildXRayModel();
     }
-  } else if (x50_grappleArmSkeletonModel) {
-    x50_grappleArmSkeletonModel = rstl::optional_object< CModelData >();
+  } else if (mGrappleArmSkeletonModel) {
+    mGrappleArmSkeletonModel = rstl::optional_object< CModelData >();
   }
   float speed = 1.f;
-  if (!x3b2_27_armMoving) {
+  if (!mArmMoving) {
     speed = mgr.GetPlayer()->GetPlayerMovementState() != NPlayer::kMS_OnGround &&
-                    x334_animState != kAS_OutOfGrapple
+                    mAnimState != kAS_OutOfGrapple
                 ? 4.f
                 : 1.f;
   }
-  x0_grappleArmModel->AdvanceAnimation(dt * speed, mgr, kInvalidAreaId, true);
+  mGrappleArmModel->AdvanceAnimation(dt * speed, mgr, kInvalidAreaId, true);
   if (mgr.GetPlayerState()->HasPowerUp(CPlayerState::kIT_GrappleBeam)) {
-    x250_grapLocatorXf =
-        x0_grappleArmModel->GetScaledLocatorTransformDynamic(rstl::string_l(kGearLocator), nullptr);
-    x280_grapNozLoc1Xf =
-        x0_grappleArmModel->GetScaledLocatorTransform(rstl::string_l(kNoz1Locator));
-    x2b0_grapNozLoc2Xf =
-        x0_grappleArmModel->GetScaledLocatorTransform(rstl::string_l(kNoz2Locator));
+    mGrapLocatorXf =
+        mGrappleArmModel->GetScaledLocatorTransformDynamic(rstl::string_l(kGearLocator), nullptr);
+    mGrapNozLoc1Xf =
+        mGrappleArmModel->GetScaledLocatorTransform(rstl::string_l(kNoz1Locator));
+    mGrapNozLoc2Xf =
+        mGrappleArmModel->GetScaledLocatorTransform(rstl::string_l(kNoz2Locator));
   }
-  if (x3b2_27_armMoving) {
+  if (mArmMoving) {
     UpdateArmMovement(dt, mgr);
   } else {
     UpdateSwingAction(swingT, dt, mgr);
   }
-  if (x3a4_rainSplashGenerator.get()) {
-    x3a4_rainSplashGenerator->Update(dt, mgr);
+  if (mRainSplashGenerator.get()) {
+    mRainSplashGenerator->Update(dt, mgr);
   }
 }
 
@@ -310,53 +310,53 @@ const bool CGrappleArm::UpdateGrappleBeam(float dt, const CTransform4f& beamLoc,
   bool connected = false;
   const TUniqueId targetId = mgr.GetPlayer()->GetOrbitTargetId();
   const CActor* actor = TCastToConstPtr< CActor >(mgr.GetObjectById(targetId));
-  x310_grapplePointPos = actor ? actor->GetTranslation() : x220_xf.GetTranslation();
-  const CVector3f beamGunPos = (x220_xf * beamLoc).GetTranslation();
-  const CVector3f beamAirPos = CVector3f::Lerp(beamGunPos, x310_grapplePointPos, x338_beamT);
-  switch (x334_animState) {
+  mGrapplePointPos = actor ? actor->GetTranslation() : mXf.GetTranslation();
+  const CVector3f beamGunPos = (mXf * beamLoc).GetTranslation();
+  const CVector3f beamAirPos = CVector3f::Lerp(beamGunPos, mGrapplePointPos, mBeamT);
+  switch (mAnimState) {
   case kAS_Five:
     break;
   default:
     break;
   case kAS_FireGrapple:
   case kAS_Three: {
-    const float distance = (x310_grapplePointPos - beamGunPos).Magnitude();
-    x338_beamT = distance > 0.f ? x33c_beamDist / distance : 1.f;
+    const float distance = (mGrapplePointPos - beamGunPos).Magnitude();
+    mBeamT = distance > 0.f ? mBeamDist / distance : 1.f;
     const float speed =
         mgr.GetPlayer()->GetPlayerMovementState() != NPlayer::kMS_OnGround ? 2.f : 1.f;
-    x33c_beamDist += speed * (dt * kMetresPerSecond);
-    if (!(x338_beamT < 1.f)) {
-      x338_beamT = 1.f;
+    mBeamDist += speed * (dt * kMetresPerSecond);
+    if (!(mBeamT < 1.f)) {
+      mBeamT = 1.f;
       connected = true;
     }
     break;
   }
   case kAS_ConnectGrapple: {
     const float delta = 4.f * dt;
-    x344_xAmplitude -= delta;
-    x348_zAmplitude -= delta;
-    if (x344_xAmplitude < 0.f) {
-      x344_xAmplitude = 0.f;
+    mXAmplitude -= delta;
+    mZAmplitude -= delta;
+    if (mXAmplitude < 0.f) {
+      mXAmplitude = 0.f;
     }
-    if (x348_zAmplitude < 0.f) {
-      x348_zAmplitude = 0.f;
+    if (mZAmplitude < 0.f) {
+      mZAmplitude = 0.f;
     }
     break;
   }
   }
-  if (x3b2_25_beamActive) {
-    x340_anglePhase += kPhaseDelta;
+  if (mBeamActive) {
+    mAnglePhase += kPhaseDelta;
     UpdateGrappleBeamFX(beamGunPos, beamAirPos, mgr);
-    x394_grappleClawGen->Update(dt);
-    x390_grappleSegmentGen->Update(dt);
+    mGrappleClawGen->Update(dt);
+    mGrappleSegmentGen->Update(dt);
   }
   return connected;
 }
 
 void CGrappleArm::UpdateGrappleBeamFX(const CVector3f& beamGunPos, const CVector3f& beamAirPos,
                                       CStateManager& mgr) {
-  x394_grappleClawGen->SetTranslation(beamAirPos);
-  x390_grappleSegmentGen->SetParticleEmission(true);
+  mGrappleClawGen->SetTranslation(beamAirPos);
+  mGrappleSegmentGen->SetParticleEmission(true);
   CVector3f segmentDelta = beamAirPos - beamGunPos;
   const int segmentCount = static_cast< int >(2.f * segmentDelta.Magnitude() + 1.f);
   CVector3f swooshDelta = segmentDelta;
@@ -364,24 +364,24 @@ void CGrappleArm::UpdateGrappleBeamFX(const CVector3f& beamGunPos, const CVector
   segmentDelta *= invCount;
   swooshDelta *= 0.02f;
   CVector3f segmentPos = beamGunPos;
-  const CTransform4f& rotation = x220_xf.GetRotation();
+  const CTransform4f& rotation = mXf.GetRotation();
   for (int i = 0; i < segmentCount; ++i) {
     const float index = float(i);
-    const float x = CMath::FastCosR(index + x340_anglePhase) * x344_xAmplitude;
-    const float z = CMath::FastSinR(index) * x348_zAmplitude;
-    x390_grappleSegmentGen->SetTranslation(
+    const float x = CMath::FastCosR(index + mAnglePhase) * mXAmplitude;
+    const float z = CMath::FastSinR(index) * mZAmplitude;
+    mGrappleSegmentGen->SetTranslation(
         segmentPos + (i > 0 ? rotation * CVector3f(x, 0.f, z) : CVector3f::Zero()));
-    x390_grappleSegmentGen->ForceParticleCreation(1);
+    mGrappleSegmentGen->ForceParticleCreation(1);
     segmentPos += segmentDelta;
   }
-  x390_grappleSegmentGen->SetParticleEmission(false);
-  CParticleSwoosh& swoosh = *x3a0_grappleSwooshGen;
+  mGrappleSegmentGen->SetParticleEmission(false);
+  CParticleSwoosh& swoosh = *mGrappleSwooshGen;
   CVector3f swooshPos = beamGunPos;
   float previousRotation = swoosh.GetSwooshes()[swoosh.GetSwooshCount() - 1].mInitialRot;
   for (int i = 0; i < swoosh.GetSwooshCount(); ++i) {
     const float index = float(i);
-    const float x = CMath::FastCosR(index + x340_anglePhase) * x344_xAmplitude;
-    const float z = CMath::FastSinR(index) * x348_zAmplitude;
+    const float x = CMath::FastCosR(index + mAnglePhase) * mXAmplitude;
+    const float z = CMath::FastSinR(index) * mZAmplitude;
     const CVector3f offset = i > 0 ? rotation * CVector3f(x, 0.f, z) : CVector3f::Zero();
     CParticleSwoosh::SSwooshData& segment = swoosh.Swooshes()[i];
     segment.mTranslation = swooshPos + offset;
@@ -397,19 +397,19 @@ void CGrappleArm::Activate(bool active) {
 }
 
 void CGrappleArm::SetAnimState(EArmState state) {
-  if (x334_animState == state) {
+  if (mAnimState == state) {
     return;
   }
-  CAnimData& animData = *x0_grappleArmModel->AnimationData();
+  CAnimData& animData = *mGrappleArmModel->AnimationData();
   animData.EnableLooping(false);
-  x3b2_28_isGrappling = true;
+  mIsGrappling = true;
   switch (state) {
   case kAS_IntoGrapple: {
     ResetAuxParams(true);
     const CAnimPlaybackParms parms(0, -1, 1.f, true);
     animData.SetAnimation(parms, false);
-    x3b2_25_beamActive = false;
-    x3b2_24_active = true;
+    mBeamActive = false;
+    mActive = true;
     break;
   }
   case kAS_IntoGrappleIdle: {
@@ -440,29 +440,29 @@ void CGrappleArm::SetAnimState(EArmState state) {
     break;
   }
   case kAS_Done:
-    x3b2_28_isGrappling = false;
+    mIsGrappling = false;
     break;
   default:
     break;
   }
-  x334_animState = state;
+  mAnimState = state;
 }
 
 void CGrappleArm::DoUserAnimEvents(CStateManager& mgr) {
   int aid = mgr.GetPlayer()->GetCurrentAreaId().Value();
   const CGameCamera& camera = mgr.GetCameraManager()->GetCurrentCamera(mgr);
-  const CVector3f origin = x220_xf.GetTranslation();
+  const CVector3f origin = mXf.GetTranslation();
   const CVector3f posToCam = camera.GetTranslation() - origin;
   int soundCount = 0;
   const CSoundPOINode* soundNodes =
-      x0_grappleArmModel->AnimationData()->GetSoundPOIList(soundCount);
+      mGrappleArmModel->AnimationData()->GetSoundPOIList(soundCount);
   if (soundCount > 0) {
     for (int i = 0; i < soundCount; ++i) {
       const CSoundPOINode& soundNode = soundNodes[i];
       const int charIdx = soundNode.GetCharacterIndex();
       if (soundNode.GetPoiType() == kPT_Sound &&
-          (charIdx == -1 || charIdx == x0_grappleArmModel->AnimationData()->GetCharacterIndex())) {
-        NWeaponTypes::do_sound_event(x34c_animSfx, x3ac_pitchBend, false, soundNode.GetSoundId(),
+          (charIdx == -1 || charIdx == mGrappleArmModel->AnimationData()->GetCharacterIndex())) {
+        NWeaponTypes::do_sound_event(mAnimSfx, mPitchBend, false, soundNode.GetSoundId(),
                                      soundNode.GetWeight(), soundNode.GetFlags(),
                                      soundNode.GetFallOff(), soundNode.GetMaxDistance(), 0x14,
                                      CAudioSys::kMaxVolume, posToCam, origin, aid, mgr);
@@ -470,7 +470,7 @@ void CGrappleArm::DoUserAnimEvents(CStateManager& mgr) {
     }
   }
   int intCount = 0;
-  const CInt32POINode* intNodes = x0_grappleArmModel->AnimationData()->GetInt32POIList(intCount);
+  const CInt32POINode* intNodes = mGrappleArmModel->AnimationData()->GetInt32POIList(intCount);
   if (intCount > 0) {
     for (int i = 0; i < intCount; ++i) {
       const CInt32POINode& intNode = intNodes[i];
@@ -481,8 +481,8 @@ void CGrappleArm::DoUserAnimEvents(CStateManager& mgr) {
       case kPT_SoundInt32:
         if (intNode.GetCharacterIndex() == -1 ||
             intNode.GetCharacterIndex() ==
-                x0_grappleArmModel->AnimationData()->GetCharacterIndex()) {
-          NWeaponTypes::do_sound_event(x34c_animSfx, x3ac_pitchBend, false, intNode.GetValue(),
+                mGrappleArmModel->AnimationData()->GetCharacterIndex()) {
+          NWeaponTypes::do_sound_event(mAnimSfx, mPitchBend, false, intNode.GetValue(),
                                        intNode.GetWeight(), intNode.GetFlags(), 0.1f, 150.f, 0x14,
                                        CAudioSys::kMaxVolume, posToCam, origin, aid, mgr);
         }
@@ -498,19 +498,19 @@ void CGrappleArm::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node,
                                   EUserEventType type) {
   switch (type) {
   case kUE_Projectile:
-    if (x3b2_27_armMoving) {
+    if (mArmMoving) {
       return;
     }
-    x3b2_25_beamActive = true;
-    x398_grappleHitGen = rs_new CElementGen(x36c_grappleHitDesc);
-    x39c_grappleMuzzleGen = rs_new CElementGen(x378_grappleMuzzleDesc);
-    x338_beamT = 0.f;
-    x33c_beamDist = 0.f;
-    x340_anglePhase = 0.f;
-    x344_xAmplitude = kAmplitudeX;
-    x348_zAmplitude = kAmplitudeZ;
-    x398_grappleHitGen->SetParticleEmission(false);
-    x394_grappleClawGen->SetParticleEmission(true);
+    mBeamActive = true;
+    mGrappleHitGen = rs_new CElementGen(mGrappleHitDesc);
+    mGrappleMuzzleGen = rs_new CElementGen(mGrappleMuzzleDesc);
+    mBeamT = 0.f;
+    mBeamDist = 0.f;
+    mAnglePhase = 0.f;
+    mXAmplitude = kAmplitudeX;
+    mZAmplitude = kAmplitudeZ;
+    mGrappleHitGen->SetParticleEmission(false);
+    mGrappleClawGen->SetParticleEmission(true);
     NWeaponTypes::play_sfx(0x5f6, false, false, 0x36);
     mgr.GetRumbleManager()->Rumble(mgr, kRFX_PlayerGrappleFire, 1.f, kRP_Three);
     break;
@@ -523,53 +523,53 @@ void CGrappleArm::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node,
 }
 
 void CGrappleArm::GrappleBeamConnected() {
-  if (!x32c_grappleLoopSfx) {
-    x32c_grappleLoopSfx = NWeaponTypes::play_sfx(0x5f7, false, true, 0x36);
+  if (!mGrappleLoopSfx) {
+    mGrappleLoopSfx = NWeaponTypes::play_sfx(0x5f7, false, true, 0x36);
   }
 }
 
 void CGrappleArm::GrappleBeamDisconnected() {
-  if (x32c_grappleLoopSfx) {
-    CSfxManager::SfxStop(x32c_grappleLoopSfx);
-    x32c_grappleLoopSfx.Clear();
+  if (mGrappleLoopSfx) {
+    CSfxManager::SfxStop(mGrappleLoopSfx);
+    mGrappleLoopSfx.Clear();
   }
 }
 
 void CGrappleArm::LoadAnimations() {
-  NWeaponTypes::get_token_vector(*x0_grappleArmModel->GetAnimationData(), 0, 42, x18c_anims, true);
-  x0_grappleArmModel = rstl::optional_object< CModelData >();
+  NWeaponTypes::get_token_vector(*mGrappleArmModel->GetAnimationData(), 0, 42, mAnims, true);
+  mGrappleArmModel = rstl::optional_object< CModelData >();
 }
 
 void CGrappleArm::EnterFreeLook(int gunId, int setId, CStateManager& mgr) {
-  if (x3b2_29_suitLoading) {
+  if (mSuitLoading) {
     return;
   }
-  x3b2_24_active = true;
-  x3b2_27_armMoving = true;
-  x334_animState = kAS_GunControllerAnimation;
-  x328_gunController->EnterFreeLook(mgr, gunId, setId);
+  mActive = true;
+  mArmMoving = true;
+  mAnimState = kAS_GunControllerAnimation;
+  mGunController->EnterFreeLook(mgr, gunId, setId);
 }
 
 void CGrappleArm::EnterFidget(CStateManager& mgr, int a, int b, int c) {
-  if (x3b2_29_suitLoading) {
+  if (mSuitLoading) {
     return;
   }
 
   SetActive(true);
   SetIsArmMoving(true);
-  x334_animState = kAS_GunControllerAnimation;
-  x328_gunController->EnterFidget(mgr, a, b, c);
+  mAnimState = kAS_GunControllerAnimation;
+  mGunController->EnterFidget(mgr, a, b, c);
 }
 
 void CGrappleArm::EnterComboFire(int a, CStateManager& mgr) {
-  if (x3b2_29_suitLoading) {
+  if (mSuitLoading) {
     return;
   }
 
   SetActive(true);
   SetIsArmMoving(true);
-  x334_animState = kAS_GunControllerAnimation;
-  x328_gunController->EnterComboFire(mgr, a);
+  mAnimState = kAS_GunControllerAnimation;
+  mGunController->EnterComboFire(mgr, a);
 }
 
 void CGrappleArm::ReturnToDefault(CStateManager& mgr, float dt, bool setState) {
@@ -577,14 +577,14 @@ void CGrappleArm::ReturnToDefault(CStateManager& mgr, float dt, bool setState) {
     return;
   }
 
-  x328_gunController->ReturnToDefault(mgr, dt, setState);
+  mGunController->ReturnToDefault(mgr, dt, setState);
 }
 
 void CGrappleArm::EnterIdle(CStateManager& mgr) {
   if (IsSuitLoading()) {
     return;
   }
-  x328_gunController->EnterIdle(mgr);
+  mGunController->EnterIdle(mgr);
 }
 
 void CGrappleArm::EnterStruck(CStateManager& mgr, float angle, bool bigStrike, bool notInFreeLook) {
@@ -594,64 +594,64 @@ void CGrappleArm::EnterStruck(CStateManager& mgr, float angle, bool bigStrike, b
 
   if (IsGrappling()) {
     DisconnectGrappleBeam();
-    x3b2_28_isGrappling = false;
+    mIsGrappling = false;
   }
 
-  if (!x3b2_27_armMoving) {
-    x3b2_24_active = true;
-    x3b2_27_armMoving = true;
-    x334_animState = kAS_GunControllerAnimation;
+  if (!mArmMoving) {
+    mActive = true;
+    mArmMoving = true;
+    mAnimState = kAS_GunControllerAnimation;
   }
 
-  x328_gunController->EnterStruck(mgr, angle, bigStrike, notInFreeLook);
+  mGunController->EnterStruck(mgr, angle, bigStrike, notInFreeLook);
 }
 
 void CGrappleArm::ResetAuxParams(bool resetGunController) {
-  x3b2_24_active = false;
-  x3b2_27_armMoving = false;
-  x334_animState = kAS_Done;
-  x2e0_auxXf = CTransform4f::Identity();
+  mActive = false;
+  mArmMoving = false;
+  mAnimState = kAS_Done;
+  mAuxXf = CTransform4f::Identity();
   if (resetGunController) {
-    x328_gunController->Reset();
+    mGunController->Reset();
   }
 }
 
 void CGrappleArm::AsyncLoadSuit(CStateManager& mgr) {
 
   const int suit = NWeaponTypes::get_current_suit(mgr);
-  if (suit == x3a8_loadedSuit) {
+  if (suit == mLoadedSuit) {
     return;
   }
-  x0_grappleArmModel = rstl::optional_object< CModelData >();
-  x328_gunController = nullptr;
-  x3b2_29_suitLoading = true;
-  if (x3a8_loadedSuit != CPlayerState::kPS_Invalid) {
-    NWeaponTypes::unlock_tokens(x19c_suitDeps[x3a8_loadedSuit]);
-    x19c_suitDeps[x3a8_loadedSuit] = rstl::vector< CToken >();
+  mGrappleArmModel = rstl::optional_object< CModelData >();
+  mGunController = nullptr;
+  mSuitLoading = true;
+  if (mLoadedSuit != CPlayerState::kPS_Invalid) {
+    NWeaponTypes::unlock_tokens(mSuitDeps[mLoadedSuit]);
+    mSuitDeps[mLoadedSuit] = rstl::vector< CToken >();
   }
   if (suit < CPlayerState::kPS_Power || suit > CPlayerState::kPS_FusionPhazon) {
-    x3a8_loadedSuit = CPlayerState::kPS_Power;
+    mLoadedSuit = CPlayerState::kPS_Power;
   } else {
-    x3a8_loadedSuit = suitIndices[suit];
+    mLoadedSuit = suitIndices[suit];
   }
-  NWeaponTypes::lock_tokens(x19c_suitDeps[x3a8_loadedSuit]);
+  NWeaponTypes::lock_tokens(mSuitDeps[mLoadedSuit]);
 }
 
 void CGrappleArm::LoadSuitPoll() {
-  if (NWeaponTypes::are_tokens_ready(x19c_suitDeps[x3a8_loadedSuit])) {
-    x0_grappleArmModel =
-        CModelData(CAnimRes(gpTweakGunRes->x8_grappleArm, x3a8_loadedSuit, x31c_scale, 41, false));
-    x0_grappleArmModel->SetSortThermal(true);
-    x328_gunController = rs_new CGunController(*x0_grappleArmModel);
-    x3b2_29_suitLoading = false;
+  if (NWeaponTypes::are_tokens_ready(mSuitDeps[mLoadedSuit])) {
+    mGrappleArmModel =
+        CModelData(CAnimRes(gpTweakGunRes->mGrappleArm, mLoadedSuit, mScale, 41, false));
+    mGrappleArmModel->SetSortThermal(true);
+    mGunController = rs_new CGunController(*mGrappleArmModel);
+    mSuitLoading = false;
   }
 }
 
 void CGrappleArm::BuildXRayModel() {
-  x50_grappleArmSkeletonModel = CModelData(CAnimRes(
-      gpTweakGunRes->x8_grappleArm, 8, x31c_scale,
-      x328_gunController.get() == nullptr ? 41 : x328_gunController->GetCurAnimId(), false));
-  x50_grappleArmSkeletonModel->SetSortThermal(true);
+  mGrappleArmSkeletonModel = CModelData(CAnimRes(
+      gpTweakGunRes->mGrappleArm, 8, mScale,
+      mGunController.get() == nullptr ? 41 : mGunController->GetCurAnimId(), false));
+  mGrappleArmSkeletonModel->SetSortThermal(true);
 }
 
 void CGrappleArm::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) {
@@ -675,25 +675,25 @@ void CGrappleArm::FillTokenVector(const rstl::vector< SObjectTag >& tags,
 
 void CGrappleArm::BuildSuitDependencyList() {
 
-  x184_grappleArm.Lock();
+  mGrappleArm.Lock();
   for (int i = 0; i < 8; ++i) {
     TLockedToken< CDependencyGroup > dep = gpSimplePool->GetObj(kSuitDependencyNames[i]);
     const rstl::vector< SObjectTag >& tags = dep->GetObjectTagVector();
-    x19c_suitDeps.push_back(rstl::vector< CToken >());
-    FillTokenVector(tags, x19c_suitDeps[i]);
+    mSuitDeps.push_back(rstl::vector< CToken >());
+    FillTokenVector(tags, mSuitDeps[i]);
   }
 }
 
 void CGrappleArm::RenderXRayModel(const CStateManager& mgr, const CTransform4f& xf,
                                   const CModelFlags& flags) const {
-  const CVector3f& scale = CVector3f(x0_grappleArmModel->GetScale());
+  const CVector3f& scale = CVector3f(mGrappleArmModel->GetScale());
   CTransform4f modelMatrix(xf);
   modelMatrix *= CTransform4f::Scale(scale.GetX(), scale.GetY(), scale.GetZ());
   gpRender->SetModelMatrix(modelMatrix);
   CGraphics::DisableAllLights();
   gpRender->SetAmbientColor(CColor::White());
-  x0_grappleArmModel->GetAnimationData()->Render(
-      **x50_grappleArmSkeletonModel->GetAnimationData()->GetModelData(), flags,
+  mGrappleArmModel->GetAnimationData()->Render(
+      **mGrappleArmSkeletonModel->GetAnimationData()->GetModelData(), flags,
       rstl::optional_object< CVertexMorphEffect >(), nullptr);
   gpRender->SetAmbientColor(CColor::White());
   CGraphics::DisableAllLights();
@@ -707,7 +707,7 @@ void CGrappleArm::PointGenerator(void* context, const CVector3f* vertices, const
 }
 
 void CGrappleArm::DisconnectGrappleBeam() {
-  x394_grappleClawGen->SetParticleEmission(false);
-  x3b2_25_beamActive = false;
+  mGrappleClawGen->SetParticleEmission(false);
+  mBeamActive = false;
   GrappleBeamDisconnected();
 }

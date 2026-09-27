@@ -12,43 +12,43 @@ const CVector3f CLight::kDefaultDirection(0.f, -1.f, 0.f);
 
 CLight::CLight(ELightType type, const CVector3f& position, const CVector3f& direction,
                const CColor& color, float cutoff)
-: x0_pos(position)
-, xc_dir(direction)
-, x18_color(color)
-, x1c_type(type)
-, x20_spotCutoff(cutoff)
-, x24_distC(0.f)
-, x28_distL(1.f)
-, x2c_distQ(0.f)
-, x30_angleC(0.f)
-, x34_angleL(1.f)
-, x38_angleQ(0.f)
-, x3c_priority(0)
-, x40_lightId(0)
-, x44_cachedRadius(0.f)
-, x48_cachedIntensity(0.f)
-, x4c_24_intensityDirty(true)
-, x4c_25_radiusDirty(true) {}
+: mPos(position)
+, mDir(direction)
+, mColor(color)
+, mType(type)
+, mSpotCutoff(cutoff)
+, mDistC(0.f)
+, mDistL(1.f)
+, mDistQ(0.f)
+, mAngleC(0.f)
+, mAngleL(1.f)
+, mAngleQ(0.f)
+, mPriority(0)
+, mLightId(0)
+, mCachedRadius(0.f)
+, mCachedIntensity(0.f)
+, mIntensityDirty(true)
+, mRadiusDirty(true) {}
 
 CLight::CLight(const CVector3f& position, const CVector3f& direction, const CColor& color,
                float distC, float distL, float distQ, float angleC, float angleL, float angleQ)
-: x0_pos(position)
-, xc_dir(direction)
-, x18_color(color)
-, x1c_type(kLT_Custom)
-, x20_spotCutoff(0.f)
-, x24_distC(distC)
-, x28_distL(distL)
-, x2c_distQ(distQ)
-, x30_angleC(angleC)
-, x34_angleL(angleL)
-, x38_angleQ(angleQ)
-, x3c_priority(0)
-, x40_lightId(0)
-, x44_cachedRadius(0.f)
-, x48_cachedIntensity(0.f)
-, x4c_24_intensityDirty(true)
-, x4c_25_radiusDirty(true) {}
+: mPos(position)
+, mDir(direction)
+, mColor(color)
+, mType(kLT_Custom)
+, mSpotCutoff(0.f)
+, mDistC(distC)
+, mDistL(distL)
+, mDistQ(distQ)
+, mAngleC(angleC)
+, mAngleL(angleL)
+, mAngleQ(angleQ)
+, mPriority(0)
+, mLightId(0)
+, mCachedRadius(0.f)
+, mCachedIntensity(0.f)
+, mIntensityDirty(true)
+, mRadiusDirty(true) {}
 
 CLight CLight::BuildLocalAmbient(const CVector3f& pos, const CColor& col) {
   return CLight(kLT_LocalAmbient, pos, kDefaultDirection, col, 180.f);
@@ -77,57 +77,57 @@ CLight CLight::BuildCustom(const CVector3f& pos, const CVector3f& dir, const CCo
 
 
 void CLight::SetAttenuation(float constant, float linear, float quadratic) {
-  x24_distC = constant;
-  x28_distL = linear;
-  x2c_distQ = quadratic;
-  x4c_25_radiusDirty = true;
-  x4c_24_intensityDirty = true;
+  mDistC = constant;
+  mDistL = linear;
+  mDistQ = quadratic;
+  mRadiusDirty = true;
+  mIntensityDirty = true;
 }
 
 
 void CLight::SetAngleAttenuation(float constant, float linear, float quadratic) {
-  x30_angleC = constant;
-  x34_angleL = linear;
-  x38_angleQ = quadratic;
-  x4c_25_radiusDirty = true;
-  x4c_24_intensityDirty = true;
+  mAngleC = constant;
+  mAngleL = linear;
+  mAngleQ = quadratic;
+  mRadiusDirty = true;
+  mIntensityDirty = true;
 }
 
 void CLight::SetColor(const CColor& col) {
-  x18_color = col;
-  x4c_25_radiusDirty = true;
-  x4c_24_intensityDirty = true;
+  mColor = col;
+  mRadiusDirty = true;
+  mIntensityDirty = true;
 }
 
-void CLight::SetPosition(const CVector3f& position) { x0_pos = position; }
+void CLight::SetPosition(const CVector3f& position) { mPos = position; }
 
-void CLight::SetDirection(const CVector3f& direction) { xc_dir = direction; }
+void CLight::SetDirection(const CVector3f& direction) { mDir = direction; }
 
 float CLight::GetRadius() const {
-  if (x4c_25_radiusDirty) {
-    x44_cachedRadius = CalculateLightRadius();
-    x4c_25_radiusDirty = false;
+  if (mRadiusDirty) {
+    mCachedRadius = CalculateLightRadius();
+    mRadiusDirty = false;
   }
-  return x44_cachedRadius;
+  return mCachedRadius;
 }
 
 
 float CLight::CalculateLightRadius() const {
-  if (x28_distL < gkEpsilon32 && x2c_distQ < gkEpsilon32) {
+  if (mDistL < gkEpsilon32 && mDistQ < gkEpsilon32) {
     return 3.0E36f;
   }
 
   float intensity = GetIntensity();
   float ret = 0.f;
-  if (x2c_distQ > gkEpsilon32) {
+  if (mDistQ > gkEpsilon32) {
     const float mulVal = rstl::min_val(0.05882353f, 0.2f); // Yes, retro really did do this
     if (intensity > gkEpsilon32) {
-      ret = CMath::SqrtF(intensity / (mulVal * x2c_distQ));
+      ret = CMath::SqrtF(intensity / (mulVal * mDistQ));
     }
   } else {
     const float mulVal = rstl::min_val(0.05882353f, 0.2f); // See above comment
-    if (x28_distL > gkEpsilon32) {
-      ret = intensity / (mulVal * x28_distL);
+    if (mDistL > gkEpsilon32) {
+      ret = intensity / (mulVal * mDistL);
     }
   }
 
@@ -135,17 +135,17 @@ float CLight::CalculateLightRadius() const {
 }
 
 float CLight::GetIntensity() const {
-  if (x4c_24_intensityDirty) {
-    x4c_24_intensityDirty = false;
+  if (mIntensityDirty) {
+    mIntensityDirty = false;
     float coef = 1.f;
-    if (x1c_type == kLT_Custom) {
-      coef = x30_angleC;
+    if (mType == kLT_Custom) {
+      coef = mAngleC;
     }
-    x48_cachedIntensity =
+    mCachedIntensity =
         coef *
-        rstl::max_val(x18_color.GetRed(), rstl::max_val(x18_color.GetGreen(), x18_color.GetBlue()));
+        rstl::max_val(mColor.GetRed(), rstl::max_val(mColor.GetGreen(), mColor.GetBlue()));
   }
-  return x48_cachedIntensity;
+  return mCachedIntensity;
 }
 // Hack for float ordering
 static void StrippedFunc() {
@@ -154,10 +154,10 @@ static void StrippedFunc() {
 }
 
 CVector3f CLight::GetNormalIndependentLightingAtPoint(const CVector3f& point) const {
-  CVector3f floatCol(x18_color.GetRed(), x18_color.GetGreen(), x18_color.GetBlue());
-  if (x1c_type == kLT_LocalAmbient)
+  CVector3f floatCol(mColor.GetRed(), mColor.GetGreen(), mColor.GetBlue());
+  if (mType == kLT_LocalAmbient)
     return floatCol;
 
-  float dist = rstl::max_val((x0_pos - point).Magnitude(), gkEpsilon32);
-  return floatCol / (dist * (x2c_distQ * dist) + (x28_distL * dist + x24_distC));
+  float dist = rstl::max_val((mPos - point).Magnitude(), gkEpsilon32);
+  return floatCol / (dist * (mDistQ * dist) + (mDistL * dist + mDistC));
 }

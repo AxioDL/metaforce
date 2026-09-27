@@ -13,38 +13,38 @@ CWeapon::CWeapon(TUniqueId uid, TAreaId areaId, const bool active, TUniqueId own
                  const CDamageInfo& dInfo, int attribs, const CModelData& mData)
 : CActor(uid, active, name, CEntityInfo(areaId, CEntity::NullConnectionList), xf, mData, mList,
          CActorParameters::None().HotInThermal(true), kInvalidUniqueId)
-, xe8_projectileAttribs(attribs)
-, xec_ownerId(owner)
-, xf0_weaponType(type)
-, xf8_filter(filter)
-, x110_origDamageInfo(dInfo)
-, x12c_curDamageInfo(dInfo)
-, x148_curTime(0.f)
-, x14c_damageFalloffSpeed(0.f)
-, x150_damageDuration(0.f)
-, x154_interferenceDuration(0.f) {}
+, mProjectileAttribs(attribs)
+, mOwnerId(owner)
+, mWeaponType(type)
+, mFilter(filter)
+, mOrigDamageInfo(dInfo)
+, mCurDamageInfo(dInfo)
+, mCurTime(0.f)
+, mDamageFalloffSpeed(0.f)
+, mDamageDuration(0.f)
+, mInterferenceDuration(0.f) {}
 
 CWeapon::~CWeapon() {}
 
 void CWeapon::SetDamageFalloffSpeed(float speed) {
   if (speed > 0.f) {
-    x14c_damageFalloffSpeed = 1.f / speed;
+    mDamageFalloffSpeed = 1.f / speed;
   }
 }
 
 void CWeapon::Think(float dt, CStateManager& mgr) {
-  x148_curTime += dt;
-  if ((xe8_projectileAttribs & CWeapon::kPA_DamageFalloff) == CWeapon::kPA_DamageFalloff) {
-    float max = 1.f - x148_curTime * x14c_damageFalloffSpeed;
+  mCurTime += dt;
+  if ((mProjectileAttribs & CWeapon::kPA_DamageFalloff) == CWeapon::kPA_DamageFalloff) {
+    float max = 1.f - mCurTime * mDamageFalloffSpeed;
     float scale = CMath::Max(0.f, max);
-    float damage = scale * x110_origDamageInfo.GetDamage();
-    float radius = scale * x110_origDamageInfo.GetRadius();
-    float knockback = scale * x110_origDamageInfo.GetKnockBackPower();
-    x12c_curDamageInfo =
-        CDamageInfo(x110_origDamageInfo.GetWeaponMode(), damage,
-                    (double)(scale * x110_origDamageInfo.GetDamage()), radius, knockback);
+    float damage = scale * mOrigDamageInfo.GetDamage();
+    float radius = scale * mOrigDamageInfo.GetRadius();
+    float knockback = scale * mOrigDamageInfo.GetKnockBackPower();
+    mCurDamageInfo =
+        CDamageInfo(mOrigDamageInfo.GetWeaponMode(), damage,
+                    (double)(scale * mOrigDamageInfo.GetDamage()), radius, knockback);
   } else {
-    x12c_curDamageInfo = x110_origDamageInfo;
+    mCurDamageInfo = mOrigDamageInfo;
   }
   CEntity::Think(dt, mgr);
 }
@@ -52,7 +52,7 @@ void CWeapon::Think(float dt, CStateManager& mgr) {
 void CWeapon::FluidFXThink(EFluidState state, CScriptWater& water, CStateManager& mgr) {
   bool doRipple = true;
   float mag = 0.f;
-  switch (xf0_weaponType) {
+  switch (mWeaponType) {
   case kWT_Power:
     mag = 0.1f;
     break;
@@ -76,11 +76,11 @@ void CWeapon::FluidFXThink(EFluidState state, CScriptWater& water, CStateManager
     break;
   }
 
-  if ((xe8_projectileAttribs & CWeapon::kPA_ComboShot) != 0 && state != kFS_InFluid) {
+  if ((mProjectileAttribs & CWeapon::kPA_ComboShot) != 0 && state != kFS_InFluid) {
     mag += 0.5f;
   }
 
-  if ((xe8_projectileAttribs & CWeapon::kPA_Charged) != 0) {
+  if ((mProjectileAttribs & CWeapon::kPA_Charged) != 0) {
     mag += 0.25f;
   }
 
@@ -90,7 +90,7 @@ void CWeapon::FluidFXThink(EFluidState state, CScriptWater& water, CStateManager
 
   if (doRipple) {
     CVector3f pos(GetTranslation().GetX(), GetTranslation().GetY(), water.GetSurfaceZ());
-    if ((xe8_projectileAttribs & CWeapon::kPA_ComboShot) != 0) {
+    if ((mProjectileAttribs & CWeapon::kPA_ComboShot) != 0) {
       if (!water.CanRippleAtPoint(pos)) {
         doRipple = false;
       }

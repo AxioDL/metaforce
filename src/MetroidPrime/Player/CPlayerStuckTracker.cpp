@@ -23,10 +23,10 @@ CPlayer::CPlayerStuckTracker::CPlayerStuckTracker() {}
 
 void CPlayer::CPlayerStuckTracker::AddState(EPlayerState state, const CVector3f& position,
                                             const CVector3f& velocity, const CVector2f& input) {
-  AddSample(x0_states, static_cast< int >(state));
-  AddSample(x54_positions, position);
-  AddSample(x148_velocities, velocity);
-  AddSample(x23c_inputs, input);
+  AddSample(mStates, static_cast< int >(state));
+  AddSample(mPositions, position);
+  AddSample(mVelocities, velocity);
+  AddSample(mInputs, input);
 }
 
 template < typename T, int N >
@@ -62,36 +62,36 @@ rstl::optional_object< int > _getElementBoundsCheck(const rstl::reserved_vector<
 }
 
 bool CPlayer::CPlayerStuckTracker::IsPlayerStuck() const {
-  if (x0_states.size() == 20) {
+  if (mStates.size() == 20) {
     float distance = 0.f;
-    CAABox velocityBounds(*_getElementBoundsCheck(x148_velocities, 0),
-                          *_getElementBoundsCheck(x148_velocities, 0));
-    CAABox positionBounds(*_getElementBoundsCheck(x54_positions, 0),
-                          *_getElementBoundsCheck(x54_positions, 0));
-    CAABox inputBounds(CVector3f(*_getElementBoundsCheck(x23c_inputs, 0), 0.f),
-                       CVector3f(*_getElementBoundsCheck(x23c_inputs, 0), 0.f));
+    CAABox velocityBounds(*_getElementBoundsCheck(mVelocities, 0),
+                          *_getElementBoundsCheck(mVelocities, 0));
+    CAABox positionBounds(*_getElementBoundsCheck(mPositions, 0),
+                          *_getElementBoundsCheck(mPositions, 0));
+    CAABox inputBounds(CVector3f(*_getElementBoundsCheck(mInputs, 0), 0.f),
+                       CVector3f(*_getElementBoundsCheck(mInputs, 0), 0.f));
     int stateChanges = 0;
-    float minSpeed = _getElementBoundsCheck(x148_velocities, 0)->Magnitude();
+    float minSpeed = _getElementBoundsCheck(mVelocities, 0)->Magnitude();
     float maxSpeed = minSpeed;
     for (int i = 1; i < 20; ++i) {
       const CVector3f delta =
-          *_getElementBoundsCheck(x54_positions, i - 1) - *_getElementBoundsCheck(x54_positions, i);
+          *_getElementBoundsCheck(mPositions, i - 1) - *_getElementBoundsCheck(mPositions, i);
       const float deltaSq = delta.MagSquared();
       if (deltaSq > FLT_EPSILON) {
         distance += CMath::FastSqrtF(deltaSq);
       }
-      positionBounds.AccumulateBounds(*_getElementBoundsCheck(x54_positions, i));
-      const CVector3f velocity = *_getElementBoundsCheck(x148_velocities, i);
+      positionBounds.AccumulateBounds(*_getElementBoundsCheck(mPositions, i));
+      const CVector3f velocity = *_getElementBoundsCheck(mVelocities, i);
       velocityBounds.AccumulateBounds(velocity);
       const float speed = velocity.Magnitude();
       minSpeed = rstl::min_val(speed, minSpeed);
       maxSpeed = rstl::max_val(speed, maxSpeed);
-      inputBounds.AccumulateBounds(CVector3f(*_getElementBoundsCheck(x23c_inputs, i), 0.f));
+      inputBounds.AccumulateBounds(CVector3f(*_getElementBoundsCheck(mInputs, i), 0.f));
       stateChanges +=
-          *_getElementBoundsCheck(x0_states, i - 1) != *_getElementBoundsCheck(x0_states, i);
+          *_getElementBoundsCheck(mStates, i - 1) != *_getElementBoundsCheck(mStates, i);
     }
     const bool stopped = distance < 1.f / 30.f || distance < (1.f / 30.f) * minSpeed;
-    if (stateChanges == 0 && *_getElementBoundsCheck(x0_states, 0) == kPS_StartingJump) {
+    if (stateChanges == 0 && *_getElementBoundsCheck(mStates, 0) == kPS_StartingJump) {
       const float inputRange = (inputBounds.GetMaxPoint() - inputBounds.GetMinPoint()).Magnitude();
       CAABox inputWithZero(inputBounds.GetMinPoint(), inputBounds.GetMaxPoint());
       inputWithZero.AccumulateBounds(CVector3f::Zero());
@@ -107,8 +107,8 @@ bool CPlayer::CPlayerStuckTracker::IsPlayerStuck() const {
 }
 
 void CPlayer::CPlayerStuckTracker::ResetStats() {
-  x0_states.clear();
-  x54_positions.clear();
-  x148_velocities.clear();
-  x23c_inputs.clear();
+  mStates.clear();
+  mPositions.clear();
+  mVelocities.clear();
+  mInputs.clear();
 }

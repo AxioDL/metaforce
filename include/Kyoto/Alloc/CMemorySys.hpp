@@ -14,7 +14,7 @@ public:
   static IAllocator& GetGameAllocator();
 
 private:
-  uchar x0_unk;
+  uchar mUnk;
 };
 
 #endif // _CMEMORYSYS

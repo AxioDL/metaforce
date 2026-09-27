@@ -16,10 +16,10 @@ public:
   };
 
 private:
-  CHUDMemoParms x34_parms;
-  EDisplayType x3c_dispType;
-  CAssetId x40_stringTableId;
-  rstl::optional_object< TLockedToken< CStringTable > > x44_stringTable;
+  CHUDMemoParms mParms;
+  EDisplayType mDispType;
+  CAssetId mStringTableId;
+  rstl::optional_object< TLockedToken< CStringTable > > mStringTable;
 
 public:
   CScriptHUDMemo(TUniqueId, const rstl::string&, const CEntityInfo&, const CHUDMemoParms&,

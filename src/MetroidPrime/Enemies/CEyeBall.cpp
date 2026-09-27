@@ -325,9 +325,9 @@ void CEyeBall::TurnLaserOn(CStateManager& mgr, const CTransform4f& xf) {
   TAreaId id = GetCurrentAreaId();
 
   CAudioSys::C3DEmitterParmData parmData(50.f, 0.1f, 0x1, 127, 20);
-  parmData.x0_pos = GetTranslation();
-  parmData.xc_dir = CVector3f::Zero();
-  parmData.x24_sfxId = mBeamSfxId;
+  parmData.mPos = GetTranslation();
+  parmData.mDir = CVector3f::Zero();
+  parmData.mSfxId = mBeamSfxId;
   mBeamSfx = CSfxManager::AddEmitter(parmData, true, CSfxManager::kMedPriority, true, id.Value());
 }
 void CEyeBall::TurnLaserOff(CStateManager& mgr) {

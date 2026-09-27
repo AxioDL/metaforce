@@ -28,38 +28,38 @@ CGrenadeLauncher::CGrenadeLauncher(TUniqueId uid, const rstl::string& name, cons
                                    const CEPGrenadeLauncherData& data, float explodePlayerDistance)
 : CPhysicsActor(uid, true, name, info, xf, mData, skLauncherMaterial, bounds, SMoverData(1000.f),
                 actParams, 0.3f, 0.1f)
-, x258_started(0)
-, x25c_healthInfo(healthInfo)
-, x264_vulnerability(vulnerability)
-, x2cc_parentId(parentId)
-, x2d0_data(data)
-, x328_cSphere(CSphere(CVector3f(0.f, 0.f, 0.f), mData.ScaleCopy().GetZ()), skLauncherMaterial)
-, x348_shotTimer(-1.f)
-, x34c_color(1.f, 1.f, 1.f, 1.f)
-, x350_grenadeActorParams(actParams)
-, x3b8_particleGenDesc(data.GetShootParticleGenDescId() != kInvalidAssetId
+, mStarted(0)
+, mHealthInfo(healthInfo)
+, mVulnerability(vulnerability)
+, mParentId(parentId)
+, mData(data)
+, mCSphere(CSphere(CVector3f(0.f, 0.f, 0.f), mData.ScaleCopy().GetZ()), skLauncherMaterial)
+, mShotTimer(-1.f)
+, mColor(1.f, 1.f, 1.f, 1.f)
+, mGrenadeActorParams(actParams)
+, mParticleGenDesc(data.GetShootParticleGenDescId() != kInvalidAssetId
                            ? rstl::optional_object< TLockedToken< CGenDescription > >(
                                  TLockedToken< CGenDescription >(gpSimplePool->GetObj(
                                      SObjectTag('PART', data.GetShootParticleGenDescId()))))
                            : rstl::optional_object< TLockedToken< CGenDescription > >())
-, x3d8_yaw(0.f)
-, x3dc_yawVelocity(0.f)
-, x3e0_pitch(0.f)
-, x3e4_pitchVelocity(0.f)
-, x3e8_thermalMag(actParams.GetThermalMag())
-, x3ec_damageTimer(0.f)
-, x3f0_damageColor(0.5f, 0.f, 0.f, 1.f)
-, x3f4_damageAddColor(0.f, 0.f, 0.f, 1.f)
-, x3f8_explodePlayerDistance(explodePlayerDistance)
-, x3fc_launchGrenade(false)
-, x3fd_visible(true)
-, x3fe_followPlayer(true) {
+, mYaw(0.f)
+, mYawVelocity(0.f)
+, mPitch(0.f)
+, mPitchVelocity(0.f)
+, mThermalMag(actParams.GetThermalMag())
+, mDamageTimer(0.f)
+, mDamageColor(0.5f, 0.f, 0.f, 1.f)
+, mDamageAddColor(0.f, 0.f, 0.f, 1.f)
+, mExplodePlayerDistance(explodePlayerDistance)
+, mLaunchGrenade(false)
+, mVisible(true)
+, mFollowPlayer(true) {
   ModelData()->EnableLooping(true);
   for (int i = 0; i < 4; ++i) {
     const CPASAnimParmData parms(pas::kAS_AdditiveAim, CPASAnimParm::FromEnum(i));
     const rstl::pair< float, int > anim =
         GetAnimationData()->GetPASDatabase().FindBestAnimation(parms, -1);
-    x3c8_animIds[i] = anim.second;
+    mAnimIds[i] = anim.second;
   }
 }
 
@@ -67,9 +67,9 @@ CGrenadeLauncher::~CGrenadeLauncher() {}
 
 void CGrenadeLauncher::Think(float dt, CStateManager& mgr) {
   if (GetActive()) {
-    if (x3fc_launchGrenade) {
+    if (mLaunchGrenade) {
       LaunchGrenadeProjectile(mgr);
-      x3fc_launchGrenade = false;
+      mLaunchGrenade = false;
     }
     UpdateCollisionPrimitive();
     UpdateGrenadeLauncherDamageTime(dt);
@@ -78,7 +78,7 @@ void CGrenadeLauncher::Think(float dt, CStateManager& mgr) {
     const CAdvancementDeltas deltas = UpdateAnimation(dt, mgr, true);
     MoveToOR(deltas.GetOffsetDelta(), dt);
     RotateToOR(deltas.GetOrientationDelta(), dt);
-    CPatterned* parent = TCastToPtr< CPatterned >(mgr.ObjectById(x2cc_parentId));
+    CPatterned* parent = TCastToPtr< CPatterned >(mgr.ObjectById(mParentId));
     if (!parent || !parent->IsAlive() || HealthInfo(mgr)->GetHP() <= 0.f) {
       mgr.DeliverScriptMsg(parent, GetUniqueId(), kSM_Damage);
       StartExplosionEffect(mgr);
@@ -95,23 +95,23 @@ void CGrenadeLauncher::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid,
     UpdateLauncherAnimation();
     break;
   case kSM_Start:
-    if (uid == x2cc_parentId && x258_started != 1) {
-      x258_started = 1;
+    if (uid == mParentId && mStarted != 1) {
+      mStarted = 1;
       UpdateLauncherAnimation();
     }
     break;
   case kSM_Stop:
-    if (uid == x2cc_parentId && x258_started != 0) {
-      x258_started = 0;
+    if (uid == mParentId && mStarted != 0) {
+      mStarted = 0;
       UpdateLauncherAnimation();
     }
     break;
   case kSM_Action:
-    if (uid == x2cc_parentId && x258_started == 1)
-      x3fc_launchGrenade = true;
+    if (uid == mParentId && mStarted == 1)
+      mLaunchGrenade = true;
     break;
   case kSM_Damage:
-    x3ec_damageTimer = 0.33f;
+    mDamageTimer = 0.33f;
     break;
   default:
     break;
@@ -121,17 +121,17 @@ void CGrenadeLauncher::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid,
 ENTITY_ACCEPT_IMPL(CGrenadeLauncher)
 
 void CGrenadeLauncher::Render(const CStateManager& mgr) const {
-  if (x3fd_visible)
+  if (mVisible)
     CPhysicsActor::Render(mgr);
 }
 
 void CGrenadeLauncher::PreRender(CStateManager& mgr, const CFrustumPlanes& frustum) {
-  if (x3f4_damageAddColor.GetAlphau8() == 255) {
-    SetModelFlags(CModelFlags(CModelFlags::kT_Two, CColor(x3f4_damageAddColor.GetRedu8(),
-                                                          x3f4_damageAddColor.GetGreenu8(),
-                                                          x3f4_damageAddColor.GetBlueu8(), 255)));
+  if (mDamageAddColor.GetAlphau8() == 255) {
+    SetModelFlags(CModelFlags(CModelFlags::kT_Two, CColor(mDamageAddColor.GetRedu8(),
+                                                          mDamageAddColor.GetGreenu8(),
+                                                          mDamageAddColor.GetBlueu8(), 255)));
   } else {
-    SetModelFlags(CModelFlags::AlphaBlendedDepthCompareUpdate(x3f4_damageAddColor, true, true));
+    SetModelFlags(CModelFlags::AlphaBlendedDepthCompareUpdate(mDamageAddColor, true, true));
   }
   CActor::PreRender(mgr, frustum);
 }
@@ -147,8 +147,8 @@ void CGrenadeLauncher::Touch(CActor& act, CStateManager& mgr) {
       const CDamageVulnerability* vulnerability = GetDamageVulnerability();
       const CWeaponMode mode(projectile->GetType());
       if (vulnerability->WeaponHurts(mode, CDamageVulnerability::kRD_No)) {
-        x348_shotTimer = 0.5f;
-        CEntity* parent = mgr.ObjectById(x2cc_parentId);
+        mShotTimer = 0.5f;
+        CEntity* parent = mgr.ObjectById(mParentId);
         if (parent)
           mgr.DeliverScriptMsg(parent, GetUniqueId(), kSM_Touched);
       }
@@ -157,10 +157,10 @@ void CGrenadeLauncher::Touch(CActor& act, CStateManager& mgr) {
 }
 
 rstl::optional_object< CAABox > CGrenadeLauncher::GetTouchBounds() const {
-  return x328_cSphere.CalculateAABox(GetTransform());
+  return mCSphere.CalculateAABox(GetTransform());
 }
 
-const CCollisionPrimitive* CGrenadeLauncher::GetCollisionPrimitive() const { return &x328_cSphere; }
+const CCollisionPrimitive* CGrenadeLauncher::GetCollisionPrimitive() const { return &mCSphere; }
 
 CVector3f CGrenadeLauncher::PredictTargetPosition(const CStateManager& mgr) {
   CVector3f aim = mgr.GetPlayer()->GetAimPosition(mgr, 1.f);
@@ -209,9 +209,9 @@ void CGrenadeLauncher::ComputeLaunchSpeedAndAngle(const CVector3f& target, const
 }
 
 void CGrenadeLauncher::UpdateLauncherAnimation() {
-  if (HasAnimation() && x258_started >= 0 && x258_started <= 1) {
+  if (HasAnimation() && mStarted >= 0 && mStarted <= 1) {
     const CPASAnimParmData parms(pas::kAS_Locomotion, CPASAnimParm::FromEnum(0),
-                                 CPASAnimParm::FromEnum(skLauncherAnims[x258_started]));
+                                 CPASAnimParm::FromEnum(skLauncherAnims[mStarted]));
     const rstl::pair< float, int > anim =
         GetAnimationData()->GetPASDatabase().FindBestAnimation(parms, -1);
     if (anim.first > 0.f) {
@@ -230,10 +230,10 @@ void CGrenadeLauncher::LaunchGrenadeProjectile(CStateManager& mgr) {
       AnimationData()->AddAdditiveAnimation(anim.second, 1.f, false, true);
       const CTransform4f locator = GetLocatorTransform(rstl::string_l(skGrenadeLocator));
       const CVector3f origin = GetTranslation() + GetTransform().Rotate(locator.GetTranslation());
-      float angle = x2d0_data.GetLaunchParms().GetAngleMin();
-      float speed = x2d0_data.GetLaunchParms().GetVelocityMin();
+      float angle = mData.GetLaunchParms().GetAngleMin();
+      float speed = mData.GetLaunchParms().GetVelocityMin();
       const CVector3f target = PredictTargetPosition(mgr);
-      ComputeLaunchSpeedAndAngle(target, origin, x2d0_data.GetLaunchParms(), angle, speed);
+      ComputeLaunchSpeedAndAngle(target, origin, mData.GetLaunchParms(), angle, speed);
       CVector3f dist = target - origin;
       dist.SetZ(0.f);
       const CVector3f forward = GetTransform().GetForward();
@@ -247,9 +247,9 @@ void CGrenadeLauncher::LaunchGrenadeProjectile(CStateManager& mgr) {
       CEntity* grenade = rs_new CBouncyGrenade(
           mgr.AllocateUniqueId(), rstl::string_l("Bouncy Grenade"),
           CEntityInfo(GetCurrentAreaId(), NullConnectionList), xf,
-          CModelData(CStaticRes(x2d0_data.GetGrenadeModelId(), GetModelData()->ScaleCopy())),
-          x350_grenadeActorParams, x2cc_parentId, x2d0_data.GetGrenadeData(), speed,
-          x3f8_explodePlayerDistance);
+          CModelData(CStaticRes(mData.GetGrenadeModelId(), GetModelData()->ScaleCopy())),
+          mGrenadeActorParams, mParentId, mData.GetGrenadeData(), speed,
+          mExplodePlayerDistance);
       if (grenade)
         mgr.AddObject(grenade);
     }
@@ -258,11 +258,11 @@ void CGrenadeLauncher::LaunchGrenadeProjectile(CStateManager& mgr) {
 
 void CGrenadeLauncher::UpdateCollisionPrimitive() {
   const CTransform4f locator = GetLocatorTransform(rstl::string_l(skLockOnLocator));
-  x328_cSphere.SetSphereCenter(locator.GetTranslation());
+  mCSphere.SetSphereCenter(locator.GetTranslation());
 }
 
 void CGrenadeLauncher::UpdateGunTracking(float dt, CStateManager& mgr) {
-  if (HasAnimation() && x258_started == 1 && x3fe_followPlayer) {
+  if (HasAnimation() && mStarted == 1 && mFollowPlayer) {
     CVector3f target = mgr.GetPlayer()->GetAimPosition(mgr, 0.f);
     target[kDZ] = GetTransform().GetTranslation()[kDZ];
     const CVector3f position = GetTranslation();
@@ -278,86 +278,86 @@ void CGrenadeLauncher::UpdateGunTracking(float dt, CStateManager& mgr) {
       float yaw = atan2f(localTarget.GetX(), localTarget.GetY());
       yaw = CMath::Clamp(-maxAngle, yaw, maxAngle);
       yaw = (2.f / M_PIF) * yaw;
-      float velocity = (0.25f * (yaw - x3d8_yaw)) / dt;
+      float velocity = (0.25f * (yaw - mYaw)) / dt;
       velocity = CMath::Clamp(-maxSpeed, velocity, maxSpeed);
-      float acceleration = (velocity - x3dc_yawVelocity) / dt;
-      x3dc_yawVelocity += dt * CMath::Clamp(-maxAcceleration, acceleration, maxAcceleration);
+      float acceleration = (velocity - mYawVelocity) / dt;
+      mYawVelocity += dt * CMath::Clamp(-maxAcceleration, acceleration, maxAcceleration);
       float pitch =
           atan2f(localTarget.GetZ(), CMath::SqrtF(localTarget.GetY() * localTarget.GetY() +
                                                   localTarget.GetX() * localTarget.GetX()));
       pitch = CMath::Clamp(-maxAngle, pitch, maxAngle);
       pitch = (2.f / M_PIF) * pitch;
-      velocity = (0.25f * (pitch - x3e0_pitch)) / dt;
+      velocity = (0.25f * (pitch - mPitch)) / dt;
       velocity = CMath::Clamp(-maxSpeed, velocity, maxSpeed);
-      acceleration = (velocity - x3e4_pitchVelocity) / dt;
-      x3e4_pitchVelocity += dt * CMath::Clamp(-maxAcceleration, acceleration, maxAcceleration);
+      acceleration = (velocity - mPitchVelocity) / dt;
+      mPitchVelocity += dt * CMath::Clamp(-maxAcceleration, acceleration, maxAcceleration);
       const float nextYaw =
-          CMath::Clamp(-skMaxWeight, dt * x3dc_yawVelocity + x3d8_yaw, skMaxWeight);
+          CMath::Clamp(-skMaxWeight, dt * mYawVelocity + mYaw, skMaxWeight);
       const float nextPitch =
-          CMath::Clamp(-skMaxWeight, dt * x3e4_pitchVelocity + x3e0_pitch, skMaxWeight);
+          CMath::Clamp(-skMaxWeight, dt * mPitchVelocity + mPitch, skMaxWeight);
       CAnimData* animData = AnimationData();
-      if (nextYaw != x3d8_yaw) {
+      if (nextYaw != mYaw) {
         float weight = CMath::AbsF(nextYaw);
-        if (CMath::AbsF(x3d8_yaw) > 0.f && x3d8_yaw * nextYaw <= 0.f)
-          animData->DelAdditiveAnimation(x3c8_animIds[x3d8_yaw < 0.f ? 0 : 1]);
+        if (CMath::AbsF(mYaw) > 0.f && mYaw * nextYaw <= 0.f)
+          animData->DelAdditiveAnimation(mAnimIds[mYaw < 0.f ? 0 : 1]);
         if (weight > 0.f)
-          animData->AddAdditiveAnimation(x3c8_animIds[nextYaw < 0.f ? 0 : 1], weight, false, false);
+          animData->AddAdditiveAnimation(mAnimIds[nextYaw < 0.f ? 0 : 1], weight, false, false);
       }
-      if (nextPitch != x3e0_pitch) {
+      if (nextPitch != mPitch) {
         float weight = CMath::AbsF(nextPitch);
-        if (CMath::AbsF(x3e0_pitch) > 0.f && x3e0_pitch * nextPitch <= 0.f)
-          animData->DelAdditiveAnimation(x3c8_animIds[x3e0_pitch > 0.f ? 2 : 3]);
+        if (CMath::AbsF(mPitch) > 0.f && mPitch * nextPitch <= 0.f)
+          animData->DelAdditiveAnimation(mAnimIds[mPitch > 0.f ? 2 : 3]);
         if (weight > 0.f)
-          animData->AddAdditiveAnimation(x3c8_animIds[nextPitch > 0.f ? 2 : 3], weight, false,
+          animData->AddAdditiveAnimation(mAnimIds[nextPitch > 0.f ? 2 : 3], weight, false,
                                          false);
       }
-      x3d8_yaw = nextYaw;
-      x3e0_pitch = nextPitch;
+      mYaw = nextYaw;
+      mPitch = nextPitch;
     }
   } else {
     CAnimData* animData = AnimationData();
-    if (x3d8_yaw != 0.f) {
-      animData->DelAdditiveAnimation(x3c8_animIds[x3d8_yaw < 0.f ? 0 : 1]);
-      x3d8_yaw = 0.f;
+    if (mYaw != 0.f) {
+      animData->DelAdditiveAnimation(mAnimIds[mYaw < 0.f ? 0 : 1]);
+      mYaw = 0.f;
     }
-    if (x3e0_pitch != 0.f) {
-      animData->DelAdditiveAnimation(x3c8_animIds[x3e0_pitch > 0.f ? 2 : 3]);
-      x3e0_pitch = 0.f;
+    if (mPitch != 0.f) {
+      animData->DelAdditiveAnimation(mAnimIds[mPitch > 0.f ? 2 : 3]);
+      mPitch = 0.f;
     }
   }
 }
 
 void CGrenadeLauncher::UpdateGrenadeLauncherDamageTime(float dt) {
-  if (x348_shotTimer > 0.f) {
-    x348_shotTimer = CMath::Max(0.f, x348_shotTimer - dt);
+  if (mShotTimer > 0.f) {
+    mShotTimer = CMath::Max(0.f, mShotTimer - dt);
     const CColor& color =
-        CColor::Lerp(CColor(1.f, 1.f, 1.f, 1.f), CColor(1.f, 0.f, 0.f, 1.f), x348_shotTimer);
-    x34c_color.Set(color.GetRedu8(), color.GetGreenu8(), color.GetBlueu8(), 255);
+        CColor::Lerp(CColor(1.f, 1.f, 1.f, 1.f), CColor(1.f, 0.f, 0.f, 1.f), mShotTimer);
+    mColor.Set(color.GetRedu8(), color.GetGreenu8(), color.GetBlueu8(), 255);
   }
 }
 
 void CGrenadeLauncher::StartExplosionEffect(CStateManager& mgr) {
-  if (x3b8_particleGenDesc) {
+  if (mParticleGenDesc) {
     const CTransform4f xf = GetTransform();
-    CExplosion* explosion = rs_new CExplosion(*x3b8_particleGenDesc, mgr.AllocateUniqueId(), true,
+    CExplosion* explosion = rs_new CExplosion(*mParticleGenDesc, mgr.AllocateUniqueId(), true,
                                               CEntityInfo(GetCurrentAreaId(), NullConnectionList),
                                               rstl::string_l("Grenade Launcher Explode Fx"), xf, 0,
                                               GetModelData()->ScaleCopy(), CColor::White());
     if (explosion) {
       mgr.AddObject(explosion);
-      CSfxManager::SfxStart(x2d0_data.GetShootSfxId(), CAudioSys::kMaxVolume, 0x40, false,
+      CSfxManager::SfxStart(mData.GetShootSfxId(), CAudioSys::kMaxVolume, 0x40, false,
                             CSfxManager::kMedPriority, false, CSfxManager::kAllAreas);
     }
   }
 }
 
 void CGrenadeLauncher::UpdateHitDamageTime(float dt) {
-  if (x3ec_damageTimer > 0.f) {
-    x3ec_damageTimer = CMath::Max(0.f, x3ec_damageTimer - dt);
-    x3f4_damageAddColor = CColor::Lerp(CColor(0.f, 0.f, 0.f, 1.f), x3f0_damageColor,
-                                       CMath::Clamp(0.f, x3ec_damageTimer / 0.33f, 1.f));
-    SetDamageMag(5.f * x3ec_damageTimer + x3e8_thermalMag);
+  if (mDamageTimer > 0.f) {
+    mDamageTimer = CMath::Max(0.f, mDamageTimer - dt);
+    mDamageAddColor = CColor::Lerp(CColor(0.f, 0.f, 0.f, 1.f), mDamageColor,
+                                       CMath::Clamp(0.f, mDamageTimer / 0.33f, 1.f));
+    SetDamageMag(5.f * mDamageTimer + mThermalMag);
   } else {
-    SetDamageMag(x3e8_thermalMag);
+    SetDamageMag(mThermalMag);
   }
 }

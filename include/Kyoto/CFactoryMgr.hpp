@@ -32,8 +32,8 @@ public:
   static uint TypeIdxToFourCC(uint idx);
 
 private:
-  rstl::map< int, FFactoryFunc > x0_factories;
-  rstl::map< int, FMemFactoryFunc > x14_memFactories;
+  rstl::map< int, FFactoryFunc > mFactories;
+  rstl::map< int, FMemFactoryFunc > mMemFactories;
 };
 CHECK_SIZEOF(CFactoryMgr, 0x28)
 

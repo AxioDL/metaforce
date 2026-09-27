@@ -17,24 +17,24 @@
 #include "rstl/vector.hpp"
 
 CRasterFont::CRasterFont(CInputStream& in, IObjectStore* store)
-: x0_initialized(false)
-, x4_monoWidth(16)
-, x8_monoHeight(16)
-, x2c_mode(kFM_OneLayer)
-, x90_lineMargin(0) {
+: mInitialized(false)
+, mMonoWidth(16)
+, mMonoHeight(16)
+, mMode(kFM_OneLayer)
+, mLineMargin(0) {
   if (in.ReadInt32() == 'FONT') {
     int version = in.ReadInt32();
     if (version >= 0 && version <= 2) {
-      x4_monoWidth = in.ReadInt32();
-      x8_monoHeight = in.ReadInt32();
+      mMonoWidth = in.ReadInt32();
+      mMonoHeight = in.ReadInt32();
       if (version >= 1) {
-        x8c_baseline = in.ReadInt32();
+        mBaseline = in.ReadInt32();
       } else {
-        x8c_baseline = x8_monoHeight;
+        mBaseline = mMonoHeight;
       }
 
       if (version >= 2) {
-        x90_lineMargin = in.ReadInt32();
+        mLineMargin = in.ReadInt32();
       }
 
       bool fInfoA = in.ReadBool();
@@ -45,24 +45,24 @@ CRasterFont::CRasterFont(CInputStream& in, IObjectStore* store)
       CAssetId fontId = in.ReadInt32();
 
       if (store != nullptr) {
-        x80_texture = store->GetObj(SObjectTag('TXTR', fontId));
-        x80_texture->Lock();
+        mTexture = store->GetObj(SObjectTag('TXTR', fontId));
+        mTexture->Lock();
       }
 
-      x30_fontInfo = CFontInfo(fInfoA, fInfoB, fInfoC, fontSize, fontName.data());
+      mFontInfo = CFontInfo(fInfoA, fInfoB, fInfoC, fontSize, fontName.data());
 
       int mode = in.ReadInt32();
       switch (mode) {
       case 0:
-        x2c_mode = kFM_OneLayer;
+        mMode = kFM_OneLayer;
         break;
       case 1:
-        x2c_mode = kFM_OneLayerOutline;
+        mMode = kFM_OneLayerOutline;
         break;
       }
 
       int glyphCount = in.ReadInt32();
-      xc_glyphs.reserve(glyphCount);
+      mGlyphs.reserve(glyphCount);
 
       for (int i = 0; i < glyphCount; ++i) {
         wchar_t chr = in.Get< ushort >();
@@ -77,28 +77,28 @@ CRasterFont::CRasterFont(CInputStream& in, IObjectStore* store)
         int cellHeight = in.ReadInt32();
         int baseline = in.ReadInt32();
         int kernStart = in.ReadInt32();
-        xc_glyphs.push_back(
+        mGlyphs.push_back(
             rstl::pair< wchar_t, CGlyph >(chr, CGlyph(a, b, c, startU, startV, endU, endV,
                                                       cellWidth, cellHeight, baseline, kernStart)));
       }
-      rstl::sort_by_key(xc_glyphs);
+      rstl::sort_by_key(mGlyphs);
 
       int kerningCount = in.ReadInt32();
-      x1c_kerning.reserve(kerningCount);
+      mKerning.reserve(kerningCount);
 
       for (int i = 0; i < kerningCount; ++i) {
         short first = in.Get< short >();
         short second = in.Get< short >();
         int howMuch = in.ReadInt32();
-        x1c_kerning.push_back(CKernPair(first, second, howMuch));
+        mKerning.push_back(CKernPair(first, second, howMuch));
       }
 
-      x0_initialized = true;
+      mInitialized = true;
     }
   }
 }
 
-EFontMode CRasterFont::GetMode() const { return x2c_mode; }
+EFontMode CRasterFont::GetMode() const { return mMode; }
 
 void CRasterFont::GetSize(const CDrawStringOptions& options, int& width, int& height,
                           const wchar_t* str, int length) const {
@@ -114,9 +114,9 @@ void CRasterFont::GetSize(const CDrawStringOptions& options, int& width, int& he
     const CGlyph* glyph = GetGlyph(*ptr);
     if (glyph != nullptr) {
       int kerning =
-          prevGlyph != nullptr ? KernLookup(x1c_kerning, prevGlyph->GetKernStart(), *ptr) : 0;
+          prevGlyph != nullptr ? KernLookup(mKerning, prevGlyph->GetKernStart(), *ptr) : 0;
       int newWidth = curWidth + glyph->GetA() + glyph->GetB() + glyph->GetC() + kerning;
-      int newHeight = x8_monoHeight - glyph->GetBaseLine() + glyph->GetCellHeight();
+      int newHeight = mMonoHeight - glyph->GetBaseLine() + glyph->GetCellHeight();
       if (options.GetTextDirection() == kTD_Horizontal) {
         width = newWidth;
         curWidth = newWidth;
@@ -129,15 +129,15 @@ void CRasterFont::GetSize(const CDrawStringOptions& options, int& width, int& he
   }
 }
 
-int CRasterFont::GetMonoWidth() const { return x4_monoWidth; }
-int CRasterFont::GetMonoHeight() const { return x8_monoHeight; }
+int CRasterFont::GetMonoWidth() const { return mMonoWidth; }
+int CRasterFont::GetMonoHeight() const { return mMonoHeight; }
 int CRasterFont::GetCarriageAdvance() { return GetMonoHeight() + GetLineMargin(); }
 
 const CGlyph* CRasterFont::GetGlyph(wchar_t c) const { return InternalGetGlyph(c); }
 
 void CRasterFont::DrawString(const CDrawStringOptions& options, int x, int y, int& xOut, int& yOut,
                              CTextRenderBuffer* buffer, const wchar_t* str, int length) const {
-  if (!x0_initialized) {
+  if (!mInitialized) {
     return;
   }
 
@@ -180,7 +180,7 @@ int CRasterFont::KernLookup(const rstl::vector< CKernPair >& kern, const int sta
 void CRasterFont::SinglePassDrawString(const CDrawStringOptions& options, const int x, const int y,
                                        int& xOut, int& yOut, CTextRenderBuffer* buffer,
                                        const wchar_t* str, const int length) const {
-  if (x0_initialized) {
+  if (mInitialized) {
     int curX = x;
     const CGlyph* prevGlyph = nullptr;
 #if NONMATCHING
@@ -195,7 +195,7 @@ void CRasterFont::SinglePassDrawString(const CDrawStringOptions& options, const 
         if (options.GetTextDirection() == kTD_Horizontal) {
           curX += curGlyph->GetA();
           if (prevGlyph != nullptr) {
-            curX += KernLookup(x1c_kerning, prevGlyph->GetKernStart(), *ptr);
+            curX += KernLookup(mKerning, prevGlyph->GetKernStart(), *ptr);
           }
           xOffset = 0;
           yOffset = 0;
@@ -220,9 +220,9 @@ void CRasterFont::SinglePassDrawString(const CDrawStringOptions& options, const 
 
 const CGlyph* CRasterFont::InternalGetGlyph(const wchar_t chr) const {
   rstl::vector< rstl::pair< wchar_t, CGlyph > >::const_iterator it =
-      rstl::find_by_key(xc_glyphs, chr);
+      rstl::find_by_key(mGlyphs, chr);
 
-  if (it == xc_glyphs.end()) {
+  if (it == mGlyphs.end()) {
     return nullptr;
   }
 
@@ -231,7 +231,7 @@ const CGlyph* CRasterFont::InternalGetGlyph(const wchar_t chr) const {
 
 const CFactoryFnReturn FRasterFontFactory(const SObjectTag& tag, CInputStream& in,
                                     const CVParamTransfer& xfer) {
-  const rstl::rc_ptr< IVParamObj > obj = xfer.x0_obj;
+  const rstl::rc_ptr< IVParamObj > obj = xfer.mObj;
   CSimplePool* pool = static_cast< TObjOwnerParam< CSimplePool* >* >(obj.GetPtr())->GetData();
 
   return rs_new CRasterFont(in, pool);
@@ -244,7 +244,7 @@ void CRasterFont::SetupRenderState() {
       {GX_VA_NULL, GX_NONE},
   };
 
-  TLockedToken< CTexture > texture = *x80_texture;
+  TLockedToken< CTexture > texture = *mTexture;
   texture->Load(GX_TEXMAP0, CTexture::kCM_Clamp);
   CGX::SetTevKAlphaSel(GX_TEVSTAGE0, GX_TEV_KASEL_K0_A);
   CGX::SetTevKColorSel(GX_TEVSTAGE0, GX_TEV_KCSEL_K0);
@@ -261,12 +261,12 @@ void CRasterFont::SetupRenderState() {
   CGX::SetTexCoordGen(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_TEX0, GX_IDENTITY, GX_FALSE, GX_PTIDENTITY);
 }
 
-int CRasterFont::GetBaseLine() const { return x8c_baseline; }
-int CRasterFont::GetLineMargin() { return x90_lineMargin; }
+int CRasterFont::GetBaseLine() const { return mBaseline; }
+int CRasterFont::GetLineMargin() { return mLineMargin; }
 
-bool CRasterFont::IsFinishedLoading() { return x80_texture && x80_texture->IsLoaded(); }
+bool CRasterFont::IsFinishedLoading() { return mTexture && mTexture->IsLoaded(); }
 
 void CRasterFont::SetTexture(TToken< CTexture > texture) {
-  x80_texture = texture;
-  x80_texture->Lock();
+  mTexture = texture;
+  mTexture->Lock();
 }

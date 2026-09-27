@@ -36,14 +36,14 @@ public:
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr);
 
 private:
-  TCachedToken< CGenDescription > x21c_plasma2nd1;
-  rstl::single_ptr< CElementGen > x228_chargeFx;
-  bool x22c_24_loaded : 1;
-  bool x22c_25_worldLighingDim : 1;
-  float x230_fireShotDelayTimer;
-  float x234_fireShotDelay;
-  float x238_lightingResetDelayTimer;
-  TAreaId x23c_stateArea;
+  TCachedToken< CGenDescription > mPlasma2nd1;
+  rstl::single_ptr< CElementGen > mChargeFx;
+  bool mLoaded : 1;
+  bool mWorldLighingDim : 1;
+  float mFireShotDelayTimer;
+  float mFireShotDelay;
+  float mLightingResetDelayTimer;
+  TAreaId mStateArea;
 
   void ReInitVariables();
   void SetWorldLighting(CStateManager& mgr, TAreaId aid, float speed, float target);

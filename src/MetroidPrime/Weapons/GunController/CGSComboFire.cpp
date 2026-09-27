@@ -7,39 +7,39 @@
 #include "Kyoto/Animation/CPASAnimParmData.hpp"
 
 CGSComboFire::CGSComboFire()
-: x0_delay(0.f)
-, x4_loopState(-1)
-, x8_cueAnimId(-1)
-, xc_gunId(-1)
-, x10_24_over(false)
-, x10_25_idle(false) {}
+: mDelay(0.f)
+, mLoopState(-1)
+, mCueAnimId(-1)
+, mGunId(-1)
+, mOver(false)
+, mIdle(false) {}
 
 bool CGSComboFire::Update(CAnimData& data, float dt, CStateManager& mgr) {
-  if (x8_cueAnimId != -1) {
-    x0_delay -= dt;
-    if (x0_delay <= 0.f) {
-      data.EnableLooping(x4_loopState == 1);
-      CAnimPlaybackParms aparms(x8_cueAnimId, -1, 1.f, true);
+  if (mCueAnimId != -1) {
+    mDelay -= dt;
+    if (mDelay <= 0.f) {
+      data.EnableLooping(mLoopState == 1);
+      CAnimPlaybackParms aparms(mCueAnimId, -1, 1.f, true);
       data.SetAnimation(aparms, false);
-      x0_delay = 0.f;
-      x8_cueAnimId = -1;
+      mDelay = 0.f;
+      mCueAnimId = -1;
     }
   } else if (!data.IsAnimTimeRemaining(0.001f, rstl::string_l("Whole Body"))) {
-    switch (x4_loopState) {
+    switch (mLoopState) {
     case 0:
-      SetAnim(data, xc_gunId, 1, mgr, 0.f);
-      switch (xc_gunId) {
+      SetAnim(data, mGunId, 1, mgr, 0.f);
+      switch (mGunId) {
       case 4:
       case 0:
       case 1:
-        x10_24_over = true;
+        mOver = true;
         break;
       default:
         break;
       }
       break;
     case 2:
-      x4_loopState = -1;
+      mLoopState = -1;
       return true;
     default:
       break;
@@ -50,8 +50,8 @@ bool CGSComboFire::Update(CAnimData& data, float dt, CStateManager& mgr) {
 
 int CGSComboFire::SetAnim(CAnimData& data, int gunId, int loopState, CStateManager& mgr,
                           float delay) {
-  int useLoopState = !x10_25_idle ? loopState : 2;  
-  x10_25_idle = false;
+  int useLoopState = !mIdle ? loopState : 2;
+  mIdle = false;
   
   const CPASDatabase& pas = data.GetCharacterInfo().GetPASDatabase();
 
@@ -59,12 +59,12 @@ int CGSComboFire::SetAnim(CAnimData& data, int gunId, int loopState, CStateManag
       pas.FindBestAnimation(CPASAnimParmData(pas::kAS_Death, CPASAnimParm::FromInt32(gunId),
                                              CPASAnimParm::FromEnum(useLoopState)),
                             *mgr.Random(), -1);
-  x10_24_over = false;
-  xc_gunId = gunId;
-  x4_loopState = useLoopState;
+  mOver = false;
+  mGunId = gunId;
+  mLoopState = useLoopState;
   if (delay != 0.f) {
-    x0_delay = delay;
-    x8_cueAnimId = anim.second;
+    mDelay = delay;
+    mCueAnimId = anim.second;
   } else {
     data.EnableLooping(useLoopState == 1);
     CAnimPlaybackParms aparms(anim.second, -1, 1.f, true);

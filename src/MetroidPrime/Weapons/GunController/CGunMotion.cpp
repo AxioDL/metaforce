@@ -10,9 +10,9 @@
 #include "Kyoto/Graphics/CModelFlags.hpp"
 
 CGunMotion::CGunMotion(CAssetId ancsId, const CVector3f& scale)
-: x0_modelData(CAnimRes(ancsId, 0, scale, 0, false))
-, x4c_gunController(x0_modelData)
-, xb8_24_animPlaying(false) {
+: mModelData(CAnimRes(ancsId, 0, scale, 0, false))
+, mGunController(mModelData)
+, mAnimPlaying(false) {
   LoadAnimations();
 }
 
@@ -20,7 +20,7 @@ CGunMotion::~CGunMotion() {}
 
 const bool CGunMotion::PlayPasAnim(SamusGun::EAnimationState state, CStateManager& mgr, float angle,
                              bool bigStrike) {
-  const CPASDatabase& pas = x0_modelData.GetAnimationData()->GetCharacterInfo().GetPASDatabase();
+  const CPASDatabase& pas = mModelData.GetAnimationData()->GetCharacterInfo().GetPASDatabase();
 
   bool loop = true;
   int animId = -1;
@@ -49,18 +49,18 @@ const bool CGunMotion::PlayPasAnim(SamusGun::EAnimationState state, CStateManage
     break;
   }
   case SamusGun::kAS_FreeLook:
-    x4c_gunController.EnterFreeLook(mgr, 0, -1);
+    mGunController.EnterFreeLook(mgr, 0, -1);
     break;
   case SamusGun::kAS_ComboFire:
-    x4c_gunController.EnterComboFire(mgr, 0);
+    mGunController.EnterComboFire(mgr, 0);
     break;
   default:
     break;
   }
 
   if (animId != -1) {
-    xb8_24_animPlaying = true;
-    CAnimData& animData = *x0_modelData.AnimationData();
+    mAnimPlaying = true;
+    CAnimData& animData = *mModelData.AnimationData();
     animData.EnableLooping(loop);
     CAnimPlaybackParms aparms(animId, -1, 1.f, true);
     animData.SetAnimation(aparms, false);
@@ -70,22 +70,22 @@ const bool CGunMotion::PlayPasAnim(SamusGun::EAnimationState state, CStateManage
 }
 
 void CGunMotion::Update(float dt, CStateManager& mgr) {
-  x0_modelData.AdvanceAnimation(dt, mgr, kInvalidAreaId, true);
-  switch (x4c_gunController.Update(dt, mgr)) {
+  mModelData.AdvanceAnimation(dt, mgr, kInvalidAreaId, true);
+  switch (mGunController.Update(dt, mgr)) {
   case 1:
-    xb8_24_animPlaying = false;
+    mAnimPlaying = false;
   }
 }
 
 void CGunMotion::Draw(const CStateManager& mgr, const CTransform4f& xf) const {
-  x0_modelData.Render(mgr, xf, nullptr, CModelFlags::Normal());
+  mModelData.Render(mgr, xf, nullptr, CModelFlags::Normal());
 }
 
 void CGunMotion::ReturnToDefault(CStateManager& mgr, bool b) {
-  x4c_gunController.ReturnToDefault(mgr, 0.f, b);
+  mGunController.ReturnToDefault(mgr, 0.f, b);
 }
 
-int CGunMotion::GetFreeLookSetId() const { return x4c_gunController.GetFreeLookSetId(); }
+int CGunMotion::GetFreeLookSetId() const { return mGunController.GetFreeLookSetId(); }
 
 static inline int GetBasePositionAnimation(bool bigStrikeReset) {
   int animation = 0;
@@ -96,17 +96,17 @@ static inline int GetBasePositionAnimation(bool bigStrikeReset) {
 }
 
 void CGunMotion::BasePosition(bool bigStrikeReset) {
-  CAnimData& animData = *x0_modelData.AnimationData();
+  CAnimData& animData = *mModelData.AnimationData();
   animData.EnableLooping(false);
   animData.SetAnimation(CAnimPlaybackParms(GetBasePositionAnimation(bigStrikeReset), -1, 1.f, true),
                         false);
 }
 
 void CGunMotion::EnterFidget(CStateManager& mgr, SamusGun::EFidgetType type, int parm2) {
-  xb8_24_animPlaying = true;
-  x4c_gunController.EnterFidget(mgr, int(type), 0, parm2);
+  mAnimPlaying = true;
+  mGunController.EnterFidget(mgr, int(type), 0, parm2);
 }
 
 void CGunMotion::LoadAnimations() {
-  NWeaponTypes::get_token_vector(*x0_modelData.GetAnimationData(), 0, 14, xa8_anims, true);
+  NWeaponTypes::get_token_vector(*mModelData.GetAnimationData(), 0, 14, mAnims, true);
 }

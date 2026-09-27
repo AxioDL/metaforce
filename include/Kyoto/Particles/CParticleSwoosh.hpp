@@ -87,13 +87,13 @@ public:
 
   static int GetAliveParticleSystemCount();
 
-  void SetWarmUp() { x1d0_26_forceOneUpdate = true; }
-  void SetRenderGaps(bool gaps) { x1d0_27_renderGaps = gaps; }
+  void SetWarmUp() { mForceOneUpdate = true; }
+  void SetRenderGaps(bool gaps) { mRenderGaps = gaps; }
 
-  const int GetSwooshCount() const { return x15c_swooshes.size(); }
-  int GetCurParticle() const { return x158_curParticle; }
-  rstl::vector< SSwooshData >& Swooshes() { return x15c_swooshes; }
-  const rstl::vector< SSwooshData >& GetSwooshes() const { return x15c_swooshes; }
+  const int GetSwooshCount() const { return mSwooshes.size(); }
+  int GetCurParticle() const { return mCurParticle; }
+  rstl::vector< SSwooshData >& Swooshes() { return mSwooshes; }
+  const rstl::vector< SSwooshData >& GetSwooshes() const { return mSwooshes; }
 
   bool IsLargeEnough() const;
   void UpdateSwooshTranslation(const CVector3f& translation);
@@ -107,54 +107,54 @@ public:
   void UpdateMaxRadius(float radius);
 
 private:
-  TLockedToken< CSwooshDescription > x1c_desc;
-  int x28_curFrame;
-  int x2c_PSLT;
-  double x30_curTime;
-  CVector3f x38_translation;
-  CTransform4f x44_orientation;
-  CTransform4f x74_invOrientation;
-  CVector3f xa4_globalTranslation;
-  CTransform4f xb0_globalOrientation;
-  CVector3f xe0_globalScale;
-  CTransform4f xec_scaleXf;
-  CTransform4f x11c_invScaleXf;
-  CVector3f x14c_localScale;
-  int x158_curParticle;
-  rstl::vector< SSwooshData > x15c_swooshes;
-  rstl::vector< CVector3f > x16c_p0;
-  rstl::vector< CVector3f > x17c_p1;
-  rstl::vector< CVector3f > x18c_p2;
-  rstl::vector< CVector3f > x19c_p3;
-  int x1ac_particleCount;
-  int x1b0_SPLN;
-  int x1b4_LENG;
-  int x1b8_SIDE;
-  GXPrimitive x1bc_prim;
-  CRandom16 x1c0_rand;
+  TLockedToken< CSwooshDescription > mDesc;
+  int mCurFrame;
+  int mPSLT;
+  double mCurTime;
+  CVector3f mTranslation;
+  CTransform4f mOrientation;
+  CTransform4f mInvOrientation;
+  CVector3f mGlobalTranslation;
+  CTransform4f mGlobalOrientation;
+  CVector3f mGlobalScale;
+  CTransform4f mScaleXf;
+  CTransform4f mInvScaleXf;
+  CVector3f mLocalScale;
+  int mCurParticle;
+  rstl::vector< SSwooshData > mSwooshes;
+  rstl::vector< CVector3f > mP0;
+  rstl::vector< CVector3f > mP1;
+  rstl::vector< CVector3f > mP2;
+  rstl::vector< CVector3f > mP3;
+  int mParticleCount;
+  int mSPLN;
+  int mLENG;
+  int mSIDE;
+  GXPrimitive mPrim;
+  CRandom16 mRand;
   float x1c4_;
   float x1c8_;
-  float x1cc_TSPN;
-  bool x1d0_24_emitting : 1;
-  bool x1d0_25_AALP : 1;
-  bool x1d0_26_forceOneUpdate : 1;
-  bool x1d0_27_renderGaps : 1;
-  bool x1d0_28_LLRD : 1;
-  bool x1d0_29_VLS1 : 1;
-  bool x1d0_30_VLS2 : 1;
-  bool x1d0_31_constantTex : 1;
-  bool x1d1_24_constantUv : 1;
-  float x1d4_uMin;
-  float x1d8_vMin;
-  float x1dc_uMax;
-  float x1e0_vMax;
-  CTexture* x1e4_tex;
-  float x1e8_uvSpan;
-  int x1ec_TSPN;
-  CVector3f x1f0_aabbMin;
-  CVector3f x1fc_aabbMax;
-  float x208_maxRadius;
-  CColor x20c_moduColor;
+  float mTSPNFloat;
+  bool mEmitting : 1;
+  bool mAALP : 1;
+  bool mForceOneUpdate : 1;
+  bool mRenderGaps : 1;
+  bool mLLRD : 1;
+  bool mVLS1 : 1;
+  bool mVLS2 : 1;
+  bool mConstantTex : 1;
+  bool mConstantUv : 1;
+  float mUMin;
+  float mVMin;
+  float mUMax;
+  float mVMax;
+  CTexture* mTex;
+  float mUvSpan;
+  int mTSPNInt;
+  CVector3f mAabbMin;
+  CVector3f mAabbMax;
+  float mMaxRadius;
+  CColor mModuColor;
 
   static uint mSwooshAliveCount;
 };

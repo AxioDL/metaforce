@@ -1,13 +1,13 @@
 #include "Kyoto/Animation/CPASAnimInfo.hpp"
 
-CPASAnimInfo::CPASAnimInfo(int id) : x0_id(id) {}
+CPASAnimInfo::CPASAnimInfo(int id) : mId(id) {}
 
 CPASAnimInfo::CPASAnimInfo(int id,
                            const rstl::reserved_vector< CPASAnimParm::UParmValue, 8 >& parms)
-: x0_id(id), x4_parms(parms) {}
+: mId(id), mParms(parms) {}
 
 CPASAnimParm CPASAnimInfo::GetAnimParmData(uint idx, CPASAnimParm::EParmType type) const {
-  const CPASAnimParm::UParmValue& parm = x4_parms[idx];
+  const CPASAnimParm::UParmValue& parm = mParms[idx];
 
   switch (type) {
   case CPASAnimParm::kPT_Int32:
@@ -26,5 +26,5 @@ CPASAnimParm CPASAnimInfo::GetAnimParmData(uint idx, CPASAnimParm::EParmType typ
 }
 
 const CPASAnimParm::UParmValue& CPASAnimInfo::GetAnimParmValue(uint idx) const {
-  return x4_parms[idx];
+  return mParms[idx];
 }

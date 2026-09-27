@@ -12,36 +12,36 @@
 
 class CAnimRes {
 private:
-  CAssetId x0_ancsId;
-  int x4_charIdx;
-  CVector3f x8_scale;
-  bool x14_canLoop;
-  int x18_defaultAnim;
+  CAssetId mAncsId;
+  int mCharIdx;
+  CVector3f mScale;
+  bool mCanLoop;
+  int mDefaultAnim;
 
 public:
   // CAnimRes()
   // : x4_charIdx(-1), x14_canLoop(false), x8_scale(????), x18_defaultAnim(-1) {}
 
   CAnimRes(CAssetId ancs, const int charIdx, const CVector3f& scale, int defaultAnim, bool loop)
-  : x0_ancsId(ancs)
-  , x4_charIdx(charIdx)
-  , x8_scale(scale)
-  , x14_canLoop(loop)
-  , x18_defaultAnim(defaultAnim) {}
+  : mAncsId(ancs)
+  , mCharIdx(charIdx)
+  , mScale(scale)
+  , mCanLoop(loop)
+  , mDefaultAnim(defaultAnim) {}
 
   CAnimRes(const CAnimRes& other)
-  : x0_ancsId(other.x0_ancsId)
-  , x4_charIdx(other.x4_charIdx)
-  , x8_scale(other.x8_scale)
-  , x14_canLoop(other.x14_canLoop)
-  , x18_defaultAnim(other.x18_defaultAnim) {}
+  : mAncsId(other.mAncsId)
+  , mCharIdx(other.mCharIdx)
+  , mScale(other.mScale)
+  , mCanLoop(other.mCanLoop)
+  , mDefaultAnim(other.mDefaultAnim) {}
 
-  CAssetId GetId() const { return x0_ancsId; }
+  CAssetId GetId() const { return mAncsId; }
   // or GetBodyType__8CAnimResCFv ?
-  int GetCharacterNodeId() const { return x4_charIdx; }
-  const CVector3f& GetScale() const { return x8_scale; }
-  int GetDefaultAnim() const { return x18_defaultAnim; }
-  const bool CanLoop() const { return x14_canLoop; }
+  int GetCharacterNodeId() const { return mCharIdx; }
+  const CVector3f& GetScale() const { return mScale; }
+  int GetDefaultAnim() const { return mDefaultAnim; }
+  const bool CanLoop() const { return mCanLoop; }
 
   static const int kDefaultCharIdx;
 };

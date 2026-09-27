@@ -41,7 +41,7 @@ template < typename T >
 void TAverage< T >::AddValue(const T& value) {
   if (this->size() == this->capacity()) {
     // TODO ?
-    this->x4_count -= 1;
+    this->mCount -= 1;
   }
   this->insert(this->begin(), value);
 }

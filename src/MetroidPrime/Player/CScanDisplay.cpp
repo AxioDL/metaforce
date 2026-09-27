@@ -163,9 +163,9 @@ void CScanDisplay::StartScan(TUniqueId uid, const CScannableObjectInfo& info, CG
     CAuiImagePane* pane = state.mImagePane;
     if (pane) {
       const CScannableObjectInfo::SBucket& bucket = mScannableInfo->GetBucket(i);
-      if (bucket.x14_interval > 0.f) {
-        pane->SetAnimationParms(CVector2f(bucket.xc_size.GetX(), bucket.xc_size.GetY()),
-                                bucket.x14_interval, bucket.x18_fadeDuration);
+      if (bucket.mInterval > 0.f) {
+        pane->SetAnimationParms(CVector2f(bucket.mSize.GetX(), bucket.mSize.GetY()),
+                                bucket.mInterval, bucket.mFadeDuration);
       }
       pane->SetTextureID0(bucket.GetTextureId(), gpSimplePool);
       pane->SetFlashFactor(0.f);
@@ -485,10 +485,10 @@ float CScanDisplay::GetDownloadStartTime(const int bucket) const {
     return 0.f;
   }
   const CScannableObjectInfo::SBucket& b = mScannableInfo->GetBucket(bucket);
-  float appearance = b.x4_appearanceRange;
+  float appearance = b.mAppearanceRange;
   float ret = 0.f;
   for (int i = 0; i < 4; ++i) {
-    const float tmp = mScannableInfo->GetBucket(i).x4_appearanceRange;
+    const float tmp = mScannableInfo->GetBucket(i).mAppearanceRange;
     if (tmp < appearance) {
       ret = rstl::max_val(ret, tmp);
     }

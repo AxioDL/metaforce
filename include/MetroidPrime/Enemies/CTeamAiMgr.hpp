@@ -22,55 +22,55 @@ public:
   };
 
   CTeamAiRole(TUniqueId ownerId)
-  : x0_ownerId(ownerId)
-  , x4_roleA(kTAR_Invalid)
-  , x8_roleB(kTAR_Invalid)
-  , xc_roleC(kTAR_Invalid)
-  , x10_curRole(kTAR_Invalid)
-  , x14_roleIndex(-1)
-  , x18_captainPriority(0)
-  , x1c_position(CVector3f::Zero()) {}
+  : mOwnerId(ownerId)
+  , mRoleA(kTAR_Invalid)
+  , mRoleB(kTAR_Invalid)
+  , mRoleC(kTAR_Invalid)
+  , mCurRole(kTAR_Invalid)
+  , mRoleIndex(-1)
+  , mCaptainPriority(0)
+  , mPosition(CVector3f::Zero()) {}
 
   CTeamAiRole(TUniqueId ownerId, ETeamAiRole roleA, ETeamAiRole roleB, ETeamAiRole roleC)
-  : x0_ownerId(ownerId)
-  , x4_roleA(roleA)
-  , x8_roleB(roleB)
-  , xc_roleC(roleC)
-  , x10_curRole(kTAR_Invalid)
-  , x14_roleIndex(-1)
-  , x18_captainPriority(0)
-  , x1c_position(CVector3f::Zero()) {}
+  : mOwnerId(ownerId)
+  , mRoleA(roleA)
+  , mRoleB(roleB)
+  , mRoleC(roleC)
+  , mCurRole(kTAR_Invalid)
+  , mRoleIndex(-1)
+  , mCaptainPriority(0)
+  , mPosition(CVector3f::Zero()) {}
 
   bool AllowsRole(ETeamAiRole role) const {
-    return x4_roleA == role || x8_roleB == role || xc_roleC == role;
+    return mRoleA == role || mRoleB == role || mRoleC == role;
   }
 
   bool operator<(const CTeamAiRole& other) const {
-    return x0_ownerId.Value() < other.x0_ownerId.Value();
+    return mOwnerId.Value() < other.mOwnerId.Value();
   }
   void __swap(const CTeamAiRole& other);
 
-  TUniqueId GetOwnerId() const { return x0_ownerId; }
-  ETeamAiRole GetTeamAiRole() const { return x10_curRole; }
-  void SetTeamAiRole(ETeamAiRole role) { x10_curRole = role; }
+  TUniqueId GetOwnerId() const { return mOwnerId; }
+  ETeamAiRole GetTeamAiRole() const { return mCurRole; }
+  void SetTeamAiRole(ETeamAiRole role) { mCurRole = role; }
   bool HasTeamAiRole() const {
-    return x10_curRole != kTAR_Initial && x10_curRole >= kTAR_Initial &&
-           x10_curRole <= kTAR_Unassigned;
+    return mCurRole != kTAR_Initial && mCurRole >= kTAR_Initial &&
+           mCurRole <= kTAR_Unassigned;
   }
-  int GetRoleIndex() const { return x14_roleIndex; }
-  void SetRoleIndex(int idx) { x14_roleIndex = idx; }
-  const CVector3f& GetTeamPosition() const { return x1c_position; }
-  void SetTeamPosition(const CVector3f& pos) { x1c_position = pos; }
+  int GetRoleIndex() const { return mRoleIndex; }
+  void SetRoleIndex(int idx) { mRoleIndex = idx; }
+  const CVector3f& GetTeamPosition() const { return mPosition; }
+  void SetTeamPosition(const CVector3f& pos) { mPosition = pos; }
 
 private:
-  TUniqueId x0_ownerId;
-  ETeamAiRole x4_roleA;
-  ETeamAiRole x8_roleB;
-  ETeamAiRole xc_roleC;
-  ETeamAiRole x10_curRole;
-  int x14_roleIndex;
-  int x18_captainPriority;
-  CVector3f x1c_position;
+  TUniqueId mOwnerId;
+  ETeamAiRole mRoleA;
+  ETeamAiRole mRoleB;
+  ETeamAiRole mRoleC;
+  ETeamAiRole mCurRole;
+  int mRoleIndex;
+  int mCaptainPriority;
+  CVector3f mPosition;
 
   friend class CTeamAiMgr;
 };
@@ -92,15 +92,15 @@ public:
     static int GetNumProperties() { return kNumProperties; }
 
   private:
-    uint x0_aiCount;
-    uint x4_meleeCount;
-    uint x8_projectileCount;
-    uint xc_unknownCount;
-    uint x10_maxMeleeAttackerCount;
-    uint x14_maxProjectileAttackerCount;
-    uint x18_positionMode;
-    float x1c_meleeTimeInterval;
-    float x20_projectileTimeInterval;
+    uint mAiCount;
+    uint mMeleeCount;
+    uint mProjectileCount;
+    uint mUnknownCount;
+    uint mMaxMeleeAttackerCount;
+    uint mMaxProjectileAttackerCount;
+    uint mPositionMode;
+    float mMeleeTimeInterval;
+    float mProjectileTimeInterval;
 
     static const int kNumProperties;
   };
@@ -146,29 +146,29 @@ public:
                                           TUniqueId aiId);
   static TUniqueId GetTeamAiMgr(const CAi& ai, const CStateManager& mgr);
 
-  uint GetProjectileRoleCount() const { return x34_data.x8_projectileCount; }
-  uint GetMaxMeleeAttackerCount() const { return x34_data.x10_maxMeleeAttackerCount; }
-  uint GetMaxProjectileAttackerCount() const { return x34_data.x14_maxProjectileAttackerCount; }
-  bool HasMeleeAttackers() const { return x68_meleeAttackers.size() != 0u; }
-  bool HasProjectileAttackers() const { return x78_projectileAttackers.size() != 0u; }
+  uint GetProjectileRoleCount() const { return mData.mProjectileCount; }
+  uint GetMaxMeleeAttackerCount() const { return mData.mMaxMeleeAttackerCount; }
+  uint GetMaxProjectileAttackerCount() const { return mData.mMaxProjectileAttackerCount; }
+  bool HasMeleeAttackers() const { return mMeleeAttackers.size() != 0u; }
+  bool HasProjectileAttackers() const { return mProjectileAttackers.size() != 0u; }
   const rstl::vector< TUniqueId >& GetProjectileAttackers() const {
-    return x78_projectileAttackers;
+    return mProjectileAttackers;
   }
 
-  rstl::vector< CTeamAiRole >& GetTeamAiRoles() { return x58_roles; }
-  const rstl::vector< CTeamAiRole >& GetTeamAiRoles() const { return x58_roles; }
+  rstl::vector< CTeamAiRole >& GetTeamAiRoles() { return mRoles; }
+  const rstl::vector< CTeamAiRole >& GetTeamAiRoles() const { return mRoles; }
 
-  size_t GetNumRoles() const { return x58_roles.size(); }
+  size_t GetNumRoles() const { return mRoles.size(); }
 
 private:
-  CUnknown x34_data;
-  rstl::vector< CTeamAiRole > x58_roles;
-  rstl::vector< TUniqueId > x68_meleeAttackers;
-  rstl::vector< TUniqueId > x78_projectileAttackers;
-  float x88_timeDirty;
-  TUniqueId x8c_teamCaptainId;
-  float x90_timeSinceMelee;
-  float x94_timeSinceProjectile;
+  CUnknown mData;
+  rstl::vector< CTeamAiRole > mRoles;
+  rstl::vector< TUniqueId > mMeleeAttackers;
+  rstl::vector< TUniqueId > mProjectileAttackers;
+  float mTimeDirty;
+  TUniqueId mTeamCaptainId;
+  float mTimeSinceMelee;
+  float mTimeSinceProjectile;
 };
 typedef CTeamAiMgr::CUnknown CTeamAiMgr_CUnknown;
 CHECK_SIZEOF(CTeamAiMgr_CUnknown, 0x24)

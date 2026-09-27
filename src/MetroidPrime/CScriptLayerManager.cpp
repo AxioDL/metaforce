@@ -10,15 +10,15 @@ CScriptLayerManager::CScriptLayerManager() {}
 
 CScriptLayerManager::CScriptLayerManager(CInputStream& in, const CWorldSaveGameInfo&) {
   const uint count = in.ReadBits(10);
-  x10_saveLayers.reserve(count);
+  mSaveLayers.reserve(count);
   for (uint i = 0; i < count; ++i) {
-    x10_saveLayers.push_back(in.ReadBits(1) != 0);
+    mSaveLayers.push_back(in.ReadBits(1) != 0);
   }
 }
 
 void CScriptLayerManager::PutTo(COutputStream& out, const CWorldSaveGameInfo&) const {
   uint totalLayerCount = 0;
-  const int areaCount = x0_areaLayers.size();
+  const int areaCount = mAreaLayers.size();
   for (int i = 0; i < areaCount; ++i) {
     totalLayerCount += GetAreaLayerCount(TAreaId(i)) - 1;
   }
@@ -32,7 +32,7 @@ void CScriptLayerManager::PutTo(COutputStream& out, const CWorldSaveGameInfo&) c
 }
 
 void CScriptLayerManager::SetLayerActive(TAreaId areaIdx, TLayerId layerIdx, bool active) {
-  CWorldLayers::Area& area = x0_areaLayers[areaIdx.Value()];
+  CWorldLayers::Area& area = mAreaLayers[areaIdx.Value()];
   int layerId = layerIdx.Value();
   if (active) {
 #if NONMATCHING
@@ -50,7 +50,7 @@ void CScriptLayerManager::SetLayerActive(TAreaId areaIdx, TLayerId layerIdx, boo
 }
 
 bool CScriptLayerManager::IsLayerActive(TAreaId areaIdx, TLayerId layerIdx) const {
-  const u64& layerBits = x0_areaLayers[areaIdx.Value()].m_layerBits;
+  const u64& layerBits = mAreaLayers[areaIdx.Value()].m_layerBits;
 #if NONMATCHING
   return (layerBits & (u64(1) << layerIdx.Value())) != 0;
 #else
@@ -62,31 +62,31 @@ void CScriptLayerManager::InitializeWorldLayers(
     const rstl::vector< CWorldLayers::Area >& layers,
     const rstl::rc_ptr< rstl::vector< rstl::string > >&,
     const rstl::rc_ptr< rstl::vector< int > >&) {
-  if (!x0_areaLayers.empty()) {
+  if (!mAreaLayers.empty()) {
     return;
   }
 
-  x0_areaLayers = layers;
-  if (x10_saveLayers.size() == 0) {
+  mAreaLayers = layers;
+  if (mSaveLayers.size() == 0) {
     return;
   }
 
   int bit = 0;
-  const int areaCount = x0_areaLayers.size();
+  const int areaCount = mAreaLayers.size();
   for (int i = 0; i < areaCount; ++i) {
     int layerCount = GetAreaLayerCount(TAreaId(i));
     for (int l = 1; l < layerCount; ++l) {
-      SetLayerActive(TAreaId(i), TLayerId(l), x10_saveLayers[bit++]);
+      SetLayerActive(TAreaId(i), TLayerId(l), mSaveLayers[bit++]);
     }
   }
 
-  x10_saveLayers = rstl::bit_vector< rstl::rmemory_allocator >();
+  mSaveLayers = rstl::bit_vector< rstl::rmemory_allocator >();
 }
 
 int CScriptLayerManager::GetAreaLayerCount(TAreaId areaId) const {
-  return x0_areaLayers[areaId.Value()].m_layerCount;
+  return mAreaLayers[areaId.Value()].m_layerCount;
 }
 
 const rstl::vector< CWorldLayers::Area >& CScriptLayerManager::GetAreaLayers() const {
-  return x0_areaLayers;
+  return mAreaLayers;
 }

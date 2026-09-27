@@ -23,44 +23,44 @@ int CFireFlea::sLightIdx = 0;
 CFireFlea::CDeathCameraEffect::CDeathCameraEffect(TUniqueId uid, TAreaId aid,
                                                   const rstl::string& name)
 : CEntity(uid, CEntityInfo(aid, CEntity::NullConnectionList), true, name)
-, x34_startFadeTime(13)
-, x38_fadeDuration(5)
-, x3c_reverseFadeDuration(60)
-, x40_totalFadeDuration(190)
-, x44_currentTime(0) {}
+, mStartFadeTime(13)
+, mFadeDuration(5)
+, mReverseFadeDuration(60)
+, mTotalFadeDuration(190)
+, mCurrentTime(0) {}
 
 void CFireFlea::CDeathCameraEffect::PreThink(float dt, CStateManager& mgr) {
   CCameraFilterPass& pass = mgr.CameraFilterPass(CStateManager::kCFS_Five);
-  const uint endFadeTime = x34_startFadeTime + x38_fadeDuration;
-  const uint reverseFadeStartTime = endFadeTime + x3c_reverseFadeDuration;
-  const uint endTransitionTime = reverseFadeStartTime + x40_totalFadeDuration;
+  const uint endFadeTime = mStartFadeTime + mFadeDuration;
+  const uint reverseFadeStartTime = endFadeTime + mReverseFadeDuration;
+  const uint endTransitionTime = reverseFadeStartTime + mTotalFadeDuration;
 
-  if (x44_currentTime >= x34_startFadeTime && x44_currentTime <= endFadeTime) {
+  if (mCurrentTime >= mStartFadeTime && mCurrentTime <= endFadeTime) {
     sCurrentFadeColor =
         CColor::Add(sCurrentFadeColor,
                     CColor::Lerp(skStartFadeColor, skEndFadeColor,
-                                 (float)(x44_currentTime - x34_startFadeTime) / x38_fadeDuration));
+                                 (float)(mCurrentTime - mStartFadeTime) / mFadeDuration));
     pass.SetFilter(CCameraFilterPass::kFT_Blend, CCameraFilterPass::kFS_Fullscreen, 0.f,
                    sCurrentFadeColor, -1);
-  } else if (x44_currentTime >= reverseFadeStartTime && x44_currentTime <= endTransitionTime) {
+  } else if (mCurrentTime >= reverseFadeStartTime && mCurrentTime <= endTransitionTime) {
     sCurrentFadeColor = CColor::Add(
         sCurrentFadeColor,
         CColor::Lerp(skEndFadeColor, skStartFadeColor,
-                     (float)(x44_currentTime - reverseFadeStartTime) / x40_totalFadeDuration));
+                     (float)(mCurrentTime - reverseFadeStartTime) / mTotalFadeDuration));
     pass.SetFilter(CCameraFilterPass::kFT_Blend, CCameraFilterPass::kFS_Fullscreen, 0.f,
                    sCurrentFadeColor, -1);
-  } else if (x44_currentTime >= endFadeTime) {
+  } else if (mCurrentTime >= endFadeTime) {
     sCurrentFadeColor = skEndFadeColor;
     pass.SetFilter(CCameraFilterPass::kFT_Blend, CCameraFilterPass::kFS_Fullscreen, 0.f,
                    sCurrentFadeColor, -1);
   }
 
-  if (x44_currentTime == endTransitionTime) {
+  if (mCurrentTime == endTransitionTime) {
     pass.DisableFilter(0.f);
     mgr.DeleteObjectRequest(GetUniqueId());
-    x44_currentTime = 0;
+    mCurrentTime = 0;
   } else {
-    ++x44_currentTime;
+    ++mCurrentTime;
   }
 
   if (mgr.GetPlayerState()->GetActiveVisor(mgr) != CPlayerState::kPV_Thermal) {
@@ -82,8 +82,8 @@ CFireFlea::CFireFlea(TUniqueId uid, const rstl::string& name, const CEntityInfo&
 , x568_(1.f)
 , x56c_(f1)
 , xd74_(CVector3f::Zero())
-, xd80_targetPos(CVector3f::Zero())
-, xd8c_pathFind(nullptr, 1 | 2, pInfo.GetPathfindingIndex(), 1.f, 1.f) {
+, mTargetPos(CVector3f::Zero())
+, mPathFind(nullptr, 1 | 2, pInfo.GetPathfindingIndex(), 1.f, 1.f) {
   CMaterialList exclude = GetMaterialFilter().GetExcludeList();
   exclude.Add(CMaterialList(kMT_Character));
   CMaterialList include = GetMaterialFilter().GetIncludeList();
@@ -103,8 +103,8 @@ void CFireFlea::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CSta
   case kSM_InitializedInArea: {
     TAreaId aid = GetCurrentAreaId();
     const CGameArea& area = mgr.GetWorld()->GetAreaAlways(aid);
-    xd8c_pathFind.SetArea(area.GetPostConstructed()->x10bc_pathArea);
-    xd8c_pathFind.SetPadding(50.f);
+    mPathFind.SetArea(area.GetPostConstructed()->mPathArea);
+    mPathFind.SetPadding(50.f);
     break;
   }
   default:
@@ -120,11 +120,11 @@ void CFireFlea::Think(float dt, CStateManager& mgr) {
 }
 
 bool CFireFlea::HearShot(CStateManager& mgr, float arg) {
-  x570_nearList.clear();
+  mNearList.clear();
   CVector3f translation = GetTranslation();
   CAABox box(translation - CVector3f(10.f, 10.f, 10.f), translation + CVector3f(10.f, 10.f, 10.f));
   CMaterialFilter filter = CMaterialFilter::MakeInclude(CMaterialList(kMT_Projectile));
-  mgr.BuildNearList(x570_nearList, box, filter, nullptr);
+  mgr.BuildNearList(mNearList, box, filter, nullptr);
   return HeardShot();
 }
 
@@ -215,14 +215,14 @@ void CFireFlea::Flee(CStateManager& mgr, EStateMsg msg, float arg) {
     BodyCtrl()->SetLocomotionType(pas::kLT_Lurk);
     break;
   case kStateMsg_Update:
-    if (x570_nearList.size() == 0) {
+    if (mNearList.size() == 0) {
       xd74_ = AdjustMovementVec(mgr, xd74_);
       BodyCtrl()->CommandMgr().DeliverCmd(CBCLocomotionCmd(xd74_, CVector3f::Zero(), 1.f));
     } else {
-      for (TEntityList::const_iterator it = x570_nearList.begin(); it != x570_nearList.end();
+      for (TEntityList::const_iterator it = mNearList.begin(); it != mNearList.end();
            ++it) {
         if (const CActor* actor = static_cast< const CActor* >(mgr.GetObjectById(*it))) {
-          CVector3f direction = x45c_steeringBehaviors.Flee(*this, actor->GetTranslation());
+          CVector3f direction = mSteeringBehaviors.Flee(*this, actor->GetTranslation());
           direction = AdjustMovementVec(mgr, direction);
           xd74_ = direction;
           BodyCtrl()->CommandMgr().DeliverCmd(CBCLocomotionCmd(direction, CVector3f::Zero(), 1.f));
@@ -260,7 +260,7 @@ void CFireFlea::TargetPatrol(CStateManager& mgr, EStateMsg msg, float arg) {
   case kStateMsg_Activate:
     CPatterned::Patrol(mgr, msg, arg);
     UpdateDest(mgr);
-    xd80_targetPos = x2e0_destPos;
+    mTargetPos = mDestPos;
     break;
   case kStateMsg_Update:
     if (GetSearchPath()) {
@@ -268,7 +268,7 @@ void CFireFlea::TargetPatrol(CStateManager& mgr, EStateMsg msg, float arg) {
         CVector3f closestPoint = CVector3f::Zero();
         if (GetSearchPath()->FindClosestReachablePoint(GetTranslation(), closestPoint) ==
             CPathFindSearch::kR_Success) {
-          CVector3f direction = x45c_steeringBehaviors.Arrival(*this, xd80_targetPos, 5.f);
+          CVector3f direction = mSteeringBehaviors.Arrival(*this, mTargetPos, 5.f);
           direction = AdjustMovementVec(mgr, direction);
           BodyCtrl()->CommandMgr().DeliverCmd(CBCLocomotionCmd(direction, CVector3f::Zero(), 1.f));
         }
@@ -277,7 +277,7 @@ void CFireFlea::TargetPatrol(CStateManager& mgr, EStateMsg msg, float arg) {
       }
     } else {
       BodyCtrl()->CommandMgr().DeliverCmd(CBCLocomotionCmd(
-          x45c_steeringBehaviors.Arrival(*this, xd80_targetPos, 5.f), CVector3f::Zero(), 1.f));
+          mSteeringBehaviors.Arrival(*this, mTargetPos, 5.f), CVector3f::Zero(), 1.f));
     }
     break;
   default:
@@ -287,13 +287,13 @@ void CFireFlea::TargetPatrol(CStateManager& mgr, EStateMsg msg, float arg) {
 
 bool CFireFlea::InPosition(CStateManager& mgr, float arg) {
   if (GetDestObj() != kInvalidUniqueId) {
-    const CVector3f& delta = xd80_targetPos - GetTranslation();
+    const CVector3f& delta = mTargetPos - GetTranslation();
     return delta.MagSquared() < 25.f;
   }
   return false;
 }
 
-CPathFindSearch* CFireFlea::GetSearchPath() { return &xd8c_pathFind; }
+CPathFindSearch* CFireFlea::GetSearchPath() { return &mPathFind; }
 
 bool CFireFlea::Delay(CStateManager& mgr, float arg) {
   return GetStateMachineState().GetTime() > 0.5f;

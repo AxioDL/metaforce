@@ -46,52 +46,52 @@ public:
   enum ESurroundModes { kSM_Mono, kSM_Stereo, kSM_Surround };
   class CEmitterData {
   public:
-    CEmitterData() : x50_used(0), x51_important(0), x52_prio(kEmitterMedPriority) {}
+    CEmitterData() : mUsed(0), mImportant(0), mPrio(kEmitterMedPriority) {}
 
-    SND_EMITTER x0_emitter;
-    bool x50_used;
-    bool x51_important;
-    uchar x52_prio;
+    SND_EMITTER mEmitter;
+    bool mUsed;
+    bool mImportant;
+    uchar mPrio;
   };
 
   struct C3DEmitterParmData {
     C3DEmitterParmData(const float maxDist = 150.f, const float distComp = 0.1f,
                        const uint flags = 1, const uchar maxVol = 127, const uchar minVol = 0)
-    : x0_pos(0.f, 0.f, 0.f)
-    , xc_dir(0.f, 0.f, 0.f)
-    , x18_maxDist(maxDist)
-    , x1c_distComp(distComp)
-    , x20_flags(flags)
-    , x24_sfxId(0)
-    , x26_maxVol(maxVol)
-    , x27_minVol(minVol)
-    , x28_important(false)
-    , x29_prio(CAudioSys::kEmitterMedPriority) {}
+    : mPos(0.f, 0.f, 0.f)
+    , mDir(0.f, 0.f, 0.f)
+    , mMaxDist(maxDist)
+    , mDistComp(distComp)
+    , mFlags(flags)
+    , mSfxId(0)
+    , mMaxVol(maxVol)
+    , mMinVol(minVol)
+    , mImportant(false)
+    , mPrio(CAudioSys::kEmitterMedPriority) {}
 
-    CVector3f x0_pos;
-    CVector3f xc_dir;
-    float x18_maxDist;
-    float x1c_distComp;
-    uint x20_flags;
-    ushort x24_sfxId;
-    uchar x26_maxVol;
-    uchar x27_minVol;
-    bool x28_important; // Can't be allocated over, regardless of priority
-    uchar x29_prio;
+    CVector3f mPos;
+    CVector3f mDir;
+    float mMaxDist;
+    float mDistComp;
+    uint mFlags;
+    ushort mSfxId;
+    uchar mMaxVol;
+    uchar mMinVol;
+    bool mImportant; // Can't be allocated over, regardless of priority
+    uchar mPrio;
   };
 
   class CTrkData {
   public:
-    CTrkData(const rstl::string& name) : x50_inUse(true), x54_name(name) {}
+    CTrkData(const rstl::string& name) : mInUse(true), mName(name) {}
 
-    bool GetIsTrackInUse() const { return x50_inUse; }
-    void SetIsTrackInUse(bool v) { x50_inUse = v; }
-    DTKTrack* GetTrack() { return &x0_track; }
-    char* GetFileName() { return const_cast< char* >(x54_name.data()); }
+    bool GetIsTrackInUse() const { return mInUse; }
+    void SetIsTrackInUse(bool v) { mInUse = v; }
+    DTKTrack* GetTrack() { return &mTrack; }
+    char* GetFileName() { return const_cast< char* >(mName.data()); }
 
-    DTKTrack x0_track;
-    bool x50_inUse;
-    rstl::string x54_name;
+    DTKTrack mTrack;
+    bool mInUse;
+    rstl::string mName;
   };
 
   CAudioSys(uchar, uchar, uchar, uchar, uint);

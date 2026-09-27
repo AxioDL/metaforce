@@ -21,14 +21,14 @@ CScriptStreamedMusic::CScriptStreamedMusic(TUniqueId id, const CEntityInfo& info
                                            float fadeIn, float fadeOut, uint volume, bool loop,
                                            bool music)
 : CEntity(id, info, active, name)
-, x34_fileName(fileName)
-, x44_noStopOnDeactivate(noStopOnDeactivate)
-, x45_fileIsDsp(IsAudioTrackNameSoftware(fileName))
-, x46_loop(loop)
-, x47_music(music)
-, x48_fadeIn(fadeIn)
-, x4c_fadeOut(fadeOut)
-, x50_volume(volume) {
+, mFileName(fileName)
+, mNoStopOnDeactivate(noStopOnDeactivate)
+, mFileIsDsp(IsAudioTrackNameSoftware(fileName))
+, mLoop(loop)
+, mMusic(music)
+, mFadeIn(fadeIn)
+, mFadeOut(fadeOut)
+, mVolume(volume) {
   nullsub_42(this);
 }
 
@@ -54,26 +54,26 @@ void CScriptStreamedMusic::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId o
     }
     break;
   case kSM_Deactivate:
-    if (((x45_fileIsDsp == false) && (x44_noStopOnDeactivate == false)) ||
-        (x45_fileIsDsp != false)) {
+    if (((mFileIsDsp == false) && (mNoStopOnDeactivate == false)) ||
+        (mFileIsDsp != false)) {
       Stop(stateMgr);
     }
     break;
 
   case kSM_Increment:
-    if (x45_fileIsDsp) {
-      CStreamAudioManager::FadeInSoftwareAudio(IsOneShot(x46_loop), x48_fadeIn);
+    if (mFileIsDsp) {
+      CStreamAudioManager::FadeInSoftwareAudio(IsOneShot(mLoop), mFadeIn);
     } else {
-      CStreamAudioManager::fn_803653F8(x48_fadeIn);
+      CStreamAudioManager::fn_803653F8(mFadeIn);
     }
 
     break;
 
   case kSM_Decrement:
-    if (x45_fileIsDsp) {
-      CStreamAudioManager::FadeOutSoftwareAudio(IsOneShot(x46_loop), x4c_fadeOut);
+    if (mFileIsDsp) {
+      CStreamAudioManager::FadeOutSoftwareAudio(IsOneShot(mLoop), mFadeOut);
     } else {
-      CStreamAudioManager::fn_80365424(x4c_fadeOut);
+      CStreamAudioManager::fn_80365424(mFadeOut);
     }
     break;
 
@@ -86,7 +86,7 @@ ENTITY_ACCEPT_IMPL(CScriptStreamedMusic)
 
 void CScriptStreamedMusic::Play(CStateManager& mgr) {
   TweakOverride(mgr);
-  if (x45_fileIsDsp) {
+  if (mFileIsDsp) {
     StartStream(mgr);
   } else {
     sub_8020c414(mgr);
@@ -94,7 +94,7 @@ void CScriptStreamedMusic::Play(CStateManager& mgr) {
 }
 
 void CScriptStreamedMusic::Stop(CStateManager& mgr) {
-  if (x45_fileIsDsp) {
+  if (mFileIsDsp) {
     StopStream(mgr);
   } else {
     sub_8020c3f0(mgr);
@@ -102,25 +102,25 @@ void CScriptStreamedMusic::Stop(CStateManager& mgr) {
 }
 
 void CScriptStreamedMusic::sub_8020c414(CStateManager& mgr) {
-  char volume = x50_volume;
-  if (x44_noStopOnDeactivate) {
-    CStreamAudioManager::SetDefaultAudio(x34_fileName, x4c_fadeOut, x48_fadeIn, volume);
+  char volume = mVolume;
+  if (mNoStopOnDeactivate) {
+    CStreamAudioManager::SetDefaultAudio(mFileName, mFadeOut, mFadeIn, volume);
   } else {
-    CStreamAudioManager::SetCurrentAudio(x34_fileName, x4c_fadeOut, x48_fadeIn, volume);
+    CStreamAudioManager::SetCurrentAudio(mFileName, mFadeOut, mFadeIn, volume);
   }
 }
 
 void CScriptStreamedMusic::sub_8020c3f0(CStateManager& mgr) {
-  CStreamAudioManager::FadeBackIn(x4c_fadeOut);
+  CStreamAudioManager::FadeBackIn(mFadeOut);
 }
 
 void CScriptStreamedMusic::StartStream(CStateManager& mgr) {
-  CStreamAudioManager::PlaySoftwareAudio(IsOneShot(x46_loop), x34_fileName, x48_fadeIn, x4c_fadeOut,
-                                         static_cast< uchar >(x50_volume), x47_music);
+  CStreamAudioManager::PlaySoftwareAudio(IsOneShot(mLoop), mFileName, mFadeIn, mFadeOut,
+                                         static_cast< uchar >(mVolume), mMusic);
 }
 
 void CScriptStreamedMusic::StopStream(CStateManager& mgr) {
-  CStreamAudioManager::StopSoftwareAudio(IsOneShot(x46_loop), x34_fileName);
+  CStreamAudioManager::StopSoftwareAudio(IsOneShot(mLoop), mFileName);
 }
 
 void CScriptStreamedMusic::TweakOverride(CStateManager& mgr) {
@@ -135,11 +135,11 @@ void CScriptStreamedMusic::TweakOverride(CStateManager& mgr) {
     char volume = CCast::ToInt8(audio.GetVolume() * 127.f);
     float fadeOut = audio.GetFadeOut();
 
-    x34_fileName = fileName;
-    x45_fileIsDsp = IsAudioTrackNameSoftware(x34_fileName);
-    x48_fadeIn = fadeIn;
-    x50_volume = volume;
-    x4c_fadeOut = fadeOut;
+    mFileName = fileName;
+    mFileIsDsp = IsAudioTrackNameSoftware(mFileName);
+    mFadeIn = fadeIn;
+    mVolume = volume;
+    mFadeOut = fadeOut;
     nullsub_42(this);
     sub_8020be90();
   }
@@ -147,15 +147,15 @@ void CScriptStreamedMusic::TweakOverride(CStateManager& mgr) {
 
 
 void CScriptStreamedMusic::sub_8020be90() {
-  if (x45_fileIsDsp && x34_fileName.find('|', 0) == -1 &&
-      static_cast< int >(x34_fileName.size()) >= 5) {
+  if (mFileIsDsp && mFileName.find('|', 0) == -1 &&
+      static_cast< int >(mFileName.size()) >= 5) {
     const int cmp = CStringExtras::CompareCaseInsensitive(
-        rstl::string_l(x34_fileName.data() + static_cast< int >(x34_fileName.size()) - 5),
+        rstl::string_l(mFileName.data() + static_cast< int >(mFileName.size()) - 5),
         rstl::string_l("L.dsp"));
     if (cmp == 0) {
-      rstl::string file = rstl::string(x34_fileName.begin(), x34_fileName.end() - 5) + "R.dsp";
+      rstl::string file = rstl::string(mFileName.begin(), mFileName.end() - 5) + "R.dsp";
       if (CDvdFile::FileExists(file.data())) {
-        x34_fileName = x34_fileName + '|' + file;
+        mFileName = mFileName + '|' + file;
       }
     }
   }

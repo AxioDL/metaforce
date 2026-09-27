@@ -105,29 +105,29 @@ public:
   void Render(const CTransform4f& xf, const CTransform4f& invXf, const CTransform4f& camXf,
               float fxDensity, EEnvFxType fxType);
 
-  void SetDirty(bool dirty) { x0_24_blockDirty = dirty; }
-  bool IsDirty() const { return x0_24_blockDirty; }
+  void SetDirty(bool dirty) { mBlockDirty = dirty; }
+  bool IsDirty() const { return mBlockDirty; }
 
-  const CVector2i& GetStart() const { return x4_position; }
-  const CVector2i& GetSize() const { return xc_extent; }
-  void SetStart(const CVector2i& start) { x4_position = start; }
+  const CVector2i& GetStart() const { return mPosition; }
+  const CVector2i& GetSize() const { return mExtent; }
+  void SetStart(const CVector2i& start) { mPosition = start; }
 
-  rstl::pair< bool, float > GetVisibility() const { return x14_block; }
-  void SetVisibility(rstl::pair< bool, float > vis) { x14_block = vis; }
+  rstl::pair< bool, float > GetVisibility() const { return mBlock; }
+  void SetVisibility(rstl::pair< bool, float > vis) { mBlock = vis; }
 
-  rstl::vector< CVectorFixed8_8 >& Particles() { return x1c_particles; }
-  const rstl::vector< CVectorFixed8_8 >& Particles() const { return x1c_particles; }
+  rstl::vector< CVectorFixed8_8 >& Particles() { return mParticles; }
+  const rstl::vector< CVectorFixed8_8 >& Particles() const { return mParticles; }
 
 private:
   void RenderSnowParticles(const CTransform4f& camXf);
   void RenderRainParticles(const CTransform4f& camXf);
   void RenderUnderwaterParticles(const CTransform4f& camXf);
 
-  bool x0_24_blockDirty : 1;
-  CVector2i x4_position;               /* 8.8 fixed point */
-  CVector2i xc_extent;                 /* 8.8 fixed point */
-  rstl::pair< bool, float > x14_block; /* Blocked-bool, Z-coordinate */
-  rstl::vector< CVectorFixed8_8 > x1c_particles;
+  bool mBlockDirty : 1;
+  CVector2i mPosition;               /* 8.8 fixed point */
+  CVector2i mExtent;                 /* 8.8 fixed point */
+  rstl::pair< bool, float > mBlock; /* Blocked-bool, Z-coordinate */
+  rstl::vector< CVectorFixed8_8 > mParticles;
 };
 CHECK_SIZEOF(CEnvFxManagerGrid, 0x2c);
 
@@ -141,9 +141,9 @@ public:
   void SetFxDensity(int, float);
   void AreaLoaded();
   void AsyncLoadResources(CStateManager& mgr);
-  void SetSplashRate(float f) { xb54_baseSplashRate = f; }
-  bool IsSplashActive() const { return x24_enableSplash; }
-  float GetRainMagnitude() const { return x30_fxDensity; }
+  void SetSplashRate(float f) { mBaseSplashRate = f; }
+  bool IsSplashActive() const { return mEnableSplash; }
+  float GetRainMagnitude() const { return mFxDensity; }
   void Cleanup();
 
 private:
@@ -170,26 +170,26 @@ private:
   void SetupDefaultTevSwapMode();
   void BlankFirstSnowflakeMip(CTexture& tex);
 
-  CAABox x0_particleBounds;
-  CVector3f x18_focusCellPosition;
-  bool x24_enableSplash;
-  float x28_firstSnowForce;
-  int x2c_lastBlockedGridIdx;
-  float x30_fxDensity;
-  float x34_targetFxDensity;
-  float x38_maxDensityDeltaSpeed;
-  bool x3c_snowflakeTextureMipBlanked;
-  rstl::optional_object< TLockedToken< CTexture > > x40_txtrEnvGradient;
-  rstl::reserved_vector< CEnvFxManagerGrid, 64 > x50_grids;
-  float xb54_baseSplashRate;
-  rstl::optional_object< TLockedToken< CGenDescription > > xb58_envRainSplash;
-  TUniqueId xb68_envRainSplashId;
-  bool xb6a_rainSoundActive;
-  CSfxHandle xb6c_leftRainSound;
-  CSfxHandle xb70_rightRainSound;
-  rstl::optional_object< TLockedToken< CTexture > > xb74_txtrSnowFlake;
-  rstl::reserved_vector< CVector3f, 16 > xb84_snowZDeltas;
-  rstl::optional_object< TLockedToken< CTexture > > xc48_underwaterFlake;
+  CAABox mParticleBounds;
+  CVector3f mFocusCellPosition;
+  bool mEnableSplash;
+  float mFirstSnowForce;
+  int mLastBlockedGridIdx;
+  float mFxDensity;
+  float mTargetFxDensity;
+  float mMaxDensityDeltaSpeed;
+  bool mSnowflakeTextureMipBlanked;
+  rstl::optional_object< TLockedToken< CTexture > > mTxtrEnvGradient;
+  rstl::reserved_vector< CEnvFxManagerGrid, 64 > mGrids;
+  float mBaseSplashRate;
+  rstl::optional_object< TLockedToken< CGenDescription > > mEnvRainSplash;
+  TUniqueId mEnvRainSplashId;
+  bool mRainSoundActive;
+  CSfxHandle mLeftRainSound;
+  CSfxHandle mRightRainSound;
+  rstl::optional_object< TLockedToken< CTexture > > mTxtrSnowFlake;
+  rstl::reserved_vector< CVector3f, 16 > mSnowZDeltas;
+  rstl::optional_object< TLockedToken< CTexture > > mUnderwaterFlake;
 };
 CHECK_SIZEOF(CEnvFxManager, 0xc58);
 

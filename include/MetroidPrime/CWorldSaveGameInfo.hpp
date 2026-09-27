@@ -14,32 +14,32 @@ public:
   struct SLayerState {
     SLayerState(CInputStream& in);
 
-    TAreaId x0_area;
-    uint x4_layer;
+    TAreaId mArea;
+    uint mLayer;
   };
 
   explicit CWorldSaveGameInfo(CInputStream& in);
 
-  int GetCinematicCount() const { return x4_cinematics.size(); }
-  const rstl::vector< TEditorId >& GetCinematics() const { return x4_cinematics; }
+  int GetCinematicCount() const { return mCinematics.size(); }
+  const rstl::vector< TEditorId >& GetCinematics() const { return mCinematics; }
 
-  const rstl::vector< TEditorId >& GetDoors() const { return x34_doors; }
+  const rstl::vector< TEditorId >& GetDoors() const { return mDoors; }
 
   typedef rstl::pair< CAssetId, uint > ScanState;
-  uint GetAreaCount() const { return x0_areaCount; }
-  const rstl::vector< ScanState >& GetScans() const { return x44_scans; }
+  uint GetAreaCount() const { return mAreaCount; }
+  const rstl::vector< ScanState >& GetScans() const { return mScans; }
 
   int GetRelayIndex(const TEditorId&) const;
 
-  const rstl::vector< TEditorId >& GetRelays() const { return x14_relays; }
+  const rstl::vector< TEditorId >& GetRelays() const { return mRelays; }
 
 private:
-  uint x0_areaCount;
-  rstl::vector< TEditorId > x4_cinematics;
-  rstl::vector< TEditorId > x14_relays;
-  rstl::vector< SLayerState > x24_layers;
-  rstl::vector< TEditorId > x34_doors;
-  rstl::vector< ScanState > x44_scans;
+  uint mAreaCount;
+  rstl::vector< TEditorId > mCinematics;
+  rstl::vector< TEditorId > mRelays;
+  rstl::vector< SLayerState > mLayers;
+  rstl::vector< TEditorId > mDoors;
+  rstl::vector< ScanState > mScans;
 };
 
 CHECK_SIZEOF(CWorldSaveGameInfo, 0x54)

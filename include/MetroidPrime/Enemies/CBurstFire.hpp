@@ -8,35 +8,35 @@
 class CStateManager;
 
 struct SBurst {
-  int x0_randomSelectionWeight;
-  int x4_shotAngles[8];
-  float x24_timeToNextShot;
-  float x28_timeToNextShotVariance;
+  int mRandomSelectionWeight;
+  int mShotAngles[8];
+  float mTimeToNextShot;
+  float mTimeToNextShotVariance;
 };
 
 class CBurstFire {
-  int x0_burstType;
-  int x4_angleIdx;
-  float x8_timeToNextShot;
-  int xc_firstBurstIdx;
-  int x10_firstBurstCounter;
-  bool x14_24_shouldFire : 1;
-  bool x14_25_avoidAccuracy : 1;
-  const SBurst* x18_curBursts;
-  rstl::reserved_vector<const SBurst*, 16> x1c_burstDefs;
+  int mBurstType;
+  int mAngleIdx;
+  float mTimeToNextShot;
+  int mFirstBurstIdx;
+  int mFirstBurstCounter;
+  bool mShouldFire : 1;
+  bool mAvoidAccuracy : 1;
+  const SBurst* mCurBursts;
+  rstl::reserved_vector<const SBurst*, 16> mBurstDefs;
 
 public:
   CBurstFire(const SBurst** burstDefs, int firstBurstCount);
 
-  void SetBurstType(int type) { x0_burstType = type; }
-  void SetFirstBurstIndex(int idx) { xc_firstBurstIdx = idx; }
-  int GetBurstType() const { return x0_burstType; }
-  bool IsBurstSet() const { return x18_curBursts != nullptr; }
-  bool ShouldFire() const { return x14_24_shouldFire; }
-  void SetAvoidAccuracy(bool avoid) { x14_25_avoidAccuracy = avoid; }
+  void SetBurstType(int type) { mBurstType = type; }
+  void SetFirstBurstIndex(int idx) { mFirstBurstIdx = idx; }
+  int GetBurstType() const { return mBurstType; }
+  bool IsBurstSet() const { return mCurBursts != nullptr; }
+  bool ShouldFire() const { return mShouldFire; }
+  void SetAvoidAccuracy(bool avoid) { mAvoidAccuracy = avoid; }
   void SetTimeToNextShot(float time) {
-    if (x8_timeToNextShot > 0.f) {
-      x8_timeToNextShot = time;
+    if (mTimeToNextShot > 0.f) {
+      mTimeToNextShot = time;
     }
   }
 

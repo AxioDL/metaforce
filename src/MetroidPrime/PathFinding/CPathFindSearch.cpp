@@ -6,19 +6,19 @@
 #include "Kyoto/Math/CloseEnough.hpp"
 
 CPFOpenList::CPFOpenList() {
-  x40_region.SetData(&x90_regionData);
+  mRegion.SetData(&mRegionData);
   Clear();
 }
 
 CPathFindSearch::CPathFindSearch(CPFArea* area, uint flags, uint index, float chRadius,
                                  float chHeight)
-: x0_area(area)
-, xc8_curWaypoint(0)
-, xd0_chHeight(chHeight)
-, xd4_chRadius(chRadius)
-, xd8_padding(10.f)
-, xdc_flags(flags)
-, xe0_indexMask(1 << index) {}
+: mArea(area)
+, mCurWaypoint(0)
+, mChHeight(chHeight)
+, mChRadius(chRadius)
+, mPadding(10.f)
+, mFlags(flags)
+, mIndexMask(1 << index) {}
 
 CPathFindSearch::EResult CPathFindSearch::Search(const CVector3f& source,
                                                  const CVector3f& destination) {
@@ -27,60 +27,60 @@ CPathFindSearch::EResult CPathFindSearch::Search(const CVector3f& source,
   bool outsideSource = false;
   bool includeDest;
   bool outsideDest = false;
-  x4_waypoints.clear();
-  xc8_curWaypoint = 0;
-  if (!x0_area) {
-    xcc_result = kR_InvalidArea;
-    return xcc_result;
+  mWaypoints.clear();
+  mCurWaypoint = 0;
+  if (!mArea) {
+    mResult = kR_InvalidArea;
+    return mResult;
   }
-  if (x0_area->GetNumRegions() > 512) {
-    xcc_result = kR_InvalidArea;
-    return xcc_result;
+  if (mArea->GetNumRegions() > 512) {
+    mResult = kR_InvalidArea;
+    return mResult;
   }
   if (close_enough(source, destination)) {
-    x4_waypoints.push_back(source);
-    xcc_result = kR_Success;
-    return xcc_result;
+    mWaypoints.push_back(source);
+    mResult = kR_Success;
+    return mResult;
   }
 
-  CVector3f localSource = x0_area->GetTransform().TransposeMultiply(source);
-  CVector3f localDest = x0_area->GetTransform().TransposeMultiply(destination);
-  if (!(xdc_flags & 2) && !(xdc_flags & 4)) {
+  CVector3f localSource = mArea->GetTransform().TransposeMultiply(source);
+  CVector3f localDest = mArea->GetTransform().TransposeMultiply(destination);
+  if (!(mFlags & 2) && !(mFlags & 4)) {
     localSource[kDZ] += 0.3f;
     localDest[kDZ] += 0.3f;
   }
 
   rstl::reserved_vector< CVector3f, 16 > points;
   rstl::reserved_vector< CPFRegion*, 4 > sourceRegions;
-  if (x0_area->FindRegions(sourceRegions, localSource, xdc_flags, xe0_indexMask) == 0) {
+  if (mArea->FindRegions(sourceRegions, localSource, mFlags, mIndexMask) == 0) {
     CPFRegion* region =
-        x0_area->FindClosestRegion(localSource, xdc_flags, xe0_indexMask, xd8_padding);
+        mArea->FindClosestRegion(localSource, mFlags, mIndexMask, mPadding);
     if (!region) {
-      xcc_result = kR_NoSourcePoint;
-      return xcc_result;
+      mResult = kR_NoSourcePoint;
+      return mResult;
     }
-    if (xdc_flags & 2 || xdc_flags & 4) {
+    if (mFlags & 2 || mFlags & 4) {
       outsideSource = true;
       points.push_back(localSource);
     }
     sourceRegions.push_back(region);
-    localSource = x0_area->GetClosestPoint();
+    localSource = mArea->GetClosestPoint();
   }
 
   CVector3f finalDest = localDest;
   rstl::reserved_vector< CPFRegion*, 4 > destRegions;
-  if (x0_area->FindRegions(destRegions, localDest, xdc_flags, xe0_indexMask) == 0) {
+  if (mArea->FindRegions(destRegions, localDest, mFlags, mIndexMask) == 0) {
     CPFRegion* region =
-        x0_area->FindClosestRegion(localDest, xdc_flags, xe0_indexMask, xd8_padding);
+        mArea->FindClosestRegion(localDest, mFlags, mIndexMask, mPadding);
     if (!region) {
-      xcc_result = kR_NoDestPoint;
-      return xcc_result;
+      mResult = kR_NoDestPoint;
+      return mResult;
     }
-    if (xdc_flags & 2 || xdc_flags & 4) {
+    if (mFlags & 2 || mFlags & 4) {
       outsideDest = true;
     }
     destRegions.push_back(region);
-    localDest = x0_area->GetClosestPoint();
+    localDest = mArea->GetClosestPoint();
   }
 
   rstl::reserved_vector< CPFRegion*, 4 > uniqueSources;
@@ -89,22 +89,22 @@ CPathFindSearch::EResult CPathFindSearch::Search(const CVector3f& source,
   for (i = 0; i < sourceRegions.size(); ++i) {
     for (j = 0; j < destRegions.size(); ++j) {
       if (sourceRegions[i] == destRegions[j]) {
-        if (!(xdc_flags & 2) && !(xdc_flags & 4)) {
+        if (!(mFlags & 2) && !(mFlags & 4)) {
           destRegions[j]->DropToGround(localSource);
           destRegions[j]->DropToGround(localDest);
         }
-        const CTransform4f& transform = x0_area->GetTransform();
-        x4_waypoints.push_back(transform * localSource);
+        const CTransform4f& transform = mArea->GetTransform();
+        mWaypoints.push_back(transform * localSource);
         if (!close_enough(localSource, localDest)) {
-          x4_waypoints.push_back(transform * localDest);
+          mWaypoints.push_back(transform * localDest);
         }
         if (outsideDest && !close_enough(localDest, finalDest)) {
-          x4_waypoints.push_back(transform * finalDest);
+          mWaypoints.push_back(transform * finalDest);
         }
-        xcc_result = kR_Success;
-        return xcc_result;
+        mResult = kR_Success;
+        return mResult;
       }
-      if (x0_area->PathExists(sourceRegions[i], destRegions[j], xdc_flags)) {
+      if (mArea->PathExists(sourceRegions[i], destRegions[j], mFlags)) {
         int sourceIdx = uniqueSources.size();
         while (--sourceIdx >= 0) {
           if (uniqueSources[sourceIdx] == sourceRegions[i]) {
@@ -129,8 +129,8 @@ CPathFindSearch::EResult CPathFindSearch::Search(const CVector3f& source,
   }
 
   if (noPath || !Search(uniqueSources, localSource, uniqueDests, localDest)) {
-    xcc_result = kR_NoPath;
-    return xcc_result;
+    mResult = kR_NoPath;
+    return mResult;
   }
 
   CPFRegion* destRegion = uniqueDests[0];
@@ -157,19 +157,19 @@ CPathFindSearch::EResult CPathFindSearch::Search(const CVector3f& source,
   if (pointCount + 1 >= points.capacity()) {
     includeDest = false;
   }
-  if (!(xdc_flags & 2) && !(xdc_flags & 4)) {
+  if (!(mFlags & 2) && !(mFlags & 4)) {
     sourceRegion->DropToGround(localSource);
     destRegion->DropToGround(localDest);
   }
 
-  float halfHeight = 0.5f * xd0_chHeight;
+  float halfHeight = 0.5f * mChHeight;
   points.push_back(localSource);
   region = sourceRegion;
   for (j = firstPoint; j <= lastPoint; ++j) {
     const CPFLink* link = region->GetPathLink();
-    CPFRegion* linkRegion = &x0_area->GetRegion(link->GetRegion());
+    CPFRegion* linkRegion = &mArea->GetRegion(link->GetRegion());
     CVector3f midpoint = region->GetLinkMidPoint(*link);
-    if (xdc_flags & 2 || xdc_flags & 4) {
+    if (mFlags & 2 || mFlags & 4) {
       float height = CMath::Min(region->GetHeight(), linkRegion->GetHeight());
       float lower = halfHeight + midpoint[kDZ];
       float upper = height + midpoint[kDZ] - halfHeight;
@@ -189,34 +189,34 @@ CPathFindSearch::EResult CPathFindSearch::Search(const CVector3f& source,
     region = sourceRegion;
     for (j = firstPoint; j <= (includeDest ? lastPoint : lastPoint - 1); ++j) {
       const CPFLink* link = region->GetPathLink();
-      CPFRegion* linkRegion = &x0_area->GetRegion(link->GetRegion());
-      if (xdc_flags & 2 || xdc_flags & 4) {
+      CPFRegion* linkRegion = &mArea->GetRegion(link->GetRegion());
+      if (mFlags & 2 || mFlags & 4) {
         float height = CMath::Min(region->GetHeight(), linkRegion->GetHeight());
         points[j] = region->FitThroughLink3d(points[j - 1], *link, height, points[j + 1],
-                                             xd4_chRadius, halfHeight);
+                                             mChRadius, halfHeight);
       } else {
-        points[j] = region->FitThroughLink2d(points[j - 1], *link, points[j + 1], xd4_chRadius);
+        points[j] = region->FitThroughLink2d(points[j - 1], *link, points[j + 1], mChRadius);
       }
       region = linkRegion;
     }
   }
 
-  const CTransform4f& transform = x0_area->GetTransform();
+  const CTransform4f& transform = mArea->GetTransform();
   for (int i = 0; i < points.size(); ++i) {
     if (i == points.size() - 1 || !close_enough(points[i], points[i + 1])) {
-      x4_waypoints.push_back(transform * points[i]);
+      mWaypoints.push_back(transform * points[i]);
     }
   }
-  xcc_result = kR_Success;
-  return xcc_result;
+  mResult = kR_Success;
+  return mResult;
 }
 
 bool CPathFindSearch::Search(rstl::reserved_vector< CPFRegion*, 4 >& sourceRegions,
                              const CVector3f& source,
                              rstl::reserved_vector< CPFRegion*, 4 >& destRegions,
                              const CVector3f& destination) {
-  CPFBitSet& closedSet = x0_area->ClosedSet();
-  CPFOpenList& openList = x0_area->OpenList();
+  CPFBitSet& closedSet = mArea->ClosedSet();
+  CPFOpenList& openList = mArea->OpenList();
   closedSet.Clear();
   openList.Clear();
 
@@ -245,10 +245,10 @@ bool CPathFindSearch::Search(rstl::reserved_vector< CPFRegion*, 4 >& sourceRegio
     }
     closedSet.Add(region->GetIndex());
     for (i = 0; i < region->GetNumLinks(); ++i) {
-      CPFRegion* linkRegion = &x0_area->GetRegion(region->GetLink(i)->GetRegion());
+      CPFRegion* linkRegion = &mArea->GetRegion(region->GetLink(i)->GetRegion());
       if (linkRegion != region->Data()->GetParent() &&
-          (linkRegion->GetFlags() & 0xff & xdc_flags) &&
-          ((linkRegion->GetFlags() >> 16) & 0xff & xe0_indexMask)) {
+          (linkRegion->GetFlags() & 0xff & mFlags) &&
+          ((linkRegion->GetFlags() >> 16) & 0xff & mIndexMask)) {
         float distance =
             CMath::FastSqrtF((linkRegion->GetCentroid() - region->GetCentroid()).MagSquared());
         float parentG = region->Data()->GetG();
@@ -290,21 +290,21 @@ found:
 
 CPathFindSearch::EResult CPathFindSearch::FindClosestReachablePoint(const CVector3f& source,
                                                                     CVector3f& destination) const {
-  if (!x0_area) {
+  if (!mArea) {
     return kR_InvalidArea;
   }
 
-  CVector3f localSource = x0_area->GetTransform().TransposeMultiply(source);
-  CVector3f localDest = x0_area->GetTransform().TransposeMultiply(destination);
-  if (!(xdc_flags & 2) && !(xdc_flags & 4)) {
+  CVector3f localSource = mArea->GetTransform().TransposeMultiply(source);
+  CVector3f localDest = mArea->GetTransform().TransposeMultiply(destination);
+  if (!(mFlags & 2) && !(mFlags & 4)) {
     localSource[kDZ] += 0.3f;
     localDest[kDZ] += 0.3f;
   }
 
   rstl::reserved_vector< CPFRegion*, 4 > regions;
-  if (x0_area->FindRegions(regions, localSource, xdc_flags, xe0_indexMask) == 0) {
+  if (mArea->FindRegions(regions, localSource, mFlags, mIndexMask) == 0) {
     CPFRegion* region =
-        x0_area->FindClosestRegion(localSource, xdc_flags, xe0_indexMask, xd8_padding);
+        mArea->FindClosestRegion(localSource, mFlags, mIndexMask, mPadding);
     if (!region) {
       return kR_NoSourcePoint;
     }
@@ -312,37 +312,37 @@ CPathFindSearch::EResult CPathFindSearch::FindClosestReachablePoint(const CVecto
   }
 
   CVector3f closestPoint =
-      x0_area->FindClosestReachablePoint(regions, localDest, xdc_flags, xe0_indexMask);
+      mArea->FindClosestReachablePoint(regions, localDest, mFlags, mIndexMask);
   closestPoint[kDZ] += 0.3f;
-  destination = x0_area->GetTransform() * closestPoint;
+  destination = mArea->GetTransform() * closestPoint;
   return kR_Success;
 }
 
 CPathFindSearch::EResult CPathFindSearch::PathExists(const CVector3f& source,
                                                      const CVector3f& destination) const {
-  if (!x0_area) {
+  if (!mArea) {
     return kR_InvalidArea;
   }
 
-  CVector3f localSource = x0_area->GetTransform().TransposeMultiply(source);
-  CVector3f localDest = x0_area->GetTransform().TransposeMultiply(destination);
-  if (!(xdc_flags & 2) && !(xdc_flags & 4)) {
+  CVector3f localSource = mArea->GetTransform().TransposeMultiply(source);
+  CVector3f localDest = mArea->GetTransform().TransposeMultiply(destination);
+  if (!(mFlags & 2) && !(mFlags & 4)) {
     localSource[kDZ] += 0.3f;
     localDest[kDZ] += 0.3f;
   }
 
   rstl::reserved_vector< CPFRegion*, 4 > sourceRegions;
-  if (x0_area->FindRegions(sourceRegions, localSource, xdc_flags, xe0_indexMask) == 0) {
+  if (mArea->FindRegions(sourceRegions, localSource, mFlags, mIndexMask) == 0) {
     return kR_NoSourcePoint;
   }
   rstl::reserved_vector< CPFRegion*, 4 > destRegions;
-  if (x0_area->FindRegions(destRegions, localDest, xdc_flags, xe0_indexMask) == 0) {
+  if (mArea->FindRegions(destRegions, localDest, mFlags, mIndexMask) == 0) {
     return kR_NoDestPoint;
   }
   for (int i = 0; i < sourceRegions.size(); ++i) {
     for (int j = 0; j < destRegions.size(); ++j) {
       if (sourceRegions[i] == destRegions[j] ||
-          x0_area->PathExists(sourceRegions[i], destRegions[j], xdc_flags)) {
+          mArea->PathExists(sourceRegions[i], destRegions[j], mFlags)) {
         return kR_Success;
       }
     }
@@ -351,15 +351,15 @@ CPathFindSearch::EResult CPathFindSearch::PathExists(const CVector3f& source,
 }
 
 CPathFindSearch::EResult CPathFindSearch::OnPath(const CVector3f& point) const {
-  if (!x0_area) {
+  if (!mArea) {
     return kR_InvalidArea;
   }
-  CVector3f localPoint = x0_area->GetTransform().TransposeMultiply(point);
-  if (!(xdc_flags & 2) && !(xdc_flags & 4)) {
+  CVector3f localPoint = mArea->GetTransform().TransposeMultiply(point);
+  if (!(mFlags & 2) && !(mFlags & 4)) {
     localPoint[kDZ] += 0.3f;
   }
   rstl::reserved_vector< CPFRegion*, 4 > regions;
-  if (x0_area->FindRegions(regions, localPoint, xdc_flags, xe0_indexMask) == 0) {
+  if (mArea->FindRegions(regions, localPoint, mFlags, mIndexMask) == 0) {
     return kR_NoSourcePoint;
   }
   return kR_Success;

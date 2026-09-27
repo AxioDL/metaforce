@@ -5,11 +5,11 @@
 #include "Kyoto/Streams/CInputStream.hpp"
 
 void CStateMachineState::Update(CStateManager& mgr, CAi& ai, float delta) {
-  if (x4_state) {
-    x8_time += delta;
-    x4_state->CallFunc(mgr, ai, kStateMsg_Update, delta);
-    for (int i = 0; i < x4_state->GetNumTriggers(); ++i) {
-      CAiTrigger* trig = x4_state->GetTrig(i);
+  if (mState) {
+    mTime += delta;
+    mState->CallFunc(mgr, ai, kStateMsg_Update, delta);
+    for (int i = 0; i < mState->GetNumTriggers(); ++i) {
+      CAiTrigger* trig = mState->GetTrig(i);
       CAiState* state = nullptr;
       bool andPassed = true;
       while (andPassed && trig) {
@@ -22,12 +22,12 @@ void CStateMachineState::Update(CStateManager& mgr, CAi& ai, float delta) {
       }
 
       if (andPassed && state != nullptr) {
-        x4_state->CallFunc(mgr, ai, kStateMsg_Deactivate, 0.f);
-        x4_state = state;
-        x8_time = 0.f;
-        x18_24_codeTrigger = false;
-        xc_random = mgr.Random()->Float();
-        x4_state->CallFunc(mgr, ai, kStateMsg_Activate, 0.f);
+        mState->CallFunc(mgr, ai, kStateMsg_Deactivate, 0.f);
+        mState = state;
+        mTime = 0.f;
+        mCodeTrigger = false;
+        mRandom = mgr.Random()->Float();
+        mState->CallFunc(mgr, ai, kStateMsg_Activate, 0.f);
         return;
       }
     }
@@ -35,19 +35,19 @@ void CStateMachineState::Update(CStateManager& mgr, CAi& ai, float delta) {
 }
 
 void CStateMachineState::SetState(CStateManager& mgr, CAi& ai, int idx) {
-  const CAiState* state = &x0_machine->GetStateVector()[idx];
-  if (x4_state == state) {
+  const CAiState* state = &mMachine->GetStateVector()[idx];
+  if (mState == state) {
     return;
   }
-  if (x4_state) {
-    x4_state->CallFunc(mgr, ai, kStateMsg_Deactivate, 0.f);
+  if (mState) {
+    mState->CallFunc(mgr, ai, kStateMsg_Deactivate, 0.f);
   }
 
-  x4_state = const_cast< CAiState* >(state);
-  x8_time = 0.f;
-  xc_random = mgr.Random()->Float();
-  x18_24_codeTrigger = false;
-  x4_state->CallFunc(mgr, ai, kStateMsg_Activate, 0.f);
+  mState = const_cast< CAiState* >(state);
+  mTime = 0.f;
+  mRandom = mgr.Random()->Float();
+  mCodeTrigger = false;
+  mState->CallFunc(mgr, ai, kStateMsg_Activate, 0.f);
 }
 
 void CStateMachineState::SetState(CStateManager& mgr, CAi& ai, const CStateMachine* machine,
@@ -55,7 +55,7 @@ void CStateMachineState::SetState(CStateManager& mgr, CAi& ai, const CStateMachi
   if (!machine)
     return;
 
-  if (!x0_machine)
+  if (!mMachine)
     Setup(machine);
 
   s32 idx = machine->GetStateIndex(state);
@@ -63,24 +63,24 @@ void CStateMachineState::SetState(CStateManager& mgr, CAi& ai, const CStateMachi
 }
 
 CStateMachineState::CStateMachineState()
-: x0_machine(nullptr)
-, x4_state(nullptr)
-, x8_time(0.f)
-, xc_random(0.f)
-, x10_delay(0.f)
-, x18_24_codeTrigger(false) {}
+: mMachine(nullptr)
+, mState(nullptr)
+, mTime(0.f)
+, mRandom(0.f)
+, mDelay(0.f)
+, mCodeTrigger(false) {}
 
 void CStateMachineState::Setup(const CStateMachine* machine) {
-  x0_machine = machine;
-  x4_state = nullptr;
-  x8_time = 0.f;
-  xc_random = 0.f;
-  x10_delay = 0.f;
+  mMachine = machine;
+  mState = nullptr;
+  mTime = 0.f;
+  mRandom = 0.f;
+  mDelay = 0.f;
 }
 
 const char* CStateMachineState::GetName() const {
-  if (x4_state != nullptr) {
-    return x4_state->GetName();
+  if (mState != nullptr) {
+    return mState->GetName();
   }
 
   return nullptr;
@@ -93,7 +93,7 @@ CStateMachine::CStateMachine(CInputStream& in) {
   int nameLen;
   int i;
 
-  x0_states.reserve(stateCount);
+  mStates.reserve(stateCount);
 
   for (i = 0; i < stateCount; ++i) {
     nameLen = 0;
@@ -105,15 +105,15 @@ CStateMachine::CStateMachine(CInputStream& in) {
     }
     name[nameLen] = '\0';
     CAiStateFunc func = CAi::GetStateFunc(name);
-    x0_states.push_back(CAiState(func, name));
+    mStates.push_back(CAiState(func, name));
   }
 
-  x10_triggers.reserve(in.Get< int >());
+  mTriggers.reserve(in.Get< int >());
 
   for (i = 0; i < stateCount; ++i) {
     int j;
-    CAiState& state = x0_states[i];
-    const int firstTriggerIdx = x10_triggers.size();
+    CAiState& state = mStates[i];
+    const int firstTriggerIdx = mTriggers.size();
     state.SetNumTriggers(in.Get< int >());
 
     if (state.GetNumTriggers() == 0) {
@@ -121,10 +121,10 @@ CStateMachine::CStateMachine(CInputStream& in) {
     }
 
     for (j = 0; j < state.GetNumTriggers(); ++j) {
-      x10_triggers.push_back(CAiTrigger());
+      mTriggers.push_back(CAiTrigger());
     }
 
-    state.SetTriggers(&x10_triggers[firstTriggerIdx]);
+    state.SetTriggers(&mTriggers[firstTriggerIdx]);
 
     for (j = 0; j < state.GetNumTriggers(); ++j) {
       const int triggerCount = in.Get< int >();
@@ -147,13 +147,13 @@ CStateMachine::CStateMachine(CInputStream& in) {
         const bool isNot = name[0] == '!';
         CAiTrigger* newTrig;
         if (k < lastTriggerIdx) {
-          x10_triggers.push_back(CAiTrigger());
-          newTrig = &x10_triggers.back();
+          mTriggers.push_back(CAiTrigger());
+          newTrig = &mTriggers.back();
         } else {
           newTrig = state.GetTrig(j);
         }
         if (k == 0) {
-          newTrig->Setup(func, isNot, arg, &x0_states[in.Get< int >()]);
+          newTrig->Setup(func, isNot, arg, &mStates[in.Get< int >()]);
         } else {
           newTrig->Setup(func, isNot, arg, lastTrig);
         }
@@ -164,8 +164,8 @@ CStateMachine::CStateMachine(CInputStream& in) {
 }
 
 int CStateMachine::GetStateIndex(const rstl::string& state) const {
-  for (int i = 0; i < x0_states.size(); ++i) {
-    if (strncmp(x0_states[i].GetName(), state.data(), 31) == 0) {
+  for (int i = 0; i < mStates.size(); ++i) {
+    if (strncmp(mStates[i].GetName(), state.data(), 31) == 0) {
       return i;
     }
   }

@@ -19,45 +19,45 @@ CGuiWidget* CAuiMeter::Create(CGuiFrame* frame, CInputStream& in, CSimplePool* s
 CAuiMeter::CAuiMeter(const CGuiWidgetParms& parms, const bool noRoundUp, const int maxCapacity,
                      const int workerCount)
 : CGuiGroup(parms, 0, false)
-, xc4_noRoundUp(noRoundUp)
-, xc8_maxCapacity(maxCapacity)
-, xcc_capacity(xc8_maxCapacity)
-, xd0_value(0) {
-  xd4_workers.reserve(workerCount);
+, mNoRoundUp(noRoundUp)
+, mMaxCapacity(maxCapacity)
+, mCapacity(mMaxCapacity)
+, mValue(0) {
+  mWorkers.reserve(workerCount);
 }
 
 bool CAuiMeter::AddWorkerWidget(CGuiWidget* worker) {
   CGuiGroup::AddWorkerWidget(worker);
   short id = worker->GetWorkerId();
-  if (id >= xd4_workers.size()) {
-    for (int i = xd4_workers.size(); i <= id; ++i) {
-      xd4_workers.push_back(nullptr);
+  if (id >= mWorkers.size()) {
+    for (int i = mWorkers.size(); i <= id; ++i) {
+      mWorkers.push_back(nullptr);
     }
   }
-  xd4_workers[id] = static_cast< CGuiGroup* >(worker);
+  mWorkers[id] = static_cast< CGuiGroup* >(worker);
   return true;
 }
 
-CGuiWidget* CAuiMeter::GetWorkerWidget(int idx) { return xd4_workers[idx]; }
+CGuiWidget* CAuiMeter::GetWorkerWidget(int idx) { return mWorkers[idx]; }
 
 // TODO: Why is the only needed for the first one?
 static inline const int& hack_min(const int& a, const int& b) { return a < b ? b : a; }
 
 void CAuiMeter::SetMaxCapacity(const int cap) {
-  xc8_maxCapacity = hack_min(0, cap);
-  xcc_capacity = rstl::min_val(xcc_capacity, xc8_maxCapacity);
-  xd0_value = rstl::min_val(xd0_value, xcc_capacity);
+  mMaxCapacity = hack_min(0, cap);
+  mCapacity = rstl::min_val(mCapacity, mMaxCapacity);
+  mValue = rstl::min_val(mValue, mCapacity);
   UpdateMeterWorkers();
 }
 
 void CAuiMeter::SetCapacity(int cap) {
-  xcc_capacity = CMath::Clamp(0, cap, xc8_maxCapacity);
-  xd0_value = rstl::min_val(xd0_value, xcc_capacity);
+  mCapacity = CMath::Clamp(0, cap, mMaxCapacity);
+  mValue = rstl::min_val(mValue, mCapacity);
   UpdateMeterWorkers();
 }
 
 void CAuiMeter::SetCurrValue(int rem) {
-  xd0_value = CMath::Clamp(0, rem, xcc_capacity);
+  mValue = CMath::Clamp(0, rem, mCapacity);
   UpdateMeterWorkers();
 }
 
@@ -68,14 +68,14 @@ void CAuiMeter::OnVisible() {
 }
 
 void CAuiMeter::UpdateMeterWorkers() {
-  int workerCount = xd4_workers.size();
-  const float scale = workerCount / float(xc8_maxCapacity);
-  int etankCap = xc4_noRoundUp ? static_cast< int >(scale * xcc_capacity)
-                               : static_cast< int >(0.5f + scale * xcc_capacity);
-  int etankFill = xc4_noRoundUp ? static_cast< int >(scale * xd0_value)
-                                : static_cast< int >(0.5f + scale * xd0_value);
+  int workerCount = mWorkers.size();
+  const float scale = workerCount / float(mMaxCapacity);
+  int etankCap = mNoRoundUp ? static_cast< int >(scale * mCapacity)
+                               : static_cast< int >(0.5f + scale * mCapacity);
+  int etankFill = mNoRoundUp ? static_cast< int >(scale * mValue)
+                                : static_cast< int >(0.5f + scale * mValue);
   for (int i = 0; i < workerCount; ++i) {
-    CGuiGroup* worker = xd4_workers[i];
+    CGuiGroup* worker = mWorkers[i];
     if (!worker)
       continue;
 

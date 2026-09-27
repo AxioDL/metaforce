@@ -17,60 +17,60 @@ static inline CDamageInfo read_damageInfo(CInputStream& in, bool charged, bool c
 inline void CTweakPlayerGun::InitRicochetDamageFactor(CInputStream& in) {
   for (int i = 0; i < 5; ++i) {
     const float factor = in.ReadFloat();
-    x280_ricochetData[i] = factor;
+    mRicochetData[i] = factor;
   }
 }
 
 CTweakPlayerGun::CTweakPlayerGun(CInputStream& in)
-: x4_upLookAngle(in.ReadFloat())
-, x8_downLookAngle(in.ReadFloat())
-, xc_verticalSpread(in.ReadFloat())
-, x10_horizontalSpread(in.ReadFloat())
-, x14_highVerticalSpread(in.ReadFloat())
-, x18_highHorizontalSpread(in.ReadFloat())
-, x1c_lowVerticalSpread(in.ReadFloat())
-, x20_lowHorizontalSpread(in.ReadFloat())
-, x24_aimVerticalSpeed(in.ReadFloat())
-, x28_aimHorizontalSpeed(in.ReadFloat())
-, x2c_bombFuseTime(in.ReadFloat())
-, x30_bombDropDelayTime(in.ReadFloat())
-, x34_holoHoldTime(in.ReadFloat())
-, x38_gunTransformTime(in.ReadFloat())
-, x3c_gunHolsterTime(in.ReadFloat())
-, x40_gunNotFiringTime(in.ReadFloat())
-, x44_fixedVerticalAim(in.ReadFloat() * (M_PIF / 180.f))
-, x48_gunExtendDistance(in.ReadFloat())
-, x4c_gunPosition(in)
+: mUpLookAngle(in.ReadFloat())
+, mDownLookAngle(in.ReadFloat())
+, mVerticalSpread(in.ReadFloat())
+, mHorizontalSpread(in.ReadFloat())
+, mHighVerticalSpread(in.ReadFloat())
+, mHighHorizontalSpread(in.ReadFloat())
+, mLowVerticalSpread(in.ReadFloat())
+, mLowHorizontalSpread(in.ReadFloat())
+, mAimVerticalSpeed(in.ReadFloat())
+, mAimHorizontalSpeed(in.ReadFloat())
+, mBombFuseTime(in.ReadFloat())
+, mBombDropDelayTime(in.ReadFloat())
+, mHoloHoldTime(in.ReadFloat())
+, mGunTransformTime(in.ReadFloat())
+, mGunHolsterTime(in.ReadFloat())
+, mGunNotFiringTime(in.ReadFloat())
+, mFixedVerticalAim(in.ReadFloat() * (M_PIF / 180.f))
+, mGunExtendDistance(in.ReadFloat())
+, mGunPosition(in)
 , x58_(in)
-, x64_grapplingArmPosition(in)
-, x70_bomb(read_damageInfo(in, false, false))
-, x8c_powerBomb(read_damageInfo(in, false, false))
-, x1d4_missile(read_damageInfo(in, false, false))
-, x1f0_combos(5, CDamageInfo())
-, x280_ricochetData(5, 0.1f) {
+, mGrapplingArmPosition(in)
+, mBomb(read_damageInfo(in, false, false))
+, mPowerBomb(read_damageInfo(in, false, false))
+, mMissile(read_damageInfo(in, false, false))
+, mCombos(5, CDamageInfo())
+, mRicochetData(5, 0.1f) {
   InitBeamData(in);
   for (int i = 0; i < 5; ++i) {
-    x1f0_combos[i] = read_damageInfo(in, false, true);
+    mCombos[i] = read_damageInfo(in, false, true);
   }
   InitRicochetDamageFactor(in);
 }
 
 void CTweakPlayerGun::InitBeamData(CInputStream& in) {
-  SWeaponInfo* beams[5] = {&xa8_powerBeam, &xe4_iceBeam, &x120_waveBeam, &x15c_plasmaBeam,
-                           &x198_phazonBeam};
+  SWeaponInfo* beams[5] = {&mPowerBeam, &mIceBeam, &mWaveBeam, &mPlasmaBeam,
+                           &mPhazonBeam};
   for (int i = 0; i < 5; ++i) {
     SWeaponInfo& beam = *beams[i];
-    beam.x0_coolDown = in.ReadFloat();
-    beam.x4_normal = read_damageInfo(in, false, false);
-    beam.x20_charged = read_damageInfo(in, true, false);
+    beam.mCoolDown = in.ReadFloat();
+    beam.mNormal = read_damageInfo(in, false, false);
+    beam.mCharged = read_damageInfo(in, true, false);
   }
 }
 
 const SWeaponInfo& CTweakPlayerGun::GetBeamInfo(int beam) const {
-  const SWeaponInfo* beams[5] = {&xa8_powerBeam, &xe4_iceBeam, &x120_waveBeam, &x15c_plasmaBeam,
-                                 &x198_phazonBeam};
+  const SWeaponInfo* beams[5] = {&mPowerBeam, &mIceBeam, &mWaveBeam, &mPlasmaBeam,
+                                 &mPhazonBeam};
   if (beam < 0 || beam > 5) {
-    return xa8_powerBeam;
+    return mPowerBeam;
   }
   return *beams[beam];
 }
@@ -78,17 +78,17 @@ const SWeaponInfo& CTweakPlayerGun::GetBeamInfo(int beam) const {
 float CTweakPlayerGun::GetRichochetDamage(EWeaponType type) const {
   switch (type) {
   case kWT_Power:
-    return x280_ricochetData[0];
+    return mRicochetData[0];
   case kWT_Ice:
-    return x280_ricochetData[1];
+    return mRicochetData[1];
   case kWT_Wave:
-    return x280_ricochetData[2];
+    return mRicochetData[2];
   case kWT_Plasma:
-    return x280_ricochetData[3];
+    return mRicochetData[3];
   case kWT_Missile:
-    return x280_ricochetData[4];
+    return mRicochetData[4];
   case kWT_Phazon:
-    return x280_ricochetData[5];
+    return mRicochetData[5];
   default:
     return 1.f;
   }

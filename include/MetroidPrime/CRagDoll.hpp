@@ -20,112 +20,112 @@ public:
   ~CRagDoll() {}
 
   CAABox CalculateRenderBounds() const;
-  bool IsPrimed() const { return x68_26_primed; }
-  bool WillContinueSmallMovements() const { return x68_27_continueSmallMovements; }
-  bool IsOver() const { return x68_25_over; }
-  void SetNoOverTimer(bool b) { x68_28_noOverTimer = b; }
-  void SetContinueSmallMovements(bool b) { x68_27_continueSmallMovements = b; }
-  uint GetImpactCount() const { return x4c_impactCount; }
+  bool IsPrimed() const { return mPrimed; }
+  bool WillContinueSmallMovements() const { return mContinueSmallMovements; }
+  bool IsOver() const { return mOver; }
+  void SetNoOverTimer(bool b) { mNoOverTimer = b; }
+  void SetContinueSmallMovements(bool b) { mContinueSmallMovements = b; }
+  uint GetImpactCount() const { return mImpactCount; }
 
 protected:
   class CRagDollParticle {
     friend class CRagDoll;
-    CSegId x0_id;
-    CVector3f x4_curPos;
-    float x10_radius;
-    CVector3f x14_prevPos;
-    CVector3f x20_velocity;
-    CVector3f x2c_impactResponseDelta;
-    float x38_impactFrameVel;
-    bool x3c_24_impactPending : 1;
+    CSegId mId;
+    CVector3f mCurPos;
+    float mRadius;
+    CVector3f mPrevPos;
+    CVector3f mVelocity;
+    CVector3f mImpactResponseDelta;
+    float mImpactFrameVel;
+    bool mImpactPending : 1;
     bool x3c_25_ : 1;
 
   public:
     CRagDollParticle(const CSegId& id, const CVector3f& curPos, float radius,
                      const CVector3f& prevPos)
-    : x0_id(id)
-    , x4_curPos(curPos)
-    , x10_radius(radius)
-    , x14_prevPos(prevPos)
-    , x20_velocity(CVector3f::Zero())
-    , x2c_impactResponseDelta(CVector3f::Zero())
-    , x38_impactFrameVel(0.f)
-    , x3c_24_impactPending(false)
+    : mId(id)
+    , mCurPos(curPos)
+    , mRadius(radius)
+    , mPrevPos(prevPos)
+    , mVelocity(CVector3f::Zero())
+    , mImpactResponseDelta(CVector3f::Zero())
+    , mImpactFrameVel(0.f)
+    , mImpactPending(false)
     , x3c_25_(false) {}
-    const CSegId& GetBone() const { return x0_id; }
-    const CVector3f& GetPosition() const { return x4_curPos; }
-    CVector3f& Position() { return x4_curPos; }
-    const CVector3f& GetVelocity() const { return x20_velocity; }
-    CVector3f& Velocity() { return x20_velocity; }
-    float GetRadius() const { return x10_radius; }
+    const CSegId& GetBone() const { return mId; }
+    const CVector3f& GetPosition() const { return mCurPos; }
+    CVector3f& Position() { return mCurPos; }
+    const CVector3f& GetVelocity() const { return mVelocity; }
+    CVector3f& Velocity() { return mVelocity; }
+    float GetRadius() const { return mRadius; }
   };
   class CRagDollLengthConstraint {
     friend class CRagDoll;
-    CRagDollParticle* x0_p1;
-    CRagDollParticle* x4_p2;
-    float x8_length;
-    int xc_ineqType;
+    CRagDollParticle* mP1;
+    CRagDollParticle* mP2;
+    float mLength;
+    int mIneqType;
 
   public:
     CRagDollLengthConstraint(CRagDollParticle* p1, CRagDollParticle* p2, float f1, int i1)
-    : x0_p1(p1), x4_p2(p2), x8_length(f1), xc_ineqType(i1) {}
+    : mP1(p1), mP2(p2), mLength(f1), mIneqType(i1) {}
     void Update();
-    float GetLength() const { return x8_length; }
+    float GetLength() const { return mLength; }
   };
   class CRagDollJointConstraint {
     friend class CRagDoll;
-    CRagDollParticle* x0_p1;  // Shoulder plane 0
-    CRagDollParticle* x4_p2;  // Shoulder plane 1
-    CRagDollParticle* x8_p3;  // Shoulder plane 2
-    CRagDollParticle* xc_p4;  // Shoulder
-    CRagDollParticle* x10_p5; // Elbow
-    CRagDollParticle* x14_p6; // Wrist
+    CRagDollParticle* mP1;  // Shoulder plane 0
+    CRagDollParticle* mP2;  // Shoulder plane 1
+    CRagDollParticle* mP3;  // Shoulder plane 2
+    CRagDollParticle* mP4;  // Shoulder
+    CRagDollParticle* mP5; // Elbow
+    CRagDollParticle* mP6; // Wrist
   public:
     CRagDollJointConstraint(CRagDollParticle* p1, CRagDollParticle* p2, CRagDollParticle* p3,
                             CRagDollParticle* p4, CRagDollParticle* p5, CRagDollParticle* p6)
-    : x0_p1(p1), x4_p2(p2), x8_p3(p3), xc_p4(p4), x10_p5(p5), x14_p6(p6) {}
+    : mP1(p1), mP2(p2), mP3(p3), mP4(p4), mP5(p5), mP6(p6) {}
     void Update();
   };
   class CRagDollPlaneConstraint {
     friend class CRagDoll;
-    CRagDollParticle* x0_p1;
-    CRagDollParticle* x4_p2;
-    CRagDollParticle* x8_p3;
-    CRagDollParticle* xc_p4;
-    CRagDollParticle* x10_p5;
+    CRagDollParticle* mP1;
+    CRagDollParticle* mP2;
+    CRagDollParticle* mP3;
+    CRagDollParticle* mP4;
+    CRagDollParticle* mP5;
 
   public:
     CRagDollPlaneConstraint(CRagDollParticle* p1, CRagDollParticle* p2, CRagDollParticle* p3,
                             CRagDollParticle* p4, CRagDollParticle* p5)
-    : x0_p1(p1), x4_p2(p2), x8_p3(p3), xc_p4(p4), x10_p5(p5) {}
+    : mP1(p1), mP2(p2), mP3(p3), mP4(p4), mP5(p5) {}
     void Update();
   };
-  rstl::vector< CRagDollParticle > x4_particles;
-  rstl::vector< CRagDollLengthConstraint > x14_lengthConstraints;
-  rstl::vector< CRagDollJointConstraint > x24_jointConstraints;
-  rstl::vector< CRagDollPlaneConstraint > x34_planeConstraints;
-  float x44_normalGravity;
-  float x48_floatingGravity;
-  uint x4c_impactCount;
-  float x50_overTimer;
-  float x54_impactVel;
-  CVector3f x58_averageVel;
-  float x64_angTimer;
-  bool x68_24_prevMovingSlowly : 1;
-  bool x68_25_over : 1;
-  bool x68_26_primed : 1;
-  bool x68_27_continueSmallMovements : 1;
-  bool x68_28_noOverTimer : 1;
-  bool x68_29_noAiCollision : 1;
+  rstl::vector< CRagDollParticle > mParticles;
+  rstl::vector< CRagDollLengthConstraint > mLengthConstraints;
+  rstl::vector< CRagDollJointConstraint > mJointConstraints;
+  rstl::vector< CRagDollPlaneConstraint > mPlaneConstraints;
+  float mNormalGravity;
+  float mFloatingGravity;
+  uint mImpactCount;
+  float mOverTimer;
+  float mImpactVel;
+  CVector3f mAverageVel;
+  float mAngTimer;
+  bool mPrevMovingSlowly : 1;
+  bool mOver : 1;
+  bool mPrimed : 1;
+  bool mContinueSmallMovements : 1;
+  bool mNoOverTimer : 1;
+  bool mNoAiCollision : 1;
   void AccumulateForces(float dt, float waterTop);
-  void SetNumParticles(int num) { x4_particles.reserve(num); }
+  void SetNumParticles(int num) { mParticles.reserve(num); }
   void AddParticle(const CSegId& id, const CVector3f& prevPos, const CVector3f& curPos,
                    float radius);
-  void SetNumLengthConstraints(int num) { x14_lengthConstraints.reserve(num); }
+  void SetNumLengthConstraints(int num) { mLengthConstraints.reserve(num); }
   void AddLengthConstraint(int i1, int i2);
   void AddMaxLengthConstraint(int i1, int i2, float length);
   void AddMinLengthConstraint(int i1, int i2, float length);
-  void SetNumJointConstraints(int num) { x24_jointConstraints.reserve(num); }
+  void SetNumJointConstraints(int num) { mJointConstraints.reserve(num); }
   void AddJointConstraint(int i1, int i2, int i3, int i4, int i5, int i6);
   CQuaternion BoneAlign(CHierarchyPoseBuilder& pb, const CCharLayoutInfo& charInfo, int i1, int i2,
                         const CQuaternion& q);
@@ -136,7 +136,7 @@ protected:
   void SatisfyWorldConstraintsOnConstruction(CStateManager& mgr);
   void Verlet(float dt);
 
-  float GetConstraintLength(int index) const { return x14_lengthConstraints[index].GetLength(); }
+  float GetConstraintLength(int index) const { return mLengthConstraints[index].GetLength(); }
 };
 CHECK_SIZEOF(CRagDoll, 0x6c)
 

@@ -22,28 +22,28 @@ public:
   rstl::optional_object< CAABox > GetTouchBounds() const override;
   void Touch(CActor&, CStateManager&) override;
 
-  float GetMinRange() const { return x104_minRange; }
-  float GetMaxRange() const { return x108_maxRange; }
-  bool GetViewCheck() const { return x118_24_viewCheck; }
-  float GetChanceMinRange() const { return x10c_chanceMinRange; }
-  float GetChanceMaxRange() const { return x110_chanceMaxRange; }
-  const CColor& GetColor() const { return x114_color; }
+  float GetMinRange() const { return mMinRange; }
+  float GetMaxRange() const { return mMaxRange; }
+  bool GetViewCheck() const { return mViewCheck; }
+  float GetChanceMinRange() const { return mChanceMinRange; }
+  float GetChanceMaxRange() const { return mChanceMaxRange; }
+  const CColor& GetColor() const { return mColor; }
 
-  const TToken< CGenDescription >& GetParticleDesc() const { return xe8_particleDesc; }
-  const TToken< CElectricDescription >& GetElectricDesc() const { return xf0_electricDesc; }
+  const TToken< CGenDescription >& GetParticleDesc() const { return mParticleDesc; }
+  const TToken< CElectricDescription >& GetElectricDesc() const { return mElectricDesc; }
 
   private:
-    TToken< CGenDescription > xe8_particleDesc;
-    TToken< CElectricDescription > xf0_electricDesc;
-    ushort xf8_sfx;
-    CAssetId xfc_particleId;
-    CAssetId x100_electricId;
-    float x104_minRange;
-    float x108_maxRange;
-    float x10c_chanceMinRange;
-    float x110_chanceMaxRange;
-    CColor x114_color;
-    bool x118_24_viewCheck : 1;
+    TToken< CGenDescription > mParticleDesc;
+    TToken< CElectricDescription > mElectricDesc;
+    ushort mSfx;
+    CAssetId mParticleId;
+    CAssetId mElectricId;
+    float mMinRange;
+    float mMaxRange;
+    float mChanceMinRange;
+    float mChanceMaxRange;
+    CColor mColor;
+    bool mViewCheck : 1;
   };
 
 #endif // _CSCRIPTVISORGOO

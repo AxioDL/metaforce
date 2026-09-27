@@ -9,11 +9,11 @@ public:
   enum EControlCommandOption { kCCO_Unfiltered, kCCO_Filtered };
 
 private:
-  int x34_itemType;
-  int x38_itemCount;
-  int x3c_itemCapacity;
-  EControl x40_ctrl;
-  EControlCommandOption x44_ctrlCmdOpt;
+  int mItemType;
+  int mItemCount;
+  int mItemCapacity;
+  EControl mCtrl;
+  EControlCommandOption mCtrlCmdOpt;
 
 public:
   CScriptPlayerStateChange(TUniqueId, const rstl::string&, const CEntityInfo&, bool, int, int, int, EControl,
@@ -21,7 +21,7 @@ public:
   DECLARE_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
 
-  bool Filtered() { return x44_ctrlCmdOpt == kCCO_Filtered; }
+  bool Filtered() { return mCtrlCmdOpt == kCCO_Filtered; }
 };
 
 #endif // _CSCRIPTPLAYERSTATECHANGE

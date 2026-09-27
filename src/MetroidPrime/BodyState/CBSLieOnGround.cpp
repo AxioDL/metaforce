@@ -9,8 +9,8 @@
 
 #include "Kyoto/Animation/CPASAnimParmData.hpp"
 
-CBSLieOnGround::CBSLieOnGround(const CActor& actor) : x4_24_hasGroundHit(false) {
-  x4_24_hasGroundHit =
+CBSLieOnGround::CBSLieOnGround(const CActor& actor) : mHasGroundHit(false) {
+  mHasGroundHit =
       actor.GetModelData()->GetAnimationData()->GetCharacterInfo().GetPASDatabase().HasState(
           pas::kAS_GroundHit);
 }
@@ -41,7 +41,7 @@ pas::EAnimationState CBSLieOnGround::GetBodyStateTransition(float dt, CBodyContr
   if (commandMgr.GetCmd(kBSC_Die)) {
     return pas::kAS_Death;
   }
-  if (x4_24_hasGroundHit && commandMgr.GetCmd(kBSC_KnockBack)) {
+  if (mHasGroundHit && commandMgr.GetCmd(kBSC_KnockBack)) {
     return pas::kAS_GroundHit;
   }
   if (!commandMgr.GetCmd(kBSC_Locomotion) && commandMgr.GetCmd(kBSC_Getup)) {

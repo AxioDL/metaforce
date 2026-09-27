@@ -6,16 +6,16 @@
 class CAdditiveAnimationInfo {
 public:
   CAdditiveAnimationInfo(const float fadeInDur, const float fadeOutDur)
-  : x0_fadeInDur(fadeInDur), x4_fadeOutDur(fadeOutDur) {}
+  : mFadeInDur(fadeInDur), mFadeOutDur(fadeOutDur) {}
   CAdditiveAnimationInfo(CInputStream& in)
-  : x0_fadeInDur(in.Get< float >()), x4_fadeOutDur(in.Get< float >()) {}
+  : mFadeInDur(in.Get< float >()), mFadeOutDur(in.Get< float >()) {}
 
-  float GetFadeInTime() const { return x0_fadeInDur; }
-  float GetFadeOutTime() const { return x4_fadeOutDur; }
+  float GetFadeInTime() const { return mFadeInDur; }
+  float GetFadeOutTime() const { return mFadeOutDur; }
 
 private:
-  float x0_fadeInDur;
-  float x4_fadeOutDur;
+  float mFadeInDur;
+  float mFadeOutDur;
 };
 
 #endif

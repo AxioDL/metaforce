@@ -32,11 +32,11 @@ public:
   virtual void DeleteLight(CStateManager& stateMgr) override;
   virtual void SetModulationColor(const CColor& color) override;
 
-  rstl::ncrc_ptr< CParticleGen > GetParticleSystem() const { return x84_system; }
+  rstl::ncrc_ptr< CParticleGen > GetParticleSystem() const { return mSystem; }
 
 private:
-  rstl::ncrc_ptr< CParticleGen > x84_system;
-  TUniqueId x88_lightId;
+  rstl::ncrc_ptr< CParticleGen > mSystem;
+  TUniqueId mLightId;
 };
 
 #endif // _CPARTICLEGENINFOGENERIC

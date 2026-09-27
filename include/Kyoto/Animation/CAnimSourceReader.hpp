@@ -8,25 +8,25 @@ class CAnimSourceInfo : public IAnimSourceInfo {
 public:
   ~CAnimSourceInfo() override {}
 
-  bool HasPOIData() const override { return x4_token->HasPOIData(); }
+  bool HasPOIData() const override { return mToken->HasPOIData(); }
   const rstl::vector< CBoolPOINode >& GetBoolPOIStream() const override {
-    return x4_token->GetBoolPOIStream();
+    return mToken->GetBoolPOIStream();
   }
   const rstl::vector< CInt32POINode >& GetInt32POIStream() const override {
-    return x4_token->GetInt32POIStream();
+    return mToken->GetInt32POIStream();
   }
   const rstl::vector< CParticlePOINode >& GetParticlePOIStream() const override {
-    return x4_token->GetParticlePOIStream();
+    return mToken->GetParticlePOIStream();
   }
   const rstl::vector< CSoundPOINode >& GetSoundPOIStream() const override {
-    return x4_token->GetSoundPOIStream();
+    return mToken->GetSoundPOIStream();
   }
-  CCharAnimTime GetAnimationDuration() const override { return x4_token->GetAnimationDuration(); }
+  CCharAnimTime GetAnimationDuration() const override { return mToken->GetAnimationDuration(); }
 
-  CAnimSourceInfo(const TSubAnimTypeToken< CAnimSource >& source) : x4_token(source) {}
+  CAnimSourceInfo(const TSubAnimTypeToken< CAnimSource >& source) : mToken(source) {}
 
 private:
-  TSubAnimTypeToken< CAnimSource > x4_token;
+  TSubAnimTypeToken< CAnimSource > mToken;
 };
 CHECK_SIZEOF(CAnimSourceInfo, 0x14)
 
@@ -63,11 +63,11 @@ private:
   : CAnimSourceReaderBase(rs_new CAnimSourceInfo(source), time, passedBoolCount, passedIntCount,
                           passedParticleCount, passedSoundCount, boolStates, intStates,
                           particleStates)
-  , x54_source(source)
-  , x64_steadyStateInfo(steadyStateInfo) {}
+  , mSource(source)
+  , mSteadyStateInfo(steadyStateInfo) {}
 
-  TSubAnimTypeToken< CAnimSource > x54_source;
-  CSteadyStateAnimInfo x64_steadyStateInfo;
+  TSubAnimTypeToken< CAnimSource > mSource;
+  CSteadyStateAnimInfo mSteadyStateInfo;
 };
 CHECK_SIZEOF(CAnimSourceReader, 0x7c)
 

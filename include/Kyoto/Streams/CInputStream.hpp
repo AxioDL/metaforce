@@ -24,6 +24,7 @@ public:
   virtual size_t Read(void* dest, size_t len) = 0;
 
   float ReadFloat();
+  double ReadDouble();
   u64 ReadLongLong();
   uint ReadLong();
   ushort ReadShort();
@@ -44,21 +45,21 @@ public:
   ushort ReadUint16() { return Get< ushort >(); }
   short ReadInt16() { return Get< short >(); }
 
-  uint GetBlockOffset() const { return x4_blockOffset; }
-  const uint GetReadPosition() const { return x18_readPosition; }
+  uint GetBlockOffset() const { return mBlockOffset; }
+  const uint GetReadPosition() const { return mReadPosition; }
 
 private:
   bool GrabAnotherBlock();
   bool InternalReadNext();
 
-  uint x4_blockOffset;
-  uint x8_blockLen;
-  uint xc_len;
-  uchar* x10_ptr;
-  bool x14_owned;
-  uint x18_readPosition;
-  uint x1c_bitWord;
-  uint x20_bitOffset;
+  uint mBlockOffset;
+  uint mBlockLen;
+  uint mLen;
+  uchar* mPtr;
+  bool mOwned;
+  uint mReadPosition;
+  uint mBitWord;
+  uint mBitOffset;
 };
 
 template < typename T >
@@ -118,7 +119,7 @@ inline rstl::pair< L, R >::pair(CInputStream& in)
 #include "rstl/vector.hpp"
 template < typename T, typename Alloc >
 inline rstl::vector< T, Alloc >::vector(CInputStream& in, const Alloc& allocator)
-: x4_count(0), x8_capacity(0), xc_items(nullptr) {
+: mCount(0), mCapacity(0), mItems(nullptr) {
   int count = in.Get(TGetType(0));
   reserve(count);
   for (int i = 0; i < count; i++) {
@@ -129,8 +130,8 @@ inline rstl::vector< T, Alloc >::vector(CInputStream& in, const Alloc& allocator
 #include "rstl/reserved_vector.hpp"
 template < typename T, int N >
 inline rstl::reserved_vector< T, N >::reserved_vector(CInputStream& in)
-: x0_count(in.Get(TGetType(0))) {
-  for (int i = 0; i < x0_count; i++) {
+: mCount(in.Get(TGetType(0))) {
+  for (int i = 0; i < mCount; i++) {
     construct(&data()[i], in.Get(TType< T >()));
   }
 }
@@ -139,7 +140,7 @@ inline rstl::reserved_vector< T, N >::reserved_vector(CInputStream& in)
 template < typename T, typename P, bool IsMulti, typename S, typename Cmp, typename Alloc >
 inline rstl::red_black_tree< T, P, IsMulti, S, Cmp, Alloc >::red_black_tree(
     CInputStream& in, const S& selector, const Cmp& cmp, const Alloc& alloc)
-: x0_selector(selector), x1_cmp(cmp), x2_allocator(alloc), x4_count(0) {
+: mSelector(selector), mCmp(cmp), mAllocator(alloc), mCount(0) {
   const int count = in.Get< int >();
   for (int i = 0; i < count; ++i) {
     insert(in.Get< P >());

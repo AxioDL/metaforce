@@ -278,8 +278,8 @@ extern int gResFactoryUnknown;
 
 CMFGameLoader::CMFGameLoader()
 : CIOWin(rstl::string_l("CMFGameLoader"))
-, x2c_24_initialized(false)
-, x2c_25_transitionFinished(false) {
+, mInitialized(false)
+, mTransitionFinished(false) {
   gResFactoryUnknown = 1;
   CModel::DisableTextureTimeout();
   if (gpMain->GetRestartMode() == CMain::kRM_Default ||
@@ -302,7 +302,7 @@ CMFGameLoader::CMFGameLoader()
       trans.EnableTransition(kInvalidAssetId, tag->GetId(), 0, false, 0.1f, 16.f, 1.f);
     }
   }
-  x2c_24_initialized = true;
+  mInitialized = true;
 }
 
 CMFGameLoader::~CMFGameLoader() {
@@ -319,7 +319,7 @@ void CMFGameLoader::MakeLoadDependancyList() {
     if (tags)
       count += tags->size();
   }
-  x1c_loadList.reserve(count);
+  mLoadList.reserve(count);
   for (const char** pak = skPaksToLoad; *pak; ++pak) {
     const rstl::vector< CAssetId >* tags =
         gpResourceFactory->GetTagListForFile(rstl::string_l(*pak));
@@ -328,7 +328,7 @@ void CMFGameLoader::MakeLoadDependancyList() {
         const CAssetId& id = *it;
         SObjectTag tag(gpResourceFactory->GetResLoader().GetResourceTypeById(id), id);
         CToken token = gpSimplePool->GetObj(tag);
-        x1c_loadList.push_back(token);
+        mLoadList.push_back(token);
       }
     }
   }
@@ -339,14 +339,14 @@ CIOWin::EMessageReturn CMFGameLoader::OnMessage(const CArchitectureMessage& mess
   rstl::ncrc_ptr< CWorldTransManager >& transManager = gpGameState->WorldTransitionManager();
   if (message.GetType() == kAM_TimerTick) {
     float dt = MakeMsg::GetParmTimerTick(message).GetReal();
-    if (!x2c_24_initialized) {
-      if (x1c_loadList.empty()) {
+    if (!mInitialized) {
+      if (mLoadList.empty()) {
         MakeLoadDependancyList();
         transManager->StartTransition();
         return kMR_Exit;
       }
       int loadingCount = 0;
-      for (AUTO(it, x1c_loadList.begin()); it != x1c_loadList.end(); ++it) {
+      for (AUTO(it, mLoadList.begin()); it != mLoadList.end(); ++it) {
         it->Lock();
         if (!it->IsLoaded())
           ++loadingCount;
@@ -354,37 +354,37 @@ CIOWin::EMessageReturn CMFGameLoader::OnMessage(const CArchitectureMessage& mess
       transManager->Update(dt);
       if (loadingCount)
         return kMR_Exit;
-      x2c_24_initialized = true;
+      mInitialized = true;
     } else {
       transManager->Update(dt);
     }
-    if (x14_stateManager.IsNull()) {
+    if (mStateManager.IsNull()) {
       transManager->WaitForModelsAndTextures();
       CWorldState& world = gpGameState->CurrentWorldState();
       const rstl::ncrc_ptr< CStateManager >& stateManager = rstl::ncrc_ptr< CStateManager >(
           rs_new CStateManager(world.Mailbox(), world.MapWorldInfo(), gpGameState->PlayerState(),
                                transManager, world.GetLayerState()));
-      x14_stateManager = stateManager;
+      mStateManager = stateManager;
     }
-    if (!x14_stateManager->IsFullyInitialized()) {
+    if (!mStateManager->IsFullyInitialized()) {
       CWorldState& world = gpGameState->CurrentWorldState();
-      x14_stateManager->InitializeState(world.GetWorldAssetId(), world.GetCurrentArea(),
+      mStateManager->InitializeState(world.GetWorldAssetId(), world.GetCurrentArea(),
                                         world.GetDesiredAreaAssetId());
       return kMR_Exit;
     }
-    if (x18_guiManager.IsNull()) {
+    if (mGuiManager.IsNull()) {
       gpGameState->CurrentWorldState().SetDesiredAreaAssetId(kInvalidAssetId);
-      x18_guiManager = rs_new CInGameGuiManager(*x14_stateManager, queue);
+      mGuiManager = rs_new CInGameGuiManager(*mStateManager, queue);
     }
-    if (!x18_guiManager->CheckLoadComplete(*x14_stateManager))
+    if (!mGuiManager->CheckLoadComplete(*mStateManager))
       return kMR_Exit;
-    x1c_loadList.clear();
+    mLoadList.clear();
     transManager->StartTextFadeOut();
-    x2c_25_transitionFinished = transManager->IsTransitionFinished();
+    mTransitionFinished = transManager->IsTransitionFinished();
     return kMR_Exit;
   } else if (message.GetType() == kAM_FrameEnd) {
-    if (x2c_25_transitionFinished) {
-      CIOWin* game = rs_new CMFGame(x14_stateManager, x18_guiManager, queue);
+    if (mTransitionFinished) {
+      CIOWin* game = rs_new CMFGame(mStateManager, mGuiManager, queue);
       queue.Push(MakeMsg::CreateCreateIOWin(kAMT_IOWinManager, 10, 1000, game));
       CModel::EnableTextureTimeout();
       return kMR_RemoveIOWinAndExit;

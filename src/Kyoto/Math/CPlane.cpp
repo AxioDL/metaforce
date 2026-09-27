@@ -2,7 +2,7 @@
 #include "Kyoto/Math/CMath.hpp"
 
 CPlane::CPlane(const CVector3f& a, const CVector3f& b, const CVector3f& c)
-: x0_normal(CVector3f::Cross(b - a, c - a)), xc_constant(CVector3f::Dot(x0_normal, a)) {}
+: mNormal(CVector3f::Cross(b - a, c - a)), mConstant(CVector3f::Dot(mNormal, a)) {}
 
 float CPlane::ClipLineSegment(const CVector3f& start, const CVector3f& end) const {
   float dist = -(CVector3f::Dot(start, GetNormal()) - GetConstant()) /

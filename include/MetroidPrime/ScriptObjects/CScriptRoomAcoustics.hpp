@@ -86,19 +86,19 @@ public:
   static void DisableAuxCallbacks();
 
 private:
-  uint x34_volumeScale;
+  uint mVolumeScale;
 
-  bool x38_revHi, x39_revHiDis;
-  EffectReverbHiInfo x3c_revHiInfo;
+  bool mRevHi, mRevHiDis;
+  EffectReverbHiInfo mRevHiInfo;
 
-  bool x54_chorus;
-  EffectChorusInfo x58_chorusInfo;
+  bool mChorus;
+  EffectChorusInfo mChorusInfo;
 
-  bool x64_revStd, x65_revStdDis;
-  EffectReverbStdInfo x68_revStdInfo;
+  bool mRevStd, mRevStdDis;
+  EffectReverbStdInfo mRevStdInfo;
 
-  bool x7c_delay;
-  EffectDelayInfo x80_delayInfo;
+  bool mDelay;
+  EffectDelayInfo mDelayInfo;
 };
 
 #endif // _CSCRIPTROOMACOUSTICS

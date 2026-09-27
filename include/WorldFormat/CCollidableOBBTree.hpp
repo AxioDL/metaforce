@@ -18,28 +18,28 @@ class CSphere;
 
 class CRayCastInfo {
   friend class CCollidableOBBTree;
-  const CMRay& x0_ray;
-  const CMaterialFilter& x4_filter;
-  float x8_mag;
-  CPlane xc_plane;
-  CMaterialList x20_material;
+  const CMRay& mRay;
+  const CMaterialFilter& mFilter;
+  float mMag;
+  CPlane mPlane;
+  CMaterialList mMaterial;
 
 public:
   CRayCastInfo(const CMRay& ray, const CMaterialFilter& filter, float mag)
-  : x0_ray(ray)
-  , x4_filter(filter)
-  , x8_mag(mag)
-  , xc_plane(CVector3f::Zero(), CUnitVector3f(CVector3f(0.f, 0.f, 1.f), CUnitVector3f::kN_Yes))
-  , x20_material() {}
+  : mRay(ray)
+  , mFilter(filter)
+  , mMag(mag)
+  , mPlane(CVector3f::Zero(), CUnitVector3f(CVector3f(0.f, 0.f, 1.f), CUnitVector3f::kN_Yes))
+  , mMaterial() {}
 
-  const CMRay& GetRay() const { return x0_ray; }
-  const CMaterialFilter& GetMaterialFilter() const { return x4_filter; }
-  float GetMagnitude() const { return x8_mag; }
-  float& Magnitude() { return x8_mag; }
-  const CPlane& GetPlane() const { return xc_plane; }
-  CPlane& Plane() { return xc_plane; }
-  const CMaterialList& GetMaterial() const { return x20_material; }
-  CMaterialList& Material() { return x20_material; }
+  const CMRay& GetRay() const { return mRay; }
+  const CMaterialFilter& GetMaterialFilter() const { return mFilter; }
+  float GetMagnitude() const { return mMag; }
+  float& Magnitude() { return mMag; }
+  const CPlane& GetPlane() const { return mPlane; }
+  CPlane& Plane() { return mPlane; }
+  const CMaterialList& GetMaterial() const { return mMaterial; }
+  CMaterialList& Material() { return mMaterial; }
 };
 
 CHECK_SIZEOF(CRayCastInfo, 0x28)
@@ -54,7 +54,7 @@ public:
 
   CCollidableOBBTree(COBBTree* tree, const CMaterialList& list);
 
-  const COBBTree& GetOBBTree() const { return *x10_tree; }
+  const COBBTree& GetOBBTree() const { return *mTree; }
 
   bool AABoxCollision(const COBBTree::CNode& node, const CTransform4f& xf, const CAABox& aabb,
                       const COBBox& obb, const CMaterialList& material,
@@ -105,10 +105,10 @@ public:
   static void SetStaticTableIndex(uint idx) { sTableIndex = idx; }
 
 private:
-  COBBTree* x10_tree;
-  mutable uint x14_tries;
-  mutable uint x18_misses;
-  mutable uint x1c_hits;
+  COBBTree* mTree;
+  mutable uint mTries;
+  mutable uint mMisses;
+  mutable uint mHits;
 
   static uint sTableIndex;
 };

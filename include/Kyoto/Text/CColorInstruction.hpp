@@ -8,14 +8,14 @@
 
 class CColorInstruction : public CInstruction {
 public:
-  CColorInstruction(EColorType type, const CTextColor& color) : x4_type(type), x8_color(color) {}
+  CColorInstruction(EColorType type, const CTextColor& color) : mType(type), mColor(color) {}
 
   void Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const;
   void PageInvoke(CFontRenderState& state, CTextRenderBuffer* buf) const;
 
 private:
-  EColorType x4_type;
-  CTextColor x8_color;
+  EColorType mType;
+  CTextColor mColor;
 };
 
 #endif // _CCOLORINSTRUCTION

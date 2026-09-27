@@ -92,12 +92,12 @@ enum EThermalDrawFlag {
 };
 
 struct SScriptObjectStream {
-  EScriptObjectType x0_type;
-  unsigned long x4_position;
-  unsigned long x8_length;
+  EScriptObjectType mType;
+  unsigned long mPosition;
+  unsigned long mLength;
 
   SScriptObjectStream(EScriptObjectType type, unsigned long position, unsigned long length)
-  : x0_type(type), x4_position(position), x8_length(length) {}
+  : mType(type), mPosition(position), mLength(length) {}
 };
 
 class CStateManager : public TOneStatic< CStateManager > {
@@ -125,10 +125,10 @@ public:
                 const rstl::ncrc_ptr< CScriptLayerManager >&);
   ~CStateManager();
 
-#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+#if VERSION >= VERSION_GM8P_00
   void SetProjectedShadow(CProjectedShadow* shadow);
 #else
-  void SetProjectedShadow(CProjectedShadow* shadow) { xf7c_projectedShadow = shadow; }
+  void SetProjectedShadow(CProjectedShadow* shadow) { mProjectedShadow = shadow; }
 #endif
 
   void PreRender();
@@ -154,8 +154,8 @@ public:
   void AddObject(CEntity*);
   void AddObject(CEntity&);
   bool HasWorld() const;
-  void SetViewportScaleX(float scale) const { xf2c_viewportScaleX = scale; }
-  void SetViewportScaleY(float scale) const { xf30_viewportScaleY = scale; }
+  void SetViewportScaleX(float scale) const { mViewportScaleX = scale; }
+  void SetViewportScaleY(float scale) const { mViewportScaleY = scale; }
   TUniqueId AllocateUniqueId();
   const rstl::string& HashInstanceName(CInputStream& in);
   bool SwapOutAllPossibleMemory();
@@ -200,7 +200,7 @@ public:
   TIdListResult GetIdListForScript(TEditorId) const;
 
   void SetActorAreaId(CActor& actor, const TAreaId);
-  TAreaId GetNextAreaId() const { return x8cc_nextAreaId; }
+  TAreaId GetNextAreaId() const { return mNextAreaId; }
   void SetCurrentAreaId(TAreaId);
   TAreaId GetVisAreaId() const;
 
@@ -210,68 +210,68 @@ public:
   const CSinglePathMaze* GetSinglePathMaze() const;
   void SetSinglePathMaze(rstl::single_ptr< CSinglePathMaze > maze);
 
-  CPlayer* Player() { return x84c_player; }
+  CPlayer* Player() { return mPlayer; }
 #if !defined(TARGET_PC) && defined(CSTATEMANAGER_OUT_OF_LINE_GETPLAYER)
   const CPlayer* GetPlayer() const;
 #else
-  const CPlayer* GetPlayer() const { return x84c_player; }
+  const CPlayer* GetPlayer() const { return mPlayer; }
 #endif
-  CCameraManager* CameraManager() { return x870_cameraManager; }
-  const CCameraManager* GetCameraManager() const { return x870_cameraManager; }
-  TUniqueId GetPlayerActorHead() const { return xf6c_playerActorHead; }
-  void SetPlayerActorHead(TUniqueId id) { xf6c_playerActorHead = id; }
-  CPlayerState* PlayerState() { return &*x8b8_playerState; }
-  CPlayerState* GetPlayerState() const { return &*x8b8_playerState; }
-  rstl::rc_ptr< CScriptLayerManager >& WorldLayerState() { return x8c8_worldLayerState; }
-  CWorld* World() { return x850_world.get(); }
-  const CWorld* GetWorld() const { return x850_world.get(); }
-  CScriptMailbox* Mailbox() { return x8bc_mailbox.GetPtr(); }
-  const CScriptMailbox* GetMailbox() const { return x8bc_mailbox.GetPtr(); }
-  CActorModelParticles* ActorModelParticles() { return x884_actorModelParticles; }
-  const CActorModelParticles* GetActorModelParticles() const { return x884_actorModelParticles; }
-  CEnvFxManager* EnvFxManager() { return x880_envFxManager; }
-  const CEnvFxManager* GetEnvFxManager() const { return x880_envFxManager; }
-  CRumbleManager* GetRumbleManager() { return x88c_rumbleManager; }
-  CFluidPlaneManager* FluidPlaneManager() { return x87c_fluidPlaneManager; }
-  const CFluidPlaneManager* GetFluidPlaneManager() const { return x87c_fluidPlaneManager; }
-  CWorldTransManager* WorldTransManager() { return x8c4_worldTransManager.GetPtr(); }
-  const CWorldTransManager* GetWorldTransManager() const { return x8c4_worldTransManager.GetPtr(); }
-  EGameState GetGameState() const { return x904_gameState; }
+  CCameraManager* CameraManager() { return mCameraManager; }
+  const CCameraManager* GetCameraManager() const { return mCameraManager; }
+  TUniqueId GetPlayerActorHead() const { return mPlayerActorHead; }
+  void SetPlayerActorHead(TUniqueId id) { mPlayerActorHead = id; }
+  CPlayerState* PlayerState() { return &*mPlayerState; }
+  CPlayerState* GetPlayerState() const { return &*mPlayerState; }
+  rstl::rc_ptr< CScriptLayerManager >& WorldLayerState() { return mWorldLayerState; }
+  CWorld* World() { return mWorld.get(); }
+  const CWorld* GetWorld() const { return mWorld.get(); }
+  CScriptMailbox* Mailbox() { return mMailbox.GetPtr(); }
+  const CScriptMailbox* GetMailbox() const { return mMailbox.GetPtr(); }
+  CActorModelParticles* ActorModelParticles() { return mActorModelParticles; }
+  const CActorModelParticles* GetActorModelParticles() const { return mActorModelParticles; }
+  CEnvFxManager* EnvFxManager() { return mEnvFxManager; }
+  const CEnvFxManager* GetEnvFxManager() const { return mEnvFxManager; }
+  CRumbleManager* GetRumbleManager() { return mRumbleManager; }
+  CFluidPlaneManager* FluidPlaneManager() { return mFluidPlaneManager; }
+  const CFluidPlaneManager* GetFluidPlaneManager() const { return mFluidPlaneManager; }
+  CWorldTransManager* WorldTransManager() { return mWorldTransManager.GetPtr(); }
+  const CWorldTransManager* GetWorldTransManager() const { return mWorldTransManager.GetPtr(); }
+  EGameState GetGameState() const { return mGameState; }
   void SetGameState(EGameState state);
 
-  CRandom16* Random() const { return x900_random; }
-  rstl::list< TUniqueId >& ActiveParasites() { return xf54_activeParasites; }
-  void SetRandomAvailable(bool available) { x900_random = available ? &x8fc_random : nullptr; }
-  uint GetUpdateFrameIndex() const { return x8d8_updateFrameIdx; }
+  CRandom16* Random() const { return mRandom; }
+  rstl::list< TUniqueId >& ActiveParasites() { return mActiveParasites; }
+  void SetRandomAvailable(bool available) { mRandom = available ? &mRandomValue : nullptr; }
+  uint GetUpdateFrameIndex() const { return mUpdateFrameIdx; }
 
-  CObjectList& ObjectListById(EGameObjectList id) { return *x808_objectLists[id]; }
-  const CObjectList& GetObjectListById(EGameObjectList id) const { return *x808_objectLists[id]; }
+  CObjectList& ObjectListById(EGameObjectList id) { return *mObjectLists[id]; }
+  const CObjectList& GetObjectListById(EGameObjectList id) const { return *mObjectLists[id]; }
 
   void RemoveObject(TUniqueId);
 
-  const CFinalInput& GetFinalInput() const { return xb54_finalInput; }
+  const CFinalInput& GetFinalInput() const { return mFinalInput; }
 
   CCameraFilterPass& CameraFilterPass(ECameraFilterStage stage) {
-    return xb84_camFilterPasses[size_t(stage)];
+    return mCamFilterPasses[size_t(stage)];
   }
   const CCameraFilterPass& GetCameraFilterPass(ECameraFilterStage stage) const {
-    return xb84_camFilterPasses[size_t(stage)];
+    return mCamFilterPasses[size_t(stage)];
   }
 
-  CCameraBlurPass& CameraBlurPass(ECameraFilterStage idx) { return xd14_camBlurPasses[idx]; }
+  CCameraBlurPass& CameraBlurPass(ECameraFilterStage idx) { return mCamBlurPasses[idx]; }
 
   const CCameraBlurPass& GetCameraBlurPass(ECameraFilterStage idx) const {
-    return xd14_camBlurPasses[idx];
+    return mCamBlurPasses[idx];
   }
 
-  float GetThermalColdScale1() const { return xf24_thermColdScale1; }
-  float GetThermalColdScale2() const { return xf28_thermColdScale2; }
-  void SetThermalColdScale2(float s) { xf28_thermColdScale2 = s; }
+  float GetThermalColdScale1() const { return mThermColdScale1; }
+  float GetThermalColdScale2() const { return mThermColdScale2; }
+  void SetThermalColdScale2(float s) { mThermColdScale2 = s; }
   // TODO ?
-  void AddThermalColdScale2(float s) { xf28_thermColdScale2 += s; }
+  void AddThermalColdScale2(float s) { mThermColdScale2 += s; }
 
-  const bool IsGeneratingObject() const { return xf94_26_generatingObject; }
-  void SetIsGeneratingObject(bool gen) { xf94_26_generatingObject = gen; }
+  const bool IsGeneratingObject() const { return mGeneratingObject; }
+  void SetIsGeneratingObject(bool gen) { mGeneratingObject = gen; }
 
   void ApplyDamageToWorld(TUniqueId, const CActor&, const CVector3f&, const CDamageInfo& info,
                           const CMaterialFilter&);
@@ -293,9 +293,9 @@ public:
   //
   void ShowPausedHUDMemo(CAssetId strg, float time);
   void QueueMessage(int frameCount, CAssetId msg, float f1);
-  int GetHUDMessageFrameCount() const { return xf80_hudMessageFrameCount; }
-  float GetHUDMessageTime() const { return xf78_hudMessageTime; }
-  void IncrementHUDMessageFrameCounter() { ++xf80_hudMessageFrameCount; }
+  int GetHUDMessageFrameCount() const { return mHudMessageFrameCount; }
+  float GetHUDMessageTime() const { return mHudMessageTime; }
+  void IncrementHUDMessageFrameCounter() { ++mHudMessageFrameCount; }
 
   // Weapon
   int GetWeaponIdCount(TUniqueId, EWeaponType);
@@ -319,66 +319,66 @@ public:
   // State transitions
   bool CanShowMapScreen();
   void DeferStateTransition(EStateManagerTransition t);
-  EStateManagerTransition GetDeferredStateTransition() const { return xf90_deferredTransition; }
-  bool IsFullyInitialized() const { return xb3c_initPhase == kIP_Done; }
+  EStateManagerTransition GetDeferredStateTransition() const { return mDeferredTransition; }
+  bool IsFullyInitialized() const { return mInitPhase == kIP_Done; }
   void EnterMapScreen() { DeferStateTransition(kSMT_MapScreen); }
   void EnterPauseScreen() { DeferStateTransition(kSMT_PauseGame); }
   void EnterLogBookScreen() { DeferStateTransition(kSMT_LogBook); }
   void EnterSaveGameScreen() { DeferStateTransition(kSMT_SaveGame); }
   void EnterMessageScreen(uint, float);
-  bool GetWantsToEnterMapScreen() const { return xf90_deferredTransition == kSMT_MapScreen; }
-  bool GetWantsToEnterPauseScreen() const { return xf90_deferredTransition == kSMT_PauseGame; }
-  bool GetWantsToEnterLogBookScreen() const { return xf90_deferredTransition == kSMT_LogBook; }
-  bool GetWantsToEnterSaveGameScreen() const { return xf90_deferredTransition == kSMT_SaveGame; }
+  bool GetWantsToEnterMapScreen() const { return mDeferredTransition == kSMT_MapScreen; }
+  bool GetWantsToEnterPauseScreen() const { return mDeferredTransition == kSMT_PauseGame; }
+  bool GetWantsToEnterLogBookScreen() const { return mDeferredTransition == kSMT_LogBook; }
+  bool GetWantsToEnterSaveGameScreen() const { return mDeferredTransition == kSMT_SaveGame; }
   bool GetWantsToEnterMessageScreen() const {
-    return xf90_deferredTransition == kSMT_MessageScreen;
+    return mDeferredTransition == kSMT_MessageScreen;
   }
 
-  EThermalDrawFlag GetThermalDrawFlag() const { return xf34_thermalFlag; }
+  EThermalDrawFlag GetThermalDrawFlag() const { return mThermalFlag; }
 
-  void SetLastTriggerId(TUniqueId uid) { xf74_lastTrigger = uid; }
-  TUniqueId GetLastTriggerId() const { return xf74_lastTrigger; }
+  void SetLastTriggerId(TUniqueId uid) { mLastTrigger = uid; }
+  TUniqueId GetLastTriggerId() const { return mLastTrigger; }
 
-  void SetLastRelayId(const TUniqueId& uid) { xf76_lastRelay = uid; }
-  TUniqueId* GetLastRelayIdPtr() { return &xf76_lastRelay; }
-  TUniqueId GetLastRelayId() const { return xf76_lastRelay; }
+  void SetLastRelayId(const TUniqueId& uid) { mLastRelay = uid; }
+  TUniqueId* GetLastRelayIdPtr() { return &mLastRelay; }
+  TUniqueId GetLastRelayId() const { return mLastRelay; }
 
-  TUniqueId GetBossId() const { return xf18_bossId; }
-  float GetTotalBossEnergy() const { return xf1c_totalBossEnergy; }
-  uint GetBossStringIdx() const { return xf20_bossStringIdx; }
+  TUniqueId GetBossId() const { return mBossId; }
+  float GetTotalBossEnergy() const { return mTotalBossEnergy; }
+  uint GetBossStringIdx() const { return mBossStringIdx; }
   void SetBossParams(TUniqueId bossId, float maxEnergy, uint stringIdx);
   void SetEnergyBarActorInfo(TUniqueId bossId, float maxEnergy, uint stringIdx) {
     SetBossParams(bossId, maxEnergy, stringIdx);
   }
   void SetPendingOnScreenTex(CAssetId texId, const CVector2i& extent, const CVector2i& offset);
-  const SOnScreenTex& GetPendingScreenTex() const { return xef4_pendingScreenTex; }
+  const SOnScreenTex& GetPendingScreenTex() const { return mPendingScreenTex; }
   float IntegrateVisorFog(float f) const;
 
   void TouchSky() const;
   void TouchPlayerActor() const;
 
-  void QuitGame() { xf94_25_quitGame = true; }
-  bool GetWantsToQuit() const { return xf94_25_quitGame; }
+  void QuitGame() { mQuitGame = true; }
+  bool GetWantsToQuit() const { return mQuitGame; }
   bool SpecialSkipCinematic();
-  void SetCinematicSkipObject(TUniqueId id) { xf38_skipCineSpecialFunc = id; }
-  TUniqueId GetCinematicSkipObject() const { return xf38_skipCineSpecialFunc; }
-  void SetCinematicPause(bool pause) { xf94_29_cinematicPause = pause; }
-  void SetInSaveUI(bool b) { xf94_28_inSaveUI = b; }
-  bool GetInSaveUI() const { return xf94_28_inSaveUI; }
-  void SetInMapScreen(bool b) { xf94_27_inMapScreen = b; }
-  bool GetInMapScreen() const { return xf94_27_inMapScreen; }
-  void SetIsFullThreat(bool v) { xf94_30_fullThreat = v; }
-  bool IsFullThreat() const { return xf94_30_fullThreat; }
-  const rstl::vector< CLight >& GetDynamicLightList() const { return x8e0_dynamicLights; }
-  uint GetInputFrameIdx() const { return x8d4_inputFrameIdx; }
-  CMapWorldInfo* MapWorldInfo() const { return x8c0_mapWorldInfo.GetPtr(); }
+  void SetCinematicSkipObject(TUniqueId id) { mSkipCineSpecialFunc = id; }
+  TUniqueId GetCinematicSkipObject() const { return mSkipCineSpecialFunc; }
+  void SetCinematicPause(bool pause) { mCinematicPause = pause; }
+  void SetInSaveUI(bool b) { mInSaveUI = b; }
+  bool GetInSaveUI() const { return mInSaveUI; }
+  void SetInMapScreen(bool b) { mInMapScreen = b; }
+  bool GetInMapScreen() const { return mInMapScreen; }
+  void SetIsFullThreat(bool v) { mFullThreat = v; }
+  bool IsFullThreat() const { return mFullThreat; }
+  const rstl::vector< CLight >& GetDynamicLightList() const { return mDynamicLights; }
+  uint GetInputFrameIdx() const { return mInputFrameIdx; }
+  CMapWorldInfo* MapWorldInfo() const { return mMapWorldInfo.GetPtr(); }
 
-  CAssetId GetPauseHUDMessage() const { return xf08_pauseHudMessage; }
+  CAssetId GetPauseHUDMessage() const { return mPauseHudMessage; }
   
-  void AddActiveFlickerBat(const TUniqueId& uid) { xf3c_activeFlickerBats.push_back(uid); }
-  void RemoveActiveFlickerBat(const TUniqueId& uid) { xf3c_activeFlickerBats.remove(uid); }
+  void AddActiveFlickerBat(const TUniqueId& uid) { mActiveFlickerBats.push_back(uid); }
+  void RemoveActiveFlickerBat(const TUniqueId& uid) { mActiveFlickerBats.remove(uid); }
 
-  rstl::list< TUniqueId >& GetActiveFlickerBats() { return xf3c_activeFlickerBats; }
+  rstl::list< TUniqueId >& GetActiveFlickerBats() { return mActiveFlickerBats; }
 
   static void ReflectionDrawer(void*, const CVector3f&);
   void CacheReflection();
@@ -390,85 +390,85 @@ public:
 private:
   enum EInitPhase { kIP_LoadWorld, kIP_LoadFirstArea, kIP_Done };
 
-  ushort x0_nextFreeIndex;
-  rstl::reserved_vector< ushort, 1024 > x4_objectIndexArray;
-  rstl::reserved_vector< rstl::auto_ptr< CObjectList >, 8 > x808_objectLists;
-  CPlayer* x84c_player;
-  rstl::single_ptr< CWorld > x850_world;
-  rstl::list< rstl::reserved_vector< TUniqueId, 32 > > x854_graveyard;
-  rstl::single_ptr< CStateManagerContainer > x86c_stateManagerContainer;
-  CCameraManager* x870_cameraManager;
-  SL::CSortedListManager* x874_sortedListManager;
-  CWeaponMgr* x878_weaponMgr;
-  CFluidPlaneManager* x87c_fluidPlaneManager;
-  CEnvFxManager* x880_envFxManager;
-  CActorModelParticles* x884_actorModelParticles;
+  ushort mNextFreeIndex;
+  rstl::reserved_vector< ushort, 1024 > mObjectIndexArray;
+  rstl::reserved_vector< rstl::auto_ptr< CObjectList >, 8 > mObjectLists;
+  CPlayer* mPlayer;
+  rstl::single_ptr< CWorld > mWorld;
+  rstl::list< rstl::reserved_vector< TUniqueId, 32 > > mGraveyard;
+  rstl::single_ptr< CStateManagerContainer > mStateManagerContainer;
+  CCameraManager* mCameraManager;
+  SL::CSortedListManager* mSortedListManager;
+  CWeaponMgr* mWeaponMgr;
+  CFluidPlaneManager* mFluidPlaneManager;
+  CEnvFxManager* mEnvFxManager;
+  CActorModelParticles* mActorModelParticles;
   uint x888_;
-  CRumbleManager* x88c_rumbleManager;
-  rstl::multimap< TEditorId, TUniqueId > x890_scriptIdMap;
-  rstl::map< TEditorId, SScriptObjectStream > x8a4_loadedScriptObjects;
-  rstl::ncrc_ptr< CPlayerState > x8b8_playerState;
-  rstl::ncrc_ptr< CScriptMailbox > x8bc_mailbox;
-  rstl::ncrc_ptr< CMapWorldInfo > x8c0_mapWorldInfo;
-  rstl::ncrc_ptr< CWorldTransManager > x8c4_worldTransManager;
-  rstl::ncrc_ptr< CScriptLayerManager > x8c8_worldLayerState;
+  CRumbleManager* mRumbleManager;
+  rstl::multimap< TEditorId, TUniqueId > mScriptIdMap;
+  rstl::map< TEditorId, SScriptObjectStream > mLoadedScriptObjects;
+  rstl::ncrc_ptr< CPlayerState > mPlayerState;
+  rstl::ncrc_ptr< CScriptMailbox > mMailbox;
+  rstl::ncrc_ptr< CMapWorldInfo > mMapWorldInfo;
+  rstl::ncrc_ptr< CWorldTransManager > mWorldTransManager;
+  rstl::ncrc_ptr< CScriptLayerManager > mWorldLayerState;
 
-  TAreaId x8cc_nextAreaId;
-  TAreaId x8d0_prevAreaId;
-  uint x8d4_inputFrameIdx;
-  uint x8d8_updateFrameIdx;
-  mutable uint x8dc_objectDrawToken;
+  TAreaId mNextAreaId;
+  TAreaId mPrevAreaId;
+  uint mInputFrameIdx;
+  uint mUpdateFrameIdx;
+  mutable uint mObjectDrawToken;
 
-  rstl::vector< CLight > x8e0_dynamicLights;
+  rstl::vector< CLight > mDynamicLights;
 
-  TCachedToken< CTexture > x8f0_shadowTex;
-  CRandom16 x8fc_random;
-  CRandom16* x900_random;
+  TCachedToken< CTexture > mShadowTex;
+  CRandom16 mRandomValue;
+  CRandom16* mRandom;
 
-  EGameState x904_gameState;
-  rstl::reserved_vector< FScriptLoader, int(kST_MAX) > x90c_loaderFuncs;
-  EInitPhase xb3c_initPhase;
-  rstl::set< rstl::string > xb40_uniqueInstanceNames;
+  EGameState mGameState;
+  rstl::reserved_vector< FScriptLoader, int(kST_MAX) > mLoaderFuncs;
+  EInitPhase mInitPhase;
+  rstl::set< rstl::string > mUniqueInstanceNames;
 
-  CFinalInput xb54_finalInput;
-  rstl::reserved_vector< CCameraFilterPass, kCFS_Max > xb84_camFilterPasses;
-  rstl::reserved_vector< CCameraBlurPass, kCFS_Max > xd14_camBlurPasses;
-  int xeec_hintIdx;
-  uint xef0_hintPeriods;
-  SOnScreenTex xef4_pendingScreenTex;
-  CAssetId xf08_pauseHudMessage;
-  float xf0c_escapeTimer;
-  float xf10_escapeTotalTime;
-  float xf14_curTimeMod900;
-  TUniqueId xf18_bossId;
-  float xf1c_totalBossEnergy;
-  uint xf20_bossStringIdx;
-  float xf24_thermColdScale1;
-  float xf28_thermColdScale2;
-  mutable float xf2c_viewportScaleX;
-  mutable float xf30_viewportScaleY;
-  mutable EThermalDrawFlag xf34_thermalFlag;
-  TUniqueId xf38_skipCineSpecialFunc;
-  rstl::list< TUniqueId > xf3c_activeFlickerBats;
-  rstl::list< TUniqueId > xf54_activeParasites;
-  TUniqueId xf6c_playerActorHead;
-  rstl::single_ptr< CSinglePathMaze > xf70_currentMaze;
-  TUniqueId xf74_lastTrigger;
-  TUniqueId xf76_lastRelay;
-  float xf78_hudMessageTime;
-  CProjectedShadow* xf7c_projectedShadow;
-  uint xf80_hudMessageFrameCount;
+  CFinalInput mFinalInput;
+  rstl::reserved_vector< CCameraFilterPass, kCFS_Max > mCamFilterPasses;
+  rstl::reserved_vector< CCameraBlurPass, kCFS_Max > mCamBlurPasses;
+  int mHintIdx;
+  uint mHintPeriods;
+  SOnScreenTex mPendingScreenTex;
+  CAssetId mPauseHudMessage;
+  float mEscapeTimer;
+  float mEscapeTotalTime;
+  float mCurTimeMod900;
+  TUniqueId mBossId;
+  float mTotalBossEnergy;
+  uint mBossStringIdx;
+  float mThermColdScale1;
+  float mThermColdScale2;
+  mutable float mViewportScaleX;
+  mutable float mViewportScaleY;
+  mutable EThermalDrawFlag mThermalFlag;
+  TUniqueId mSkipCineSpecialFunc;
+  rstl::list< TUniqueId > mActiveFlickerBats;
+  rstl::list< TUniqueId > mActiveParasites;
+  TUniqueId mPlayerActorHead;
+  rstl::single_ptr< CSinglePathMaze > mCurrentMaze;
+  TUniqueId mLastTrigger;
+  TUniqueId mLastRelay;
+  float mHudMessageTime;
+  CProjectedShadow* mProjectedShadow;
+  uint mHudMessageFrameCount;
   CAssetId xf84_;
   CAssetId xf88_;
   float xf8c_;
-  EStateManagerTransition xf90_deferredTransition;
-  bool xf94_24_readyToRender : 1;
-  bool xf94_25_quitGame : 1;
-  bool xf94_26_generatingObject : 1;
-  bool xf94_27_inMapScreen : 1;
-  bool xf94_28_inSaveUI : 1;
-  bool xf94_29_cinematicPause : 1;
-  bool xf94_30_fullThreat : 1;
+  EStateManagerTransition mDeferredTransition;
+  bool mReadyToRender : 1;
+  bool mQuitGame : 1;
+  bool mGeneratingObject : 1;
+  bool mInMapScreen : 1;
+  bool mInSaveUI : 1;
+  bool mCinematicPause : 1;
+  bool mFullThreat : 1;
 
   void UpdateThermalVisor();
   void UpdateHintState(float dt);
@@ -500,7 +500,10 @@ private:
   static void RendererDrawCallback(const void*, const void*, int);
   static const bool MemoryAllocatorAllocationFailedCallback(const void*, unsigned int);
 };
+// The Trilogy field layout is not yet reconstructed.
+#if VERSION < VERSION_R3IJ_00
 CHECK_SIZEOF(CStateManager, 0xf98)
+#endif
 
 #if defined(TARGET_PC)
 extern CStateManager* gpStateManager;

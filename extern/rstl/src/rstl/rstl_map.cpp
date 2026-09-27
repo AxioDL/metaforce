@@ -258,7 +258,7 @@ void* rbtree_rebalance_for_erase(void* header_void, void* node_void) {
         if (sibling->get_color() == kNC_Red) {
           sibling->set_color(kNC_Black);
           parent->set_color(kNC_Red);
-          rbtree_rotate_left(header, parent);
+          rbtree_rotate_left(header_void, parent);
           sibling = parent->get_right();
         }
         siblingChild = sibling->get_left();
@@ -273,7 +273,7 @@ void* rbtree_rebalance_for_erase(void* header_void, void* node_void) {
               siblingChild->set_color(kNC_Black);
             }
             sibling->set_color(kNC_Red);
-            rbtree_rotate_right(header, sibling);
+            rbtree_rotate_right(header_void, sibling);
             sibling = parent->get_right();
           }
           sibling->set_color(parent->get_color());
@@ -281,7 +281,7 @@ void* rbtree_rebalance_for_erase(void* header_void, void* node_void) {
           if (sibling->get_right() != nullptr) {
             sibling->get_right()->set_color(kNC_Black);
           }
-          rbtree_rotate_left(header, parent);
+          rbtree_rotate_left(header_void, parent);
           break;
         }
       } else {
@@ -289,7 +289,7 @@ void* rbtree_rebalance_for_erase(void* header_void, void* node_void) {
         if (sibling->get_color() == kNC_Red) {
           sibling->set_color(kNC_Black);
           parent->set_color(kNC_Red);
-          rbtree_rotate_right(header, parent);
+          rbtree_rotate_right(header_void, parent);
           sibling = parent->get_left();
         }
         siblingChild = sibling->get_right();
@@ -304,7 +304,7 @@ void* rbtree_rebalance_for_erase(void* header_void, void* node_void) {
               siblingChild->set_color(kNC_Black);
             }
             sibling->set_color(kNC_Red);
-            rbtree_rotate_left(header, sibling);
+            rbtree_rotate_left(header_void, sibling);
             sibling = parent->get_left();
           }
           sibling->set_color(parent->get_color());
@@ -312,7 +312,7 @@ void* rbtree_rebalance_for_erase(void* header_void, void* node_void) {
           if (sibling->get_left() != nullptr) {
             sibling->get_left()->set_color(kNC_Black);
           }
-          rbtree_rotate_right(header, parent);
+          rbtree_rotate_right(header_void, parent);
           break;
         }
       }

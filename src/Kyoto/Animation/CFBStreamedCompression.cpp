@@ -35,13 +35,13 @@ rstl::auto_ptr< uint > CFBStreamedCompression::GetRotationsAndOffsets(uint words
 }
 
 CFBStreamedCompression::CFBStreamedCompression(CInputStream& in, IObjectStore& store)
-: x0_scratchSize(in.Get< uint >())
-, x4_evnt(in.Get< uint >())
-, x8_evntToken(nullptr)
-, xc_rotsAndOffs(GetRotationsAndOffsets(x0_scratchSize / 4 + 1, in).release())
-, x14_rootOffset(0.f, 0.f, 0.f) {
-  if (x4_evnt != 0) {
-    x8_evntToken = rs_new TLockedToken< CAnimPOIData >(store.GetObj(SObjectTag('EVNT', x4_evnt)));
+: mScratchSize(in.Get< uint >())
+, mEvnt(in.Get< uint >())
+, mEvntToken(nullptr)
+, mRotsAndOffs(GetRotationsAndOffsets(mScratchSize / 4 + 1, in).release())
+, mRootOffset(0.f, 0.f, 0.f) {
+  if (mEvnt != 0) {
+    mEvntToken = rs_new TLockedToken< CAnimPOIData >(store.GetObj(SObjectTag('EVNT', mEvnt)));
   }
 
   const CStandardMultiFormatHeader& mainHeader = MainHeader();
@@ -77,7 +77,7 @@ CFBStreamedCompression::CFBStreamedCompression(CInputStream& in, IObjectStore& s
       distance += delta;
     }
   }
-  x10_averageVelocity = distance / GetAnimationDuration().GetSeconds();
+  mAverageVelocity = distance / GetAnimationDuration().GetSeconds();
 }
 
 CFBStreamedCompression::~CFBStreamedCompression() {}

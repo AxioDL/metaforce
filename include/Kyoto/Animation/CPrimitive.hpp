@@ -12,18 +12,18 @@ class CPrimitive {
 public:
   CPrimitive(CInputStream& in);
   void PutTo(COutputStream& out) const;
-  const CAssetId GetAnimResId() const { return x0_animId; }
-  CAssetId GetResourceId() const { return x0_animId; }
-  uint GetAnimDatabaseIndex() const { return x4_animIdx; }
-  const rstl::string& GetName() const { return x8_animName; }
+  const CAssetId GetAnimResId() const { return mAnimId; }
+  CAssetId GetResourceId() const { return mAnimId; }
+  uint GetAnimDatabaseIndex() const { return mAnimIdx; }
+  const rstl::string& GetName() const { return mAnimName; }
   int Compare(const CPrimitive& other) const {
-    return CStringExtras::CompareCaseInsensitive(x8_animName, other.x8_animName);
+    return CStringExtras::CompareCaseInsensitive(mAnimName, other.mAnimName);
   }
 
 private:
-  CAssetId x0_animId;
-  uint x4_animIdx;
-  rstl::string x8_animName;
+  CAssetId mAnimId;
+  uint mAnimIdx;
+  rstl::string mAnimName;
 };
 
 inline bool operator<(const CPrimitive& a, const CPrimitive& b) { return a.Compare(b) < 0; }

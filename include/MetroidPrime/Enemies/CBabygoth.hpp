@@ -25,66 +25,66 @@ class CBabygothData {
 public:
   CBabygothData(CInputStream& in, int propCount);
 
-  float GetFireballAttackTime() const { return x0_fireballAttackTime; }
-  float GetFireballAttackVariance() const { return x4_fireballAttackTimeVariance; }
-  CAssetId GetFireballResID() const { return x8_fireballWeapon; }
-  const CDamageInfo& GetFireballDamage() const { return xc_fireballDamage; }
-  const CDamageInfo& GetAttackContactDamage() const { return x28_attackContactDamage; }
-  CAssetId GetFireBreathWeapon() const { return x44_fireBreathWeapon; }
-  CAssetId GetFireBreathResId() const { return x48_fireBreathRes; }
-  const CDamageInfo& GetFireBreathDamage() const { return x4c_fireBreathDamage; }
-  const CDamageVulnerability& GetMouthVulnerabilities() const { return x68_mouthVulnerabilities; }
+  float GetFireballAttackTime() const { return mFireballAttackTime; }
+  float GetFireballAttackVariance() const { return mFireballAttackTimeVariance; }
+  CAssetId GetFireballResID() const { return mFireballWeapon; }
+  const CDamageInfo& GetFireballDamage() const { return mFireballDamage; }
+  const CDamageInfo& GetAttackContactDamage() const { return mAttackContactDamage; }
+  CAssetId GetFireBreathWeapon() const { return mFireBreathWeapon; }
+  CAssetId GetFireBreathResId() const { return mFireBreathRes; }
+  const CDamageInfo& GetFireBreathDamage() const { return mFireBreathDamage; }
+  const CDamageVulnerability& GetMouthVulnerabilities() const { return mMouthVulnerabilities; }
   const CDamageVulnerability& GetShellDamageVulnerability() const {
-    return xd0_shellVulnerabilities;
+    return mShellVulnerabilities;
   }
-  CAssetId GetNoShellModel() const { return x138_noShellModel; }
-  CAssetId GetNoShellSkin() const { return x13c_noShellSkin; }
-  float GetShellHitPoints() const { return x140_shellHitPoints; }
-  ushort GetShellCrackSfx() const { return x144_shellCrackSfx; }
-  CAssetId GetIntermediateCrackParticle() const { return x148_intermediateCrackParticle; }
-  CAssetId GetCrackOneParticle() const { return x14c_crackOneParticle; }
-  CAssetId GetCrackTwoParticle() const { return x150_crackTwoParticle; }
-  CAssetId GetDestroyShellParticle() const { return x154_destroyShellParticle; }
-  ushort GetCrackOneSfx() const { return x158_crackOneSfx; }
-  ushort GetCrackTwoSfx() const { return x15a_crackTwoSfx; }
-  ushort GetDestroyShellSfx() const { return x15c_destroyShellSfx; }
-  float GetTimeUntilAttack() const { return x160_timeUntilAttack; }
-  float GetAttackCooldownTime() const { return x164_attackCooldownTime; }
-  float GetInterestTime() const { return x168_interestTime; }
-  CAssetId GetFlamePlayerSteamTxtr() const { return x16c_flamePlayerSteamTxtr; }
-  const ushort GetFlamePlayerHitSfx() const { return x170_flamePlayerHitSfx; }
-  CAssetId GetFlamePlayerIceTxtr() const { return x174_flamePlayerIceTxtr; }
+  CAssetId GetNoShellModel() const { return mNoShellModel; }
+  CAssetId GetNoShellSkin() const { return mNoShellSkin; }
+  float GetShellHitPoints() const { return mShellHitPoints; }
+  ushort GetShellCrackSfx() const { return mShellCrackSfx; }
+  CAssetId GetIntermediateCrackParticle() const { return mIntermediateCrackParticle; }
+  CAssetId GetCrackOneParticle() const { return mCrackOneParticle; }
+  CAssetId GetCrackTwoParticle() const { return mCrackTwoParticle; }
+  CAssetId GetDestroyShellParticle() const { return mDestroyShellParticle; }
+  ushort GetCrackOneSfx() const { return mCrackOneSfx; }
+  ushort GetCrackTwoSfx() const { return mCrackTwoSfx; }
+  ushort GetDestroyShellSfx() const { return mDestroyShellSfx; }
+  float GetTimeUntilAttack() const { return mTimeUntilAttack; }
+  float GetAttackCooldownTime() const { return mAttackCooldownTime; }
+  float GetInterestTime() const { return mInterestTime; }
+  CAssetId GetFlamePlayerSteamTxtr() const { return mFlamePlayerSteamTxtr; }
+  const ushort GetFlamePlayerHitSfx() const { return mFlamePlayerHitSfx; }
+  CAssetId GetFlamePlayerIceTxtr() const { return mFlamePlayerIceTxtr; }
 
   static int GetNumProperties() { return skMinProperties; }
 
 private:
-  float x0_fireballAttackTime;
-  float x4_fireballAttackTimeVariance;
-  CAssetId x8_fireballWeapon;
-  CDamageInfo xc_fireballDamage;
-  CDamageInfo x28_attackContactDamage;
-  CAssetId x44_fireBreathWeapon;
-  CAssetId x48_fireBreathRes;
-  CDamageInfo x4c_fireBreathDamage;
-  CDamageVulnerability x68_mouthVulnerabilities;
-  CDamageVulnerability xd0_shellVulnerabilities;
-  CAssetId x138_noShellModel;
-  CAssetId x13c_noShellSkin;
-  float x140_shellHitPoints;
-  ushort x144_shellCrackSfx;
-  CAssetId x148_intermediateCrackParticle;
-  CAssetId x14c_crackOneParticle;
-  CAssetId x150_crackTwoParticle;
-  CAssetId x154_destroyShellParticle;
-  ushort x158_crackOneSfx;
-  ushort x15a_crackTwoSfx;
-  ushort x15c_destroyShellSfx;
-  float x160_timeUntilAttack;
-  float x164_attackCooldownTime;
-  float x168_interestTime;
-  CAssetId x16c_flamePlayerSteamTxtr;
-  ushort x170_flamePlayerHitSfx;
-  CAssetId x174_flamePlayerIceTxtr;
+  float mFireballAttackTime;
+  float mFireballAttackTimeVariance;
+  CAssetId mFireballWeapon;
+  CDamageInfo mFireballDamage;
+  CDamageInfo mAttackContactDamage;
+  CAssetId mFireBreathWeapon;
+  CAssetId mFireBreathRes;
+  CDamageInfo mFireBreathDamage;
+  CDamageVulnerability mMouthVulnerabilities;
+  CDamageVulnerability mShellVulnerabilities;
+  CAssetId mNoShellModel;
+  CAssetId mNoShellSkin;
+  float mShellHitPoints;
+  ushort mShellCrackSfx;
+  CAssetId mIntermediateCrackParticle;
+  CAssetId mCrackOneParticle;
+  CAssetId mCrackTwoParticle;
+  CAssetId mDestroyShellParticle;
+  ushort mCrackOneSfx;
+  ushort mCrackTwoSfx;
+  ushort mDestroyShellSfx;
+  float mTimeUntilAttack;
+  float mAttackCooldownTime;
+  float mInterestTime;
+  CAssetId mFlamePlayerSteamTxtr;
+  ushort mFlamePlayerHitSfx;
+  CAssetId mFlamePlayerIceTxtr;
 
   static const int skMinProperties;
 };
@@ -158,8 +158,8 @@ public:
 
 private:
   struct SSphereJointInfo {
-    const char* x0_name;
-    float x4_radius;
+    const char* mName;
+    float mRadius;
   };
   static const SSphereJointInfo skSphereJointList[5];
   static const CVector3f skAttackTouchBounds;
@@ -199,55 +199,55 @@ private:
   void UpdateTouchBounds();
   void SetPathFindMode(EPathFindMode mode);
 
-  int x568_stateProg;
-  EShellCrackState x56c_shellState;
-  CBabygothData x570_babyData;
-  TUniqueId x6e8_teamMgr;
-  CPathFindSearch x6ec_pathSearch;
-  CPathFindSearch x7d0_approachPathSearch;
-  EPathFindMode x8b4_pathFindMode;
-  CVector3f x8b8_backupDestPos;
-  CVector3f x8c4_initialFaceDir;
-  float x8d0_initialSpeed;
-  float x8d4_stepBackwardDist;
-  float x8d8_attackTimeLeft;
-  float x8dc_attackTimer;
-  float x8e0_attackCooldownTimeLeft;
-  float x8e4_fireballAttackTimeLeft;
-  float x8e8_interestTimer;
-  float x8ec_bodyHP;
-  CBoneTracking x8f0_boneTracking;
-  rstl::single_ptr< CCollisionActorManager > x928_colActMgr;
-  CCollidableAABox x930_aabox;
-  CProjectileInfo x958_iceProjectile;
-  TUniqueId x980_flameThrower;
-  TToken< CWeaponDescription > x984_flameThrowerDesc;
-  CDamageVulnerability x98c_dVuln;
-  CSegId x9f4_mouthLocator;
-  TUniqueId x9f6_mouthCollisionActor;
-  rstl::reserved_vector< TUniqueId, 2 > x9f8_shellIds;
-  float xa00_shellHitPoints;
-  uint xa04_drawMaterialIdx;
-  TLockedToken< CSkinnedModel > xa08_noShellModel;
-  TLockedToken< CGenDescription > xa14_crackOneParticle;
-  TLockedToken< CGenDescription > xa20_crackTwoParticle;
-  TLockedToken< CGenDescription > xa2c_destroyShellParticle;
-  rstl::optional_object< TLockedToken< CGenDescription > > xa38_intermediateCrackParticle;
-  bool xa48_24_isAlert : 1;
+  int mStateProg;
+  EShellCrackState mShellState;
+  CBabygothData mBabyData;
+  TUniqueId mTeamMgr;
+  CPathFindSearch mPathSearch;
+  CPathFindSearch mApproachPathSearch;
+  EPathFindMode mPathFindMode;
+  CVector3f mBackupDestPos;
+  CVector3f mInitialFaceDir;
+  float mInitialSpeed;
+  float mStepBackwardDist;
+  float mAttackTimeLeft;
+  float mAttackTimer;
+  float mAttackCooldownTimeLeft;
+  float mFireballAttackTimeLeft;
+  float mInterestTimer;
+  float mBodyHP;
+  CBoneTracking mBoneTracking;
+  rstl::single_ptr< CCollisionActorManager > mColActMgr;
+  CCollidableAABox mAabox;
+  CProjectileInfo mIceProjectile;
+  TUniqueId mFlameThrower;
+  TToken< CWeaponDescription > mFlameThrowerDesc;
+  CDamageVulnerability mDVuln;
+  CSegId mMouthLocator;
+  TUniqueId mMouthCollisionActor;
+  rstl::reserved_vector< TUniqueId, 2 > mShellIds;
+  float mShellHitPoints;
+  uint mDrawMaterialIdx;
+  TLockedToken< CSkinnedModel > mNoShellModel;
+  TLockedToken< CGenDescription > mCrackOneParticle;
+  TLockedToken< CGenDescription > mCrackTwoParticle;
+  TLockedToken< CGenDescription > mDestroyShellParticle;
+  rstl::optional_object< TLockedToken< CGenDescription > > mIntermediateCrackParticle;
+  bool mIsAlert : 1;
   bool xa48_25_ : 1;
-  bool xa48_26_inProjectileAttack : 1;
+  bool mInProjectileAttack : 1;
   bool xa48_27_ : 1;
-  bool xa48_28_pendingAttackContactDamage : 1;
-  bool xa48_29_hasBeenEnraged : 1;
-  bool xa48_30_heardPlayerFire : 1;
-  bool xa48_31_approachNeedsPathSearch : 1;
-  bool xa49_24_gettingUp : 1;
-  bool xa49_25_shouldStepBackwards : 1;
-  bool xa49_26_readyForTeam : 1;
-  bool xa49_27_locomotionValid : 1;
-  bool xa49_28_onApproachPath : 1;
-  bool xa49_29_objectSpaceCollision : 1;
+  bool mPendingAttackContactDamage : 1;
+  bool mHasBeenEnraged : 1;
+  bool mHeardPlayerFire : 1;
+  bool mApproachNeedsPathSearch : 1;
+  bool mGettingUp : 1;
+  bool mShouldStepBackwards : 1;
+  bool mReadyForTeam : 1;
+  bool mLocomotionValid : 1;
+  bool mOnApproachPath : 1;
+  bool mObjectSpaceCollision : 1;
 };
-CHECK_SIZEOF(CBabygoth, (VERSION >= VERSION_GM8P_00 ? 0xa60 : 0xa50))
+CHECK_SIZEOF(CBabygoth, (VERSION >= VERSION_GM8E_02 ? 0xa60 : 0xa50))
 
 #endif // _CBABYGOTH

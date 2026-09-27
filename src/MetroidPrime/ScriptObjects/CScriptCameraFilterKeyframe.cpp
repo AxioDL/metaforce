@@ -8,14 +8,14 @@ CScriptCameraFilterKeyframe::CScriptCameraFilterKeyframe(
     CStateManager::ECameraFilterStage filterIdx, uint unk, float colorR, float colorG, float colorB,
     float colorA, float timeIn, float timeOut, CAssetId txtr, bool active)
 : CEntity(uid, info, active, name)
-, x34_type(type)
-, x38_shape(shape)
-, x3c_filterIdx(filterIdx)
+, mType(type)
+, mShape(shape)
+, mFilterIdx(filterIdx)
 , x40_(unk)
-, x44_color(colorR, colorG, colorB, colorA)
-, x48_timeIn(timeIn)
-, x4c_timeOut(timeOut)
-, x50_txtr(txtr) {}
+, mColor(colorR, colorG, colorB, colorA)
+, mTimeIn(timeIn)
+, mTimeOut(timeOut)
+, mTxtr(txtr) {}
 
 CScriptCameraFilterKeyframe::~CScriptCameraFilterKeyframe() {}
 
@@ -24,18 +24,18 @@ void CScriptCameraFilterKeyframe::AcceptScriptMsg(EScriptObjectMessage msg, TUni
   switch (msg) {
   case kSM_Increment:
     if (GetActive()) {
-      stateMgr.CameraFilterPass(x3c_filterIdx)
-          .SetFilter(x34_type, x38_shape, x48_timeIn, x44_color, x50_txtr);
+      stateMgr.CameraFilterPass(mFilterIdx)
+          .SetFilter(mType, mShape, mTimeIn, mColor, mTxtr);
     }
     break;
   case kSM_Decrement:
     if (GetActive()) {
-      stateMgr.CameraFilterPass(x3c_filterIdx).DisableFilter(x4c_timeOut);
+      stateMgr.CameraFilterPass(mFilterIdx).DisableFilter(mTimeOut);
     }
     break;
   case kSM_Deactivate:
     if (GetActive()) {
-      stateMgr.CameraFilterPass(x3c_filterIdx).DisableFilter(0.f);
+      stateMgr.CameraFilterPass(mFilterIdx).DisableFilter(0.f);
     }
     break;
   default:

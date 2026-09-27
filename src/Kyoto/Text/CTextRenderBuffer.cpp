@@ -12,34 +12,34 @@
 #include <limits.h>
 #include <string.h>
 
-#if VERSION < VERSION_GM8P_00 || VERSION == VERSION_GM8E_02
+#if VERSION < VERSION_GM8P_00
 
 CTextRenderBuffer::CTextRenderBuffer(EMode mode)
-: x0_mode(mode)
-, x44_blobSize(0)
-, x48_curBytecodeOffset(0)
-, x4c_activeFont(-1)
-, x4d_activePalette(-1)
-, x4e_queuedFont(-1)
-, x4f_queuedPalette(-1)
-, x254_nextPalette(0) {}
+: mMode(mode)
+, mBlobSize(0)
+, mCurBytecodeOffset(0)
+, mActiveFont(-1)
+, mActivePalette(-1)
+, mQueuedFont(-1)
+, mQueuedPalette(-1)
+, mNextPalette(0) {}
 
 CGraphicsPalette* CTextRenderBuffer::GetNextAvailablePalette() const {
-  if (x254_nextPalette >= 64) {
-    x254_nextPalette = 0;
+  if (mNextPalette >= 64) {
+    mNextPalette = 0;
   } else {
-    x50_palettes.push_back(
+    mPalettes.push_back(
         rstl::auto_ptr< CGraphicsPalette >(rs_new CGraphicsPalette(kPF_RGB5A3, 4)));
   }
 
-  ++x254_nextPalette;
-  CGraphicsPalette* ret = x50_palettes[x254_nextPalette - 1].get();
+  ++mNextPalette;
+  CGraphicsPalette* ret = mPalettes[mNextPalette - 1].get();
   return ret;
 }
 
 int CTextRenderBuffer::GetMatchingPaletteIndex(const CGraphicsPalette& palette) const {
-  for (int i = 0; i < x50_palettes.size(); ++i) {
-    if (!memcmp(x50_palettes[i]->GetPaletteData(), palette.GetPaletteData(), 8)) {
+  for (int i = 0; i < mPalettes.size(); ++i) {
+    if (!memcmp(mPalettes[i]->GetPaletteData(), palette.GetPaletteData(), 8)) {
       return i;
     }
   }
@@ -49,12 +49,12 @@ int CTextRenderBuffer::GetMatchingPaletteIndex(const CGraphicsPalette& palette) 
 #endif
 
 void CTextRenderBuffer::AddFontChange(const TToken< CRasterFont >& font) {
-  if (x0_mode == kM_BufferFill) {
+  if (mMode == kM_BufferFill) {
     CMemoryStreamOut out(GetOutStream(), GetCurLen(), CMemoryStreamOut::kOS_NotOwned, 64);
     bool found = false;
 
-    for (int fontIndex = 0; fontIndex < x4_fonts.size(); ++fontIndex) {
-      if (x4_fonts[fontIndex].GetRef() == font.GetRef()) {
+    for (int fontIndex = 0; fontIndex < mFonts.size(); ++fontIndex) {
+      if (mFonts[fontIndex].GetRef() == font.GetRef()) {
         out.WriteUint8(kC_FontChange);
         out.WriteInt8(fontIndex);
         found = true;
@@ -63,30 +63,30 @@ void CTextRenderBuffer::AddFontChange(const TToken< CRasterFont >& font) {
     }
 
     if (!found) {
-      x4_fonts.reserve(x4_fonts.size() + 1);
-      int fontIndex = x4_fonts.size();
-      x4_fonts.push_back(font);
+      mFonts.reserve(mFonts.size() + 1);
+      int fontIndex = mFonts.size();
+      mFonts.push_back(font);
       out.WriteUint8(kC_FontChange);
       out.WriteInt8(fontIndex);
     }
-    x48_curBytecodeOffset += out.GetWrittenBytes();
+    mCurBytecodeOffset += out.GetWrittenBytes();
   } else {
     // Command + index
-    x44_blobSize += sizeof(char) + sizeof(char);
+    mBlobSize += sizeof(char) + sizeof(char);
   }
 }
 
-#if VERSION < VERSION_GM8P_00 || VERSION == VERSION_GM8E_02
+#if VERSION < VERSION_GM8P_00
 
 void CTextRenderBuffer::AddPaletteChange(const CGraphicsPalette& palette) {
-  if (x0_mode == kM_BufferFill) {
+  if (mMode == kM_BufferFill) {
     CMemoryStreamOut out(GetOutStream(), GetCurLen(), CMemoryStreamOut::kOS_NotOwned, 64);
 
     int paletteIndex = GetMatchingPaletteIndex(palette);
     if (paletteIndex == -1) {
       GetNextAvailablePalette();
-      paletteIndex = x254_nextPalette - 1;
-      CGraphicsPalette* destPalette = x50_palettes[paletteIndex].get();
+      paletteIndex = mNextPalette - 1;
+      CGraphicsPalette* destPalette = mPalettes[paletteIndex].get();
       void* data = destPalette->Lock();
       memcpy(data, palette.GetPaletteData(), 8);
       destPalette->UnLock();
@@ -94,81 +94,81 @@ void CTextRenderBuffer::AddPaletteChange(const CGraphicsPalette& palette) {
 
     out.WriteUint8(kC_PaletteChange);
     out.WriteInt8(paletteIndex);
-    x48_curBytecodeOffset += out.GetWrittenBytes();
+    mCurBytecodeOffset += out.GetWrittenBytes();
   } else {
     // Command + index
-    x44_blobSize += sizeof(char) + sizeof(char);
+    mBlobSize += sizeof(char) + sizeof(char);
   }
 }
 
 #endif
 
 void CTextRenderBuffer::AddCharacter(const CVector2i& offset, short chr, uint color) {
-  if (x0_mode == kM_BufferFill) {
+  if (mMode == kM_BufferFill) {
     CMemoryStreamOut out(GetOutStream(), GetCurLen(), CMemoryStreamOut::kOS_NotOwned, 64);
-    int tmp = x48_curBytecodeOffset;
-    x24_primOffsets.reserve(x24_primOffsets.size() + 1);
-    x24_primOffsets.push_back(tmp);
+    int tmp = mCurBytecodeOffset;
+    mPrimOffsets.reserve(mPrimOffsets.size() + 1);
+    mPrimOffsets.push_back(tmp);
     out.WriteUint8(kC_CharacterRender);
     out.WriteInt16(offset.GetX());
     out.WriteInt16(offset.GetY());
     out.WriteInt16(chr);
     out.WriteInt32(color);
-    x48_curBytecodeOffset += out.GetWrittenBytes();
+    mCurBytecodeOffset += out.GetWrittenBytes();
   } else {
     // Command + x + y + char + color
-    x44_blobSize +=
+    mBlobSize +=
         sizeof(char) + sizeof(short) + sizeof(short) + sizeof(short) + sizeof(CTextColor);
   }
 }
 
 void CTextRenderBuffer::AddImage(const CVector2i& offset, const CFontImageDef& image) {
-  if (x0_mode == kM_BufferFill) {
+  if (mMode == kM_BufferFill) {
     CMemoryStreamOut out(GetOutStream(), GetCurLen(), CMemoryStreamOut::kOS_NotOwned, 64);
-    const int tmp = x48_curBytecodeOffset;
-    x24_primOffsets.reserve(x24_primOffsets.size() + 1);
-    x24_primOffsets.push_back(tmp);
-    x14_images.reserve(x14_images.size() + 1);
-    int imageIdx = x14_images.size();
-    x14_images.push_back(image);
+    const int tmp = mCurBytecodeOffset;
+    mPrimOffsets.reserve(mPrimOffsets.size() + 1);
+    mPrimOffsets.push_back(tmp);
+    mImages.reserve(mImages.size() + 1);
+    int imageIdx = mImages.size();
+    mImages.push_back(image);
     out.WriteUint8(kC_ImageRender);
     out.WriteInt16(offset.GetX());
     out.WriteInt16(offset.GetY());
     out.WriteInt8(imageIdx);
     out.WriteUint32(CColor::White().GetColor_u32());
-    x48_curBytecodeOffset += out.GetWrittenBytes();
+    mCurBytecodeOffset += out.GetWrittenBytes();
   } else {
     // Command + x + y + index + color
-    x44_blobSize += sizeof(char) + sizeof(short) + sizeof(short) + sizeof(char) + sizeof(uint);
+    mBlobSize += sizeof(char) + sizeof(short) + sizeof(short) + sizeof(char) + sizeof(uint);
   }
 }
 
-#if VERSION < VERSION_GM8P_00 || VERSION == VERSION_GM8E_02
+#if VERSION < VERSION_GM8P_00
 
 void CTextRenderBuffer::Render(const CColor& color, float time) const {
-  x4c_activeFont = -1;
-  x4d_activePalette = -1;
-  CMemoryInStream in(x34_bytecode.data(), x44_blobSize, CMemoryInStream::kOS_NotOwned);
-  while (in.GetReadPosition() < x44_blobSize) {
+  mActiveFont = -1;
+  mActivePalette = -1;
+  CMemoryInStream in(mBytecode.data(), mBlobSize, CMemoryInStream::kOS_NotOwned);
+  while (in.GetReadPosition() < mBlobSize) {
     switch (static_cast< ECmd >(in.Get< uchar >())) {
     case kC_CharacterRender: {
-      if (x4e_queuedFont != -1) {
-        TToken< CRasterFont > font = x4_fonts[x4e_queuedFont];
+      if (mQueuedFont != -1) {
+        TToken< CRasterFont > font = mFonts[mQueuedFont];
         if (font.IsLoaded()) {
           font->SetupRenderState();
-          x4e_queuedFont = -1;
+          mQueuedFont = -1;
         }
       }
-      if (x4f_queuedPalette != -1) {
-        x50_palettes[x4f_queuedPalette]->Load();
-        x4f_queuedPalette = -1;
+      if (mQueuedPalette != -1) {
+        mPalettes[mQueuedPalette]->Load();
+        mQueuedPalette = -1;
       }
       short x = in.Get< short >();
       short y = in.Get< short >();
       short chr = in.Get< short >();
       uint chrColor = in.Get< uint >();
-      if (x4c_activeFont != -1) {
-        TToken< CRasterFont > font = x4_fonts[x4c_activeFont];
+      if (mActiveFont != -1) {
+        TToken< CRasterFont > font = mFonts[mActiveFont];
         if (font.IsLoaded() && font->HasGlyph(chr)) {
           const CGlyph* glyph = font->GetGlyph(chr);
           CGX::SetTevKColor(GX_KCOLOR0, CColor::Modulate(CColor(chrColor), color).GetGXColor());
@@ -191,7 +191,7 @@ void CTextRenderBuffer::Render(const CColor& color, float time) const {
       short y = in.Get< short >();
       schar imageIndex = in.Get< schar >();
       uint imageColor = in.Get< uint >();
-      const CFontImageDef& image = x14_images[imageIndex];
+      const CFontImageDef& image = mImages[imageIndex];
       TToken< CTexture > texture =
           image.GetImages()[static_cast< int >(time * image.GetFps()) % image.GetImages().size()];
       if (texture.IsLoaded()) {
@@ -225,16 +225,16 @@ void CTextRenderBuffer::Render(const CColor& color, float time) const {
         GXPosition3f32(x + width, 0.f, y + height);
         GXTexCoord2f32(0.5f + cropXHalf, 0.5f - cropYHalf);
         CGX::End();
-        x4e_queuedFont = x4c_activeFont;
-        x4f_queuedPalette = x4d_activePalette;
+        mQueuedFont = mActiveFont;
+        mQueuedPalette = mActivePalette;
       }
       break;
     }
     case kC_FontChange:
-      x4c_activeFont = x4e_queuedFont = in.Get< schar >();
+      mActiveFont = mQueuedFont = in.Get< schar >();
       break;
     case kC_PaletteChange:
-      x4d_activePalette = x4f_queuedPalette = in.Get< schar >();
+      mActivePalette = mQueuedPalette = in.Get< schar >();
       break;
     }
   }
@@ -243,26 +243,26 @@ void CTextRenderBuffer::Render(const CColor& color, float time) const {
 #endif
 
 void CTextRenderBuffer::VerifyBuffer() {
-  if (x34_bytecode.empty()) {
-    x34_bytecode.resize(x44_blobSize);
+  if (mBytecode.empty()) {
+    mBytecode.resize(mBlobSize);
   }
 }
 
-void CTextRenderBuffer::SetMode(EMode mode) { x0_mode = mode; }
+void CTextRenderBuffer::SetMode(EMode mode) { mMode = mode; }
 
 void* CTextRenderBuffer::GetOutStream() {
   VerifyBuffer();
-  return x34_bytecode.data() + x48_curBytecodeOffset;
+  return mBytecode.data() + mCurBytecodeOffset;
 }
 
 size_t CTextRenderBuffer::GetCurLen() {
   VerifyBuffer();
-  return x44_blobSize - x48_curBytecodeOffset;
+  return mBlobSize - mCurBytecodeOffset;
 }
 
 CTextRenderBuffer::Primitive CTextRenderBuffer::GetPrimitive(int index) const {
-  CMemoryInStream in(x34_bytecode.data() + x24_primOffsets[index],
-                     x44_blobSize - x24_primOffsets[index]);
+  CMemoryInStream in(mBytecode.data() + mPrimOffsets[index],
+                     mBlobSize - mPrimOffsets[index]);
   switch (static_cast< ECmd >(in.Get< uchar >())) {
   case kC_CharacterRender: {
     short x = in.Get< short >();
@@ -284,22 +284,22 @@ CTextRenderBuffer::Primitive CTextRenderBuffer::GetPrimitive(int index) const {
 }
 
 void CTextRenderBuffer::SetPrimitive(const Primitive& prim, int index) {
-  CMemoryStreamOut out(x34_bytecode.data() + x24_primOffsets[index],
-                       x44_blobSize - x24_primOffsets[index], CMemoryStreamOut::kOS_NotOwned, 64);
-  switch (prim.x4_cmd) {
+  CMemoryStreamOut out(mBytecode.data() + mPrimOffsets[index],
+                       mBlobSize - mPrimOffsets[index], CMemoryStreamOut::kOS_NotOwned, 64);
+  switch (prim.mCmd) {
   case kC_CharacterRender:
     out.WriteUint8(kC_CharacterRender);
-    out.WriteInt16(prim.x8_x);
-    out.WriteInt16(prim.xa_y);
-    out.WriteInt16(prim.xc_char);
-    out.WriteUint32(prim.x0_color);
+    out.WriteInt16(prim.mX);
+    out.WriteInt16(prim.mY);
+    out.WriteInt16(prim.mChar);
+    out.WriteUint32(prim.mColor);
     break;
   case kC_ImageRender:
     out.WriteUint8(kC_ImageRender);
-    out.WriteInt16(prim.x8_x);
-    out.WriteInt16(prim.xa_y);
-    out.WriteInt8(prim.xe_index);
-    out.WriteUint32(prim.x0_color);
+    out.WriteInt16(prim.mX);
+    out.WriteInt16(prim.mY);
+    out.WriteInt8(prim.mIndex);
+    out.WriteUint32(prim.mColor);
     break;
   }
 }
@@ -320,16 +320,16 @@ bool CTextRenderBuffer::HasSpaceAvailable(const CVector2i& origin, const CVector
 rstl::pair< CVector2i, CVector2i > CTextRenderBuffer::AccumulateTextBounds() {
   CVector2i min(INT_MAX, INT_MAX);
   CVector2i max(-INT_MAX - 1, -INT_MAX - 1);
-  CMemoryInStream in(x34_bytecode.data(), x44_blobSize, CMemoryInStream::kOS_NotOwned);
-  while (in.GetReadPosition() < x48_curBytecodeOffset) {
+  CMemoryInStream in(mBytecode.data(), mBlobSize, CMemoryInStream::kOS_NotOwned);
+  while (in.GetReadPosition() < mCurBytecodeOffset) {
     switch (static_cast< ECmd >(in.Get< uchar >())) {
     case kC_CharacterRender: {
       short x = in.Get< short >();
       short y = in.Get< short >();
       short chr = in.Get< short >();
       in.Get< uint >();
-      if (x4c_activeFont != -1) {
-        TToken< CRasterFont > font = x4_fonts[x4c_activeFont];
+      if (mActiveFont != -1) {
+        TToken< CRasterFont > font = mFonts[mActiveFont];
         if (font.IsLoaded() && font->HasGlyph(chr)) {
           const CGlyph* glyph = font->GetGlyph(chr);
           short maxX = x + glyph->GetCellWidth();
@@ -347,7 +347,7 @@ rstl::pair< CVector2i, CVector2i > CTextRenderBuffer::AccumulateTextBounds() {
       short y = in.Get< short >();
       schar imageIndex = in.Get< schar >();
       in.Get< uint >();
-      const CFontImageDef& image = x14_images[imageIndex];
+      const CFontImageDef& image = mImages[imageIndex];
       short maxX = x + image.GetMonoWidth();
       short maxY = y + image.GetMonoHeight();
       max[0] = rstl::max_val< int >(max[0], maxX);
@@ -357,7 +357,7 @@ rstl::pair< CVector2i, CVector2i > CTextRenderBuffer::AccumulateTextBounds() {
       break;
     }
     case kC_FontChange:
-      x4c_activeFont = in.Get< schar >();
+      mActiveFont = in.Get< schar >();
       break;
     case kC_PaletteChange:
       in.Get< schar >();

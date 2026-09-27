@@ -6,9 +6,9 @@
 #include "Kyoto/Math/CTransform4f.hpp"
 
 class CScriptTargetingPoint : public CActor {
-  bool xe8_e4_ : 1;
+  bool mE4_ : 1;
   TUniqueId xea_;
-  float xec_time;
+  float mTime;
 
 public:
   CScriptTargetingPoint(TUniqueId, const rstl::string&, const CEntityInfo&, const CTransform4f&,

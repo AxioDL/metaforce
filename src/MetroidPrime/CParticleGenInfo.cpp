@@ -9,19 +9,19 @@ CParticleGenInfo::CParticleGenInfo(const SObjectTag& part, int frameCount,
                                    const rstl::string& boneName, const CVector3f& scale,
                                    CParticleData::EParentedMode parentMode, int flags,
                                    EParticleGenType type)
-: x4_part(part)
-, xc_seconds(frameCount * (1.0f / 60.f))
-, x10_boneName(boneName)
-, x20_curTime(0.f)
-, x24_active(false)
-, x28_parentMode(parentMode)
-, x2c_flags(flags)
-, x30_particleScale(scale)
-, x3c_finishTime(0.f)
-, x40_grabInitialData(false)
-, x44_transform(CTransform4f::Identity())
-, x74_offset(0.f, 0.f, 0.f)
-, x80_type(type) {}
+: mPart(part)
+, mSeconds(frameCount * (1.0f / 60.f))
+, mBoneName(boneName)
+, mCurTime(0.f)
+, mActive(false)
+, mParentMode(parentMode)
+, mFlags(flags)
+, mParticleScale(scale)
+, mFinishTime(0.f)
+, mGrabInitialData(false)
+, mTransform(CTransform4f::Identity())
+, mOffset(0.f, 0.f, 0.f)
+, mType(type) {}
 
 TUniqueId _initializeLight(const rstl::ncrc_ptr< CParticleGen >& system, CStateManager& stateMgr,
                            TAreaId areaId, int lightId) {

@@ -33,11 +33,11 @@ CAnimTreeLoopIn::CAnimTreeLoopIn(const rstl::ncrc_ptr< CAnimTreeNode >& a,
                                  const rstl::ncrc_ptr< CAnimTreeNode >& c,
                                  const CAnimSysContext& animCtx, const rstl::string& name)
 : CAnimTreeSingleChild(CTreeUtils::GetTransitionTree(a, c, animCtx), name)
-, x18_nextAnim(b)
-, x1c_didLoopIn(false)
-, x20_animCtx(animCtx)
-, x30_fundamentals(CSequenceHelper(x14_child, x18_nextAnim, animCtx).ComputeSequenceFundamentals())
-, x88_curTime(0.f) {}
+, mNextAnim(b)
+, mDidLoopIn(false)
+, mAnimCtx(animCtx)
+, mFundamentals(CSequenceHelper(mChild, mNextAnim, animCtx).ComputeSequenceFundamentals())
+, mCurTime(0.f) {}
 
 CAnimTreeLoopIn::CAnimTreeLoopIn(const rstl::ncrc_ptr< CAnimTreeNode >& a,
                                  const rstl::ncrc_ptr< CAnimTreeNode >& b, bool didLoopIn,
@@ -45,84 +45,84 @@ CAnimTreeLoopIn::CAnimTreeLoopIn(const rstl::ncrc_ptr< CAnimTreeNode >& a,
                                  const CSequenceFundamentals& fundamentals,
                                  const CCharAnimTime& time)
 : CAnimTreeSingleChild(a, name)
-, x18_nextAnim(b)
-, x1c_didLoopIn(didLoopIn)
-, x20_animCtx(animCtx)
-, x30_fundamentals(fundamentals)
-, x88_curTime(time) {}
+, mNextAnim(b)
+, mDidLoopIn(didLoopIn)
+, mAnimCtx(animCtx)
+, mFundamentals(fundamentals)
+, mCurTime(time) {}
 
 CAdvancementResults CAnimTreeLoopIn::VAdvanceView(const CCharAnimTime& dt) {
-  rstl::ncrc_ptr< CAnimTreeNode > origChild = x14_child;
+  rstl::ncrc_ptr< CAnimTreeNode > origChild = mChild;
   CAdvancementResults res = origChild->AdvanceView(dt);
   CCharAnimTime remainder = res.GetRemainder();
-  x88_curTime += dt - remainder;
+  mCurTime += dt - remainder;
   CCharAnimTime remTime = origChild->GetTimeRemaining();
   if ((close_enough(remTime.GetSeconds(), 0.f) ||
        close_enough(dt.GetSeconds() - remainder.GetSeconds(), 0.f)) &&
-      !x1c_didLoopIn) {
+      !mDidLoopIn) {
     rstl::ncrc_ptr< CAnimTreeNode > newChild =
-        CTreeUtils::GetTransitionTree(origChild, x18_nextAnim, x20_animCtx);
+        CTreeUtils::GetTransitionTree(origChild, mNextAnim, mAnimCtx);
     ReplaceChild(newChild);
-    x1c_didLoopIn = true;
+    mDidLoopIn = true;
   }
   return res;
 }
 
 CCharAnimTime CAnimTreeLoopIn::VGetTimeRemaining() const {
-  CCharAnimTime duration = x30_fundamentals.GetSteadyStateAnimInfo().GetDuration();
-  return duration - x88_curTime;
+  CCharAnimTime duration = mFundamentals.GetSteadyStateAnimInfo().GetDuration();
+  return duration - mCurTime;
 }
 
 CSteadyStateAnimInfo CAnimTreeLoopIn::VGetSteadyStateAnimInfo() const {
-  return x30_fundamentals.GetSteadyStateAnimInfo();
+  return mFundamentals.GetSteadyStateAnimInfo();
 }
 
 uint CAnimTreeLoopIn::VGetBoolPOIList(const CCharAnimTime& time, CBoolPOINode* listOut,
                                       uint capacity, uint iterator, int unk) const {
   return _getPOIList(time, listOut, capacity, iterator, unk,
-                     x30_fundamentals.GetBoolPointsOfInterest(), x88_curTime);
+                     mFundamentals.GetBoolPointsOfInterest(), mCurTime);
 }
 
 uint CAnimTreeLoopIn::VGetInt32POIList(const CCharAnimTime& time, CInt32POINode* listOut,
                                        uint capacity, uint iterator, int unk) const {
   return _getPOIList(time, listOut, capacity, iterator, unk,
-                     x30_fundamentals.GetInt32PointsOfInterest(), x88_curTime);
+                     mFundamentals.GetInt32PointsOfInterest(), mCurTime);
 }
 
 uint CAnimTreeLoopIn::VGetParticlePOIList(const CCharAnimTime& time, CParticlePOINode* listOut,
                                           uint capacity, uint iterator, int unk) const {
   return _getPOIList(time, listOut, capacity, iterator, unk,
-                     x30_fundamentals.GetParticlePointsOfInterest(), x88_curTime);
+                     mFundamentals.GetParticlePointsOfInterest(), mCurTime);
 }
 
 uint CAnimTreeLoopIn::VGetSoundPOIList(const CCharAnimTime& time, CSoundPOINode* listOut,
                                        uint capacity, uint iterator, int unk) const {
   return _getPOIList(time, listOut, capacity, iterator, unk,
-                     x30_fundamentals.GetSoundPointsOfInterest(), x88_curTime);
+                     mFundamentals.GetSoundPointsOfInterest(), mCurTime);
 }
 
 rstl::ownership_transfer< IAnimReader > CAnimTreeLoopIn::VClone() const {
-  return rs_new CAnimTreeLoopIn(Cast(x14_child->Clone()), x18_nextAnim, x1c_didLoopIn, x20_animCtx,
-                                x4_name, x30_fundamentals, x88_curTime);
+  return rs_new CAnimTreeLoopIn(Cast(mChild->Clone()), mNextAnim, mDidLoopIn, mAnimCtx,
+                                mName, mFundamentals, mCurTime);
 }
 
 rstl::rc_ptr< CAnimTreeNode > CAnimTreeLoopIn::VGetBestUnblendedChild() const {
-  rstl::rc_ptr< CAnimTreeNode > child = x14_child->GetBestUnblendedChild();
+  rstl::rc_ptr< CAnimTreeNode > child = mChild->GetBestUnblendedChild();
   if (child)
-    return rs_new CAnimTreeLoopIn(Cast(child->Clone()), x18_nextAnim, x1c_didLoopIn, x20_animCtx,
-                                  x4_name, x30_fundamentals, x88_curTime);
+    return rs_new CAnimTreeLoopIn(Cast(child->Clone()), mNextAnim, mDidLoopIn, mAnimCtx,
+                                  mName, mFundamentals, mCurTime);
   return child;
 }
 
 rstl::optional_object< rstl::ownership_transfer< IAnimReader > > CAnimTreeLoopIn::VSimplified() {
-  CCharAnimTime remTime = x14_child->GetTimeRemaining();
+  CCharAnimTime remTime = mChild->GetTimeRemaining();
   if (remTime.GreaterThanZero() && !close_enough(remTime.GetSeconds(), 0.f)) {
-    rstl::ncrc_ptr< CAnimTreeNode > child = x14_child;
+    rstl::ncrc_ptr< CAnimTreeNode > child = mChild;
     rstl::optional_object< rstl::ownership_transfer< IAnimReader > > simp = child->Simplified();
     if (simp)
       ReplaceChild(Cast(*simp));
-  } else if (x1c_didLoopIn && x14_child->GetTimeRemaining().EqualsZero()) {
-    return x14_child->Clone();
+  } else if (mDidLoopIn && mChild->GetTimeRemaining().EqualsZero()) {
+    return mChild->Clone();
   }
   return rstl::optional_object_null();
 }
@@ -130,7 +130,7 @@ rstl::optional_object< rstl::ownership_transfer< IAnimReader > > CAnimTreeLoopIn
 bool CAnimTreeLoopIn::VSupportsReverseView() const { return false; }
 
 CAnimTreeEffectiveContribution CAnimTreeLoopIn::VGetContributionOfHighestInfluence() const {
-  return x14_child->GetContributionOfHighestInfluence();
+  return mChild->GetContributionOfHighestInfluence();
 }
 
 rstl::string CAnimTreeLoopIn::CreatePrimitiveName(const rstl::ncrc_ptr< CAnimTreeNode >& a,

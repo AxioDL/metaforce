@@ -1,84 +1,84 @@
 #include "Kyoto/Animation/CAnimTreeAnimReaderContainer.hpp"
 
 CAdvancementResults CAnimTreeAnimReaderContainer::VAdvanceView(const CCharAnimTime& time) {
-  return x14_reader->AdvanceView(time);
+  return mReader->AdvanceView(time);
 }
 
 CCharAnimTime CAnimTreeAnimReaderContainer::VGetTimeRemaining() const {
-  return x14_reader->GetTimeRemaining();
+  return mReader->GetTimeRemaining();
 }
 
 CSteadyStateAnimInfo CAnimTreeAnimReaderContainer::VGetSteadyStateAnimInfo() const {
-  return x14_reader->GetSteadyStateAnimInfo();
+  return mReader->GetSteadyStateAnimInfo();
 }
 
 bool CAnimTreeAnimReaderContainer::VHasOffset(const CSegId& seg) const {
-  return x14_reader->HasOffset(seg);
+  return mReader->HasOffset(seg);
 }
 
 CVector3f CAnimTreeAnimReaderContainer::VGetOffset(const CSegId& seg) const {
-  return x14_reader->GetOffset(seg);
+  return mReader->GetOffset(seg);
 }
 
 CQuaternion CAnimTreeAnimReaderContainer::VGetRotation(const CSegId& seg) const {
-  return x14_reader->GetRotation(seg);
+  return mReader->GetRotation(seg);
 }
 
 uint CAnimTreeAnimReaderContainer::VGetBoolPOIList(const CCharAnimTime& time, CBoolPOINode* listOut,
                                                    uint capacity, uint iterator, int unk) const {
-  return x14_reader->GetBoolPOIList(time, listOut, capacity, iterator, unk);
+  return mReader->GetBoolPOIList(time, listOut, capacity, iterator, unk);
 }
 
 uint CAnimTreeAnimReaderContainer::VGetInt32POIList(const CCharAnimTime& time,
                                                     CInt32POINode* listOut, uint capacity,
                                                     uint iterator, int unk) const {
-  return x14_reader->GetInt32POIList(time, listOut, capacity, iterator, unk);
+  return mReader->GetInt32POIList(time, listOut, capacity, iterator, unk);
 }
 
 uint CAnimTreeAnimReaderContainer::VGetParticlePOIList(const CCharAnimTime& time,
                                                        CParticlePOINode* listOut, uint capacity,
                                                        uint iterator, int unk) const {
-  return x14_reader->GetParticlePOIList(time, listOut, capacity, iterator, unk);
+  return mReader->GetParticlePOIList(time, listOut, capacity, iterator, unk);
 }
 
 uint CAnimTreeAnimReaderContainer::VGetSoundPOIList(const CCharAnimTime& time,
                                                     CSoundPOINode* listOut, uint capacity,
                                                     uint iterator, int unk) const {
-  return x14_reader->GetSoundPOIList(time, listOut, capacity, iterator, unk);
+  return mReader->GetSoundPOIList(time, listOut, capacity, iterator, unk);
 }
 
 bool CAnimTreeAnimReaderContainer::VGetBoolPOIState(const char* name) const {
-  return x14_reader->GetBoolPOIState(name);
+  return mReader->GetBoolPOIState(name);
 }
 
 s32 CAnimTreeAnimReaderContainer::VGetInt32POIState(const char* name) const {
-  return x14_reader->GetInt32POIState(name);
+  return mReader->GetInt32POIState(name);
 }
 
 CParticleData::EParentedMode
 CAnimTreeAnimReaderContainer::VGetParticlePOIState(const char* name) const {
-  return x14_reader->GetParticlePOIState(name);
+  return mReader->GetParticlePOIState(name);
 }
 
 void CAnimTreeAnimReaderContainer::VGetSegStatementSet(const CSegIdList& list,
                                                        CSegStatementSet& setOut) const {
-  x14_reader->GetSegStatementSet(list, setOut);
+  mReader->GetSegStatementSet(list, setOut);
 }
 
 void CAnimTreeAnimReaderContainer::VGetSegStatementSet(const CSegIdList& list,
                                                        CSegStatementSet& setOut,
                                                        const CCharAnimTime& time) const {
-  x14_reader->GetSegStatementSet(list, setOut, time);
+  mReader->GetSegStatementSet(list, setOut, time);
 }
 
 rstl::ownership_transfer< IAnimReader > CAnimTreeAnimReaderContainer::VClone() const {
-  return rs_new CAnimTreeAnimReaderContainer(x14_reader->Clone(), x4_name, x1c_animDbIdx);
+  return rs_new CAnimTreeAnimReaderContainer(mReader->Clone(), mName, mAnimDbIdx);
 }
 
 CAnimTreeEffectiveContribution
 CAnimTreeAnimReaderContainer::VGetContributionOfHighestInfluence() const {
-  return CAnimTreeEffectiveContribution(1.f, x4_name, x14_reader->GetSteadyStateAnimInfo(),
-                                        x14_reader->GetTimeRemaining(), x1c_animDbIdx);
+  return CAnimTreeEffectiveContribution(1.f, mName, mReader->GetSteadyStateAnimInfo(),
+                                        mReader->GetTimeRemaining(), mAnimDbIdx);
 }
 
 rstl::optional_object< rstl::ownership_transfer< IAnimReader > >
@@ -86,12 +86,12 @@ CAnimTreeAnimReaderContainer::VSimplified() {
   return rstl::optional_object_null();
 }
 
-void CAnimTreeAnimReaderContainer::VSetPhase(float phase) { x14_reader->SetPhase(phase); }
+void CAnimTreeAnimReaderContainer::VSetPhase(float phase) { mReader->SetPhase(phase); }
 
 CAdvancementResults
 CAnimTreeAnimReaderContainer::VGetAdvancementResults(const CCharAnimTime& a,
                                                      const CCharAnimTime& b) const {
-  return x14_reader->GetAdvancementResults(a, b);
+  return mReader->GetAdvancementResults(a, b);
 }
 
 rstl::rc_ptr< CAnimTreeNode > CAnimTreeAnimReaderContainer::VGetBestUnblendedChild() const {
@@ -100,5 +100,5 @@ rstl::rc_ptr< CAnimTreeNode > CAnimTreeAnimReaderContainer::VGetBestUnblendedChi
 
 void CAnimTreeAnimReaderContainer::VGetWeightedReaders(
     float w, rstl::reserved_vector< rstl::pair< float, IAnimReader* >, 16 >& out) const {
-  out.push_back(rstl::pair< float, IAnimReader* >(w, const_cast< IAnimReader* >(&*x14_reader)));
+  out.push_back(rstl::pair< float, IAnimReader* >(w, const_cast< IAnimReader* >(&*mReader)));
 }

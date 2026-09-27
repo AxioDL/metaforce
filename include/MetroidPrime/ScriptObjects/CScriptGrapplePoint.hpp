@@ -6,8 +6,8 @@
 #include "MetroidPrime/CGrappleParameters.hpp"
 
 class CScriptGrapplePoint : public CActor {
-  CAABox xe8_touchBounds;
-  CGrappleParameters x100_parameters;
+  CAABox mTouchBounds;
+  CGrappleParameters mParameters;
 
 public:
   CScriptGrapplePoint(TUniqueId uid, const rstl::string& name, const CEntityInfo& info,
@@ -21,7 +21,7 @@ public:
   void Think(float, CStateManager&) override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
 
-  const CGrappleParameters& GetGrappleParameters() const { return x100_parameters; }
+  const CGrappleParameters& GetGrappleParameters() const { return mParameters; }
 };
 
 #endif // _CSCRIPTGRAPPLEPOINT

@@ -19,18 +19,18 @@ public:
   void SetBallModeFactor(float t);
 
 private:
-  CGuiCamera* x0_camera;
-  CGuiWidget* x4_basewidget_bombstuff;
-  CGuiWidget* x8_basewidget_bombdeco;
-  CGuiModel* xc_model_bombicon;
-  CGuiTextPane* x10_textpane_bombdigits;
-  rstl::reserved_vector< CGuiWidget*, 3 > x14_group_bombfilled;
-  rstl::reserved_vector< CGuiWidget*, 3 > x24_group_bombempty;
-  CVector3f x34_camPos;
-  int x40_pbAmount;
-  int x44_pbCapacity;
-  int x48_availableBombs;
-  bool x4c_hasPb;
+  CGuiCamera* mCamera;
+  CGuiWidget* mBasewidget_bombstuff;
+  CGuiWidget* mBasewidget_bombdeco;
+  CGuiModel* mModel_bombicon;
+  CGuiTextPane* mTextpane_bombdigits;
+  rstl::reserved_vector< CGuiWidget*, 3 > mGroup_bombfilled;
+  rstl::reserved_vector< CGuiWidget*, 3 > mGroup_bombempty;
+  CVector3f mCamPos;
+  int mPbAmount;
+  int mPbCapacity;
+  int mAvailableBombs;
+  bool mHasPb;
   void UpdatePowerBombReadoutColors();
 };
 CHECK_SIZEOF(CHudBallInterface, 0x50)

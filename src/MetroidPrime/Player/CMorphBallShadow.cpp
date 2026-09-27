@@ -14,27 +14,27 @@
 #include <float.h>
 
 CMorphBallShadow::CMorphBallShadow(int width, int height, const TToken< CTexture >& ballFade)
-: x40_texture(kTF_I8, width, height, 1)
-, xa8_ballFade(ballFade)
-, xb0_width(width)
-, xb4_height(height)
-, xb8_shadowVolume(CAABox::MakeMaxInvertedBox())
-, xd0_hasIds(false) {
-  xa8_ballFade.Lock();
+: mTexture(kTF_I8, width, height, 1)
+, mBallFade(ballFade)
+, mWidth(width)
+, mHeight(height)
+, mShadowVolume(CAABox::MakeMaxInvertedBox())
+, mHasIds(false) {
+  mBallFade.Lock();
 }
 
-CMorphBallShadow::~CMorphBallShadow() { x40_texture.ScheduleDeletion(); }
+CMorphBallShadow::~CMorphBallShadow() { mTexture.ScheduleDeletion(); }
 
 void CMorphBallShadow::RenderIdBuffer(const CAABox& aabb, CStateManager& mgr, CPlayer& player) {
-  xb8_shadowVolume = aabb;
-  x0_actors.clear();
-  x18_areas.clear();
-  x30_worldModelBits = rstl::vector< uint >();
+  mShadowVolume = aabb;
+  mActors.clear();
+  mAreas.clear();
+  mWorldModelBits = rstl::vector< uint >();
 
   CCubeRenderer* const renderer = gpRender;
   renderer->SetRequestRGBA6(true);
   if (!renderer->IsRGBA6Current()) {
-    xd0_hasIds = false;
+    mHasIds = false;
     return;
   }
 
@@ -55,10 +55,10 @@ void CMorphBallShadow::RenderIdBuffer(const CAABox& aabb, CStateManager& mgr, CP
   const float depth = aabb.GetDepth();
   CGraphics::SetOrtho(-halfWidth, halfWidth, halfHeight, -halfHeight, 0.f, FLT_EPSILON + depth);
 #if defined(TARGET_PC)
-  GXCreateFrameBuffer(xb0_width, xb4_height);
+  GXCreateFrameBuffer(mWidth, mHeight);
 #endif
-  gpRender->SetViewport(0, CGraphics::GetRenderMode().efbHeight - xb4_height, xb0_width,
-                        xb4_height);
+  gpRender->SetViewport(0, CGraphics::GetRenderMode().efbHeight - mHeight, mWidth,
+                        mHeight);
   TEntityList nearList;
   mgr.BuildNearList(nearList, aabb, CMaterialFilter::skPassEverything, &player);
 
@@ -92,7 +92,7 @@ void CMorphBallShadow::RenderIdBuffer(const CAABox& aabb, CStateManager& mgr, CP
   for (AUTO(it, nearList.begin()); it != nearList.end() && id < 64; ++it) {
     CActor* actor = static_cast< CActor* >(const_cast< CEntity* >(mgr.GetObjectById(*it)));
     if (actor && actor->CanDrawStatic()) {
-      x0_actors.push_back(actor);
+      mActors.push_back(actor);
       GXSetDstAlpha(true, id * 4);
       const CModelData& modelData = *actor->GetModelData();
       const CTransform4f modelXf =
@@ -105,19 +105,19 @@ void CMorphBallShadow::RenderIdBuffer(const CAABox& aabb, CStateManager& mgr, CP
     }
   }
   CGraphics::SetModelMatrix(CTransform4f::Identity());
-  renderer->FindOverlappingWorldModels(x30_worldModelBits, aabb);
-  id = renderer->DrawOverlappingWorldModelIDs(id, x30_worldModelBits, aabb, 0, 0);
+  renderer->FindOverlappingWorldModels(mWorldModelBits, aabb);
+  id = renderer->DrawOverlappingWorldModelIDs(id, mWorldModelBits, aabb, 0, 0);
   CCubeModel::SetRenderModelBlack(false);
-  xd0_hasIds = id != 1;
+  mHasIds = id != 1;
 
   GXSetColorUpdate(true);
   GXSetDstAlpha(true, 0);
   bool useVideoFilter = CGraphics::GetUseVideoFilter();
   CGraphics::SetUseVideoFilter(false);
-  GXSetTexCopySrc(0, 0, xb0_width, xb4_height);
-  GXSetTexCopyDst(xb0_width, xb4_height, GX_CTF_A8, false);
-  GXCopyTex(x40_texture.Lock(), true);
-  x40_texture.UnLock();
+  GXSetTexCopySrc(0, 0, mWidth, mHeight);
+  GXSetTexCopyDst(mWidth, mHeight, GX_CTF_A8, false);
+  GXCopyTex(mTexture.Lock(), true);
+  mTexture.UnLock();
   GXPixModeSync();
 #if defined(TARGET_PC)
   GXRestoreFrameBuffer();
@@ -139,21 +139,21 @@ void CMorphBallShadow::RenderIdBuffer(const CAABox& aabb, CStateManager& mgr, CP
 
 void CMorphBallShadow::Render(CStateManager& mgr, float alpha) {
   CCubeRenderer& renderer = *gpRender;
-  if (!xd0_hasIds || !AreasValid(mgr)) {
+  if (!mHasIds || !AreasValid(mgr)) {
     return;
   }
 
-  const bool hasFade = xa8_ballFade.IsLoaded();
-  CGraphics::LoadDolphinSpareTexture(x40_texture.GetWidth(), x40_texture.GetHeight(), GX_TF_I8,
-                                     const_cast< void* >(x40_texture.GetConstBitMapData(0)),
+  const bool hasFade = mBallFade.IsLoaded();
+  CGraphics::LoadDolphinSpareTexture(mTexture.GetWidth(), mTexture.GetHeight(), GX_TF_I8,
+                                     const_cast< void* >(mTexture.GetConstBitMapData(0)),
                                      CGraphics::kSpareBufferTexMapID);
   renderer.GetSphereRamp().Load(GX_TEXMAP1, CTexture::kCM_Clamp);
   if (hasFade) {
-    TToken< CTexture >(xa8_ballFade)->Load(GX_TEXMAP2, CTexture::kCM_Clamp);
+    TToken< CTexture >(mBallFade)->Load(GX_TEXMAP2, CTexture::kCM_Clamp);
   }
 
   CGraphics::DisableAllLights();
-  const CVector3f center = xb8_shadowVolume.GetCenterPoint();
+  const CVector3f center = mShadowVolume.GetCenterPoint();
   const CLight light = CLight::BuildDirectional(CVector3f::Down(), CColor(0.f, 0.f, 0.f, alpha));
   CGraphics::LoadLight(kLight0, light);
   const GXColor black = {0, 0, 0, 0};
@@ -196,12 +196,12 @@ void CMorphBallShadow::Render(CStateManager& mgr, float alpha) {
   static const Mtx textureFlip = {
       {1.f, 0.f, 0.f, 0.f}, {0.f, -1.f, 0.f, 1.f}, {0.f, 0.f, 0.f, 1.f}};
   CGX::LoadTexMtxImm(textureFlip, GX_PTTEXMTX0, GX_MTX3x4);
-  CVector3f textureScale = xb8_shadowVolume.GetMaxPoint() - xb8_shadowVolume.GetMinPoint();
+  CVector3f textureScale = mShadowVolume.GetMaxPoint() - mShadowVolume.GetMinPoint();
   textureScale.SetX(1.f / textureScale.GetX());
   textureScale.SetY(1.f / textureScale.GetY());
   textureScale.SetZ(1.f / textureScale.GetZ());
   const CTransform4f textureXf =
-      CTransform4f::Scale(textureScale) * CTransform4f::Translate(-xb8_shadowVolume.GetMinPoint());
+      CTransform4f::Scale(textureScale) * CTransform4f::Translate(-mShadowVolume.GetMinPoint());
   CGX::SetTexCoordGen(GX_TEXCOORD0, GX_TG_MTX3x4, GX_TG_POS, GX_TEXMTX0, false, GX_PTTEXMTX0);
   CGX::SetTexCoordGen(GX_TEXCOORD1, GX_TG_MTX3x4, GX_TG_POS, GX_TEXMTX0, false, GX_PTTEXMTX0);
   if (hasFade) {
@@ -210,7 +210,7 @@ void CMorphBallShadow::Render(CStateManager& mgr, float alpha) {
     CGX::LoadTexMtxImm(fadeMtx, GX_PTTEXMTX1, GX_MTX3x4);
     CGX::SetTexCoordGen(GX_TEXCOORD2, GX_TG_MTX3x4, GX_TG_POS, GX_TEXMTX0, false, GX_PTTEXMTX1);
   }
-  for (AUTO(it, x0_actors.begin()); it != x0_actors.end(); ++it) {
+  for (AUTO(it, mActors.begin()); it != mActors.end(); ++it) {
     idColor.a = id * 4;
     CActor* actor = *it;
     CGX::SetTevKColor(GX_KCOLOR0, idColor);
@@ -227,25 +227,25 @@ void CMorphBallShadow::Render(CStateManager& mgr, float alpha) {
   }
   CGX::LoadTexMtxImm(textureXf.GetCStyleMatrix(), GX_TEXMTX0, GX_MTX3x4);
   gpRender->SetModelMatrix(CTransform4f::Identity());
-  renderer.DrawOverlappingWorldModelShadows(id, x30_worldModelBits, xb8_shadowVolume, 0, 0);
+  renderer.DrawOverlappingWorldModelShadows(id, mWorldModelBits, mShadowVolume, 0, 0);
   GXSetChanCtrl(GX_ALPHA0, false, GX_SRC_REG, GX_SRC_VTX, GX_LIGHT_NULL, GX_DF_NONE, GX_AF_NONE);
   GXSetNumChans(0);
 }
 
 void CMorphBallShadow::GatherAreas(CStateManager& mgr) {
-  x18_areas.clear();
+  mAreas.clear();
   for (AUTO(it, mgr.GetWorld()->GetChainHead(CWorld::kC_Alive)); it != CWorld::skGlobalEnd; ++it) {
     if (it->GetOcclusionState() == CGameArea::kOS_Visible) {
-      x18_areas.push_back(TAreaId(it->GetAreaId()));
+      mAreas.push_back(TAreaId(it->GetAreaId()));
     }
   }
 }
 
 bool CMorphBallShadow::AreasValid(const CStateManager& mgr) const {
-  AUTO(area, x18_areas.begin());
+  AUTO(area, mAreas.begin());
   for (AUTO(it, mgr.GetWorld()->GetChainHead(CWorld::kC_Alive)); it != CWorld::skGlobalEnd; ++it) {
     if (it->GetOcclusionState() == CGameArea::kOS_Visible) {
-      if (area == x18_areas.end()) {
+      if (area == mAreas.end()) {
         return false;
       }
       if (*area != it->GetAreaId()) {

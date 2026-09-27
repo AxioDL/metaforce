@@ -58,31 +58,31 @@ private:
   void KnockPlayer(CStateManager& mgr, float magnitude);
   void UpdateBoundingState(const CAABox& box, CStateManager& mgr, float dt);
 
-  float x568_stateTime;
-  float x56c_glowTime;
-  float x570_glowDuration;
-  float x574_attackDelay;
-  float x578_turnDelay;
+  float mStateTime;
+  float mGlowTime;
+  float mGlowDuration;
+  float mAttackDelay;
+  float mTurnDelay;
   float x57c_;
-  float x580_knockPlayerImpulse;
-  CVector3f x584_bodyOrigin;
-  float x590_halfExtent;
-  float x594_height;
-  float x598_heightOffset;
-  float x59c_heightScale;
-  CCollidableAABox x5a0_collisionPrimitive;
-  int x5c8_collisionState;
-  int x5cc_animProgress;
-  TLockedToken< CGenDescription > x5d0_glowDescription;
-  rstl::vector< CElementGen > x5dc_particles;
-  CProjectileInfo x5ec_projectileInfo;
-  bool x614_24_updateStateTime : 1;
-  bool x614_25_updateGlowTime : 1;
+  float mKnockPlayerImpulse;
+  CVector3f mBodyOrigin;
+  float mHalfExtent;
+  float mHeight;
+  float mHeightOffset;
+  float mHeightScale;
+  CCollidableAABox mCollisionPrimitive;
+  int mCollisionState;
+  int mAnimProgress;
+  TLockedToken< CGenDescription > mGlowDescription;
+  rstl::vector< CElementGen > mParticles;
+  CProjectileInfo mProjectileInfo;
+  bool mUpdateStateTime : 1;
+  bool mUpdateGlowTime : 1;
 
   static int kEyeCount;
   static const char* kEyeLocators[];
 };
 
-CHECK_SIZEOF(CPuddleSpore, (VERSION >= VERSION_GM8P_00 ? 0x628 : 0x618))
+CHECK_SIZEOF(CPuddleSpore, (VERSION >= VERSION_GM8E_02 ? 0x628 : 0x618))
 
 #endif

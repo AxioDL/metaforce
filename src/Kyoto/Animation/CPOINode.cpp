@@ -5,35 +5,35 @@
 CPOINode::CPOINode(const rstl::string& name, ushort type, const CCharAnimTime& time, int index,
                    bool unique, float weight, int charIdx, int flags)
 : x4_(1)
-, x8_name(name)
-, x18_type(type)
-, x1c_time(time)
-, x24_index(index)
-, x28_unique(unique)
-, x2c_weight(weight)
-, x30_charIdx(charIdx)
-, x34_flags(flags) {}
+, mName(name)
+, mType(type)
+, mTime(time)
+, mIndex(index)
+, mUnique(unique)
+, mWeight(weight)
+, mCharIdx(charIdx)
+, mFlags(flags) {}
 
 CPOINode::CPOINode(CInputStream& in)
 : x4_(in.Get<ushort>())
-, x8_name(in)
-, x18_type(in.Get<ushort>())
-, x1c_time(in)
-, x24_index(in.Get<uint>())
-, x28_unique(in.Get<bool>())
-, x2c_weight(in.Get<float>())
-, x30_charIdx(in.Get<int>())
-, x34_flags(in.Get<int>()) {
+, mName(in)
+, mType(in.Get<ushort>())
+, mTime(in)
+, mIndex(in.Get<uint>())
+, mUnique(in.Get<bool>())
+, mWeight(in.Get<float>())
+, mCharIdx(in.Get<int>())
+, mFlags(in.Get<int>()) {
   
 }
 
 
 bool CPOINode::operator>(const CPOINode& other) const {
-  return x1c_time > other.x1c_time;
+  return mTime > other.mTime;
 }
 
 bool CPOINode::operator<(const CPOINode& other) const {
-  return x1c_time < other.x1c_time;
+  return mTime < other.mTime;
 }
 
 int CPOINode::compare(const void* a, const void* b) {

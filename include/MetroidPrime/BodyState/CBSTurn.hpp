@@ -16,9 +16,9 @@ public:
   void Shutdown(CBodyController&) override;
 
 protected:
-  float x4_rotateSpeed;
-  CVector2f x8_dest;
-  pas::ETurnDirection x10_turnDir;
+  float mRotateSpeed;
+  CVector2f mDest;
+  pas::ETurnDirection mTurnDir;
 
   virtual pas::EAnimationState GetBodyStateTransition(float dt, CBodyController& bc);
 

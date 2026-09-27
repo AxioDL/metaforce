@@ -4,10 +4,10 @@
 #include "Kyoto/Streams/COutputStream.hpp"
 
 CPrimitive::CPrimitive(CInputStream& in)
-: x0_animId(in.Get< CAssetId >()), x4_animIdx(in.Get< int >()), x8_animName(in) {}
+: mAnimId(in.Get< CAssetId >()), mAnimIdx(in.Get< int >()), mAnimName(in) {}
 
 void CPrimitive::PutTo(COutputStream& out) const {
-  out.Put(x0_animId);
-  out.Put(x4_animIdx);
-  out.Put(x8_animName);
+  out.Put(mAnimId);
+  out.Put(mAnimIdx);
+  out.Put(mAnimName);
 }

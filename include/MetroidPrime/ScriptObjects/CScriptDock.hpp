@@ -18,8 +18,8 @@ public:
   rstl::optional_object< CAABox > GetTouchBounds() const override;
   void Touch(CActor&, CStateManager&) override;
   CPlane GetPlane(const CStateManager&) const;
-  TAreaId GetAreaId() const { return x260_area; }
-  int GetDockId() const { return x25c_dock; }
+  TAreaId GetAreaId() const { return mArea; }
+  int GetDockId() const { return mDock; }
   int GetDockReference(const CStateManager& mgr) const;
   TAreaId GetCurrentConnectedAreaId(const CStateManager&) const;
   void UpdateAreaActivateFlags(CStateManager&);
@@ -32,14 +32,14 @@ private:
   enum EDockState { kDS_InSourceRoom, kDS_PlayerTouched, kDS_EnterNextArea, kDS_InNextRoom };
 
   friend class CScriptDoor;
-  int x258_dockReferenceCount;
-  int x25c_dock;
-  TAreaId x260_area;
-  EDockState x264_dockState;
-  bool x268_24_dockReferenced : 1;
-  bool x268_25_loadConnected : 1;
-  bool x268_26_areaPostConstructed : 1;
+  int mDockReferenceCount;
+  int mDock;
+  TAreaId mArea;
+  EDockState mDockState;
+  bool mDockReferenced : 1;
+  bool mLoadConnected : 1;
+  bool mAreaPostConstructed : 1;
 };
-CHECK_SIZEOF(CScriptDock, (VERSION >= VERSION_GM8P_00 ? 0x280 : 0x270))
+CHECK_SIZEOF(CScriptDock, (VERSION >= VERSION_GM8E_02 ? 0x280 : 0x270))
 
 #endif // _CSCRIPTDOCK

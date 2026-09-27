@@ -25,32 +25,32 @@ public:
   CAdditiveAnimPlayback(const rstl::ncrc_ptr< CAnimTreeNode >& anim, float weight, bool loop,
                         const CAdditiveAnimationInfo& info, bool fadeOut);
 
-  const rstl::rc_ptr< CAnimTreeNode >& GetAnimationTree() const { return x8_anim; }
-  rstl::ncrc_ptr< CAnimTreeNode >& AnimationTree() { return x8_anim; }
+  const rstl::rc_ptr< CAnimTreeNode >& GetAnimationTree() const { return mAnim; }
+  rstl::ncrc_ptr< CAnimTreeNode >& AnimationTree() { return mAnim; }
 
-  float GetWeight() const { return xc_targetWeight; }
+  float GetWeight() const { return mTargetWeight; }
   void SetWeight(float weight);
 
-  EPlaybackPhase GetFadingMode() const { return x1c_phase; }
-  bool IsLoop() const { return x14_active; }
-  void SetLoop(bool loop) { x14_active = loop; }
+  EPlaybackPhase GetFadingMode() const { return mPhase; }
+  bool IsLoop() const { return mActive; }
+  void SetLoop(bool loop) { mActive = loop; }
 
-  bool IsFadeOutWhenAnimOver() const { return x20_needsFadeOut; }
-  void SetFadeOutWhenAnimOver(bool fadeOut) { x20_needsFadeOut = fadeOut; }
+  bool IsFadeOutWhenAnimOver() const { return mNeedsFadeOut; }
+  void SetFadeOutWhenAnimOver(bool fadeOut) { mNeedsFadeOut = fadeOut; }
 
   void FadeOut();
   void Update(float dt);
   void AddToSegStatementSet(const CSegIdList&, const CCharLayoutInfo&, CSegStatementSet&) const;
 
 private:
-  CAdditiveAnimationInfo x0_info;
-  rstl::ncrc_ptr< CAnimTreeNode > x8_anim;
-  float xc_targetWeight;
-  float x10_curWeight;
-  bool x14_active;
-  float x18_weightTimer;
-  EPlaybackPhase x1c_phase;
-  bool x20_needsFadeOut;
+  CAdditiveAnimationInfo mInfo;
+  rstl::ncrc_ptr< CAnimTreeNode > mAnim;
+  float mTargetWeight;
+  float mCurWeight;
+  bool mActive;
+  float mWeightTimer;
+  EPlaybackPhase mPhase;
+  bool mNeedsFadeOut;
 };
 CHECK_SIZEOF(CAdditiveAnimPlayback, 0x24)
 

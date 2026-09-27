@@ -11,15 +11,15 @@ class CStateManager;
 
 class CEnergyDrainSource {
 public:
-  CEnergyDrainSource(TUniqueId src, float intensity) : x0_source(src), x4_intensity(intensity) {}
-  bool operator<(const CEnergyDrainSource& other) const { return x0_source < other.x0_source; }
-  TUniqueId GetEnergyDrainSourceId() const { return x0_source; }
-  void SetEnergyDrainIntensity(float in) { x4_intensity = in; }
-  float GetEnergyDrainIntensity() const { return x4_intensity; }
+  CEnergyDrainSource(TUniqueId src, float intensity) : mSource(src), mIntensity(intensity) {}
+  bool operator<(const CEnergyDrainSource& other) const { return mSource < other.mSource; }
+  TUniqueId GetEnergyDrainSourceId() const { return mSource; }
+  void SetEnergyDrainIntensity(float in) { mIntensity = in; }
+  float GetEnergyDrainIntensity() const { return mIntensity; }
 
 private:
-  TUniqueId x0_source;
-  float x4_intensity;
+  TUniqueId mSource;
+  float mIntensity;
 };
 
 CHECK_SIZEOF(CEnergyDrainSource, 0x8)
@@ -31,13 +31,13 @@ public:
   bool AddEnergyDrainSource(TUniqueId id, float intensity);
   void RemoveEnergyDrainSource(TUniqueId id);
   float GetEnergyDrainIntensity() const;
-  const rstl::vector< CEnergyDrainSource >& GetEnergyDrainSources() const { return x0_sources; }
-  float GetEnergyDrainTime() const { return x10_energyDrainTime; }
+  const rstl::vector< CEnergyDrainSource >& GetEnergyDrainSources() const { return mSources; }
+  float GetEnergyDrainTime() const { return mEnergyDrainTime; }
   void ProcessEnergyDrain(const CStateManager& mgr, float dt);
 
 private:
-  rstl::vector< CEnergyDrainSource > x0_sources;
-  float x10_energyDrainTime;
+  rstl::vector< CEnergyDrainSource > mSources;
+  float mEnergyDrainTime;
 };
 CHECK_SIZEOF(CPlayerEnergyDrain, 0x14)
 

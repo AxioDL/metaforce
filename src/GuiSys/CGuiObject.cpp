@@ -4,35 +4,35 @@
 #include "dolphin/os.h"
 
 CGuiObject::CGuiObject()
-: x4_localXF(CTransform4f::Identity())
-, x34_worldXF(CTransform4f::Identity())
-, x64_parent(nullptr)
-, x68_child(nullptr)
-, x6c_nextSibling(nullptr) {}
+: mLocalXF(CTransform4f::Identity())
+, mWorldXF(CTransform4f::Identity())
+, mParent(nullptr)
+, mChild(nullptr)
+, mNextSibling(nullptr) {}
 
 CGuiObject::~CGuiObject() {
-  delete x68_child;
-  x68_child = nullptr;
-  delete x6c_nextSibling;
-  x6c_nextSibling = nullptr;
+  delete mChild;
+  mChild = nullptr;
+  delete mNextSibling;
+  mNextSibling = nullptr;
 }
 
 void CGuiObject::Update(float dt) {
-  if (x68_child) {
-    x68_child->Update(dt);
+  if (mChild) {
+    mChild->Update(dt);
   }
-  if (x6c_nextSibling) {
-    x6c_nextSibling->Update(dt);
+  if (mNextSibling) {
+    mNextSibling->Update(dt);
   }
 }
 
 void CGuiObject::Draw(const CGuiWidgetDrawParms& parms) const {
-  if (x68_child) {
-    x68_child->Draw(parms);
+  if (mChild) {
+    mChild->Draw(parms);
   }
 
-  if (x6c_nextSibling) {
-    x6c_nextSibling->Draw(parms);
+  if (mNextSibling) {
+    mNextSibling->Draw(parms);
   }
 }
 
@@ -40,27 +40,27 @@ void CGuiObject::MoveInWorld(const CVector3f& offset) {
   if (GetParent() != nullptr) {
     GetParent()->RotateW2O(offset);
   }
-  x4_localXF.AddTranslation(offset);
+  mLocalXF.AddTranslation(offset);
   RecalculateTransforms();
 }
 
-CVector3f CGuiObject::GetWorldPosition() const { return x34_worldXF.GetTranslation(); }
+CVector3f CGuiObject::GetWorldPosition() const { return mWorldXF.GetTranslation(); }
 
-CVector3f CGuiObject::GetLocalPosition() const { return x4_localXF.GetTranslation(); }
+CVector3f CGuiObject::GetLocalPosition() const { return mLocalXF.GetTranslation(); }
 
 void CGuiObject::SetLocalPosition(const CVector3f& pos) {
-  MoveInWorld(pos - x4_localXF.GetTranslation());
+  MoveInWorld(pos - mLocalXF.GetTranslation());
 }
 
 void CGuiObject::RotateReset() {
-  const CVector3f tmpPos = x4_localXF.GetTranslation();
-  x4_localXF = CTransform4f::Identity();
-  x4_localXF.SetTranslation(tmpPos);
+  const CVector3f tmpPos = mLocalXF.GetTranslation();
+  mLocalXF = CTransform4f::Identity();
+  mLocalXF.SetTranslation(tmpPos);
   RecalculateTransforms();
 }
 
 CVector3f CGuiObject::RotateO2P(const CVector3f& vec) const {
-  const CVector3f tmp = x4_localXF.Rotate(vec);
+  const CVector3f tmp = mLocalXF.Rotate(vec);
   return tmp;
 }
 
@@ -70,45 +70,45 @@ inline CVector3f StupidSubtract(const CVector3f& lhs, const CVector3f& rhs) {
 
 CVector3f CGuiObject::RotateTranslateW2O(const CVector3f& vec) const {
   const CVector3f tmp =
-      x34_worldXF.TransposeRotate(StupidSubtract(vec, x34_worldXF.GetTranslation()));
+      mWorldXF.TransposeRotate(StupidSubtract(vec, mWorldXF.GetTranslation()));
   return tmp;
 }
 
 void CGuiObject::MultiplyO2P(const CTransform4f& xf) {
-  x4_localXF = xf * x4_localXF;
+  mLocalXF = xf * mLocalXF;
   RecalculateTransforms();
 }
 
 void CGuiObject::AddChildObject(CGuiObject* child, const bool makeWorldLocal, const bool atEnd) {
   child->SetParent(this);
 
-  CGuiObject* cur = x68_child;
+  CGuiObject* cur = mChild;
   if (cur == nullptr) {
-    x68_child = child;
+    mChild = child;
   } else if (atEnd) {
     do {
-      CGuiObject* next = cur->x6c_nextSibling;
+      CGuiObject* next = cur->mNextSibling;
       if (next == nullptr) {
-        cur->x6c_nextSibling = child;
+        cur->mNextSibling = child;
         break;
       }
       cur = next;
     } while (true);
   } else {
-    child->x6c_nextSibling = x68_child;
-    x68_child = child;
+    child->mNextSibling = mChild;
+    mChild = child;
   }
 
   if (makeWorldLocal) {
     const CGuiObject* parent = child->GetParent();
     CTransform4f worldLocalXf = CTransform4f::Identity();
-    CVector3f position = parent->x34_worldXF.GetTranslation() * -1.f;
-    const CVector3f scale(parent->x34_worldXF.GetColumn(0).Magnitude(),
-                         parent->x34_worldXF.GetColumn(1).Magnitude(),
-                         parent->x34_worldXF.GetColumn(2).Magnitude());
-    const CVector3f& m2 = (1.f / scale.GetZ()) * parent->x34_worldXF.GetColumn(2);
-    const CVector3f& m1 = (1.f / scale.GetY()) * parent->x34_worldXF.GetColumn(1);
-    const CVector3f& m0 = (1.f / scale.GetX()) * parent->x34_worldXF.GetColumn(0);
+    CVector3f position = parent->mWorldXF.GetTranslation() * -1.f;
+    const CVector3f scale(parent->mWorldXF.GetColumn(0).Magnitude(),
+                         parent->mWorldXF.GetColumn(1).Magnitude(),
+                         parent->mWorldXF.GetColumn(2).Magnitude());
+    const CVector3f& m2 = (1.f / scale.GetZ()) * parent->mWorldXF.GetColumn(2);
+    const CVector3f& m1 = (1.f / scale.GetY()) * parent->mWorldXF.GetColumn(1);
+    const CVector3f& m0 = (1.f / scale.GetX()) * parent->mWorldXF.GetColumn(0);
     const CMatrix3f tmpMtx(m0, m1, m2);
     const CVector3f pos = tmpMtx * position;
 
@@ -116,41 +116,41 @@ void CGuiObject::AddChildObject(CGuiObject* child, const bool makeWorldLocal, co
         tmpMtx.GetColumn(0).GetX(), tmpMtx.GetColumn(1).GetX(), tmpMtx.GetColumn(2).GetX(), pos.GetX(),
         tmpMtx.GetColumn(0).GetY(), tmpMtx.GetColumn(1).GetY(), tmpMtx.GetColumn(2).GetY(), pos.GetY(),
         tmpMtx.GetColumn(0).GetZ(), tmpMtx.GetColumn(1).GetZ(), tmpMtx.GetColumn(2).GetZ(), pos.GetZ());
-    child->x4_localXF = worldLocalXf * child->x34_worldXF;
+    child->mLocalXF = worldLocalXf * child->mWorldXF;
   }
 
   RecalculateTransforms();
 }
 
-const CGuiObject* CGuiObject::GetChildObject() const { return x68_child; }
+const CGuiObject* CGuiObject::GetChildObject() const { return mChild; }
 
-CGuiObject* CGuiObject::ChildObject() { return x68_child; }
-const CGuiObject* CGuiObject::GetNextSibling() const { return x6c_nextSibling; }
-CGuiObject* CGuiObject::NextSibling() { return x6c_nextSibling; }
+CGuiObject* CGuiObject::ChildObject() { return mChild; }
+const CGuiObject* CGuiObject::GetNextSibling() const { return mNextSibling; }
+CGuiObject* CGuiObject::NextSibling() { return mNextSibling; }
 
-CGuiObject* CGuiObject::Parent() { return x64_parent; }
+CGuiObject* CGuiObject::Parent() { return mParent; }
 
 void CGuiObject::RecalculateTransforms() {
-  if (x64_parent) {
-    x34_worldXF = x64_parent->x34_worldXF * x4_localXF;
+  if (mParent) {
+    mWorldXF = mParent->mWorldXF * mLocalXF;
   } else {
-    x34_worldXF = x4_localXF;
+    mWorldXF = mLocalXF;
   }
-  if (x6c_nextSibling) {
-    x6c_nextSibling->RecalculateTransforms();
+  if (mNextSibling) {
+    mNextSibling->RecalculateTransforms();
   }
-  if (x68_child) {
-    x68_child->RecalculateTransforms();
+  if (mChild) {
+    mChild->RecalculateTransforms();
   }
 }
 
 void CGuiObject::SetLocalTransform(const CTransform4f& xf) {
-  x4_localXF = xf;
+  mLocalXF = xf;
   RecalculateTransforms();
 }
 
 void CGuiObject::SetO2WTransform(const CTransform4f& worldXf) {
-  const CTransform4f invXf = x64_parent->x34_worldXF.GetQuickInverse();
+  const CTransform4f invXf = mParent->mWorldXF.GetQuickInverse();
   const CTransform4f localXf = invXf * worldXf;
   SetLocalTransform(localXf);
 }

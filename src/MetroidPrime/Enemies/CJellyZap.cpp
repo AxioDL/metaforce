@@ -17,16 +17,16 @@ CJellyZap::CJellyZap(const TUniqueId uid, const rstl::string& name, const CEntit
 : CPatterned(kC_JellyZap, uid, name, kFT_Zero, info, xf, mData, pInfo, kMT_Flyer, kCT_One,
              kBT_BiPedal, actParms, kCS_Medium)
 , x568_(0)
-, x56c_attackDamage(attackDamage)
-, x588_attackRadius(attackRadius)
+, mAttackDamage(attackDamage)
+, mAttackRadius(attackRadius)
 , x58c_(f2)
 , x590_(f4)
 , x594_(f3)
 , x598_(f8)
-, x59c_priority(priority)
-, x5a0_repulseRadius(repulseRadius)
-, x5a4_attractRadius(attractRadius)
-, x5a8_attackDelay(attackDelay)
+, mPriority(priority)
+, mRepulseRadius(repulseRadius)
+, mAttractRadius(attractRadius)
+, mAttackDelay(attackDelay)
 , x5ac_(f6)
 , x5b0_(f7)
 , x5b4_(f12)
@@ -50,7 +50,7 @@ void CJellyZap::Think(const float dt, CStateManager& mgr) {
     BodyCtrl()->FaceDirection(mgr.GetPlayer()->GetTranslation() - GetTranslation(), dt);
   }
 
-  float damage = x50c_baseDamageMag;
+  float damage = mBaseDamageMag;
 
   if (x5b8_25_ && GetBodyCtrl()->GetPercentageFrozen() == 0.f) {
     damage += dt / 0.3f;
@@ -87,7 +87,7 @@ void CJellyZap::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, E
   bool skipCall = false;
   switch (type) {
   case kUE_DamageOn: {
-    mgr.ApplyDamageToWorld(GetUniqueId(), *this, GetTranslation(), x56c_attackDamage, playerFilter);
+    mgr.ApplyDamageToWorld(GetUniqueId(), *this, GetTranslation(), mAttackDamage, playerFilter);
     skipCall = true;
   } break;
   default:
@@ -112,13 +112,13 @@ bool CJellyZap::InAttackPosition(CStateManager& mgr, float arg) {
   }
 
   return (mgr.GetPlayer()->GetTranslation() - GetTranslation()).MagSquared() <
-         x588_attackRadius * x588_attackRadius;
+         mAttackRadius * mAttackRadius;
 }
 
 bool CJellyZap::ShouldSpecialAttack(CStateManager& mgr, float arg) { return ClosestToPlayer(mgr); }
 
 bool CJellyZap::ShouldAttack(CStateManager& mgr, float arg) {
-  return GetStateMachineTime() > x5a8_attackDelay;
+  return GetStateMachineTime() > mAttackDelay;
 }
 
 void CJellyZap::InActive(CStateManager& mgr, EStateMsg msg, float arg) {
@@ -235,8 +235,8 @@ void CJellyZap::Attack(CStateManager& mgr, EStateMsg msg, float arg) {
     AddRepulsor(mgr);
     x5b8_25_ = true;
     const float distance = (GetTranslation() - mgr.GetPlayer()->GetTranslation()).Magnitude();
-    if (distance < x56c_attackDamage.GetRadius()) {
-      const float staticTimer = 3.f * (1.f - distance / x56c_attackDamage.GetRadius()) + 2.f;
+    if (distance < mAttackDamage.GetRadius()) {
+      const float staticTimer = 3.f * (1.f - distance / mAttackDamage.GetRadius()) + 2.f;
       if (staticTimer > mgr.GetPlayer()->GetStaticTimer()) {
         mgr.Player()->SetHudDisable(staticTimer);
         mgr.Player()->TryToBreakOrbit(mgr.GetPlayer()->GetOrbitTargetId(),
@@ -275,23 +275,23 @@ void CJellyZap::Flinch(CStateManager& mgr, EStateMsg msg, float arg) {
 }
 
 void CJellyZap::AddAttractor(CStateManager& mgr) {
-  AddSelfToFishCloud(mgr, x5a0_repulseRadius, x59c_priority, true);
-  AddSelfToFishCloud(mgr, x5a4_attractRadius, x59c_priority, false);
+  AddSelfToFishCloud(mgr, mRepulseRadius, mPriority, true);
+  AddSelfToFishCloud(mgr, mAttractRadius, mPriority, false);
 }
 
 void CJellyZap::RemoveAllAttractors(CStateManager& mgr) { RemoveSelfFromFishCloud(mgr); }
 
 void CJellyZap::AddRepulsor(CStateManager& mgr) {
-  AddSelfToFishCloud(mgr, x5a0_repulseRadius, x59c_priority, true);
+  AddSelfToFishCloud(mgr, mRepulseRadius, mPriority, true);
 }
 
 void CJellyZap::AddSelfToFishCloud(CStateManager& mgr, const float radius, const float priority,
                                    const bool repulsor) {
   for (AUTO(conn, GetConnectionList().begin()); conn != GetConnectionList().end(); ++conn) {
-    if (conn->x0_state != kSS_Modify || conn->x4_msg != kSM_Follow) {
+    if (conn->mState != kSS_Modify || conn->mMsg != kSM_Follow) {
       continue;
     }
-    TUniqueId id = mgr.GetIdForScript(conn->x8_objId);
+    TUniqueId id = mgr.GetIdForScript(conn->mObjId);
     if (id == kInvalidUniqueId) {
       continue;
     }
@@ -311,10 +311,10 @@ void CJellyZap::AddSelfToFishCloud(CStateManager& mgr, const float radius, const
 
 void CJellyZap::RemoveSelfFromFishCloud(CStateManager& mgr) {
   for (AUTO(conn, GetConnectionList().begin()); conn != GetConnectionList().end(); ++conn) {
-    if (conn->x0_state != kSS_Modify || conn->x4_msg != kSM_Follow) {
+    if (conn->mState != kSS_Modify || conn->mMsg != kSM_Follow) {
       continue;
     }
-    TUniqueId id = mgr.GetIdForScript(conn->x8_objId);
+    TUniqueId id = mgr.GetIdForScript(conn->mObjId);
     if (id == kInvalidUniqueId) {
       continue;
     }

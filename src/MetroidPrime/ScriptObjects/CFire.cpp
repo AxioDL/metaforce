@@ -24,9 +24,9 @@ CFire::CFire(const TToken< CGenDescription >& effect, TUniqueId uid, TAreaId are
          CModelData::CModelDataNull(), CMaterialList(kMT_Projectile), CActorParameters::None(),
          kInvalidUniqueId)
 , xe8_(rs_new CElementGen(effect))
-, xec_owner(owner)
-, xf0_damageInfo1(dInfo)
-, x10c_damageInfo2(dInfo)
+, mOwner(owner)
+, mDamageInfo1(dInfo)
+, mDamageInfo2(dInfo)
 , x128_(aabox)
 , x144_(f1)
 , x148_24_(b2)
@@ -47,12 +47,12 @@ CFire::CFire(const TToken< CGenDescription >& effect, TUniqueId uid, TAreaId are
 CFire::~CFire() {}
 
 void CFire::Touch(CActor& act, CStateManager& mgr) {
-  if (act.GetUniqueId() == xec_owner) {
+  if (act.GetUniqueId() == mOwner) {
     return;
   }
 
   mgr.ApplyDamage(
-      GetUniqueId(), act.GetUniqueId(), GetUniqueId(), x10c_damageInfo2,
+      GetUniqueId(), act.GetUniqueId(), GetUniqueId(), mDamageInfo2,
       CMaterialFilter::MakeIncludeExclude(CMaterialList(SolidMaterial), CMaterialList()),
       CVector3f::Zero());
 }
@@ -94,8 +94,8 @@ void CFire::Think(float dt, CStateManager& mgr) {
                               static_cast< float >(xe8_->GetMaxParticles());
   if (GetActive()) {
     xe8_->Update(dt * x144_);
-    x10c_damageInfo2 =
-        xf0_damageInfo1.MakeScaledForTime((particleCount > 0.5f ? particleCount : 0.f) * dt);
+    mDamageInfo2 =
+        mDamageInfo1.MakeScaledForTime((particleCount > 0.5f ? particleCount : 0.f) * dt);
   }
 
   bool doFree = false;

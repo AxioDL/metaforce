@@ -36,8 +36,8 @@ class CToken;
 class CWorldShadow;
 
 struct SMorphBallModelInfo {
-  const char* x0_name;
-  uint x4_shader;
+  const char* mName;
+  uint mShader;
 };
 
 class CMorphBall : public TOneStatic< CMorphBall > {
@@ -51,9 +51,9 @@ public:
   static const uint skSpiderBallGlowColorIdx[8];
   static const uint skBallGlowColorIdx[8];
   struct SColorRgb {
-    uchar x0_r;
-    uchar x1_g;
-    uchar x2_b;
+    uchar mR;
+    uchar mG;
+    uchar mB;
   };
 
   static const SColorRgb skBallInnerGlowColors[9];
@@ -79,11 +79,11 @@ public:
   CTransform4f GetBallToWorld() const;
   float GetBallRadius() const;
   void TakeDamage(float damage);
-  bool IsProjectile() const { return x1954_isProjectile; }
+  bool IsProjectile() const { return mIsProjectile; }
   void LeaveMorphBallState(CStateManager& mgr);
   void LeaveBoosting();
   void CancelBoosting();
-  void SetBoostEnabled(bool enabled) { x1de4_25_boostEnabled = enabled; }
+  void SetBoostEnabled(bool enabled) { mBoostEnabled = enabled; }
   // InSpiderMode__10CMorphBallCFv weak
   void SetAsProjectile();
   void CollidedWith(const TUniqueId&, const CCollisionInfoList&, CStateManager&);
@@ -92,7 +92,7 @@ public:
   void DampLinearAndAngularVelocities(float linDamp, float angDamp);
   bool IsClimbable(const CCollisionInfo&) const;
   void FluidFXThink(CActor::EFluidState state, CScriptWater& water, CStateManager& mgr);
-  const CCollidableSphere& GetCollidableSphere() const { return x38_collisionSphere; }
+  const CCollidableSphere& GetCollidableSphere() const { return mCollisionSphere; }
   // DrawCollisionPrimitive__10CMorphBallCFv global
   // GetPrimitiveTransform__10CMorphBallCFv global
   void TouchModel(const CStateManager&) const;
@@ -101,7 +101,7 @@ public:
   void RenderSpiderBallElectricalEffects() const;
   void RenderEnergyDrainEffects(const CStateManager&) const;
   void RenderMorphBallTransitionFlash(const CStateManager&) const;
-  const CModelData& GetModel() const { return *x58_ballModel.get(); }
+  const CModelData& GetModel() const { return *mBallModel.get(); }
   // GetBallContactSurfaceNormal__10CMorphBallCFv weak
   void PreRender(CStateManager&, const CFrustumPlanes&);
   bool IsInFrustum(const CFrustumPlanes&) const;
@@ -121,12 +121,12 @@ public:
   void SetTouchedHalfPipeRecently(bool);
   void ResetMorphBallTransitionFlash();
   void CreateSpiderBallParticles(const CVector3f& ballPos, const CVector3f& trackPoint);
-  ESpiderBallState GetSpiderBallState() const { return x187c_spiderBallState; }
+  ESpiderBallState GetSpiderBallState() const { return mSpiderBallState; }
   static CModelData* GetMorphBallModel(const rstl::string& name, const float radius);
   // GetMorphBallModel__10CMorphBallFRCQ24rstl66basic_string<c,Q24rstl14char_traits<c>,Q24rstl17rmemory_allocator>f
   // global
-  bool IsBoosting() const { return x1de4_24_inBoost; }
-  float GetBoostChargeTimer() const { return x1de8_boostChargeTime; }
+  bool IsBoosting() const { return mInBoost; }
+  float GetBoostChargeTimer() const { return mBoostChargeTime; }
   // GetWallBumpCounter__10CMorphBallCFv weak
   // GetBallContactMaterials__10CMorphBallCFv weak
   void ComputeBallMovement(const CFinalInput&, CStateManager&, float);
@@ -144,7 +144,7 @@ public:
                                      CVector3f& playerToSpiderNormal, bool& isSpiderSurface,
                                      CTransform4f& spiderSurfaceTransform) const;
   void SetSpiderBallSwingingState(const bool state);
-  bool IsSpiderBallSwinging() const { return x18be_spiderBallSwinging; }
+  bool IsSpiderBallSwinging() const { return mSpiderBallSwinging; }
   void ResetSpiderBallSwingControllerMovementTimer();
   void ApplySpiderBallSwingingForces(const CFinalInput& input, CStateManager& mgr, float dt);
   float GetSpiderBallControllerMovement(const CFinalInput& input) const;
@@ -189,18 +189,18 @@ public:
   void PreRenderBallShadow(CStateManager&);
   void SetDisableSpiderBallTime(float time);
 
-  u32 GetMorphballModelShader() const { return x5c_ballModelShader; } // name?
+  u32 GetMorphballModelShader() const { return mBallModelShader; } // name?
 
   void SetDamageTimer(const float time);
 
 private:
   static CColor GetBallGlowColor(const SColorRgb& color);
   struct CSpiderBallElectrictyManager {
-    uint x0_effectIdx;
-    uint x4_lifetime;
-    uint x8_curFrame;
+    uint mEffectIdx;
+    uint mLifetime;
+    uint mCurFrame;
     CSpiderBallElectrictyManager(uint effectIdx, uint lifetime)
-    : x0_effectIdx(effectIdx), x4_lifetime(lifetime), x8_curFrame(0) {}
+    : mEffectIdx(effectIdx), mLifetime(lifetime), mCurFrame(0) {}
   };
 
   void AddLiftSpeed(float liftSpeed);
@@ -215,128 +215,128 @@ private:
   static const SColorRgb skBallJaggyTrailColors[9];
   static const SColorRgb skBallLightModulationColors[9];
 
-  CPlayer& x0_player;
-  int x4_loadedModelId;
-  uint x8_ballGlowColorIdx;
-  float xc_radius;
-  CVector3f x10_boostControlForce;
-  CVector3f x1c_controlForce;
-  bool x28_tireMode;
-  float x2c_tireLeanAngle;
-  float x30_ballTiltAngle;
-  CCollidableSphere x38_collisionSphere;
-  rstl::single_ptr< CModelData > x58_ballModel;
-  uint x5c_ballModelShader;
-  rstl::single_ptr< CModelData > x60_spiderBallGlassModel;
-  uint x64_spiderBallGlassModelShader;
-  rstl::single_ptr< CModelData > x68_lowPolyBallModel;
-  uint x6c_lowPolyBallModelShader;
-  rstl::single_ptr< CModelData > x70_frozenBallModel;
-  CCollisionInfoList x74_collisionInfos;
-  CCollisionInfoList xc78_collisionInfos;
-  ESpiderBallState x187c_spiderBallState;
-  CVector3f x1880_playerToSpiderNormal;
-  float x188c_spiderPullMovement;
-  CVector3f x1890_spiderTrackPoint;
-  CVector3f x189c_spiderInterpBetweenPoints;
-  CVector3f x18a8_spiderBetweenPoints;
-  float x18b4_linVelDamp;
-  float x18b8_angVelDamp;
-  bool x18bc_spiderNearby;
-  bool x18bd_touchingSpider;
-  bool x18be_spiderBallSwinging;
-  bool x18bf_spiderSwingInAir;
-  bool x18c0_isSpiderSurface;
-  CTransform4f x18c4_spiderSurfaceTransform;
-  float x18f4_spiderSurfacePivotAngle;
-  float x18f8_spiderSurfacePivotTargetAngle;
-  float x18fc_refPullVel;
-  float x1900_playerToSpiderTrackDist;
-  float x1904_swingControlDir;
-  float x1908_swingControlTime;
-  CVector2f x190c_normSpiderSurfaceForces;
-  float x1914_spiderTrackForceMag;
-  float x1918_spiderViewControlMag;
-  float x191c_damageTimer;
-  bool x1920_spiderForcesReset;
-  CTransform4f x1924_surfaceToWorld;
-  bool x1954_isProjectile;
-  rstl::vector< CToken > x1958_animationTokens;
-  TToken< CSwooshDescription > x1968_slowBlueTailSwoosh;
-  TToken< CSwooshDescription > x1970_slowBlueTailSwoosh2;
-  TToken< CSwooshDescription > x1978_jaggyTrail;
-  TToken< CGenDescription > x1980_wallSpark;
-  TToken< CGenDescription > x1988_ballInnerGlow;
-  TToken< CGenDescription > x1990_spiderBallMagnetEffect;
-  TToken< CGenDescription > x1998_boostBallGlow;
-  TToken< CSwooshDescription > x19a0_spiderElectric;
-  TToken< CGenDescription > x19a8_morphBallTransitionFlash;
-  TToken< CGenDescription > x19b0_effect_morphBallIceBreak;
-  rstl::single_ptr< CParticleSwoosh > x19b8_slowBlueTailSwooshGen;
-  rstl::single_ptr< CParticleSwoosh > x19bc_slowBlueTailSwooshGen2;
-  rstl::single_ptr< CParticleSwoosh > x19c0_slowBlueTailSwoosh2Gen;
-  rstl::single_ptr< CParticleSwoosh > x19c4_slowBlueTailSwoosh2Gen2;
-  rstl::single_ptr< CParticleSwoosh > x19c8_jaggyTrailGen;
-  rstl::single_ptr< CElementGen > x19cc_wallSparkGen;
-  rstl::single_ptr< CElementGen > x19d0_ballInnerGlowGen;
-  rstl::single_ptr< CElementGen > x19d4_spiderBallMagnetEffectGen;
-  rstl::single_ptr< CElementGen > x19d8_boostBallGlowGen;
-  rstl::single_ptr< CElementGen > x19dc_morphBallTransitionFlashGen;
-  rstl::single_ptr< CElementGen > x19e0_effect_morphBallIceBreakGen;
+  CPlayer& mPlayer;
+  int mLoadedModelId;
+  uint mBallGlowColorIdx;
+  float mRadius;
+  CVector3f mBoostControlForce;
+  CVector3f mControlForce;
+  bool mTireMode;
+  float mTireLeanAngle;
+  float mBallTiltAngle;
+  CCollidableSphere mCollisionSphere;
+  rstl::single_ptr< CModelData > mBallModel;
+  uint mBallModelShader;
+  rstl::single_ptr< CModelData > mSpiderBallGlassModel;
+  uint mSpiderBallGlassModelShader;
+  rstl::single_ptr< CModelData > mLowPolyBallModel;
+  uint mLowPolyBallModelShader;
+  rstl::single_ptr< CModelData > mFrozenBallModel;
+  CCollisionInfoList mCollisionInfos;
+  CCollisionInfoList mSecondaryCollisionInfos;
+  ESpiderBallState mSpiderBallState;
+  CVector3f mPlayerToSpiderNormal;
+  float mSpiderPullMovement;
+  CVector3f mSpiderTrackPoint;
+  CVector3f mSpiderInterpBetweenPoints;
+  CVector3f mSpiderBetweenPoints;
+  float mLinVelDamp;
+  float mAngVelDamp;
+  bool mSpiderNearby;
+  bool mTouchingSpider;
+  bool mSpiderBallSwinging;
+  bool mSpiderSwingInAir;
+  bool mIsSpiderSurface;
+  CTransform4f mSpiderSurfaceTransform;
+  float mSpiderSurfacePivotAngle;
+  float mSpiderSurfacePivotTargetAngle;
+  float mRefPullVel;
+  float mPlayerToSpiderTrackDist;
+  float mSwingControlDir;
+  float mSwingControlTime;
+  CVector2f mNormSpiderSurfaceForces;
+  float mSpiderTrackForceMag;
+  float mSpiderViewControlMag;
+  float mDamageTimer;
+  bool mSpiderForcesReset;
+  CTransform4f mSurfaceToWorld;
+  bool mIsProjectile;
+  rstl::vector< CToken > mAnimationTokens;
+  TToken< CSwooshDescription > mSlowBlueTailSwoosh;
+  TToken< CSwooshDescription > mSlowBlueTailSwoosh2;
+  TToken< CSwooshDescription > mJaggyTrail;
+  TToken< CGenDescription > mWallSpark;
+  TToken< CGenDescription > mBallInnerGlow;
+  TToken< CGenDescription > mSpiderBallMagnetEffect;
+  TToken< CGenDescription > mBoostBallGlow;
+  TToken< CSwooshDescription > mSpiderElectric;
+  TToken< CGenDescription > mMorphBallTransitionFlash;
+  TToken< CGenDescription > mEffect_morphBallIceBreak;
+  rstl::single_ptr< CParticleSwoosh > mSlowBlueTailSwooshGen;
+  rstl::single_ptr< CParticleSwoosh > mSlowBlueTailSwooshGen2;
+  rstl::single_ptr< CParticleSwoosh > mSlowBlueTailSwoosh2Gen;
+  rstl::single_ptr< CParticleSwoosh > mSlowBlueTailSwoosh2Gen2;
+  rstl::single_ptr< CParticleSwoosh > mJaggyTrailGen;
+  rstl::single_ptr< CElementGen > mWallSparkGen;
+  rstl::single_ptr< CElementGen > mBallInnerGlowGen;
+  rstl::single_ptr< CElementGen > mSpiderBallMagnetEffectGen;
+  rstl::single_ptr< CElementGen > mBoostBallGlowGen;
+  rstl::single_ptr< CElementGen > mMorphBallTransitionFlashGen;
+  rstl::single_ptr< CElementGen > mEffect_morphBallIceBreakGen;
   rstl::reserved_vector< rstl::pair< rstl::auto_ptr< CParticleSwoosh >, bool >, 32 >
-      x19e4_spiderElectricGens;
-  rstl::list< CSpiderBallElectrictyManager > x1b68_activeSpiderElectricList;
-  CRandom16 x1b80_rand;
-  rstl::reserved_vector< TToken< CGenDescription >, 8 > x1b84_wakeEffects;
-  rstl::reserved_vector< rstl::auto_ptr< CElementGen >, 8 > x1bc8_wakeEffectGens;
-  int x1c0c_wakeEffectIdx;
-  TUniqueId x1c10_ballInnerGlowLight;
-  rstl::single_ptr< CWorldShadow > x1c14_worldShadow;
-  rstl::single_ptr< CActorLights > x1c18_actorLights;
-  rstl::single_ptr< CRainSplashGenerator > x1c1c_rainSplashGen;
-  float x1c20_tireFactor;
-  float x1c24_maxTireFactor;
-  float x1c28_tireInterpSpeed;
-  bool x1c2c_tireInterpolating;
-  float x1c30_boostOverLightFactor;
-  float x1c34_boostLightFactor;
-  float x1c38_spiderLightFactor;
-  TReservedAverage< CQuaternion, 5 > x1c3c_ballOrientAvg;
-  TReservedAverage< CVector3f, 5 > x1c90_ballPosAvg;
-  TReservedAverage< float, 15 > x1cd0_liftSpeedAvg;
-  TReservedAverage< CVector3f, 15 > x1d10_liftControlForceAvg;
-  uint x1dc8_failsafeCounter;
+      mSpiderElectricGens;
+  rstl::list< CSpiderBallElectrictyManager > mActiveSpiderElectricList;
+  CRandom16 mRand;
+  rstl::reserved_vector< TToken< CGenDescription >, 8 > mWakeEffects;
+  rstl::reserved_vector< rstl::auto_ptr< CElementGen >, 8 > mWakeEffectGens;
+  int mWakeEffectIdx;
+  TUniqueId mBallInnerGlowLight;
+  rstl::single_ptr< CWorldShadow > mWorldShadow;
+  rstl::single_ptr< CActorLights > mActorLights;
+  rstl::single_ptr< CRainSplashGenerator > mRainSplashGen;
+  float mTireFactor;
+  float mMaxTireFactor;
+  float mTireInterpSpeed;
+  bool mTireInterpolating;
+  float mBoostOverLightFactor;
+  float mBoostLightFactor;
+  float mSpiderLightFactor;
+  TReservedAverage< CQuaternion, 5 > mBallOrientAvg;
+  TReservedAverage< CVector3f, 5 > mBallPosAvg;
+  TReservedAverage< float, 15 > mLiftSpeedAvg;
+  TReservedAverage< CVector3f, 15 > mLiftControlForceAvg;
+  uint mFailsafeCounter;
   CVector3f x1dcc_;
   CVector3f x1dd8_;
-  bool x1de4_24_inBoost : 1;
-  bool x1de4_25_boostEnabled : 1;
-  float x1de8_boostChargeTime;
-  float x1dec_timeNotInBoost;
+  bool mInBoost : 1;
+  bool mBoostEnabled : 1;
+  float mBoostChargeTime;
+  float mTimeNotInBoost;
   float x1df0_;
-  float x1df4_boostDrainTime;
-  bool x1df8_24_inHalfPipeMode : 1;
-  bool x1df8_25_inHalfPipeModeInAir : 1;
-  bool x1df8_26_touchedHalfPipeRecently : 1;
-  bool x1df8_27_ballCloseToCollision : 1;
-  float x1dfc_touchHalfPipeCooldown;
-  float x1e00_disableControlCooldown;
-  float x1e04_touchHalfPipeRecentCooldown;
-  CVector3f x1e08_prevHalfPipeNormal;
-  CVector3f x1e14_halfPipeNormal;
-  int x1e20_ballAnimIdx;
-  CSfxHandle x1e24_boostSfxHandle;
-  CSfxHandle x1e28_wallHitSfxHandle;
-  CSfxHandle x1e2c_rollSfxHandle;
-  CSfxHandle x1e30_spiderSfxHandle;
-  ushort x1e34_rollSfx;
-  ushort x1e36_landSfx;
-  uint x1e38_wallSparkFrameCountdown;
-  EBallBoostState x1e3c_boostState;
-  EBombJumpState x1e40_bombJumpState;
-  float x1e44_damageEffect;
-  float x1e48_damageEffectDecaySpeed;
-  float x1e4c_damageTime;
-  rstl::single_ptr< CMorphBallShadow > x1e50_shadow;
+  float mBoostDrainTime;
+  bool mInHalfPipeMode : 1;
+  bool mInHalfPipeModeInAir : 1;
+  bool mTouchedHalfPipeRecently : 1;
+  bool mBallCloseToCollision : 1;
+  float mTouchHalfPipeCooldown;
+  float mDisableControlCooldown;
+  float mTouchHalfPipeRecentCooldown;
+  CVector3f mPrevHalfPipeNormal;
+  CVector3f mHalfPipeNormal;
+  int mBallAnimIdx;
+  CSfxHandle mBoostSfxHandle;
+  CSfxHandle mWallHitSfxHandle;
+  CSfxHandle mRollSfxHandle;
+  CSfxHandle mSpiderSfxHandle;
+  ushort mRollSfx;
+  ushort mLandSfx;
+  uint mWallSparkFrameCountdown;
+  EBallBoostState mBoostState;
+  EBombJumpState mBombJumpState;
+  float mDamageEffect;
+  float mDamageEffectDecaySpeed;
+  float mDamageTime;
+  rstl::single_ptr< CMorphBallShadow > mShadow;
 };
 CHECK_SIZEOF(CMorphBall, 0x1e58);
 

@@ -6,7 +6,7 @@
 
 const CFactoryFnReturn FParticleSwooshDataFactory(const SObjectTag& tag, CInputStream& in,
                                             const CVParamTransfer& transfer) {
-  rstl::rc_ptr< IVParamObj > obj = transfer.x0_obj;
+  rstl::rc_ptr< IVParamObj > obj = transfer.mObj;
   CSimplePool* pool = static_cast< TObjOwnerParam< CSimplePool* >* >(obj.GetPtr())->GetData();
   return CParticleSwooshDataFactory::GetGeneratorDesc(in, pool);
 }
@@ -46,88 +46,88 @@ bool CParticleSwooshDataFactory::CreateWPSM(CSwooshDescription* swoosh, CInputSt
     const FourCC classId = CParticleDataFactory::GetClassID(in);
     switch (classId) {
     case 'PSLT':
-      swoosh->x0_PSLT = CParticleDataFactory::GetIntElement(in);
+      swoosh->mPSLT = CParticleDataFactory::GetIntElement(in);
       break;
     case 'TIME':
-      swoosh->x4_TIME = CParticleDataFactory::GetRealElement(in);
+      swoosh->mTIME = CParticleDataFactory::GetRealElement(in);
       break;
     case 'LRAD':
-      swoosh->x8_LRAD = CParticleDataFactory::GetRealElement(in);
+      swoosh->mLRAD = CParticleDataFactory::GetRealElement(in);
       break;
     case 'RRAD':
-      swoosh->xc_RRAD = CParticleDataFactory::GetRealElement(in);
+      swoosh->mRRAD = CParticleDataFactory::GetRealElement(in);
       break;
     case 'LLRD':
-      swoosh->x44_24_LLRD = CParticleDataFactory::GetBool(in);
+      swoosh->mLLRD = CParticleDataFactory::GetBool(in);
       break;
     case 'LENG':
-      swoosh->x10_LENG = CParticleDataFactory::GetIntElement(in);
+      swoosh->mLENG = CParticleDataFactory::GetIntElement(in);
       break;
     case 'COLR':
-      swoosh->x14_COLR = CParticleDataFactory::GetColorElement(in);
+      swoosh->mCOLR = CParticleDataFactory::GetColorElement(in);
       break;
     case 'SIDE':
-      swoosh->x18_SIDE = CParticleDataFactory::GetIntElement(in);
+      swoosh->mSIDE = CParticleDataFactory::GetIntElement(in);
       break;
     case 'CROS':
-      swoosh->x44_25_CROS = CParticleDataFactory::GetBool(in);
+      swoosh->mCROS = CParticleDataFactory::GetBool(in);
       break;
     case 'SROT':
-      swoosh->x44_28_SROT = CParticleDataFactory::GetBool(in);
+      swoosh->mSROT = CParticleDataFactory::GetBool(in);
       break;
     case 'IROT':
-      swoosh->x1c_IROT = CParticleDataFactory::GetRealElement(in);
+      swoosh->mIROT = CParticleDataFactory::GetRealElement(in);
       break;
     case 'ROTM':
-      swoosh->x20_ROTM = CParticleDataFactory::GetRealElement(in);
+      swoosh->mROTM = CParticleDataFactory::GetRealElement(in);
       break;
     case 'POFS':
-      swoosh->x24_POFS = CParticleDataFactory::GetVectorElement(in);
+      swoosh->mPOFS = CParticleDataFactory::GetVectorElement(in);
       break;
     case 'IVEL':
-      swoosh->x28_IVEL = CParticleDataFactory::GetVectorElement(in);
+      swoosh->mIVEL = CParticleDataFactory::GetVectorElement(in);
       break;
     case 'NPOS':
-      swoosh->x2c_NPOS = CParticleDataFactory::GetVectorElement(in);
+      swoosh->mNPOS = CParticleDataFactory::GetVectorElement(in);
       break;
     case 'VELM':
-      swoosh->x30_VELM = CParticleDataFactory::GetModVectorElement(in);
+      swoosh->mVELM = CParticleDataFactory::GetModVectorElement(in);
       break;
     case 'VLS1':
-      swoosh->x44_26_VLS1 = CParticleDataFactory::GetBool(in);
+      swoosh->mVLS1 = CParticleDataFactory::GetBool(in);
       break;
     case 'VLM2':
-      swoosh->x34_VLM2 = CParticleDataFactory::GetModVectorElement(in);
+      swoosh->mVLM2 = CParticleDataFactory::GetModVectorElement(in);
       break;
     case 'VLS2':
-      swoosh->x44_27_VLS2 = CParticleDataFactory::GetBool(in);
+      swoosh->mVLS2 = CParticleDataFactory::GetBool(in);
       break;
     case 'SPLN':
-      swoosh->x38_SPLN = CParticleDataFactory::GetIntElement(in);
+      swoosh->mSPLN = CParticleDataFactory::GetIntElement(in);
       break;
     case 'WIRE':
-      swoosh->x44_29_WIRE = CParticleDataFactory::GetBool(in);
+      swoosh->mWIRE = CParticleDataFactory::GetBool(in);
       break;
     case 'TEXR':
-      swoosh->x3c_TEXR = CParticleDataFactory::GetTextureElement(in, pool);
+      swoosh->mTEXR = CParticleDataFactory::GetTextureElement(in, pool);
       break;
     case 'TSPN':
-      swoosh->x40_TSPN = CParticleDataFactory::GetIntElement(in);
+      swoosh->mTSPN = CParticleDataFactory::GetIntElement(in);
       break;
     case 'AALP':
-      swoosh->x44_31_AALP = CParticleDataFactory::GetBool(in);
+      swoosh->mAALP = CParticleDataFactory::GetBool(in);
       break;
     case 'ZBUF':
-      swoosh->x45_24_ZBUF = CParticleDataFactory::GetBool(in);
+      swoosh->mZBUF = CParticleDataFactory::GetBool(in);
       break;
     case 'ORNT':
-      swoosh->x45_25_ORNT = CParticleDataFactory::GetBool(in);
+      swoosh->mORNT = CParticleDataFactory::GetBool(in);
       break;
     case 'TEXW':
-      swoosh->x44_30_TEXW = CParticleDataFactory::GetBool(in);
+      swoosh->mTEXW = CParticleDataFactory::GetBool(in);
       break;
     case 'CRND':
-      swoosh->x45_26_CRND = CParticleDataFactory::GetBool(in);
+      swoosh->mCRND = CParticleDataFactory::GetBool(in);
       break;
     case '_END':
       done = true;

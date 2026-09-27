@@ -54,7 +54,7 @@ CThardusRockProjectile::CThardusRockProjectile(const TUniqueId uid, const rstl::
   exclude.Add(CMaterialList(kMT_Player, kMT_Character, kMT_NoPlatformCollision));
   SetMaterialFilter(
       CMaterialFilter::MakeIncludeExclude(GetMaterialFilter().GetIncludeList(), exclude));
-  x50c_baseDamageMag = 1.f;
+  mBaseDamageMag = 1.f;
 }
 
 ENTITY_ACCEPT_IMPL(CThardusRockProjectile)
@@ -84,7 +84,7 @@ void CThardusRockProjectile::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
               false, 0.f, 0.f, 1.f),
           x57c_[i], 1);
       rock->SetX340(false);
-      rock->SetThermalMag(x50c_baseDamageMag);
+      rock->SetThermalMag(mBaseDamageMag);
       mgr.AddObject(rock);
       mDestroyableRocks.push_back(rockId);
     }
@@ -141,13 +141,13 @@ void CThardusRockProjectile::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
       const TUniqueId touchedId = col->GetLastTouchedObject();
       CEntity* const touched = mgr.ObjectById(touchedId);
       if (CPlayer* player = TCastToPtr< CPlayer >(touched)) {
-        if (x420_curDamageRemTime <= 0.f) {
+        if (mCurDamageRemTime <= 0.f) {
           const CDamageInfo damage = GetContactDamage();
           mgr.ApplyDamage(
               GetUniqueId(), player->GetUniqueId(), GetUniqueId(), GetContactDamage(),
               CMaterialFilter::MakeIncludeExclude(CMaterialList(SolidMaterial), CMaterialList()),
               CVector3f::Zero());
-          x420_curDamageRemTime = x424_damageWaitTime;
+          mCurDamageRemTime = mDamageWaitTime;
           if (mgr.GetPlayer()->GetFrozenState()) {
             mgr.Player()->BreakFrozenState(mgr);
           }
@@ -202,7 +202,7 @@ void CThardusRockProjectile::Think(float dt, CStateManager& mgr) {
   }
 
   CPatterned::Think(dt, mgr);
-  x3b4_speed = x5de_ ? 0.7f : 0.65f;
+  mSpeed = x5de_ ? 0.7f : 0.65f;
   SetThermalFlags(kTF_Hot);
   mCollisionManager->Update(dt, mgr, CCollisionActorManager::kUO_ObjectSpace);
   UpdateDestroyableRockPositions(mgr);
@@ -285,7 +285,7 @@ void CThardusRockProjectile::LoopedAttack(CStateManager& mgr, EStateMsg msg, flo
     const CVector3f aimPos = mgr.GetPlayer()->GetAimPosition(mgr, 0.f);
     const CVector3f delta = aimPos - GetTranslation();
     if (x5bc_ && delta.MagSquared() > x5c0_ * x5c0_) {
-      x5b0_ = x45c_steeringBehaviors.Arrival(*this, aimPos, 0.f);
+      x5b0_ = mSteeringBehaviors.Arrival(*this, aimPos, 0.f);
       x5bc_ = true;
     } else {
       x5bc_ = false;
@@ -298,7 +298,7 @@ void CThardusRockProjectile::LoopedAttack(CStateManager& mgr, EStateMsg msg, flo
                                   CMaterialFilter::MakeInclude(CMaterialList(kMT_Solid)));
     if (result.IsValid()) {
       const CVector3f& separation =
-          x45c_steeringBehaviors.Separation(*this, result.GetPoint(), 2.f * radius);
+          mSteeringBehaviors.Separation(*this, result.GetPoint(), 2.f * radius);
       move = CVector3f(separation + x5b0_).AsNormalized();
     }
     BodyCtrl()->CommandMgr().DeliverCmd(CBCLocomotionCmd(move, CVector3f::Zero(), 1.f));

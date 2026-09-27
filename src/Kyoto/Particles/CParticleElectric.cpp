@@ -21,57 +21,57 @@
 ushort CParticleElectric::sSeed = 99;
 
 CParticleElectric::CParticleElectric(TToken< CElectricDescription > desc)
-: x1c_elecDesc(desc)
-, x28_currentFrame(0)
-, x2c_LIFE(0)
-, x30_curTime(0.0)
-, x38_translation(CVector3f::Zero())
-, x44_orientation(CTransform4f::Identity())
-, x74_invOrientation(CTransform4f::Identity())
-, xa4_globalTranslation(CVector3f::Zero())
-, xb0_globalOrientation(CTransform4f::Identity())
-, xe0_globalScale(1.f, 1.f, 1.f)
-, xec_localScale(1.f, 1.f, 1.f)
-, xf8_cachedXf(CTransform4f::Identity())
+: mElecDesc(desc)
+, mCurrentFrame(0)
+, mLIFE(0)
+, mCurTime(0.0)
+, mTranslation(CVector3f::Zero())
+, mOrientation(CTransform4f::Identity())
+, mInvOrientation(CTransform4f::Identity())
+, mGlobalTranslation(CVector3f::Zero())
+, mGlobalOrientation(CTransform4f::Identity())
+, mGlobalScale(1.f, 1.f, 1.f)
+, mLocalScale(1.f, 1.f, 1.f)
+, mCachedXf(CTransform4f::Identity())
 , x128_(0.f)
-, x12c_renderTime(0.f)
-, x130_minBounds(CVector3f::Zero())
-, x13c_maxBounds(CVector3f::Zero())
+, mRenderTime(0.f)
+, mMinBounds(CVector3f::Zero())
+, mMaxBounds(CVector3f::Zero())
 , x148_(0.f)
-, x14c_randState(sSeed++)
-, x150_SSEG(8)
-, x154_SCNT(1)
+, mRandState(sSeed++)
+, mSSEG(8)
+, mSCNT(1)
 , x158_(0)
-, x15c_genRem(0.f)
-, x160_systemBounds(CAABox::MakeMaxInvertedBox())
-, x1b8_moduColor(CColor::White())
-, x1bc_allocated(false)
-, x450_24_emitting(true)
-, x450_25_haveGPSM(false)
-, x450_26_haveEPSM(false)
-, x450_27_haveSSWH(false)
-, x450_28_haveLWD(false)
-, x450_29_transformDirty(true) {
-  if (x1c_elecDesc->x10_SSEG) {
-    x1c_elecDesc->x10_SSEG->GetValue(x28_currentFrame, x150_SSEG);
+, mGenRem(0.f)
+, mSystemBounds(CAABox::MakeMaxInvertedBox())
+, mModuColor(CColor::White())
+, mAllocated(false)
+, mEmitting(true)
+, mHaveGPSM(false)
+, mHaveEPSM(false)
+, mHaveSSWH(false)
+, mHaveLWD(false)
+, mTransformDirty(true) {
+  if (mElecDesc->mSSEG) {
+    mElecDesc->mSSEG->GetValue(mCurrentFrame, mSSEG);
   }
-  if (x1c_elecDesc->xc_SCNT) {
-    x1c_elecDesc->xc_SCNT->GetValue(x28_currentFrame, x154_SCNT);
+  if (mElecDesc->mSCNT) {
+    mElecDesc->mSCNT->GetValue(mCurrentFrame, mSCNT);
   }
-  if (x154_SCNT > 32) {
-    x154_SCNT = 32;
+  if (mSCNT > 32) {
+    mSCNT = 32;
   }
-  if (x1c_elecDesc->x0_LIFE) {
-    x1c_elecDesc->x0_LIFE->GetValue(0, x2c_LIFE);
+  if (mElecDesc->mLIFE) {
+    mElecDesc->mLIFE->GetValue(0, mLIFE);
   } else {
-    x2c_LIFE = 0x7fffff;
+    mLIFE = 0x7fffff;
   }
-  if (x1c_elecDesc->x40_SSWH) {
-    x450_27_haveSSWH = true;
-    for (int i = 0; i < x154_SCNT; ++i) {
-      x1e0_swooshGenerators.push_back(
-          rs_new CParticleSwoosh(x1c_elecDesc->x40_SSWH->GetToken(), x150_SSEG));
-      CParticleSwoosh& swoosh = *x1e0_swooshGenerators.back();
+  if (mElecDesc->mSSWH) {
+    mHaveSSWH = true;
+    for (int i = 0; i < mSCNT; ++i) {
+      mSwooshGenerators.push_back(
+          rs_new CParticleSwoosh(mElecDesc->mSSWH->GetToken(), mSSEG));
+      CParticleSwoosh& swoosh = *mSwooshGenerators.back();
       const int count = swoosh.GetSwooshCount();
       for (int j = 0; j < count; ++j) {
         swoosh.SetWarmUp();
@@ -79,33 +79,33 @@ CParticleElectric::CParticleElectric(TToken< CElectricDescription > desc)
       }
     }
   }
-  ++x150_SSEG;
-  x420_calculatedVerts =
-      rstl::vector< CVector3f, rstl::aligned_allocator >(x150_SSEG, CVector3f::Zero(),
+  ++mSSEG;
+  mCalculatedVerts =
+      rstl::vector< CVector3f, rstl::aligned_allocator >(mSSEG, CVector3f::Zero(),
                                                         rstl::aligned_allocator());
-  x440_fractalOffsets =
-      rstl::vector< CVector3f >(x150_SSEG, CVector3f::Zero(), rstl::rmemory_allocator());
-  x430_fractalMags = rstl::vector< float >(x150_SSEG, 0.f, rstl::rmemory_allocator());
-  if (x1c_elecDesc->x50_GPSM) {
-    x450_25_haveGPSM = true;
-    x400_gpsmGenerators.reserve(x154_SCNT);
-    for (int i = 0; i < x154_SCNT; ++i) {
-      x400_gpsmGenerators.push_back(rs_new CElementGen(x1c_elecDesc->x50_GPSM->GetToken()));
-      x400_gpsmGenerators.back()->SetParticleEmission(false);
+  mFractalOffsets =
+      rstl::vector< CVector3f >(mSSEG, CVector3f::Zero(), rstl::rmemory_allocator());
+  mFractalMags = rstl::vector< float >(mSSEG, 0.f, rstl::rmemory_allocator());
+  if (mElecDesc->mGPSM) {
+    mHaveGPSM = true;
+    mGpsmGenerators.reserve(mSCNT);
+    for (int i = 0; i < mSCNT; ++i) {
+      mGpsmGenerators.push_back(rs_new CElementGen(mElecDesc->mGPSM->GetToken()));
+      mGpsmGenerators.back()->SetParticleEmission(false);
     }
   }
-  if (x1c_elecDesc->x60_EPSM) {
-    x450_26_haveEPSM = true;
-    x410_epsmGenerators.reserve(x154_SCNT);
-    for (int i = 0; i < x154_SCNT; ++i) {
-      x410_epsmGenerators.push_back(rs_new CElementGen(x1c_elecDesc->x60_EPSM->GetToken()));
-      x410_epsmGenerators.back()->SetParticleEmission(false);
+  if (mElecDesc->mEPSM) {
+    mHaveEPSM = true;
+    mEpsmGenerators.reserve(mSCNT);
+    for (int i = 0; i < mSCNT; ++i) {
+      mEpsmGenerators.push_back(rs_new CElementGen(mElecDesc->mEPSM->GetToken()));
+      mEpsmGenerators.back()->SetParticleEmission(false);
     }
   }
-  if (x1c_elecDesc->x28_LWD1 || x1c_elecDesc->x2c_LWD2 || x1c_elecDesc->x30_LWD3) {
-    x450_28_haveLWD = true;
-    for (int i = 0; i < x154_SCNT; ++i) {
-      x2e4_lineManagers.push_back(rs_new CLineManager);
+  if (mElecDesc->mLWD1 || mElecDesc->mLWD2 || mElecDesc->mLWD3) {
+    mHaveLWD = true;
+    for (int i = 0; i < mSCNT; ++i) {
+      mLineManagers.push_back(rs_new CLineManager);
     }
   }
 }
@@ -116,14 +116,14 @@ void CParticleElectric::CalculatePoints() {
   rstl::reserved_vector< CVector3f, 4 > points;
   CVector3f pos = CVector3f::Zero();
   CVector3f vel = CVector3f::Zero();
-  if (x1c_elecDesc->x18_IEMT) {
-    x1c_elecDesc->x18_IEMT->GetValue(x28_currentFrame, pos, vel);
+  if (mElecDesc->mIEMT) {
+    mElecDesc->mIEMT->GetValue(mCurrentFrame, pos, vel);
   }
-  if (x178_overrideIPos) {
-    pos = *x178_overrideIPos;
+  if (mOverrideIPos) {
+    pos = *mOverrideIPos;
   }
-  if (x188_overrideIVel) {
-    vel = *x188_overrideIVel;
+  if (mOverrideIVel) {
+    vel = *mOverrideIVel;
   }
   if (vel.IsNonZero()) {
     points.push_back(pos);
@@ -134,14 +134,14 @@ void CParticleElectric::CalculatePoints() {
   }
   CVector3f fpos(0.f, 1.f, 0.f);
   CVector3f fvel = CVector3f::Zero();
-  if (x1c_elecDesc->x1c_FEMT) {
-    x1c_elecDesc->x1c_FEMT->GetValue(x28_currentFrame, fpos, fvel);
+  if (mElecDesc->mFEMT) {
+    mElecDesc->mFEMT->GetValue(mCurrentFrame, fpos, fvel);
   }
-  if (x198_overrideFPos) {
-    fpos = *x198_overrideFPos;
+  if (mOverrideFPos) {
+    fpos = *mOverrideFPos;
   }
-  if (x1a8_overrideFVel) {
-    fvel = *x1a8_overrideFVel;
+  if (mOverrideFVel) {
+    fvel = *mOverrideFVel;
   }
   if (fvel.IsNonZero()) {
     if (points.size() == 3) {
@@ -156,45 +156,45 @@ void CParticleElectric::CalculatePoints() {
     points.push_back(fpos);
   }
   if (points.size() == 4) {
-    const int segments = x150_SSEG - 1;
+    const int segments = mSSEG - 1;
     const float segDiv = 1.f / static_cast< float >(segments);
-    x420_calculatedVerts[0] = points[0];
+    mCalculatedVerts[0] = points[0];
     float curDiv = segDiv;
     for (int i = 1; i < segments; ++i) {
-      const float t = segDiv * x14c_randState.Range(-0.45f, 0.45f) + curDiv;
+      const float t = segDiv * mRandState.Range(-0.45f, 0.45f) + curDiv;
       const CVector3f point = CMath::GetBezierPoint(points[0], points[1], points[2], points[3], t);
-      x420_calculatedVerts[i] = point;
+      mCalculatedVerts[i] = point;
       curDiv += segDiv;
     }
-    x420_calculatedVerts[segments] = points[3];
+    mCalculatedVerts[segments] = points[3];
   } else {
-    x420_calculatedVerts[0] = pos;
-    const int segments = x150_SSEG - 1;
+    mCalculatedVerts[0] = pos;
+    const int segments = mSSEG - 1;
     const float segDiv = 1.f / static_cast< float >(segments);
-    CVector3f accum = x420_calculatedVerts[0];
+    CVector3f accum = mCalculatedVerts[0];
     const CVector3f segDelta = (fpos - pos) * segDiv;
     for (int i = 1; i < segments; ++i) {
-      const float r = x14c_randState.Range(-0.45f, 0.45f);
-      x420_calculatedVerts[i] = accum + segDelta * r;
+      const float r = mRandState.Range(-0.45f, 0.45f);
+      mCalculatedVerts[i] = accum + segDelta * r;
       accum += segDelta;
     }
-    x420_calculatedVerts[segments] = fpos;
+    mCalculatedVerts[segments] = fpos;
   }
-  for (int i = 0; i < x150_SSEG; ++i) {
-    x430_fractalMags[i] = 0.f;
+  for (int i = 0; i < mSSEG; ++i) {
+    mFractalMags[i] = 0.f;
   }
   float ampl = 1.f;
-  if (x1c_elecDesc->x20_AMPL) {
-    x1c_elecDesc->x20_AMPL->GetValue(x28_currentFrame, ampl);
+  if (mElecDesc->mAMPL) {
+    mElecDesc->mAMPL->GetValue(mCurrentFrame, ampl);
     ampl *= 2.f;
   }
   float ampd = 0.f;
-  if (x1c_elecDesc->x24_AMPD) {
-    x1c_elecDesc->x24_AMPD->GetValue(x28_currentFrame, ampd);
+  if (mElecDesc->mAMPD) {
+    mElecDesc->mAMPD->GetValue(mCurrentFrame, ampd);
   }
-  CalculateFractal(0, x420_calculatedVerts.size() - 1, ampl, ampd);
-  CVector3f v0 = x420_calculatedVerts[0] - x420_calculatedVerts[1];
-  CVector3f v1 = x420_calculatedVerts[x420_calculatedVerts.size() - 1] - x420_calculatedVerts[1];
+  CalculateFractal(0, mCalculatedVerts.size() - 1, ampl, ampd);
+  CVector3f v0 = mCalculatedVerts[0] - mCalculatedVerts[1];
+  CVector3f v1 = mCalculatedVerts[mCalculatedVerts.size() - 1] - mCalculatedVerts[1];
   CVector3f up = CVector3f::Up();
   if (v0.CanBeNormalized() && v1.CanBeNormalized()) {
     v0.Normalize();
@@ -202,29 +202,29 @@ void CParticleElectric::CalculatePoints() {
     float dot = CVector3f::Dot(v0, v1);
     dot = dot < 0.f ? -dot : dot;
     if (close_enough(dot, 1.f)) {
-      up = CTransform4f::LookAt(x420_calculatedVerts[0], x420_calculatedVerts[1]).GetUp();
+      up = CTransform4f::LookAt(mCalculatedVerts[0], mCalculatedVerts[1]).GetUp();
     } else {
       up = CVector3f::Cross(v0, v1).AsNormalized();
     }
-  } else if (!(x420_calculatedVerts[0] == x420_calculatedVerts[1])) {
-    up = CTransform4f::LookAt(x420_calculatedVerts[0], x420_calculatedVerts[1]).GetUp();
+  } else if (!(mCalculatedVerts[0] == mCalculatedVerts[1])) {
+    up = CTransform4f::LookAt(mCalculatedVerts[0], mCalculatedVerts[1]).GetUp();
   }
-  const float commonRand = x14c_randState.Range(0.f, 360.f);
-  for (int i = 1; i < x420_calculatedVerts.size() - 1; ++i) {
-    const CVector3f delta = x420_calculatedVerts[i] - x420_calculatedVerts[i - 1];
+  const float commonRand = mRandState.Range(0.f, 360.f);
+  for (int i = 1; i < mCalculatedVerts.size() - 1; ++i) {
+    const CVector3f delta = mCalculatedVerts[i] - mCalculatedVerts[i - 1];
     if (delta.IsNonZero()) {
-      const float randomAngle = x430_fractalMags[i] / ampl * 16.f * x14c_randState.Range(-1.f, 1.f);
+      const float randomAngle = mFractalMags[i] / ampl * 16.f * mRandState.Range(-1.f, 1.f);
       const CRelAngle angle = CRelAngle::FromDegrees(randomAngle + commonRand);
       const CQuaternion rot = CQuaternion::AxisAngle(delta, angle);
-      x440_fractalOffsets[i] = rot.Transform(x430_fractalMags[i] * up);
+      mFractalOffsets[i] = rot.Transform(mFractalMags[i] * up);
     }
   }
-  for (int i = 1; i < x420_calculatedVerts.size() - 1; ++i) {
-    x420_calculatedVerts[i] += x440_fractalOffsets[i];
+  for (int i = 1; i < mCalculatedVerts.size() - 1; ++i) {
+    mCalculatedVerts[i] += mFractalOffsets[i];
   }
-  if (x1c_elecDesc->x70_ZERY) {
-    for (int i = 0; i < x420_calculatedVerts.size(); ++i) {
-      x420_calculatedVerts[i].SetY(0.f);
+  if (mElecDesc->mZERY) {
+    for (int i = 0; i < mCalculatedVerts.size(); ++i) {
+      mCalculatedVerts[i].SetY(0.f);
     }
   }
 }
@@ -232,15 +232,15 @@ void CParticleElectric::CalculatePoints() {
 void CParticleElectric::CalculateFractal(int start, int end, float ampl, float ampd) {
   float mag;
   const float ratio =
-      static_cast< float >(end - start) / static_cast< float >(x430_fractalMags.size());
-  const float startMag = x430_fractalMags[start];
+      static_cast< float >(end - start) / static_cast< float >(mFractalMags.size());
+  const float startMag = mFractalMags[start];
   const int mid = (start + end) / 2;
   mag = ratio * ampl;
-  const float endMag = x430_fractalMags[end];
-  const float base = (startMag + endMag) / 2.f + mag * x14c_randState.Float() - mag / 2.f;
-  x430_fractalMags[mid] = base + (ampd * x14c_randState.Float() - ampd / 2.f);
+  const float endMag = mFractalMags[end];
+  const float base = (startMag + endMag) / 2.f + mag * mRandState.Float() - mag / 2.f;
+  mFractalMags[mid] = base + (ampd * mRandState.Float() - ampd / 2.f);
   if ((start + end) % 2 == 1) {
-    x430_fractalMags[end - 1] = x430_fractalMags[end];
+    mFractalMags[end - 1] = mFractalMags[end];
   }
   if (mid - start > 1) {
     CalculateFractal(start, mid, ampl, ampd);
@@ -251,84 +251,84 @@ void CParticleElectric::CalculateFractal(int start, int end, float ampl, float a
 }
 
 const bool CParticleElectric::Update(double dt) {
-  CGlobalRandom random(x14c_randState);
+  CGlobalRandom random(mRandState);
   bool updated = false;
-  if (x450_25_haveGPSM) {
-    for (int i = 0; i < x154_SCNT; ++i) {
-      if (!x400_gpsmGenerators[i]->IsSystemDeletable()) {
+  if (mHaveGPSM) {
+    for (int i = 0; i < mSCNT; ++i) {
+      if (!mGpsmGenerators[i]->IsSystemDeletable()) {
         break;
       }
     }
   }
-  if (x450_26_haveEPSM) {
-    for (int i = 0; i < x154_SCNT; ++i) {
-      if (!x410_epsmGenerators[i]->IsSystemDeletable()) {
+  if (mHaveEPSM) {
+    for (int i = 0; i < mSCNT; ++i) {
+      if (!mEpsmGenerators[i]->IsSystemDeletable()) {
         break;
       }
     }
   }
-  const bool emitting = x450_24_emitting && x28_currentFrame < x2c_LIFE;
-  double evalTime = x28_currentFrame * (1.0 / 60.0);
-  x30_curTime += dt;
-  if (x450_29_transformDirty) {
+  const bool emitting = mEmitting && mCurrentFrame < mLIFE;
+  double evalTime = mCurrentFrame * (1.0 / 60.0);
+  mCurTime += dt;
+  if (mTransformDirty) {
     UpdateCachedTransform();
-    const CTransform4f orientation = xf8_cachedXf.GetRotation();
-    const CVector3f translation = xf8_cachedXf.GetTranslation();
-    if (x450_27_haveSSWH) {
-      for (AUTO(it, x3e8_electricManagers.begin()); it != x3e8_electricManagers.end(); ++it) {
-        x1e0_swooshGenerators[it->x0_idx]->SetGlobalTranslation(translation);
-        x1e0_swooshGenerators[it->x0_idx]->SetGlobalOrientation(orientation);
-        x1e0_swooshGenerators[it->x0_idx]->SetGlobalScale(xe0_globalScale);
-        x1e0_swooshGenerators[it->x0_idx]->SetLocalScale(xec_localScale);
+    const CTransform4f orientation = mCachedXf.GetRotation();
+    const CVector3f translation = mCachedXf.GetTranslation();
+    if (mHaveSSWH) {
+      for (AUTO(it, mElectricManagers.begin()); it != mElectricManagers.end(); ++it) {
+        mSwooshGenerators[it->mIdx]->SetGlobalTranslation(translation);
+        mSwooshGenerators[it->mIdx]->SetGlobalOrientation(orientation);
+        mSwooshGenerators[it->mIdx]->SetGlobalScale(mGlobalScale);
+        mSwooshGenerators[it->mIdx]->SetLocalScale(mLocalScale);
       }
     }
-    if (x450_25_haveGPSM) {
-      for (int i = 0; i < x154_SCNT; ++i) {
-        x400_gpsmGenerators[i]->SetGlobalTranslation(translation);
-        x400_gpsmGenerators[i]->SetGlobalOrientation(orientation);
-        x400_gpsmGenerators[i]->SetGlobalScale(xe0_globalScale);
-        x400_gpsmGenerators[i]->SetLocalScale(xec_localScale);
+    if (mHaveGPSM) {
+      for (int i = 0; i < mSCNT; ++i) {
+        mGpsmGenerators[i]->SetGlobalTranslation(translation);
+        mGpsmGenerators[i]->SetGlobalOrientation(orientation);
+        mGpsmGenerators[i]->SetGlobalScale(mGlobalScale);
+        mGpsmGenerators[i]->SetLocalScale(mLocalScale);
       }
     }
-    if (x450_26_haveEPSM) {
-      for (int i = 0; i < x154_SCNT; ++i) {
-        x410_epsmGenerators[i]->SetGlobalTranslation(translation);
-        x410_epsmGenerators[i]->SetGlobalOrientation(orientation);
-        x410_epsmGenerators[i]->SetGlobalScale(xe0_globalScale);
-        x410_epsmGenerators[i]->SetLocalScale(xec_localScale);
+    if (mHaveEPSM) {
+      for (int i = 0; i < mSCNT; ++i) {
+        mEpsmGenerators[i]->SetGlobalTranslation(translation);
+        mEpsmGenerators[i]->SetGlobalOrientation(orientation);
+        mEpsmGenerators[i]->SetGlobalScale(mGlobalScale);
+        mEpsmGenerators[i]->SetLocalScale(mLocalScale);
       }
     }
     updated = true;
   }
-  while (evalTime < x30_curTime) {
-    CParticleGlobals::SetEmitterTime(x28_currentFrame);
+  while (evalTime < mCurTime) {
+    CParticleGlobals::SetEmitterTime(mCurrentFrame);
     UpdateElectricalEffects();
     if (emitting) {
       AddElectricalEffects();
     }
-    if (x450_25_haveGPSM) {
-      if (x28_currentFrame >= x2c_LIFE) {
-        for (int i = 0; i < x154_SCNT; ++i) {
-          x400_gpsmGenerators[i]->EndLifetime();
+    if (mHaveGPSM) {
+      if (mCurrentFrame >= mLIFE) {
+        for (int i = 0; i < mSCNT; ++i) {
+          mGpsmGenerators[i]->EndLifetime();
         }
       }
-      for (int i = 0; i < x154_SCNT; ++i) {
-        x400_gpsmGenerators[i]->Update(1.0 / 60.0);
+      for (int i = 0; i < mSCNT; ++i) {
+        mGpsmGenerators[i]->Update(1.0 / 60.0);
       }
     }
-    if (x450_26_haveEPSM) {
-      if (x28_currentFrame >= x2c_LIFE) {
-        for (int i = 0; i < x154_SCNT; ++i) {
-          x410_epsmGenerators[i]->EndLifetime();
+    if (mHaveEPSM) {
+      if (mCurrentFrame >= mLIFE) {
+        for (int i = 0; i < mSCNT; ++i) {
+          mEpsmGenerators[i]->EndLifetime();
         }
       }
-      for (int i = 0; i < x154_SCNT; ++i) {
-        x410_epsmGenerators[i]->Update(1.0 / 60.0);
+      for (int i = 0; i < mSCNT; ++i) {
+        mEpsmGenerators[i]->Update(1.0 / 60.0);
       }
     }
     updated = true;
     evalTime += 1.0 / 60.0;
-    ++x28_currentFrame;
+    ++mCurrentFrame;
   }
   if (updated) {
     BuildBounds();
@@ -338,33 +338,33 @@ const bool CParticleElectric::Update(double dt) {
 
 void CParticleElectric::Render() {
   const float startTime = CStopwatch::GetGlobalTime();
-  if (!x3e8_electricManagers.empty()) {
-    if (x450_29_transformDirty) {
+  if (!mElectricManagers.empty()) {
+    if (mTransformDirty) {
       UpdateCachedTransform();
     }
-    if (x450_27_haveSSWH) {
+    if (mHaveSSWH) {
       RenderSwooshes();
     }
-    if (x450_28_haveLWD) {
+    if (mHaveLWD) {
       RenderLines();
     }
   }
-  if (x450_25_haveGPSM) {
-    for (int i = 0; i < x154_SCNT; ++i) {
-      x400_gpsmGenerators[i]->Render();
+  if (mHaveGPSM) {
+    for (int i = 0; i < mSCNT; ++i) {
+      mGpsmGenerators[i]->Render();
     }
   }
-  if (x450_26_haveEPSM) {
-    for (int i = 0; i < x154_SCNT; ++i) {
-      x410_epsmGenerators[i]->Render();
+  if (mHaveEPSM) {
+    for (int i = 0; i < mSCNT; ++i) {
+      mEpsmGenerators[i]->Render();
     }
   }
-  x12c_renderTime = CStopwatch::GetGlobalTime() - startTime;
+  mRenderTime = CStopwatch::GetGlobalTime() - startTime;
 }
 
 void CParticleElectric::RenderSwooshes() {
-  for (AUTO(it, x3e8_electricManagers.begin()); it != x3e8_electricManagers.end(); ++it) {
-    x1e0_swooshGenerators[it->x0_idx]->Render();
+  for (AUTO(it, mElectricManagers.begin()); it != mElectricManagers.end(); ++it) {
+    mSwooshGenerators[it->mIdx]->Render();
   }
 }
 
@@ -372,22 +372,22 @@ void CParticleElectric::RenderLines() {
   CGraphics::DisableAllLights();
   CGraphics::SetDepthWriteMode(true, kE_LEqual, false);
   CGraphics::SetBlendMode(kBM_Blend, kBF_SrcAlpha, kBF_One, kLO_Clear);
-  CGraphics::SetModelMatrix(CTransform4f::Translate(xa4_globalTranslation) * xb0_globalOrientation *
-                            CTransform4f::Translate(x38_translation) * x44_orientation *
-                            CTransform4f::Scale(xe0_globalScale) *
-                            CTransform4f::Scale(xec_localScale));
+  CGraphics::SetModelMatrix(CTransform4f::Translate(mGlobalTranslation) * mGlobalOrientation *
+                            CTransform4f::Translate(mTranslation) * mOrientation *
+                            CTransform4f::Scale(mGlobalScale) *
+                            CTransform4f::Scale(mLocalScale));
   CGraphics::SetCullMode(kCM_None);
   SetupLineGXMaterial();
-  for (AUTO(it, x3e8_electricManagers.begin()); it != x3e8_electricManagers.end(); ++it) {
-    CLineManager& line = *x2e4_lineManagers[it->x0_idx];
-    if (x1c_elecDesc->x28_LWD1) {
-      DrawLineStrip(line.x0_verts, line.x10_width1, line.x1c_color1);
+  for (AUTO(it, mElectricManagers.begin()); it != mElectricManagers.end(); ++it) {
+    CLineManager& line = *mLineManagers[it->mIdx];
+    if (mElecDesc->mLWD1) {
+      DrawLineStrip(line.mVerts, line.mWidth1, line.mColor1);
     }
-    if (x1c_elecDesc->x2c_LWD2) {
-      DrawLineStrip(line.x0_verts, line.x14_width2, line.x20_color2);
+    if (mElecDesc->mLWD2) {
+      DrawLineStrip(line.mVerts, line.mWidth2, line.mColor2);
     }
-    if (x1c_elecDesc->x30_LWD3) {
-      DrawLineStrip(line.x0_verts, line.x18_width3, line.x24_color3);
+    if (mElecDesc->mLWD3) {
+      DrawLineStrip(line.mVerts, line.mWidth3, line.mColor3);
     }
   }
   CGraphics::SetCullMode(kCM_Front);
@@ -425,105 +425,105 @@ void CParticleElectric::DrawLineStrip(
 
 void CParticleElectric::AddElectricalEffects() {
   float rate = 0.f;
-  if (x1c_elecDesc->x8_GRAT) {
-    if (x1c_elecDesc->x8_GRAT->GetValue(x28_currentFrame, rate)) {
-      x3e8_electricManagers.clear();
-      for (int i = 0; i < x1bc_allocated.size(); ++i) {
-        x1bc_allocated[i] = false;
+  if (mElecDesc->mGRAT) {
+    if (mElecDesc->mGRAT->GetValue(mCurrentFrame, rate)) {
+      mElectricManagers.clear();
+      for (int i = 0; i < mAllocated.size(); ++i) {
+        mAllocated[i] = false;
       }
       return;
     } else {
       rate = rstl::max_val(0.f, rate);
     }
   }
-  x15c_genRem += rate;
-  const int count = static_cast< int >(floor(x15c_genRem));
-  x15c_genRem -= count;
+  mGenRem += rate;
+  const int count = static_cast< int >(floor(mGenRem));
+  mGenRem -= count;
   CreateNewParticles(count);
 }
 
 void CParticleElectric::CreateNewParticles(int count) {
   int allocIdx = 0;
   for (int i = 0; i < count; ++i) {
-    if (x3e8_electricManagers.size() >= x154_SCNT) {
+    if (mElectricManagers.size() >= mSCNT) {
       return;
     }
-    const CTransform4f orientation = xf8_cachedXf.GetRotation();
-    const CVector3f translation = xf8_cachedXf.GetTranslation();
-    for (; allocIdx < x1bc_allocated.size(); ++allocIdx) {
-      if (x1bc_allocated[allocIdx]) {
+    const CTransform4f orientation = mCachedXf.GetRotation();
+    const CVector3f translation = mCachedXf.GetTranslation();
+    for (; allocIdx < mAllocated.size(); ++allocIdx) {
+      if (mAllocated[allocIdx]) {
         continue;
       }
-      x1bc_allocated[allocIdx] = true;
+      mAllocated[allocIdx] = true;
       int lifetime = 1;
-      if (x1c_elecDesc->x4_SLIF) {
-        x1c_elecDesc->x4_SLIF->GetValue(x28_currentFrame, lifetime);
+      if (mElecDesc->mSLIF) {
+        mElecDesc->mSLIF->GetValue(mCurrentFrame, lifetime);
       }
-      x3e8_electricManagers.push_back(
-          CParticleElectricManager(allocIdx, lifetime, x28_currentFrame));
-      CParticleElectricManager& manager = x3e8_electricManagers.back();
-      int frame = x28_currentFrame - manager.x8_startFrame;
-      CParticleGlobals::SetParticleLifetime(manager.xc_endFrame - manager.x8_startFrame);
+      mElectricManagers.push_back(
+          CParticleElectricManager(allocIdx, lifetime, mCurrentFrame));
+      CParticleElectricManager& manager = mElectricManagers.back();
+      int frame = mCurrentFrame - manager.mStartFrame;
+      CParticleGlobals::SetParticleLifetime(manager.mEndFrame - manager.mStartFrame);
       CParticleGlobals::UpdateParticleLifetimeTweenValues(frame);
       CalculatePoints();
-      if (x450_27_haveSSWH) {
-        CParticleSwoosh& swoosh = *x1e0_swooshGenerators[allocIdx];
+      if (mHaveSSWH) {
+        CParticleSwoosh& swoosh = *mSwooshGenerators[allocIdx];
         swoosh.SetParticleEmission(true);
         swoosh.SetGlobalTranslation(translation);
         swoosh.SetGlobalOrientation(orientation);
-        swoosh.SetGlobalScale(xe0_globalScale);
-        swoosh.SetLocalScale(xec_localScale);
+        swoosh.SetGlobalScale(mGlobalScale);
+        swoosh.SetLocalScale(mLocalScale);
         CColor color = CColor::White();
-        if (x1c_elecDesc->x14_COLR) {
-          x1c_elecDesc->x14_COLR->GetValue(frame, color);
+        if (mElecDesc->mCOLR) {
+          mElecDesc->mCOLR->GetValue(frame, color);
         }
-        swoosh.SetModulationColor(CColor::Modulate(color, x1b8_moduColor));
-        int curParticle = swoosh.x158_curParticle;
-        for (int j = 0; j < swoosh.x15c_swooshes.size(); ++j) {
-          curParticle = (curParticle + 1) % swoosh.x15c_swooshes.size();
-          CParticleSwoosh::SSwooshData& data = swoosh.x15c_swooshes[curParticle];
-          data.mTranslation = x420_calculatedVerts[j];
+        swoosh.SetModulationColor(CColor::Modulate(color, mModuColor));
+        int curParticle = swoosh.mCurParticle;
+        for (int j = 0; j < swoosh.mSwooshes.size(); ++j) {
+          curParticle = (curParticle + 1) % swoosh.mSwooshes.size();
+          CParticleSwoosh::SSwooshData& data = swoosh.mSwooshes[curParticle];
+          data.mTranslation = mCalculatedVerts[j];
         }
       }
-      if (x450_28_haveLWD) {
-        CLineManager& line = *x2e4_lineManagers[allocIdx];
-        line.x0_verts = x420_calculatedVerts;
+      if (mHaveLWD) {
+        CLineManager& line = *mLineManagers[allocIdx];
+        line.mVerts = mCalculatedVerts;
         UpdateLine(allocIdx, 0);
-        if (!x450_27_haveSSWH) {
-          x130_minBounds = CVector3f(FLT_MAX, FLT_MAX, FLT_MAX);
-          x13c_maxBounds = CVector3f(-FLT_MAX, -FLT_MAX, -FLT_MAX);
-          for (int j = 0; j < x420_calculatedVerts.size(); ++j) {
-            const CVector3f& vert = x420_calculatedVerts[j];
-            x13c_maxBounds = CVector3f(rstl::max_val(vert.GetX(), x13c_maxBounds.GetX()),
-                                       rstl::max_val(vert.GetY(), x13c_maxBounds.GetY()),
-                                       rstl::max_val(vert.GetZ(), x13c_maxBounds.GetZ()));
-            x130_minBounds = CVector3f(rstl::min_val(vert.GetX(), x130_minBounds.GetX()),
-                                       rstl::min_val(vert.GetY(), x130_minBounds.GetY()),
-                                       rstl::min_val(vert.GetZ(), x130_minBounds.GetZ()));
+        if (!mHaveSSWH) {
+          mMinBounds = CVector3f(FLT_MAX, FLT_MAX, FLT_MAX);
+          mMaxBounds = CVector3f(-FLT_MAX, -FLT_MAX, -FLT_MAX);
+          for (int j = 0; j < mCalculatedVerts.size(); ++j) {
+            const CVector3f& vert = mCalculatedVerts[j];
+            mMaxBounds = CVector3f(rstl::max_val(vert.GetX(), mMaxBounds.GetX()),
+                                       rstl::max_val(vert.GetY(), mMaxBounds.GetY()),
+                                       rstl::max_val(vert.GetZ(), mMaxBounds.GetZ()));
+            mMinBounds = CVector3f(rstl::min_val(vert.GetX(), mMinBounds.GetX()),
+                                       rstl::min_val(vert.GetY(), mMinBounds.GetY()),
+                                       rstl::min_val(vert.GetZ(), mMinBounds.GetZ()));
           }
-          line.x28_bounds = CAABox(x130_minBounds, x13c_maxBounds);
+          line.mBounds = CAABox(mMinBounds, mMaxBounds);
         }
       }
-      if (x450_25_haveGPSM) {
-        for (int j = 0; j < x154_SCNT; ++j) {
-          if (!x400_gpsmGenerators[j]->GetParticleEmission()) {
+      if (mHaveGPSM) {
+        for (int j = 0; j < mSCNT; ++j) {
+          if (!mGpsmGenerators[j]->GetParticleEmission()) {
             const CTransform4f scale =
-                CTransform4f::Scale(xe0_globalScale) * CTransform4f::Scale(xec_localScale);
-            x400_gpsmGenerators[j]->SetTranslation(scale * x420_calculatedVerts.front());
-            x400_gpsmGenerators[j]->SetParticleEmission(true);
-            manager.x10_gpsmIdx = j;
+                CTransform4f::Scale(mGlobalScale) * CTransform4f::Scale(mLocalScale);
+            mGpsmGenerators[j]->SetTranslation(scale * mCalculatedVerts.front());
+            mGpsmGenerators[j]->SetParticleEmission(true);
+            manager.mGpsmIdx = j;
             break;
           }
         }
       }
-      if (x450_26_haveEPSM) {
-        for (int j = 0; j < x154_SCNT; ++j) {
-          if (!x410_epsmGenerators[j]->GetParticleEmission()) {
+      if (mHaveEPSM) {
+        for (int j = 0; j < mSCNT; ++j) {
+          if (!mEpsmGenerators[j]->GetParticleEmission()) {
             const CTransform4f scale =
-                CTransform4f::Scale(xe0_globalScale) * CTransform4f::Scale(xec_localScale);
-            x410_epsmGenerators[j]->SetTranslation(scale * x420_calculatedVerts.back());
-            x410_epsmGenerators[j]->SetParticleEmission(true);
-            manager.x14_epsmIdx = j;
+                CTransform4f::Scale(mGlobalScale) * CTransform4f::Scale(mLocalScale);
+            mEpsmGenerators[j]->SetTranslation(scale * mCalculatedVerts.back());
+            mEpsmGenerators[j]->SetParticleEmission(true);
+            manager.mEpsmIdx = j;
             break;
           }
         }
@@ -534,99 +534,99 @@ void CParticleElectric::CreateNewParticles(int count) {
 }
 
 void CParticleElectric::UpdateElectricalEffects() {
-  for (AUTO(it, x3e8_electricManagers.begin()); it != x3e8_electricManagers.end();) {
+  for (AUTO(it, mElectricManagers.begin()); it != mElectricManagers.end();) {
     CParticleElectricManager& manager = *it;
-    if (manager.x4_slif <= 1) {
-      x1bc_allocated[manager.x0_idx] = false;
-      if (manager.x10_gpsmIdx != -1) {
-        x400_gpsmGenerators[manager.x10_gpsmIdx]->SetParticleEmission(false);
+    if (manager.mSlif <= 1) {
+      mAllocated[manager.mIdx] = false;
+      if (manager.mGpsmIdx != -1) {
+        mGpsmGenerators[manager.mGpsmIdx]->SetParticleEmission(false);
       }
-      if (manager.x14_epsmIdx != -1) {
-        x410_epsmGenerators[manager.x14_epsmIdx]->SetParticleEmission(false);
+      if (manager.mEpsmIdx != -1) {
+        mEpsmGenerators[manager.mEpsmIdx]->SetParticleEmission(false);
       }
-      it = x3e8_electricManagers.erase(it);
+      it = mElectricManagers.erase(it);
       continue;
     }
-    int frame = x28_currentFrame - manager.x8_startFrame;
-    CParticleGlobals::SetParticleLifetime(manager.xc_endFrame - manager.x8_startFrame);
+    int frame = mCurrentFrame - manager.mStartFrame;
+    CParticleGlobals::SetParticleLifetime(manager.mEndFrame - manager.mStartFrame);
     CParticleGlobals::UpdateParticleLifetimeTweenValues(frame);
-    if (x450_27_haveSSWH) {
-      CParticleSwoosh& swoosh = *x1e0_swooshGenerators[manager.x0_idx];
+    if (mHaveSSWH) {
+      CParticleSwoosh& swoosh = *mSwooshGenerators[manager.mIdx];
       CColor color = CColor::White();
-      if (x1c_elecDesc->x14_COLR) {
-        x1c_elecDesc->x14_COLR->GetValue(frame, color);
+      if (mElecDesc->mCOLR) {
+        mElecDesc->mCOLR->GetValue(frame, color);
       }
-      swoosh.SetModulationColor(CColor::Modulate(color, x1b8_moduColor));
+      swoosh.SetModulationColor(CColor::Modulate(color, mModuColor));
     }
-    if (x450_28_haveLWD) {
-      UpdateLine(manager.x0_idx, frame);
+    if (mHaveLWD) {
+      UpdateLine(manager.mIdx, frame);
     }
-    --manager.x4_slif;
+    --manager.mSlif;
     ++it;
   }
 }
 
 void CParticleElectric::UpdateLine(int idx, int frame) {
-  CColorElement* element = x1c_elecDesc->x34_LCL1;
-  CLineManager& line = *x2e4_lineManagers[idx];
+  CColorElement* element = mElecDesc->mLCL1;
+  CLineManager& line = *mLineManagers[idx];
   if (element) {
-    element->GetValue(frame, line.x1c_color1);
+    element->GetValue(frame, line.mColor1);
   }
-  if (CColorElement* element = x1c_elecDesc->x38_LCL2) {
-    element->GetValue(frame, line.x20_color2);
+  if (CColorElement* element = mElecDesc->mLCL2) {
+    element->GetValue(frame, line.mColor2);
   }
-  if (CColorElement* element = x1c_elecDesc->x3c_LCL3) {
-    element->GetValue(frame, line.x24_color3);
+  if (CColorElement* element = mElecDesc->mLCL3) {
+    element->GetValue(frame, line.mColor3);
   }
-  if (CRealElement* element = x1c_elecDesc->x28_LWD1) {
-    element->GetValue(frame, line.x10_width1);
+  if (CRealElement* element = mElecDesc->mLWD1) {
+    element->GetValue(frame, line.mWidth1);
   }
-  if (CRealElement* element = x1c_elecDesc->x2c_LWD2) {
-    element->GetValue(frame, line.x14_width2);
+  if (CRealElement* element = mElecDesc->mLWD2) {
+    element->GetValue(frame, line.mWidth2);
   }
-  if (CRealElement* element = x1c_elecDesc->x30_LWD3) {
-    element->GetValue(frame, line.x18_width3);
+  if (CRealElement* element = mElecDesc->mLWD3) {
+    element->GetValue(frame, line.mWidth3);
   }
 }
 
 void CParticleElectric::BuildBounds() {
   if (GetParticleCount() <= 0) {
-    x160_systemBounds = CAABox::MakeMaxInvertedBox();
+    mSystemBounds = CAABox::MakeMaxInvertedBox();
     return;
   }
-  x160_systemBounds = CAABox::MakeMaxInvertedBox();
-  if (x450_27_haveSSWH) {
-    for (AUTO(it, x3e8_electricManagers.begin()); it != x3e8_electricManagers.end(); ++it) {
-      rstl::optional_object< CAABox > bounds = x1e0_swooshGenerators[it->x0_idx]->GetBounds();
+  mSystemBounds = CAABox::MakeMaxInvertedBox();
+  if (mHaveSSWH) {
+    for (AUTO(it, mElectricManagers.begin()); it != mElectricManagers.end(); ++it) {
+      rstl::optional_object< CAABox > bounds = mSwooshGenerators[it->mIdx]->GetBounds();
       if (bounds) {
-        x160_systemBounds.Include(*bounds);
+        mSystemBounds.Include(*bounds);
       }
     }
-  } else if (x450_28_haveLWD) {
+  } else if (mHaveLWD) {
     CAABox bounds = CAABox::MakeMaxInvertedBox();
-    for (AUTO(it, x3e8_electricManagers.begin()); it != x3e8_electricManagers.end(); ++it) {
-      bounds.Include(x2e4_lineManagers[it->x0_idx]->x28_bounds);
+    for (AUTO(it, mElectricManagers.begin()); it != mElectricManagers.end(); ++it) {
+      bounds.Include(mLineManagers[it->mIdx]->mBounds);
     }
     if (!bounds.Invalid()) {
-      x160_systemBounds.Include(bounds.GetTransformedAABox(
-          CTransform4f::Translate(xa4_globalTranslation) * xb0_globalOrientation *
-          CTransform4f::Translate(x38_translation) * x44_orientation *
-          CTransform4f::Scale(xe0_globalScale)));
+      mSystemBounds.Include(bounds.GetTransformedAABox(
+          CTransform4f::Translate(mGlobalTranslation) * mGlobalOrientation *
+          CTransform4f::Translate(mTranslation) * mOrientation *
+          CTransform4f::Scale(mGlobalScale)));
     }
   }
-  if (x450_25_haveGPSM) {
-    for (int i = 0; i < x154_SCNT; ++i) {
-      rstl::optional_object< CAABox > bounds = x400_gpsmGenerators[i]->GetBounds();
+  if (mHaveGPSM) {
+    for (int i = 0; i < mSCNT; ++i) {
+      rstl::optional_object< CAABox > bounds = mGpsmGenerators[i]->GetBounds();
       if (bounds) {
-        x160_systemBounds.Include(*bounds);
+        mSystemBounds.Include(*bounds);
       }
     }
   }
-  if (x450_26_haveEPSM) {
-    for (int i = 0; i < x154_SCNT; ++i) {
-      rstl::optional_object< CAABox > bounds = x410_epsmGenerators[i]->GetBounds();
+  if (mHaveEPSM) {
+    for (int i = 0; i < mSCNT; ++i) {
+      rstl::optional_object< CAABox > bounds = mEpsmGenerators[i]->GetBounds();
       if (bounds) {
-        x160_systemBounds.Include(*bounds);
+        mSystemBounds.Include(*bounds);
       }
     }
   }
@@ -636,28 +636,28 @@ rstl::optional_object< CAABox > CParticleElectric::GetBounds() const {
   if (GetParticleCount() <= 0) {
     return rstl::optional_object_null();
   }
-  return x160_systemBounds;
+  return mSystemBounds;
 }
 
-void CParticleElectric::SetModulationColor(const CColor& color) { x1b8_moduColor = color; }
+void CParticleElectric::SetModulationColor(const CColor& color) { mModuColor = color; }
 
 bool CParticleElectric::IsSystemDeletable() const {
-  if (x450_24_emitting && x28_currentFrame < x2c_LIFE) {
+  if (mEmitting && mCurrentFrame < mLIFE) {
     return false;
   }
-  if (!x3e8_electricManagers.empty()) {
+  if (!mElectricManagers.empty()) {
     return false;
   }
-  if (x450_25_haveGPSM) {
-    for (int i = 0; i < x154_SCNT; ++i) {
-      if (!x400_gpsmGenerators[i]->IsSystemDeletable()) {
+  if (mHaveGPSM) {
+    for (int i = 0; i < mSCNT; ++i) {
+      if (!mGpsmGenerators[i]->IsSystemDeletable()) {
         return false;
       }
     }
   }
-  if (x450_26_haveEPSM) {
-    for (int i = 0; i < x154_SCNT; ++i) {
-      if (!x410_epsmGenerators[i]->IsSystemDeletable()) {
+  if (mHaveEPSM) {
+    for (int i = 0; i < mSCNT; ++i) {
+      if (!mEpsmGenerators[i]->IsSystemDeletable()) {
         return false;
       }
     }
@@ -667,144 +667,144 @@ bool CParticleElectric::IsSystemDeletable() const {
 
 int CParticleElectric::GetParticleCount() const {
   int count = 0;
-  if (!x3e8_electricManagers.empty()) {
-    for (AUTO(it, x3e8_electricManagers.begin()); it != x3e8_electricManagers.end(); ++it) {
-      if (x450_27_haveSSWH) {
-        count += x1e0_swooshGenerators[it->x0_idx]->GetParticleCount();
+  if (!mElectricManagers.empty()) {
+    for (AUTO(it, mElectricManagers.begin()); it != mElectricManagers.end(); ++it) {
+      if (mHaveSSWH) {
+        count += mSwooshGenerators[it->mIdx]->GetParticleCount();
       }
-      if (x450_28_haveLWD) {
-        count += x150_SSEG;
+      if (mHaveLWD) {
+        count += mSSEG;
       }
     }
   }
-  if (x450_25_haveGPSM) {
-    for (int i = 0; i < x154_SCNT; ++i) {
-      count += x400_gpsmGenerators[i]->GetParticleCount();
+  if (mHaveGPSM) {
+    for (int i = 0; i < mSCNT; ++i) {
+      count += mGpsmGenerators[i]->GetParticleCount();
     }
   }
-  if (x450_26_haveEPSM) {
-    for (int i = 0; i < x154_SCNT; ++i) {
-      count += x410_epsmGenerators[i]->GetParticleCount();
+  if (mHaveEPSM) {
+    for (int i = 0; i < mSCNT; ++i) {
+      count += mEpsmGenerators[i]->GetParticleCount();
     }
   }
   return count;
 }
 
 void CParticleElectric::ForceParticleCreation(int count) {
-  CGlobalRandom random(x14c_randState);
+  CGlobalRandom random(mRandState);
   CreateNewParticles(count);
 }
 
 void CParticleElectric::SetTranslation(const CVector3f& translation) {
-  x38_translation = translation;
-  x450_29_transformDirty = true;
+  mTranslation = translation;
+  mTransformDirty = true;
 }
 
 void CParticleElectric::SetOrientation(const CTransform4f& orientation) {
-  x44_orientation = orientation;
-  x74_invOrientation = x44_orientation.GetQuickInverse();
-  x450_29_transformDirty = true;
+  mOrientation = orientation;
+  mInvOrientation = mOrientation.GetQuickInverse();
+  mTransformDirty = true;
 }
 
 void CParticleElectric::SetGlobalTranslation(const CVector3f& translation) {
-  xa4_globalTranslation = translation;
-  x450_29_transformDirty = true;
-  if (x450_27_haveSSWH) {
-    for (AUTO(it, x3e8_electricManagers.begin()); it != x3e8_electricManagers.end(); ++it) {
-      x1e0_swooshGenerators[it->x0_idx]->SetGlobalTranslation(xa4_globalTranslation);
+  mGlobalTranslation = translation;
+  mTransformDirty = true;
+  if (mHaveSSWH) {
+    for (AUTO(it, mElectricManagers.begin()); it != mElectricManagers.end(); ++it) {
+      mSwooshGenerators[it->mIdx]->SetGlobalTranslation(mGlobalTranslation);
     }
   }
-  if (x450_25_haveGPSM) {
-    for (int i = 0; i < x154_SCNT; ++i) {
-      x400_gpsmGenerators[i]->SetGlobalTranslation(xa4_globalTranslation);
+  if (mHaveGPSM) {
+    for (int i = 0; i < mSCNT; ++i) {
+      mGpsmGenerators[i]->SetGlobalTranslation(mGlobalTranslation);
     }
   }
-  if (x450_26_haveEPSM) {
-    for (int i = 0; i < x154_SCNT; ++i) {
-      x410_epsmGenerators[i]->SetGlobalTranslation(xa4_globalTranslation);
+  if (mHaveEPSM) {
+    for (int i = 0; i < mSCNT; ++i) {
+      mEpsmGenerators[i]->SetGlobalTranslation(mGlobalTranslation);
     }
   }
 }
 
 void CParticleElectric::SetGlobalOrientation(const CTransform4f& orientation) {
-  xb0_globalOrientation = orientation.GetRotation();
-  x450_29_transformDirty = true;
-  if (x450_27_haveSSWH) {
-    for (AUTO(it, x3e8_electricManagers.begin()); it != x3e8_electricManagers.end(); ++it) {
-      x1e0_swooshGenerators[it->x0_idx]->SetGlobalOrientation(xb0_globalOrientation);
+  mGlobalOrientation = orientation.GetRotation();
+  mTransformDirty = true;
+  if (mHaveSSWH) {
+    for (AUTO(it, mElectricManagers.begin()); it != mElectricManagers.end(); ++it) {
+      mSwooshGenerators[it->mIdx]->SetGlobalOrientation(mGlobalOrientation);
     }
   }
-  if (x450_25_haveGPSM) {
-    for (int i = 0; i < x154_SCNT; ++i) {
-      x400_gpsmGenerators[i]->SetGlobalOrientation(xb0_globalOrientation);
+  if (mHaveGPSM) {
+    for (int i = 0; i < mSCNT; ++i) {
+      mGpsmGenerators[i]->SetGlobalOrientation(mGlobalOrientation);
     }
   }
-  if (x450_26_haveEPSM) {
-    for (int i = 0; i < x154_SCNT; ++i) {
-      x410_epsmGenerators[i]->SetGlobalOrientation(xb0_globalOrientation);
+  if (mHaveEPSM) {
+    for (int i = 0; i < mSCNT; ++i) {
+      mEpsmGenerators[i]->SetGlobalOrientation(mGlobalOrientation);
     }
   }
 }
 
 void CParticleElectric::SetGlobalScale(const CVector3f& scale) {
-  xe0_globalScale = scale;
-  x450_29_transformDirty = true;
+  mGlobalScale = scale;
+  mTransformDirty = true;
 }
 
 void CParticleElectric::SetLocalScale(const CVector3f& scale) {
-  xec_localScale = scale;
-  x450_29_transformDirty = true;
-  if (x450_27_haveSSWH) {
-    for (AUTO(it, x3e8_electricManagers.begin()); it != x3e8_electricManagers.end(); ++it) {
-      x1e0_swooshGenerators[it->x0_idx]->SetLocalScale(xec_localScale);
+  mLocalScale = scale;
+  mTransformDirty = true;
+  if (mHaveSSWH) {
+    for (AUTO(it, mElectricManagers.begin()); it != mElectricManagers.end(); ++it) {
+      mSwooshGenerators[it->mIdx]->SetLocalScale(mLocalScale);
     }
   }
-  if (x450_25_haveGPSM) {
-    for (int i = 0; i < x154_SCNT; ++i) {
-      x400_gpsmGenerators[i]->SetLocalScale(xec_localScale);
+  if (mHaveGPSM) {
+    for (int i = 0; i < mSCNT; ++i) {
+      mGpsmGenerators[i]->SetLocalScale(mLocalScale);
     }
   }
-  if (x450_26_haveEPSM) {
-    for (int i = 0; i < x154_SCNT; ++i) {
-      x410_epsmGenerators[i]->SetLocalScale(xec_localScale);
+  if (mHaveEPSM) {
+    for (int i = 0; i < mSCNT; ++i) {
+      mEpsmGenerators[i]->SetLocalScale(mLocalScale);
     }
   }
 }
 
 void CParticleElectric::UpdateCachedTransform() {
-  xf8_cachedXf = CTransform4f::Translate(xa4_globalTranslation) * xb0_globalOrientation *
-                 CTransform4f::Translate(x38_translation) * x44_orientation;
-  x450_29_transformDirty = false;
+  mCachedXf = CTransform4f::Translate(mGlobalTranslation) * mGlobalOrientation *
+                 CTransform4f::Translate(mTranslation) * mOrientation;
+  mTransformDirty = false;
 }
 
 bool CParticleElectric::SystemHasLight() const {
-  if (x450_25_haveGPSM) {
-    return x400_gpsmGenerators.front()->SystemHasLight();
+  if (mHaveGPSM) {
+    return mGpsmGenerators.front()->SystemHasLight();
   }
-  if (x450_26_haveEPSM) {
-    return x410_epsmGenerators.front()->SystemHasLight();
+  if (mHaveEPSM) {
+    return mEpsmGenerators.front()->SystemHasLight();
   }
   return false;
 }
 
 CLight CParticleElectric::GetLight() const {
-  if (x450_25_haveGPSM) {
-    return x400_gpsmGenerators.front()->GetLight();
+  if (mHaveGPSM) {
+    return mGpsmGenerators.front()->GetLight();
   }
-  if (x450_26_haveEPSM) {
-    return x410_epsmGenerators.front()->GetLight();
+  if (mHaveEPSM) {
+    return mEpsmGenerators.front()->GetLight();
   }
   return CLight::BuildLocalAmbient(GetGlobalTranslation(), CColor::Orange());
 }
 
-void CParticleElectric::SetParticleEmission(const bool emission) { x450_24_emitting = emission; }
+void CParticleElectric::SetParticleEmission(const bool emission) { mEmitting = emission; }
 uint CParticleElectric::Get4CharId() const { return 'ELSC'; }
 
 void CParticleElectric::DestroyParticles() {}
 
 const CTransform4f& CParticleElectric::GetGlobalOrientation() const {
-  return xb0_globalOrientation;
+  return mGlobalOrientation;
 }
-const CVector3f& CParticleElectric::GetGlobalTranslation() const { return xa4_globalTranslation; }
-const CTransform4f& CParticleElectric::GetOrientation() const { return x44_orientation; }
-const CVector3f& CParticleElectric::GetTranslation() const { return x38_translation; }
+const CVector3f& CParticleElectric::GetGlobalTranslation() const { return mGlobalTranslation; }
+const CTransform4f& CParticleElectric::GetOrientation() const { return mOrientation; }
+const CVector3f& CParticleElectric::GetTranslation() const { return mTranslation; }

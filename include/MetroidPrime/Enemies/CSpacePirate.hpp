@@ -101,11 +101,11 @@ public:
   bool ShouldSpecialAttack(CStateManager& mgr, float arg) override;
   bool LostInterest(CStateManager& mgr, float arg) override;
   bool BounceFind(CStateManager& mgr, float arg) override;
-  CPathFindSearch* GetSearchPath() override { return &x660_pathFindSearch; }
+  CPathFindSearch* GetSearchPath() override { return &mPathFindSearch; }
   uchar GetModelAlphau8(const CStateManager& mgr) const override;
   float GetGravityConstant() const override { return skGravityConstant; }
   float GetFloatingGravityConstant() const { return skFloatingGravityConstant; }
-  CProjectileInfo* ProjectileInfo() override { return &x568_pirateData.x20_Projectile; }
+  CProjectileInfo* ProjectileInfo() override { return &mPirateData.mProjectile; }
 
   CSpacePirate(TUniqueId uid, const rstl::string& name, const CEntityInfo& info,
                const CTransform4f& xf, const CModelData& mData, const CActorParameters& actParms,
@@ -114,10 +114,10 @@ public:
   void DetachActorFromPirate();
   bool AttachActorToPirate(TUniqueId id);
   void SetAttackTarget(TUniqueId id);
-  bool GetEnableAim() const { return x637_25_enableAim; }
-  bool AllEnergyDrained() const { return x638_30_allEnergyDrained; }
-  TUniqueId GetAttachedActor() const { return x7b4_attachedActor; }
-  bool IsTrooper() const { return x636_24_trooper; }
+  bool GetEnableAim() const { return mEnableAim; }
+  bool AllEnergyDrained() const { return mAllEnergyDrained; }
+  TUniqueId GetAttachedActor() const { return mAttachedActor; }
+  bool IsTrooper() const { return mTrooper; }
 
 private:
   void UpdateCloak(float dt, CStateManager& mgr);
@@ -165,12 +165,12 @@ private:
 
   class CSpacePirateData {
     friend class CSpacePirate;
-    float x0_AggressionCheck;
-    float x4_CoverCheck;
-    float x8_SearchRadius;
-    float xc_FallBackCheck;
-    float x10_FallBackRadius;
-    float x14_HearingRadius;
+    float mAggressionCheck;
+    float mCoverCheck;
+    float mSearchRadius;
+    float mFallBackCheck;
+    float mFallBackRadius;
+    float mHearingRadius;
     /*
      * 0x1: pendingAmbush
      * 0x2: ceilingAmbush
@@ -190,143 +190,143 @@ private:
      * 0x20000: ragdollNoAiCollision
      * 0x40000: trooper
      */
-    uint x18_flags;
+    uint mFlags;
     bool x1c_;
-    CProjectileInfo x20_Projectile;
-    ushort x48_Sound_Projectile;
-    CDamageInfo x4c_BladeDamage;
-    float x68_KneelAttackChance;
-    CProjectileInfo x6c_KneelAttackShot;
-    float x94_DodgeCheck;
-    ushort x98_Sound_Impact;
-    float x9c_averageNextShotTime;
-    float xa0_nextShotTimeVariation;
-    ushort xa4_Sound_Alert;
-    float xa8_GunTrackDelay;
-    uint xac_firstBurstCount;
-    float xb0_CloakOpacity;
-    float xb4_MaxCloakOpacity;
-    float xb8_dodgeDelayTimeMin;
-    float xbc_dodgeDelayTimeMax;
-    ushort xc0_Sound_Hurled;
-    ushort xc2_Sound_Death;
+    CProjectileInfo mProjectile;
+    ushort mSound_Projectile;
+    CDamageInfo mBladeDamage;
+    float mKneelAttackChance;
+    CProjectileInfo mKneelAttackShot;
+    float mDodgeCheck;
+    ushort mSound_Impact;
+    float mAverageNextShotTime;
+    float mNextShotTimeVariation;
+    ushort mSound_Alert;
+    float mGunTrackDelay;
+    uint mFirstBurstCount;
+    float mCloakOpacity;
+    float mMaxCloakOpacity;
+    float mDodgeDelayTimeMin;
+    float mDodgeDelayTimeMax;
+    ushort mSound_Hurled;
+    ushort mSound_Death;
     float xc4_;
-    float xc8_AvoidDistance;
+    float mAvoidDistance;
 
   public:
     CSpacePirateData(CInputStream& in, int propCount);
   };
 
-  CSpacePirateData x568_pirateData;
+  CSpacePirateData mPirateData;
 
-  bool x634_24_pendingAmbush : 1;
-  bool x634_25_ceilingAmbush : 1;
-  bool x634_26_nonAggressive : 1;
-  bool x634_27_melee : 1;
-  bool x634_28_noShuffleCloseCheck : 1;
-  bool x634_29_onlyAttackInRange : 1;
+  bool mPendingAmbush : 1;
+  bool mCeilingAmbush : 1;
+  bool mNonAggressive : 1;
+  bool mMelee : 1;
+  bool mNoShuffleCloseCheck : 1;
+  bool mOnlyAttackInRange : 1;
   bool x634_30_ : 1;
-  bool x634_31_noKnockbackImpulseReset : 1;
-  bool x635_24_noMeleeAttack : 1;
-  bool x635_25_breakAttack : 1;
-  bool x635_26_seated : 1;
-  bool x635_27_shadowPirate : 1;
-  bool x635_28_alertBeforeCloak : 1;
-  bool x635_29_noBreakDodge : 1;
-  bool x635_30_floatingCorpse : 1;
-  bool x635_31_ragdollNoAiCollision : 1;
-  bool x636_24_trooper : 1;
-  bool x636_25_hearNoise : 1;
-  bool x636_26_enableMeleeAttack : 1;
+  bool mNoKnockbackImpulseReset : 1;
+  bool mNoMeleeAttack : 1;
+  bool mBreakAttack : 1;
+  bool mSeated : 1;
+  bool mShadowPirate : 1;
+  bool mAlertBeforeCloak : 1;
+  bool mNoBreakDodge : 1;
+  bool mFloatingCorpse : 1;
+  bool mRagdollNoAiCollision : 1;
+  bool mTrooper : 1;
+  bool mHearNoise : 1;
+  bool mEnableMeleeAttack : 1;
   bool x636_27_ : 1;
   bool x636_28_ : 1;
-  bool x636_29_enableRetreat : 1;
-  bool x636_30_shuffleClose : 1;
-  bool x636_31_inAttackState : 1;
-  bool x637_24_enablePatrol : 1;
-  bool x637_25_enableAim : 1;
-  bool x637_26_hearPlayerFire : 1;
-  bool x637_27_inProjectilePath : 1;
-  bool x637_28_noPlayerLos : 1;
-  bool x637_29_inWallHang : 1;
-  bool x637_30_jumpVelSet : 1;
-  bool x637_31_prevInCineCam : 1;
-  bool x638_24_pendingFrenzyChance : 1;
-  bool x638_25_appliedBladeDamage : 1;
-  bool x638_26_alwaysAggressive : 1;
-  bool x638_27_coverCheck : 1;
-  bool x638_28_enableDodge : 1;
-  bool x638_29_noPlayerDodge : 1;
-  bool x638_30_allEnergyDrained : 1;
-  bool x638_31_mayStartAttack : 1;
+  bool mEnableRetreat : 1;
+  bool mShuffleClose : 1;
+  bool mInAttackState : 1;
+  bool mEnablePatrol : 1;
+  bool mEnableAim : 1;
+  bool mHearPlayerFire : 1;
+  bool mInProjectilePath : 1;
+  bool mNoPlayerLos : 1;
+  bool mInWallHang : 1;
+  bool mJumpVelSet : 1;
+  bool mPrevInCineCam : 1;
+  bool mPendingFrenzyChance : 1;
+  bool mAppliedBladeDamage : 1;
+  bool mAlwaysAggressive : 1;
+  bool mCoverCheck : 1;
+  bool mEnableDodge : 1;
+  bool mNoPlayerDodge : 1;
+  bool mAllEnergyDrained : 1;
+  bool mMayStartAttack : 1;
   bool x639_24_ : 1;
-  bool x639_25_useJumpBackJump : 1;
-  bool x639_26_started : 1;
-  bool x639_27_inRange : 1;
-  bool x639_28_satUp : 1;
-  bool x639_29_enableBreakDodge : 1;
-  bool x639_30_closeMelee : 1;
-  bool x639_31_sentAttackMsg : 1;
-  bool x63a_24_normalDodge : 1;
+  bool mUseJumpBackJump : 1;
+  bool mStarted : 1;
+  bool mInRange : 1;
+  bool mSatUp : 1;
+  bool mEnableBreakDodge : 1;
+  bool mCloseMelee : 1;
+  bool mSentAttackMsg : 1;
+  bool mNormalDodge : 1;
 
-  int x63c_frenzyFrames;
-  TUniqueId x640_coverPoint;
-  TUniqueId x642_previousCoverPoint;
-  float x644_steeringSpeed;
-  CVector3f x648_targetDelta;
-  CVector3f x654_coverPointRearDir;
-  CPathFindSearch x660_pathFindSearch;
-  float x744_unkTimer;
-  float x748_steeringDelayTimer;
+  int mFrenzyFrames;
+  TUniqueId mCoverPoint;
+  TUniqueId mPreviousCoverPoint;
+  float mSteeringSpeed;
+  CVector3f mTargetDelta;
+  CVector3f mCoverPointRearDir;
+  CPathFindSearch mPathFindSearch;
+  float mUnkTimer;
+  float mSteeringDelayTimer;
   uint x74c_;
-  float x750_initialHP;
-  float x754_coverRange;
-  CSegId x758_headSeg;
+  float mInitialHP;
+  float mCoverRange;
+  CSegId mHeadSeg;
   uint x75c_;
-  pas::ETauntType x760_taunt;
-  CBoneTracking x764_boneTracking;
-  pas::ECoverDirection x79c_coverDir;
-  uchar x7a0_pad[4];
-  float x7a4_intoJumpDist;
-  float x7a8_eyeHeight;
-  float x7ac_timeNoPlayerLos;
-  int x7b0_cantSeePlayerCycleCounter;
-  TUniqueId x7b4_attachedActor;
-  CSegId x7b6_gunSeg;
-  CSegId x7b7_elbowSeg;
-  CSegId x7b8_wristSeg;
-  CSegId x7b9_swooshSeg;
-  float x7bc_attackRemTime;
-  TUniqueId x7c0_targetId;
-  CBurstFire x7c4_burstFire;
-  float x824_jumpHeight;
-  CVector3f x828_patrolDestPos;
-  pas::EStepDirection x834_skidDir;
-  float x838_strafeDelayTimer;
-  pas::ESeverity x83c_meleeSeverity;
-  TUniqueId x840_jumpPoint;
-  pas::EStepDirection x844_dodgeDir;
-  float x848_dodgeDist;
-  float x84c_breakDodgeDist;
-  float x850_timeSinceHitByPlayer;
-  float x854_lowHealthFrenzyTimer;
-  float x858_ragdollDelayTimer;
-  rstl::single_ptr< CPirateRagDoll > x85c_ragDoll;
-  CIkChain x860_ikChain;
-  float x8a8_cloakDelayTimer;
-  float x8ac_electricParticleTimer;
-  float x8b0_cloakStepTime;
-  float x8b4_shadowPirateAlpha;
-  float x8b8_minCloakAlpha;
-  float x8bc_maxCloakAlpha;
-  float x8c0_dodgeDelayTimer;
-  float x8c4_aimDelayTimer;
-  TUniqueId x8c8_teamAiMgrId;
-  CColor x8cc_trooperColor;
-  CVector2f x8d0_heldPosition;
-  float x8d8_holdPositionTime;
-  float x8dc_leashTimer;
+  pas::ETauntType mTaunt;
+  CBoneTracking mBoneTracking;
+  pas::ECoverDirection mCoverDir;
+  uchar mPad[4];
+  float mIntoJumpDist;
+  float mEyeHeight;
+  float mTimeNoPlayerLos;
+  int mCantSeePlayerCycleCounter;
+  TUniqueId mAttachedActor;
+  CSegId mGunSeg;
+  CSegId mElbowSeg;
+  CSegId mWristSeg;
+  CSegId mSwooshSeg;
+  float mAttackRemTime;
+  TUniqueId mTargetId;
+  CBurstFire mBurstFire;
+  float mJumpHeight;
+  CVector3f mPatrolDestPos;
+  pas::EStepDirection mSkidDir;
+  float mStrafeDelayTimer;
+  pas::ESeverity mMeleeSeverity;
+  TUniqueId mJumpPoint;
+  pas::EStepDirection mDodgeDir;
+  float mDodgeDist;
+  float mBreakDodgeDist;
+  float mTimeSinceHitByPlayer;
+  float mLowHealthFrenzyTimer;
+  float mRagdollDelayTimer;
+  rstl::single_ptr< CPirateRagDoll > mRagDoll;
+  CIkChain mIkChain;
+  float mCloakDelayTimer;
+  float mElectricParticleTimer;
+  float mCloakStepTime;
+  float mShadowPirateAlpha;
+  float mMinCloakAlpha;
+  float mMaxCloakAlpha;
+  float mDodgeDelayTimer;
+  float mAimDelayTimer;
+  TUniqueId mTeamAiMgrId;
+  CColor mTrooperColor;
+  CVector2f mHeldPosition;
+  float mHoldPositionTime;
+  float mLeashTimer;
 };
-CHECK_SIZEOF(CSpacePirate, (VERSION >= VERSION_GM8P_00 ? 0x8f0 : 0x8e0))
+CHECK_SIZEOF(CSpacePirate, (VERSION >= VERSION_GM8E_02 ? 0x8f0 : 0x8e0))
 
 #endif // _CSPACEPIRATE

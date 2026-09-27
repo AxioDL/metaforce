@@ -17,23 +17,23 @@ class CDecal {
 public:
   class CQuadDecal {
   public:
-    CQuadDecal() : x0_24_invalid(true), x4_lifetime(0), x8_rotation(0.f) {}
+    CQuadDecal() : mInvalid(true), mLifetime(0), mRotation(0.f) {}
     CQuadDecal(int lifetime, float rotation)
-    : x0_24_invalid(true), x4_lifetime(lifetime), x8_rotation(rotation) {}
+    : mInvalid(true), mLifetime(lifetime), mRotation(rotation) {}
 
-    inline bool IsInvalid() const { return x0_24_invalid; }
-    inline void SetInvalid(bool invalid) { x0_24_invalid = invalid; }
+    inline bool IsInvalid() const { return mInvalid; }
+    inline void SetInvalid(bool invalid) { mInvalid = invalid; }
 
-    inline int GetLifetime() const { return x4_lifetime; }
-    inline void SetLifetime(int lifetime) { x4_lifetime = lifetime; }
+    inline int GetLifetime() const { return mLifetime; }
+    inline void SetLifetime(int lifetime) { mLifetime = lifetime; }
 
-    inline float GetRotation() const { return x8_rotation; }
-    inline void SetRotation(float rotation) { x8_rotation = rotation; }
+    inline float GetRotation() const { return mRotation; }
+    inline void SetRotation(float rotation) { mRotation = rotation; }
 
     // private:
-    bool x0_24_invalid : 1;
-    int x4_lifetime;
-    float x8_rotation;
+    bool mInvalid : 1;
+    int mLifetime;
+    float mRotation;
   };
 
   static void SetGlobalSeed(ushort seed);
@@ -45,54 +45,54 @@ public:
   void Render() const;
   void Update(float dt);
 
-  bool IsDone() const { return x5c_flags == 7; }
-  CVector3f GetTranslation() const { return xc_transform.GetTranslation(); }
+  bool IsDone() const { return mFlags == 7; }
+  CVector3f GetTranslation() const { return mTransform.GetTranslation(); }
 
 private:
-  TLockedToken< CDecalDescription > x0_description;
-  CTransform4f xc_transform;
-  CQuadDecal x3c_quad1;
-  CQuadDecal x48_quad2;
-  int x54_modelLifetime;
-  int x58_frameIdx;
-  int x5c_flags;
-  mutable CVector3f x60_rotation;
+  TLockedToken< CDecalDescription > mDescription;
+  CTransform4f mTransform;
+  CQuadDecal mQuad1;
+  CQuadDecal mQuad2;
+  int mModelLifetime;
+  int mFrameIdx;
+  int mFlags;
+  mutable CVector3f mRotation;
 
   void InitQuad(CQuadDecal& quad, const CDecalDescription::SQuadDescr& desc, int flag) {
-    if (!desc.x14_TEX.null()) {
-      if (!desc.x0_LFT.null()) {
-        desc.x0_LFT->GetValue(0, quad.x4_lifetime);
+    if (!desc.mTEX.null()) {
+      if (!desc.mLFT.null()) {
+        desc.mLFT->GetValue(0, quad.mLifetime);
       } else {
-        quad.x4_lifetime = 0x7FFFFF;
+        quad.mLifetime = 0x7FFFFF;
       }
 
-      if (!desc.x8_ROT.null()) {
-        desc.x8_ROT->GetValue(0, quad.x8_rotation);
-        quad.x0_24_invalid &= desc.x8_ROT->IsConstant();
+      if (!desc.mROT.null()) {
+        desc.mROT->GetValue(0, quad.mRotation);
+        quad.mInvalid &= desc.mROT->IsConstant();
       }
 
-      if (!desc.x4_SZE.null()) {
-        quad.x0_24_invalid &= desc.x4_SZE->IsConstant();
-        if (quad.x0_24_invalid) {
+      if (!desc.mSZE.null()) {
+        quad.mInvalid &= desc.mSZE->IsConstant();
+        if (quad.mInvalid) {
           float size = 1.f;
-          desc.x4_SZE->GetValue(0, size);
-          quad.x0_24_invalid = size <= 1.f;
+          desc.mSZE->GetValue(0, size);
+          quad.mInvalid = size <= 1.f;
         }
       }
 
-      if (!desc.xc_OFF.null()) {
-        quad.x0_24_invalid &= desc.xc_OFF->IsFastConstant();
+      if (!desc.mOFF.null()) {
+        quad.mInvalid &= desc.mOFF->IsFastConstant();
       }
     } else {
-      quad.x0_24_invalid = false;
-      x5c_flags |= flag;
+      quad.mInvalid = false;
+      mFlags |= flag;
     }
   }
 
   void ProcessQuad(CQuadDecal& quad, const CDecalDescription::SQuadDescr& desc, int flag) const {
-    if (!desc.x14_TEX.null() && (x5c_flags & flag) == 0) {
-      CParticleGlobals::SetParticleLifetime(quad.x4_lifetime);
-      CParticleGlobals::UpdateParticleLifetimeTweenValues(x58_frameIdx);
+    if (!desc.mTEX.null() && (mFlags & flag) == 0) {
+      CParticleGlobals::SetParticleLifetime(quad.mLifetime);
+      CParticleGlobals::UpdateParticleLifetimeTweenValues(mFrameIdx);
       RenderQuad(quad, desc);
     }
   }

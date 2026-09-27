@@ -36,21 +36,21 @@ int CRealDvdRequest::GetMediaType() const {
 
 #if !defined(TARGET_PC)
 void CARAMDvdRequest::WaitUntilComplete() {
-  if (CARAMManager::GetInvalidDMAHandle() == x4_dmaReq) {
+  if (CARAMManager::GetInvalidDMAHandle() == mDmaReq) {
     return;
   }
 
-  CARAMManager::WaitForDMACompletion(x4_dmaReq);
-  x4_dmaReq = CARAMManager::GetInvalidDMAHandle();
+  CARAMManager::WaitForDMACompletion(mDmaReq);
+  mDmaReq = CARAMManager::GetInvalidDMAHandle();
 }
 
 bool CARAMDvdRequest::IsComplete() {
-  if (x4_dmaReq != CARAMManager::GetInvalidDMAHandle()) {
-    if (!CARAMManager::IsDMACompleted(x4_dmaReq)) {
+  if (mDmaReq != CARAMManager::GetInvalidDMAHandle()) {
+    if (!CARAMManager::IsDMACompleted(mDmaReq)) {
       return false;
     }
 
-    x4_dmaReq = CARAMManager::GetInvalidDMAHandle();
+    mDmaReq = CARAMManager::GetInvalidDMAHandle();
   }
 
   return true;

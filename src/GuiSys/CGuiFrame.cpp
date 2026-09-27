@@ -23,27 +23,27 @@ public:
 } // namespace rstl
 
 CGuiFrame::CGuiFrame(uint id, CGuiSys& sys, int a, int b, int c, CSimplePool* sp)
-: x0_id(id)
+: mId(id)
 , x4_(0)
-, x8_guiSys(sys)
-, xc_headWidget(nullptr)
-, x10_rootWidget(nullptr)
-, x14_camera(nullptr)
-, x3c_lights(rstl::vector< CGuiLight* >(8, static_cast< CGuiLight* >(nullptr),
+, mGuiSys(sys)
+, mHeadWidget(nullptr)
+, mRootWidget(nullptr)
+, mCamera(nullptr)
+, mLights(rstl::vector< CGuiLight* >(8, static_cast< CGuiLight* >(nullptr),
                                        rstl::rmemory_allocator()))
-, x4c_a(a)
-, x50_b(b)
-, x54_c(c)
-, x58_24_loaded(false) {
-  x10_rootWidget = rs_new CGuiWidget(CGuiWidget::CGuiWidgetParms(
+, mA(a)
+, mB(b)
+, mC(c)
+, mLoaded(false) {
+  mRootWidget = rs_new CGuiWidget(CGuiWidget::CGuiWidgetParms(
       this, false, CGuiWidget::gkDummyWidgetID, CGuiWidget::gkDummyWidgetID, false, false,
       false, CColor::White(), CGuiWidget::kGMDF_Alpha, false,
-      !x8_guiSys.GetIsUsedInGame()));
+      !mGuiSys.GetIsUsedInGame()));
 }
 
 CGuiFrame::~CGuiFrame() {
-  if (x10_rootWidget) {
-    delete x10_rootWidget;
+  if (mRootWidget) {
+    delete mRootWidget;
   }
 }
 
@@ -54,7 +54,7 @@ CGuiFrame* CGuiFrame::CreateFrame(uint id, CGuiSys& sys, CInputStream& in, CSimp
   int c = in.ReadLong();
   CGuiFrame* frame = rs_new CGuiFrame(id, sys, a, b, c, sp);
   CGuiFeeHelper::SetCurrentLoadingFrame(frame);
-#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+#if VERSION >= VERSION_GM8P_00
   frame->LoadWidgetsInGame(in, sp, version);
 #else
   frame->LoadWidgetsInGame(in, sp);
@@ -62,24 +62,24 @@ CGuiFrame* CGuiFrame::CreateFrame(uint id, CGuiSys& sys, CInputStream& in, CSimp
   return frame;
 }
 
-#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+#if VERSION >= VERSION_GM8P_00
 int CGuiFrame::LoadWidgetsInGame(CInputStream& in, CSimplePool* sp, uint version) {
 #else
 int CGuiFrame::LoadWidgetsInGame(CInputStream& in, CSimplePool* sp) {
 #endif
   int count = in.Get< int >();
-  x2c_widgets.reserve(count);
-  x18_db.Reserve(count);
+  mWidgets.reserve(count);
+  mDb.Reserve(count);
   for (int i = 0; i < count; ++i) {
     FourCC type = in.ReadLong();
-#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+#if VERSION >= VERSION_GM8P_00
     CGuiWidget* widget = FGuiWidgetFactoryInGame(type, this, in, sp, version);
 #else
     CGuiWidget* widget = CGuiSys::CreateWidgetInGame(type, in, this, sp);
 #endif
     if (widget->GetWidgetTypeID() != 'CAMR' && widget->GetWidgetTypeID() != 'LITE' &&
         widget->GetWidgetTypeID() != 'BGND') {
-      x2c_widgets.push_back(widget);
+      mWidgets.push_back(widget);
     }
   }
   Initialize();
@@ -88,7 +88,7 @@ int CGuiFrame::LoadWidgetsInGame(CInputStream& in, CSimplePool* sp) {
 
 void CGuiFrame::Initialize() {
   SortDrawOrder();
-  CGuiHeadWidget* head = xc_headWidget;
+  CGuiHeadWidget* head = mHeadWidget;
   head->SetColor(head->GetColor());
   head->InitializeRecursive();
 }
@@ -98,26 +98,26 @@ void CGuiFrame::Draw(const CGuiWidgetDrawParms& parms) const {
   CGraphics::ResetGfxStates();
   CGraphics::SetAmbientColor(CColor::White());
   DisableLights();
-  x14_camera->Draw(parms);
+  mCamera->Draw(parms);
   CGraphics::SetTevOp(kTS_Stage0, CGraphics::kEnvModulate);
   CGraphics::SetBlendMode(kBM_Blend, kBF_SrcAlpha, kBF_InvSrcAlpha, kLO_Clear);
-  for (AUTO(it, x2c_widgets.begin()); it != x2c_widgets.end(); ++it) {
+  for (AUTO(it, mWidgets.begin()); it != mWidgets.end(); ++it) {
     CGuiWidget* widget = *it;
     if (widget->GetIsVisible()) {
       widget->Draw(parms);
     }
   }
   CGraphics::SetCullMode(kCM_Front);
-#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+#if VERSION >= VERSION_GM8P_00
   CGraphics::SetDepthWriteMode(true, kE_LEqual, true);
 #endif
 }
 
-void CGuiFrame::Update(float dt) { xc_headWidget->Update(dt); }
+void CGuiFrame::Update(float dt) { mHeadWidget->Update(dt); }
 
 void CGuiFrame::ProcessUserInput(const CFinalInput& input) {
   if (input.ControllerNumber() == 0) {
-    for (AUTO(it, x2c_widgets.begin()); it != x2c_widgets.end(); ++it) {
+    for (AUTO(it, mWidgets.begin()); it != mWidgets.end(); ++it) {
       CGuiWidget* widget = *it;
       if (widget->GetIsActive()) {
         widget->ProcessUserInput(input);
@@ -127,30 +127,30 @@ void CGuiFrame::ProcessUserInput(const CFinalInput& input) {
 }
 
 void CGuiFrame::Touch() const {
-  for (AUTO(it, x2c_widgets.begin()); it != x2c_widgets.end(); ++it) {
+  for (AUTO(it, mWidgets.begin()); it != mWidgets.end(); ++it) {
     (*it)->Touch();
   }
 }
 
 bool CGuiFrame::GetIsFinishedLoading() const {
-  if (x58_24_loaded) {
+  if (mLoaded) {
     return true;
   }
-  x58_24_loaded = true;
-  for (AUTO(it, x2c_widgets.begin()); it != x2c_widgets.end(); ++it) {
+  mLoaded = true;
+  for (AUTO(it, mWidgets.begin()); it != mWidgets.end(); ++it) {
     if (!(*it)->GetIsFinishedLoading()) {
-      x58_24_loaded = false;
+      mLoaded = false;
       return false;
     }
   }
   return true;
 }
 
-void CGuiFrame::AddLight(CGuiLight* light) { x3c_lights[light->xd8_lightId] = light; }
+void CGuiFrame::AddLight(CGuiLight* light) { mLights[light->mLightId] = light; }
 
 void CGuiFrame::RemoveLight(CGuiLight* light) {
-  if (x3c_lights[light->xd8_lightId] == light) {
-    x3c_lights[light->xd8_lightId] = nullptr;
+  if (mLights[light->mLightId] == light) {
+    mLights[light->mLightId] = nullptr;
   }
 }
 
@@ -160,16 +160,16 @@ void CGuiFrame::EnableLights(uint mask) const {
   CGraphics::DisableAllLights();
   CColor ambient = CColor::Black();
   int enabledLights = 0;
-  for (int i = 0; i < x3c_lights.size(); ++i) {
+  for (int i = 0; i < mLights.size(); ++i) {
     if (mask & (1 << i)) {
-      CGuiLight* light = x3c_lights[i];
+      CGuiLight* light = mLights[i];
       if (light && light->GetIsVisible()) {
         const CColor& color = light->GetModifiedColor();
         if (color.GetRedu8() != 0 || color.GetGreenu8() != 0 || color.GetBlueu8() != 0) {
           CGraphics::LoadLight(static_cast< ERglLight >(i), light->BuildLight());
           CGraphics::EnableLight(static_cast< ERglLight >(i));
         }
-        ambient = CColor::Add(ambient, CColor(light->xdc_ambColor));
+        ambient = CColor::Add(ambient, CColor(light->mAmbColor));
         ++enabledLights;
       }
     }
@@ -182,34 +182,34 @@ void CGuiFrame::EnableLights(uint mask) const {
 }
 
 void CGuiFrame::SortDrawOrder() {
-  rstl::sort(x2c_widgets.begin(), x2c_widgets.end(), rstl::CWidgetFartherFromCamera());
+  rstl::sort(mWidgets.begin(), mWidgets.end(), rstl::CWidgetFartherFromCamera());
 }
 
 void CGuiFrame::RemoveWidgetFromDrawList(CGuiWidget* widget) {
-  AUTO(it, x2c_widgets.begin());
-  AUTO(end, x2c_widgets.end());
+  AUTO(it, mWidgets.begin());
+  AUTO(end, mWidgets.end());
   for (; it != end; ++it) {
     if (*it == widget) {
-      x2c_widgets.erase(it);
+      mWidgets.erase(it);
       break;
     }
   }
 }
 
 CGuiWidget* CGuiFrame::FindWidget(const rstl::string& name) const {
-  short id = x18_db.FindWidgetID(name);
+  short id = mDb.FindWidgetID(name);
   if (id != CGuiWidget::InvalidWidgetId()) {
     return FindWidget(id);
   }
   return nullptr;
 }
 
-CGuiWidget* CGuiFrame::FindWidget(short id) const { return x10_rootWidget->FindWidget(id); }
+CGuiWidget* CGuiFrame::FindWidget(short id) const { return mRootWidget->FindWidget(id); }
 
-void CGuiFrame::SetHeadWidget(CGuiHeadWidget* widget) { xc_headWidget = widget; }
+void CGuiFrame::SetHeadWidget(CGuiHeadWidget* widget) { mHeadWidget = widget; }
 
-void CGuiFrame::SetFrameCamera(CGuiCamera* camera) { x14_camera = camera; }
+void CGuiFrame::SetFrameCamera(CGuiCamera* camera) { mCamera = camera; }
 
 CGuiWidget* CGuiFrame::FindWidget(const char* name) const { return FindWidget(rstl::string_l(name)); }
 
-CGuiLight* CGuiFrame::GetFrameLight(int idx) { return x3c_lights[idx]; }
+CGuiLight* CGuiFrame::GetFrameLight(int idx) { return mLights[idx]; }

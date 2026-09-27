@@ -12,8 +12,8 @@ CScriptVisorFlare::CScriptVisorFlare(TUniqueId uid, const rstl::string& name,
                                      const rstl::vector< CVisorFlare::CFlareDef >& flares)
 : CActor(uid, active, name, info, CTransform4f::Translate(pos), CModelData::CModelDataNull(),
          CMaterialList(kMT_NoStepLogic), CActorParameters::None(), kInvalidUniqueId)
-, xe8_flare(blendMode, b1, f1, f2, f3, w1, w2, flares)
-, x11c_notInRenderLast(true) {
+, mFlare(blendMode, b1, f1, f2, f3, w1, w2, flares)
+, mNotInRenderLast(true) {
   SetThermalFlags(kTF_Hot);
 }
 
@@ -23,7 +23,7 @@ ENTITY_ACCEPT_IMPL(CScriptVisorFlare)
 
 void CScriptVisorFlare::Think(float dt, CStateManager& stateMgr) {
   if (GetActive()) {
-    xe8_flare.Update(dt, GetTranslation(), this, stateMgr);
+    mFlare.Update(dt, GetTranslation(), this, stateMgr);
   }
 }
 
@@ -33,15 +33,15 @@ void CScriptVisorFlare::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objI
 }
 
 void CScriptVisorFlare::PreRender(CStateManager& stateMgr, const CFrustumPlanes&) {
-  x11c_notInRenderLast = !stateMgr.RenderLast(GetUniqueId());
+  mNotInRenderLast = !stateMgr.RenderLast(GetUniqueId());
 }
 
 void CScriptVisorFlare::AddToRenderer(const CFrustumPlanes&, const CStateManager& stateMgr) const {
-  if (x11c_notInRenderLast) {
+  if (mNotInRenderLast) {
     EnsureRendered(stateMgr, stateMgr.GetPlayer()->GetTranslation(), GetSortingBounds(stateMgr));
   }
 }
 
 void CScriptVisorFlare::Render(const CStateManager& stateMgr) const {
-  xe8_flare.Render(GetTranslation(), stateMgr);
+  mFlare.Render(GetTranslation(), stateMgr);
 }

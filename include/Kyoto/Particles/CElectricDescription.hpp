@@ -17,26 +17,26 @@ public:
   CElectricDescription();
   ~CElectricDescription();
 
-  CIntElement* x0_LIFE;
-  CIntElement* x4_SLIF;
-  CRealElement* x8_GRAT;
-  CIntElement* xc_SCNT;
-  CIntElement* x10_SSEG;
-  CColorElement* x14_COLR;
-  CEmitterElement* x18_IEMT;
-  CEmitterElement* x1c_FEMT;
-  CRealElement* x20_AMPL;
-  CRealElement* x24_AMPD;
-  CRealElement* x28_LWD1;
-  CRealElement* x2c_LWD2;
-  CRealElement* x30_LWD3;
-  CColorElement* x34_LCL1;
-  CColorElement* x38_LCL2;
-  CColorElement* x3c_LCL3;
-  rstl::optional_object< TCachedToken< CSwooshDescription > > x40_SSWH;
-  rstl::optional_object< TCachedToken< CGenDescription > > x50_GPSM;
-  rstl::optional_object< TCachedToken< CGenDescription > > x60_EPSM;
-  bool x70_ZERY;
+  CIntElement* mLIFE;
+  CIntElement* mSLIF;
+  CRealElement* mGRAT;
+  CIntElement* mSCNT;
+  CIntElement* mSSEG;
+  CColorElement* mCOLR;
+  CEmitterElement* mIEMT;
+  CEmitterElement* mFEMT;
+  CRealElement* mAMPL;
+  CRealElement* mAMPD;
+  CRealElement* mLWD1;
+  CRealElement* mLWD2;
+  CRealElement* mLWD3;
+  CColorElement* mLCL1;
+  CColorElement* mLCL2;
+  CColorElement* mLCL3;
+  rstl::optional_object< TCachedToken< CSwooshDescription > > mSSWH;
+  rstl::optional_object< TCachedToken< CGenDescription > > mGPSM;
+  rstl::optional_object< TCachedToken< CGenDescription > > mEPSM;
+  bool mZERY;
 };
 
 CHECK_SIZEOF(CElectricDescription, 0x74)

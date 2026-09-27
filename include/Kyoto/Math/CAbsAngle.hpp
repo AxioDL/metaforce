@@ -10,36 +10,36 @@ class CRelAngle;
 
 class CAbsAngle {
 public:
-  float AsDegrees() const { return x0_angle * (180.f / M_PIF); }
-  float AsRadians() const { return x0_angle; }
+  float AsDegrees() const { return mAngle * (180.f / M_PIF); }
+  float AsRadians() const { return mAngle; }
   // ArcCosine__9CAbsAngleFf weak
   // -> calls ArcCosineR__5CMathFf
 
   CAbsAngle& operator+=(const CAbsAngle& v) {
-    x0_angle += v.x0_angle;
+    mAngle += v.mAngle;
     return *this;
   }
 
   CAbsAngle& operator-=(const CAbsAngle& v) {
-    x0_angle -= v.x0_angle;
+    mAngle -= v.mAngle;
     return *this;
   }
   CAbsAngle& operator*=(float v) {
-    x0_angle *= v;
+    mAngle *= v;
     return *this;
   }
   CAbsAngle& operator/=(float v) {
-    x0_angle /= v;
+    mAngle /= v;
     return *this;
   }
 
   CAbsAngle& operator+=(const CRelAngle& v) {
-    x0_angle = CMath::ClampRadians(x0_angle + v.AsRadians());
+    mAngle = CMath::ClampRadians(mAngle + v.AsRadians());
     return *this;
   }
 
   CAbsAngle& operator-=(const CRelAngle& v) {
-    x0_angle = CMath::ClampRadians(x0_angle - v.AsRadians());
+    mAngle = CMath::ClampRadians(mAngle - v.AsRadians());
     return *this;
   }
 
@@ -49,9 +49,9 @@ public:
   static CAbsAngle FromRadians(float rad) { return CAbsAngle(CMath::ClampRadians(rad)); }
 
 private:
-  CAbsAngle(float rad) : x0_angle(rad) {}
+  CAbsAngle(float rad) : mAngle(rad) {}
 
-  float x0_angle;
+  float mAngle;
 };
 CHECK_SIZEOF(CAbsAngle, 0x4)
 

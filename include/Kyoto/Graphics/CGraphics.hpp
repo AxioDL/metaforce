@@ -208,71 +208,71 @@ public:
   public:
     CProjectionState(bool persp, float left, float right, float top, float bottom, float near,
                      float far)
-    : x0_persp(persp)
-    , x4_left(left)
-    , x8_right(right)
-    , xc_top(top)
-    , x10_bottom(bottom)
-    , x14_near(near)
-    , x18_far(far) {}
+    : mPersp(persp)
+    , mLeft(left)
+    , mRight(right)
+    , mTop(top)
+    , mBottom(bottom)
+    , mNear(near)
+    , mFar(far) {}
 
-    bool IsPerspective() const { return x0_persp; }
-    float GetLeft() const { return x4_left; }
-    float GetRight() const { return x8_right; }
-    float GetTop() const { return xc_top; }
-    float GetBottom() const { return x10_bottom; }
-    float GetNear() const { return x14_near; }
-    float GetFar() const { return x18_far; }
+    bool IsPerspective() const { return mPersp; }
+    float GetLeft() const { return mLeft; }
+    float GetRight() const { return mRight; }
+    float GetTop() const { return mTop; }
+    float GetBottom() const { return mBottom; }
+    float GetNear() const { return mNear; }
+    float GetFar() const { return mFar; }
 
   private:
-    bool x0_persp;
-    float x4_left;
-    float x8_right;
+    bool mPersp;
+    float mLeft;
+    float mRight;
     // TODO: I think top/bottom are flipped
-    float xc_top;
-    float x10_bottom;
-    float x14_near;
-    float x18_far;
+    float mTop;
+    float mBottom;
+    float mNear;
+    float mFar;
   };
 
   class CClippedScreenRect {
   public:
-    CClippedScreenRect() : x0_valid(false) {}
+    CClippedScreenRect() : mValid(false) {}
     CClippedScreenRect(int x, int y, int width, int height, int texWidth, float minU, float maxU,
                        float minV, float maxV)
-    : x0_valid(true)
-    , x4_x(x)
-    , x8_y(y)
-    , xc_width(width)
-    , x10_height(height)
-    , x14_texWidth(texWidth)
-    , x18_minU(minU)
-    , x1c_maxU(maxU)
-    , x20_minV(minV)
-    , x24_maxV(maxV) {}
+    : mValid(true)
+    , mX(x)
+    , mY(y)
+    , mWidth(width)
+    , mHeight(height)
+    , mTexWidth(texWidth)
+    , mMinU(minU)
+    , mMaxU(maxU)
+    , mMinV(minV)
+    , mMaxV(maxV) {}
 
-    bool IsValid() const { return x0_valid; }
-    int GetX() const { return x4_x; }
-    int GetY() const { return x8_y; }
-    int GetWidth() const { return xc_width; }
-    int GetHeight() const { return x10_height; }
-    int GetTexWidth() const { return x14_texWidth; }
-    float GetMinU() const { return x18_minU; }
-    float GetMaxU() const { return x1c_maxU; }
-    float GetMinV() const { return x20_minV; }
-    float GetMaxV() const { return x24_maxV; }
+    bool IsValid() const { return mValid; }
+    int GetX() const { return mX; }
+    int GetY() const { return mY; }
+    int GetWidth() const { return mWidth; }
+    int GetHeight() const { return mHeight; }
+    int GetTexWidth() const { return mTexWidth; }
+    float GetMinU() const { return mMinU; }
+    float GetMaxU() const { return mMaxU; }
+    float GetMinV() const { return mMinV; }
+    float GetMaxV() const { return mMaxV; }
 
   private:
-    bool x0_valid;
-    int x4_x;
-    int x8_y;
-    int xc_width;
-    int x10_height;
-    int x14_texWidth;
-    float x18_minU;
-    float x1c_maxU;
-    float x20_minV;
-    float x24_maxV;
+    bool mValid;
+    int mX;
+    int mY;
+    int mWidth;
+    int mHeight;
+    int mTexWidth;
+    float mMinU;
+    float mMaxU;
+    float mMinV;
+    float mMaxV;
   };
 
 #if defined(TARGET_PC)
@@ -281,7 +281,7 @@ public:
   static bool Startup(const COsContext& osContext, uint fifoSize, void* fifoBase);
 #endif
   static GXTexRegion* TexRegionCallback(const GXTexObj* obj, GXTexMapID id);
-#if VERSION >= VERSION_GM8J_00
+#if (VERSION == VERSION_GM8E_02 || VERSION >= VERSION_GM8J_00)
   static void InitGraphicsFifo(GXFifoObj* obj, void* base, uint fifoSize);
 #endif
   static void InitGraphicsVariables();
@@ -351,7 +351,7 @@ public:
   static void VideoPostCallback(u32 retraceCount);
 
   static const CViewport& GetViewport() { return mViewport; }
-#if VERSION >= VERSION_GM8P_00
+#if VERSION >= VERSION_GM8E_02
   static float GetPixelAspectRatio() { return mPixelAspectRatio; }
 #endif
   static int GetViewportWidth() { return mViewport.mWidth; }
@@ -455,7 +455,7 @@ private:
   static GXTexRegionCallback mGXDefaultTexRegionCallback;
   static void* mpFifo;
   static GXFifoObj* mpFifoObj;
-#if VERSION >= VERSION_GM8J_00
+#if (VERSION == VERSION_GM8E_02 || VERSION >= VERSION_GM8J_00)
   static uint mFifoSize;
 #endif
   static uint mRenderTimings;
@@ -489,7 +489,7 @@ private:
   static ERglPrimitive mCurrentPrimitive;
   static float mDepthFar;
   static u32 mClearDepthValue; // = GX_MAX_Z24
-#if VERSION >= VERSION_GM8P_00
+#if VERSION >= VERSION_GM8E_02
   static float mPixelAspectRatio;
 #endif
   static bool mIsGXModelMatrixIdentity;

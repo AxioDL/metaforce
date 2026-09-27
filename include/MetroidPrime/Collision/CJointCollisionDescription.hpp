@@ -39,32 +39,32 @@ public:
                              const CVector3f& bounds, const CVector3f& pivotPoint, float radius,
                              float maxSeparation, EOrientationType orientType,
                              const rstl::string& name, float mass)
-  : x0_colType(colType)
-  , x4_orientType(orientType)
-  , x8_pivotId(pivotId)
-  , x9_nextId(nextId)
-  , xc_bounds(bounds)
-  , x18_pivotPoint(pivotPoint)
-  , x24_radius(radius)
-  , x28_maxSeparation(maxSeparation)
-  , x2c_name(name)
-  , x3c_actorId(kInvalidUniqueId)
-  , x40_mass(mass) {}
+  : mColType(colType)
+  , mOrientType(orientType)
+  , mPivotId(pivotId)
+  , mNextId(nextId)
+  , mBounds(bounds)
+  , mPivotPoint(pivotPoint)
+  , mRadius(radius)
+  , mMaxSeparation(maxSeparation)
+  , mName(name)
+  , mActorId(kInvalidUniqueId)
+  , mMass(mass) {}
 
   void ScaleAllBounds(const CVector3f& scale);
 
-  ECollisionType GetType() const { return x0_colType; }
-  EOrientationType GetOrientationType() const { return x4_orientType; }
-  CSegId GetPivotId() const { return x8_pivotId; }
-  CSegId GetNextId() const { return x9_nextId; }
-  const CVector3f& GetBounds() const { return xc_bounds; }
-  const CVector3f& GetPivotPoint() const { return x18_pivotPoint; }
-  float GetRadius() const { return x24_radius; }
-  float GetMaxSeparation() const { return x28_maxSeparation; }
-  float GetMass() const { return x40_mass; }
-  void SetCollisionActorId(TUniqueId uid) { x3c_actorId = uid; }
-  const rstl::string& GetName() const { return x2c_name; }
-  TUniqueId GetCollisionActorId() const { return x3c_actorId; }
+  ECollisionType GetType() const { return mColType; }
+  EOrientationType GetOrientationType() const { return mOrientType; }
+  CSegId GetPivotId() const { return mPivotId; }
+  CSegId GetNextId() const { return mNextId; }
+  const CVector3f& GetBounds() const { return mBounds; }
+  const CVector3f& GetPivotPoint() const { return mPivotPoint; }
+  float GetRadius() const { return mRadius; }
+  float GetMaxSeparation() const { return mMaxSeparation; }
+  float GetMass() const { return mMass; }
+  void SetCollisionActorId(TUniqueId uid) { mActorId = uid; }
+  const rstl::string& GetName() const { return mName; }
+  TUniqueId GetCollisionActorId() const { return mActorId; }
   static CJointCollisionDescription SphereSubdivideCollision(CSegId pivotId, CSegId nextId,
                                                              float radius, float maxSeparation,
                                                              EOrientationType orientType,
@@ -82,17 +82,17 @@ public:
                                                  const rstl::string& name, float mass);
 
 private:
-  ECollisionType x0_colType;
-  EOrientationType x4_orientType;
-  CSegId x8_pivotId;
-  CSegId x9_nextId;
-  CVector3f xc_bounds;
-  CVector3f x18_pivotPoint;
-  float x24_radius;
-  float x28_maxSeparation;
-  rstl::string x2c_name;
-  TUniqueId x3c_actorId;
-  float x40_mass;
+  ECollisionType mColType;
+  EOrientationType mOrientType;
+  CSegId mPivotId;
+  CSegId mNextId;
+  CVector3f mBounds;
+  CVector3f mPivotPoint;
+  float mRadius;
+  float mMaxSeparation;
+  rstl::string mName;
+  TUniqueId mActorId;
+  float mMass;
 };
 
 CHECK_SIZEOF(CJointCollisionDescription, 0x44)

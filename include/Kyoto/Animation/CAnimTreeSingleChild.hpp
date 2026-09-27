@@ -6,7 +6,7 @@
 class CAnimTreeSingleChild : public CAnimTreeNode {
 public:
   CAnimTreeSingleChild(const rstl::ncrc_ptr< CAnimTreeNode >& node, const rstl::string& name)
-  : CAnimTreeNode(name), x14_child(node) {}
+  : CAnimTreeNode(name), mChild(node) {}
 
   CAdvancementResults VAdvanceView(const CCharAnimTime& dt) override;
   CCharAnimTime VGetTimeRemaining() const override;
@@ -30,15 +30,15 @@ public:
   void VSetPhase(float) override;
   CAdvancementResults VGetAdvancementResults(const CCharAnimTime& a,
                                              const CCharAnimTime& b) const override;
-  uint Depth() const override { return x14_child->Depth() + 1; }
+  uint Depth() const override { return mChild->Depth() + 1; }
   uint VGetNumChildren() const override;
   void VGetWeightedReaders(
       float w, rstl::reserved_vector< rstl::pair< float, IAnimReader* >, 16 >& out) const override;
 
-  void ReplaceChild(const rstl::ncrc_ptr< CAnimTreeNode >& node) { x14_child = node; }
+  void ReplaceChild(const rstl::ncrc_ptr< CAnimTreeNode >& node) { mChild = node; }
 
 protected:
-  rstl::ncrc_ptr< CAnimTreeNode > x14_child;
+  rstl::ncrc_ptr< CAnimTreeNode > mChild;
 };
 CHECK_SIZEOF(CAnimTreeSingleChild, 0x18)
 

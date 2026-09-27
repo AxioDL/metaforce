@@ -26,12 +26,12 @@ public:
   const CPASAnimState* GetAnimStateByIndex(int index) const;
 
   void AddAnimState(const CPASAnimState& state);
-  int GetDefaultState() const { return x10_defaultState; }
+  int GetDefaultState() const { return mDefaultState; }
   void SetDefaultState(int state);
 
 private:
-  rstl::vector< CPASAnimState > x0_states;
-  int x10_defaultState;
+  rstl::vector< CPASAnimState > mStates;
+  int mDefaultState;
 };
 CHECK_SIZEOF(CPASDatabase, 0x14)
 

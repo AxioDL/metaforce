@@ -42,7 +42,7 @@ public:
   CVector3f ConvertToScreenSpace(const CVector3f& point) const;
 
 public:
-  EProjection xb8_projection;
+  EProjection mProjection;
   UCameraParms mCameraParms;
 };
 

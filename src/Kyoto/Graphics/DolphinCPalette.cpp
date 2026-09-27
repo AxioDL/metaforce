@@ -10,71 +10,71 @@
 uint CGraphicsPalette::sCurrentFrameCount = 0;
 
 CGraphicsPalette::CGraphicsPalette(EPaletteFormat format, int numEntries)
-: x0_fmt(format)
+: mFmt(format)
 #if NONMATCHING
-, x4_frameLoaded(0)
+, mFrameLoaded(0)
 #endif
-, x8_entryCount(numEntries)
-, xc_entries((ushort*)CMemory::Alloc(numEntries * sizeof(ushort), IAllocator::kHI_RoundUpLen))
+, mEntryCount(numEntries)
+, mEntries((ushort*)CMemory::Alloc(numEntries * sizeof(ushort), IAllocator::kHI_RoundUpLen))
 #if NONMATCHING
-, x10_tlutObj()
+, mTlutObj()
 #endif
-, x1c_locked(false) {
-  GXInitTlutObj(&x10_tlutObj, xc_entries.get(), format_to_format(x0_fmt), x8_entryCount);
+, mLocked(false) {
+  GXInitTlutObj(&mTlutObj, mEntries.get(), format_to_format(mFmt), mEntryCount);
 }
 
 CGraphicsPalette::CGraphicsPalette(CInputStream& in)
-: x0_fmt(EPaletteFormat(in.ReadLong()))
+: mFmt(EPaletteFormat(in.ReadLong()))
 #if NONMATCHING
-, x4_frameLoaded(0)
+, mFrameLoaded(0)
 #endif
-, x8_entryCount(in.Get< short >() * in.Get< short >())
-, xc_entries((ushort*)CMemory::Alloc(x8_entryCount * sizeof(ushort), IAllocator::kHI_RoundUpLen))
+, mEntryCount(in.Get< short >() * in.Get< short >())
+, mEntries((ushort*)CMemory::Alloc(mEntryCount * sizeof(ushort), IAllocator::kHI_RoundUpLen))
 #if NONMATCHING
-, x10_tlutObj()
+, mTlutObj()
 #endif
-, x1c_locked(false) {
-  in.Get(reinterpret_cast< uchar* >(xc_entries.get()), x8_entryCount * sizeof(ushort));
-  GXInitTlutObj(&x10_tlutObj, xc_entries.get(), format_to_format(x0_fmt), x8_entryCount);
-  DCFlushRange(xc_entries.get(), x8_entryCount * sizeof(ushort));
+, mLocked(false) {
+  in.Get(reinterpret_cast< uchar* >(mEntries.get()), mEntryCount * sizeof(ushort));
+  GXInitTlutObj(&mTlutObj, mEntries.get(), format_to_format(mFmt), mEntryCount);
+  DCFlushRange(mEntries.get(), mEntryCount * sizeof(ushort));
 }
 
 CGraphicsPalette::~CGraphicsPalette() {
 #if defined(TARGET_PC)
-  GXDestroyTlutObj(&x10_tlutObj);
+  GXDestroyTlutObj(&mTlutObj);
   CFrameDelayedKiller::ScheduleDeletion(CFrameDelayedKiller::kWhichFrame_NextFrame,
-                                        xc_entries.release());
+                                        mEntries.release());
 #else
-  uint frameDiff = sCurrentFrameCount - x4_frameLoaded;
+  uint frameDiff = sCurrentFrameCount - mFrameLoaded;
   if (frameDiff < 2) {
     CFrameDelayedKiller::ScheduleDeletion(frameDiff > 0
                                               ? CFrameDelayedKiller::kWhichFrame_ThisFrame
                                               : CFrameDelayedKiller::kWhichFrame_NextFrame,
-                                          xc_entries.release());
+                                          mEntries.release());
   }
 #endif
 }
 
 void CGraphicsPalette::Load() const {
-  GXLoadTlut(&x10_tlutObj, GX_TLUT0);
-  x4_frameLoaded = sCurrentFrameCount;
+  GXLoadTlut(&mTlutObj, GX_TLUT0);
+  mFrameLoaded = sCurrentFrameCount;
 }
 
 #if defined(TARGET_PC)
 void* CGraphicsPalette::Lock() {
   // AuroraGXSync();
-  x1c_locked = true;
-  return xc_entries.get();
+  mLocked = true;
+  return mEntries.get();
 }
 #endif
 
 void CGraphicsPalette::UnLock() {
-  DCStoreRange(xc_entries.get(), x8_entryCount * sizeof(ushort));
+  DCStoreRange(mEntries.get(), mEntryCount * sizeof(ushort));
 #if defined(TARGET_PC)
-  GXInitTlutObjData(&x10_tlutObj, xc_entries.get());
+  GXInitTlutObjData(&mTlutObj, mEntries.get());
 #else
-  GXInitTlutObj(&x10_tlutObj, xc_entries.get(), format_to_format(x0_fmt), x8_entryCount);
+  GXInitTlutObj(&mTlutObj, mEntries.get(), format_to_format(mFmt), mEntryCount);
 #endif
-  DCFlushRange(xc_entries.get(), x8_entryCount * sizeof(ushort));
-  x1c_locked = false;
+  DCFlushRange(mEntries.get(), mEntryCount * sizeof(ushort));
+  mLocked = false;
 }

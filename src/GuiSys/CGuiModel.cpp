@@ -21,12 +21,12 @@ CGuiModel* CGuiModel::Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp
 CGuiModel::CGuiModel(const CGuiWidgetParms& parms, CSimplePool* sp, CAssetId modelId, uint lightMask,
                      bool flag)
 : CGuiWidget(parms)
-, xc8_modelId(modelId)
-, xcc_lightMask(lightMask) {
+, mModelId(modelId)
+, mLightMask(lightMask) {
   const CGuiSys* gs = CGuiSys::GetGlobalGuiSys();
-  if (flag && xc8_modelId != kInvalidAssetId && gs->GetUsageMode() != CGuiSys::kUM_Two) {
-    xb8_model = sp->GetObj(SObjectTag('CMDL', modelId));
-    xb8_model->Lock();
+  if (flag && mModelId != kInvalidAssetId && gs->GetUsageMode() != CGuiSys::kUM_Two) {
+    mModel = sp->GetObj(SObjectTag('CMDL', modelId));
+    mModel->Lock();
   }
 }
 
@@ -34,19 +34,19 @@ CGuiModel::~CGuiModel() {}
 
 void CGuiModel::Draw(const CGuiWidgetDrawParms& parms) const {
   CGraphics::SetModelMatrix(GetWorldTransform());
-  if (!xb8_model) {
+  if (!mModel) {
     return;
   }
   if (!GetIsFinishedLoading()) {
     return;
   }
-  CModel* const model = xb8_model->GetObject();
+  CModel* const model = mModel->GetObject();
   if (!model) {
     return;
   }
   if (GetIsVisible()) {
     CColor col = GetModifiedColor().WithAlphaModulatedBy(parms.GetAlpha());
-    GetParentFrame()->EnableLights(xcc_lightMask);
+    GetParentFrame()->EnableLights(mLightMask);
 
     const bool cullChanged = GetIsBackfaceCullingOn();
     if (cullChanged) {
@@ -106,18 +106,18 @@ void CGuiModel::Draw(const CGuiWidgetDrawParms& parms) const {
 }
 
 void CGuiModel::Touch() const {
-  if (xb8_model && xb8_model->GetObject()) {
-    xb8_model->GetObject()->Touch(0);
+  if (mModel && mModel->GetObject()) {
+    mModel->GetObject()->Touch(0);
   }
 }
 
 bool CGuiModel::GetIsFinishedLoadingWidgetSpecific() const {
-  if (!xb8_model.valid()) {
+  if (!mModel.valid()) {
     return true;
   }
-  xb8_model->TryCache();
+  mModel->TryCache();
 
-  if (const CModel* model = xb8_model->GetObject()) {
+  if (const CModel* model = mModel->GetObject()) {
     model->Touch(0);
     return model->IsLoaded(0);
   }
@@ -126,7 +126,7 @@ bool CGuiModel::GetIsFinishedLoadingWidgetSpecific() const {
 }
 
 rstl::vector< CAssetId > CGuiModel::GetModelAssets() const {
-  return rstl::vector< CAssetId >(1, xc8_modelId);
+  return rstl::vector< CAssetId >(1, mModelId);
 }
 
 FourCC CGuiModel::GetWidgetTypeID() const { return 'MODL'; }

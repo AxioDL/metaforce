@@ -41,24 +41,24 @@ public:
 #endif
   void LoadStringTable();
 
-  rstl::single_ptr< CGameState >& GameState() { return x134_gameState; }
-  rstl::single_ptr< CMemoryCard >& MemoryCard() { return x138_memoryCard; }
+  rstl::single_ptr< CGameState >& GameState() { return mGameState; }
+  rstl::single_ptr< CMemoryCard >& MemoryCard() { return mMemoryCard; }
 
   static CRasterFont* LoadDefaultFont();
 
 private:
-  CMemoryCardSys x0_memoryCardSys;
-  CResFactory x4_resFactory;
-  CSimplePool xcc_simplePool;
-  CCharacterFactoryBuilder xec_characterFactoryBuilder;
-  CAiFuncMap x110_aiFuncMap;
-  CGraphicsSys x130_graphicsSys;
-  rstl::single_ptr< CGameState > x134_gameState;
-  rstl::single_ptr< CMemoryCard > x138_memoryCard;
-  rstl::optional_object< TLockedToken< CStringTable > > x13c_stringTable;
-  rstl::single_ptr< IRenderer > x14c_renderer;
-  rstl::single_ptr< CInGameTweakManager > x150_inGameTweakManager;
-  TToken< CRasterFont > x154_defaultFont;
+  CMemoryCardSys mMemoryCardSys;
+  CResFactory mResFactory;
+  CSimplePool mSimplePool;
+  CCharacterFactoryBuilder mCharacterFactoryBuilder;
+  CAiFuncMap mAiFuncMap;
+  CGraphicsSys mGraphicsSys;
+  rstl::single_ptr< CGameState > mGameState;
+  rstl::single_ptr< CMemoryCard > mMemoryCard;
+  rstl::optional_object< TLockedToken< CStringTable > > mStringTable;
+  rstl::single_ptr< IRenderer > mRenderer;
+  rstl::single_ptr< CInGameTweakManager > mInGameTweakManager;
+  TToken< CRasterFont > mDefaultFont;
 };
 CHECK_SIZEOF(CGameGlobalObjects, 0x15c)
 

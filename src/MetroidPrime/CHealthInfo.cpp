@@ -5,6 +5,6 @@
 CHealthInfo::CHealthInfo(CInputStream& in)
 {
   in.ReadLong();
-  x0_health = in.ReadFloat();
-  x4_knockbackResistance = in.ReadFloat();
+  mHealth = in.ReadFloat();
+  mKnockbackResistance = in.ReadFloat();
 }

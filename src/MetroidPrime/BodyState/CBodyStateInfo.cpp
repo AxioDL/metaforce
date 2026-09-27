@@ -35,11 +35,11 @@
 #include "Kyoto/Math/CloseEnough.hpp"
 
 CBodyStateInfo::CBodyStateInfo(CActor& actor, EBodyType type)
-: x14_state(pas::kAS_Invalid)
-, x18_bodyController(nullptr)
-, x2c_additiveState(pas::kAS_AdditiveIdle)
-, x30_maxPitch(0.0f)
-, x34_24_changeLocoAtEndOfAnimOnly(false) {
+: mState(pas::kAS_Invalid)
+, mBodyController(nullptr)
+, mAdditiveState(pas::kAS_AdditiveIdle)
+, mMaxPitch(0.0f)
+, mChangeLocoAtEndOfAnimOnly(false) {
   const CPASDatabase& pasDatabase =
       actor.GetModelData()->GetAnimationData()->GetCharacterInfo().GetPASDatabase();
   for (size_t i = 0; i < pasDatabase.GetNumAnimStates(); ++i) {
@@ -73,53 +73,53 @@ CBodyStateInfo::CBodyStateInfo(CActor& actor, EBodyType type)
     }
 
     if (bs)
-      x0_stateMap.insert(rstl::pair< int, CBodyState* >(state->GetStateId(), bs));
+      mStateMap.insert(rstl::pair< int, CBodyState* >(state->GetStateId(), bs));
   }
 
-  x1c_additiveStates.reserve(4);
-  x1c_additiveStates.push_back(rstl::pair< int, rstl::auto_ptr< CAdditiveBodyState > >(
+  mAdditiveStates.reserve(4);
+  mAdditiveStates.push_back(rstl::pair< int, rstl::auto_ptr< CAdditiveBodyState > >(
       pas::kAS_AdditiveIdle, rs_new CABSIdle()));
-  x1c_additiveStates.push_back(rstl::pair< int, rstl::auto_ptr< CAdditiveBodyState > >(
+  mAdditiveStates.push_back(rstl::pair< int, rstl::auto_ptr< CAdditiveBodyState > >(
       pas::kAS_AdditiveAim, rs_new CABSAim()));
-  x1c_additiveStates.push_back(rstl::pair< int, rstl::auto_ptr< CAdditiveBodyState > >(
+  mAdditiveStates.push_back(rstl::pair< int, rstl::auto_ptr< CAdditiveBodyState > >(
       pas::kAS_AdditiveFlinch, rs_new CABSFlinch()));
-  x1c_additiveStates.push_back(rstl::pair< int, rstl::auto_ptr< CAdditiveBodyState > >(
+  mAdditiveStates.push_back(rstl::pair< int, rstl::auto_ptr< CAdditiveBodyState > >(
       pas::kAS_AdditiveReaction, rs_new CABSReaction()));
 }
 
 CBodyStateInfo::~CBodyStateInfo() {
-  for (AUTO(it, x0_stateMap.begin()); it != x0_stateMap.end(); ++it) {
+  for (AUTO(it, mStateMap.begin()); it != mStateMap.end(); ++it) {
     delete it->second;
   }
 }
 
 void CBodyStateInfo::SetState(pas::EAnimationState s) {
-  rstl::map< int, CBodyState* >::const_iterator search = x0_stateMap.find(s);
-  if (search != x0_stateMap.end()) {
-    x14_state = s;
+  rstl::map< int, CBodyState* >::const_iterator search = mStateMap.find(s);
+  if (search != mStateMap.end()) {
+    mState = s;
   }
 }
 
 const CBodyState* CBodyStateInfo::GetCurrentState() const {
-  rstl::map< int, CBodyState* >::const_iterator search = x0_stateMap.find(x14_state);
+  rstl::map< int, CBodyState* >::const_iterator search = mStateMap.find(mState);
   return search->second;
 }
 
 CBodyState* CBodyStateInfo::GetCurrentState() {
-  rstl::map< int, CBodyState* >::const_iterator search = x0_stateMap.find(x14_state);
+  rstl::map< int, CBodyState* >::const_iterator search = mStateMap.find(mState);
   return search->second;
 }
 
 bool CBodyStateInfo::ApplyHeadTracking() const {
-  if (x14_state != pas::kAS_Invalid)
+  if (mState != pas::kAS_Invalid)
     return GetCurrentState()->ApplyHeadTracking();
   return false;
 }
 
 void CBodyStateInfo::SetAdditiveState(pas::EAnimationState s) {
-  for (int i = 0; i < x1c_additiveStates.size(); ++i) {
-    if (s == x1c_additiveStates[i].first) {
-      x2c_additiveState = s;
+  for (int i = 0; i < mAdditiveStates.size(); ++i) {
+    if (s == mAdditiveStates[i].first) {
+      mAdditiveState = s;
       return;
     }
   }
@@ -127,9 +127,9 @@ void CBodyStateInfo::SetAdditiveState(pas::EAnimationState s) {
 
 CAdditiveBodyState* CBodyStateInfo::GetCurrentAdditiveState() {
   CAdditiveBodyState* result = nullptr;
-  for (int i = 0; i < x1c_additiveStates.size(); ++i) {
-    if (x2c_additiveState == x1c_additiveStates[i].first) {
-      result = x1c_additiveStates[i].second.get();
+  for (int i = 0; i < mAdditiveStates.size(); ++i) {
+    if (mAdditiveState == mAdditiveStates[i].first) {
+      result = mAdditiveStates[i].second.get();
       break;
     }
   }
@@ -149,10 +149,10 @@ float CBodyStateInfo::GetMaxSpeed() const {
 }
 
 float CBodyStateInfo::GetLocomotionSpeed(pas::ELocomotionAnim anim) const {
-  rstl::map< int, CBodyState* >::const_iterator search = x0_stateMap.find(pas::kAS_Locomotion);
-  if (search != x0_stateMap.end() && search->second && x18_bodyController) {
+  rstl::map< int, CBodyState* >::const_iterator search = mStateMap.find(pas::kAS_Locomotion);
+  if (search != mStateMap.end() && search->second && mBodyController) {
     const CBSLocomotion& bs = static_cast< const CBSLocomotion& >(*search->second);
-    return bs.GetLocomotionSpeed(x18_bodyController->GetLocomotionType(), anim);
+    return bs.GetLocomotionSpeed(mBodyController->GetLocomotionType(), anim);
   }
   return 0.f;
 }

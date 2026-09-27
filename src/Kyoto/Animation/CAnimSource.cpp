@@ -43,17 +43,17 @@ uint RotationAndOffsetStorage::DataSizeInBytes(uint rotationsCountPerFrame, uint
 
 RotationAndOffsetStorage::RotationAndOffsetStorage(const CRotationAndOffsetVectors& storage,
                                                    const uint numFrames)
-: x0_storage(GetRotationsAndOffsets(storage.x0_rotations, storage.x10_offsets, numFrames))
-, x8_numFrames(numFrames)
-, xc_rotationsPerFrame(storage.x0_rotations.size() / numFrames)
-, x10_offsetsPerFrame(storage.x10_offsets.size() / numFrames) {}
+: mStorage(GetRotationsAndOffsets(storage.mRotations, storage.mOffsets, numFrames))
+, mNumFrames(numFrames)
+, mRotationsPerFrame(storage.mRotations.size() / numFrames)
+, mOffsetsPerFrame(storage.mOffsets.size() / numFrames) {}
 
 rstl::auto_ptr< uint >
 RotationAndOffsetStorage::GetRotationsAndOffsets(const rstl::vector< CQuaternion >& rotations,
                                                  const rstl::vector< CVector3f >& offsets,
                                                  uint numFrames) {
-  xc_rotationsPerFrame = rotations.size() / numFrames;
-  x10_offsetsPerFrame = offsets.size() / numFrames;
+  mRotationsPerFrame = rotations.size() / numFrames;
+  mOffsetsPerFrame = offsets.size() / numFrames;
   rstl::auto_ptr< uint > storage(rs_new uint[DataSizeInBytes(rotations.size() / numFrames, //
                                                              offsets.size() / numFrames,   //
                                                              numFrames                     //
@@ -91,52 +91,52 @@ void RotationAndOffsetStorage::CopyRotationsAndOffsets(const rstl::vector< CQuat
 }
 
 uint RotationAndOffsetStorage::GetFrameSizeInBytes() const {
-  return xc_rotationsPerFrame * sizeof(CQuaternion) + x10_offsetsPerFrame * sizeof(CVector3f);
+  return mRotationsPerFrame * sizeof(CQuaternion) + mOffsetsPerFrame * sizeof(CVector3f);
 }
 
 inline RotationAndOffsetStorage::CRotationAndOffsetVectors::CRotationAndOffsetVectors(
     CInputStream& in)
-: x0_rotations(in), x10_offsets(in) {}
+: mRotations(in), mOffsets(in) {}
 
 CAnimSource::CAnimSource(CInputStream& in, IObjectStore& store)
-: x0_duration(in)
-, x8_interval(in)
-, x10_frameCount(in.Get< uint >())
-, x1c_root(in)
-, x20_rotationChannels(in)
-, x30_offsetChannels(in)
-, x40_storage(RotationAndOffsetStorage::CRotationAndOffsetVectors(in), x10_frameCount)
-, x54_eventId(in.Get< CAssetId >())
-, x60_averageVelocity(0.f) {
-  if (x54_eventId != 0) {
-    x58_eventData =
-        rs_new TLockedToken< CAnimPOIData >(store.GetObj(SObjectTag('EVNT', x54_eventId)));
+: mDuration(in)
+, mInterval(in)
+, mFrameCount(in.Get< uint >())
+, mRoot(in)
+, mRotationChannels(in)
+, mOffsetChannels(in)
+, mStorage(RotationAndOffsetStorage::CRotationAndOffsetVectors(in), mFrameCount)
+, mEventId(in.Get< CAssetId >())
+, mAverageVelocity(0.f) {
+  if (mEventId != 0) {
+    mEventData =
+        rs_new TLockedToken< CAnimPOIData >(store.GetObj(SObjectTag('EVNT', mEventId)));
   }
 
   CalcAverageVelocity();
 
-  uint totalSize = x20_rotationChannels.size() + (sizeof(CQuaternion) + sizeof(CVector3f)) + 1;
-  totalSize += x30_offsetChannels.size();
-  totalSize += x10_frameCount * x40_storage.GetFrameSizeInBytes();
+  uint totalSize = mRotationChannels.size() + (sizeof(CQuaternion) + sizeof(CVector3f)) + 1;
+  totalSize += mOffsetChannels.size();
+  totalSize += mFrameCount * mStorage.GetFrameSizeInBytes();
   CCharAnimMemoryMetrics::AddToTotalSize(totalSize + sizeof(CCharAnimTime),
                                          CCharAnimMemoryMetrics::kASS_Two);
 }
 
 CAnimSource::~CAnimSource() {
-  uint totalSize = x20_rotationChannels.size() + (sizeof(CQuaternion) + sizeof(CVector3f)) + 1;
-  totalSize += x30_offsetChannels.size();
-  totalSize += x10_frameCount * x40_storage.GetFrameSizeInBytes();
+  uint totalSize = mRotationChannels.size() + (sizeof(CQuaternion) + sizeof(CVector3f)) + 1;
+  totalSize += mOffsetChannels.size();
+  totalSize += mFrameCount * mStorage.GetFrameSizeInBytes();
   CCharAnimMemoryMetrics::SubtractFromTotalSize(totalSize + sizeof(CCharAnimTime),
                                                 CCharAnimMemoryMetrics::kASS_Two);
 }
 
 bool CAnimSource::HasOffset(const CSegId& seg) const {
-  return x30_offsetChannels[x20_rotationChannels[seg.val()]] >= 0;
+  return mOffsetChannels[mRotationChannels[seg.val()]] >= 0;
 }
 
 CVector3f CAnimSource::GetOffset(const CSegId& seg, const CCharAnimTime& animTime) const {
   const float frameTime = animTime.GetSeconds();
-  float interval = x8_interval.GetSeconds();
+  float interval = mInterval.GetSeconds();
 #ifdef __MWERKS__
   const float invTime = __fres(interval);
 #else
@@ -152,12 +152,12 @@ CVector3f CAnimSource::GetOffset(const CSegId& seg, const CCharAnimTime& animTim
 
   time = clamp_zero_to_one(time * invTime);
 
-  int channel = x20_rotationChannels[seg.val()];
+  int channel = mRotationChannels[seg.val()];
   if (channel >= 0) {
-    channel = x30_offsetChannels[channel];
-    const uint nextFrame = frame == x10_frameCount - 1 ? 0 : frame + 1;
-    const CVector3f& a = x40_storage.GetOffset(channel, frame);
-    const CVector3f& b = x40_storage.GetOffset(channel, nextFrame);
+    channel = mOffsetChannels[channel];
+    const uint nextFrame = frame == mFrameCount - 1 ? 0 : frame + 1;
+    const CVector3f& a = mStorage.GetOffset(channel, frame);
+    const CVector3f& b = mStorage.GetOffset(channel, nextFrame);
     return CVector3f::Lerp(a, b, time);
   }
 
@@ -171,7 +171,7 @@ CQuaternion CAnimSource::GetRotation(const CSegId& seg, const CCharAnimTime& ani
 #else
   const float invTime = 1.f / interval;
 #endif
-  const int channel = x20_rotationChannels[seg.val()];
+  const int channel = mRotationChannels[seg.val()];
   if (channel >= 0) {
     const float frameTime = animTime.GetSeconds();
     const uint frame = static_cast< uint >(frameTime * invTime);
@@ -183,9 +183,9 @@ CQuaternion CAnimSource::GetRotation(const CSegId& seg, const CCharAnimTime& ani
     }
 
     time = clamp_zero_to_one(time * invTime);
-    const uint nextFrame = frame == x10_frameCount - 1 ? 0 : frame + 1;
-    const CQuaternion& a = x40_storage.GetRotation(channel, frame);
-    const CQuaternion& b = x40_storage.GetRotation(channel, nextFrame);
+    const uint nextFrame = frame == mFrameCount - 1 ? 0 : frame + 1;
+    const CQuaternion& a = mStorage.GetRotation(channel, frame);
+    const CQuaternion& b = mStorage.GetRotation(channel, nextFrame);
     return CAnimMathUtils::Slerp(a, b, time);
   }
 
@@ -193,12 +193,12 @@ CQuaternion CAnimSource::GetRotation(const CSegId& seg, const CCharAnimTime& ani
 }
 
 void CAnimSource::CalcAverageVelocity() {
-  const float invDuration = 1.f / x0_duration.GetSeconds();
+  const float invDuration = 1.f / mDuration.GetSeconds();
   float distance = 0.f;
-  const uint channel = x30_offsetChannels[x20_rotationChannels[CSegId::Root().val()]];
-  for (uint frame = 1; frame < x10_frameCount; ++frame) {
+  const uint channel = mOffsetChannels[mRotationChannels[CSegId::Root().val()]];
+  for (uint frame = 1; frame < mFrameCount; ++frame) {
     const CVector3f delta =
-        x40_storage.GetOffset(channel, frame) - x40_storage.GetOffset(channel, frame - 1);
+        mStorage.GetOffset(channel, frame) - mStorage.GetOffset(channel, frame - 1);
     const float magnitude = delta.Magnitude();
     if (!close_enough(magnitude, 0.f)) {
       distance += magnitude;
@@ -206,23 +206,23 @@ void CAnimSource::CalcAverageVelocity() {
   }
 
   distance *= invDuration;
-  x60_averageVelocity = distance;
+  mAverageVelocity = distance;
 }
 
 const rstl::vector< CBoolPOINode >& CAnimSource::GetBoolPOIStream() const {
-  return (*x58_eventData)->GetBoolPOIStream();
+  return (*mEventData)->GetBoolPOIStream();
 }
 
 const rstl::vector< CInt32POINode >& CAnimSource::GetInt32POIStream() const {
-  return (*x58_eventData)->GetInt32POIStream();
+  return (*mEventData)->GetInt32POIStream();
 }
 
 const rstl::vector< CParticlePOINode >& CAnimSource::GetParticlePOIStream() const {
-  return (*x58_eventData)->GetParticlePOIStream();
+  return (*mEventData)->GetParticlePOIStream();
 }
 
 const rstl::vector< CSoundPOINode >& CAnimSource::GetSoundPOIStream() const {
-  return (*x58_eventData)->GetSoundPOIStream();
+  return (*mEventData)->GetSoundPOIStream();
 }
 
 template class rstl::set< rstl::pair< rstl::string, int > >;
@@ -243,33 +243,33 @@ void CAnimSource::GetSegStatementSet(const CSegIdList& list, CSegStatementSet& s
     time = 0.f;
   }
   time = clamp_zero_to_one(time * invTime);
-  const uint nextFrame = frame == x10_frameCount - 1 ? 0 : frame + 1;
+  const uint nextFrame = frame == mFrameCount - 1 ? 0 : frame + 1;
   const int count = list.size();
 
   for (int i = 0; i < count; ++i) {
     const CSegId& seg = list[i];
-    const int channel = x20_rotationChannels[seg.val()];
+    const int channel = mRotationChannels[seg.val()];
     if (channel >= 0) {
       if (1.f - time < CAnimMathUtils::kInterpolationThreshold) {
-        set.Set(seg, x40_storage.GetRotation(channel, nextFrame));
+        set.Set(seg, mStorage.GetRotation(channel, nextFrame));
         if (HasOffset(seg)) {
-          set.Set(seg, x40_storage.GetOffset(x30_offsetChannels[x20_rotationChannels[seg.val()]],
+          set.Set(seg, mStorage.GetOffset(mOffsetChannels[mRotationChannels[seg.val()]],
                                              nextFrame));
         }
       } else if (time < CAnimMathUtils::kInterpolationThreshold) {
-        set.Set(seg, x40_storage.GetRotation(channel, frame));
+        set.Set(seg, mStorage.GetRotation(channel, frame));
         if (HasOffset(seg)) {
-          set.Set(seg, x40_storage.GetOffset(x30_offsetChannels[x20_rotationChannels[seg.val()]],
+          set.Set(seg, mStorage.GetOffset(mOffsetChannels[mRotationChannels[seg.val()]],
                                              frame));
         }
       } else {
-        const CQuaternion& a = x40_storage.GetRotation(channel, frame);
-        const CQuaternion& b = x40_storage.GetRotation(channel, nextFrame);
+        const CQuaternion& a = mStorage.GetRotation(channel, frame);
+        const CQuaternion& b = mStorage.GetRotation(channel, nextFrame);
         set.Set(seg, CAnimMathUtils::Slerp(a, b, time));
         if (HasOffset(seg)) {
-          const uint offsetChannel = x30_offsetChannels[x20_rotationChannels[seg.val()]];
-          const CVector3f& a = x40_storage.GetOffset(offsetChannel, frame);
-          const CVector3f& b = x40_storage.GetOffset(offsetChannel, nextFrame);
+          const uint offsetChannel = mOffsetChannels[mRotationChannels[seg.val()]];
+          const CVector3f& a = mStorage.GetOffset(offsetChannel, frame);
+          const CVector3f& b = mStorage.GetOffset(offsetChannel, nextFrame);
           set.Set(seg, CVector3f::Lerp(a, b, time));
         }
       }

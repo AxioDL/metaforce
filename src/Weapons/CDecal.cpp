@@ -17,29 +17,29 @@ bool CDecal::sMoveRedToAlphaBuffer = false;
 void CDecal::SetGlobalSeed(ushort seed) { sDecalRandom.SetSeed(seed); }
 
 CDecal::CDecal(const TToken< CDecalDescription >& desc, const CTransform4f& xf)
-: x0_description(desc)
-, xc_transform(xf)
-, x54_modelLifetime(0)
-, x58_frameIdx(0)
-, x5c_flags(0)
-, x60_rotation(CVector3f::Zero()) {
+: mDescription(desc)
+, mTransform(xf)
+, mModelLifetime(0)
+, mFrameIdx(0)
+, mFlags(0)
+, mRotation(CVector3f::Zero()) {
   CGlobalRandom gr(sDecalRandom);
 
-  InitQuad(x3c_quad1, x0_description->x0_quad1, 1);
-  InitQuad(x48_quad2, x0_description->x1c_quad2, 2);
+  InitQuad(mQuad1, mDescription->mQuad1, 1);
+  InitQuad(mQuad2, mDescription->mQuad2, 2);
 
-  if (x0_description->x38_DMDL) {
-    if (!x0_description->x48_DLFT.null()) {
-      x0_description->x48_DLFT->GetValue(0, x54_modelLifetime);
+  if (mDescription->mDMDL) {
+    if (!mDescription->mDLFT.null()) {
+      mDescription->mDLFT->GetValue(0, mModelLifetime);
     } else {
-      x54_modelLifetime = 0x7FFFFF;
+      mModelLifetime = 0x7FFFFF;
     }
 
-    if (!x0_description->x50_DMRT.null()) {
-      x0_description->x50_DMRT->GetValue(0, x60_rotation);
+    if (!mDescription->mDMRT.null()) {
+      mDescription->mDMRT->GetValue(0, mRotation);
     }
   } else {
-    x5c_flags |= 4;
+    mFlags |= 4;
   }
 }
 
@@ -47,28 +47,28 @@ void CDecal::RenderQuad(CQuadDecal& decal, const CDecalDescription::SQuadDescr& 
   CColor color = CColor::White();
   float size = 1.f;
   CVector3f offset = CVector3f::Zero();
-  if (CColorElement* clr = desc.x10_CLR.get()) {
-    clr->GetValue(x58_frameIdx, color);
+  if (CColorElement* clr = desc.mCLR.get()) {
+    clr->GetValue(mFrameIdx, color);
   }
-  if (CRealElement* sze = desc.x4_SZE.get()) {
-    sze->GetValue(x58_frameIdx, size);
+  if (CRealElement* sze = desc.mSZE.get()) {
+    sze->GetValue(mFrameIdx, size);
     size *= 0.5f;
   }
-  if (CRealElement* rot = desc.x8_ROT.get()) {
-    rot->GetValue(x58_frameIdx, decal.x8_rotation);
+  if (CRealElement* rot = desc.mROT.get()) {
+    rot->GetValue(mFrameIdx, decal.mRotation);
   }
-  if (CVectorElement* off = desc.xc_OFF.get()) {
-    off->GetValue(x58_frameIdx, offset);
+  if (CVectorElement* off = desc.mOFF.get()) {
+    off->GetValue(mFrameIdx, offset);
     offset.SetY(0.f);
   }
 
-  CTransform4f modXf = xc_transform;
+  CTransform4f modXf = mTransform;
   modXf.AddTranslation(offset);
   CGraphics::SetModelMatrix(modXf);
   CGraphics::SetAlphaCompare(kAF_Always, 0, kAO_And, kAF_Always, 0);
 
-  bool redToAlpha = CDecal::sMoveRedToAlphaBuffer && desc.x18_ADD && !desc.x14_TEX.null();
-  if (desc.x18_ADD) {
+  bool redToAlpha = CDecal::sMoveRedToAlphaBuffer && desc.mADD && !desc.mTEX.null();
+  if (desc.mADD) {
     CGraphics::SetDepthWriteMode(true, kE_LEqual, false);
     if (redToAlpha) {
       CGraphics::SetBlendMode(kBM_Blend, kBF_One, kBF_One, kLO_Clear);
@@ -85,15 +85,15 @@ void CDecal::RenderQuad(CQuadDecal& decal, const CDecalDescription::SQuadDescr& 
   uvSet.xMax = 1.f;
   uvSet.yMin = 0.f;
   uvSet.yMax = 1.f;
-  if (!desc.x14_TEX.null()) {
-    TToken< CTexture > tex = desc.x14_TEX->GetValueTexture(x58_frameIdx);
+  if (!desc.mTEX.null()) {
+    TToken< CTexture > tex = desc.mTEX->GetValueTexture(mFrameIdx);
     if (!tex.IsLoaded()) {
       return;
     }
     tex->Load(GX_TEXMAP0, CTexture::kCM_Repeat);
     tex.GetObj(); // ?
     CGraphics::SetTevOp(kTS_Stage0, CGraphics::kEnvModulate);
-    desc.x14_TEX->GetValueUV(x58_frameIdx, uvSet);
+    desc.mTEX->GetValueUV(mFrameIdx, uvSet);
     if (redToAlpha) {
       CGX::SetNumTevStages(2);
       CGX::SetTevColorIn(GX_TEVSTAGE1, GX_CC_ZERO, GX_CC_CPREV, GX_CC_APREV, GX_CC_ZERO);
@@ -126,7 +126,7 @@ void CDecal::RenderQuad(CQuadDecal& decal, const CDecalDescription::SQuadDescr& 
   CGX::SetVtxDescv(vtxDesc);
   CGX::Begin(GX_TRIANGLESTRIP, GX_VTXFMT0, 4);
 
-  if (decal.x8_rotation == 0.f) {
+  if (decal.mRotation == 0.f) {
     // Vertex 0
     GXPosition3f32(-size, 0.001f, size);
     GXColor1u32(color.GetColor_u32());
@@ -144,7 +144,7 @@ void CDecal::RenderQuad(CQuadDecal& decal, const CDecalDescription::SQuadDescr& 
     GXColor1u32(color.GetColor_u32());
     GXTexCoord2f32(uvSet.xMax, uvSet.yMin);
   } else {
-    const CRelAngle ang = CRelAngle::FromDegrees(decal.x8_rotation);
+    const CRelAngle ang = CRelAngle::FromDegrees(decal.mRotation);
     const float sinSize = sine(ang) * size;
     const float cosSize = cosine(ang) * size;
     // Vertex 0
@@ -176,12 +176,12 @@ void CDecal::RenderMdl() const {
   CColor color = CColor::White();
   CVector3f offset = CVector3f::Zero();
   CTransform4f rotXf(CTransform4f::Identity());
-  if (!x0_description->x5c_25_DMOO) {
-    rotXf = xc_transform.GetRotation();
+  if (!mDescription->mDMOO) {
+    rotXf = mTransform.GetRotation();
   }
 
   bool dmrtIsConst = false;
-  if (CVectorElement* off = x0_description->x50_DMRT.get()) {
+  if (CVectorElement* off = mDescription->mDMRT.get()) {
     if (off->IsFastConstant()) {
       dmrtIsConst = true;
     }
@@ -189,23 +189,23 @@ void CDecal::RenderMdl() const {
 
   CTransform4f dmrtXf = CTransform4f::Identity();
   if (dmrtIsConst) {
-    x0_description->x50_DMRT->GetValue(x58_frameIdx, x60_rotation);
-    dmrtXf = CTransform4f::RotateZ(CRelAngle::FromDegrees(x60_rotation.GetZ()));
-    dmrtXf.RotateLocalY(CRelAngle::FromDegrees(x60_rotation.GetY()));
-    dmrtXf.RotateLocalX(CRelAngle::FromDegrees(x60_rotation.GetX()));
+    mDescription->mDMRT->GetValue(mFrameIdx, mRotation);
+    dmrtXf = CTransform4f::RotateZ(CRelAngle::FromDegrees(mRotation.GetZ()));
+    dmrtXf.RotateLocalY(CRelAngle::FromDegrees(mRotation.GetY()));
+    dmrtXf.RotateLocalX(CRelAngle::FromDegrees(mRotation.GetX()));
   }
   dmrtXf = rotXf * dmrtXf;
 
-  if (CVectorElement* off = x0_description->x4c_DMOP.get()) {
-    off->GetValue(x58_frameIdx, offset);
+  if (CVectorElement* off = mDescription->mDMOP.get()) {
+    off->GetValue(mFrameIdx, offset);
   }
 
-  CTransform4f worldXf = CTransform4f::Translate(xc_transform.GetTranslation() + rotXf * offset);
+  CTransform4f worldXf = CTransform4f::Translate(mTransform.GetTranslation() + rotXf * offset);
   if (dmrtIsConst) {
     worldXf *= dmrtXf;
-  } else if (CVectorElement* dmrt = x0_description->x50_DMRT.get()) {
+  } else if (CVectorElement* dmrt = mDescription->mDMRT.get()) {
     CVector3f rotation(0.f, 0.f, 0.f);
-    dmrt->GetValue(x58_frameIdx, rotation);
+    dmrt->GetValue(mFrameIdx, rotation);
     dmrtXf = CTransform4f::RotateZ(CRelAngle::FromDegrees(rotation.GetZ()));
     dmrtXf.RotateLocalY(CRelAngle::FromDegrees(rotation.GetY()));
     dmrtXf.RotateLocalX(CRelAngle::FromDegrees(rotation.GetX()));
@@ -214,25 +214,25 @@ void CDecal::RenderMdl() const {
     worldXf *= dmrtXf;
   }
 
-  if (CVectorElement* dmsc = x0_description->x54_DMSC.get()) {
+  if (CVectorElement* dmsc = mDescription->mDMSC.get()) {
     CVector3f scale(0.f, 0.f, 0.f);
-    dmsc->GetValue(x58_frameIdx, scale);
+    dmsc->GetValue(mFrameIdx, scale);
     worldXf *= CTransform4f::Scale(scale.GetX(), scale.GetY(), scale.GetZ());
   }
 
-  if (CColorElement* dmcl = x0_description->x58_DMCL.get()) {
-    dmcl->GetValue(x58_frameIdx, color);
+  if (CColorElement* dmcl = mDescription->mDMCL.get()) {
+    dmcl->GetValue(mFrameIdx, color);
   }
 
   CGraphics::SetModelMatrix(worldXf);
 
-  if (x0_description->x5c_24_DMAB) {
+  if (mDescription->mDMAB) {
     const CModelFlags flags = CModelFlags::Additive(color).DepthCompareUpdate(true, false);
-    (*x0_description->x38_DMDL)->Draw(flags);
+    (*mDescription->mDMDL)->Draw(flags);
   } else if (color.GetAlpha() == 1.f) {
-    (*x0_description->x38_DMDL)->Draw(CModelFlags::Normal());
+    (*mDescription->mDMDL)->Draw(CModelFlags::Normal());
   } else {
-    (*x0_description->x38_DMDL)
+    (*mDescription->mDMDL)
         ->Draw(CModelFlags::AlphaBlendedDepthCompareUpdate(color, true, false));
   }
 
@@ -247,29 +247,29 @@ void CDecal::Render() const {
   }
 
   CGraphics::DisableAllLights();
-  CParticleGlobals::SetEmitterTime(x58_frameIdx);
+  CParticleGlobals::SetEmitterTime(mFrameIdx);
 
-  ProcessQuad(const_cast< CQuadDecal& >(x3c_quad1), x0_description->x0_quad1, 1);
-  ProcessQuad(const_cast< CQuadDecal& >(x48_quad2), x0_description->x1c_quad2, 2);
-  if (x0_description->x38_DMDL && (x5c_flags & 4) == 0) {
-    CParticleGlobals::SetParticleLifetime(x54_modelLifetime);
-    CParticleGlobals::UpdateParticleLifetimeTweenValues(x58_frameIdx);
+  ProcessQuad(const_cast< CQuadDecal& >(mQuad1), mDescription->mQuad1, 1);
+  ProcessQuad(const_cast< CQuadDecal& >(mQuad2), mDescription->mQuad2, 2);
+  if (mDescription->mDMDL && (mFlags & 4) == 0) {
+    CParticleGlobals::SetParticleLifetime(mModelLifetime);
+    CParticleGlobals::UpdateParticleLifetimeTweenValues(mFrameIdx);
     RenderMdl();
   }
 }
 
 void CDecal::Update(float dt) {
-  if (x58_frameIdx >= x3c_quad1.GetLifetime()) {
-    x5c_flags |= 1;
+  if (mFrameIdx >= mQuad1.GetLifetime()) {
+    mFlags |= 1;
   }
 
-  if (x58_frameIdx >= x48_quad2.GetLifetime()) {
-    x5c_flags |= 2;
+  if (mFrameIdx >= mQuad2.GetLifetime()) {
+    mFlags |= 2;
   }
 
-  if (x58_frameIdx >= x54_modelLifetime) {
-    x5c_flags |= 4;
+  if (mFrameIdx >= mModelLifetime) {
+    mFlags |= 4;
   }
 
-  ++x58_frameIdx;
+  ++mFrameIdx;
 }

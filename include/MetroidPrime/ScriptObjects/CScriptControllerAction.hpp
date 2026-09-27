@@ -84,11 +84,11 @@ public:
   static ControlMapper::ECommands GetCommand(ECommands cmd);
 
 private:
-  ECommands x34_command;
-  uint x38_mapScreenSubaction;
-  uchar x3c_24_mapScreenResponse : 1;
-  bool x3c_25_deactivateOnClose : 1;
-  bool x3c_26_pressed : 1;
+  ECommands mCommand;
+  uint mMapScreenSubaction;
+  uchar mMapScreenResponse : 1;
+  bool mDeactivateOnClose : 1;
+  bool mPressed : 1;
 };
 
 #endif // _CSCRIPTCONTROLLERACTION

@@ -19,7 +19,7 @@ public:
   void WriteTransData(COutputStream&) const override;
 
 private:
-  rstl::rc_ptr< IMetaAnim > x4_metaAnim;
+  rstl::rc_ptr< IMetaAnim > mMetaAnim;
 };
 CHECK_SIZEOF(CMetaTransMetaAnim, 0x8)
 

@@ -5,18 +5,18 @@
 #include "Kyoto/Streams/COutputStream.hpp"
 
 CMetaAnimSequence::CMetaAnimSequence(CInputStream& in)
-: x4_sequence(CMetaAnimSequence::CreateSequence(in)) {}
+: mSequence(CMetaAnimSequence::CreateSequence(in)) {}
 
 rstl::ncrc_ptr< CAnimTreeNode >
 CMetaAnimSequence::VGetAnimationTree(const CAnimSysContext& animSys,
                                      const CMetaAnimTreeBuildOrders& orders) const {
-  if (orders.x0_recursiveAdvance) {
+  if (orders.mRecursiveAdvance) {
     return GetAnimationTree(
-        animSys, CMetaAnimTreeBuildOrders::PreAdvanceForAll(*orders.x0_recursiveAdvance));
+        animSys, CMetaAnimTreeBuildOrders::PreAdvanceForAll(*orders.mRecursiveAdvance));
   }
 
-  AUTO(it, x4_sequence.begin());
-  AUTO(end, x4_sequence.end());
+  AUTO(it, mSequence.begin());
+  AUTO(end, mSequence.end());
   rstl::vector< rstl::string > names;
   names.reserve(end - it);
   while (it != end) {
@@ -25,13 +25,13 @@ CMetaAnimSequence::VGetAnimationTree(const CAnimSysContext& animSys,
     names.push_back(tree->GetPrimitiveName());
     ++it;
   }
-  return rs_new CAnimTreeSequence(x4_sequence, animSys,
+  return rs_new CAnimTreeSequence(mSequence, animSys,
                                   CAnimTreeSequence::CreatePrimitiveName(names));
 }
 
 void CMetaAnimSequence::GetUniquePrimitives(rstl::set< CPrimitive >& primsOut) const {
-  rstl::vector< rstl::rc_ptr< IMetaAnim > >::const_iterator it = x4_sequence.begin();
-  rstl::vector< rstl::rc_ptr< IMetaAnim > >::const_iterator end = x4_sequence.end();
+  rstl::vector< rstl::rc_ptr< IMetaAnim > >::const_iterator it = mSequence.begin();
+  rstl::vector< rstl::rc_ptr< IMetaAnim > >::const_iterator end = mSequence.end();
   while (it != end) {
     it->GetPtr()->GetUniquePrimitives(primsOut);
     ++it;
@@ -39,9 +39,9 @@ void CMetaAnimSequence::GetUniquePrimitives(rstl::set< CPrimitive >& primsOut) c
 }
 
 void CMetaAnimSequence::WriteAnimData(COutputStream& out) const {
-  rstl::vector< rstl::rc_ptr< IMetaAnim > >::const_iterator it = x4_sequence.begin();
-  rstl::vector< rstl::rc_ptr< IMetaAnim > >::const_iterator end = x4_sequence.end();
-  out.WriteLong(x4_sequence.size());
+  rstl::vector< rstl::rc_ptr< IMetaAnim > >::const_iterator it = mSequence.begin();
+  rstl::vector< rstl::rc_ptr< IMetaAnim > >::const_iterator end = mSequence.end();
+  out.WriteLong(mSequence.size());
   while (it != end) {
     it->GetPtr()->PutTo(out);
     ++it;

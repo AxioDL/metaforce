@@ -10,15 +10,15 @@ CScriptWaypoint::CScriptWaypoint(TUniqueId uid, const rstl::string& name, const 
                                  int behaviourModifiers, uint animation)
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(kMT_NoStepLogic),
          CActorParameters::None(), kInvalidUniqueId)
-, xe8_speed(speed)
-, xec_animation(animation)
-, xf0_pause(pause)
-, xf4_patternTranslate(patternTranslate)
-, xf5_patternOrient(patternOrient)
-, xf6_patternFit(patternFit)
-, xf7_behaviour(behaviour)
-, xf8_behaviourOrient(behaviourOrient)
-, xfa_behaviourModifiers(behaviourModifiers) {
+, mSpeed(speed)
+, mAnimation(animation)
+, mPause(pause)
+, mPatternTranslate(patternTranslate)
+, mPatternOrient(patternOrient)
+, mPatternFit(patternFit)
+, mBehaviour(behaviour)
+, mBehaviourOrient(behaviourOrient)
+, mBehaviourModifiers(behaviourModifiers) {
   SetUseInSortedLists(false);
   SetCallTouch(false);
 }
@@ -43,8 +43,8 @@ TUniqueId CScriptWaypoint::NextWaypoint(const CStateManager& mgr) const {
   rstl::reserved_vector< TUniqueId, 10 > ids;
   rstl::vector< SConnection >::const_iterator conn = GetConnectionList().begin();
   for (; conn != GetConnectionList().end(); ++conn) {
-    if (conn->x0_state == kSS_Arrived && conn->x4_msg == kSM_Next) {
-      const TUniqueId id = mgr.GetIdForScript(conn->x8_objId);
+    if (conn->mState == kSS_Arrived && conn->mMsg == kSM_Next) {
+      const TUniqueId id = mgr.GetIdForScript(conn->mObjId);
       if (id != kInvalidUniqueId) {
         if (const CScriptWaypoint* wp = TCastToConstPtr< CScriptWaypoint >(mgr.GetObjectById(id))) {
           if (wp->GetActive()) {
@@ -65,8 +65,8 @@ TUniqueId CScriptWaypoint::NextWaypoint(const CStateManager& mgr) const {
 TUniqueId CScriptWaypoint::FollowWaypoint(CStateManager& mgr) const {
   rstl::vector< SConnection >::const_iterator conn = GetConnectionList().begin();
   for (; conn != GetConnectionList().end(); ++conn) {
-    if (conn->x0_state == kSS_Arrived && conn->x4_msg == kSM_Follow) {
-      return mgr.GetIdForScript(conn->x8_objId);
+    if (conn->mState == kSS_Arrived && conn->mMsg == kSM_Follow) {
+      return mgr.GetIdForScript(conn->mObjId);
     }
   }
   return kInvalidUniqueId;

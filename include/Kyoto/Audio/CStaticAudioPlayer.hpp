@@ -47,20 +47,20 @@ public:
   void SetVolume(uchar vol);
 
 private:
-  rstl::string x0_filepath;
-  int x10_rsfRem;
-  int x14_rsfLength;
-  int x18_curSamp;
-  int x1c_loopStartSamp;
-  int x20_loopEndSamp;
-  int x24_curBuf;
-  rstl::auto_ptr< uchar > x28_dmaLeft;
-  rstl::auto_ptr< uchar > x30_dmaRight;
-  rstl::vector< rstl::auto_ptr< CDvdRequest > > x38_dvdRequests;
-  rstl::vector< rstl::auto_ptr< uchar > > x48_buffers;
-  g72x_state x58_leftState;
-  g72x_state x8c_rightState;
-  ushort xc0_volume;
+  rstl::string mFilepath;
+  int mRsfRem;
+  int mRsfLength;
+  int mCurSamp;
+  int mLoopStartSamp;
+  int mLoopEndSamp;
+  int mCurBuf;
+  rstl::auto_ptr< uchar > mDmaLeft;
+  rstl::auto_ptr< uchar > mDmaRight;
+  rstl::vector< rstl::auto_ptr< CDvdRequest > > mDvdRequests;
+  rstl::vector< rstl::auto_ptr< uchar > > mBuffers;
+  g72x_state mLeftState;
+  g72x_state mRightState;
+  ushort mVolume;
 #if defined(TARGET_PC)
   u32 m_audioPhase = 0;
   short m_audioHistory[2][2] = {};

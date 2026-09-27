@@ -5,9 +5,9 @@
 #define RSTL_GM8E_00 0
 #define RSTL_GM8E_01 1
 #define RSTL_GM8E_48 2
-#define RSTL_GM8P_00 3
-#define RSTL_GM8J_00 4
-#define RSTL_GM8E_02 5
+#define RSTL_GM8E_02 3
+#define RSTL_GM8P_00 4
+#define RSTL_GM8J_00 5
 
 // Prime 2 GC
 #define RSTL_G2ME 10

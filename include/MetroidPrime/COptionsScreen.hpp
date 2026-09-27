@@ -34,12 +34,12 @@ private:
   void OnSliderChanged(CGuiSliderGroup* caller, float value);
   void OnEnumChanged(CGuiTableGroup* caller, int oldSel);
 
-  rstl::single_ptr< CQuitGameScreen > x19c_quitGame;
-  rstl::single_ptr< CGameCubeDoll > x1a0_gameCube;
-  CSfxHandle x1a4_sliderSfx;
-  CRumbleGenerator x1a8_rumble;
-  float x29c_optionAlpha;
-  bool x2a0_24_inOptionBody : 1;
+  rstl::single_ptr< CQuitGameScreen > mQuitGame;
+  rstl::single_ptr< CGameCubeDoll > mGameCube;
+  CSfxHandle mSliderSfx;
+  CRumbleGenerator mRumble;
+  float mOptionAlpha;
+  bool mInOptionBody : 1;
 };
 CHECK_SIZEOF(COptionsScreen, 0x2a4)
 

@@ -43,26 +43,26 @@ CEnergyProjectile::CEnergyProjectile(
 : CGameProjectile(active, desc, rstl::string_l("GameProjectile"), type, xf, excludeMat, damage, uid,
                   aid, owner, homingTarget, attribs, underwater, scale, visorParticle, visorSfx,
                   sendCollideMsg)
-, x2ec_dir(xf.GetForward())
-, x2f8_mag(x2ec_dir.Magnitude())
-, x2fc_camShake(CCameraShakeData::SoftHorizShake(0.5f, 0.75f))
-, x3d0_24_dead(false)
+, mDir(xf.GetForward())
+, mMag(mDir.Magnitude())
+, mCamShake(CCameraShakeData::SoftHorizShake(0.5f, 0.75f))
+, mDead(false)
 , x3d0_25_(false)
 , x3d0_26_(false)
-, x3d0_27_camShakeDirty(false)
-, x3d4_curTime(0.f) {
+, mCamShakeDirty(false)
+, mCurTime(0.f) {
   SetThermalFlags(kTF_Hot);
 }
 
 void CEnergyProjectile::StopProjectile(CStateManager& mgr) {
   DeleteProjectileLight(mgr);
   mgr.RemoveWeaponId(GetOwnerId(), GetType());
-  x2e4_24_active = false;
+  mActive = false;
   SetMaterial(CMaterialList());
   mgr.UpdateActorInSortedLists(*this);
-  if (x2e8_sfx) {
-    CSfxManager::RemoveEmitter(x2e8_sfx);
-    x2e8_sfx.Clear();
+  if (mSfx) {
+    CSfxManager::RemoveEmitter(mSfx);
+    mSfx.Clear();
   }
 }
 
@@ -123,9 +123,9 @@ const bool CEnergyProjectile::Explode(const CVector3f& pos, const CVector3f& nor
     x3d0_25_ = false;
   } else {
     StopProjectile(mgr);
-    if (x3d0_27_camShakeDirty) {
-      x2fc_camShake.SetSfxPositionAndDistance(50.f, pos);
-      mgr.CameraManager()->AddCameraShaker(x2fc_camShake, false);
+    if (mCamShakeDirty) {
+      mCamShake.SetSfxPositionAndDistance(50.f, pos);
+      mgr.CameraManager()->AddCameraShaker(mCamShake, false);
     }
   }
   PlayImpactSound(pos, type);
@@ -138,7 +138,7 @@ const bool CEnergyProjectile::Explode(const CVector3f& pos, const CVector3f& nor
     particleXf.SetTranslation(offsetPos);
     const bool underwaterPower =
         (GetType() == kWT_Power && GetFilter().GetExcludeList().HasMaterial(kMT_Player)) &&
-        x2e4_27_inWater;
+        mInWater;
     if (!underwaterPower) {
       const rstl::optional_object< TLockedToken< CDecalDescription > > decal =
           projectile.GetDecalForCollision(type);
@@ -198,7 +198,7 @@ const bool CEnergyProjectile::Explode(const CVector3f& pos, const CVector3f& nor
         }
       }
     } else {
-      x3d0_24_dead = true;
+      mDead = true;
     }
     if ((GetAttribField() & (kPA_ComboShot | kPA_Ice)) == (kPA_ComboShot | kPA_Ice)) {
       const TLockedToken< CGenDescription > iceParticle = gpSimplePool->GetObj("IceSpread1");
@@ -273,7 +273,7 @@ void CEnergyProjectile::Think(float dt, CStateManager& mgr) {
   }
   CProjectileWeapon& projectile = Projectile();
   projectile.UpdateParticleFX();
-  if (x2e4_24_active && x3d0_26_) {
+  if (mActive && x3d0_26_) {
     Explode(GetTranslation(), CVector3f::Up(), kWCR_Default, mgr,
             CDamageVulnerability::NormalVulnerability(), kInvalidUniqueId);
   }
@@ -286,15 +286,15 @@ void CEnergyProjectile::Think(float dt, CStateManager& mgr) {
       }
     }
   }
-  if (x2e8_sfx) {
-    CSfxManager::UpdateEmitter(x2e8_sfx, projectile.GetTranslation(), projectile.GetVelocity(),
+  if (mSfx) {
+    CSfxManager::UpdateEmitter(mSfx, projectile.GetTranslation(), projectile.GetVelocity(),
                                255);
-    CSfxManager::PitchBend(x2e8_sfx, x2e4_26_waterUpdate ? 0 : 8192);
+    CSfxManager::PitchBend(mSfx, mWaterUpdate ? 0 : 8192);
   }
-  x3d4_curTime += dt;
-  if (x3d4_curTime > 45.f) {
+  mCurTime += dt;
+  if (mCurTime > 45.f) {
     mgr.DeleteObjectRequest(GetUniqueId());
-  } else if (projectile.IsSystemDeletable() || x3d0_24_dead) {
+  } else if (projectile.IsSystemDeletable() || mDead) {
     mgr.DeleteObjectRequest(GetUniqueId());
   }
 }
@@ -341,12 +341,12 @@ void CEnergyProjectile::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid,
                                         CStateManager& mgr) {
   switch (msg) {
   case kSM_Deleted:
-    if (x2e4_24_active) {
+    if (mActive) {
       mgr.RemoveWeaponId(GetOwnerId(), GetType());
     }
-    if (x2e8_sfx) {
-      CSfxManager::RemoveEmitter(x2e8_sfx);
-      x2e8_sfx.Clear();
+    if (mSfx) {
+      CSfxManager::RemoveEmitter(mSfx);
+      mSfx.Clear();
     }
     break;
   case kSM_Registered: {
@@ -355,21 +355,21 @@ void CEnergyProjectile::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid,
       CreateProjectileLight(rstl::string_l("ProjectileLight_GameProjectile"),
                             projectile.GetAttachedPS1()->GetLight(), mgr);
     }
-    if (projectile.GetWeaponDescription()->xa8_PJFX >= 0) {
+    if (projectile.GetWeaponDescription()->mPJFX >= 0) {
       float range = 50.f;
       float falloff = 0.2f;
-      if (projectile.GetWeaponDescription()->xac_RNGE) {
-        projectile.GetWeaponDescription()->xac_RNGE->GetValue(0, range);
+      if (projectile.GetWeaponDescription()->mRNGE) {
+        projectile.GetWeaponDescription()->mRNGE->GetValue(0, range);
       }
-      if (projectile.GetWeaponDescription()->xb0_FOFF) {
-        projectile.GetWeaponDescription()->xb0_FOFF->GetValue(0, falloff);
+      if (projectile.GetWeaponDescription()->mFOFF) {
+        projectile.GetWeaponDescription()->mFOFF->GetValue(0, falloff);
       }
       CAudioSys::C3DEmitterParmData parms(range, falloff, 9, 255, 20);
-      parms.x0_pos = GetProjectile().GetTranslation();
-      parms.xc_dir = GetProjectile().GetVelocity();
-      parms.x24_sfxId =
-          CSfxManager::TranslateSFXID(GetProjectile().GetWeaponDescription()->xa8_PJFX);
-      x2e8_sfx = CSfxManager::AddEmitter(parms, true, CSfxManager::kMedPriority, true);
+      parms.mPos = GetProjectile().GetTranslation();
+      parms.mDir = GetProjectile().GetVelocity();
+      parms.mSfxId =
+          CSfxManager::TranslateSFXID(GetProjectile().GetWeaponDescription()->mPJFX);
+      mSfx = CSfxManager::AddEmitter(parms, true, CSfxManager::kMedPriority, true);
     }
     mgr.AddWeaponId(GetOwnerId(), GetType());
     break;
@@ -382,8 +382,8 @@ void CEnergyProjectile::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid,
 
 void CEnergyProjectile::ChangeProjectileOwner(TUniqueId owner, CStateManager& mgr) {
   if (const CActor* actor = TCastToConstPtr< CActor >(mgr.GetObjectById(owner))) {
-    x110_origDamageInfo.MultiplyDamageAndRadius(
-        gpTweakPlayerGun->GetRichochetDamage(x110_origDamageInfo.GetWeaponMode().GetType()));
+    mOrigDamageInfo.MultiplyDamageAndRadius(
+        gpTweakPlayerGun->GetRichochetDamage(mOrigDamageInfo.GetWeaponMode().GetType()));
     mgr.RemoveWeaponId(GetOwnerId(), GetType());
     SetOwnerId(owner);
     mgr.AddWeaponId(owner, GetType());
@@ -402,16 +402,16 @@ void CEnergyProjectile::PlayImpactSound(const CVector3f& pos, EWeaponCollisionRe
     const float range = projectile.GetAudibleRange();
     const float falloff = projectile.GetAudibleFallOff();
     CAudioSys::C3DEmitterParmData parms(range, falloff, 1, CAudioSys::kMaxVolume, 20);
-    parms.x0_pos = pos;
-    parms.x24_sfxId = CSfxManager::TranslateSFXID(static_cast< ushort >(sfx));
+    parms.mPos = pos;
+    parms.mSfxId = CSfxManager::TranslateSFXID(static_cast< ushort >(sfx));
     const CSfxHandle handle = CSfxManager::AddEmitter(parms, true);
-    if (x2e4_26_waterUpdate) {
+    if (mWaterUpdate) {
       CSfxManager::PitchBend(handle, 0);
     }
   }
 }
 
 void CEnergyProjectile::SetCameraShake(const CCameraShakeData& data) {
-  x2fc_camShake = data;
-  x3d0_27_camShakeDirty = true;
+  mCamShake = data;
+  mCamShakeDirty = true;
 }

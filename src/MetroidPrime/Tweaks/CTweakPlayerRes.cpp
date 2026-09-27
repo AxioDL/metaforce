@@ -12,6 +12,14 @@ static inline CAssetId get_asset_id_from_name(const char* name) {
   return id;
 }
 
+static inline rstl::reserved_vector< CAssetId, 9 > read_map_icons(CInputStream& in) {
+  rstl::reserved_vector< CAssetId, 9 > ids;
+  for (int i = 0; i < 9; ++i) {
+    ids.push_back(get_asset_id_from_name(rstl::string(in).c_str()));
+  }
+  return ids;
+}
+
 template < int N >
 inline rstl::reserved_vector< CAssetId, N > read_asset_ids(CInputStream& in) {
   rstl::reserved_vector< CAssetId, N > ids;
@@ -22,50 +30,54 @@ inline rstl::reserved_vector< CAssetId, N > read_asset_ids(CInputStream& in) {
 }
 
 CTweakPlayerRes::CTweakPlayerRes(CInputStream& in)
-: x4_saveStationIcon(get_asset_id_from_name(rstl::string(in).c_str()))
-, x8_missileStationIcon(get_asset_id_from_name(rstl::string(in).c_str()))
-, xc_elevatorIcon(get_asset_id_from_name(rstl::string(in).c_str()))
-, x10_minesBreakFirstTopIcon(get_asset_id_from_name(rstl::string(in).c_str()))
-, x14_minesBreakFirstBottomIcon(get_asset_id_from_name(rstl::string(in).c_str()))
-, x18_minesBreakSecondTopIcon(get_asset_id_from_name(rstl::string(in).c_str()))
-, x1c_minesBreakSecondBottomIcon(get_asset_id_from_name(rstl::string(in).c_str()))
-, x20_lStick(read_asset_ids< 9 >(in))
-, x48_cStick(read_asset_ids< 9 >(in))
-, x70_lTrigger(read_asset_ids< 2 >(in))
-, x7c_rTrigger(read_asset_ids< 2 >(in))
-, x88_startButton(read_asset_ids< 2 >(in))
-, x94_aButton(read_asset_ids< 2 >(in))
-, xa0_bButton(read_asset_ids< 2 >(in))
-, xac_xButton(read_asset_ids< 2 >(in))
-, xb8_yButton(read_asset_ids< 2 >(in))
-, xc4_ballTransitionsANCS(0)
-, xf0_cinematicMoveOutofIntoPlayerDistance(5.f) {
-  memset(xc8_ballTransitions, 0, sizeof(xc8_ballTransitions));
-  memset(xdc_cineGun, 0, sizeof(xdc_cineGun));
+#if VERSION >= VERSION_GM8P_00
+: mMapIcons(read_map_icons(in))
+#else
+: mSaveStationIcon(get_asset_id_from_name(rstl::string(in).c_str()))
+, mMissileStationIcon(get_asset_id_from_name(rstl::string(in).c_str()))
+, mElevatorIcon(get_asset_id_from_name(rstl::string(in).c_str()))
+, mMinesBreakFirstTopIcon(get_asset_id_from_name(rstl::string(in).c_str()))
+, mMinesBreakFirstBottomIcon(get_asset_id_from_name(rstl::string(in).c_str()))
+, mMinesBreakSecondTopIcon(get_asset_id_from_name(rstl::string(in).c_str()))
+, mMinesBreakSecondBottomIcon(get_asset_id_from_name(rstl::string(in).c_str()))
+#endif
+, mLStick(read_asset_ids< 9 >(in))
+, mCStick(read_asset_ids< 9 >(in))
+, mLTrigger(read_asset_ids< 2 >(in))
+, mRTrigger(read_asset_ids< 2 >(in))
+, mStartButton(read_asset_ids< 2 >(in))
+, mAButton(read_asset_ids< 2 >(in))
+, mBButton(read_asset_ids< 2 >(in))
+, mXButton(read_asset_ids< 2 >(in))
+, mYButton(read_asset_ids< 2 >(in))
+, mBallTransitionsANCS(0)
+, mCinematicMoveOutofIntoPlayerDistance(5.f) {
+  memset(mBallTransitions, 0, sizeof(mBallTransitions));
+  memset(mCineGun, 0, sizeof(mCineGun));
 
   const rstl::string ballTransitions(in);
-  xc4_ballTransitionsANCS = get_asset_id_from_name(ballTransitions.c_str());
+  mBallTransitionsANCS = get_asset_id_from_name(ballTransitions.c_str());
   for (int i = 0; i < 5; ++i) {
     const rstl::string name(in);
-    xc8_ballTransitions[i] = get_asset_id_from_name(name.c_str());
+    mBallTransitions[i] = get_asset_id_from_name(name.c_str());
   }
   for (int i = 0; i < 5; ++i) {
     const rstl::string name(in);
-    xdc_cineGun[i] = get_asset_id_from_name(name.c_str());
+    mCineGun[i] = get_asset_id_from_name(name.c_str());
   }
-  xf0_cinematicMoveOutofIntoPlayerDistance = in.ReadFloat();
+  mCinematicMoveOutofIntoPlayerDistance = in.ReadFloat();
 }
 
 CAssetId CTweakPlayerRes::GetBallTransitionBeamResId(CPlayerState::EBeamId id) const {
   if (id < CPlayerState::kBI_Power || id > CPlayerState::kBI_Phazon) {
-    return xc8_ballTransitions[0];
+    return mBallTransitions[0];
   }
-  return xc8_ballTransitions[id];
+  return mBallTransitions[id];
 }
 
 CAssetId CTweakPlayerRes::GetCinematicBeamResId(CPlayerState::EBeamId id) const {
   if (id < CPlayerState::kBI_Power || id > CPlayerState::kBI_Phazon) {
-    return xdc_cineGun[0];
+    return mCineGun[0];
   }
-  return xdc_cineGun[id];
+  return mCineGun[id];
 }

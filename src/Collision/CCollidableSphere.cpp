@@ -254,8 +254,8 @@ CCollidableSphere::CastRayInternal(const CInternalRayCastStructure& internalRayC
 }
 
 CAABox CCollidableSphere::CalculateAABox(const CTransform4f& xf) const {
-  const float radius = x10_sphere.GetRadius();
-  CVector3f xfPos = xf * x10_sphere.GetCenter();
+  const float radius = mSphere.GetRadius();
+  CVector3f xfPos = xf * mSphere.GetCenter();
   const float x = xfPos.GetX();
   const float y = xfPos.GetY();
   const float z = xfPos.GetZ();
@@ -264,8 +264,8 @@ CAABox CCollidableSphere::CalculateAABox(const CTransform4f& xf) const {
 }
 
 CAABox CCollidableSphere::CalculateLocalAABox() const {
-  const float radius = x10_sphere.GetRadius();
-  CVector3f xfPos = x10_sphere.GetCenter();
+  const float radius = mSphere.GetRadius();
+  CVector3f xfPos = mSphere.GetCenter();
   const float x = xfPos.GetX();
   const float y = xfPos.GetY();
   const float z = xfPos.GetZ();
@@ -276,8 +276,8 @@ CAABox CCollidableSphere::CalculateLocalAABox() const {
 FourCC CCollidableSphere::GetPrimType() const { return 'SPHR'; }
 
 CSphere CCollidableSphere::Transform(const CTransform4f& xf) const {
-  const float radius = x10_sphere.GetRadius();
-  const CVector3f xfPos = xf * x10_sphere.GetCenter();
+  const float radius = mSphere.GetRadius();
+  const CVector3f xfPos = xf * mSphere.GetCenter();
 
   return CSphere(xfPos, radius);
 }

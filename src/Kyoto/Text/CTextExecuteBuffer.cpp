@@ -22,92 +22,92 @@
 #include "rstl/math.hpp"
 
 CTextExecuteBuffer::CTextExecuteBuffer()
-: xa0_curBlock(nullptr)
-, xa4_curLine(nullptr)
-, xa8_curWordIt(x0_instructions.end())
-, xb4_curWordX(0)
-, xb8_curWordY(0)
-, xbc_spaceDistance(0)
-, xc0_imageBaseline(false) {}
+: mCurBlock(nullptr)
+, mCurLine(nullptr)
+, mCurWordIt(mInstructions.end())
+, mCurWordX(0)
+, mCurWordY(0)
+, mSpaceDistance(0)
+, mImageBaseline(false) {}
 
 void CTextExecuteBuffer::Clear() {
-  x0_instructions.clear();
-  x18_state = CSaveableState();
-  xa0_curBlock = nullptr;
-  xa4_curLine = nullptr;
-  xa8_curWordIt = x0_instructions.end();
-  xb4_curWordX = 0;
-  xb8_curWordY = 0;
-  xbc_spaceDistance = 0;
+  mInstructions.clear();
+  mState = CSaveableState();
+  mCurBlock = nullptr;
+  mCurLine = nullptr;
+  mCurWordIt = mInstructions.end();
+  mCurWordX = 0;
+  mCurWordY = 0;
+  mSpaceDistance = 0;
 }
 
 void CTextExecuteBuffer::BeginBlock(int x, int y, int width, int height, bool imageBaseline,
                                     ETextDirection dir, EJustification just,
                                     EVerticalJustification vjust) {
-  xc0_imageBaseline = imageBaseline;
+  mImageBaseline = imageBaseline;
   const rstl::ncrc_ptr< CInstruction > instruction =
       rs_new CBlockInstruction(x, y, width, height, dir, just, vjust);
-  xa0_curBlock = static_cast< CBlockInstruction* >(instruction.GetPtr());
-  if (x18_state.IsFinishedLoading()) {
-    xa0_curBlock->TestLargestFont((*x18_state.GetFont())->GetMonoWidth(),
-                                  (*x18_state.GetFont())->GetCarriageAdvance(),
-                                  (*x18_state.GetFont())->GetBaseLine());
+  mCurBlock = static_cast< CBlockInstruction* >(instruction.GetPtr());
+  if (mState.IsFinishedLoading()) {
+    mCurBlock->TestLargestFont((*mState.GetFont())->GetMonoWidth(),
+                                  (*mState.GetFont())->GetCarriageAdvance(),
+                                  (*mState.GetFont())->GetBaseLine());
   }
   Add(instruction);
-  x18_state.GetOptions().SetTextDirection(dir);
-  x18_state.SetJustification(just);
-  x18_state.SetVerticalJustification(vjust);
+  mState.GetOptions().SetTextDirection(dir);
+  mState.SetJustification(just);
+  mState.SetVerticalJustification(vjust);
 }
 
 void CTextExecuteBuffer::EndBlock() {
-  if (xa4_curLine) {
+  if (mCurLine) {
     TerminateLine();
   }
-  xa4_curLine = nullptr;
-  xa0_curBlock = nullptr;
+  mCurLine = nullptr;
+  mCurBlock = nullptr;
 }
 
 void CTextExecuteBuffer::AddFont(const TToken< CRasterFont >& font) {
   const rstl::ncrc_ptr< CInstruction > instruction = rs_new CFontInstruction(font);
   Add(instruction);
-  x18_state.SetFont(font);
+  mState.SetFont(font);
   if (font.IsLoaded()) {
-    if (xa0_curBlock) {
-      xa0_curBlock->TestLargestFont((*x18_state.GetFont())->GetMonoWidth(),
-                                    (*x18_state.GetFont())->GetCarriageAdvance(),
-                                    (*x18_state.GetFont())->GetBaseLine());
+    if (mCurBlock) {
+      mCurBlock->TestLargestFont((*mState.GetFont())->GetMonoWidth(),
+                                    (*mState.GetFont())->GetCarriageAdvance(),
+                                    (*mState.GetFont())->GetBaseLine());
     }
-    if (xa4_curLine) {
-      xa4_curLine->TestLargestFont((*x18_state.GetFont())->GetMonoWidth(),
-                                   (*x18_state.GetFont())->GetCarriageAdvance(),
-                                   (*x18_state.GetFont())->GetBaseLine());
+    if (mCurLine) {
+      mCurLine->TestLargestFont((*mState.GetFont())->GetMonoWidth(),
+                                   (*mState.GetFont())->GetCarriageAdvance(),
+                                   (*mState.GetFont())->GetBaseLine());
     }
   }
 }
 
 void CTextExecuteBuffer::AddImage(const CFontImageDef& image) {
-  if (!xa4_curLine) {
+  if (!mCurLine) {
     StartNewLine();
   }
-  if (xa0_curBlock && image.IsLoaded()) {
-    bool wrap = x18_state.x7c_enableWordWrap;
+  if (mCurBlock && image.IsLoaded()) {
+    bool wrap = mState.mEnableWordWrap;
     if (wrap) {
-      const int width = xa4_curLine->GetWidth() + image.GetWidth();
-      wrap = width > xa0_curBlock->GetOutputWidth();
+      const int width = mCurLine->GetWidth() + image.GetWidth();
+      wrap = width > mCurBlock->GetOutputWidth();
     }
     if (wrap) {
-      wrap = xa4_curLine->GetWordCount() > 1;
+      wrap = mCurLine->GetWordCount() > 1;
     }
     if (wrap) {
       StartNewLine();
     }
     // For PAL only, using GetHeight instead of GetMonoHeight improves the match, but not fully
-    xa4_curLine->TestLargestImage(image.GetMonoWidth(), image.GetMonoHeight(),
+    mCurLine->TestLargestImage(image.GetMonoWidth(), image.GetMonoHeight(),
                                   image.CalculateBaseline());
-    if (xa0_curBlock->GetTextDirection() == kTD_Horizontal) {
-      xa4_curLine->AddWidth(image.GetWidth());
-      if (xa4_curLine->GetWidth() > image.GetWidth()) {
-        xa0_curBlock->SetWidth(xa4_curLine->GetWidth());
+    if (mCurBlock->GetTextDirection() == kTD_Horizontal) {
+      mCurLine->AddWidth(image.GetWidth());
+      if (mCurLine->GetWidth() > image.GetWidth()) {
+        mCurBlock->SetWidth(mCurLine->GetWidth());
       }
     }
   }
@@ -133,116 +133,116 @@ void CTextExecuteBuffer::AddRemoveColorOverride(int idx) {
 void CTextExecuteBuffer::AddLineSpacing(float spacing) {
   const rstl::ncrc_ptr< CInstruction > instruction = rs_new CLineSpacingInstruction(spacing);
   Add(instruction);
-  x18_state.SetLineSpacing(spacing);
+  mState.SetLineSpacing(spacing);
 }
 
 void CTextExecuteBuffer::AddLineExtraSpace(int space) {
   const rstl::ncrc_ptr< CInstruction > instruction = rs_new CLineExtraSpaceInstruction(space);
   Add(instruction);
-  x18_state.SetLineExtraSpace(space);
+  mState.SetLineExtraSpace(space);
 }
 
 void CTextExecuteBuffer::AddJustification(EJustification just) {
-  x18_state.SetJustification(just);
-  if (xa4_curLine && xa4_curLine->GetWidth() == 0) {
-    xa4_curLine->SetJustification(just);
+  mState.SetJustification(just);
+  if (mCurLine && mCurLine->GetWidth() == 0) {
+    mCurLine->SetJustification(just);
   }
 }
 
 void CTextExecuteBuffer::AddVerticalJustification(EVerticalJustification just) {
-  x18_state.SetVerticalJustification(just);
-  if (xa4_curLine && xa4_curLine->GetWidth() == 0) {
-    xa4_curLine->SetVerticalJustification(just);
+  mState.SetVerticalJustification(just);
+  if (mCurLine && mCurLine->GetWidth() == 0) {
+    mCurLine->SetVerticalJustification(just);
   }
 }
 
 void CTextExecuteBuffer::AddPushState() {
   const rstl::ncrc_ptr< CInstruction > instruction = rs_new CPushStateInstruction();
   Add(instruction);
-  xc4_stateStack.push_front(x18_state);
+  mStateStack.push_front(mState);
 }
 
 void CTextExecuteBuffer::AddPopState() {
   const rstl::ncrc_ptr< CInstruction > instruction = rs_new CPopStateInstruction();
   Add(instruction);
-  x18_state = xc4_stateStack.front();
-  xc4_stateStack.pop_front();
-  if (xa4_curLine->GetWidth() == 0) {
-    xa4_curLine->SetJustification(x18_state.GetJustification());
-    xa4_curLine->SetVerticalJustification(x18_state.GetVerticalJustification());
+  mState = mStateStack.front();
+  mStateStack.pop_front();
+  if (mCurLine->GetWidth() == 0) {
+    mCurLine->SetJustification(mState.GetJustification());
+    mCurLine->SetVerticalJustification(mState.GetVerticalJustification());
   }
 }
 
 void CTextExecuteBuffer::TerminateLineLTR() {
-  if (xa4_curLine->GetY() == 0 && x18_state.IsFinishedLoading()) {
-    xa4_curLine->SetHeight(
-        rstl::max_val((*x18_state.GetFont())->GetCarriageAdvance(), xa4_curLine->GetHeight()));
+  if (mCurLine->GetY() == 0 && mState.IsFinishedLoading()) {
+    mCurLine->SetHeight(
+        rstl::max_val((*mState.GetFont())->GetCarriageAdvance(), mCurLine->GetHeight()));
   }
-  xa0_curBlock->AddHeight(
-      xa0_curBlock->GetVerticalJustification() == kVerticalJustification_Full
-          ? xa4_curLine->GetY()
-          : x18_state.GetLineExtraSpacing() +
-                static_cast< int >(xa4_curLine->GetY() * x18_state.GetLineSpacing()));
+  mCurBlock->AddHeight(
+      mCurBlock->GetVerticalJustification() == kVerticalJustification_Full
+          ? mCurLine->GetY()
+          : mState.GetLineExtraSpacing() +
+                static_cast< int >(mCurLine->GetY() * mState.GetLineSpacing()));
 }
 
 void CTextExecuteBuffer::TerminateLine() {
-  if (xa0_curBlock->GetTextDirection() == kTD_Horizontal) {
+  if (mCurBlock->GetTextDirection() == kTD_Horizontal) {
     TerminateLineLTR();
   }
 }
 
 void CTextExecuteBuffer::StartNewWord() {
   const rstl::ncrc_ptr< CInstruction > instruction = rs_new CWordInstruction();
-  xa8_curWordIt = Add(instruction);
-  xb0_curX = 0;
-  xac_curY = 0;
-  xb4_curWordX = xa4_curLine->GetWidth();
-  xb8_curWordY = xa4_curLine->GetY();
-  xa4_curLine->IncWords();
+  mCurWordIt = Add(instruction);
+  mCurX = 0;
+  mCurY = 0;
+  mCurWordX = mCurLine->GetWidth();
+  mCurWordY = mCurLine->GetY();
+  mCurLine->IncWords();
 }
 
 void CTextExecuteBuffer::StartNewLine() {
-  if (xa4_curLine) {
+  if (mCurLine) {
     TerminateLine();
   }
   const rstl::ncrc_ptr< CInstruction > instruction =
       rstl::ncrc_ptr< CInstruction >(rs_new CLineInstruction(
-          0, 0, 0, xc0_imageBaseline, x18_state.GetJustification(), x18_state.GetVerticalJustification()));
-  xa8_curWordIt = Add(instruction);
-  xa4_curLine = static_cast< CLineInstruction* >(instruction.GetPtr());
-  xbc_spaceDistance = 0;
+          0, 0, 0, mImageBaseline, mState.GetJustification(), mState.GetVerticalJustification()));
+  mCurWordIt = Add(instruction);
+  mCurLine = static_cast< CLineInstruction* >(instruction.GetPtr());
+  mSpaceDistance = 0;
   StartNewWord();
-  xa0_curBlock->IncLines();
+  mCurBlock->IncLines();
 }
 
 void CTextExecuteBuffer::MoveWordLTR() {
-  xa4_curLine->SubWidth(xb0_curX + xbc_spaceDistance);
-  if (xa4_curLine->GetY() > xb8_curWordY) {
-    xa4_curLine->SetHeight(xb8_curWordY);
+  mCurLine->SubWidth(mCurX + mSpaceDistance);
+  if (mCurLine->GetY() > mCurWordY) {
+    mCurLine->SetHeight(mCurWordY);
   }
-  xbc_spaceDistance = 0;
-  xa4_curLine->DecWords();
+  mSpaceDistance = 0;
+  mCurLine->DecWords();
   TerminateLineLTR();
   const rstl::ncrc_ptr< CInstruction > instruction =
-      rs_new CLineInstruction(1, xb0_curX, xac_curY, xc0_imageBaseline, x18_state.GetJustification(),
-                              x18_state.GetVerticalJustification());
-  xa4_curLine = static_cast< CLineInstruction* >(instruction.GetPtr());
-  x0_instructions.insert(xa8_curWordIt, instruction);
-  x0_instructions.insert(xa8_curWordIt, rs_new CWordInstruction());
-  xa0_curBlock->IncLines();
+      rs_new CLineInstruction(1, mCurX, mCurY, mImageBaseline, mState.GetJustification(),
+                              mState.GetVerticalJustification());
+  mCurLine = static_cast< CLineInstruction* >(instruction.GetPtr());
+  mInstructions.insert(mCurWordIt, instruction);
+  mInstructions.insert(mCurWordIt, rs_new CWordInstruction());
+  mCurBlock->IncLines();
 }
 
 int CTextExecuteBuffer::WrapOneLTR(const wchar_t* str, int len) {
   int rem = len;
-  if (x18_state.IsFinishedLoading()) {
+  if (mState.IsFinishedLoading()) {
     int width, height;
-    (*x18_state.GetFont())->GetSize(x18_state.GetOptions(), width, height, str, len);
-    if (x18_state.IsWordWrapping()) {
-      if (width + xa4_curLine->GetWidth() > xa0_curBlock->GetOutputWidth() &&
-          xa4_curLine->GetWordCount() > 1 && xb0_curX + width < xa0_curBlock->GetOutputWidth()) {
+    (*mState.GetFont())->GetSize(mState.GetOptions(), width, height, str, len);
+    if (mState.IsWordWrapping()) {
+      if (width + mCurLine->GetWidth() > mCurBlock->GetOutputWidth() &&
+          mCurLine->GetWordCount() > 1 && mCurX + width < mCurBlock->GetOutputWidth()) {
         MoveWordLTR();
       }
-      if (width + xa4_curLine->GetWidth() > xa0_curBlock->GetOutputWidth() && len > 1) {
+      if (width + mCurLine->GetWidth() > mCurBlock->GetOutputWidth() && len > 1) {
         int rank = 5;
         do {
           --rem;
@@ -253,22 +253,22 @@ int CTextExecuteBuffer::WrapOneLTR(const wchar_t* str, int len) {
           } else if (beginRank < rank && beginRank <= endRank) {
             rank = endRank;
           } else {
-            (*x18_state.GetFont())->GetSize(x18_state.GetOptions(), width, height, str, rem);
+            (*mState.GetFont())->GetSize(mState.GetOptions(), width, height, str, rem);
           }
-        } while (width + xa4_curLine->GetWidth() > xa0_curBlock->GetOutputWidth() && rem > 1);
+        } while (width + mCurLine->GetWidth() > mCurBlock->GetOutputWidth() && rem > 1);
       }
     }
-    if ((*x18_state.GetFont())->GetCarriageAdvance() > xac_curY) {
-      xac_curY = (*x18_state.GetFont())->GetCarriageAdvance();
+    if ((*mState.GetFont())->GetCarriageAdvance() > mCurY) {
+      mCurY = (*mState.GetFont())->GetCarriageAdvance();
     }
-    xa4_curLine->TestLargestFont((*x18_state.GetFont())->GetMonoWidth(),
-                                 (*x18_state.GetFont())->GetCarriageAdvance(),
-                                 (*x18_state.GetFont())->GetBaseLine());
-    xa4_curLine->AddWidth(width);
-    if (xa4_curLine->GetWidth() > xa0_curBlock->GetLineX()) {
-      xa0_curBlock->SetWidth(xa4_curLine->GetWidth());
+    mCurLine->TestLargestFont((*mState.GetFont())->GetMonoWidth(),
+                                 (*mState.GetFont())->GetCarriageAdvance(),
+                                 (*mState.GetFont())->GetBaseLine());
+    mCurLine->AddWidth(width);
+    if (mCurLine->GetWidth() > mCurBlock->GetLineX()) {
+      mCurBlock->SetWidth(mCurLine->GetWidth());
     }
-    xb0_curX += width;
+    mCurX += width;
     const rstl::ncrc_ptr< CInstruction > instruction = CTextInstruction::Create(str, rem);
     Add(instruction);
     if (rem != len) {
@@ -280,7 +280,7 @@ int CTextExecuteBuffer::WrapOneLTR(const wchar_t* str, int len) {
 
 void CTextExecuteBuffer::AddStringFragment(const wchar_t* str, int len) {
   int i = 0;
-  if (xa0_curBlock->GetTextDirection() == kTD_Horizontal) {
+  if (mCurBlock->GetTextDirection() == kTD_Horizontal) {
     while (i != len) {
       i += WrapOneLTR(str + i, len - i);
     }
@@ -288,7 +288,7 @@ void CTextExecuteBuffer::AddStringFragment(const wchar_t* str, int len) {
 }
 
 void CTextExecuteBuffer::AddString(const wchar_t* str, int len) {
-  if (!xa4_curLine) {
+  if (!mCurLine) {
     StartNewLine();
   }
   int wordStart = 0;
@@ -303,16 +303,16 @@ void CTextExecuteBuffer::AddString(const wchar_t* str, int len) {
         StartNewWord();
         int width = 0;
         int height = 0;
-        if (x18_state.IsFinishedLoading()) {
+        if (mState.IsFinishedLoading()) {
           wchar_t space = L' ';
-          (*x18_state.GetFont())->GetSize(x18_state.GetOptions(), width, height, &space, 1);
+          (*mState.GetFont())->GetSize(mState.GetOptions(), width, height, &space, 1);
         }
-        if (xa0_curBlock->GetTextDirection() == kTD_Horizontal) {
-          xa4_curLine->AddWidth(width);
-          xbc_spaceDistance = width;
+        if (mCurBlock->GetTextDirection() == kTD_Horizontal) {
+          mCurLine->AddWidth(width);
+          mSpaceDistance = width;
         } else {
-          xa4_curLine->AddHeight(height);
-          xbc_spaceDistance = height;
+          mCurLine->AddHeight(height);
+          mSpaceDistance = height;
         }
       }
     }
@@ -324,13 +324,13 @@ void CTextExecuteBuffer::AddString(const wchar_t* str, int len) {
 
 rstl::vector< CToken > CTextExecuteBuffer::GetAssets() const {
   int count = 0;
-  for (AUTO(it, x0_instructions.begin()); it != x0_instructions.end(); ++it) {
+  for (AUTO(it, mInstructions.begin()); it != mInstructions.end(); ++it) {
     count += (*it)->GetAssetCount();
   }
   rstl::vector< CToken > assets;
   if (count > 0) {
     assets.reserve(count);
-    for (AUTO(it, x0_instructions.begin()); it != x0_instructions.end(); ++it) {
+    for (AUTO(it, mInstructions.begin()); it != mInstructions.end(); ++it) {
       (*it)->GetAssets(assets);
     }
   }
@@ -341,14 +341,14 @@ CTextRenderBuffer CTextExecuteBuffer::BuildRenderBuffer() const {
   CTextRenderBuffer buffer(CTextRenderBuffer::kM_AllocTally);
   {
     CFontRenderState state;
-    for (AUTO(it, x0_instructions.begin()); it != x0_instructions.end(); ++it) {
+    for (AUTO(it, mInstructions.begin()); it != mInstructions.end(); ++it) {
       (*it)->Invoke(state, &buffer);
     }
   }
   buffer.SetMode(CTextRenderBuffer::kM_BufferFill);
   {
     CFontRenderState state;
-    for (AUTO(it, x0_instructions.begin()); it != x0_instructions.end(); ++it) {
+    for (AUTO(it, mInstructions.begin()); it != mInstructions.end(); ++it) {
       (*it)->Invoke(state, &buffer);
     }
   }
@@ -384,12 +384,12 @@ CTextRenderBuffer CTextExecuteBuffer::BuildRenderBufferPage(InstList::const_iter
 rstl::list< CTextRenderBuffer >
 CTextExecuteBuffer::BuildRenderBufferPages(const CVector2i& extent) const {
   rstl::list< CTextRenderBuffer > pages;
-  InstList::const_iterator it = x0_instructions.begin();
-  while (it != x0_instructions.end()) {
+  InstList::const_iterator it = mInstructions.begin();
+  while (it != mInstructions.end()) {
     CTextRenderBuffer buffer(CTextRenderBuffer::kM_AllocTally);
     {
       CFontRenderState state;
-      for (AUTO(it2, x0_instructions.begin()); it2 != x0_instructions.end(); ++it2) {
+      for (AUTO(it2, mInstructions.begin()); it2 != mInstructions.end(); ++it2) {
         (*it2)->Invoke(state, &buffer);
       }
     }
@@ -397,7 +397,7 @@ CTextExecuteBuffer::BuildRenderBufferPages(const CVector2i& extent) const {
     CFontRenderState state;
     InstList::const_iterator pageEnd = it;
     bool seeking = true;
-    for (AUTO(it2, x0_instructions.begin()); it2 != x0_instructions.end(); ++it2) {
+    for (AUTO(it2, mInstructions.begin()); it2 != mInstructions.end(); ++it2) {
       if (it2 == it) {
         seeking = false;
       }
@@ -411,7 +411,7 @@ CTextExecuteBuffer::BuildRenderBufferPages(const CVector2i& extent) const {
         ++pageEnd;
       }
     }
-    pages.push_back(BuildRenderBufferPage(x0_instructions.begin(), it, pageEnd));
+    pages.push_back(BuildRenderBufferPage(mInstructions.begin(), it, pageEnd));
     it = pageEnd;
   }
   return pages;

@@ -24,10 +24,10 @@ public:
   rstl::pair< float, int > FindBestAnimation(const rstl::reserved_vector< CPASAnimParm, 8 >& parms,
                                              CRandom16& random, int ignoreAnim) const;
 
-  pas::EAnimationState GetStateId() const { return x0_id; }
-  bool HasAnims() const { return static_cast< uint >(x14_anims.size()) != 0; }
+  pas::EAnimationState GetStateId() const { return mId; }
+  bool HasAnims() const { return static_cast< uint >(mAnims.size()) != 0; }
 
-  bool operator<(const CPASAnimState& rhs) const { return x0_id < rhs.x0_id; }
+  bool operator<(const CPASAnimState& rhs) const { return mId < rhs.mId; }
 
 private:
   float ComputeExactMatchWeight(uint idx, const CPASAnimParm& parm,
@@ -38,10 +38,10 @@ private:
                                          CPASAnimParm::UParmValue value) const;
   int PickRandomAnimation(CRandom16& random) const;
 
-  pas::EAnimationState x0_id;
-  rstl::vector< CPASParmInfo > x4_parms;
-  rstl::vector< CPASAnimInfo > x14_anims;
-  mutable rstl::vector< int > x24_selectionCache;
+  pas::EAnimationState mId;
+  rstl::vector< CPASParmInfo > mParms;
+  rstl::vector< CPASAnimInfo > mAnims;
+  mutable rstl::vector< int > mSelectionCache;
 };
 CHECK_SIZEOF(CPASAnimState, 0x34)
 

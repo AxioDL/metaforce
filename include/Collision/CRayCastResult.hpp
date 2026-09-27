@@ -18,31 +18,31 @@ public:
   };
   CRayCastResult(const float time, const CVector3f& point, const CPlane& plane,
                  const CMaterialList& list)
-  : x0_time(time), x4_point(point), x10_plane(plane), x20_valid(kI_Valid), x28_material(list) {}
+  : mTime(time), mPoint(point), mPlane(plane), mValid(kI_Valid), mMaterial(list) {}
   CRayCastResult(const EInvalid = kI_Invalid)
-  : x0_time(0)
-  , x4_point(0.f, 0.f, 0.f)
-  , x10_plane(0.f, CUnitVector3f(CVector3f(1.f, 0.f, 0.f), CUnitVector3f::kN_Yes))
-  , x20_valid(kI_Invalid) {}
+  : mTime(0)
+  , mPoint(0.f, 0.f, 0.f)
+  , mPlane(0.f, CUnitVector3f(CVector3f(1.f, 0.f, 0.f), CUnitVector3f::kN_Yes))
+  , mValid(kI_Invalid) {}
 
-  float GetTime() const { return x0_time; }
-  const CVector3f& GetPoint() const { return x4_point; }
-  const CPlane& GetPlane() const { return x10_plane; }
-  const bool IsValid() const { return x20_valid; }
-  bool GetValid() const { return x20_valid; }
+  float GetTime() const { return mTime; }
+  const CVector3f& GetPoint() const { return mPoint; }
+  const CPlane& GetPlane() const { return mPlane; }
+  const bool IsValid() const { return mValid; }
+  bool GetValid() const { return mValid; }
   // TODO: figure out what's going on here
-  bool IsInvalid() const { return x20_valid == kI_Invalid; }
-  const CMaterialList& GetMaterial() const { return x28_material; }
+  bool IsInvalid() const { return mValid == kI_Invalid; }
+  const CMaterialList& GetMaterial() const { return mMaterial; }
   void Transform(const CTransform4f& xf);
 
   static CRayCastResult MakeInvalid() { return CRayCastResult(); }
 
 private:
-  float x0_time;
-  CVector3f x4_point;
-  CPlane x10_plane;
-  bool x20_valid;
-  CMaterialList x28_material;
+  float mTime;
+  CVector3f mPoint;
+  CPlane mPlane;
+  bool mValid;
+  CMaterialList mMaterial;
 };
 
 CHECK_SIZEOF(CRayCastResult, 0x30)

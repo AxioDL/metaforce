@@ -32,9 +32,9 @@ VERSIONS = [
     "GM8E01_00",  # mp-v1.088 NTSC-U
     "GM8E01_01",  # mp-v1.093 NTSC-U
     "GM8E01_48",  # mp-v1.097 NTSC-K
+    "GM8E01_02",  # mp-v1.111 NTSC-U
     "GM8P01_00",  # mp-v1.110 PAL
     "GM8J01_00",  # mp-v1.111 NTSC-J
-    "GM8E01_02",  # mp-v1.111 NTSC-U
     "R3IJ01_00",  # mp-v3.570 New Play Controls
     "R3ME01_00",  # mp-v3.593 Trilogy NTSC
     "R3MP01_00",  # mp-v3.629 Trilogy PAL
@@ -43,9 +43,9 @@ RSTL_VERSIONS = {
     "GM8E01_00": 0,
     "GM8E01_01": 1,
     "GM8E01_48": 2,
-    "GM8P01_00": 3,
-    "GM8J01_00": 4,
-    "GM8E01_02": 5,
+    "GM8E01_02": 3,
+    "GM8P01_00": 4,
+    "GM8J01_00": 5,
     "R3IJ01_00": 30,
     "R3ME01_00": 40,
     "R3MP01_00": 41,
@@ -58,7 +58,7 @@ DISABLED_VERSIONS = [
     # 4,
     # 5,
     6,
-    7,
+    # 7,
     8,
 ]
 
@@ -307,7 +307,7 @@ cflags_retro = [
     "-i include",
     "-i extern/sdk/include",
     "-i extern/sdk/libc",
-    "-i extern/zlib-1.1.3",
+    "-i extern/zlib",
     f"-i build/{config.version}/include",
     f"-DVERSION={version_num}",
     f"-DRSTL_VERSION={RSTL_VERSIONS[config.version]}",
@@ -316,17 +316,23 @@ cflags_retro = [
     "-use_lmw_stmw on",
     "-str reuse,pool,readonly",
     "-gccinc",
-    "-inline deferred",
-    "-common on",
+    "-inline deferred" if version_num < VERSIONS.index("R3IJ01_00") else "-inline noauto,nobottomup,level=8",
+    "-common on" if version_num < VERSIONS.index("R3IJ01_00") else "-common off",
     "-i extern/musyx/include",
     "-i extern/rstl/include",
     # "-sym on",
     "-DMUSY_TARGET=MUSY_TARGET_DOLPHIN",
 ]
 
+if version_num >= VERSIONS.index("R3IJ01_00"):
+    cflags_retro.extend([
+        "-sdata 4",
+        "-func_align 4"
+    ])
+
 # Most Retro code uses this inline limit. Objects that still need the compiler
 # default retain cflags_retro explicitly while their helper inlining is investigated.
-retro_inline_max_size = 250 if version_num < VERSIONS.index("GM8P01_00") else 125
+retro_inline_max_size = 250 if version_num < VERSIONS.index("GM8E01_02") else 125
 cflags_retro_inline = [*cflags_retro, f'-pragma "inline_max_size({retro_inline_max_size})"']
 
 cflags_musyx = [
@@ -422,7 +428,7 @@ def TrkLib(lib_name, objects):
 def RetroLib(lib_name, progress_category, objects):
     return {
         "lib": lib_name + "CW" + "D" if args.debug else "",
-        "mw_version": "GC/1.3.2",
+        "mw_version": "GC/1.3.2" if version_num < VERSIONS.index("R3IJ01_00") else "Wii/1.3",
         "cflags": cflags_retro_inline,
         "progress_category": progress_category,
         "objects": objects,
@@ -433,7 +439,7 @@ def RetroLib(lib_name, progress_category, objects):
 def KyotoLib(lib_name, progress_category, objects):
     return {
         "lib": lib_name + "CW" + "D" if args.debug else "",
-        "mw_version": "GC/1.3.2",
+        "mw_version": "GC/1.3.2" if version_num < VERSIONS.index("R3IJ01_00") else "Wii/1.3",
         "cflags": cflags_retro_inline,
         "host": False,
         "progress_category": progress_category,
@@ -448,7 +454,7 @@ def MusyX(
         debug=False,
         major=2,
         minor=0,
-        patch=3 if version_num == 7 else 0,
+        patch=3 if config.version == "R3ME01_00" else 0,
 ):
     cflags = cflags_musyx if not debug else cflags_musyx_debug
     return {
@@ -516,7 +522,7 @@ config.libs = [
                 EquivalentFor("GM8E01_00"),
                 "MetroidPrime/main.cpp",
                 extra_cflags=['-pragma "inline_max_size(245)"']
-                if version_num < VERSIONS.index("GM8P01_00")
+                if version_num < VERSIONS.index("GM8E01_02")
                 else [],
             ),
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "MetroidPrime/Cameras/CCameraManager.cpp"),
@@ -547,7 +553,10 @@ config.libs = [
             ),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/CMainFlow.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/CMFGame.cpp"),
-            Object(NonMatching, "MetroidPrime/CCredits.cpp"),
+            Object(
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00", "GM8E01_02", "GM8J01_00"),
+                "MetroidPrime/CCredits.cpp",
+            ),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/CSplashScreen.cpp"),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00", "GM8E01_02"),
@@ -584,7 +593,7 @@ config.libs = [
             ),
             Object(NonMatching, "MetroidPrime/CStateManager.cpp"),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00", "R3ME01_00"),
                 "MetroidPrime/CEntity.cpp",
             ),
             Object(
@@ -633,7 +642,7 @@ config.libs = [
                 MatchingFor("GM8P01_00"),
                 "MetroidPrime/CTransitionDatabaseGame.cpp",
                 extra_cflags=['-pragma "inline_max_size(126)"']
-                if version_num >= VERSIONS.index("GM8P01_00")
+                if version_num >= VERSIONS.index("GM8E01_02")
                 else [],
             ),
             Object(
@@ -681,7 +690,7 @@ config.libs = [
                 "MetroidPrime/Player/CPlayerState.cpp",
                 cflags=(
                     cflags_retro_inline
-                    if version_num >= VERSIONS.index("GM8P01_00") and config.version != "GM8E01_02"
+                    if version_num >= VERSIONS.index("GM8P01_00")
                     else cflags_retro
                 ),
             ),
@@ -702,7 +711,7 @@ config.libs = [
                 extra_cflags=['-pragma "inline_max_size(260)"']
                 if config.version == "GM8E01_02"
                 else ['-pragma "inline_max_size(126)"']
-                if version_num >= VERSIONS.index("GM8P01_00")
+                if version_num >= VERSIONS.index("GM8E01_02")
                 else [],
             ),
             Object(
@@ -833,7 +842,7 @@ config.libs = [
                 MatchingFor("GM8E01_00", "GM8E01_01"),
                 "MetroidPrime/Player/CMorphBall.cpp",
                 extra_cflags=['-pragma "inline_max_size(100)"']
-                if version_num >= VERSIONS.index("GM8P01_00")
+                if version_num >= VERSIONS.index("GM8E01_02")
                 else [],
             ),
             Object(
@@ -1131,7 +1140,10 @@ config.libs = [
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/HUD/CHudHelmetInterface.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/HUD/CHudMissileInterface.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/HUD/CHudRadarInterface.cpp"),
-            Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/HUD/CHudThreatInterface.cpp"),
+            Object(
+                MatchingFor("GM8E01_00", "GM8E01_01"), 
+                "MetroidPrime/HUD/CHudThreatInterface.cpp",
+            ),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/HUD/CHudVisorBeamMenu.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/HUD/CHudDecoInterface.cpp"),
             Object(
@@ -1299,7 +1311,7 @@ config.libs = [
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
                 "MetroidPrime/Player/CGameOptions.cpp",
                 extra_cflags=['-pragma "inline_max_size(131)"']
-                if version_num >= VERSIONS.index("GM8P01_00")
+                if version_num >= VERSIONS.index("GM8E01_02")
                 else [],
             ),
             Object(
@@ -1442,7 +1454,7 @@ config.libs = [
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/Player/CPlayerStuckTracker.cpp"),
             Object(NonMatching, "MetroidPrime/CSlideShow.cpp"),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
                 "MetroidPrime/Tweaks/CTweakSlideShow.cpp",
             ),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/CArtifactDoll.cpp"),
@@ -1499,7 +1511,7 @@ config.libs = [
             Object(
                 EquivalentFor("GM8E01_00"),
                 "WorldFormat/CCollidableOBBTree.cpp",
-                cflags=cflags_retro if version_num < VERSIONS.index("GM8P01_00") else None,
+                cflags=cflags_retro if version_num < VERSIONS.index("GM8E01_02") else None,
             ),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "WorldFormat/CCollidableOBBTreeGroup.cpp"
@@ -1523,14 +1535,14 @@ config.libs = [
                     else []
                 ),
             ),
-            Object(EquivalentFor("GM8E01_00"), "Weapons/CProjectileWeaponDataFactory.cpp"),
+            Object(MatchingFor("GM8E01_00"), "Weapons/CProjectileWeaponDataFactory.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "Weapons/CCollisionResponseData.cpp"),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01"), "Weapons/IWeaponRenderer.cpp"
             ),
             Object(
-                EquivalentFor("GM8E01_00", "GM8E01_01"),
-                "Weapons/CDecalDataFactory.cpp"
+                MatchingFor("GM8E01_00", "GM8E01_01","R3ME01_00"),
+                "Weapons/CDecalDataFactory.cpp",
             ),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "Weapons/CDecal.cpp"),
             Object(
@@ -1577,7 +1589,7 @@ config.libs = [
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
                 "GuiSys/CGuiSys.cpp",
                 extra_cflags=['-inline deferred,auto']
-                if version_num >= VERSIONS.index("GM8P01_00") and config.version != "GM8E01_02"
+                if version_num >= VERSIONS.index("GM8P01_00")
                 else [],
             ),
             Object(
@@ -1691,7 +1703,7 @@ config.libs = [
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
                 "Kyoto/Animation/CAnimTreeLoopIn.cpp",
-                extra_cflags=['-pragma "inline_max_size(260)"'] if version_num <= 2 else [],
+                extra_cflags=['-pragma "inline_max_size(260)"'] if version_num < VERSIONS.index("GM8E01_02") else [],
             ),
             Object(NonMatching, "Kyoto/Animation/CAnimTreeSequence.cpp"),
             Object(NonMatching, "Kyoto/Animation/CCharacterInfo.cpp"),
@@ -1740,7 +1752,7 @@ config.libs = [
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "Kyoto/Animation/CSequenceHelper.cpp",
                    extra_cflags=(
                        ['-pragma "inline_max_size(255)"']
-                       if version_num < 3
+                       if version_num < VERSIONS.index("GM8E01_02")
                        else ['-pragma "inline_max_size(120)"']
                    ),
                    ),
@@ -1760,7 +1772,7 @@ config.libs = [
                 "Kyoto/Audio/CSfxManager.cpp",
                 extra_cflags=(
                     ['-pragma "inline_max_size(140)"']
-                    if version_num == 4
+                    if config.version == "GM8J01_00"
                     else []
                 ),
             ),
@@ -1925,7 +1937,7 @@ config.libs = [
                 "Kyoto/Graphics/DolphinCGraphics.cpp",
                 extra_cflags=(
                     ['-pragma "inline_max_size(100)"']
-                    if version_num == 4
+                    if config.version == "GM8J01_00"
                     else []
                 ),
             ),
@@ -2020,7 +2032,7 @@ config.libs = [
                 "Kyoto/Math/CAABox.cpp",
                 extra_cflags=(
                     ['-pragma "inline_max_size(140)"']
-                    if version_num >= 4
+                    if (config.version == "GM8E01_02" or version_num >= VERSIONS.index("GM8J01_00"))
                     else []
                 ),
             ),
@@ -2028,7 +2040,7 @@ config.libs = [
             Object(NonMatching, "Kyoto/CResFactory.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "Kyoto/CResLoader.cpp"),
             Object(
-                EquivalentFor("GM8E01_00"),
+                MatchingFor( "GM8E01_00"),
                 "rstl/rstl_map.cpp",
                 src_dir="extern/rstl/src",
             ),
@@ -2048,7 +2060,7 @@ config.libs = [
                 src_dir="extern/rstl/src",
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00", "R3ME01_00"),
                 "Kyoto/Streams/CInputStream.cpp",
             ),
             Object(
@@ -2098,8 +2110,7 @@ config.libs = [
         "mw_version": "GC/1.3.2",
         "cflags": cflags_runtime,
         "progress_category": "third_party",
-        "src_dir": "extern/zlib-1.1.3",
-        "strip_prefix": "zlib/",
+        "src_dir": "extern",
         "shift_jis": False,
         "objects": [
             Object(
@@ -2206,7 +2217,7 @@ config.libs = [
                 # TODO: inline optional assignment in earlier AddSkinnedRef at the common limit.
                 extra_cflags=(
                     ['-pragma "inline_max_size(259)"']
-                    if version_num < VERSIONS.index("GM8P01_00") or config.version == "GM8E01_02"
+                    if version_num < VERSIONS.index("GM8P01_00")
                     else []
                 ),
             ),

@@ -16,48 +16,48 @@ public:
   CTweakGame(CInputStream&);
   ~CTweakGame() override;
 
-  const rstl::string& GetWorldPrefix() { return x4_worldPrefix; }
-  const rstl::string& GetDefaultRoom() const { return x14_defaultRoom; }
-  bool GetSplashScreensDisabled() const { return x2b_splashScreensDisabled; }
-  float GetFirstPersonFOV() const { return x24_fov; }
-  float GetPressStartDelay() const { return x30_pressStartDelay; }
-  float GetWavecapIntensityNormal() const { return x34_wavecapIntensityNormal; }
-  float GetWavecapIntensityPoison() const { return x38_wavecapIntensityPoison; }
-  float GetWavecapIntensityLava() const { return x3c_wavecapIntensityLava; }
-  float GetRippleIntensityNormal() const { return x40_rippleIntensityNormal; }
-  float GetRippleIntensityPoison() const { return x44_rippleIntensityPoison; }
-  float GetRippleIntensityLava() const { return x48_rippleIntensityLava; }
-  float GetFluidEnvBumpScale() const { return x4c_fluidEnvBumpScale; }
-  float GetWaterFogDistanceBase() const { return x50_waterFogDistanceBase; }
-  float GetWaterFogDistanceRange() const { return x54_waterFogDistanceRange; }
-  float GetGravityWaterFogDistanceBase() const { return x58_gravityWaterFogDistanceBase; }
-  float GetGravityWaterFogDistanceRange() const { return x5c_gravityWaterFogDistanceRange; }
-  float GetHardModeDamageMultiplier() const { return x60_hardmodeDamageMult; }
-  float GetHardModeWeaponMultiplier() const { return x64_hardmodeWeaponMult; }
+  const rstl::string& GetWorldPrefix() { return mWorldPrefix; }
+  const rstl::string& GetDefaultRoom() const { return mDefaultRoom; }
+  bool GetSplashScreensDisabled() const { return mSplashScreensDisabled; }
+  float GetFirstPersonFOV() const { return mFov; }
+  float GetPressStartDelay() const { return mPressStartDelay; }
+  float GetWavecapIntensityNormal() const { return mWavecapIntensityNormal; }
+  float GetWavecapIntensityPoison() const { return mWavecapIntensityPoison; }
+  float GetWavecapIntensityLava() const { return mWavecapIntensityLava; }
+  float GetRippleIntensityNormal() const { return mRippleIntensityNormal; }
+  float GetRippleIntensityPoison() const { return mRippleIntensityPoison; }
+  float GetRippleIntensityLava() const { return mRippleIntensityLava; }
+  float GetFluidEnvBumpScale() const { return mFluidEnvBumpScale; }
+  float GetWaterFogDistanceBase() const { return mWaterFogDistanceBase; }
+  float GetWaterFogDistanceRange() const { return mWaterFogDistanceRange; }
+  float GetGravityWaterFogDistanceBase() const { return mGravityWaterFogDistanceBase; }
+  float GetGravityWaterFogDistanceRange() const { return mGravityWaterFogDistanceRange; }
+  float GetHardModeDamageMultiplier() const { return mHardmodeDamageMult; }
+  float GetHardModeWeaponMultiplier() const { return mHardmodeWeaponMult; }
 
 // private:
-  rstl::string x4_worldPrefix;
-  rstl::string x14_defaultRoom;
-  float x24_fov;
-  bool x28_unknown1;
-  bool x29_unknown2;
-  bool x2a_unknown3;
-  bool x2b_splashScreensDisabled;
-  float x2c_unknown5;
-  float x30_pressStartDelay;
-  float x34_wavecapIntensityNormal;
-  float x38_wavecapIntensityPoison;
-  float x3c_wavecapIntensityLava;
-  float x40_rippleIntensityNormal;
-  float x44_rippleIntensityPoison;
-  float x48_rippleIntensityLava;
-  float x4c_fluidEnvBumpScale;
-  float x50_waterFogDistanceBase;
-  float x54_waterFogDistanceRange;
-  float x58_gravityWaterFogDistanceBase;
-  float x5c_gravityWaterFogDistanceRange;
-  float x60_hardmodeDamageMult;
-  float x64_hardmodeWeaponMult;
+  rstl::string mWorldPrefix;
+  rstl::string mDefaultRoom;
+  float mFov;
+  bool mUnknown1;
+  bool mUnknown2;
+  bool mUnknown3;
+  bool mSplashScreensDisabled;
+  float mUnknown5;
+  float mPressStartDelay;
+  float mWavecapIntensityNormal;
+  float mWavecapIntensityPoison;
+  float mWavecapIntensityLava;
+  float mRippleIntensityNormal;
+  float mRippleIntensityPoison;
+  float mRippleIntensityLava;
+  float mFluidEnvBumpScale;
+  float mWaterFogDistanceBase;
+  float mWaterFogDistanceRange;
+  float mGravityWaterFogDistanceBase;
+  float mGravityWaterFogDistanceRange;
+  float mHardmodeDamageMult;
+  float mHardmodeWeaponMult;
 };
 
 extern CTweakGame* gpTweakGame;

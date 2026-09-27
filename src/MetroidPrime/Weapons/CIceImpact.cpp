@@ -113,48 +113,48 @@ CIceImpact::CIceImpact(const TLockedToken< CGenDescription >& particle, TUniqueI
                        bool active, const rstl::string& name, const CTransform4f& xf, uint flags,
                        const CVector3f& scale, const CColor& color)
 : CEffect(uid, CEntityInfo(aid, CEntity::NullConnectionList), active, name, xf)
-, xe8_elementGen(rs_new CElementGen(TToken< CGenDescription >(particle), CElementGen::kMOT_One,
+, mElementGen(rs_new CElementGen(TToken< CGenDescription >(particle), CElementGen::kMOT_One,
                                     CElementGen::kOSF_One))
-, xec_lightId(kInvalidUniqueId)
-, xf0_genAssetId(TToken< CGenDescription >(particle).GetTag().GetId())
-, xf4_lifeTimer(0.f)
-, xf8_latestDamageTime(4.f)
-, xfc_searchDirection(0)
-, x100_halfBounds(8.f)
-, x104_particleRemainder(0.f)
-, x108_sphereGenRange(GetTranslation(), x100_halfBounds - 1.6f)
-, x118_grid(
-      CAABox(xf.GetTranslation() - CVector3f(x100_halfBounds, x100_halfBounds, x100_halfBounds),
-             xf.GetTranslation() + CVector3f(x100_halfBounds, x100_halfBounds, x100_halfBounds)))
-, x598_24_followPlayerArea(flags & 2)
-, x598_25_hasRenderBounds(false) {
+, mLightId(kInvalidUniqueId)
+, mGenAssetId(TToken< CGenDescription >(particle).GetTag().GetId())
+, mLifeTimer(0.f)
+, mLatestDamageTime(4.f)
+, mSearchDirection(0)
+, mHalfBounds(8.f)
+, mParticleRemainder(0.f)
+, mSphereGenRange(GetTranslation(), mHalfBounds - 1.6f)
+, mGrid(
+      CAABox(xf.GetTranslation() - CVector3f(mHalfBounds, mHalfBounds, mHalfBounds),
+             xf.GetTranslation() + CVector3f(mHalfBounds, mHalfBounds, mHalfBounds)))
+, mFollowPlayerArea(flags & 2)
+, mHasRenderBounds(false) {
   SetThermalFlags(kTF_Hot);
-  x540_impactSpheres.push_back(SImpactSphere(GetTranslation(), 2.4f, 1.6f, 0.f, 0.f));
+  mImpactSpheres.push_back(SImpactSphere(GetTranslation(), 2.4f, 1.6f, 0.f, 0.f));
   for (int i = 1; i < 3; ++i) {
-    x540_impactSpheres.push_back(SImpactSphere(GetTranslation(), 0.f, 1.f, 0.f, 0.f));
-    x540_impactSpheres[i].x18_previousRadius = x540_impactSpheres[i].x14_radius;
-    x540_impactSpheres[i].x14_radius += x540_impactSpheres[i].x10_radiusStep;
+    mImpactSpheres.push_back(SImpactSphere(GetTranslation(), 0.f, 1.f, 0.f, 0.f));
+    mImpactSpheres[i].mPreviousRadius = mImpactSpheres[i].mRadius;
+    mImpactSpheres[i].mRadius += mImpactSpheres[i].mRadiusStep;
   }
-  x118_grid.MarkCells(CSphere(GetTranslation(), 2.4f), 2);
+  mGrid.MarkCells(CSphere(GetTranslation(), 2.4f), 2);
 }
 
 CIceImpact::~CIceImpact() {}
 
 void CIceImpact::CalculateRenderBounds() {
-  const rstl::optional_object< CAABox > bounds = xe8_elementGen->GetBounds();
+  const rstl::optional_object< CAABox > bounds = mElementGen->GetBounds();
   if (bounds) {
-    x598_25_hasRenderBounds = true;
+    mHasRenderBounds = true;
     SetRenderBounds(*bounds);
   } else {
     const CVector3f pos = GetTranslation();
-    x598_25_hasRenderBounds = false;
+    mHasRenderBounds = false;
     SetRenderBounds(CAABox(pos, pos));
   }
 }
 
 void CIceImpact::PreRender(CStateManager& mgr, const CFrustumPlanes& frustum) {
   CActor::PreRender(mgr, frustum);
-  SetPreRenderClipped(!x598_25_hasRenderBounds ||
+  SetPreRenderClipped(!mHasRenderBounds ||
                       !frustum.BoxInFrustumPlanes(GetRenderBoundsCached()));
 }
 
@@ -165,42 +165,42 @@ void CIceImpact::AddToRenderer(const CFrustumPlanes& frustum, const CStateManage
   if (mgr.GetThermalDrawFlag() == kTD_Hot) {
     EnsureRendered(mgr);
   } else {
-    gpRender->AddParticleGen(*xe8_elementGen);
+    gpRender->AddParticleGen(*mElementGen);
   }
 }
 
 void CIceImpact::Render(const CStateManager& mgr) const {
   CElementGen::SetSubtractBlend(true);
   CCubeModel::SetRenderModelBlack(true);
-  xe8_elementGen->Render();
+  mElementGen->Render();
   CElementGen::SetSubtractBlend(false);
   CCubeModel::SetRenderModelBlack(false);
 }
 
 void CIceImpact::Think(float dt, CStateManager& mgr) {
-  xf4_lifeTimer += dt;
-  if (xf4_lifeTimer < 0.8f && xe8_elementGen->GetParticleCount() < 400) {
-    for (int i = 0; i < x540_impactSpheres.size(); ++i) {
-      SImpactSphere& sphere = x540_impactSpheres[i];
-      if (sphere.x14_radius > sphere.xc_maxRadius) {
+  mLifeTimer += dt;
+  if (mLifeTimer < 0.8f && mElementGen->GetParticleCount() < 400) {
+    for (int i = 0; i < mImpactSpheres.size(); ++i) {
+      SImpactSphere& sphere = mImpactSpheres[i];
+      if (sphere.mRadius > sphere.mMaxRadius) {
         const rstl::optional_object< SImpactSphere > next = GenerateNewSphere();
         if (next) {
           sphere = *next;
         }
       }
     }
-    for (int i = 0; i < x540_impactSpheres.size(); ++i) {
-      SImpactSphere& sphere = x540_impactSpheres[i];
-      if (sphere.x14_radius > sphere.xc_maxRadius) {
+    for (int i = 0; i < mImpactSpheres.size(); ++i) {
+      SImpactSphere& sphere = mImpactSpheres[i];
+      if (sphere.mRadius > sphere.mMaxRadius) {
         continue;
       }
-      sphere.x18_previousRadius = sphere.x14_radius;
-      sphere.x14_radius += sphere.x10_radiusStep;
-      const CSphere a = CSphere(sphere.x0_pos, sphere.x14_radius);
-      const CSphere b = CSphere(sphere.x0_pos, sphere.x18_previousRadius);
+      sphere.mPreviousRadius = sphere.mRadius;
+      sphere.mRadius += sphere.mRadiusStep;
+      const CSphere a = CSphere(sphere.mPos, sphere.mRadius);
+      const CSphere b = CSphere(sphere.mPos, sphere.mPreviousRadius);
       const CAABox bounds(b.GetCenter() - CVector3f(a.GetRadius(), a.GetRadius(), a.GetRadius()),
                           b.GetCenter() + CVector3f(a.GetRadius(), a.GetRadius(), a.GetRadius()));
-      x104_particleRemainder = 0.f;
+      mParticleRemainder = 0.f;
       GenerateParticlesAgainstActors(mgr, bounds, a, b);
       CAreaCollisionCache cache(bounds);
       CGameCollision::BuildAreaCollisionCache(mgr, cache);
@@ -209,19 +209,19 @@ void CIceImpact::Think(float dt, CStateManager& mgr) {
       }
     }
   }
-  xe8_elementGen->SetOrientation(CTransform4f::Identity());
-  xe8_elementGen->Update(dt);
-  if (xec_lightId != kInvalidUniqueId) {
-    if (CGameLight* light = TCastToPtr< CGameLight >(mgr.ObjectById(xec_lightId))) {
+  mElementGen->SetOrientation(CTransform4f::Identity());
+  mElementGen->Update(dt);
+  if (mLightId != kInvalidUniqueId) {
+    if (CGameLight* light = TCastToPtr< CGameLight >(mgr.ObjectById(mLightId))) {
       if (GetActive()) {
-        light->SetLight(xe8_elementGen->GetLight());
+        light->SetLight(mElementGen->GetLight());
       }
     }
   }
-  if (x598_24_followPlayerArea) {
+  if (mFollowPlayerArea) {
     mgr.SetActorAreaId(*this, mgr.GetPlayer()->GetCurrentAreaId());
   }
-  if (xe8_elementGen->IsSystemDeletable()) {
+  if (mElementGen->IsSystemDeletable()) {
     mgr.DeleteObjectRequest(GetUniqueId());
   }
 }
@@ -231,33 +231,33 @@ ENTITY_ACCEPT_IMPL(CIceImpact)
 void CIceImpact::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
   switch (msg) {
   case kSM_Registered:
-    if (xe8_elementGen->SystemHasLight()) {
-      xec_lightId = mgr.AllocateUniqueId();
-      uint sourceId = xf0_genAssetId;
-      mgr.AddObject(rs_new CGameLight(xec_lightId, GetCurrentAreaId(), GetActive(),
+    if (mElementGen->SystemHasLight()) {
+      mLightId = mgr.AllocateUniqueId();
+      uint sourceId = mGenAssetId;
+      mgr.AddObject(rs_new CGameLight(mLightId, GetCurrentAreaId(), GetActive(),
                                       rstl::string_l("IcePLight_") + GetDebugName(), GetTransform(),
-                                      GetUniqueId(), xe8_elementGen->GetLight(), sourceId, 1, 0.f));
+                                      GetUniqueId(), mElementGen->GetLight(), sourceId, 1, 0.f));
     }
     break;
   case kSM_Deleted:
-    if (xec_lightId != kInvalidUniqueId) {
-      mgr.DeleteObjectRequest(xec_lightId);
-      xec_lightId = kInvalidUniqueId;
+    if (mLightId != kInvalidUniqueId) {
+      mgr.DeleteObjectRequest(mLightId);
+      mLightId = kInvalidUniqueId;
     }
     break;
   default:
     break;
   }
   CActor::AcceptScriptMsg(msg, uid, mgr);
-  if (xec_lightId != kInvalidUniqueId) {
-    mgr.SendScriptMsgAlways(xec_lightId, uid, msg);
+  if (mLightId != kInvalidUniqueId) {
+    mgr.SendScriptMsgAlways(mLightId, uid, msg);
   }
 }
 
-rstl::optional_object< CAABox > CIceImpact::GetTouchBounds() const { return x118_grid.GetBounds(); }
+rstl::optional_object< CAABox > CIceImpact::GetTouchBounds() const { return mGrid.GetBounds(); }
 
 void CIceImpact::Touch(CActor& actor, CStateManager& mgr) {
-  if (xf4_lifeTimer > xf8_latestDamageTime) {
+  if (mLifeTimer > mLatestDamageTime) {
     return;
   }
   const rstl::optional_object< CAABox > bounds = actor.GetTouchBounds();
@@ -266,12 +266,12 @@ void CIceImpact::Touch(CActor& actor, CStateManager& mgr) {
     if (CPatterned* ai = TCastToPtr< CPatterned >(&actor)) {
       const CAABox expandedBounds(bounds->GetMinPoint() - CVector3f(0.f, 0.f, 0.5f),
                                   bounds->GetMaxPoint() + CVector3f(0.f, 0.f, 0.5f));
-      if (x118_grid.AABoxTouchesData(expandedBounds, 1)) {
+      if (mGrid.AABoxTouchesData(expandedBounds, 1)) {
         if (static_cast< const CActor* >(ai)->GetDamageVulnerability()->WeaponHits(
                 CWeaponMode(kWT_Ice), CDamageVulnerability::kRD_No) &&
             ai->GetKnockBackCtrl().GetEnableFreeze() &&
             ai->BodyCtrl()->GetPercentageFrozen() == 0.f &&
-            xf8_latestDamageTime - xf4_lifeTimer > 0.5f && xf4_lifeTimer < 0.8f) {
+            mLatestDamageTime - mLifeTimer > 0.5f && mLifeTimer < 0.8f) {
           mgr.ApplyDamage(
               GetUniqueId(), actor.GetUniqueId(), kInvalidUniqueId, damage,
               CMaterialFilter::MakeIncludeExclude(CMaterialList(kMT_Solid), CMaterialList()),
@@ -280,15 +280,15 @@ void CIceImpact::Touch(CActor& actor, CStateManager& mgr) {
       }
     }
     if (actor.GetMaterialList().HasMaterial(kMT_ExcludeFromLineOfSightTest) &&
-        x118_grid.AABoxTouchesData(*bounds, 1)) {
+        mGrid.AABoxTouchesData(*bounds, 1)) {
       mgr.ApplyDamage(
           GetUniqueId(), actor.GetUniqueId(), kInvalidUniqueId, damage,
           CMaterialFilter::MakeIncludeExclude(CMaterialList(kMT_Solid), CMaterialList()),
           CVector3f::Zero());
     }
     if (CWallCrawlerSwarm* swarm = TCastToPtr< CWallCrawlerSwarm >(&actor)) {
-      if (xf8_latestDamageTime - xf4_lifeTimer > 0.5f) {
-        swarm->FreezeCollision(x118_grid, xf8_latestDamageTime - xf4_lifeTimer);
+      if (mLatestDamageTime - mLifeTimer > 0.5f) {
+        swarm->FreezeCollision(mGrid, mLatestDamageTime - mLifeTimer);
       }
     }
   }
@@ -301,19 +301,19 @@ bool pointInSphere(const CSphere& sphere, const CVector3f& point) {
 }
 
 rstl::optional_object< CIceImpact::SImpactSphere > CIceImpact::GenerateNewSphere() {
-  ++xfc_searchDirection;
-  xfc_searchDirection &= 7;
-  const uint forwardZ = xfc_searchDirection & 1;
-  const uint forwardY = xfc_searchDirection & 2;
-  const uint forwardX = xfc_searchDirection & 4;
+  ++mSearchDirection;
+  mSearchDirection &= 7;
+  const uint forwardZ = mSearchDirection & 1;
+  const uint forwardY = mSearchDirection & 2;
+  const uint forwardX = mSearchDirection & 4;
   for (uint z = 8; forwardZ ? z < 14 : z >= 1; forwardZ ? ++z : --z) {
     for (uint y = 8; forwardY ? y < 14 : y >= 1; forwardY ? ++y : --y) {
       for (uint x = 8; forwardX ? x < 14 : x >= 1; forwardX ? ++x : --x) {
-        if (static_cast< int >(x118_grid.GetValue(x, y, z)) == 1) {
-          const CVector3f pos = x118_grid.GetWorldPositionForCell(x, y, z);
-          x118_grid.SetValue(x, y, z, 3);
-          if (pointInSphere(x108_sphereGenRange, pos)) {
-            x118_grid.MarkCells(CSphere(pos, 1.6f), 2);
+        if (static_cast< int >(mGrid.GetValue(x, y, z)) == 1) {
+          const CVector3f pos = mGrid.GetWorldPositionForCell(x, y, z);
+          mGrid.SetValue(x, y, z, 3);
+          if (pointInSphere(mSphereGenRange, pos)) {
+            mGrid.MarkCells(CSphere(pos, 1.6f), 2);
             return SImpactSphere(pos, 1.6f, 1.6f, 0.f, 0.f);
           }
         }
@@ -432,9 +432,9 @@ bool CIceImpact::SubdivideAndGenerateParticles(CStateManager& mgr, const CVector
       SubdivideAndGenerateParticles(mgr, v2, v3, point, a, b);
       SubdivideAndGenerateParticles(mgr, v3, v1, point, a, b);
     } else {
-      x104_particleRemainder += mag;
-      const int count = static_cast< int >(x104_particleRemainder);
-      x104_particleRemainder -= count;
+      mParticleRemainder += mag;
+      const int count = static_cast< int >(mParticleRemainder);
+      mParticleRemainder -= count;
       for (int i = 0; i < count; ++i) {
         float rx = mgr.Random()->Float();
         float ry = mgr.Random()->Float();
@@ -446,8 +446,8 @@ bool CIceImpact::SubdivideAndGenerateParticles(CStateManager& mgr, const CVector
         const CVector3f point = CMath::BaryToWorld(v1, v2, v3, CVector3f(rx, ry, rz));
         uint cx, cy, cz;
         if (!pointInSphere(b, point) && pointInSphere(a, point) &&
-            x118_grid.GetCoords(point, cx, cy, cz) && (x118_grid.GetValue(cx, cy, cz) & 1) == 0) {
-          x118_grid.SetValue(cx, cy, cz, 1);
+            mGrid.GetCoords(point, cx, cy, cz) && (mGrid.GetValue(cx, cy, cz) & 1) == 0) {
+          mGrid.SetValue(cx, cy, cz, 1);
           CVector3f direction = CVector3f::Zero();
           switch (mgr.Random()->Range(0, 2)) {
           case 0:
@@ -476,10 +476,10 @@ bool CIceImpact::SubdivideAndGenerateParticles(CStateManager& mgr, const CVector
           normal[kDZ] += 0.4f * (mgr.Random()->Float() - 0.5f);
           const CTransform4f xf =
               CTransform4f::LookAt(CVector3f::Zero(), normal.AsNormalized(), direction);
-          xe8_elementGen->SetOrientation(xf);
-          xe8_elementGen->SetTranslation(point);
-          xe8_elementGen->ForceParticleCreation(1);
-          if (xe8_elementGen->GetParticleCount() == xe8_elementGen->GetMaxParticles()) {
+          mElementGen->SetOrientation(xf);
+          mElementGen->SetTranslation(point);
+          mElementGen->ForceParticleCreation(1);
+          if (mElementGen->GetParticleCount() == mElementGen->GetMaxParticles()) {
             return true;
           }
         }

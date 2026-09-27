@@ -110,7 +110,7 @@ CScriptDoor::EDoorOpenCondition CScriptDoor::GetDoorOpenCondition(CStateManager&
     mgr.DeliverScriptMsg(dock, GetUniqueId(), kSM_SetToMax);
     return kDOC_Loading;
   }
-  if (area->GetPostConstructed()->x113c_playerActorsLoading != 0) {
+  if (area->GetPostConstructed()->mPlayerActorsLoading != 0) {
     return kDOC_Loading;
   }
 
@@ -185,12 +185,12 @@ void CScriptDoor::OpenDoor(TUniqueId uid, CStateManager& mgr) {
 
     for (rstl::vector< SConnection >::const_iterator it = GetConnectionList().begin();
          it != GetConnectionList().end(); ++it) {
-      if (it->x4_msg != kSM_Open) {
+      if (it->mMsg != kSM_Open) {
         continue;
       }
 
       if (const CScriptDoor* const door =
-              TCastToConstPtr< CScriptDoor >(mgr.GetObjectById(mgr.GetIdForScript(it->x8_objId)))) {
+              TCastToConstPtr< CScriptDoor >(mgr.GetObjectById(mgr.GetIdForScript(it->mObjId)))) {
         mPartner2 = door->GetUniqueId();
         break;
       }
@@ -286,12 +286,12 @@ void CScriptDoor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStat
   case kSM_InitializedInArea: {
     rstl::vector< SConnection >::const_iterator it = GetConnectionList().begin();
     for (; it != GetConnectionList().end(); ++it) {
-      if (it->x4_msg != kSM_Increment) {
+      if (it->mMsg != kSM_Increment) {
         continue;
       }
 
       if (const CScriptDock* dock =
-              TCastToConstPtr< CScriptDock >(mgr.GetObjectById(mgr.GetIdForScript(it->x8_objId)))) {
+              TCastToConstPtr< CScriptDock >(mgr.GetObjectById(mgr.GetIdForScript(it->mObjId)))) {
         mDockId = dock->GetUniqueId();
         break;
       }

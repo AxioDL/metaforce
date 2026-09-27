@@ -22,8 +22,8 @@ const CTevCombiners::CTevPass CTevCombiners::kEnvPassthru(
 bool CTevCombiners::sValidPasses[2] = {false, false};
 uint CTevCombiners::sNumEnabledPasses = -1;
 
-CTevCombiners::AlphaVar::AlphaVar(EAlphaSrc src) : x0_src(src) {}
-CTevCombiners::ColorVar::ColorVar(EColorSrc src) : x0_src(src) {}
+CTevCombiners::AlphaVar::AlphaVar(EAlphaSrc src) : mSrc(src) {}
+CTevCombiners::ColorVar::ColorVar(EColorSrc src) : mSrc(src) {}
 
 void CTevCombiners::RecomputePasses() {
   uchar tmp = (uchar)((sValidPasses[TEV_MAX_PASSES - 1] != 0));
@@ -72,20 +72,20 @@ bool CTevCombiners::SetPassCombiners(int stage, const CTevPass& pass) {
 
 void CTevCombiners::CTevPass::Execute(int stage) const {
   const GXTevStageID stageId = (GXTevStageID)(stage);
-  CGX::SetTevColorIn(stageId, (GXTevColorArg)x4_colorPass.GetA().GetSource(),
-                     (GXTevColorArg)x4_colorPass.GetB().GetSource(),
-                     (GXTevColorArg)x4_colorPass.GetC().GetSource(),
-                     (GXTevColorArg)x4_colorPass.GetD().GetSource());
-  CGX::SetTevAlphaIn(stageId, (GXTevAlphaArg)x14_alphaPass.GetA().GetSource(),
-                     (GXTevAlphaArg)x14_alphaPass.GetB().GetSource(),
-                     (GXTevAlphaArg)x14_alphaPass.GetC().GetSource(),
-                     (GXTevAlphaArg)x14_alphaPass.GetD().GetSource());
-  CGX::SetTevColorOp(stageId, (GXTevOp)x24_colorOp.GetOp(), (GXTevBias)x24_colorOp.GetBias(),
-                     (GXTevScale)x24_colorOp.GetScale(), x24_colorOp.GetClamp(),
-                     (GXTevRegID)x24_colorOp.GetOutput());
-  CGX::SetTevAlphaOp(stageId, (GXTevOp)x38_alphaOp.GetOp(), (GXTevBias)x38_alphaOp.GetBias(),
-                     (GXTevScale)x38_alphaOp.GetScale(), x38_alphaOp.GetClamp(),
-                     (GXTevRegID)x38_alphaOp.GetOutput());
+  CGX::SetTevColorIn(stageId, (GXTevColorArg)mColorPass.GetA().GetSource(),
+                     (GXTevColorArg)mColorPass.GetB().GetSource(),
+                     (GXTevColorArg)mColorPass.GetC().GetSource(),
+                     (GXTevColorArg)mColorPass.GetD().GetSource());
+  CGX::SetTevAlphaIn(stageId, (GXTevAlphaArg)mAlphaPass.GetA().GetSource(),
+                     (GXTevAlphaArg)mAlphaPass.GetB().GetSource(),
+                     (GXTevAlphaArg)mAlphaPass.GetC().GetSource(),
+                     (GXTevAlphaArg)mAlphaPass.GetD().GetSource());
+  CGX::SetTevColorOp(stageId, (GXTevOp)mColorOp.GetOp(), (GXTevBias)mColorOp.GetBias(),
+                     (GXTevScale)mColorOp.GetScale(), mColorOp.GetClamp(),
+                     (GXTevRegID)mColorOp.GetOutput());
+  CGX::SetTevAlphaOp(stageId, (GXTevOp)mAlphaOp.GetOp(), (GXTevBias)mAlphaOp.GetBias(),
+                     (GXTevScale)mAlphaOp.GetScale(), mAlphaOp.GetClamp(),
+                     (GXTevRegID)mAlphaOp.GetOutput());
   CGX::SetTevKColorSel(stageId, GX_TEV_KCSEL_8_8);
   CGX::SetTevKAlphaSel(stageId, GX_TEV_KASEL_8_8);
 }

@@ -64,28 +64,28 @@ CVector3f CBallCamera::GetFailsafeBezierPoint(const rstl::vector< CVector3f >& p
 }
 
 bool CBallCamera::TransitionFromMorphBallState(CStateManager& mgr) {
-  x47c_failsafeState->x0_playerXf = mgr.GetPlayer()->GetTransform();
-  x47c_failsafeState->x30_camXf = GetTransform();
-  x47c_failsafeState->x60_lookPos = x1d8_lookPos;
-  x47c_failsafeState->x84_playerPos = x47c_failsafeState->x0_playerXf.GetTranslation();
-  CVector3f camPos = x47c_failsafeState->x30_camXf.GetTranslation();
+  mFailsafeState->mPlayerXf = mgr.GetPlayer()->GetTransform();
+  mFailsafeState->mCamXf = GetTransform();
+  mFailsafeState->mLookPos = mLookPos;
+  mFailsafeState->mPlayerPos = mFailsafeState->mPlayerXf.GetTranslation();
+  CVector3f camPos = mFailsafeState->mCamXf.GetTranslation();
   const CVector3f eyePos = mgr.GetPlayer()->GetEyePosition();
-  float lookDist = (x47c_failsafeState->x60_lookPos - camPos).Magnitude();
-  CVector3f behindPos = (0.6f * -lookDist) * x47c_failsafeState->x0_playerXf.GetForward() + eyePos;
+  float lookDist = (mFailsafeState->mLookPos - camPos).Magnitude();
+  CVector3f behindPos = (0.6f * -lookDist) * mFailsafeState->mPlayerXf.GetForward() + eyePos;
   float eyeToOccDist;
   if (CheckTransitionLineOfSight(eyePos, behindPos, eyeToOccDist, 0.6f, mgr)) {
-    x47c_failsafeState->x6c_behindPos =
-        -eyeToOccDist * x47c_failsafeState->x0_playerXf.GetForward() + eyePos;
+    mFailsafeState->mBehindPos =
+        -eyeToOccDist * mFailsafeState->mPlayerXf.GetForward() + eyePos;
   } else {
     eyeToOccDist = lookDist;
-    x47c_failsafeState->x6c_behindPos = behindPos;
+    mFailsafeState->mBehindPos = behindPos;
   }
-  x47c_failsafeState->x90_splinePoints.clear();
-  x47c_failsafeState->x90_splinePoints.reserve(4);
-  x47c_failsafeState->x90_splinePoints.push_back(camPos);
-  x47c_failsafeState->x90_splinePoints.push_back(x47c_failsafeState->x6c_behindPos);
-  x47c_failsafeState->x90_splinePoints.push_back(x47c_failsafeState->x6c_behindPos);
-  x47c_failsafeState->x90_splinePoints.push_back(eyePos);
+  mFailsafeState->mSplinePoints.clear();
+  mFailsafeState->mSplinePoints.reserve(4);
+  mFailsafeState->mSplinePoints.push_back(camPos);
+  mFailsafeState->mSplinePoints.push_back(mFailsafeState->mBehindPos);
+  mFailsafeState->mSplinePoints.push_back(mFailsafeState->mBehindPos);
+  mFailsafeState->mSplinePoints.push_back(eyePos);
   return CheckFailsafeFromMorphBallState(mgr);
 }
 
@@ -94,11 +94,11 @@ bool CBallCamera::UpdateTransitionFromBallCamera(CStateManager& mgr) {
   float morphFactor = player.GetMorphBallTransitionFactor();
   const CVector3f eyePos = player.GetEyePosition();
   CVector3f playerPos = player.GetTranslation();
-  CVector3f delta = playerPos - x47c_failsafeState->x84_playerPos;
-  x47c_failsafeState->x90_splinePoints[1] += delta;
-  x47c_failsafeState->x90_splinePoints[2] += delta;
-  x47c_failsafeState->x90_splinePoints[3] += delta;
-  CVector3f splinePoint = GetFailsafeBezierPoint(x47c_failsafeState->x90_splinePoints, morphFactor);
+  CVector3f delta = playerPos - mFailsafeState->mPlayerPos;
+  mFailsafeState->mSplinePoints[1] += delta;
+  mFailsafeState->mSplinePoints[2] += delta;
+  mFailsafeState->mSplinePoints[3] += delta;
+  CVector3f splinePoint = GetFailsafeBezierPoint(mFailsafeState->mSplinePoints, morphFactor);
   float zDelta = splinePoint.GetZ() - eyePos.GetZ();
   zDelta *= CMath::Clamp(0.f, 1.f - 1.5f * morphFactor, 1.f);
   splinePoint.SetZ(zDelta + eyePos.GetZ());
@@ -111,16 +111,16 @@ bool CBallCamera::UpdateTransitionFromBallCamera(CStateManager& mgr) {
     SetTranslation(splinePoint);
   }
   mgr.CameraManager()->FirstPersonCamera()->Reset(GetTransform(), mgr);
-  x47c_failsafeState->x84_playerPos = playerPos;
+  mFailsafeState->mPlayerPos = playerPos;
   return false;
 }
 
 CBallCamera::SFailsafeState::SFailsafeState()
-: x0_playerXf(CTransform4f::Identity())
-, x30_camXf(CTransform4f::Identity())
-, x60_lookPos(CVector3f::Zero())
-, x6c_behindPos(CVector3f::Zero())
+: mPlayerXf(CTransform4f::Identity())
+, mCamXf(CTransform4f::Identity())
+, mLookPos(CVector3f::Zero())
+, mBehindPos(CVector3f::Zero())
 , x78_(CVector3f::Zero())
-, x84_playerPos(CVector3f::Zero()) {}
+, mPlayerPos(CVector3f::Zero()) {}
 
 CBallCamera::SUnknown::SUnknown() {}

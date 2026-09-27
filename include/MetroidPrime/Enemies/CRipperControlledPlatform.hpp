@@ -14,8 +14,8 @@ public:
   CQuaternion Move(float, CStateManager&) override;
 
 private:
-  TUniqueId x358_owner;
-  float x35c_yaw;
+  TUniqueId mOwner;
+  float mYaw;
 };
 
 #endif // _CRIPPERCONTROLLEDPLATFORM

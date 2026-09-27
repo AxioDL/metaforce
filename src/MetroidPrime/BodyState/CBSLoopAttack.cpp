@@ -9,38 +9,38 @@
 #include "Kyoto/Animation/CPASDatabase.hpp"
 
 CBSLoopAttack::CBSLoopAttack()
-: x4_state(pas::kLS_Invalid)
-, x8_loopAttackType(pas::kLAT_Invalid)
-, xc_24_waitForAnimOver(false)
-, xc_25_advance(false) {}
+: mState(pas::kLS_Invalid)
+, mLoopAttackType(pas::kLAT_Invalid)
+, mWaitForAnimOver(false)
+, mAdvance(false) {}
 
 void CBSLoopAttack::Start(CBodyController& bc, CStateManager& mgr) {
   const CBCLoopAttackCmd* cmd =
       static_cast< const CBCLoopAttackCmd* >(bc.CommandMgr().GetCmd(kBSC_LoopAttack));
 
-  x8_loopAttackType = cmd->GetAttackType();
-  xc_24_waitForAnimOver = cmd->WaitForAnimOver() == 1;
-  xc_25_advance = false;
+  mLoopAttackType = cmd->GetAttackType();
+  mWaitForAnimOver = cmd->WaitForAnimOver() == 1;
+  mAdvance = false;
 
   if (bc.GetLocomotionType() == pas::kLT_Crouch) {
-    x4_state = pas::kLS_Loop;
-    const CPASAnimParmData parms(pas::kAS_LoopAttack, CPASAnimParm::FromEnum(x4_state),
-                                 CPASAnimParm::FromEnum(x8_loopAttackType));
+    mState = pas::kLS_Loop;
+    const CPASAnimParmData parms(pas::kAS_LoopAttack, CPASAnimParm::FromEnum(mState),
+                                 CPASAnimParm::FromEnum(mLoopAttackType));
     bc.LoopBestAnimation(parms, *mgr.Random());
 
   } else {
-    x4_state = pas::kLS_Begin;
-    const CPASAnimParmData parms(pas::kAS_LoopAttack, CPASAnimParm::FromEnum(x4_state),
-                                 CPASAnimParm::FromEnum(x8_loopAttackType));
+    mState = pas::kLS_Begin;
+    const CPASAnimParmData parms(pas::kAS_LoopAttack, CPASAnimParm::FromEnum(mState),
+                                 CPASAnimParm::FromEnum(mLoopAttackType));
     const rstl::pair< float, int > best =
         bc.GetPASDatabase().FindBestAnimation(parms, *mgr.Random(), -1);
     if (best.first > FLT_EPSILON) {
       const CAnimPlaybackParms playParms(best.second, -1, 1.f, true);
       bc.SetCurrentAnimation(playParms, false, false);
     } else {
-      x4_state = pas::kLS_Loop;
-      const CPASAnimParmData loopParms(pas::kAS_LoopAttack, CPASAnimParm::FromEnum(x4_state),
-                                       CPASAnimParm::FromEnum(x8_loopAttackType));
+      mState = pas::kLS_Loop;
+      const CPASAnimParmData loopParms(pas::kAS_LoopAttack, CPASAnimParm::FromEnum(mState),
+                                       CPASAnimParm::FromEnum(mLoopAttackType));
       bc.LoopBestAnimation(loopParms, *mgr.Random());
     }
   }
@@ -54,18 +54,18 @@ pas::EAnimationState CBSLoopAttack::UpdateBody(float dt, CBodyController& bc, CS
     const bool exitRequested = commandMgr.GetCmd(kBSC_ExitState) != nullptr;
     bool advance = GetAdvance();
     advance |= exitRequested;
-    xc_25_advance = advance;
+    mAdvance = advance;
 
-    switch (x4_state) {
+    switch (mState) {
     case pas::kLS_Begin:
-      if (xc_25_advance && (!xc_24_waitForAnimOver || bc.IsAnimationOver())) {
-        x4_state = pas::kLS_Invalid;
+      if (mAdvance && (!mWaitForAnimOver || bc.IsAnimationOver())) {
+        mState = pas::kLS_Invalid;
         st = pas::kAS_Locomotion;
       } else if (bc.IsAnimationOver()) {
         const CPASAnimParmData parms(pas::kAS_LoopAttack, CPASAnimParm::FromEnum(1),
-                                     CPASAnimParm::FromEnum(x8_loopAttackType));
+                                     CPASAnimParm::FromEnum(mLoopAttackType));
         bc.LoopBestAnimation(parms, *mgr.Random());
-        x4_state = pas::kLS_Loop;
+        mState = pas::kLS_Loop;
       } else {
         if (commandMgr.GetTargetVector().IsNonZero()) {
           bc.FaceDirection(commandMgr.GetTargetVector(), dt);
@@ -73,21 +73,21 @@ pas::EAnimationState CBSLoopAttack::UpdateBody(float dt, CBodyController& bc, CS
       }
       break;
     case pas::kLS_Loop:
-      if (xc_25_advance && (!xc_24_waitForAnimOver || bc.IsAnimationOver())) {
+      if (mAdvance && (!mWaitForAnimOver || bc.IsAnimationOver())) {
         if (bc.GetLocomotionType() != pas::kLT_Crouch) {
           const CPASAnimParmData parms(pas::kAS_LoopAttack, CPASAnimParm::FromEnum(2),
-                                       CPASAnimParm::FromEnum(x8_loopAttackType));
+                                       CPASAnimParm::FromEnum(mLoopAttackType));
           bc.PlayBestAnimation(parms, *mgr.Random());
-          x4_state = pas::kLS_End;
+          mState = pas::kLS_End;
         } else {
-          x4_state = pas::kLS_Invalid;
+          mState = pas::kLS_Invalid;
           st = pas::kAS_Locomotion;
         }
       }
       break;
     case pas::kLS_End:
       if (bc.IsAnimationOver()) {
-        x4_state = pas::kLS_Invalid;
+        mState = pas::kLS_Invalid;
         st = pas::kAS_Locomotion;
       }
       break;
@@ -118,7 +118,7 @@ pas::EAnimationState CBSLoopAttack::GetBodyStateTransition(float dt, CBodyContro
     return pas::kAS_Locomotion;
   }
 
-  if (x4_state == pas::kLS_End) {
+  if (mState == pas::kLS_End) {
     if (cmdMgr.GetCmd(kBSC_MeleeAttack)) {
       return pas::kAS_MeleeAttack;
     }

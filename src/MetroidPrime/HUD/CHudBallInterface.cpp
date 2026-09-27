@@ -23,87 +23,87 @@ static const char skBombDecoName[] = "basewidget_bombdeco";
 
 CHudBallInterface::CHudBallInterface(CGuiFrame& selHud, int pbAmount, int pbCapacity,
                                      int availableBombs, bool hasBombs, bool hasPb)
-: x34_camPos(CVector3f::Zero())
-, x40_pbAmount(pbAmount)
-, x44_pbCapacity(pbCapacity)
-, x48_availableBombs(availableBombs)
-, x4c_hasPb(hasPb) {
-  x0_camera = selHud.GetFrameCamera();
+: mCamPos(CVector3f::Zero())
+, mPbAmount(pbAmount)
+, mPbCapacity(pbCapacity)
+, mAvailableBombs(availableBombs)
+, mHasPb(hasPb) {
+  mCamera = selHud.GetFrameCamera();
 
-  x4_basewidget_bombstuff = selHud.FindWidget(skBombGroupName);
-  x10_textpane_bombdigits = static_cast< CGuiTextPane* >(selHud.FindWidget(skBombDigitsName));
-  xc_model_bombicon = static_cast< CGuiModel* >(selHud.FindWidget(skPowerBombIconName));
-  x8_basewidget_bombdeco = selHud.FindWidget(skBombDecoName);
+  mBasewidget_bombstuff = selHud.FindWidget(skBombGroupName);
+  mTextpane_bombdigits = static_cast< CGuiTextPane* >(selHud.FindWidget(skBombDigitsName));
+  mModel_bombicon = static_cast< CGuiModel* >(selHud.FindWidget(skPowerBombIconName));
+  mBasewidget_bombdeco = selHud.FindWidget(skBombDecoName);
 
   for (int i = 0; i < 3; ++i) {
     rstl::string groupName(CBasics::Stringize("%s%d", skBombCounterBaseName, i));
     CGuiGroup* grp = static_cast< CGuiGroup* >(selHud.FindWidget(groupName));
     CGuiWidget* filled = grp->GetWorkerWidget(1);
     CGuiWidget* empty = grp->GetWorkerWidget(0);
-    x14_group_bombfilled.push_back(filled);
-    x24_group_bombempty.push_back(empty);
+    mGroup_bombfilled.push_back(filled);
+    mGroup_bombempty.push_back(empty);
     if (filled)
       filled->SetColor(gpTweakGuiColors->GetBallBombFilledColor());
     if (empty)
       empty->SetColor(gpTweakGuiColors->GetBallBombEmptyColor());
   }
 
-  x8_basewidget_bombdeco->SetColor(gpTweakGuiColors->GetBallBombDecoColor());
-  x34_camPos = x0_camera->GetLocalPosition();
+  mBasewidget_bombdeco->SetColor(gpTweakGuiColors->GetBallBombDecoColor());
+  mCamPos = mCamera->GetLocalPosition();
 
   if (CGuiWidget* w = selHud.FindWidget(rstl::string_l(skEnergyDecoName))) {
     w->SetColor(gpTweakGuiColors->GetBallBombEnergyColor());
   }
-  SetBombParams(x40_pbAmount, pbCapacity, availableBombs, hasBombs, hasPb, true);
+  SetBombParams(mPbAmount, pbCapacity, availableBombs, hasBombs, hasPb, true);
 }
 
 void CHudBallInterface::SetBombParams(int pbAmount, int pbCapacity, int availableBombs,
                                       bool hasBombs, bool hasPb, bool init) {
 
-  if (pbAmount != x40_pbAmount || init) {
+  if (pbAmount != mPbAmount || init) {
     char buffer[4];
 #if NONMATCHING
     snprintf(buffer, sizeof(buffer), "%02d", pbAmount);
 #else
     sprintf(buffer, "%02d", pbAmount);
 #endif
-    x10_textpane_bombdigits->TextSupport().SetText(rstl::string(buffer));
-    x40_pbAmount = pbAmount;
+    mTextpane_bombdigits->TextSupport().SetText(rstl::string(buffer));
+    mPbAmount = pbAmount;
     UpdatePowerBombReadoutColors();
   }
 
-  if (pbCapacity != x44_pbCapacity || init) {
-    x44_pbCapacity = pbCapacity;
+  if (pbCapacity != mPbCapacity || init) {
+    mPbCapacity = pbCapacity;
     UpdatePowerBombReadoutColors();
   }
 
-  if (hasPb != x4c_hasPb) {
-    x4c_hasPb = hasPb;
+  if (hasPb != mHasPb) {
+    mHasPb = hasPb;
     UpdatePowerBombReadoutColors();
   }
 
   for (int i = 0; i < 3; ++i) {
     bool lit = i < availableBombs;
-    x14_group_bombfilled[i]->SetVisibility(lit && hasBombs, kTM_Children);
-    x24_group_bombempty[i]->SetVisibility(!lit && hasBombs, kTM_Children);
+    mGroup_bombfilled[i]->SetVisibility(lit && hasBombs, kTM_Children);
+    mGroup_bombempty[i]->SetVisibility(!lit && hasBombs, kTM_Children);
   }
 
-  x48_availableBombs = availableBombs;
+  mAvailableBombs = availableBombs;
 
-  x8_basewidget_bombdeco->SetVisibility(hasBombs && x44_pbCapacity > 0, kTM_Children);
+  mBasewidget_bombdeco->SetVisibility(hasBombs && mPbCapacity > 0, kTM_Children);
 }
 
 void CHudBallInterface::SetBallModeFactor(float t) {
   float tmp = gpTweakGui->GetBallViewportYReduction() * 448.0f * 0.5f;
   float zOffset = t * tmp - tmp;
   zOffset *= 0.01f;
-  x0_camera->SetO2PTransform(CTransform4f::Translate(
-      CVector3f(x34_camPos.GetX(), x34_camPos.GetY(), zOffset + x34_camPos.GetZ())));
+  mCamera->SetO2PTransform(CTransform4f::Translate(
+      CVector3f(mCamPos.GetX(), mCamPos.GetY(), zOffset + mCamPos.GetZ())));
 }
 
 void CHudBallInterface::UpdatePowerBombReadoutColors() {
-  bool hasPbsCapacity = x44_pbCapacity > 0;
-  bool hasPbsAmount = x40_pbAmount > 0;
+  bool hasPbsCapacity = mPbCapacity > 0;
+  bool hasPbsAmount = mPbAmount > 0;
   CColor clear(0);
 
   const CColor* fontColor = nullptr;
@@ -114,7 +114,7 @@ void CHudBallInterface::UpdatePowerBombReadoutColors() {
   } else {
     fontColor = &clear;
   }
-  x10_textpane_bombdigits->TextSupport().SetFontColor(*fontColor);
+  mTextpane_bombdigits->TextSupport().SetFontColor(*fontColor);
 
   const CColor* outlineColor = nullptr;
   if (hasPbsAmount) {
@@ -124,11 +124,11 @@ void CHudBallInterface::UpdatePowerBombReadoutColors() {
   } else {
     outlineColor = &clear;
   }
-  x10_textpane_bombdigits->TextSupport().SetOutlineColor(*outlineColor);
+  mTextpane_bombdigits->TextSupport().SetOutlineColor(*outlineColor);
 
   const CColor* iconColor = nullptr;
   bool hasLastDisplay = false;
-  if (hasPbsAmount && x4c_hasPb)
+  if (hasPbsAmount && mHasPb)
     hasLastDisplay = true;
 
   if (hasLastDisplay)
@@ -138,5 +138,5 @@ void CHudBallInterface::UpdatePowerBombReadoutColors() {
   else
     iconColor = &clear;
 
-  xc_model_bombicon->SetColor(*iconColor);
+  mModel_bombicon->SetColor(*iconColor);
 }

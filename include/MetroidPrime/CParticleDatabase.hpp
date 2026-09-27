@@ -55,9 +55,9 @@ public:
   void AddAuxiliaryParticleEffect(const rstl::string& name, int flags,
                                   const CAuxiliaryParticleData& data, const CVector3f& scale,
                                   CStateManager& mgr, TAreaId areaId, int lightIdx);
-  void SetUpdatesEnabled(bool enabled) { xb4_24_updatesEnabled = enabled; }
+  void SetUpdatesEnabled(bool enabled) { mUpdatesEnabled = enabled; }
 
-  bool AreAnySystemsDrawnWithModel() const { return xb4_25_anySystemsDrawnWithModel; }
+  bool AreAnySystemsDrawnWithModel() const { return mAnySystemsDrawnWithModel; }
 
 private:
   static void SetModulationColorAllActiveEffectsForParticleDB(const CColor& color, DrawMap& map);
@@ -75,17 +75,17 @@ private:
   void InsertParticleGen(const bool oneShot, int flags, const rstl::string& name,
                          const rstl::auto_ptr< CParticleGenInfo >& gen);
 
-  rstl::map< CAssetId, rstl::rc_ptr< TLockedToken< CGenDescription > > > x0_particleDescs;
-  rstl::map< CAssetId, rstl::rc_ptr< TLockedToken< CSwooshDescription > > > x14_swooshDescs;
-  rstl::map< CAssetId, rstl::rc_ptr< TLockedToken< CElectricDescription > > > x28_electricDescs;
-  DrawMap x3c_rendererDrawLoop;
-  DrawMap x50_firstDrawLoop;
-  DrawMap x64_lastDrawLoop;
-  DrawMap x78_rendererDraw;
-  DrawMap x8c_firstDraw;
-  DrawMap xa0_lastDraw;
-  bool xb4_24_updatesEnabled : 1;
-  bool xb4_25_anySystemsDrawnWithModel : 1;
+  rstl::map< CAssetId, rstl::rc_ptr< TLockedToken< CGenDescription > > > mParticleDescs;
+  rstl::map< CAssetId, rstl::rc_ptr< TLockedToken< CSwooshDescription > > > mSwooshDescs;
+  rstl::map< CAssetId, rstl::rc_ptr< TLockedToken< CElectricDescription > > > mElectricDescs;
+  DrawMap mRendererDrawLoop;
+  DrawMap mFirstDrawLoop;
+  DrawMap mLastDrawLoop;
+  DrawMap mRendererDraw;
+  DrawMap mFirstDraw;
+  DrawMap mLastDraw;
+  bool mUpdatesEnabled : 1;
+  bool mAnySystemsDrawnWithModel : 1;
 };
 CHECK_SIZEOF(CParticleDatabase, 0xb8)
 

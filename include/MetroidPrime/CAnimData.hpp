@@ -57,45 +57,45 @@ public:
   ~CAnimData();
 
   void PreRender();
-  bool GetIsLoop() const { return x220_25_loop; }
+  bool GetIsLoop() const { return mLoop; }
   void EnableLooping(const bool v) {
-    x220_25_loop = v;
-    x220_24_animating = true;
+    mLoop = v;
+    mAnimating = true;
   }
 
-  const TLockedToken< CSkinnedModel >& GetModelData() const { return xd8_modelData; }
-  CSkinnedModel* GetXRayModel() const { return xf4_xrayModel.GetPtr(); }
-  CSkinnedModel* GetInfraModel() const { return xf8_infraModel.GetPtr(); }
+  const TLockedToken< CSkinnedModel >& GetModelData() const { return mModelData; }
+  CSkinnedModel* GetXRayModel() const { return mXrayModel.GetPtr(); }
+  CSkinnedModel* GetInfraModel() const { return mInfraModel.GetPtr(); }
 
-  void SetIsAnimating(bool v) { x220_24_animating = v; }
-  bool IsAnimating() const { return x220_24_animating; }
+  void SetIsAnimating(bool v) { mAnimating = v; }
+  bool IsAnimating() const { return mAnimating; }
   void SetParticleCEXTValue(const rstl::string& name, int index, float value);
   void SetParticleEffectState(const rstl::string& name, const bool active, CStateManager& mgr);
 
-  CAssetId GetSelfId() const { return x1d8_selfId; }
-  int GetCharacterIndex() const { return x204_charIdx; }
+  CAssetId GetSelfId() const { return mSelfId; }
+  int GetCharacterIndex() const { return mCharIdx; }
   float GetAverageVelocity(int idx) const;
 
   const CBoolPOINode* GetBoolPOIList(int& count) const {
-    count = x20c_passedBoolCount;
+    count = mPassedBoolCount;
     return mBoolPOINodes.data();
   }
   const CInt32POINode* GetInt32POIList(int& count) const {
-    count = x210_passedIntCount;
+    count = mPassedIntCount;
     return mInt32POINodes.data();
   }
   const CParticlePOINode* GetParticlePOIList(int& count) const {
-    count = x214_passedParticleCount;
+    count = mPassedParticleCount;
     return mParticlePOINodes.data();
   }
   const CSoundPOINode* GetSoundPOIList(int& count) const {
-    count = x218_passedSoundCount;
+    count = mPassedSoundCount;
     return mSoundPOINodes.data();
   }
-  CParticleDatabase& GetParticleDB() { return x120_particleDB; }
-  const CParticleDatabase& GetParticleDB() const { return x120_particleDB; }
+  CParticleDatabase& GetParticleDB() { return mParticleDB; }
+  const CParticleDatabase& GetParticleDB() const { return mParticleDB; }
   // SetIsAnimating__9CAnimDataFb
-  void SetAnimDir(EAnimDir dir) { x104_animDir = dir; }
+  void SetAnimDir(EAnimDir dir) { mAnimDir = dir; }
   CAABox GetBoundingBox() const;
   CAABox GetBoundingBox(const CTransform4f& xf) const;
   CSegId GetLocatorSegId(const rstl::string& name) const;
@@ -164,9 +164,9 @@ public:
 
   float GetAdditiveAnimationWeight(uint idx);
 
-  short GetCurrentAnimation() const { return x208_currentAnim; }
-  const CCharacterInfo& GetCharacterInfo() const { return xc_charInfo; }
-  const CCharLayoutInfo* GetCharLayoutInfo() const { return *xcc_layoutData; }
+  short GetCurrentAnimation() const { return mCurrentAnim; }
+  const CCharacterInfo& GetCharacterInfo() const { return mCharInfo; }
+  const CCharLayoutInfo* GetCharLayoutInfo() const { return *mLayoutData; }
   // GetDeltaRotation__9CAnimDataCFv
   // GetDeltaOffset__9CAnimDataCFv
   // IsDeltaOffsetInUse__9CAnimDataCFv
@@ -179,7 +179,7 @@ public:
   // GetAnimDir__9CAnimDataCFv
   // GetIsLoop__9CAnimDataCFv
   // IsAnimating__9CAnimDataCFv
-  void SetPoseBuilderValid(bool valid) { x220_30_poseBuilt = valid; }
+  void SetPoseBuilderValid(bool valid) { mPoseBuilt = valid; }
   rstl::rc_ptr< CAnimationManager > GetAnimationManager() const;
   // GetPoseValid__9CAnimDataCFv
   // GetPoseBuilderValid__9CAnimDataCFv
@@ -187,68 +187,68 @@ public:
   // CacheInt32PoiList__9CAnimDataFRC13CCharAnimTimeiRCQ24rstl25ncrc_ptr<13CAnimTreeNode>
 
   const rstl::optional_object< TLockedToken< CSkinnedModelWithAvgNormals > >& GetIceModel() const {
-    return xe4_iceModelData;
+    return mIceModelData;
   }
-  const CPASDatabase& GetPASDatabase() const { return xc_charInfo.GetPASDatabase(); }
+  const CPASDatabase& GetPASDatabase() const { return mCharInfo.GetPASDatabase(); }
   // EnableLooping__9CAnimDataFb
   // GetSkinnedModel__9CAnimDataCFv
   // GetXRayModel__9CAnimDataCFv
   // GetInfraModel__9CAnimDataCFv
-  const CPoseAsTransforms& GetPose() const { return x224_pose; }
-  CHierarchyPoseBuilder& PoseBuilder() const { return x2fc_poseBuilder; }
-  float GetPlaybackRate() const { return x200_speedScale; }
+  const CPoseAsTransforms& GetPose() const { return mPose; }
+  CHierarchyPoseBuilder& PoseBuilder() const { return mPoseBuilder; }
+  float GetPlaybackRate() const { return mSpeedScale; }
   // Pose__9CAnimDataFv
-  const CHierarchyPoseBuilder& GetPoseBuilder() const { return x2fc_poseBuilder; }
+  const CHierarchyPoseBuilder& GetPoseBuilder() const { return mPoseBuilder; }
 
   // CacheSoundPoiList__9CAnimDataFRCQ24rstl25ncrc_ptr<13CAnimTreeNode>RC13CCharAnimTimei
   // CacheParticlePoiList__9CAnimDataFRCQ24rstl25ncrc_ptr<13CAnimTreeNode>RC13CCharAnimTimei
   // CacheBoolPoiList__9CAnimDataFRCQ24rstl25ncrc_ptr<13CAnimTreeNode>RC13CCharAnimTimei
   // CacheInt32PoiList__9CAnimDataFRCQ24rstl25ncrc_ptr<13CAnimTreeNode>RC13CCharAnimTimei
 
-  void SetParticleLightIdx(int lightIdx) { x21c_particleLightIdx = lightIdx; }
+  void SetParticleLightIdx(int lightIdx) { mParticleLightIdx = lightIdx; }
 
   static void InitializeCache();
   static void FreeCache();
 
 private:
-  TLockedToken< CCharacterFactory > x0_charFactory;
-  CCharacterInfo xc_charInfo;
-  TLockedToken< CCharLayoutInfo > xcc_layoutData;
-  TLockedToken< CSkinnedModel > xd8_modelData;
-  rstl::optional_object< TLockedToken< CSkinnedModelWithAvgNormals > > xe4_iceModelData;
-  rstl::rc_ptr< CSkinnedModel > xf4_xrayModel;
-  rstl::rc_ptr< CSkinnedModel > xf8_infraModel;
-  rstl::ncrc_ptr< CAnimSysContext > xfc_animCtx;
-  rstl::rc_ptr< CAnimationManager > x100_animMgr;
-  EAnimDir x104_animDir;
-  CAABox x108_aabb;
-  CParticleDatabase x120_particleDB;
-  CAssetId x1d8_selfId;
-  CVector3f x1dc_alignPos;
-  CQuaternion x1e8_alignRot;
-  rstl::ncrc_ptr< CAnimTreeNode > x1f8_animRoot;
-  rstl::rc_ptr< CTransitionManager > x1fc_transMgr;
-  float x200_speedScale;
-  int x204_charIdx;
-  short x208_currentAnim;
-  short x20a_padding;
-  int x20c_passedBoolCount;
-  int x210_passedIntCount;
-  int x214_passedParticleCount;
-  int x218_passedSoundCount;
-  int x21c_particleLightIdx;
-  bool x220_24_animating : 1;
-  bool x220_25_loop : 1;
-  bool x220_26_aligningPos : 1;
+  TLockedToken< CCharacterFactory > mCharFactory;
+  CCharacterInfo mCharInfo;
+  TLockedToken< CCharLayoutInfo > mLayoutData;
+  TLockedToken< CSkinnedModel > mModelData;
+  rstl::optional_object< TLockedToken< CSkinnedModelWithAvgNormals > > mIceModelData;
+  rstl::rc_ptr< CSkinnedModel > mXrayModel;
+  rstl::rc_ptr< CSkinnedModel > mInfraModel;
+  rstl::ncrc_ptr< CAnimSysContext > mAnimCtx;
+  rstl::rc_ptr< CAnimationManager > mAnimMgr;
+  EAnimDir mAnimDir;
+  CAABox mAabb;
+  CParticleDatabase mParticleDB;
+  CAssetId mSelfId;
+  CVector3f mAlignPos;
+  CQuaternion mAlignRot;
+  rstl::ncrc_ptr< CAnimTreeNode > mAnimRoot;
+  rstl::rc_ptr< CTransitionManager > mTransMgr;
+  float mSpeedScale;
+  int mCharIdx;
+  short mCurrentAnim;
+  short mPadding;
+  int mPassedBoolCount;
+  int mPassedIntCount;
+  int mPassedParticleCount;
+  int mPassedSoundCount;
+  int mParticleLightIdx;
+  bool mAnimating : 1;
+  bool mLoop : 1;
+  bool mAligningPos : 1;
   bool x220_27_ : 1;
   bool x220_28_ : 1;
-  bool x220_29_animationJustStarted : 1;
-  bool x220_30_poseBuilt : 1;
-  bool x220_31_poseCached : 1;
-  CPoseAsTransforms x224_pose;
-  mutable CHierarchyPoseBuilder x2fc_poseBuilder;
-  CAnimPlaybackParms x40c_playbackParms;
-  rstl::reserved_vector< rstl::pair< uint, CAdditiveAnimPlayback >, 8 > x434_additiveAnims;
+  bool mAnimationJustStarted : 1;
+  bool mPoseBuilt : 1;
+  bool mPoseCached : 1;
+  CPoseAsTransforms mPose;
+  mutable CHierarchyPoseBuilder mPoseBuilder;
+  CAnimPlaybackParms mPlaybackParms;
+  rstl::reserved_vector< rstl::pair< uint, CAdditiveAnimPlayback >, 8 > mAdditiveAnims;
 
   static rstl::reserved_vector< CBoolPOINode, 8 > mBoolPOINodes;
   static rstl::reserved_vector< CInt32POINode, 16 > mInt32POINodes;

@@ -36,68 +36,68 @@ public:
 
   void ActivateLights() const;
   uint GetActiveLightCount() const;
-  uint GetActiveAreaLightCount() const { return x0_areaLights.size(); }
+  uint GetActiveAreaLightCount() const { return mAreaLights.size(); }
   const CLight& GetLight(uint idx) const;
 
-  bool GetNeedsRelight() const { return x298_24_dirty == TRUE; }
-  bool HasShadowLight() const { return x29c_shadowLightArrIdx != kInvalidShadowLightIndex; }
-  const TAreaId GetAreaLightIndexForShadowLight() const { return x29c_shadowLightArrIdx; }
-  uint GetShadowLightArrIndex() const { return x29c_shadowLightArrIdx; }
-  int GetShadowLightIndex() const { return x2a0_shadowLightIdx; }
+  bool GetNeedsRelight() const { return mDirty == TRUE; }
+  bool HasShadowLight() const { return mShadowLightArrIdx != kInvalidShadowLightIndex; }
+  const TAreaId GetAreaLightIndexForShadowLight() const { return mShadowLightArrIdx; }
+  uint GetShadowLightArrIndex() const { return mShadowLightArrIdx; }
+  int GetShadowLightIndex() const { return mShadowLightIdx; }
   CColor GetAmbientColor() const {
-    return CColor(x288_ambientColor.GetX(), x288_ambientColor.GetY(), x288_ambientColor.GetZ(), 1.f);
+    return CColor(mAmbientColor.GetX(), mAmbientColor.GetY(), mAmbientColor.GetZ(), 1.f);
   }
 
   void SetAmbientColor(const CColor& color);
-  void SetNeedsRelight(bool v) { x298_24_dirty = v; }
-  void SetActorPositionBias(const CVector3f& bias) { x2ac_lightingPositionOffset = bias; }
-  void SetCastShadows(bool v) { x298_25_castShadows = v; }
-  void SetFindShadowLight(bool v) { x298_27_findShadowLight = v; }
-  void SetShadowDynamicRangeThreshold(float t) { x2d0_shadowDynamicRangeThreshold = t; }
+  void SetNeedsRelight(bool v) { mDirty = v; }
+  void SetActorPositionBias(const CVector3f& bias) { mLightingPositionOffset = bias; }
+  void SetCastShadows(bool v) { mCastShadows = v; }
+  void SetFindShadowLight(bool v) { mFindShadowLight = v; }
+  void SetShadowDynamicRangeThreshold(float t) { mShadowDynamicRangeThreshold = t; }
 
   void SetMaxAreaLights(int n) {
-    x2b8_maxAreaLights = n;
-    x298_26_hasAreaLights = x2b8_maxAreaLights > 0;
+    mMaxAreaLights = n;
+    mHasAreaLights = mMaxAreaLights > 0;
   }
-  void SetInArea(bool v) { x298_28_inArea = v; }
-  void SetMaxDynamicLights(int n) { x2bc_maxDynamicLights = n; }
-  void SetAmbienceGenerated(bool v) { x298_29_ambienceGenerated = v; }
-  void SetFindNearestDynamicLights(bool v) { x29a_findNearestDynamicLights = v; }
-  bool GetIsDirty() const { return x298_24_dirty; }
-  int GetMaxAreaLights() const { return x2b8_maxAreaLights; }
-  uint GetFramesBetweenRecalculation() const { return x2a8_areaUpdateFramePeriod; }
-  void SetFramesBetweenRecalculation(uint period) { x2a8_areaUpdateFramePeriod = period; }
+  void SetInArea(bool v) { mInArea = v; }
+  void SetMaxDynamicLights(int n) { mMaxDynamicLights = n; }
+  void SetAmbienceGenerated(bool v) { mAmbienceGenerated = v; }
+  void SetFindNearestDynamicLights(bool v) { mFindNearestDynamicLights = v; }
+  bool GetIsDirty() const { return mDirty; }
+  int GetMaxAreaLights() const { return mMaxAreaLights; }
+  uint GetFramesBetweenRecalculation() const { return mAreaUpdateFramePeriod; }
+  void SetFramesBetweenRecalculation(uint period) { mAreaUpdateFramePeriod = period; }
 
 private:
-  rstl::reserved_vector< CLight, 4 > x0_areaLights;
-  rstl::reserved_vector< CLight, 4 > x144_dynamicLights;
-  CVector3f x288_ambientColor;
-  TAreaId x294_aid;
-  bool x298_24_dirty : 1;
-  bool x298_25_castShadows : 1;
-  bool x298_26_hasAreaLights : 1;
-  bool x298_27_findShadowLight : 1;
-  bool x298_28_inArea : 1;
-  bool x298_29_ambienceGenerated : 1;
-  bool x298_30_layer2 : 1;
-  bool x298_31_disableWorldLights : 1;
-  bool x299_24_inBrightLight : 1;
-  bool x299_25_useBrightLightLag : 1;
-  bool x299_26_ambientOnly : 1;
-  bool x29a_findNearestDynamicLights;
-  uint x29c_shadowLightArrIdx;
-  int x2a0_shadowLightIdx;
-  uint x2a4_lastUpdateFrame;
-  uint x2a8_areaUpdateFramePeriod;
-  CVector3f x2ac_lightingPositionOffset;
-  int x2b8_maxAreaLights;
-  int x2bc_maxDynamicLights;
-  CVector3f x2c0_lastActorPos;
-  float x2cc_actorPositionDeltaUpdateThreshold;
-  float x2d0_shadowDynamicRangeThreshold;
-  float x2d4_worldLightingLevel;
-  int x2d8_brightLightIdx;
-  uint x2dc_brightLightLag;
+  rstl::reserved_vector< CLight, 4 > mAreaLights;
+  rstl::reserved_vector< CLight, 4 > mDynamicLights;
+  CVector3f mAmbientColor;
+  TAreaId mAid;
+  bool mDirty : 1;
+  bool mCastShadows : 1;
+  bool mHasAreaLights : 1;
+  bool mFindShadowLight : 1;
+  bool mInArea : 1;
+  bool mAmbienceGenerated : 1;
+  bool mLayer2 : 1;
+  bool mDisableWorldLights : 1;
+  bool mInBrightLight : 1;
+  bool mUseBrightLightLag : 1;
+  bool mAmbientOnly : 1;
+  bool mFindNearestDynamicLights;
+  uint mShadowLightArrIdx;
+  int mShadowLightIdx;
+  uint mLastUpdateFrame;
+  uint mAreaUpdateFramePeriod;
+  CVector3f mLightingPositionOffset;
+  int mMaxAreaLights;
+  int mMaxDynamicLights;
+  CVector3f mLastActorPos;
+  float mActorPositionDeltaUpdateThreshold;
+  float mShadowDynamicRangeThreshold;
+  float mWorldLightingLevel;
+  int mBrightLightIdx;
+  uint mBrightLightLag;
 
   void UpdateBrightLight();
   void MultiplyLightingLevels(float level);

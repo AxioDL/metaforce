@@ -36,8 +36,8 @@ public:
 
 private:
   uint xe8_;
-  rstl::vector< TUniqueId > xec_waypoints;
-  rstl::optional_object< CAABox > xfc_aabox;
+  rstl::vector< TUniqueId > mWaypoints;
+  rstl::optional_object< CAABox > mAabox;
 };
 
 #endif // _CSCRIPTSPIDERBALLWAYPOINT

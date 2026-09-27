@@ -5,13 +5,13 @@
 
 class CScriptAiJumpPoint : public CActor {
 private:
-  float xe8_apex;
-  rstl::optional_object<CAABox> xec_touchBounds;
-  bool x108_24_inUse : 1;
-  TUniqueId x10a_occupant;
-  TUniqueId x10c_currentWaypoint;
-  TUniqueId x10e_nextWaypoint;
-  float x110_timeRemaining;
+  float mApex;
+  rstl::optional_object<CAABox> mTouchBounds;
+  bool mInUse : 1;
+  TUniqueId mOccupant;
+  TUniqueId mCurrentWaypoint;
+  TUniqueId mNextWaypoint;
+  float mTimeRemaining;
 
 public:
   CScriptAiJumpPoint(TUniqueId, const rstl::string&, const CEntityInfo&, const CTransform4f&, bool,
@@ -25,9 +25,9 @@ public:
   void Render(const CStateManager&) const override;
   rstl::optional_object< CAABox > GetTouchBounds() const override;
   bool GetInUse(TUniqueId uid) const;
-  TUniqueId GetJumpPoint() const { return x10c_currentWaypoint; }
-  TUniqueId GetJumpTarget() const { return x10e_nextWaypoint; }
-  float GetJumpApex() const { return xe8_apex; }
+  TUniqueId GetJumpPoint() const { return mCurrentWaypoint; }
+  TUniqueId GetJumpTarget() const { return mNextWaypoint; }
+  float GetJumpApex() const { return mApex; }
 };
 
 #endif // _CSCRIPTAIJUMPPOINT

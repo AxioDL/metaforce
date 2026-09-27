@@ -21,7 +21,7 @@ public:
   bool HasMsg(TEditorId id) const;
 
 private:
-  rstl::reserved_vector< TEditorId, 512 > x0_relays;
+  rstl::reserved_vector< TEditorId, 512 > mRelays;
 };
 
 #endif // _CSCRIPTMAILBOX

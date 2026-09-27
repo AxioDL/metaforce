@@ -49,37 +49,37 @@ CParasite::CParasite(TUniqueId uid, const rstl::string& name, CPatterned::EFlavo
 : CWallWalker(kC_Parasite, uid, name, flavor, info, xf, mData, pInfo, kMT_Flyer, kCT_Zero, bodyType,
               aParams, kCS_Small, collisionCloseMargin, wType, disableMove, alignAngVel,
               advanceWpRadius, playerObstructionMinDist)
-, x5d8_doorRepulsors()
-, x5e8_stateProgress(-1)
+, mDoorRepulsors()
+, mStateProgress(-1)
 , x5ec_(0.f, 0.f, 0.f)
-, x5f8_targetPos(0.f, 0.f, 0.f)
-, x604_activeSpeed(1.f)
-, x608_telegraphRemTime(0.f)
-, x60c_stuckTime(0.f)
-, x614_lastStuckPos(CVector3f::Zero())
-, x620_collisionActorManager(nullptr)
-, x624_extraModel(nullptr)
-, x628_parasiteSeparationMove(0.f, 0.f, 0.f)
-, x634_parasiteCohesionMove(0.f, 0.f, 0.f)
-, x640_parasiteAlignmentMove(0.f, 0.f, 0.f)
-, x64c_oculusHaltDVuln(dVuln)
-, x6b4_oculusHaltDInfo(dInfo)
-, x6d0_maxTelegraphReactDist(maxTelegraphReactDist)
+, mTargetPos(0.f, 0.f, 0.f)
+, mActiveSpeed(1.f)
+, mTelegraphRemTime(0.f)
+, mStuckTime(0.f)
+, mLastStuckPos(CVector3f::Zero())
+, mCollisionActorManager(nullptr)
+, mExtraModel(nullptr)
+, mParasiteSeparationMove(0.f, 0.f, 0.f)
+, mParasiteCohesionMove(0.f, 0.f, 0.f)
+, mParasiteAlignmentMove(0.f, 0.f, 0.f)
+, mOculusHaltDVuln(dVuln)
+, mOculusHaltDInfo(dInfo)
+, mMaxTelegraphReactDist(maxTelegraphReactDist)
 , x6d4_(f3)
 , x6dc_(f5)
-, x6e0_stuckTimeThreshold(stuckTimeThreshold)
-, x6e4_parasiteSearchRadius(parasiteSearchRadius)
-, x6e8_parasiteSeparationDist(parasiteSeparationDist)
-, x6ec_parasiteSeparationWeight(parasiteSeparationWeight)
-, x6f0_parasiteAlignmentWeight(parasiteAlignmentWeight)
-, x6f4_parasiteCohesionWeight(parasiteCohesionWeight)
-, x6f8_destinationSeekWeight(destinationSeekWeight)
-, x6fc_forwardMoveWeight(forwardMoveWeight)
-, x700_playerSeparationDist(playerSeparationDist)
-, x704_playerSeparationWeight(playerSeparationWeight)
-, x708_unmorphedRadius(pInfo.GetHeight() / 2.f)
-, x710_haltDelay(haltDelay)
-, x714_iceZoomerJointHP(iceZoomerJointHP)
+, mStuckTimeThreshold(stuckTimeThreshold)
+, mParasiteSearchRadius(parasiteSearchRadius)
+, mParasiteSeparationDist(parasiteSeparationDist)
+, mParasiteSeparationWeight(parasiteSeparationWeight)
+, mParasiteAlignmentWeight(parasiteAlignmentWeight)
+, mParasiteCohesionWeight(parasiteCohesionWeight)
+, mDestinationSeekWeight(destinationSeekWeight)
+, mForwardMoveWeight(forwardMoveWeight)
+, mPlayerSeparationDist(playerSeparationDist)
+, mPlayerSeparationWeight(playerSeparationWeight)
+, mUnmorphedRadius(pInfo.GetHeight() / 2.f)
+, mHaltDelay(haltDelay)
+, mIceZoomerJointHP(iceZoomerJointHP)
 , x718_(0.f)
 , x71c_(0.f)
 , x720_(0.f)
@@ -89,29 +89,29 @@ CParasite::CParasite(TUniqueId uid, const rstl::string& name, CPatterned::EFlavo
 , x730_(0.f)
 , x734_(0.f)
 , x738_(0.f)
-, x73c_haltSfx(CSfxManager::TranslateSFXID(haltSfx))
-, x73e_getUpSfx(CSfxManager::TranslateSFXID(getUpSfx))
-, x740_crouchSfx(CSfxManager::TranslateSFXID(crouchSfx))
-, x742_24_receivedTelegraph(false)
-, x742_25_jumpVelDirty(false)
+, mHaltSfx(CSfxManager::TranslateSFXID(haltSfx))
+, mGetUpSfx(CSfxManager::TranslateSFXID(getUpSfx))
+, mCrouchSfx(CSfxManager::TranslateSFXID(crouchSfx))
+, mReceivedTelegraph(false)
+, mJumpVelDirty(false)
 , x742_26_(false)
-, x742_27_landed(false)
-, x742_28_onGround(true)
+, mLanded(false)
+, mOnGround(true)
 , x742_29_(false)
-, x742_30_attackOver(true)
+, mAttackOver(true)
 , x742_31_(false)
-, x743_24_halted(false)
-, x743_26_oculusShotAt(false)
-, x743_27_inJump(false) {
+, mHalted(false)
+, mOculusShotAt(false)
+, mInJump(false) {
   SetCallTouch(false);
-  switch (x5d0_walkerType) {
+  switch (mWalkerType) {
   case kWT_Geemer:
-    x460_knockBackController.SetEnableFreeze(false);
+    mKnockBackController.SetEnableFreeze(false);
   case kWT_Oculus:
-    x460_knockBackController.SetAutoResetImpulse(false);
+    mKnockBackController.SetAutoResetImpulse(false);
     break;
   case kWT_IceZoomer:
-    x624_extraModel = rs_new TLockedToken< CSkinnedModel >(
+    mExtraModel = rs_new TLockedToken< CSkinnedModel >(
         rs_new CSkinnedModel(gpSimplePool->GetObj(SObjectTag('CMDL', modelRes)),
                              gpSimplePool->GetObj(SObjectTag('CSKR', skinRes)),
                              GetModelData()->GetAnimationData()->GetModelData()->GetLayoutInfo(),
@@ -120,12 +120,12 @@ CParasite::CParasite(TUniqueId uid, const rstl::string& name, CPatterned::EFlavo
   default:
     break;
   }
-  if (x5d0_walkerType == kWT_Oculus) {
-    x460_knockBackController.SetEnableShock(false);
-    x460_knockBackController.SetEnableBurn(false);
-    x460_knockBackController.SetEnableBurnDeath(false);
-    x460_knockBackController.SetEnableExplodeDeath(false);
-    x460_knockBackController.SetX82_24(false);
+  if (mWalkerType == kWT_Oculus) {
+    mKnockBackController.SetEnableShock(false);
+    mKnockBackController.SetEnableBurn(false);
+    mKnockBackController.SetEnableBurnDeath(false);
+    mKnockBackController.SetEnableExplodeDeath(false);
+    mKnockBackController.SetX82_24(false);
   }
 }
 
@@ -135,42 +135,42 @@ void CParasite::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateM
   CPatterned::AcceptScriptMsg(msg, uid, mgr);
   switch (msg) {
   case kSM_Registered: {
-    x450_bodyController->Activate(mgr);
+    mBodyController->Activate(mgr);
     mgr.ActiveParasites().push_back(GetUniqueId());
     CActor::SetDrawShadow(false);
-    x604_activeSpeed = x3b4_speed;
-    const CVector3f extent(x590_colSphere.GetSphere().GetRadius(),
-                           x590_colSphere.GetSphere().GetRadius(),
-                           x590_colSphere.GetSphere().GetRadius());
+    mActiveSpeed = mSpeed;
+    const CVector3f extent(mColSphere.GetSphere().GetRadius(),
+                           mColSphere.GetSphere().GetRadius(),
+                           mColSphere.GetSphere().GetRadius());
     CPhysicsActor::SetBoundingBox(CAABox(-extent, extent));
     lastParasite = GetUniqueId();
     AddDoorRepulsors(mgr);
-    if (x5d0_walkerType == kWT_IceZoomer) {
+    if (mWalkerType == kWT_IceZoomer) {
       SetupIceZoomerCollision(mgr);
       SetupIceZoomerVulnerability(
-          mgr, x64c_oculusHaltDVuln,
-          CHealthInfo(x714_iceZoomerJointHP, HealthInfo(mgr)->GetKnockBackResistance()));
+          mgr, mOculusHaltDVuln,
+          CHealthInfo(mIceZoomerJointHP, HealthInfo(mgr)->GetKnockBackResistance()));
     }
     break;
   }
   case kSM_Deleted:
     mgr.ActiveParasites().remove(GetUniqueId());
-    if (x5d0_walkerType == kWT_IceZoomer)
+    if (mWalkerType == kWT_IceZoomer)
       DestroyActorManager(mgr);
     break;
   case kSM_Jumped:
-    if (x742_25_jumpVelDirty) {
+    if (mJumpVelDirty) {
       UpdateJumpVelocity();
-      x742_25_jumpVelDirty = false;
+      mJumpVelDirty = false;
     }
     break;
   case kSM_Activate:
-    x5d6_27_disableMove = false;
-    if (x5d0_walkerType == kWT_Parasite)
-      x450_bodyController->SetLocomotionType(pas::kLT_Lurk);
+    mDisableMove = false;
+    if (mWalkerType == kWT_Parasite)
+      mBodyController->SetLocomotionType(pas::kLT_Lurk);
     break;
   case kSM_InvulnDamage:
-    if (x5d0_walkerType == kWT_Oculus) {
+    if (mWalkerType == kWT_Oculus) {
       if (const CActor* act = TCastToConstPtr< CActor >(mgr.GetObjectById(uid))) {
         float distSq = (act->GetTranslation() - GetTranslation()).MagSquared();
         float maxComp = rstl::max_val(
@@ -178,13 +178,13 @@ void CParasite::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateM
             rstl::max_val(GetTouchBounds()->GetDepth(), GetTouchBounds()->GetHeight()));
         float maxCompSq = maxComp * maxComp + 1.f;
         if (distSq < maxCompSq * maxCompSq)
-          x743_26_oculusShotAt = true;
+          mOculusShotAt = true;
       }
     }
     break;
   case kSM_SuspendedMove:
-    if (x620_collisionActorManager.get())
-      x620_collisionActorManager->SetMovable(mgr, false);
+    if (mCollisionActorManager.get())
+      mCollisionActorManager->SetMovable(mgr, false);
     break;
   default:
     break;
@@ -202,7 +202,7 @@ void CParasite::AddDoorRepulsors(CStateManager& mgr) {
       }
     }
   }
-  x5d8_doorRepulsors.reserve(count);
+  mDoorRepulsors.reserve(count);
   for (int i = objects.GetFirstObjectIndex(); i != -1; i = objects.GetNextObjectIndex(i)) {
     CEntity* entity = objects[i];
     if (CScriptDoor* door = TCastToPtr< CScriptDoor >(entity)) {
@@ -210,7 +210,7 @@ void CParasite::AddDoorRepulsors(CStateManager& mgr) {
         rstl::optional_object< CAABox > bounds = door->GetTouchBounds();
         if (bounds.valid()) {
           float diagonal = (bounds->GetMinPoint() - bounds->GetMaxPoint()).Magnitude();
-          x5d8_doorRepulsors.push_back(CRepulsor(bounds->GetCenterPoint(), 0.75f * diagonal));
+          mDoorRepulsors.push_back(CRepulsor(bounds->GetCenterPoint(), 0.75f * diagonal));
         }
       }
     }
@@ -219,100 +219,100 @@ void CParasite::AddDoorRepulsors(CStateManager& mgr) {
 
 void CParasite::PreThink(float dt, CStateManager& mgr) {
   CWallWalker::PreThink(dt, mgr);
-  x743_26_oculusShotAt = false;
+  mOculusShotAt = false;
 }
 
 void CParasite::Think(float dt, CStateManager& mgr) {
   if (!GetActive())
     return;
 
-  ++x5d4_thinkCounter;
-  if (x5d0_walkerType == kWT_IceZoomer)
+  ++mThinkCounter;
+  if (mWalkerType == kWT_IceZoomer)
     UpdateCollisionActors(dt, mgr);
 
-  x5d6_26_playerObstructed = false;
+  mPlayerObstructed = false;
   const CGameArea& area = mgr.GetWorld()->GetAreaAlways(GetCurrentAreaId());
   if (area.GetOcclusionState() != CGameArea::kOS_Visible)
-    x5d6_26_playerObstructed = true;
+    mPlayerObstructed = true;
 
-  if (!x5d6_26_playerObstructed) {
+  if (!mPlayerObstructed) {
     CVector3f plVec = mgr.GetPlayer()->GetTranslation();
     float distance = (plVec - GetTranslation()).Magnitude();
 
-    if (distance > x5c4_playerObstructionMinDist) {
+    if (distance > mPlayerObstructionMinDist) {
       CRayCastResult res =
           mgr.RayStaticIntersection(plVec, (GetTranslation() - plVec).AsNormalized(), distance,
                                     CMaterialFilter::skPassEverything);
       if (res.IsValid())
-        x5d6_26_playerObstructed = true;
+        mPlayerObstructed = true;
     }
   }
 
-  if (x5d6_26_playerObstructed) {
-    xf8_24_movable = false;
+  if (mPlayerObstructed) {
+    mMovable = false;
     return;
   }
 
-  xf8_24_movable = !x5d6_24_alignToFloor;
+  mMovable = !mAlignToFloor;
 
-  if (!x5d6_27_disableMove) {
-    if (close_enough(x450_bodyController->GetPercentageFrozen(), 0.f)) {
-      static const float ksMinMoveDistance = 0.3f * dt * x3b4_speed;
-      const CVector3f stuckDelta = GetTranslation() - x614_lastStuckPos;
+  if (!mDisableMove) {
+    if (close_enough(mBodyController->GetPercentageFrozen(), 0.f)) {
+      static const float ksMinMoveDistance = 0.3f * dt * mSpeed;
+      const CVector3f stuckDelta = GetTranslation() - mLastStuckPos;
       if (stuckDelta.MagSquared() < ksMinMoveDistance * dt)
-        x60c_stuckTime += dt;
+        mStuckTime += dt;
       else
-        x60c_stuckTime = 0.f;
+        mStuckTime = 0.f;
 
-      x614_lastStuckPos = GetTranslation();
-      if (x608_telegraphRemTime > 0.f)
-        x608_telegraphRemTime -= dt;
+      mLastStuckPos = GetTranslation();
+      if (mTelegraphRemTime > 0.f)
+        mTelegraphRemTime -= dt;
       else
-        x608_telegraphRemTime = 0.f;
+        mTelegraphRemTime = 0.f;
     }
   }
 
-  if (x400_25_alive) {
+  if (mAlive) {
     CPlayer* pl = mgr.Player();
     bool useCollisionRadius =
-        pl->GetMorphballTransitionState() == CPlayer::kMS_Morphed || !x742_30_attackOver;
+        pl->GetMorphballTransitionState() == CPlayer::kMS_Morphed || !mAttackOver;
     float radius =
-        useCollisionRadius ? x590_colSphere.GetSphere().GetRadius() : x708_unmorphedRadius;
+        useCollisionRadius ? mColSphere.GetSphere().GetRadius() : mUnmorphedRadius;
 
     const CVector3f extent(radius, radius, radius);
     CAABox aabox(GetTranslation() - extent, GetTranslation() + extent);
     rstl::optional_object< CAABox > plBox = pl->GetTouchBounds();
 
     if (plBox.valid() && plBox->DoBoundsOverlap(aabox)) {
-      if (!x742_30_attackOver) {
-        x742_30_attackOver = true;
-        x742_27_landed = false;
+      if (!mAttackOver) {
+        mAttackOver = true;
+        mLanded = false;
       }
 
-      if (x420_curDamageRemTime <= 0.f) {
+      if (mCurDamageRemTime <= 0.f) {
         mgr.ApplyDamage(
             GetUniqueId(), pl->GetUniqueId(), GetUniqueId(), GetContactDamage(),
             CMaterialFilter::MakeIncludeExclude(CMaterialList(kMT_Solid), CMaterialList()),
             CVector3f::Zero());
-        x420_curDamageRemTime = x424_damageWaitTime;
+        mCurDamageRemTime = mDamageWaitTime;
       }
     }
   }
 
   CWallWalker::Think(dt, mgr);
 
-  if (x5d6_27_disableMove)
+  if (mDisableMove)
     return;
 
-  if (!close_enough(x450_bodyController->GetPercentageFrozen(), 0.f))
+  if (!close_enough(mBodyController->GetPercentageFrozen(), 0.f))
     return;
 
-  x3b4_speed = x604_activeSpeed;
-  if (x5d6_24_alignToFloor)
-    AlignToFloor(mgr, x590_colSphere.GetSphere().GetRadius(),
+  mSpeed = mActiveSpeed;
+  if (mAlignToFloor)
+    AlignToFloor(mgr, mColSphere.GetSphere().GetRadius(),
                  GetTranslation() + 2.f * (dt * GetVelocityWR()), dt);
 
-  x742_27_landed = false;
+  mLanded = false;
 }
 
 CAdvancementDeltas CParasite::UpdateWalkerAnimation(CStateManager& mgr, float dt) {
@@ -322,7 +322,7 @@ CAdvancementDeltas CParasite::UpdateWalkerAnimation(CStateManager& mgr, float dt
 void CParasite::UpdateJumpVelocity() {
   SetMomentumWR(CVector3f(0.f, 0.f, -GetWeight()));
   CVector3f velocity = CVector3f::Zero();
-  if (!x742_30_attackOver) {
+  if (!mAttackOver) {
     float speed = skAttackVelocity;
     velocity = speed * GetTransform().GetForward();
     velocity[kDZ] = 0.5f * skAttackVelocity;
@@ -332,9 +332,9 @@ void CParasite::UpdateJumpVelocity() {
     velocity[kDZ] = 0.5f * skRetreatVelocity;
   }
   const CVector3f& position = GetTranslation();
-  float height = x5f8_targetPos[kDZ] - position[kDZ];
+  float height = mTargetPos[kDZ] - position[kDZ];
   float acceleration = GetMomentumWR()[kDZ] / GetMass();
-  CVector3f delta(x5f8_targetPos[kDX] - position[kDX], x5f8_targetPos[kDY] - position[kDY], 0.f);
+  CVector3f delta(mTargetPos[kDX] - position[kDX], mTargetPos[kDY] - position[kDY], 0.f);
   float distance = delta.Magnitude();
   if (distance > FLT_EPSILON) {
     delta *= 1.f / distance;
@@ -366,22 +366,22 @@ void CParasite::ThinkAboutMove(float dt) {
     CPatterned::ThinkAboutMove(dt);
 }
 
-bool CParasite::Stuck(CStateManager&, float) { return x60c_stuckTime > x6e0_stuckTimeThreshold; }
+bool CParasite::Stuck(CStateManager&, float) { return mStuckTime > mStuckTimeThreshold; }
 
-bool CParasite::AttackOver(CStateManager&, float) { return x742_30_attackOver; }
+bool CParasite::AttackOver(CStateManager&, float) { return mAttackOver; }
 
 bool CParasite::ShotAt(CStateManager&, float) {
-  if (x5d0_walkerType != kWT_Oculus)
-    return x400_24_hitByPlayerProjectile;
-  return x743_26_oculusShotAt;
+  if (mWalkerType != kWT_Oculus)
+    return mHitByPlayerProjectile;
+  return mOculusShotAt;
 }
 
 bool CParasite::CloseToWall(CStateManager& mgr) {
   static const CMaterialFilter kSolidFilter =
       CMaterialFilter::MakeInclude(CMaterialList(kMT_Solid));
   const CAABox& bounds = CPhysicsActor::GetBoundingBox();
-  float radius = x590_colSphere.GetSphere().GetRadius();
-  float margin = radius + x5b0_collisionCloseMargin;
+  float radius = mColSphere.GetSphere().GetRadius();
+  float margin = radius + mCollisionCloseMargin;
   CAABox expanded(bounds.GetMinPoint() - CVector3f(margin, margin, margin),
                   bounds.GetMaxPoint() + CVector3f(margin, margin, margin));
   CCollidableAABox collisionBox(expanded, GetMaterialList());
@@ -391,16 +391,16 @@ bool CParasite::CloseToWall(CStateManager& mgr) {
 
 void CParasite::CollidedWith(const TUniqueId& uid, const CCollisionInfoList& list, CStateManager&) {
   static const CMaterialList testList = CMaterialList(kMT_Player, kMT_Character);
-  if (x743_27_inJump) {
+  if (mInJump) {
     for (AUTO(it, list.Begin()); it < list.End(); ++it) {
       const CCollisionInfo& info = *it;
-      if (!x5d6_24_alignToFloor && !testList.SharesMaterials(info.GetMaterialLeft())) {
+      if (!mAlignToFloor && !testList.SharesMaterials(info.GetMaterialLeft())) {
         const CVector3f normal = info.GetNormalLeft();
         OrientToSurfaceNormal(normal, 360.f);
         CPhysicsActor::Stop();
         SetVelocityWR(CVector3f::Zero());
-        x742_27_landed = true;
-        x742_28_onGround = true;
+        mLanded = true;
+        mOnGround = true;
       }
     }
   }
@@ -416,8 +416,8 @@ TUniqueId CParasite::RecursiveFindClosestWayPoint(CStateManager& mgr, TUniqueId 
   dist = (wp->GetTranslation() - GetTranslation()).MagSquared();
   for (AUTO(it, wp->GetConnectionList().begin()); it != wp->GetConnectionList().end(); ++it) {
     const SConnection& conn = *it;
-    if (conn.x0_state == kSS_Arrived && conn.x4_msg == kSM_Next) {
-      TUniqueId nextId = mgr.GetIdForScript(conn.x8_objId);
+    if (conn.mState == kSS_Arrived && conn.mMsg == kSM_Next) {
+      TUniqueId nextId = mgr.GetIdForScript(conn.mObjId);
       if (nextId != kInvalidUniqueId) {
         if (const CScriptWaypoint* wp2 =
                 TCastToConstPtr< CScriptWaypoint >(mgr.GetObjectById(nextId))) {
@@ -443,8 +443,8 @@ TUniqueId CParasite::GetClosestWaypointForState(EScriptObjectState state,
   TUniqueId ret = kInvalidUniqueId;
   for (AUTO(it, GetConnectionList().begin()); it != GetConnectionList().end(); ++it) {
     const SConnection& conn = *it;
-    if (state == conn.x0_state && conn.x4_msg == kSM_Follow) {
-      TUniqueId id = mgr.GetIdForScript(conn.x8_objId);
+    if (state == conn.mState && conn.mMsg == kSM_Follow) {
+      TUniqueId id = mgr.GetIdForScript(conn.mObjId);
       float dist;
       TUniqueId closestWp = RecursiveFindClosestWayPoint(mgr, id, dist);
       if (dist < minDist) {
@@ -456,19 +456,19 @@ TUniqueId CParasite::GetClosestWaypointForState(EScriptObjectState state,
   return ret;
 }
 
-bool CParasite::AnimOver(CStateManager&, float) { return x5e8_stateProgress == 2; }
+bool CParasite::AnimOver(CStateManager&, float) { return mStateProgress == 2; }
 
-bool CParasite::Landed(CStateManager&, float) { return x742_27_landed; }
+bool CParasite::Landed(CStateManager&, float) { return mLanded; }
 
 bool CParasite::HitSomething(CStateManager& mgr, float) {
-  if (x5d4_thinkCounter & 0x1)
+  if (mThinkCounter & 0x1)
     return true;
-  return x5b8_tumbleAngle < 270.f && CloseToWall(mgr);
+  return mTumbleAngle < 270.f && CloseToWall(mgr);
 }
 
 bool CParasite::ShouldAttack(CStateManager& mgr, float arg) {
   bool shouldAttack = false;
-  if (x742_24_receivedTelegraph && x608_telegraphRemTime > 0.1f)
+  if (mReceivedTelegraph && mTelegraphRemTime > 0.1f)
     shouldAttack = true;
   return !TooClose(mgr, arg) && InMaxRange(mgr, arg) &&
          (shouldAttack || InDetectionRange(mgr, 0.f));
@@ -477,20 +477,20 @@ bool CParasite::ShouldAttack(CStateManager& mgr, float arg) {
 void CParasite::Generate(CStateManager&, EStateMsg msg, float) {
   switch (msg) {
   case kStateMsg_Activate:
-    x5e8_stateProgress = 0;
+    mStateProgress = 0;
     break;
   case kStateMsg_Update:
-    switch (x5e8_stateProgress) {
+    switch (mStateProgress) {
     case 0:
-      if (x450_bodyController->GetCurrentStateId() == pas::kAS_Generate)
-        x5e8_stateProgress = 1;
+      if (mBodyController->GetCurrentStateId() == pas::kAS_Generate)
+        mStateProgress = 1;
       else
-        x450_bodyController->CommandMgr().DeliverCmd(
+        mBodyController->CommandMgr().DeliverCmd(
             CBCGenerateCmd(pas::kGType_Zero, CVector3f::Zero(), false, false));
       break;
     case 1:
-      if (x450_bodyController->GetCurrentStateId() != pas::kAS_Generate)
-        x5e8_stateProgress = 2;
+      if (mBodyController->GetCurrentStateId() != pas::kAS_Generate)
+        mStateProgress = 2;
       break;
     default:
       break;
@@ -504,17 +504,17 @@ void CParasite::Generate(CStateManager&, EStateMsg msg, float) {
 void CParasite::Deactivate(CStateManager& mgr, EStateMsg msg, float) {
   switch (msg) {
   case kStateMsg_Activate:
-    x5e8_stateProgress = 0;
+    mStateProgress = 0;
     SendScriptMsgs(kSS_DeactivateState, mgr, kSM_None);
     mgr.DeleteObjectRequest(GetUniqueId());
     break;
   case kStateMsg_Update:
-    switch (x5e8_stateProgress) {
+    switch (mStateProgress) {
     case 0:
-      if (x450_bodyController->GetCurrentStateId() == pas::kAS_Generate)
-        x5e8_stateProgress = 1;
+      if (mBodyController->GetCurrentStateId() == pas::kAS_Generate)
+        mStateProgress = 1;
       else
-        x450_bodyController->CommandMgr().DeliverCmd(
+        mBodyController->CommandMgr().DeliverCmd(
             CBCGenerateCmd(pas::kGType_One, CVector3f::Zero(), false, false));
       break;
     default:
@@ -534,19 +534,19 @@ void CParasite::PathFind(CStateManager& mgr, EStateMsg msg, float dt) {
   switch (msg) {
   case kStateMsg_Activate:
     x742_26_ = true;
-    x5d6_24_alignToFloor = true;
-    if (x5d0_walkerType == kWT_Parasite)
-      x450_bodyController->SetLocomotionType(pas::kLT_Lurk);
+    mAlignToFloor = true;
+    if (mWalkerType == kWT_Parasite)
+      mBodyController->SetLocomotionType(pas::kLT_Lurk);
     SetMomentumWR(CVector3f::Zero());
-    xf8_24_movable = false;
+    mMovable = false;
     break;
   case kStateMsg_Update:
     UpdatePFDestination(mgr);
     DoFlockingBehavior(mgr);
     break;
   case kStateMsg_Deactivate:
-    xf8_24_movable = true;
-    x5d6_24_alignToFloor = false;
+    mMovable = true;
+    mAlignToFloor = false;
     x742_26_ = false;
     break;
   default:
@@ -559,10 +559,10 @@ void CParasite::Jump(CStateManager& mgr, EStateMsg msg, float) {
   case kStateMsg_Activate:
     AddMaterial(kMT_GroundCollider, mgr);
     SetMomentumWR(CVector3f(0.f, 0.f, -GetWeight()));
-    x742_28_onGround = false;
-    x5d6_24_alignToFloor = false;
-    x742_27_landed = false;
-    x743_27_inJump = true;
+    mOnGround = false;
+    mAlignToFloor = false;
+    mLanded = false;
+    mInJump = true;
     break;
   case kStateMsg_Update:
     SetMomentumWR(CVector3f(0.f, 0.f, -GetWeight()));
@@ -570,9 +570,9 @@ void CParasite::Jump(CStateManager& mgr, EStateMsg msg, float) {
   case kStateMsg_Deactivate:
     RemoveMaterial(kMT_GroundCollider, mgr);
     SetMomentumWR(CVector3f::Zero());
-    x742_28_onGround = true;
-    x742_27_landed = false;
-    x743_27_inJump = false;
+    mOnGround = true;
+    mLanded = false;
+    mInJump = false;
     break;
   }
 }
@@ -583,7 +583,7 @@ void CParasite::TargetPatrol(CStateManager& mgr, EStateMsg msg, float dt) {
     SetMomentumWR(CVector3f::Zero());
     TUniqueId wpId = GetClosestWaypointForState(kSS_Patrol, mgr);
     if (wpId != kInvalidUniqueId)
-      x2dc_destObj = wpId;
+      mDestObj = wpId;
     break;
   }
   case kStateMsg_Deactivate:
@@ -597,31 +597,31 @@ void CParasite::Patrol(CStateManager& mgr, EStateMsg msg, float dt) {
   switch (msg) {
   case kStateMsg_Activate:
     x742_26_ = true;
-    x5d6_24_alignToFloor = true;
-    if (!x5d6_27_disableMove && x5d0_walkerType == kWT_Parasite)
-      x450_bodyController->SetLocomotionType(pas::kLT_Lurk);
+    mAlignToFloor = true;
+    if (!mDisableMove && mWalkerType == kWT_Parasite)
+      mBodyController->SetLocomotionType(pas::kLT_Lurk);
     SetMomentumWR(CVector3f::Zero());
-    x5d6_25_hasAlignSurface = false;
-    xf8_24_movable = false;
+    mHasAlignSurface = false;
+    mMovable = false;
     break;
   case kStateMsg_Update: {
-    const float& pause = x5bc_patrolPauseRemTime;
+    const float& pause = mPatrolPauseRemTime;
     if (pause > 0.f) {
-      x5bc_patrolPauseRemTime -= dt;
-      if (x5bc_patrolPauseRemTime <= 0.f) {
-        if (x5d0_walkerType == kWT_Parasite)
-          x450_bodyController->SetLocomotionType(pas::kLT_Lurk);
-        x5bc_patrolPauseRemTime = 0.f;
+      mPatrolPauseRemTime -= dt;
+      if (mPatrolPauseRemTime <= 0.f) {
+        if (mWalkerType == kWT_Parasite)
+          mBodyController->SetLocomotionType(pas::kLT_Lurk);
+        mPatrolPauseRemTime = 0.f;
       }
     }
     GotoNextWaypoint(mgr);
-    if (x5bc_patrolPauseRemTime <= 0.f && !x5d6_27_disableMove)
+    if (mPatrolPauseRemTime <= 0.f && !mDisableMove)
       DoFlockingBehavior(mgr);
     break;
   }
   case kStateMsg_Deactivate:
-    x5d6_24_alignToFloor = false;
-    xf8_24_movable = true;
+    mAlignToFloor = false;
+    mMovable = true;
     break;
   default:
     break;
@@ -640,36 +640,36 @@ void CParasite::FaceTarget(CVector3f target) {
 void CParasite::Attack(CStateManager& mgr, EStateMsg msg, float) {
   switch (msg) {
   case kStateMsg_Activate: {
-    x608_telegraphRemTime = 0.f;
+    mTelegraphRemTime = 0.f;
     CRandom16& random = *mgr.Random();
     if (mgr.GetPlayer()->GetMorphballTransitionState() == CPlayer::kMS_Morphed) {
-      x5f8_targetPos =
+      mTargetPos =
           mgr.GetPlayer()->GetTranslation() +
           0.5f * CVector3f(random.Float() - 0.5f, random.Float() - 0.5f, random.Float() - 0.5f);
     } else {
-      x5f8_targetPos =
+      mTargetPos =
           GetTranslation() +
           15.f * (mgr.GetPlayer()->GetTranslation() +
                   CVector3f(random.Float() - 0.5f, random.Float() - 0.5f, random.Float() + 0.5f) -
                   GetTranslation())
                      .AsNormalized();
     }
-    FaceTarget(x5f8_targetPos);
-    x5e8_stateProgress = 0;
-    x742_30_attackOver = false;
-    x742_24_receivedTelegraph = false;
-    x742_28_onGround = false;
+    FaceTarget(mTargetPos);
+    mStateProgress = 0;
+    mAttackOver = false;
+    mReceivedTelegraph = false;
+    mOnGround = false;
     break;
   }
   case kStateMsg_Update:
-    switch (x5e8_stateProgress) {
+    switch (mStateProgress) {
     case 0:
-      if (x450_bodyController->GetCurrentStateId() == pas::kAS_Jump) {
-        x5e8_stateProgress = 1;
+      if (mBodyController->GetCurrentStateId() == pas::kAS_Jump) {
+        mStateProgress = 1;
       } else {
-        x742_25_jumpVelDirty = true;
-        FaceTarget(x5f8_targetPos);
-        x450_bodyController->CommandMgr().DeliverCmd(CBCJumpCmd(x5f8_targetPos, pas::kJT_Normal));
+        mJumpVelDirty = true;
+        FaceTarget(mTargetPos);
+        mBodyController->CommandMgr().DeliverCmd(CBCJumpCmd(mTargetPos, pas::kJT_Normal));
       }
       break;
     case 1:
@@ -679,8 +679,8 @@ void CParasite::Attack(CStateManager& mgr, EStateMsg msg, float) {
     }
     break;
   case kStateMsg_Deactivate:
-    x742_28_onGround = true;
-    x742_30_attackOver = true;
+    mOnGround = true;
+    mAttackOver = true;
     break;
   default:
     break;
@@ -696,20 +696,20 @@ void CParasite::Retreat(CStateManager& mgr, EStateMsg msg, float) {
       dir = dir.AsNormalized();
     else
       dir = mgr.GetPlayer()->GetTransform().GetForward();
-    x5f8_targetPos = GetTranslation() - dir * 3.f;
-    FaceTarget(x5f8_targetPos);
-    x5e8_stateProgress = 0;
-    x742_27_landed = false;
-    x742_28_onGround = false;
-    x742_25_jumpVelDirty = true;
-    x450_bodyController->CommandMgr().DeliverCmd(CBCJumpCmd(x5f8_targetPos, pas::kJT_One));
+    mTargetPos = GetTranslation() - dir * 3.f;
+    FaceTarget(mTargetPos);
+    mStateProgress = 0;
+    mLanded = false;
+    mOnGround = false;
+    mJumpVelDirty = true;
+    mBodyController->CommandMgr().DeliverCmd(CBCJumpCmd(mTargetPos, pas::kJT_One));
     break;
   }
   case kStateMsg_Update:
-    x3b4_speed = 1.f;
+    mSpeed = 1.f;
     break;
   case kStateMsg_Deactivate:
-    x742_28_onGround = true;
+    mOnGround = true;
     break;
   }
 }
@@ -717,11 +717,11 @@ void CParasite::Retreat(CStateManager& mgr, EStateMsg msg, float) {
 void CParasite::TargetPlayer(CStateManager& mgr, EStateMsg msg, float dt) {
   switch (msg) {
   case kStateMsg_Activate:
-    x5f8_targetPos = mgr.GetPlayer()->GetTranslation() + CVector3f(0.f, 0.f, 1.5f);
+    mTargetPos = mgr.GetPlayer()->GetTranslation() + CVector3f(0.f, 0.f, 1.5f);
     break;
   case kStateMsg_Update:
-    x450_bodyController->FaceDirection3D(
-        ProjectVectorToPlane(x5f8_targetPos - GetTranslation(), GetTransform().GetUp()),
+    mBodyController->FaceDirection3D(
+        ProjectVectorToPlane(mTargetPos - GetTranslation(), GetTransform().GetUp()),
         GetTransform().GetForward(), 2.f);
     break;
   case kStateMsg_Deactivate:
@@ -748,14 +748,14 @@ void CParasite::TelegraphAttack(CStateManager& mgr, EStateMsg msg, float) {
       }
       if (other != this && other->IsAlive() &&
           (other->GetTranslation() - GetTranslation()).MagSquared() <
-              x6d0_maxTelegraphReactDist * x6d0_maxTelegraphReactDist) {
-        other->x742_24_receivedTelegraph = true;
-        other->x608_telegraphRemTime = mgr.Random()->Float() * 0.5f + 0.5f;
-        other->x5f8_targetPos = GetTranslation();
+              mMaxTelegraphReactDist * mMaxTelegraphReactDist) {
+        other->mReceivedTelegraph = true;
+        other->mTelegraphRemTime = mgr.Random()->Float() * 0.5f + 0.5f;
+        other->mTargetPos = GetTranslation();
       }
       ++it;
     }
-    x400_24_hitByPlayerProjectile = false;
+    mHitByPlayerProjectile = false;
     break;
   }
   case kStateMsg_Deactivate:
@@ -768,22 +768,22 @@ void CParasite::TelegraphAttack(CStateManager& mgr, EStateMsg msg, float) {
 void CParasite::Halt(CStateManager& mgr, EStateMsg msg, float) {
   switch (msg) {
   case kStateMsg_Activate:
-    x330_stateMachineState.SetDelay(x710_haltDelay);
-    x32c_animState = kAS_Ready;
-    x743_24_halted = true;
-    x5d6_24_alignToFloor = true;
-    if (x5d0_walkerType == kWT_Geemer)
-      CSfxManager::AddEmitter(x73c_haltSfx, GetTranslation(), CVector3f::Zero(), true, false);
+    mStateMachineState.SetDelay(mHaltDelay);
+    mAnimState = kAS_Ready;
+    mHalted = true;
+    mAlignToFloor = true;
+    if (mWalkerType == kWT_Geemer)
+      CSfxManager::AddEmitter(mHaltSfx, GetTranslation(), CVector3f::Zero(), true, false);
     break;
   case kStateMsg_Update:
     TryCommand(mgr, pas::kAS_LoopReaction, &CPatterned::TryLoopedReaction, 1);
-    x400_24_hitByPlayerProjectile = false;
+    mHitByPlayerProjectile = false;
     break;
   case kStateMsg_Deactivate:
-    x450_bodyController->CommandMgr().DeliverCmd(CBodyStateCmd(kBSC_ExitState));
-    x32c_animState = kAS_NotReady;
-    x743_24_halted = false;
-    x5d6_24_alignToFloor = false;
+    mBodyController->CommandMgr().DeliverCmd(CBodyStateCmd(kBSC_ExitState));
+    mAnimState = kAS_NotReady;
+    mHalted = false;
+    mAlignToFloor = false;
     break;
   default:
     break;
@@ -792,17 +792,17 @@ void CParasite::Halt(CStateManager& mgr, EStateMsg msg, float) {
 
 void CParasite::Crouch(CStateManager&, EStateMsg msg, float) {
   if (msg == kStateMsg_Activate) {
-    x450_bodyController->SetLocomotionType(pas::kLT_Crouch);
-    if (x5d0_walkerType == kWT_Geemer)
-      CSfxManager::AddEmitter(x740_crouchSfx, GetTranslation(), CVector3f::Zero(), true, false);
+    mBodyController->SetLocomotionType(pas::kLT_Crouch);
+    if (mWalkerType == kWT_Geemer)
+      CSfxManager::AddEmitter(mCrouchSfx, GetTranslation(), CVector3f::Zero(), true, false);
   }
 }
 
 void CParasite::GetUp(CStateManager&, EStateMsg msg, float) {
   if (msg == kStateMsg_Activate) {
-    x450_bodyController->SetLocomotionType(pas::kLT_Relaxed);
-    if (x5d0_walkerType == kWT_Geemer)
-      CSfxManager::AddEmitter(x73e_getUpSfx, GetTranslation(), CVector3f::Zero(), true, false);
+    mBodyController->SetLocomotionType(pas::kLT_Relaxed);
+    if (mWalkerType == kWT_Geemer)
+      CSfxManager::AddEmitter(mGetUpSfx, GetTranslation(), CVector3f::Zero(), true, false);
   }
 }
 
@@ -815,17 +815,17 @@ void CParasite::UpdatePFDestination(CStateManager& mgr) {
 void CParasite::DoFlockingBehavior(CStateManager& mgr) {
   CVector3f upVec = GetTransform().GetUp();
   rstl::reserved_vector< TUniqueId, 1024 > parasiteList;
-  float radius = x6e4_parasiteSearchRadius;
+  float radius = mParasiteSearchRadius;
   const CVector3f position = GetTranslation();
   CAABox aabb(position - CVector3f(radius, radius, radius),
               position + CVector3f(radius, radius, radius));
-  if ((x5d4_thinkCounter % 6) == 0) {
+  if ((mThinkCounter % 6) == 0) {
     rstl::reserved_vector< TUniqueId, 1024 > nearList;
     nearList.clear();
     static const CMaterialFilter filter =
         CMaterialFilter::MakeInclude(CMaterialList(kMT_Character));
     CParasite* closestParasite = nullptr;
-    float minDistSq = 2.f + x6e8_parasiteSeparationDist * x6e8_parasiteSeparationDist;
+    float minDistSq = 2.f + mParasiteSeparationDist * mParasiteSeparationDist;
     mgr.BuildNearList(nearList, aabb, filter, nullptr);
     for (AUTO(it, nearList.begin()); it != nearList.end(); ++it) {
       if (CParasite* parasite = PATTERNED_CAST_TO(CParasite, mgr.ObjectById(*it))) {
@@ -839,74 +839,74 @@ void CParasite::DoFlockingBehavior(CStateManager& mgr) {
         }
       }
     }
-    if (closestParasite && x6ec_parasiteSeparationWeight > 0.f && x6e8_parasiteSeparationDist > 0.f)
-      x628_parasiteSeparationMove =
-          x45c_steeringBehaviors.Separation(*this, closestParasite->GetTranslation(),
-                                            x6e8_parasiteSeparationDist) *
-          x604_activeSpeed;
+    if (closestParasite && mParasiteSeparationWeight > 0.f && mParasiteSeparationDist > 0.f)
+      mParasiteSeparationMove =
+          mSteeringBehaviors.Separation(*this, closestParasite->GetTranslation(),
+                                            mParasiteSeparationDist) *
+          mActiveSpeed;
     else
-      x628_parasiteSeparationMove = CVector3f::Zero();
-    x634_parasiteCohesionMove =
-        x45c_steeringBehaviors.Cohesion(*this, parasiteList, 0.6f, mgr) * x604_activeSpeed;
-    x640_parasiteAlignmentMove =
-        x45c_steeringBehaviors.Alignment(*this, parasiteList, mgr) * x604_activeSpeed;
+      mParasiteSeparationMove = CVector3f::Zero();
+    mParasiteCohesionMove =
+        mSteeringBehaviors.Cohesion(*this, parasiteList, 0.6f, mgr) * mActiveSpeed;
+    mParasiteAlignmentMove =
+        mSteeringBehaviors.Alignment(*this, parasiteList, mgr) * mActiveSpeed;
   }
 
   if ((mgr.GetPlayer()->GetTranslation() - GetTranslation()).MagSquared() <
-      x700_playerSeparationDist * x700_playerSeparationDist) {
+      mPlayerSeparationDist * mPlayerSeparationDist) {
     const CVector3f playerSeparation =
-        ProjectVectorToPlane(x45c_steeringBehaviors.Separation(*this,
+        ProjectVectorToPlane(mSteeringBehaviors.Separation(*this,
                                                                mgr.GetPlayer()->GetTranslation(),
-                                                               x700_playerSeparationDist),
+                                                               mPlayerSeparationDist),
                              upVec) *
-        x604_activeSpeed;
-    x450_bodyController->CommandMgr().DeliverCmd(
-        CBCLocomotionCmd(playerSeparation, CVector3f::Zero(), x704_playerSeparationWeight));
+        mActiveSpeed;
+    mBodyController->CommandMgr().DeliverCmd(
+        CBCLocomotionCmd(playerSeparation, CVector3f::Zero(), mPlayerSeparationWeight));
   }
 
-  if (!(x628_parasiteSeparationMove == CVector3f::Zero())) {
-    x450_bodyController->CommandMgr().DeliverCmd(
-        CBCLocomotionCmd(ProjectVectorToPlane(x628_parasiteSeparationMove, upVec),
-                         CVector3f::Zero(), x6ec_parasiteSeparationWeight));
+  if (!(mParasiteSeparationMove == CVector3f::Zero())) {
+    mBodyController->CommandMgr().DeliverCmd(
+        CBCLocomotionCmd(ProjectVectorToPlane(mParasiteSeparationMove, upVec),
+                         CVector3f::Zero(), mParasiteSeparationWeight));
   }
 
-  for (AUTO(it, x5d8_doorRepulsors.begin()); it != x5d8_doorRepulsors.end(); ++it) {
+  for (AUTO(it, mDoorRepulsors.begin()); it != mDoorRepulsors.end(); ++it) {
     const CRepulsor& r = *it;
     if ((r.GetPos() - GetTranslation()).MagSquared() < r.GetRadius() * r.GetRadius()) {
       const CVector3f doorSeparation =
-          x45c_steeringBehaviors.Separation(*this, r.GetPos(), r.GetRadius()) * x604_activeSpeed;
-      x450_bodyController->CommandMgr().DeliverCmd(
+          mSteeringBehaviors.Separation(*this, r.GetPos(), r.GetRadius()) * mActiveSpeed;
+      mBodyController->CommandMgr().DeliverCmd(
           CBCLocomotionCmd(ProjectVectorToPlane(doorSeparation, upVec), CVector3f::Zero(), 1.f));
     }
   }
 
-  if (x608_telegraphRemTime <= 0.f) {
-    x450_bodyController->CommandMgr().DeliverCmd(
-        CBCLocomotionCmd(ProjectVectorToPlane(x634_parasiteCohesionMove, upVec), CVector3f::Zero(),
-                         x6f4_parasiteCohesionWeight));
-    x450_bodyController->CommandMgr().DeliverCmd(
-        CBCLocomotionCmd(ProjectVectorToPlane(x640_parasiteAlignmentMove, upVec), CVector3f::Zero(),
-                         x6f0_parasiteAlignmentWeight));
+  if (mTelegraphRemTime <= 0.f) {
+    mBodyController->CommandMgr().DeliverCmd(
+        CBCLocomotionCmd(ProjectVectorToPlane(mParasiteCohesionMove, upVec), CVector3f::Zero(),
+                         mParasiteCohesionWeight));
+    mBodyController->CommandMgr().DeliverCmd(
+        CBCLocomotionCmd(ProjectVectorToPlane(mParasiteAlignmentMove, upVec), CVector3f::Zero(),
+                         mParasiteAlignmentWeight));
     const CVector3f seek =
-        ProjectVectorToPlane(x45c_steeringBehaviors.Seek(*this, x2e0_destPos), upVec) *
-        x604_activeSpeed;
-    x450_bodyController->CommandMgr().DeliverCmd(CBCLocomotionCmd(
-        ProjectVectorToPlane(seek, upVec), CVector3f::Zero(), x6f8_destinationSeekWeight));
-    x450_bodyController->CommandMgr().DeliverCmd(CBCLocomotionCmd(
-        GetTransform().GetForward() * x604_activeSpeed, CVector3f::Zero(), x6fc_forwardMoveWeight));
+        ProjectVectorToPlane(mSteeringBehaviors.Seek(*this, mDestPos), upVec) *
+        mActiveSpeed;
+    mBodyController->CommandMgr().DeliverCmd(CBCLocomotionCmd(
+        ProjectVectorToPlane(seek, upVec), CVector3f::Zero(), mDestinationSeekWeight));
+    mBodyController->CommandMgr().DeliverCmd(CBCLocomotionCmd(
+        GetTransform().GetForward() * mActiveSpeed, CVector3f::Zero(), mForwardMoveWeight));
   }
 }
 
 void CParasite::Render(const CStateManager& mgr) const { CWallWalker::Render(mgr); }
 
 const CDamageVulnerability* CParasite::GetDamageVulnerability() const {
-  switch (x5d0_walkerType) {
+  switch (mWalkerType) {
   case kWT_Oculus:
-    if (x743_24_halted)
-      return &x64c_oculusHaltDVuln;
+    if (mHalted)
+      return &mOculusHaltDVuln;
     break;
   case kWT_IceZoomer:
-    if (!x743_25_vulnerable)
+    if (!mVulnerable)
       return &CDamageVulnerability::ImmuneVulnerability();
     break;
   default:
@@ -916,10 +916,10 @@ const CDamageVulnerability* CParasite::GetDamageVulnerability() const {
 }
 
 CDamageInfo CParasite::GetContactDamage() const {
-  switch (x5d0_walkerType) {
+  switch (mWalkerType) {
   case kWT_Oculus:
-    if (x743_24_halted)
-      return x6b4_oculusHaltDInfo;
+    if (mHalted)
+      return mOculusHaltDInfo;
     return CPatterned::GetContactDamage();
   default:
     return CPatterned::GetContactDamage();
@@ -939,19 +939,19 @@ void CParasite::SetupIceZoomerCollision(CStateManager& mgr) {
   }
   RemoveMaterial(kMT_Solid, mgr);
   AddMaterial(kMT_ProjectilePassthrough, mgr);
-  x620_collisionActorManager =
+  mCollisionActorManager =
       rs_new CCollisionActorManager(mgr, GetUniqueId(), GetCurrentAreaId(), descs, GetActive());
 }
 
 void CParasite::DestroyActorManager(CStateManager& mgr) {
-  x620_collisionActorManager->Destroy(mgr);
+  mCollisionActorManager->Destroy(mgr);
 }
 
 void CParasite::SetupIceZoomerVulnerability(CStateManager& mgr, const CDamageVulnerability& dVuln,
                                             const CHealthInfo& hInfo) {
-  for (uint i = 0; i < x620_collisionActorManager->GetNumCollisionActors(); ++i) {
+  for (uint i = 0; i < mCollisionActorManager->GetNumCollisionActors(); ++i) {
     const CJointCollisionDescription& cDesc =
-        x620_collisionActorManager->GetCollisionDescFromIndex(i);
+        mCollisionActorManager->GetCollisionDescFromIndex(i);
     const TUniqueId id = cDesc.GetCollisionActorId();
     if (CCollisionActor* const act = TCastToPtr< CCollisionActor >(mgr.ObjectById(id))) {
       act->SetDamageVulnerability(dVuln);
@@ -961,22 +961,22 @@ void CParasite::SetupIceZoomerVulnerability(CStateManager& mgr, const CDamageVul
 }
 
 void CParasite::UpdateCollisionActors(float dt, CStateManager& mgr) {
-  x620_collisionActorManager->Update(dt, mgr, CCollisionActorManager::kUO_ObjectSpace);
-  if (!x743_25_vulnerable) {
+  mCollisionActorManager->Update(dt, mgr, CCollisionActorManager::kUO_ObjectSpace);
+  if (!mVulnerable) {
     float totalHP = 0.f;
-    for (uint i = 0; i < x620_collisionActorManager->GetNumCollisionActors(); ++i) {
+    for (uint i = 0; i < mCollisionActorManager->GetNumCollisionActors(); ++i) {
       const CJointCollisionDescription& cDesc =
-          x620_collisionActorManager->GetCollisionDescFromIndex(i);
+          mCollisionActorManager->GetCollisionDescFromIndex(i);
       const TUniqueId id = cDesc.GetCollisionActorId();
       if (CCollisionActor* cact = TCastToPtr< CCollisionActor >(mgr.ObjectById(id)))
         totalHP += cact->HealthInfo(mgr)->GetHP();
     }
     if (totalHP <= 0.f) {
-      x743_25_vulnerable = true;
+      mVulnerable = true;
       AddMaterial(kMT_Solid, mgr);
       RemoveMaterial(kMT_ProjectilePassthrough, mgr);
       DestroyActorManager(mgr);
-      ModelData()->AnimationData()->SubstituteModelData(*x624_extraModel);
+      ModelData()->AnimationData()->SubstituteModelData(*mExtraModel);
     }
   }
 }
@@ -985,6 +985,6 @@ void CParasite::MassiveDeath(CStateManager& mgr) { CPatterned::MassiveDeath(mgr)
 
 void CParasite::MassiveFrozenDeath(CStateManager& mgr) { CPatterned::MassiveFrozenDeath(mgr); }
 
-bool CParasite::IsOnGround() const { return x742_28_onGround; }
+bool CParasite::IsOnGround() const { return mOnGround; }
 
 CParasite::~CParasite() {}

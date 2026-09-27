@@ -36,27 +36,27 @@ public:
                                    CTargetReticleRenderState& out,
                                    const CTargetReticleRenderState& b, float t);
 
-  void SetTargetId(TUniqueId id) { x0_target = id; }
-  void SetFactor(float factor) { x14_factor = factor; }
-  void SetIsOrbitZoneIdlePosition(bool orbit) { x1c_orbitZoneIdlePosition = orbit; }
-  void SetRadiusWorld(float radius) { x4_radiusWorld = radius; }
-  void SetTargetPositionWorld(const CVector3f& position) { x8_positionWorld = position; }
-  void SetMinViewportClampScale(float scale) { x18_minVpClampScale = scale; }
+  void SetTargetId(TUniqueId id) { mTarget = id; }
+  void SetFactor(float factor) { mFactor = factor; }
+  void SetIsOrbitZoneIdlePosition(bool orbit) { mOrbitZoneIdlePosition = orbit; }
+  void SetRadiusWorld(float radius) { mRadiusWorld = radius; }
+  void SetTargetPositionWorld(const CVector3f& position) { mPositionWorld = position; }
+  void SetMinViewportClampScale(float scale) { mMinVpClampScale = scale; }
 
-  TUniqueId GetTargetId() const { return x0_target; }
-  float GetRadiusWorld() const { return x4_radiusWorld; }
-  CVector3f GetTargetPositionWorld() const { return x8_positionWorld; }
-  float GetFactor() const { return x14_factor; }
-  float GetMinViewportClampScale() const { return x18_minVpClampScale; }
-  bool GetIsOrbitZoneIdlePosition() const { return x1c_orbitZoneIdlePosition; }
+  TUniqueId GetTargetId() const { return mTarget; }
+  float GetRadiusWorld() const { return mRadiusWorld; }
+  CVector3f GetTargetPositionWorld() const { return mPositionWorld; }
+  float GetFactor() const { return mFactor; }
+  float GetMinViewportClampScale() const { return mMinVpClampScale; }
+  bool GetIsOrbitZoneIdlePosition() const { return mOrbitZoneIdlePosition; }
 
 private:
-  TUniqueId x0_target;
-  float x4_radiusWorld;
-  CVector3f x8_positionWorld;
-  float x14_factor;
-  float x18_minVpClampScale;
-  bool x1c_orbitZoneIdlePosition;
+  TUniqueId mTarget;
+  float mRadiusWorld;
+  CVector3f mPositionWorld;
+  float mFactor;
+  float mMinVpClampScale;
+  bool mOrbitZoneIdlePosition;
 };
 
 CHECK_SIZEOF(CTargetReticleRenderState, 0x20)
@@ -64,18 +64,18 @@ CHECK_SIZEOF(CTargetReticleRenderState, 0x20)
 class CCompoundTargetReticle {
 public:
   struct SOuterItemInfo {
-    TCachedToken< CModel > x0_model;
-    float xc_offshootBaseAngle;
-    float x10_rotAng;
-    float x14_baseAngle;
-    float x18_offshootAngleDelta;
+    TCachedToken< CModel > mModel;
+    float mOffshootBaseAngle;
+    float mRotAng;
+    float mBaseAngle;
+    float mOffshootAngleDelta;
 
     explicit SOuterItemInfo(const char* modelName);
   };
 
   explicit CCompoundTargetReticle(const CStateManager& mgr);
 
-  void SetLeadingOrientation(const CQuaternion& o) { x0_leadingOrientation = o; }
+  void SetLeadingOrientation(const CQuaternion& o) { mLeadingOrientation = o; }
   bool CheckLoadComplete();
   EReticleState GetDesiredReticleState(const CStateManager& mgr) const;
   void Update(float dt, const CStateManager& mgr);
@@ -98,67 +98,67 @@ public:
                                      float clampMax, const CStateManager& mgr);
   void Touch() const;
 
-  TUniqueId GetTargetId() const { return xf0_targetId; }
-  TUniqueId GetNextTargetId() const { return xf2_nextTargetId; }
-  const CTargetReticleRenderState& GetCurrGroupInterp() const { return x10c_currGroupInterp; }
-  const CTargetReticleRenderState& GetNextGroupInterp() const { return x174_nextGroupInterp; }
-  bool GetIsOrbitZoneIdlePosition() const { return x10c_currGroupInterp.GetIsOrbitZoneIdlePosition(); }
+  TUniqueId GetTargetId() const { return mTargetId; }
+  TUniqueId GetNextTargetId() const { return mNextTargetId; }
+  const CTargetReticleRenderState& GetCurrGroupInterp() const { return mCurrGroupInterp; }
+  const CTargetReticleRenderState& GetNextGroupInterp() const { return mNextGroupInterp; }
+  bool GetIsOrbitZoneIdlePosition() const { return mCurrGroupInterp.GetIsOrbitZoneIdlePosition(); }
 
 private:
-  CQuaternion x0_leadingOrientation;
-  CQuaternion x10_laggingOrientation;
-  EReticleState x20_prevState;
-  EReticleState x24_nextState;
-  mutable int x28_noDrawTicks;
-  float x2c_overshootOffsetHalf;
-  float x30_premultOvershootOffset;
-  TCachedToken< CModel > x34_crosshairs;
-  TCachedToken< CModel > x40_seeker;
-  TCachedToken< CModel > x4c_lockConfirm;
-  TCachedToken< CModel > x58_targetFlower;
-  TCachedToken< CModel > x64_missileBracket;
-  TCachedToken< CModel > x70_innerBeamIcon;
-  TCachedToken< CModel > x7c_lockFire;
-  TCachedToken< CModel > x88_lockDagger;
-  TCachedToken< CModel > x94_grapple;
-  TCachedToken< CModel > xa0_chargeTickFirst;
-  TCachedToken< CModel > xac_xrayRetRing;
-  TCachedToken< CModel > xb8_thermalReticle;
-  SOuterItemInfo xc4_chargeGauge;
-  rstl::vector< SOuterItemInfo > xe0_outerBeamIconSquares;
-  TUniqueId xf0_targetId;
-  TUniqueId xf2_nextTargetId;
-  CVector3f xf4_targetPos;
-  CVector3f x100_laggingTargetPos;
-  CTargetReticleRenderState x10c_currGroupInterp;
-  CTargetReticleRenderState x12c_currGroupA;
-  CTargetReticleRenderState x14c_currGroupB;
-  float x16c_currGroupDur;
-  float x170_currGroupTimer;
-  CTargetReticleRenderState x174_nextGroupInterp;
-  CTargetReticleRenderState x194_nextGroupA;
-  CTargetReticleRenderState x1b4_nextGroupB;
-  float x1d4_nextGroupDur;
-  float x1d8_nextGroupTimer;
-  TUniqueId x1dc_grapplePoint0;
-  TUniqueId x1de_grapplePoint1;
-  float x1e0_grapplePoint0T;
-  float x1e4_grapplePoint1T;
-  float x1e8_crosshairsScale;
-  float x1ec_seekerAngle;
-  float x1f0_xrayRetAngle;
-  bool x1f4_missileActive;
-  float x1f8_missileBracketTimer;
-  float x1fc_missileBracketScaleTimer;
-  CPlayerState::EBeamId x200_beam;
-  float x204_chargeGaugeOvershootTimer;
-  float x208_lockonTimer;
-  float x20c_unk;
-  float x210_lockFireTimer;
-  float x214_fullChargeFadeTimer;
-  bool x218_beamShot;
-  bool x219_missileShot;
-  bool x21a_fullyCharged;
+  CQuaternion mLeadingOrientation;
+  CQuaternion mLaggingOrientation;
+  EReticleState mPrevState;
+  EReticleState mNextState;
+  mutable int mNoDrawTicks;
+  float mOvershootOffsetHalf;
+  float mPremultOvershootOffset;
+  TCachedToken< CModel > mCrosshairs;
+  TCachedToken< CModel > mSeeker;
+  TCachedToken< CModel > mLockConfirm;
+  TCachedToken< CModel > mTargetFlower;
+  TCachedToken< CModel > mMissileBracket;
+  TCachedToken< CModel > mInnerBeamIcon;
+  TCachedToken< CModel > mLockFire;
+  TCachedToken< CModel > mLockDagger;
+  TCachedToken< CModel > mGrapple;
+  TCachedToken< CModel > mChargeTickFirst;
+  TCachedToken< CModel > mXrayRetRing;
+  TCachedToken< CModel > mThermalReticle;
+  SOuterItemInfo mChargeGauge;
+  rstl::vector< SOuterItemInfo > mOuterBeamIconSquares;
+  TUniqueId mTargetId;
+  TUniqueId mNextTargetId;
+  CVector3f mTargetPos;
+  CVector3f mLaggingTargetPos;
+  CTargetReticleRenderState mCurrGroupInterp;
+  CTargetReticleRenderState mCurrGroupA;
+  CTargetReticleRenderState mCurrGroupB;
+  float mCurrGroupDur;
+  float mCurrGroupTimer;
+  CTargetReticleRenderState mNextGroupInterp;
+  CTargetReticleRenderState mNextGroupA;
+  CTargetReticleRenderState mNextGroupB;
+  float mNextGroupDur;
+  float mNextGroupTimer;
+  TUniqueId mGrapplePoint0;
+  TUniqueId mGrapplePoint1;
+  float mGrapplePoint0T;
+  float mGrapplePoint1T;
+  float mCrosshairsScale;
+  float mSeekerAngle;
+  float mXrayRetAngle;
+  bool mMissileActive;
+  float mMissileBracketTimer;
+  float mMissileBracketScaleTimer;
+  CPlayerState::EBeamId mBeam;
+  float mChargeGaugeOvershootTimer;
+  float mLockonTimer;
+  float mUnk;
+  float mLockFireTimer;
+  float mFullChargeFadeTimer;
+  bool mBeamShot;
+  bool mMissileShot;
+  bool mFullyCharged;
 };
 
 CHECK_SIZEOF(CCompoundTargetReticle, 0x21C)
@@ -171,18 +171,18 @@ public:
   void Update(float dt, const CStateManager& mgr);
   void Draw(const CStateManager& mgr) const;
   void ResetInterpolationTimer(float time);
-  bool IsInterpolating() const { return x20_interpTimer > 0.f; }
+  bool IsInterpolating() const { return mInterpTimer > 0.f; }
 
 private:
-  float x0_zOffset;
-  bool x4_camRelZPos;
-  float x8_lagAzimuth;
-  float xc_azimuth;
-  CVector3f x10_lagTargetPos;
-  bool x1c_lastFreeOrbit;
-  float x20_interpTimer;
-  float x24_curTime;
-  TCachedToken< CModel > x28_orbitPointModel;
+  float mZOffset;
+  bool mCamRelZPos;
+  float mLagAzimuth;
+  float mAzimuth;
+  CVector3f mLagTargetPos;
+  bool mLastFreeOrbit;
+  float mInterpTimer;
+  float mCurTime;
+  TCachedToken< CModel > mOrbitPointModel;
 };
 
 CHECK_SIZEOF(COrbitPointMarker, 0x34)
@@ -196,12 +196,12 @@ public:
   void Draw(const CStateManager& mgr, bool hideLockon) const;
   void Touch() const;
 
-  CCompoundTargetReticle& CompoundTargetReticle() { return x0_targetReticle; }
-  const CCompoundTargetReticle& GetCompoundTargetReticle() const { return x0_targetReticle; }
+  CCompoundTargetReticle& CompoundTargetReticle() { return mTargetReticle; }
+  const CCompoundTargetReticle& GetCompoundTargetReticle() const { return mTargetReticle; }
 
 private:
-  CCompoundTargetReticle x0_targetReticle;
-  COrbitPointMarker x21c_orbitPointMarker;
+  CCompoundTargetReticle mTargetReticle;
+  COrbitPointMarker mOrbitPointMarker;
 };
 
 CHECK_SIZEOF(CTargetingManager, 0x250)

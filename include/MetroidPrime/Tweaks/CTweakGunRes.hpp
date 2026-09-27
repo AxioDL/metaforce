@@ -20,43 +20,43 @@ public:
   CTweakGunRes(CInputStream& in);
   ~CTweakGunRes() override;
 
-  ResId x4_gunMotion;
-  ResId x8_grappleArm;
-  ResId xc_rightHand;
+  ResId mGunMotion;
+  ResId mGrappleArm;
+  ResId mRightHand;
 
-  ResId x10_powerBeam;
-  ResId x14_iceBeam;
-  ResId x18_waveBeam;
-  ResId x1c_plasmaBeam;
-  ResId x20_phazonBeam;
+  ResId mPowerBeam;
+  ResId mIceBeam;
+  ResId mWaveBeam;
+  ResId mPlasmaBeam;
+  ResId mPhazonBeam;
 
-  ResId x24_holoTransition;
+  ResId mHoloTransition;
 
-  ResId x28_bombSet;
-  ResId x2c_bombExplode;
-  ResId x30_powerBombExplode;
+  ResId mBombSet;
+  ResId mBombExplode;
+  ResId mPowerBombExplode;
 
   /* Power, Ice, Wave, Plasma, Phazon / Beam, Ball */
-  ResIdVec x34_weaponPower;
-  ResIdVec x44_weaponIce;
-  ResIdVec x54_weaponWave;
-  ResIdVec x64_weaponPlasma;
-  ResIdVec x74_weaponPhazon;
-  ResIdVec x84_muzzle;
-  ResIdVec x94_charge;
-  ResIdVec xa4_auxMuzzle;
+  ResIdVec mWeaponPower;
+  ResIdVec mWeaponIce;
+  ResIdVec mWeaponWave;
+  ResIdVec mWeaponPlasma;
+  ResIdVec mWeaponPhazon;
+  ResIdVec mMuzzle;
+  ResIdVec mCharge;
+  ResIdVec mAuxMuzzle;
 
-  ResId xb4_grappleSegment;
-  ResId xb8_grappleClaw;
-  ResId xbc_grappleHit;
-  ResId xc0_grappleMuzzle;
-  ResId xc4_grappleSwoosh;
+  ResId mGrappleSegment;
+  ResId mGrappleClaw;
+  ResId mGrappleHit;
+  ResId mGrappleMuzzle;
+  ResId mGrappleSwoosh;
 
   CAssetId GetAuxMuzzleResId(CPlayerState::EBeamId beam) const {
     if (beam < CPlayerState::kBI_Power || beam > CPlayerState::kBI_Phazon) {
       return kInvalidAssetId;
     }
-    return xa4_auxMuzzle[beam];
+    return mAuxMuzzle[beam];
   }
 
   const ResIdVec& GetBeamResIdVec(CPlayerState::EBeamId beam) const;

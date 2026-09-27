@@ -20,17 +20,17 @@ public:
 
 private:
   int test(float scale, float value) {
-    if (xc4_noRoundUp) {
+    if (mNoRoundUp) {
       return scale * value;
     }
 
     return 0.5f + scale * value;
   }
-  bool xc4_noRoundUp;
-  int xc8_maxCapacity;
-  int xcc_capacity;
-  int xd0_value;
-  rstl::vector< CGuiGroup* > xd4_workers;
+  bool mNoRoundUp;
+  int mMaxCapacity;
+  int mCapacity;
+  int mValue;
+  rstl::vector< CGuiGroup* > mWorkers;
 };
 
 #endif // _CAUIMETER

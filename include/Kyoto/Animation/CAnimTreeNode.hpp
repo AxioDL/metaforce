@@ -12,7 +12,7 @@ public:
   virtual uint Depth() const = 0;
   CAnimTreeNode(const rstl::string&);
   ~CAnimTreeNode() override {
-    CCharAnimMemoryMetrics::SubtractFromTotalSize(x4_name.size(), CCharAnimMemoryMetrics::kASS_Two);
+    CCharAnimMemoryMetrics::SubtractFromTotalSize(mName.size(), CCharAnimMemoryMetrics::kASS_Two);
   }
 
   virtual CAnimTreeEffectiveContribution VGetContributionOfHighestInfluence() const = 0;
@@ -31,12 +31,12 @@ public:
     return VGetBestUnblendedChild();
   }
 
-  const rstl::string& GetPrimitiveName() const { return x4_name; }
+  const rstl::string& GetPrimitiveName() const { return mName; }
 
   bool IsCAnimTreeNode() const override;
 
 protected:
-  rstl::string x4_name;
+  rstl::string mName;
 };
 CHECK_SIZEOF(CAnimTreeNode, 0x14)
 

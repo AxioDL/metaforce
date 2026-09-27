@@ -5,13 +5,13 @@
 #include "Kyoto/Streams/COutputStream.hpp"
 #include <string.h>
 
-bool CPreAdvanceIndicator::IsTime() const { return x0_isTime; }
+bool CPreAdvanceIndicator::IsTime() const { return mIsTime; }
 
-const CCharAnimTime& CPreAdvanceIndicator::GetTime() const { return x4_time; }
+const CCharAnimTime& CPreAdvanceIndicator::GetTime() const { return mTime; }
 
 bool CPreAdvanceIndicator::IsString() const { return !IsTime(); }
 
-const char* CPreAdvanceIndicator::GetString() const { return xc_string; }
+const char* CPreAdvanceIndicator::GetString() const { return mString; }
 
 CMetaAnimTreeBuildOrders CMetaAnimTreeBuildOrders::NoSpecialOrders() {
   return CMetaAnimTreeBuildOrders();
@@ -19,26 +19,26 @@ CMetaAnimTreeBuildOrders CMetaAnimTreeBuildOrders::NoSpecialOrders() {
 CMetaAnimTreeBuildOrders
 CMetaAnimTreeBuildOrders::PreAdvanceForAll(const CPreAdvanceIndicator& ind) {
   CMetaAnimTreeBuildOrders ret;
-  ret.x44_singleAdvance = ind;
+  ret.mSingleAdvance = ind;
   return ret;
 }
 
 rstl::ncrc_ptr< CAnimTreeNode >
 IMetaAnim::GetAnimationTree(const CAnimSysContext& animSys,
                             const CMetaAnimTreeBuildOrders& orders) const {
-  if (orders.x44_singleAdvance) {
+  if (orders.mSingleAdvance) {
     rstl::ncrc_ptr< CAnimTreeNode > tree =
         VGetAnimationTree(animSys, CMetaAnimTreeBuildOrders::NoSpecialOrders());
-    if (orders.x44_singleAdvance->IsTime() || orders.x44_singleAdvance->IsString()) {
-      AdvanceAnim(*tree, GetTime(*orders.x44_singleAdvance, *tree));
+    if (orders.mSingleAdvance->IsTime() || orders.mSingleAdvance->IsString()) {
+      AdvanceAnim(*tree, GetTime(*orders.mSingleAdvance, *tree));
     }
     return tree;
   }
-  if (orders.x0_recursiveAdvance) {
+  if (orders.mRecursiveAdvance) {
     rstl::ncrc_ptr< CAnimTreeNode > tree =
         VGetAnimationTree(animSys, CMetaAnimTreeBuildOrders::NoSpecialOrders());
-    if (orders.x0_recursiveAdvance->IsTime() || orders.x0_recursiveAdvance->IsString()) {
-      AdvanceAnim(*tree, GetTime(*orders.x0_recursiveAdvance, *tree));
+    if (orders.mRecursiveAdvance->IsTime() || orders.mRecursiveAdvance->IsString()) {
+      AdvanceAnim(*tree, GetTime(*orders.mRecursiveAdvance, *tree));
     }
     return tree;
   }

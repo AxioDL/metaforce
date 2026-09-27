@@ -27,45 +27,45 @@ public:
   public:
     CFlyingPirateData(CInputStream& in, int propCount);
 
-    float GetMaxCoverDistance() const { return x0_maxCoverDistance; }
-    float GetHearingDistance() const { return x4_hearingDistance; }
-    CProjectileInfo& GunProjectileInfo() { return xc_gunProjectileInfo; }
-    CProjectileInfo& AltProjectileInfo1() { return x38_altProjectileInfo1; }
-    CProjectileInfo& AltProjectileInfo2() { return x60_altProjectileInfo2; }
-    float GetFlyingHeight() const { return x8c_flyingHeight; }
-    CAssetId GetParticleGen1() const { return xd8_particleGen1; }
-    CAssetId GetParticleGen2() const { return xdc_particleGen2; }
-    CAssetId GetParticleGen3() const { return xe0_particleGen3; }
+    float GetMaxCoverDistance() const { return mMaxCoverDistance; }
+    float GetHearingDistance() const { return mHearingDistance; }
+    CProjectileInfo& GunProjectileInfo() { return mGunProjectileInfo; }
+    CProjectileInfo& AltProjectileInfo1() { return mAltProjectileInfo1; }
+    CProjectileInfo& AltProjectileInfo2() { return mAltProjectileInfo2; }
+    float GetFlyingHeight() const { return mFlyingHeight; }
+    CAssetId GetParticleGen1() const { return mParticleGen1; }
+    CAssetId GetParticleGen2() const { return mParticleGen2; }
+    CAssetId GetParticleGen3() const { return mParticleGen3; }
 
   private:
-    float x0_maxCoverDistance;
-    float x4_hearingDistance;
-    uint x8_type;
-    CProjectileInfo xc_gunProjectileInfo;
-    ushort x34_gunSfx;
-    CProjectileInfo x38_altProjectileInfo1;
-    CProjectileInfo x60_altProjectileInfo2;
-    float x88_knockBackDelay;
-    float x8c_flyingHeight;
-    TLockedToken< CGenDescription > x90_particleGenDesc;
-    CDamageInfo x9c_dInfo;
+    float mMaxCoverDistance;
+    float mHearingDistance;
+    uint mType;
+    CProjectileInfo mGunProjectileInfo;
+    ushort mGunSfx;
+    CProjectileInfo mAltProjectileInfo1;
+    CProjectileInfo mAltProjectileInfo2;
+    float mKnockBackDelay;
+    float mFlyingHeight;
+    TLockedToken< CGenDescription > mParticleGenDesc;
+    CDamageInfo mDInfo;
     float xb8_;
     float xbc_;
     float xc0_;
     float xc4_;
-    ushort xc8_ragDollSfx1;
-    ushort xca_ragDollSfx2;
-    float xcc_coverCheckChance;
+    ushort mRagDollSfx1;
+    ushort mRagDollSfx2;
+    float mCoverCheckChance;
     float xd0_;
     float xd4_;
-    CAssetId xd8_particleGen1;
-    CAssetId xdc_particleGen2;
-    CAssetId xe0_particleGen3;
-    ushort xe4_knockBackSfx;
-    ushort xe6_deathSfx;
-    float xe8_aggressionChance;
+    CAssetId mParticleGen1;
+    CAssetId mParticleGen2;
+    CAssetId mParticleGen3;
+    ushort mKnockBackSfx;
+    ushort mDeathSfx;
+    float mAggressionChance;
     float xec_;
-    float xf0_projectileHomingDistance;
+    float mProjectileHomingDistance;
   };
 
   CFlyingPirate(TUniqueId uid, const rstl::string& name, const CEntityInfo& info,
@@ -73,7 +73,7 @@ public:
                 const CPatternedInfo& pInfo, CInputStream& in, int propCount);
 
   static uint GetNumProperties() { return skNumProperties; }
-  bool IsAquaPirate() const { return x6a0_25_isAquaPirate; }
+  bool IsAquaPirate() const { return mIsAquaPirate; }
   float GetFloatingGravityConstant() const { return skFloatingGravityConstant; }
 
   // CEntity
@@ -173,65 +173,65 @@ private:
   static const float skAquaGravityConstant;
   static const float skFloatingGravityConstant;
 
-  CFlyingPirateData x568_data;
-  rstl::reserved_vector< TLockedToken< CGenDescription >, 3 > x65c_particleGenDescs;
-  rstl::reserved_vector< rstl::auto_ptr< CElementGen >, 3 > x684_particleGens;
-  bool x6a0_24_isFlyingPirate : 1;
-  bool x6a0_25_isAquaPirate : 1;
-  bool x6a0_26_hearShot : 1;
-  bool x6a0_27_canPatrol : 1;
+  CFlyingPirateData mData;
+  rstl::reserved_vector< TLockedToken< CGenDescription >, 3 > mParticleGenDescs;
+  rstl::reserved_vector< rstl::auto_ptr< CElementGen >, 3 > mParticleGens;
+  bool mIsFlyingPirate : 1;
+  bool mIsAquaPirate : 1;
+  bool mHearShot : 1;
+  bool mCanPatrol : 1;
   bool x6a0_28_ : 1;
-  bool x6a0_29_checkForProjectiles : 1;
+  bool mCheckForProjectiles : 1;
   bool x6a0_30_ : 1;
-  bool x6a0_31_cantSeePlayer : 1;
-  bool x6a1_24_prevInCineCam : 1;
+  bool mCantSeePlayer : 1;
+  bool mPrevInCineCam : 1;
   bool x6a1_25_ : 1;
-  bool x6a1_26_isAttackingObject : 1;
+  bool mIsAttackingObject : 1;
   bool x6a1_27_ : 1;
   bool x6a1_28_ : 1;
-  bool x6a1_29_isMoving : 1;
-  bool x6a1_30_spinToDeath : 1;
-  bool x6a1_31_stopped : 1;
-  bool x6a2_24_aggressive : 1;
-  bool x6a2_25_aggressionChecked : 1;
-  bool x6a2_26_jetpackActive : 1;
-  bool x6a2_27_sparksActive : 1;
+  bool mIsMoving : 1;
+  bool mSpinToDeath : 1;
+  bool mStopped : 1;
+  bool mAggressive : 1;
+  bool mAggressionChecked : 1;
+  bool mJetpackActive : 1;
+  bool mSparksActive : 1;
   bool x6a2_28_ : 1;
-  TUniqueId x6a4_currentCoverPoint;
-  TUniqueId x6a6_id2;
-  CPathFindSearch x6a8_pathFindSearch;
+  TUniqueId mCurrentCoverPoint;
+  TUniqueId mId2;
+  CPathFindSearch mPathFindSearch;
   float x78c_;
   int x790_;
-  float x794_initialHealth;
-  CSegId x798_headSegId;
+  float mInitialHealth;
+  CSegId mHeadSegId;
   int x79c_;
-  CBoneTracking x7a0_boneTracking;
+  CBoneTracking mBoneTracking;
   float x7d8_;
   int x7dc_;
-  CSegId x7e0_gunSegId;
+  CSegId mGunSegId;
   float x7e4_;
-  TUniqueId x7e8_targetId;
-  CBurstFire x7ec_burstFire;
-  pas::EStepDirection x84c_dodgeDirection;
-  float x850_height;
+  TUniqueId mTargetId;
+  CBurstFire mBurstFire;
+  pas::EStepDirection mDodgeDirection;
+  float mHeight;
   float x854_;
   float x858_;
-  TUniqueId x85c_attackObjectId;
+  TUniqueId mAttackObjectId;
   float x860_;
-  rstl::reserved_vector< CSegId, 2 > x864_missileSegments;
+  rstl::reserved_vector< CSegId, 2 > mMissileSegments;
   float x86c_;
   CVector3f x870_;
   CVector3f x87c_;
   float x888_;
-  float x88c_ragDollTimer;
-  TUniqueId x890_teamAiMgr;
-  float x894_pitchBend;
+  float mRagDollTimer;
+  TUniqueId mTeamAiMgr;
+  float mPitchBend;
   float x898_;
-  rstl::single_ptr< CFlyingPirateRagDoll > x89c_ragDoll;
-  TUniqueId x8a0_patrolTarget;
+  rstl::single_ptr< CFlyingPirateRagDoll > mRagDoll;
+  TUniqueId mPatrolTarget;
   float x8a4_;
 };
-CHECK_SIZEOF(CFlyingPirate, (VERSION >= VERSION_GM8P_00 ? 0x8b8 : 0x8A8))
+CHECK_SIZEOF(CFlyingPirate, (VERSION >= VERSION_GM8E_02 ? 0x8b8 : 0x8A8))
 
 NESTED_CHECK_SIZEOF(CFlyingPirate, CFlyingPirateData, 0xF4)
 

@@ -12,30 +12,30 @@ CFlaahgraPlants::CFlaahgraPlants(const TToken< CGenDescription >& genDesc,
                                  const CVector3f& extents)
 : CActor(uid, true, "Flaahgra Plants", CEntityInfo(aId, NullConnectionList), xf,
          CModelData::CModelDataNull(), CMaterialList(kMT_Projectile), actParms, kInvalidUniqueId)
-, xe8_elementGen(rs_new CElementGen(genDesc))
-, xf0_ownerId(owner)
-, xf4_damageInfo(dInfo)
-, x12c_lastDt(0.f)
-, x130_obbox(xf, extents)
-, x16c_colAct(kInvalidUniqueId) {
-  xe8_elementGen->SetOrientation(xf.GetRotation());
-  xe8_elementGen->SetTranslation(xf.GetTranslation());
-  xe8_elementGen->SetLeaveLightsEnabledForModelRender(true);
-  x110_aabox = x130_obbox.CalculateAABox(CTransform4f::Identity());
+, mElementGen(rs_new CElementGen(genDesc))
+, mOwnerId(owner)
+, mDamageInfo(dInfo)
+, mLastDt(0.f)
+, mObbox(xf, extents)
+, mColAct(kInvalidUniqueId) {
+  mElementGen->SetOrientation(xf.GetRotation());
+  mElementGen->SetTranslation(xf.GetTranslation());
+  mElementGen->SetLeaveLightsEnabledForModelRender(true);
+  mAabox = mObbox.CalculateAABox(CTransform4f::Identity());
 }
 
 CFlaahgraPlants::~CFlaahgraPlants() {}
 
 void CFlaahgraPlants::Touch(CActor& act, CStateManager& mgr) {
-  if (act.GetUniqueId() == mgr.GetPlayer()->GetUniqueId() && x110_aabox) {
+  if (act.GetUniqueId() == mgr.GetPlayer()->GetUniqueId() && mAabox) {
     COBBox plObb = COBBox::FromAABox(mgr.GetPlayer()->GetBoundingBox(), CTransform4f::Identity());
 
-    if (!x130_obbox.OBBIntersectsBox(plObb)) {
+    if (!mObbox.OBBIntersectsBox(plObb)) {
       return;
     }
 
-    CDamageInfo dInfo(xf4_damageInfo.GetWeaponMode(), x12c_lastDt * xf4_damageInfo.GetDamage(),
-                      xf4_damageInfo.GetRadius(), xf4_damageInfo.GetKnockBackPower(), true);
+    CDamageInfo dInfo(mDamageInfo.GetWeaponMode(), mLastDt * mDamageInfo.GetDamage(),
+                      mDamageInfo.GetRadius(), mDamageInfo.GetKnockBackPower(), true);
     CMaterialFilter filter =
         CMaterialFilter::MakeIncludeExclude(CMaterialList(kMT_Solid), CMaterialList());
     CVector3f diffVec = mgr.GetPlayer()->GetTranslation() - GetTranslation();
@@ -47,14 +47,14 @@ void CFlaahgraPlants::Touch(CActor& act, CStateManager& mgr) {
 
 rstl::optional_object< CAABox > CFlaahgraPlants::GetTouchBounds() const {
   if (GetActive()) {
-    return x110_aabox;
+    return mAabox;
   } else {
     return rstl::optional_object_null();
   }
 }
 
 void CFlaahgraPlants::AddToRenderer(const CFrustumPlanes& frustum, const CStateManager& mgr) const {
-  gpRender->AddParticleGen(*xe8_elementGen);
+  gpRender->AddParticleGen(*mElementGen);
   CActor::AddToRenderer(frustum, mgr);
 }
 
@@ -62,11 +62,11 @@ ENTITY_ACCEPT_IMPL(CFlaahgraPlants)
 
 void CFlaahgraPlants::Think(float dt, CStateManager& mgr) {
   if (GetActive()) {
-    xe8_elementGen->Update(dt);
-    x12c_lastDt = dt;
+    mElementGen->Update(dt);
+    mLastDt = dt;
   }
 
-  if (xe8_elementGen->IsSystemDeletable()) {
+  if (mElementGen->IsSystemDeletable()) {
     mgr.DeleteObjectRequest(GetUniqueId());
   }
 }
@@ -76,12 +76,12 @@ void CFlaahgraPlants::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, C
 
   switch (msg) {
   case kSM_Registered: {
-    xe8_elementGen->SetParticleEmission(true);
+    mElementGen->SetParticleEmission(true);
     SetActive(true);
-    if (x16c_colAct == kInvalidUniqueId) {
-      x16c_colAct = mgr.AllocateUniqueId();
-      CVector3f extent = x130_obbox.GetSize() + CVector3f(0.f, 5.f, 10.f);
-      CCollisionActor* colAct = rs_new CCollisionActor(x16c_colAct, GetCurrentAreaId(), GetUniqueId(),
+    if (mColAct == kInvalidUniqueId) {
+      mColAct = mgr.AllocateUniqueId();
+      CVector3f extent = mObbox.GetSize() + CVector3f(0.f, 5.f, 10.f);
+      CCollisionActor* colAct = rs_new CCollisionActor(mColAct, GetCurrentAreaId(), GetUniqueId(),
                                                     extent, CVector3f::Zero(), true, 0.001f);
       if (colAct != nullptr) {
         colAct->SetTransform(GetTransform());
@@ -97,8 +97,8 @@ void CFlaahgraPlants::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, C
     break;
   }
   case kSM_Deleted: {
-    if (x16c_colAct != kInvalidUniqueId) {
-      mgr.DeleteObjectRequest(x16c_colAct);
+    if (mColAct != kInvalidUniqueId) {
+      mgr.DeleteObjectRequest(mColAct);
     }
     break;
   }

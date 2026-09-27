@@ -11,28 +11,28 @@
 
 #include "math.h"
 
-CABSFlinch::CABSFlinch() : x4_weight(1.f), x8_anim(0) {}
+CABSFlinch::CABSFlinch() : mWeight(1.f), mAnim(0) {}
 
 void CABSFlinch::Start(CBodyController& bc, CStateManager& mgr) {
   const CBCAdditiveFlinchCmd* cmd =
       static_cast< const CBCAdditiveFlinchCmd* >(bc.CommandMgr().GetCmd(kBSC_AdditiveFlinch));
-  x4_weight = cmd->GetWeight();
+  mWeight = cmd->GetWeight();
 
   const CPASDatabase& pasDB = bc.GetPASDatabase();
 
   CPASAnimParmData parms(pas::kAS_AdditiveFlinch);
   rstl::pair< float, int > best = pasDB.FindBestAnimation(parms, *mgr.Random(), -1);
-  x8_anim = best.second;
+  mAnim = best.second;
 
   CAnimData& animData = *bc.GetOwner().ModelData()->AnimationData();
-  animData.AddAdditiveAnimation(x8_anim, x4_weight, false, true);
+  animData.AddAdditiveAnimation(mAnim, mWeight, false, true);
 }
 
 pas::EAnimationState CABSFlinch::UpdateBody(float dt, CBodyController& bc, CStateManager& mgr) {
   pas::EAnimationState st = GetBodyStateTransition(dt, bc);
   if (st == pas::kAS_Invalid) {
     const CAnimData& animData = *bc.GetOwner().GetModelData()->GetAnimationData();
-    CCharAnimTime rem = animData.GetAdditiveAnimationTree(x8_anim)->VGetTimeRemaining();
+    CCharAnimTime rem = animData.GetAdditiveAnimationTree(mAnim)->VGetTimeRemaining();
     if (close_enough(rem.GetSeconds(), 0.0f)) {
       st = pas::kAS_AdditiveIdle;
     }

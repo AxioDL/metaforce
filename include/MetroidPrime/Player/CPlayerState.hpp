@@ -108,14 +108,14 @@ public:
   bool GetIsFusionEnabled() const;
 
   EPlayerSuit GetCurrentSuit() const;
-  EPlayerSuit GetCurrentSuitRaw() const { return x20_currentSuit; }
-  void SetFiringComboBeam(bool firing) { x0_25_firingComboBeam = firing; }
-  bool IsFiringComboBeam() const { return x0_25_firingComboBeam; }
-  EBeamId GetCurrentBeam() const { return x8_currentBeam; }
-  void SetCurrentBeam(EBeamId beam) { x8_currentBeam = beam; }
+  EPlayerSuit GetCurrentSuitRaw() const { return mCurrentSuit; }
+  void SetFiringComboBeam(bool firing) { mFiringComboBeam = firing; }
+  bool IsFiringComboBeam() const { return mFiringComboBeam; }
+  EBeamId GetCurrentBeam() const { return mCurrentBeam; }
+  void SetCurrentBeam(EBeamId beam) { mCurrentBeam = beam; }
   bool CanVisorSeeFog(const CStateManager& stateMgr) const;
-  EPlayerVisor GetCurrentVisor() const { return x14_currentVisor; }
-  EPlayerVisor GetTransitioningVisor() const { return x18_transitioningVisor; }
+  EPlayerVisor GetCurrentVisor() const { return mCurrentVisor; }
+  EPlayerVisor GetTransitioningVisor() const { return mTransitioningVisor; }
   EPlayerVisor GetActiveVisor(const CStateManager& mgr) const;
   const bool IsXRayActive(const CStateManager& mgr) const {
     return GetActiveVisor(mgr) == kPV_XRay;
@@ -134,8 +134,8 @@ public:
   void UpdateVisorTransition(float dt);
   void StartTransitionToVisor(EPlayerVisor visor);
   void ResetVisor();
-  bool IsAlive() const { return x0_24_alive; }
-  void SetPlayerAlive(bool alive) { x0_24_alive = alive; }
+  bool IsAlive() const { return mAlive; }
+  void SetPlayerAlive(bool alive) { mAlive = alive; }
 
   const bool ItemEnabled(const EItemType type) const;
   void DisableItem(const EItemType type);
@@ -153,64 +153,64 @@ public:
   void InitializePowerUp(CPlayerState::EItemType type, int capacity);
   void SetPowerUp(CPlayerState::EItemType type, int capacity);
   static bool IsValidScan(CAssetId res);
-  void SetScanCompletionRateFirst(int rate) { x180_scanCompletionRateFirst = rate; }   // name?
-  void SetScanCompletionRateSecond(int rate) { x184_scanCompletionRateSecond = rate; } // name?
+  void SetScanCompletionRateFirst(int rate) { mScanCompletionRateFirst = rate; }   // name?
+  void SetScanCompletionRateSecond(int rate) { mScanCompletionRateSecond = rate; } // name?
 
   void InitializeScanTimes();
 
   static const uint GetBitCount(uint);
 
-  float GetHudStaticInterferenceAmount() const { return x188_staticIntf.GetTotalInterference(); }
-  CStaticInterference& StaticInterference() { return x188_staticIntf; }
-  const CStaticInterference& GetStaticInterference() const { return x188_staticIntf; }
+  float GetHudStaticInterferenceAmount() const { return mStaticIntf.GetTotalInterference(); }
+  CStaticInterference& StaticInterference() { return mStaticIntf; }
+  const CStaticInterference& GetStaticInterference() const { return mStaticIntf; }
 
   const rstl::vector< rstl::pair< CAssetId, float > >& GetScanTimes() const {
-    return x170_scanTimes;
+    return mScanTimes;
   }
-  const int GetLogScans() const { return x180_scanCompletionRateFirst; }
-  const int GetTotalLogScans() const { return x184_scanCompletionRateSecond; }
+  const int GetLogScans() const { return mScanCompletionRateFirst; }
+  const int GetTotalLogScans() const { return mScanCompletionRateSecond; }
 
-  CHealthInfo* HealthInfo() { return &xc_health; }
-  const CHealthInfo& GetHealthInfo() const { return xc_health; }
+  CHealthInfo* HealthInfo() { return &mHealth; }
+  const CHealthInfo& GetHealthInfo() const { return mHealth; }
 
 private:
   struct CPowerUp {
-    int x0_amount;
-    int x4_capacity;
-    CPowerUp() : x0_amount(0), x4_capacity(0) {}
+    int mAmount;
+    int mCapacity;
+    CPowerUp() : mAmount(0), mCapacity(0) {}
     CPowerUp(int amount, int capacity);
 
     void Add(int amount) {
-      int capacity = x4_capacity;
-      x0_amount += amount;
-      if (x0_amount > capacity) {
-        x0_amount = capacity;
+      int capacity = mCapacity;
+      mAmount += amount;
+      if (mAmount > capacity) {
+        mAmount = capacity;
       }
     }
 
     void Dec(int amount) {
-      x0_amount -= amount;
-      if (x0_amount < 0) {
-        x0_amount = 0;
+      mAmount -= amount;
+      if (mAmount < 0) {
+        mAmount = 0;
       }
     }
   };
 
-  bool x0_24_alive : 1;
-  bool x0_25_firingComboBeam : 1;
-  bool x0_26_fusion : 1;
-  uint x4_enabledItems;
-  EBeamId x8_currentBeam;
-  CHealthInfo xc_health;
-  EPlayerVisor x14_currentVisor;
-  EPlayerVisor x18_transitioningVisor;
-  float x1c_visorTransitionFactor;
-  EPlayerSuit x20_currentSuit;
-  rstl::reserved_vector< CPowerUp, 41 > x24_powerups;
-  rstl::vector< rstl::pair< CAssetId, float > > x170_scanTimes;
-  int x180_scanCompletionRateFirst; // pair?
-  int x184_scanCompletionRateSecond;
-  CStaticInterference x188_staticIntf;
+  bool mAlive : 1;
+  bool mFiringComboBeam : 1;
+  bool mFusion : 1;
+  uint mEnabledItems;
+  EBeamId mCurrentBeam;
+  CHealthInfo mHealth;
+  EPlayerVisor mCurrentVisor;
+  EPlayerVisor mTransitioningVisor;
+  float mVisorTransitionFactor;
+  EPlayerSuit mCurrentSuit;
+  rstl::reserved_vector< CPowerUp, 41 > mPowerups;
+  rstl::vector< rstl::pair< CAssetId, float > > mScanTimes;
+  int mScanCompletionRateFirst; // pair?
+  int mScanCompletionRateSecond;
+  CStaticInterference mStaticIntf;
 };
 CHECK_SIZEOF(CPlayerState, 0x198)
 

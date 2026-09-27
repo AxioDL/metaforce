@@ -133,7 +133,7 @@ public:
   void SetPhazonBeamMorph(bool);
   void HandlePhazonBeamChange(CStateManager&);
   void InitBeamData();
-#if VERSION >= VERSION_GM8P_00
+#if VERSION >= VERSION_GM8E_02
   void SetBeam(CPlayerState::EItemType item, CStateManager& mgr);
   void LoadBeam(CPlayerState::EBeamId beam, CStateManager& mgr);
 #endif
@@ -176,56 +176,56 @@ public:
   void ReturnToRestPose();
   TUniqueId DropPowerBomb(CStateManager&) const;
   void SetPhazonBeamFeedback(bool);
-  void SetAssistAimTransform(const CTransform4f& xf) { x478_assistAimXf = xf; }
+  void SetAssistAimTransform(const CTransform4f& xf) { mAssistAimXf = xf; }
 
-  const CTransform4f& GetTransform() const { return x3e8_xf; }
-  float GetChargePercentage() const { return x834_24_charging ? x340_chargeBeamFactor : 0.f; }
-  EChargeState GetChargeState() const { return x330_chargeState; }
-  CPlayerState::EBeamId GetPrimaryWeaponId() const { return x310_currentBeam; }
-  CAuxWeapon& AuxWeapon() { return *x744_auxWeapon; }
-  CPlayerState::EBeamId GetPrimaryDestWeaponId() const { return x314_nextBeam; }
-  uint GetSecondaryItemId() const { return x318_comboAmmoIdx; }
-  int GetBombsPending() const { return x308_bombCount; }
-  bool IsBombReady() const { return x835_28_bombReady; }
-  bool IsPowerBombReady() const { return x835_29_powerBombReady; }
-  int GetFiring() const { return x2ec_lastFireButtonStates; }
-  EMissileMode GetMissileMode() const { return x31c_missileMode; }
-  float GetHoloTransitionFactor() const { return x678_morph.GetTransitionFactor(); }
-  TUniqueId GetPowerBombId() const { return x53a_powerBomb; }
+  const CTransform4f& GetTransform() const { return mXf; }
+  float GetChargePercentage() const { return mCharging ? mChargeBeamFactor : 0.f; }
+  EChargeState GetChargeState() const { return mChargeState; }
+  CPlayerState::EBeamId GetPrimaryWeaponId() const { return mEquippedBeamId; }
+  CAuxWeapon& AuxWeapon() { return *mAuxWeapon; }
+  CPlayerState::EBeamId GetPrimaryDestWeaponId() const { return mNextBeamId; }
+  uint GetSecondaryItemId() const { return mComboAmmoIdx; }
+  int GetBombsPending() const { return mBombCount; }
+  bool IsBombReady() const { return mBombReady; }
+  bool IsPowerBombReady() const { return mPowerBombReady; }
+  int GetFiring() const { return mLastFireButtonStates; }
+  EMissileMode GetMissileMode() const { return mMissileMode; }
+  float GetHoloTransitionFactor() const { return mMorph.GetTransitionFactor(); }
+  TUniqueId GetPowerBombId() const { return mPowerBomb; }
 
   static float GetTractorBeamFactor() { return kTractorBeamFactor; }
   static float GetGunScale() { return kGunScale; }
 
-  int GetStateFlags() const { return x2f8_stateFlags; }
-  void SetStateFlags(int flags) { x2f8_stateFlags = flags; }
-  bool IsWeaponStateSet(int state) const { return (x2f8_stateFlags & state) == state; }
-  void EnableWeaponState(int state) { x2f8_stateFlags |= state; }
-  void DisableWeaponState(int state) { x2f8_stateFlags &= ~state; }
+  int GetStateFlags() const { return mStateFlags; }
+  void SetStateFlags(int flags) { mStateFlags = flags; }
+  bool IsWeaponStateSet(int state) const { return (mStateFlags & state) == state; }
+  void EnableWeaponState(int state) { mStateFlags |= state; }
+  void DisableWeaponState(int state) { mStateFlags &= ~state; }
   void ResetToBeam() {
     if (!IsWeaponStateSet(0x8)) {
       EnableWeaponState(0x1);
       DisableWeaponState(0x16);
     }
-    x318_comboAmmoIdx = 0;
-    x31c_missileMode = kMM_Inactive;
+    mComboAmmoIdx = 0;
+    mMissileMode = kMM_Inactive;
   }
   void ResetToMissile() {
     DisableWeaponState(0x1);
     EnableWeaponState(0x6);
-    x318_comboAmmoIdx = 1;
-    x31c_missileMode = kMM_Active;
+    mComboAmmoIdx = 1;
+    mMissileMode = kMM_Active;
   }
   bool CanCycleShoot() const {
-    return x32c_chargePhase == kCP_NotCharging && int(x318_comboAmmoIdx) != 1;
+    return mChargePhase == kCP_NotCharging && int(mComboAmmoIdx) != 1;
   }
-  bool IsCharging() const { return x834_24_charging; }
-  void SetTransform(CTransform4f xf) { x3e8_xf = xf; }
-  CTransform4f GetGunMotionTransform() const { return x4a8_gunWorldXf; }
-  CGrappleArm& GrappleArm() { return *x740_grappleArm.get(); }
-  CGrappleArm& GetGrappleArm() const { return *x740_grappleArm.get(); }
-  bool IsFidgeting() const { return x833_24_notFidgeting; }
+  bool IsCharging() const { return mCharging; }
+  void SetTransform(CTransform4f xf) { mXf = xf; }
+  CTransform4f GetGunMotionTransform() const { return mGunWorldXf; }
+  CGrappleArm& GrappleArm() { return *mGrappleArm.get(); }
+  CGrappleArm& GetGrappleArm() const { return *mGrappleArm.get(); }
+  bool IsFidgeting() const { return mNotFidgeting; }
 
-  void SetActorAttached(bool attached) { x835_31_actorAttached = attached; } // name?
+  void SetActorAttached(bool attached) { mActorAttached = attached; } // name?
 
 private:
   class CGunMorph {
@@ -251,23 +251,23 @@ private:
     EMorphEvent Update(float inY, float outY, float dt);
     void StartWipe(EDir dir);
 
-    float GetYLerp() const { return x0_yLerp; }
-    float GetTransitionFactor() const { return x18_transitionFactor; }
-    EGunState GetGunState() const { return x20_gunState; }
-    void SetWeaponChanged() { x24_25_weaponChanged = true; }
+    float GetYLerp() const { return mYLerp; }
+    float GetTransitionFactor() const { return mTransitionFactor; }
+    EGunState GetGunState() const { return mGunState; }
+    void SetWeaponChanged() { mWeaponChanged = true; }
 
   private:
-    float x0_yLerp;
-    float x4_gunTransformTime;
-    float x8_remTime;
-    float xc_speed;
-    float x10_holoHoldTime;
-    float x14_remHoldTime;
-    float x18_transitionFactor;
-    EDir x1c_dir;
-    EGunState x20_gunState;
-    bool x24_24_morphing : 1;
-    bool x24_25_weaponChanged : 1;
+    float mYLerp;
+    float mGunTransformTime;
+    float mRemTime;
+    float mSpeed;
+    float mHoloHoldTime;
+    float mRemHoldTime;
+    float mTransitionFactor;
+    EDir mDir;
+    EGunState mGunState;
+    bool mMorphing : 1;
+    bool mWeaponChanged : 1;
   };
 
   class CMotionState {
@@ -285,172 +285,172 @@ private:
     };
 
     CMotionState()
-    : x0_24_extendParabola(true)
-    , x4_extendParabolaDelayTimer(0.f)
-    , x8_fireTime(0.f)
-    , xc_curExtendDist(0.f)
-    , x10_curRotation(0.f)
-    , x14_rotationT(0.f)
-    , x18_startRotation(0.f)
-    , x1c_endRotation(0.f)
-    , x20_state(kMS_Zero)
-    , x24_fireState(kFS_NotFiring) {}
+    : mExtendParabola(true)
+    , mExtendParabolaDelayTimer(0.f)
+    , mFireTime(0.f)
+    , mCurExtendDist(0.f)
+    , mCurRotation(0.f)
+    , mRotationT(0.f)
+    , mStartRotation(0.f)
+    , mEndRotation(0.f)
+    , mState(kMS_Zero)
+    , mFireState(kFS_NotFiring) {}
 
     static void SetExtendDistance(float d) { gGunExtendDistance = d; }
 
-    void SetState(EMotionState state) { x20_state = state; }
+    void SetState(EMotionState state) { mState = state; }
     void Update(bool firing, float dt, CTransform4f& xf, CStateManager& mgr);
 
   private:
     static float gGunExtendDistance;
 
-    bool x0_24_extendParabola : 1;
-    float x4_extendParabolaDelayTimer;
-    float x8_fireTime;
-    float xc_curExtendDist;
-    float x10_curRotation;
-    float x14_rotationT;
-    float x18_startRotation;
-    float x1c_endRotation;
-    EMotionState x20_state;
-    EFireState x24_fireState;
+    bool mExtendParabola : 1;
+    float mExtendParabolaDelayTimer;
+    float mFireTime;
+    float mCurExtendDist;
+    float mCurRotation;
+    float mRotationT;
+    float mStartRotation;
+    float mEndRotation;
+    EMotionState mState;
+    EFireState mFireState;
   };
 
-  CActorLights x0_lights;
-  CSfxHandle x2e0_chargeSfx;
-  CSfxHandle x2e4_invalidSfx;
-  CSfxHandle x2e8_phazonBeamSfx;
+  CActorLights mLights;
+  CSfxHandle mChargeSfx;
+  CSfxHandle mInvalidSfx;
+  CSfxHandle mPhazonBeamSfx;
   // 0x1: FireOrBomb, 0x2: MissileOrPowerBomb
-  uint x2ec_lastFireButtonStates;
-  uint x2f0_pressedFireButtonStates;
-  uint x2f4_fireButtonStates;
+  uint mLastFireButtonStates;
+  uint mPressedFireButtonStates;
+  uint mFireButtonStates;
   // 0x1: beam mode, 0x2: missile mode, 0x4: missile ready, 0x8: morphing, 0x10: combo fire
-  int x2f8_stateFlags;
-  int x2fc_fidgetAnimBits;
-  uint x300_remainingMissiles;
+  int mStateFlags;
+  int mFidgetAnimBits;
+  uint mRemainingMissiles;
   uint x304_;
-  int x308_bombCount;
-  int x30c_rapidFireShots;
-  CPlayerState::EBeamId x310_currentBeam;
-  CPlayerState::EBeamId x314_nextBeam;
-  uint x318_comboAmmoIdx;
-  EMissileMode x31c_missileMode;
-  CPlayerState::EBeamId x320_currentAuxBeam;
-  EIdleState x324_idleState;
-  int x328_animSfxPitch;
-  EChargePhase x32c_chargePhase;
-  EChargeState x330_chargeState;
+  int mBombCount;
+  int mRapidFireShots;
+  CPlayerState::EBeamId mEquippedBeamId;
+  CPlayerState::EBeamId mNextBeamId;
+  uint mComboAmmoIdx;
+  EMissileMode mMissileMode;
+  CPlayerState::EBeamId mCurrentAuxBeam;
+  EIdleState mIdleState;
+  int mAnimSfxPitch;
+  EChargePhase mChargePhase;
+  EChargeState mChargeState;
   uint x334_;
-  ENextState x338_nextState;
-  EPhazonBeamState x33c_phazonBeamState;
-  float x340_chargeBeamFactor;
-  float x344_comboXferTimer;
-  float x348_chargeCooldownTimer;
-  float x34c_shakeX;
-  float x350_shakeZ;
-  float x354_bombFuseTime;
-  float x358_bombDropDelayTime;
-  float x35c_bombTime;
+  ENextState mNextState;
+  EPhazonBeamState mPhazonBeamState;
+  float mChargeBeamFactor;
+  float mComboXferTimer;
+  float mChargeCooldownTimer;
+  float mShakeX;
+  float mShakeZ;
+  float mBombFuseTime;
+  float mBombDropDelayTime;
+  float mBombTime;
   float x360_;
-  float x364_gunStrikeCoolTimer;
-  float x368_idleWanderDelayTimer;
+  float mGunStrikeCoolTimer;
+  float mIdleWanderDelayTimer;
   float x36c_;
-  float x370_gunMotionSpeedMult;
+  float mGunMotionSpeedMult;
   float x374_;
-  float x378_shotSmokeStartTimer;
-  float x37c_rapidFireShotsDecayTimer;
-  float x380_shotSmokeTimer;
-  float x384_gunStrikeDelayTimer;
-  float x388_enterFreeLookDelayTimer;
-  float x38c_muzzleEffectVisTimer;
-  float x390_cooldown;
-  float x394_damageTimer;
-  float x398_damageAmt;
-  float x39c_phazonMorphT;
-  float x3a0_missileExitTimer;
-  CFidget x3a4_fidget;
-  CVector3f x3dc_damageLocation;
-  CTransform4f x3e8_xf;
-  CTransform4f x418_beamLocalXf;
-  CTransform4f x448_elbowWorldXf;
-  CTransform4f x478_assistAimXf;
-  CTransform4f x4a8_gunWorldXf;
-  CTransform4f x4d8_gunLocalXf;
-  CTransform4f x508_elbowLocalXf;
-  TUniqueId x538_playerId;
-  TUniqueId x53a_powerBomb;
-  TUniqueId x53c_lightId;
-  rstl::vector< CToken > x540_handAnimTokens;
-  CPlayerCameraBob x550_camBob;
+  float mShotSmokeStartTimer;
+  float mRapidFireShotsDecayTimer;
+  float mShotSmokeTimer;
+  float mGunStrikeDelayTimer;
+  float mEnterFreeLookDelayTimer;
+  float mMuzzleEffectVisTimer;
+  float mCooldown;
+  float mDamageTimer;
+  float mDamageAmt;
+  float mPhazonMorphT;
+  float mMissileExitTimer;
+  CFidget mFidget;
+  CVector3f mDamageLocation;
+  CTransform4f mXf;
+  CTransform4f mBeamLocalXf;
+  CTransform4f mElbowWorldXf;
+  CTransform4f mAssistAimXf;
+  CTransform4f mGunWorldXf;
+  CTransform4f mGunLocalXf;
+  CTransform4f mElbowLocalXf;
+  TUniqueId mPlayerId;
+  TUniqueId mPowerBomb;
+  TUniqueId mLightId;
+  rstl::vector< CToken > mHandAnimTokens;
+  CPlayerCameraBob mCamBob;
   uint x658_;
   float x65c_;
   float x660_;
   float x664_;
-  float x668_aimVerticalSpeed;
-  float x66c_aimHorizontalSpeed;
-  rstl::pair< ushort, CSfxHandle > x670_animSfx;
-  CGunMorph x678_morph;
-  CMotionState x6a0_motionState;
-  CAABox x6c8_hologramClipCube;
-  CModelData x6e0_rightHandModel;
-  CGunWeapon* x72c_currentBeam;
-  CGunWeapon* x730_outgoingBeam;
-  CGunWeapon* x734_loadingBeam;
-  CGunWeapon* x738_nextBeam;
-  rstl::single_ptr< CGunMotion > x73c_gunMotion;
-  rstl::single_ptr< CGrappleArm > x740_grappleArm;
-  rstl::single_ptr< CAuxWeapon > x744_auxWeapon;
-  rstl::single_ptr< CRainSplashGenerator > x748_rainSplashGenerator;
-  rstl::single_ptr< CPowerBeam > x74c_powerBeam;
-  rstl::single_ptr< CIceBeam > x750_iceBeam;
-  rstl::single_ptr< CWaveBeam > x754_waveBeam;
-  rstl::single_ptr< CPlasmaBeam > x758_plasmaBeam;
-  rstl::single_ptr< CPhazonBeam > x75c_phazonBeam;
-  rstl::reserved_vector< CGunWeapon*, 4 > x760_selectableBeams;
-  rstl::auto_ptr< CElementGen > x774_holoTransitionGen;
-  rstl::auto_ptr< CElementGen > x77c_comboXferGen;
+  float mAimVerticalSpeed;
+  float mAimHorizontalSpeed;
+  rstl::pair< ushort, CSfxHandle > mAnimSfx;
+  CGunMorph mMorph;
+  CMotionState mMotionState;
+  CAABox mHologramClipCube;
+  CModelData mRightHandModel;
+  CGunWeapon* mCurrentBeam;
+  CGunWeapon* mOutgoingBeam;
+  CGunWeapon* mLoadingBeam;
+  CGunWeapon* mNextBeam;
+  rstl::single_ptr< CGunMotion > mGunMotion;
+  rstl::single_ptr< CGrappleArm > mGrappleArm;
+  rstl::single_ptr< CAuxWeapon > mAuxWeapon;
+  rstl::single_ptr< CRainSplashGenerator > mRainSplashGenerator;
+  rstl::single_ptr< CPowerBeam > mPowerBeam;
+  rstl::single_ptr< CIceBeam > mIceBeam;
+  rstl::single_ptr< CWaveBeam > mWaveBeam;
+  rstl::single_ptr< CPlasmaBeam > mPlasmaBeam;
+  rstl::single_ptr< CPhazonBeam > mPhazonBeam;
+  rstl::reserved_vector< CGunWeapon*, 4 > mSelectableBeams;
+  rstl::auto_ptr< CElementGen > mHoloTransitionGen;
+  rstl::auto_ptr< CElementGen > mComboXferGen;
   rstl::reserved_vector< rstl::reserved_vector< TLockedToken< CGenDescription >, 2 >, 2 >
-      x784_bombEffects;
-  rstl::reserved_vector< TLockedToken< CGenDescription >, 5 > x7c0_auxMuzzleEffects;
-  rstl::reserved_vector< rstl::auto_ptr< CElementGen >, 5 > x800_auxMuzzleGenerators;
-  rstl::single_ptr< CWorldShadow > x82c_shadow;
-  short x830_chargeRumbleHandle;
+      mBombEffects;
+  rstl::reserved_vector< TLockedToken< CGenDescription >, 5 > mAuxMuzzleEffects;
+  rstl::reserved_vector< rstl::auto_ptr< CElementGen >, 5 > mAuxMuzzleGenerators;
+  rstl::single_ptr< CWorldShadow > mShadow;
+  short mChargeRumbleHandle;
 
-  bool x832_24_coolingCharge : 1;
-  bool x832_25_chargeEffectVisible : 1;
-  bool x832_26_comboFiring : 1;
-  bool x832_27_chargeAnimStarted : 1;
-  bool x832_28_readyForShot : 1;
-  bool x832_29_lockedOn : 1;
-  bool x832_30_requestReturnToDefault : 1;
-  bool x832_31_inRestPose : 1;
+  bool mCoolingCharge : 1;
+  bool mChargeEffectVisible : 1;
+  bool mComboFiring : 1;
+  bool mChargeAnimStarted : 1;
+  bool mReadyForShot : 1;
+  bool mLockedOn : 1;
+  bool mRequestReturnToDefault : 1;
+  bool mInRestPose : 1;
 
-  bool x833_24_notFidgeting : 1;
+  bool mNotFidgeting : 1;
   bool x833_25_ : 1;
   bool x833_26_ : 1;
   bool x833_27_ : 1;
-  bool x833_28_phazonBeamActive : 1;
-  bool x833_29_pointBlankWorldSurface : 1;
-  bool x833_30_canShowAuxMuzzleEffect : 1;
-  bool x833_31_inFreeLook : 1;
+  bool mPhazonBeamActive : 1;
+  bool mPointBlankWorldSurface : 1;
+  bool mCanShowAuxMuzzleEffect : 1;
+  bool mInFreeLook : 1;
 
-  bool x834_24_charging : 1;
-  bool x834_25_gunMotionFidgeting : 1;
-  bool x834_26_animPlaying : 1;
-  bool x834_27_underwater : 1;
-  bool x834_28_requestImmediateRecharge : 1;
-  bool x834_29_frozen : 1;
-  bool x834_30_inBigStrike : 1;
-  bool x834_31_gunMotionInFidgetBasePosition : 1;
+  bool mCharging : 1;
+  bool mGunMotionFidgeting : 1;
+  bool mAnimPlaying : 1;
+  bool mUnderwater : 1;
+  bool mRequestImmediateRecharge : 1;
+  bool mFrozen : 1;
+  bool mInBigStrike : 1;
+  bool mGunMotionInFidgetBasePosition : 1;
 
-  bool x835_24_canFirePhazon : 1;
-  bool x835_25_inPhazonBeam : 1;
-  bool x835_26_phazonBeamMorphing : 1;
-  bool x835_27_intoPhazonBeam : 1;
-  bool x835_28_bombReady : 1;
-  bool x835_29_powerBombReady : 1;
-  bool x835_30_inPhazonPool : 1;
-  bool x835_31_actorAttached : 1;
+  bool mCanFirePhazon : 1;
+  bool mInPhazonBeam : 1;
+  bool mPhazonBeamMorphing : 1;
+  bool mIntoPhazonBeam : 1;
+  bool mBombReady : 1;
+  bool mPowerBombReady : 1;
+  bool mInPhazonPool : 1;
+  bool mActorAttached : 1;
   // bool x835_32_unk : 1;
 };
 CHECK_SIZEOF(CPlayerGun, 0x838)

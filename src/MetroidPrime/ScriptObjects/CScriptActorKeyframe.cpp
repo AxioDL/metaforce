@@ -13,29 +13,29 @@ CScriptActorKeyframe::CScriptActorKeyframe(TUniqueId uid, const rstl::string& na
                                            float lifetime, bool isPassive, int fadeOut, bool active,
                                            float totalPlayback)
 : CEntity(uid, info, active, name)
-, x34_animationId(animId)
-, x38_initialLifetime(lifetime)
-, x3c_playbackRate(totalPlayback)
-, x40_lifetime(lifetime)
-, x44_24_isLooped(looping)
-, x44_25_isPassive(isPassive)
-, x44_26_fadeOut((fadeOut << 5) & 0x20)
-, x44_27_timedLoop((fadeOut << 3) & 0x10)
-, x44_28_playing(false) {}
+, mAnimationId(animId)
+, mInitialLifetime(lifetime)
+, mPlaybackRate(totalPlayback)
+, mLifetime(lifetime)
+, mIsLooped(looping)
+, mIsPassive(isPassive)
+, mFadeOut((fadeOut << 5) & 0x20)
+, mTimedLoop((fadeOut << 3) & 0x10)
+, mPlaying(false) {}
 
 void CScriptActorKeyframe::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid,
                                            CStateManager& mgr) {
   switch (msg) {
   case kSM_Action:
     if (GetActive()) {
-      if (!x44_25_isPassive) {
+      if (!mIsPassive) {
         rstl::vector< SConnection >::const_iterator conn = GetConnectionList().begin();
         for (; conn != GetConnectionList().end(); ++conn) {
-          if (conn->x0_state != kSS_Play || conn->x4_msg != kSM_Play) {
+          if (conn->mState != kSS_Play || conn->mMsg != kSM_Play) {
             continue;
           }
 
-          CStateManager::TIdListResult search = mgr.GetIdListForScript(conn->x8_objId);
+          CStateManager::TIdListResult search = mgr.GetIdListForScript(conn->mObjId);
           for (CStateManager::TIdList::const_iterator it = search.first; it != search.second;
                ++it) {
             UpdateEntity(it->second, mgr);
@@ -43,14 +43,14 @@ void CScriptActorKeyframe::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId u
         }
       }
 
-      x44_28_playing = true;
-      x40_lifetime = x38_initialLifetime;
+      mPlaying = true;
+      mLifetime = mInitialLifetime;
       SendScriptMsgs(kSS_Play, mgr, kSM_None);
     }
     break;
   case kSM_InitializedInArea:
-    if (x34_animationId == -1)
-      x34_animationId = 0;
+    if (mAnimationId == -1)
+      mAnimationId = 0;
     break;
   default:
     break;
@@ -73,57 +73,57 @@ void CScriptActorKeyframe::UpdateEntity(TUniqueId uid, CStateManager& mgr) {
     }
     act->SetModelFlags(CModelFlags::Normal());
     if (act->HasAnimation()) {
-      if (act->AnimationData()->IsAdditiveAnimation(x34_animationId)) {
-        act->AnimationData()->AddAdditiveAnimation(x34_animationId, 1.f, x44_24_isLooped,
-                                                   x44_26_fadeOut);
+      if (act->AnimationData()->IsAdditiveAnimation(mAnimationId)) {
+        act->AnimationData()->AddAdditiveAnimation(mAnimationId, 1.f, mIsLooped,
+                                                   mFadeOut);
       } else {
-        act->AnimationData()->SetAnimation(CAnimPlaybackParms(x34_animationId, -1, 1.f, true),
+        act->AnimationData()->SetAnimation(CAnimPlaybackParms(mAnimationId, -1, 1.f, true),
                                            false);
-        act->ModelData()->EnableLooping(x44_24_isLooped);
-        act->AnimationData()->MultiplyPlaybackRate(x3c_playbackRate);
+        act->ModelData()->EnableLooping(mIsLooped);
+        act->AnimationData()->MultiplyPlaybackRate(mPlaybackRate);
       }
     }
   } else if (CPatterned* ai = TCastToPtr< CPatterned >(ent)) {
-    if (ai->AnimationData()->IsAdditiveAnimation(x34_animationId)) {
-      ai->AnimationData()->AddAdditiveAnimation(x34_animationId, 1.f, x44_24_isLooped,
-                                                x44_26_fadeOut);
+    if (ai->AnimationData()->IsAdditiveAnimation(mAnimationId)) {
+      ai->AnimationData()->AddAdditiveAnimation(mAnimationId, 1.f, mIsLooped,
+                                                mFadeOut);
     } else {
       CBodyStateCmdMgr& cmdMgr = ai->BodyCtrl()->CommandMgr();
       cmdMgr.DeliverCmd(
-          CBCScriptedCmd(x34_animationId, x44_24_isLooped, x44_27_timedLoop, x38_initialLifetime));
+          CBCScriptedCmd(mAnimationId, mIsLooped, mTimedLoop, mInitialLifetime));
     }
   }
 }
 
 void CScriptActorKeyframe::Think(float dt, CStateManager& mgr) {
-  if (!x44_25_isPassive && x44_24_isLooped && x44_27_timedLoop && x44_28_playing &&
-      x40_lifetime > 0.f) {
+  if (!mIsPassive && mIsLooped && mTimedLoop && mPlaying &&
+      mLifetime > 0.f) {
 
-    x40_lifetime -= dt;
-    if (x40_lifetime <= 0.f) {
+    mLifetime -= dt;
+    if (mLifetime <= 0.f) {
 
-      x44_28_playing = false;
+      mPlaying = false;
       rstl::vector< SConnection >::const_iterator conn = GetConnectionList().begin();
       for (; conn != GetConnectionList().end(); ++conn) {
-        if (conn->x0_state != kSS_Play || conn->x4_msg != kSM_Play) {
+        if (conn->mState != kSS_Play || conn->mMsg != kSM_Play) {
           continue;
         }
-        TUniqueId uid = mgr.GetIdForScript(conn->x8_objId);
+        TUniqueId uid = mgr.GetIdForScript(conn->mObjId);
         CEntity* ent = mgr.ObjectById(uid);
         if (CScriptActor* act = TCastToPtr< CScriptActor >(ent)) {
           if (act->HasAnimation()) {
-            if (act->AnimationData()->IsAdditiveAnimation(x34_animationId)) {
-              act->AnimationData()->DelAdditiveAnimation(x34_animationId);
-            } else if (act->AnimationData()->GetCurrentAnimation() == x34_animationId) {
+            if (act->AnimationData()->IsAdditiveAnimation(mAnimationId)) {
+              act->AnimationData()->DelAdditiveAnimation(mAnimationId);
+            } else if (act->AnimationData()->GetCurrentAnimation() == mAnimationId) {
               act->ModelData()->EnableLooping(false);
             }
           }
         } else if (CPatterned* ai = TCastToPtr< CPatterned >(ent)) {
-          if (ai->AnimationData()->IsAdditiveAnimation(x34_animationId)) {
-            ai->AnimationData()->DelAdditiveAnimation(x34_animationId);
+          if (ai->AnimationData()->IsAdditiveAnimation(mAnimationId)) {
+            ai->AnimationData()->DelAdditiveAnimation(mAnimationId);
 
           } else if (ai->BodyCtrl()->GetBodyStateInfo().GetCurrentStateId() == pas::kAS_Scripted &&
-                     ai->AnimationData()->GetCurrentAnimation() == x34_animationId) {
+                     ai->AnimationData()->GetCurrentAnimation() == mAnimationId) {
             ai->BodyCtrl()->CommandMgr().DeliverCmd(CBodyStateCmd(kBSC_ExitState));
           }
         }

@@ -40,20 +40,20 @@ private:
 private:
   enum EHeaderReadState { kHRS_Unread, kHRS_Reading, kHRS_Read };
 
-  char CompanionRight() { return x71_companionRight; }
+  char CompanionRight() { return mCompanionRight; }
 
-  ATTRIBUTE_ALIGN_DECL(32, dspadpcm_header x0_header);
-  rstl::string x60_fileName;
-  bool x70_24_unclaimed : 1;
-  volatile bool x70_25_headerReadCancelled : 1;
-  uchar x70_26_headerReadState : 2;
-  char x71_companionRight;
-  char x72_companionLeft;
-  char x73_volume;
-  char x74_oneshot;
-  int x78_handleId;
-  uint x7c_streamId;
-  DVDFileInfo x80_dvdFile;
+  ATTRIBUTE_ALIGN_DECL(32, dspadpcm_header mHeader);
+  rstl::string mFileName;
+  bool mUnclaimed : 1;
+  volatile bool mHeaderReadCancelled : 1;
+  uchar mHeaderReadState : 2;
+  char mCompanionRight;
+  char mCompanionLeft;
+  char mVolume;
+  char mOneshot;
+  int mHandleId;
+  uint mStreamId;
+  DVDFileInfo mDvdFile;
 };
 CHECK_SIZEOF(CDSPStreamManager, 0xC0);
 

@@ -42,11 +42,11 @@ public:
   static rstl::string CreatePrimitiveName(const rstl::vector< rstl::string >& names);
 
 private:
-  CAnimSysContext x18_animCtx;
-  rstl::vector< rstl::rc_ptr< IMetaAnim > > x28_sequence;
-  int x38_curIdx;
-  CSequenceFundamentals x3c_fundamentals;
-  CCharAnimTime x94_curTime;
+  CAnimSysContext mAnimCtx;
+  rstl::vector< rstl::rc_ptr< IMetaAnim > > mSequence;
+  int mCurIdx;
+  CSequenceFundamentals mFundamentals;
+  CCharAnimTime mCurTime;
 };
 CHECK_SIZEOF(CAnimTreeSequence, 0x9C)
 

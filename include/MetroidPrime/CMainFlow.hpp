@@ -33,7 +33,7 @@ public:
   void SetGameState(EClientFlowStates state, CArchitectureQueue& queue);
 
 private:
-  EClientFlowStates x14_gameState;
+  EClientFlowStates mGameState;
 };
 
 CHECK_SIZEOF(CMainFlow, 0x18)

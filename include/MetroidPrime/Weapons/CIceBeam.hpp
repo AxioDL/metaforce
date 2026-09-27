@@ -29,13 +29,13 @@ public:
   void EnableSecondaryFx(ESecondaryFxType type) override;
 
 private:
-  TCachedToken< CGenDescription > x21c_iceSmoke;
-  TCachedToken< CGenDescription > x228_ice2nd1;
-  TCachedToken< CGenDescription > x234_ice2nd2;
-  rstl::single_ptr< CElementGen > x240_smokeGen;
-  rstl::single_ptr< CElementGen > x244_chargeFx;
-  bool x248_24_loaded : 1;
-  bool x248_25_inEndFx : 1;
+  TCachedToken< CGenDescription > mIceSmoke;
+  TCachedToken< CGenDescription > mIce2nd1;
+  TCachedToken< CGenDescription > mIce2nd2;
+  rstl::single_ptr< CElementGen > mSmokeGen;
+  rstl::single_ptr< CElementGen > mChargeFx;
+  bool mLoaded : 1;
+  bool mInEndFx : 1;
 
   void ReInitVariables();
 };

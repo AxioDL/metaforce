@@ -2,7 +2,7 @@
 #include "Kyoto/Streams/CInputStream.hpp"
 
 CInt32POINode::CInt32POINode(CInputStream& in)
-: CPOINode(in), x38_val(in.ReadInt32()), x3c_lctrName(in) {}
+: CPOINode(in), mVal(in.ReadInt32()), mLctrName(in) {}
 
 CInt32POINode CInt32POINode::CopyNodeMinusStartTime(const CInt32POINode& node,
                                                     const CCharAnimTime& startTime) {

@@ -16,8 +16,8 @@ public:
   virtual void SetBlendingWeight(float w) = 0;
 
   float GetBlendingWeight() const;
-  bool CharacterSpaceBlend() const { return x20_24_characterSpaceBlend != 0; }
-  int GetBlendRoot() const { return x1c_flags; }
+  bool CharacterSpaceBlend() const { return mCharacterSpaceBlend != 0; }
+  int GetBlendRoot() const { return mFlags; }
 
   void VGetWeightedReaders(
       float w, rstl::reserved_vector< rstl::pair< float, IAnimReader* >, 16 >& out) const override;
@@ -39,12 +39,12 @@ public:
   static void DecAdvancementDepth() { sAdvancementDepth--; }
 
 protected:
-  int x1c_flags;
-  s32 x20_24_characterSpaceBlend : 1;
+  int mFlags;
+  s32 mCharacterSpaceBlend : 1;
 #if NONMATCHING
-  u32 x20_25_cullSelector : 2;
+  u32 mCullSelector : 2;
 #else
-  s32 x20_25_cullSelector : 2;
+  s32 mCullSelector : 2;
 #endif
 };
 

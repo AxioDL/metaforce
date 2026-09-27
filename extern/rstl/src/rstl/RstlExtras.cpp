@@ -10,7 +10,11 @@
 #include <string.h>
 
 namespace rstl {
+#if RSTL_VERSION >= RSTL_R3IJ
+int CRefData::sNull = 0x1000000 - 1;
+#else
 CRefData CRefData::sNull(nullptr, 0x1000000 - 1);
+#endif
 }
 
 int CStringExtras::IndexOfSubstring(const rstl::string& left, const rstl::string& right) {

@@ -21,11 +21,11 @@ enum ESortedLists {
 };
 
 struct SNode {
-  CActor* x0_actor;
-  CAABox x4_box;
-  short x1c_selfIdxs[6];
-  mutable short x28_next;
-  bool x2a_populated;
+  CActor* mActor;
+  CAABox mBox;
+  short mSelfIdxs[6];
+  mutable short mNext;
+  bool mPopulated;
 
   SNode();
   SNode(CActor* actor, const CAABox& box);
@@ -33,12 +33,12 @@ struct SNode {
 CHECK_SIZEOF(SNode, 0x2c);
 
 struct SSortedList {
-  short x0_ids[kMaxObjects];
-  uint x800_size;
+  short mIds[kMaxObjects];
+  uint mSize;
 
-  SSortedList() : x800_size(0) {
+  SSortedList() : mSize(0) {
     for (int i = 0; i < kMaxObjects; ++i) {
-      x0_ids[i] = -1;
+      mIds[i] = -1;
     }
   }
 };
@@ -72,8 +72,8 @@ public:
                      const CActor* actor) const;
 
 private:
-  SNode x0_nodes[kMaxObjects];
-  SSortedList xb000_sortedLists[6];
+  SNode mNodes[kMaxObjects];
+  SSortedList mSortedLists[6];
 };
 CHECK_SIZEOF(CSortedListManager, 0xe018);
 } // namespace SL

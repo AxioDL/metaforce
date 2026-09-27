@@ -27,30 +27,30 @@ public:
          float distL, float distQ, float angleC, float angleL, float angleQ);
 
   void SetPosition(const CVector3f& pos);
-  const CVector3f& GetPosition() const { return x0_pos; }
+  const CVector3f& GetPosition() const { return mPos; }
   void SetDirection(const CVector3f& dir);
-  const CVector3f& GetDirection() const { return xc_dir; }
+  const CVector3f& GetDirection() const { return mDir; }
   void SetColor(const CColor& col);
   void SetAttenuation(float constant, float linear, float quadratic);
-  float GetSpotCutoff() const { return x20_spotCutoff; }
-  float GetAttenuationConstant() const { return x24_distC; }
-  float GetAttenuationLinear() const { return x28_distL; }
-  float GetAttenuationQuadratic() const { return x2c_distQ; }
+  float GetSpotCutoff() const { return mSpotCutoff; }
+  float GetAttenuationConstant() const { return mDistC; }
+  float GetAttenuationLinear() const { return mDistL; }
+  float GetAttenuationQuadratic() const { return mDistQ; }
 
   void SetAngleAttenuation(float constant, float linear, float quadratic);
-  float GetAngleAttenuationConstant() const { return x30_angleC; }
-  float GetAngleAttenuationLinear() const { return x34_angleL; }
-  float GetAngleAttenuationQuadratic() const { return x38_angleQ; }
+  float GetAngleAttenuationConstant() const { return mAngleC; }
+  float GetAngleAttenuationLinear() const { return mAngleL; }
+  float GetAngleAttenuationQuadratic() const { return mAngleQ; }
 
-  ELightType GetType() const { return x1c_type; }
-  int GetId() const { return x40_lightId; }
+  ELightType GetType() const { return mType; }
+  int GetId() const { return mLightId; }
   float GetIntensity() const;
   float GetRadius() const;
-  const CColor& GetColor() const { return x18_color; }
+  const CColor& GetColor() const { return mColor; }
 
-  int GetPriority() const { return x3c_priority; }
-  void SetPriority(uint priority) { x3c_priority = priority; }
-  void SetId(int lightId) { x40_lightId = lightId; }
+  int GetPriority() const { return mPriority; }
+  void SetPriority(uint priority) { mPriority = priority; }
+  void SetId(int lightId) { mLightId = lightId; }
 
   CVector3f GetNormalIndependentLightingAtPoint(const CVector3f& point) const;
 
@@ -64,23 +64,23 @@ public:
   static CLight BuildLocalAmbient(const CVector3f& pos, const CColor& color);
 
 private:
-  CVector3f x0_pos;
-  CVector3f xc_dir;
-  CColor x18_color;
-  ELightType x1c_type;
-  float x20_spotCutoff;
-  float x24_distC;
-  float x28_distL;
-  float x2c_distQ;
-  float x30_angleC;
-  float x34_angleL;
-  float x38_angleQ;
-  int x3c_priority;
-  int x40_lightId;
-  mutable float x44_cachedRadius;
-  mutable float x48_cachedIntensity;
-  mutable bool x4c_24_intensityDirty : 1;
-  mutable bool x4c_25_radiusDirty : 1;
+  CVector3f mPos;
+  CVector3f mDir;
+  CColor mColor;
+  ELightType mType;
+  float mSpotCutoff;
+  float mDistC;
+  float mDistL;
+  float mDistQ;
+  float mAngleC;
+  float mAngleL;
+  float mAngleQ;
+  int mPriority;
+  int mLightId;
+  mutable float mCachedRadius;
+  mutable float mCachedIntensity;
+  mutable bool mIntensityDirty : 1;
+  mutable bool mRadiusDirty : 1;
 };
 CHECK_SIZEOF(CLight, 0x50)
 

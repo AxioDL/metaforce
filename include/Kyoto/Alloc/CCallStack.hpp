@@ -12,8 +12,8 @@ public:
   const char* GetTypeText() const;
   
 private:
-  const char* x0_line;
-  const char* x4_type;
+  const char* mLine;
+  const char* mType;
 };
 
 #endif // _CCALLSTACK

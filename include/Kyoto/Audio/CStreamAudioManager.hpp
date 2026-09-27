@@ -6,14 +6,14 @@
 #include "rstl/string.hpp"
 
 struct SDSPStreamCacheEntry {
-  rstl::string x0_fileName;
-  int x10_playState;
-  int x14_volume;
-  float x18_fadeIn;
-  float x1c_fadeOut;
-  int x20_handle;
-  float x24_fadeFactor;
-  bool x28_music;
+  rstl::string mFileName;
+  int mPlayState;
+  int mVolume;
+  float mFadeIn;
+  float mFadeOut;
+  int mHandle;
+  float mFadeFactor;
+  bool mMusic;
 
   SDSPStreamCacheEntry();
   SDSPStreamCacheEntry(int playState, const rstl::string& fileName, int volume, float fadeIn,

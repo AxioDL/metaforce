@@ -16,9 +16,9 @@ public:
   // float GetNothingPossibility() const;
 
 private:
-  CVector3f x34_position;
-  float x40_frequency;
-  float x44_delayTimer;
+  CVector3f mPosition;
+  float mFrequency;
+  float mDelayTimer;
 
   void ResetSpawnNothingCounter();
   void GetTargets(CStateManager& mgr, TUniqueId sender, rstl::vector< TUniqueId >& idsOut) const;

@@ -26,8 +26,8 @@ CFlickerBat::CFlickerBat(const TUniqueId uid, const rstl::string& name, const EF
 , mInLOS(false)
 , mEnableLOSCheck(enableLineOfSight) {
   SetupPlayerCollision(startsVisible);
-  x3d8_xDamageThreshold = 0.f;
-  x402_27_noXrayModel = false;
+  mXDamageThreshold = 0.f;
+  mNoXrayModel = false;
 }
 
 CFlickerBat::~CFlickerBat() {}
@@ -149,7 +149,7 @@ void CFlickerBat::Think(float dt, CStateManager& mgr) {
     return;
   }
 
-  x402_29_drawParticles = mgr.GetPlayerState()->GetActiveVisor(mgr) != CPlayerState::kPV_XRay;
+  mDrawParticles = mgr.GetPlayerState()->GetActiveVisor(mgr) != CPlayerState::kPV_XRay;
 
   if (GetFlickerBatState() == kFBS_FadeIn || GetFlickerBatState() == kFBS_FadeOut) {
     mFadeRemTime -= dt;
@@ -191,7 +191,7 @@ void CFlickerBat::Think(float dt, CStateManager& mgr) {
     }
   }
 
-  x42c_color.SetAlpha(alpha);
+  mColor.SetAlpha(alpha);
   Shadow()->SetUserAlpha(alpha);
 
   SetTargetable(mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::kPV_XRay ||
@@ -203,10 +203,10 @@ void CFlickerBat::Think(float dt, CStateManager& mgr) {
 void CFlickerBat::Touch(CActor& act, CStateManager& mgr) {
   CPlayer* player = TCastToPtr< CPlayer >(act);
 
-  if (player && x420_curDamageRemTime <= 0.f) {
+  if (player && mCurDamageRemTime <= 0.f) {
     mgr.ApplyDamage(GetUniqueId(), player->GetUniqueId(), GetUniqueId(), GetContactDamage(),
                     CMaterialFilter::MakeIncludeExclude(CMaterialList(SolidMaterial), CMaterialList()));
-    x420_curDamageRemTime = x424_damageWaitTime;
+    mCurDamageRemTime = mDamageWaitTime;
   }
 
   CPatterned::Touch(act, mgr);
@@ -277,7 +277,7 @@ void CFlickerBat::Shuffle(CStateManager& mgr, const EStateMsg msg, const float a
 
 void CFlickerBat::Patrol(CStateManager& mgr, const EStateMsg msg, const float arg) {
   CPatterned::Patrol(mgr, msg, arg);
-  BodyCtrl()->CommandMgr().DeliverTargetVector((x2e0_destPos - GetTranslation()).AsNormalized());
+  BodyCtrl()->CommandMgr().DeliverTargetVector((mDestPos - GetTranslation()).AsNormalized());
 }
 
 void CFlickerBat::Render(const CStateManager& mgr) const {

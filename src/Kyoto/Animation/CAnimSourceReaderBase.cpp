@@ -40,22 +40,22 @@ uint _getPOIList(const CCharAnimTime& time, T* listOut, uint capacity, uint iter
 
 uint CAnimSourceReaderBase::VGetBoolPOIList(const CCharAnimTime& time, CBoolPOINode* listOut,
                                             uint capacity, uint iterator, int additive) const {
-  if (x4_sourceInfo->HasPOIData()) {
+  if (mSourceInfo->HasPOIData()) {
     const IAnimSourceInfo& sourceInfo = AnimSource();
     const rstl::vector< CBoolPOINode >& stream = sourceInfo.GetBoolPOIStream();
-    return _getPOIList(time, listOut, capacity, iterator, additive, stream, xc_curTime, sourceInfo,
-                       x14_passedBoolCount);
+    return _getPOIList(time, listOut, capacity, iterator, additive, stream, mCurTime, sourceInfo,
+                       mPassedBoolCount);
   }
   return 0;
 }
 
 uint CAnimSourceReaderBase::VGetInt32POIList(const CCharAnimTime& time, CInt32POINode* listOut,
                                              uint capacity, uint iterator, int additive) const {
-  if (x4_sourceInfo->HasPOIData()) {
+  if (mSourceInfo->HasPOIData()) {
     const IAnimSourceInfo& sourceInfo = AnimSource();
     const rstl::vector< CInt32POINode >& stream = sourceInfo.GetInt32POIStream();
-    return _getPOIList(time, listOut, capacity, iterator, additive, stream, xc_curTime, sourceInfo,
-                       x18_passedIntCount);
+    return _getPOIList(time, listOut, capacity, iterator, additive, stream, mCurTime, sourceInfo,
+                       mPassedIntCount);
   }
   return 0;
 }
@@ -63,41 +63,41 @@ uint CAnimSourceReaderBase::VGetInt32POIList(const CCharAnimTime& time, CInt32PO
 uint CAnimSourceReaderBase::VGetParticlePOIList(const CCharAnimTime& time,
                                                 CParticlePOINode* listOut, uint capacity,
                                                 uint iterator, int additive) const {
-  if (x4_sourceInfo->HasPOIData()) {
+  if (mSourceInfo->HasPOIData()) {
     const IAnimSourceInfo& sourceInfo = AnimSource();
     const rstl::vector< CParticlePOINode >& stream = sourceInfo.GetParticlePOIStream();
-    return _getPOIList(time, listOut, capacity, iterator, additive, stream, xc_curTime, sourceInfo,
-                       x1c_passedParticleCount);
+    return _getPOIList(time, listOut, capacity, iterator, additive, stream, mCurTime, sourceInfo,
+                       mPassedParticleCount);
   }
   return 0;
 }
 
 uint CAnimSourceReaderBase::VGetSoundPOIList(const CCharAnimTime& time, CSoundPOINode* listOut,
                                              uint capacity, uint iterator, int additive) const {
-  if (x4_sourceInfo->HasPOIData()) {
+  if (mSourceInfo->HasPOIData()) {
     const IAnimSourceInfo& sourceInfo = AnimSource();
     const rstl::vector< CSoundPOINode >& stream = sourceInfo.GetSoundPOIStream();
-    return _getPOIList(time, listOut, capacity, iterator, additive, stream, xc_curTime, sourceInfo,
-                       x20_passedSoundCount);
+    return _getPOIList(time, listOut, capacity, iterator, additive, stream, mCurTime, sourceInfo,
+                       mPassedSoundCount);
   }
   return 0;
 }
 
 bool CAnimSourceReaderBase::VGetBoolPOIState(const char* name) const {
-  int count = x24_boolStates.size();
+  int count = mBoolStates.size();
   for (int i = 0; i < count; ++i) {
-    if (x24_boolStates[i].first == name) {
-      return x24_boolStates[i].second;
+    if (mBoolStates[i].first == name) {
+      return mBoolStates[i].second;
     }
   }
   return false;
 }
 
 s32 CAnimSourceReaderBase::VGetInt32POIState(const char* name) const {
-  int count = x34_int32States.size();
+  int count = mInt32States.size();
   for (int i = 0; i < count; ++i) {
-    if (x34_int32States[i].first == name) {
-      return x34_int32States[i].second;
+    if (mInt32States[i].first == name) {
+      return mInt32States[i].second;
     }
   }
   return 0;
@@ -106,10 +106,10 @@ s32 CAnimSourceReaderBase::VGetInt32POIState(const char* name) const {
 bool rstl::operator==(const rstl::string& lhs, const char* rhs) { return lhs.compare(rhs) == 0; }
 
 CParticleData::EParentedMode CAnimSourceReaderBase::VGetParticlePOIState(const char* name) const {
-  int count = x44_particleStates.size();
+  int count = mParticleStates.size();
   for (int i = 0; i < count; ++i) {
-    if (x44_particleStates[i].first == name) {
-      return x44_particleStates[i].second;
+    if (mParticleStates[i].first == name) {
+      return mParticleStates[i].second;
     }
   }
   return CParticleData::kPM_Initial;
@@ -125,44 +125,44 @@ void CAnimSourceReaderBase::UpdatePOIStates() {
   int int32Count = int32Nodes.size();
   int particleCount = particleNodes.size();
   int soundCount = soundNodes.size();
-  while (x14_passedBoolCount < boolCount &&
-         boolNodes[x14_passedBoolCount].GetTime() <= xc_curTime) {
-    const CBoolPOINode& node = boolNodes[x14_passedBoolCount];
+  while (mPassedBoolCount < boolCount &&
+         boolNodes[mPassedBoolCount].GetTime() <= mCurTime) {
+    const CBoolPOINode& node = boolNodes[mPassedBoolCount];
     int index = node.GetIndex();
     if (index >= 0) {
-      x24_boolStates[index] =
-          rstl::pair< rstl::string, bool >(x24_boolStates[index].first, node.GetValue());
+      mBoolStates[index] =
+          rstl::pair< rstl::string, bool >(mBoolStates[index].first, node.GetValue());
     }
-    ++x14_passedBoolCount;
+    ++mPassedBoolCount;
   }
-  while (x18_passedIntCount < int32Count &&
-         int32Nodes[x18_passedIntCount].GetTime() <= xc_curTime) {
-    const CInt32POINode& node = int32Nodes[x18_passedIntCount];
+  while (mPassedIntCount < int32Count &&
+         int32Nodes[mPassedIntCount].GetTime() <= mCurTime) {
+    const CInt32POINode& node = int32Nodes[mPassedIntCount];
     int index = node.GetIndex();
     if (index >= 0) {
-      x34_int32States[index] =
-          rstl::pair< rstl::string, int >(x34_int32States[index].first, node.GetValue());
+      mInt32States[index] =
+          rstl::pair< rstl::string, int >(mInt32States[index].first, node.GetValue());
     }
-    ++x18_passedIntCount;
+    ++mPassedIntCount;
   }
-  while (x1c_passedParticleCount < particleCount &&
-         particleNodes[x1c_passedParticleCount].GetTime() <= xc_curTime) {
-    const CParticlePOINode& node = particleNodes[x1c_passedParticleCount];
+  while (mPassedParticleCount < particleCount &&
+         particleNodes[mPassedParticleCount].GetTime() <= mCurTime) {
+    const CParticlePOINode& node = particleNodes[mPassedParticleCount];
     int index = node.GetIndex();
     if (index >= 0) {
-      x44_particleStates[index] = rstl::pair< rstl::string, CParticleData::EParentedMode >(
-          x44_particleStates[index].first, node.GetParticleData().GetParentedMode());
+      mParticleStates[index] = rstl::pair< rstl::string, CParticleData::EParentedMode >(
+          mParticleStates[index].first, node.GetParticleData().GetParentedMode());
     }
-    ++x1c_passedParticleCount;
+    ++mPassedParticleCount;
   }
-  while (x20_passedSoundCount < soundCount &&
-         soundNodes[x20_passedSoundCount].GetTime() <= xc_curTime) {
-    ++x20_passedSoundCount;
+  while (mPassedSoundCount < soundCount &&
+         soundNodes[mPassedSoundCount].GetTime() <= mCurTime) {
+    ++mPassedSoundCount;
   }
 }
 
 rstl::set< rstl::pair< rstl::string, int > > CAnimSourceReaderBase::GetUniqueBoolPOIs() const {
-  const rstl::vector< CBoolPOINode >& nodes = x4_sourceInfo->GetBoolPOIStream();
+  const rstl::vector< CBoolPOINode >& nodes = mSourceInfo->GetBoolPOIStream();
   int count = nodes.size();
   rstl::set< rstl::pair< rstl::string, int > > ret;
   for (int i = 0; i < count; ++i) {
@@ -175,7 +175,7 @@ rstl::set< rstl::pair< rstl::string, int > > CAnimSourceReaderBase::GetUniqueBoo
 }
 
 rstl::set< rstl::pair< rstl::string, int > > CAnimSourceReaderBase::GetUniqueInt32POIs() const {
-  const rstl::vector< CInt32POINode >& nodes = x4_sourceInfo->GetInt32POIStream();
+  const rstl::vector< CInt32POINode >& nodes = mSourceInfo->GetInt32POIStream();
   int count = nodes.size();
   rstl::set< rstl::pair< rstl::string, int > > ret;
   for (int i = 0; i < count; ++i) {
@@ -188,7 +188,7 @@ rstl::set< rstl::pair< rstl::string, int > > CAnimSourceReaderBase::GetUniqueInt
 }
 
 rstl::set< rstl::pair< rstl::string, int > > CAnimSourceReaderBase::GetUniqueParticlePOIs() const {
-  const rstl::vector< CParticlePOINode >& nodes = x4_sourceInfo->GetParticlePOIStream();
+  const rstl::vector< CParticlePOINode >& nodes = mSourceInfo->GetParticlePOIStream();
   int count = nodes.size();
   rstl::set< rstl::pair< rstl::string, int > > ret;
   for (int i = 0; i < count; ++i) {
@@ -201,10 +201,10 @@ rstl::set< rstl::pair< rstl::string, int > > CAnimSourceReaderBase::GetUniquePar
 }
 
 void CAnimSourceReaderBase::PostConstruct(const CCharAnimTime& time) {
-  x14_passedBoolCount = 0;
-  x18_passedIntCount = 0;
-  x1c_passedParticleCount = 0;
-  x20_passedSoundCount = 0;
+  mPassedBoolCount = 0;
+  mPassedIntCount = 0;
+  mPassedParticleCount = 0;
+  mPassedSoundCount = 0;
   const IAnimSourceInfo& sourceInfo = AnimSource();
   if (sourceInfo.HasPOIData()) {
     const rstl::set< rstl::pair< rstl::string, int > > boolPOIs = GetUniqueBoolPOIs();
@@ -213,27 +213,27 @@ void CAnimSourceReaderBase::PostConstruct(const CCharAnimTime& time) {
     int boolCount = boolPOIs.size();
     int int32Count = int32POIs.size();
     int particleCount = particlePOIs.size();
-    x24_boolStates.resize(boolCount, rstl::pair< rstl::string, bool >(rstl::string_l(""), false));
-    x34_int32States.resize(int32Count, rstl::pair< rstl::string, int >(rstl::string_l(""), 0));
-    x44_particleStates.resize(particleCount,
+    mBoolStates.resize(boolCount, rstl::pair< rstl::string, bool >(rstl::string_l(""), false));
+    mInt32States.resize(int32Count, rstl::pair< rstl::string, int >(rstl::string_l(""), 0));
+    mParticleStates.resize(particleCount,
                               rstl::pair< rstl::string, CParticleData::EParentedMode >(
                                   rstl::string_l(""), CParticleData::kPM_Initial));
     for (AUTO(it, boolPOIs.begin()); it != boolPOIs.end();) {
       rstl::string name = it->first;
       int index = it->second;
-      x24_boolStates[index] = rstl::pair< rstl::string, bool >(name, false);
+      mBoolStates[index] = rstl::pair< rstl::string, bool >(name, false);
       ++it;
     }
     for (AUTO(it, int32POIs.begin()); it != int32POIs.end();) {
       rstl::string name = it->first;
       int index = it->second;
-      x34_int32States[index] = rstl::pair< rstl::string, int >(name, 0);
+      mInt32States[index] = rstl::pair< rstl::string, int >(name, 0);
       ++it;
     }
     for (AUTO(it, particlePOIs.begin()); it != particlePOIs.end();) {
       rstl::string name = it->first;
       int index = it->second;
-      x44_particleStates[index] = rstl::pair< rstl::string, CParticleData::EParentedMode >(
+      mParticleStates[index] = rstl::pair< rstl::string, CParticleData::EParentedMode >(
           name, CParticleData::kPM_Initial);
       ++it;
     }
@@ -246,10 +246,10 @@ void CAnimSourceReaderBase::PostConstruct(const CCharAnimTime& time) {
   } else if (sourceInfo.HasPOIData()) {
     UpdatePOIStates();
     if (!time.GreaterThanZero()) {
-      x14_passedBoolCount = 0;
-      x18_passedIntCount = 0;
-      x1c_passedParticleCount = 0;
-      x20_passedSoundCount = 0;
+      mPassedBoolCount = 0;
+      mPassedIntCount = 0;
+      mPassedParticleCount = 0;
+      mPassedSoundCount = 0;
     }
   }
 }

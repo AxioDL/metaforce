@@ -20,16 +20,16 @@ class CStateManagerContainer : public TOneStatic<CStateManagerContainer> {
 private:
   friend class CStateManager;
   
-  CCameraManager x0_cameraManager;
-  SL::CSortedListManager x3c0_sortedListManager;
-  CWeaponMgr xe3d8_weaponManager;
-  CFluidPlaneManager xe3ec_fluidPlaneManager;
-  CEnvFxManager xe510_envFxManager;
-  CActorModelParticles xf168_actorModelParticles;
-  CRumbleManager xf250_rumbleManager;
+  CCameraManager mCameraManager;
+  SL::CSortedListManager mSortedListManager;
+  CWeaponMgr mWeaponManager;
+  CFluidPlaneManager mFluidPlaneManager;
+  CEnvFxManager mEnvFxManager;
+  CActorModelParticles mActorModelParticles;
+  CRumbleManager mRumbleManager;
   rstl::reserved_vector< TUniqueId, 20 > xf344_;
   rstl::reserved_vector< TUniqueId, 20 > xf370_;
-  rstl::reserved_vector< TUniqueId, 20 > xf39c_renderLast;
+  rstl::reserved_vector< TUniqueId, 20 > mRenderLast;
 };
 CHECK_SIZEOF(CStateManagerContainer, 0xf3c8);
 

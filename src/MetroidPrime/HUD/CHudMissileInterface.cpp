@@ -62,70 +62,70 @@ rstl::pair< CVector3f, CVector3f > CHudMissileInterface::XRayMissileBarCoordFunc
 }
 
 CHudMissileInterface::EInventoryStatus CHudMissileInterface::GetMissileInventoryStatus() {
-  if (x64_energybart01_missilebar->GetActualEnergy() == 0.f) {
+  if (mEnergybart01_missilebar->GetActualEnergy() == 0.f) {
     return kIS_Depleted;
   }
-  const float fraction = x64_energybart01_missilebar->GetActualFraction();
+  const float fraction = mEnergybart01_missilebar->GetActualFraction();
   return fraction < gpTweakGui->GetMissileWarningFraction() ? kIS_Warning : kIS_Normal;
 }
 
 CHudMissileInterface::CHudMissileInterface(CGuiFrame& hud, int capacity, int missiles,
                                            float chargeFactor, bool active, EHudType type,
                                            const CStateManager& mgr)
-: x0_hudType(type)
-, x4_missileCapacity(capacity)
-, x8_numMissiles(missiles)
-, xc_arrowTimer(0.f)
-, x10_missileIconXf(CTransform4f::Identity())
-, x40_missileWarningAlpha(0.f)
-, x44_latestStatus(kIS_Normal)
-, x48_missileWarningPulse(0.f)
-, x4c_chargeBeamFactor(chargeFactor)
-, x50_missileIconAltDeplete(0.f)
-, x54_missileIconIncrement(0.f)
-, x58_24_missilesActive(active)
-, x58_25_visibleDebug(true)
-, x58_26_visibleGame(true) {
-  x5c_basewidget_missileicon = hud.FindWidget(rstl::string_l(skMissileGroupWidgetName));
-  x60_textpane_missiledigits =
+: mHudType(type)
+, mMissileCapacity(capacity)
+, mNumMissiles(missiles)
+, mArrowTimer(0.f)
+, mMissileIconXf(CTransform4f::Identity())
+, mMissileWarningAlpha(0.f)
+, mLatestStatus(kIS_Normal)
+, mMissileWarningPulse(0.f)
+, mChargeBeamFactor(chargeFactor)
+, mMissileIconAltDeplete(0.f)
+, mMissileIconIncrement(0.f)
+, mMissilesActive(active)
+, mVisibleDebug(true)
+, mVisibleGame(true) {
+  mBaseWidgetMissileIconA = hud.FindWidget(rstl::string_l(skMissileGroupWidgetName));
+  mTextpane_missiledigits =
       static_cast< CGuiTextPane* >(hud.FindWidget(rstl::string_l(skMissileDigitsWidgetName)));
-  x64_energybart01_missilebar =
+  mEnergybart01_missilebar =
       static_cast< CAuiEnergyBarT01* >(hud.FindWidget(rstl::string_l(skMissileBarWidgetName)));
-  x68_textpane_missilewarning =
+  mTextpane_missilewarning =
       static_cast< CGuiTextPane* >(hud.FindWidget(rstl::string_l(skMissileWarningWidgetName)));
-  x6c_model_missilearrowup =
+  mModel_missilearrowup =
       static_cast< CGuiModel* >(hud.FindWidget(rstl::string_l(skMissileArrowUpWidgetName)));
-  x70_model_missilearrowdown =
+  mModel_missilearrowdown =
       static_cast< CGuiModel* >(hud.FindWidget(rstl::string_l(skMissileArrowDownWidgetName)));
-  x74_basewidget_missileicon = hud.FindWidget(rstl::string_l(skMissileIconWidgetName));
-  x58_27_hasArrows = x6c_model_missilearrowup && x70_model_missilearrowdown;
-  x58_28_notXRay = type != kHT_XRay;
-  x10_missileIconXf = x74_basewidget_missileicon->GetO2PTransform();
-  x60_textpane_missiledigits->TextSupport().SetFontColor(gpTweakGuiColors->GetMissileDigitsFont());
-  x60_textpane_missiledigits->TextSupport().SetOutlineColor(
+  mBaseWidgetMissileIconB = hud.FindWidget(rstl::string_l(skMissileIconWidgetName));
+  mHasArrows = mModel_missilearrowup && mModel_missilearrowdown;
+  mNotXRay = type != kHT_XRay;
+  mMissileIconXf = mBaseWidgetMissileIconB->GetO2PTransform();
+  mTextpane_missiledigits->TextSupport().SetFontColor(gpTweakGuiColors->GetMissileDigitsFont());
+  mTextpane_missiledigits->TextSupport().SetOutlineColor(
       gpTweakGuiColors->GetMissileDigitsOutline());
-  x74_basewidget_missileicon->SetColor(gpTweakGuiColors->GetMissileIconColorInactive());
-  x64_energybart01_missilebar->SetEmptyColor(gpTweakGuiColors->GetMissileBarEmpty());
-  x64_energybart01_missilebar->SetFilledColor(gpTweakGuiColors->GetMissileBarFilled());
-  x64_energybart01_missilebar->SetShadowColor(gpTweakGuiColors->GetMissileBarShadow());
-  x64_energybart01_missilebar->SetCoordFunc(skMissileCoordFuncs[x0_hudType]);
-  x64_energybart01_missilebar->SetTesselation(type == kHT_Combat ? 1.f : 0.1f);
-  x64_energybart01_missilebar->SetMaxEnergy(5.f);
-  x64_energybart01_missilebar->SetFilledDrainSpeed(gpTweakGui->GetEnergyBarFilledSpeed());
-  x64_energybart01_missilebar->SetShadowDrainSpeed(gpTweakGui->GetEnergyBarShadowSpeed());
-  x64_energybart01_missilebar->SetShadowDrainDelay(gpTweakGui->GetEnergyBarDrainDelay());
-  x64_energybart01_missilebar->SetIsAlwaysResetTimer(true);
-  if (x68_textpane_missilewarning) {
-    x68_textpane_missilewarning->TextSupport().SetFontColor(
+  mBaseWidgetMissileIconB->SetColor(gpTweakGuiColors->GetMissileIconColorInactive());
+  mEnergybart01_missilebar->SetEmptyColor(gpTweakGuiColors->GetMissileBarEmpty());
+  mEnergybart01_missilebar->SetFilledColor(gpTweakGuiColors->GetMissileBarFilled());
+  mEnergybart01_missilebar->SetShadowColor(gpTweakGuiColors->GetMissileBarShadow());
+  mEnergybart01_missilebar->SetCoordFunc(skMissileCoordFuncs[mHudType]);
+  mEnergybart01_missilebar->SetTesselation(type == kHT_Combat ? 1.f : 0.1f);
+  mEnergybart01_missilebar->SetMaxEnergy(5.f);
+  mEnergybart01_missilebar->SetFilledDrainSpeed(gpTweakGui->GetEnergyBarFilledSpeed());
+  mEnergybart01_missilebar->SetShadowDrainSpeed(gpTweakGui->GetEnergyBarShadowSpeed());
+  mEnergybart01_missilebar->SetShadowDrainDelay(gpTweakGui->GetEnergyBarDrainDelay());
+  mEnergybart01_missilebar->SetIsAlwaysResetTimer(true);
+  if (mTextpane_missilewarning) {
+    mTextpane_missilewarning->TextSupport().SetFontColor(
         gpTweakGuiColors->GetMissileWarningFont());
-    x68_textpane_missilewarning->TextSupport().SetOutlineColor(
+    mTextpane_missilewarning->TextSupport().SetOutlineColor(
         gpTweakGuiColors->GetMissileWarningOutline());
   }
-  SetNumMissiles(x8_numMissiles, mgr);
-  x44_latestStatus = GetMissileInventoryStatus();
+  SetNumMissiles(mNumMissiles, mgr);
+  mLatestStatus = GetMissileInventoryStatus();
 }
 
-void CHudMissileInterface::SetMissileCapacity(int capacity) { x4_missileCapacity = capacity; }
+void CHudMissileInterface::SetMissileCapacity(int capacity) { mMissileCapacity = capacity; }
 
 void CHudMissileInterface::SetNumMissiles(int missiles, const CStateManager& mgr) {
   char digits[4];
@@ -134,32 +134,32 @@ void CHudMissileInterface::SetNumMissiles(int missiles, const CStateManager& mgr
 #else
   sprintf(digits, "%3d", CMath::Clamp(0, missiles, 999));
 #endif
-  x60_textpane_missiledigits->TextSupport().SetText(rstl::string(digits));
-  if (x8_numMissiles < missiles) {
-    xc_arrowTimer = gpTweakGui->GetMissileArrowVisTime();
-    x54_missileIconIncrement = -FLT_EPSILON;
-  } else if (x8_numMissiles > missiles) {
-    xc_arrowTimer = -1.f * gpTweakGui->GetMissileArrowVisTime();
+  mTextpane_missiledigits->TextSupport().SetText(rstl::string(digits));
+  if (mNumMissiles < missiles) {
+    mArrowTimer = gpTweakGui->GetMissileArrowVisTime();
+    mMissileIconIncrement = -FLT_EPSILON;
+  } else if (mNumMissiles > missiles) {
+    mArrowTimer = -1.f * gpTweakGui->GetMissileArrowVisTime();
   }
-  if (mgr.GetPlayerState()->GetMissileCostForAltAttack() + missiles <= x8_numMissiles) {
-    x50_missileIconAltDeplete = 1.f;
+  if (mgr.GetPlayerState()->GetMissileCostForAltAttack() + missiles <= mNumMissiles) {
+    mMissileIconAltDeplete = 1.f;
   }
-  x8_numMissiles = missiles;
+  mNumMissiles = missiles;
 }
 
-void CHudMissileInterface::SetChargeBeamFactor(float factor) { x4c_chargeBeamFactor = factor; }
+void CHudMissileInterface::SetChargeBeamFactor(float factor) { mChargeBeamFactor = factor; }
 
-void CHudMissileInterface::SetIsMissilesActive(bool active) { x58_24_missilesActive = active; }
+void CHudMissileInterface::SetIsMissilesActive(bool active) { mMissilesActive = active; }
 
 void CHudMissileInterface::SetIsVisibleGame(bool visible, const CStateManager& mgr) {
-  x58_26_visibleGame = visible;
+  mVisibleGame = visible;
   UpdateVisibility(mgr);
 }
 
 void CHudMissileInterface::UpdateVisibility(const CStateManager& mgr) {
-  const bool visible = x58_26_visibleGame && x58_25_visibleDebug;
-  x5c_basewidget_missileicon->SetVisibility(visible, kTM_Children);
-  x64_energybart01_missilebar->SetVisibility(visible, kTM_Children);
+  const bool visible = mVisibleGame && mVisibleDebug;
+  mBaseWidgetMissileIconA->SetVisibility(visible, kTM_Children);
+  mEnergybart01_missilebar->SetVisibility(visible, kTM_Children);
   if (visible) {
     Update(0.f, mgr);
   }
@@ -167,111 +167,111 @@ void CHudMissileInterface::UpdateVisibility(const CStateManager& mgr) {
 
 void CHudMissileInterface::Update(float dt, const CStateManager& mgr) {
   const CPlayerState& playerState = *mgr.GetPlayerState();
-  if (x4_missileCapacity < 1) {
-    x5c_basewidget_missileicon->SetIsVisible(false);
+  if (mMissileCapacity < 1) {
+    mBaseWidgetMissileIconA->SetIsVisible(false);
   } else {
-    x5c_basewidget_missileicon->SetIsVisible(true);
+    mBaseWidgetMissileIconA->SetIsVisible(true);
   }
-  if (x54_missileIconIncrement < 0.f) {
-    x54_missileIconIncrement -= 3.f * dt;
-    if (x54_missileIconIncrement <= -1.f) {
-      x54_missileIconIncrement = 1.f;
+  if (mMissileIconIncrement < 0.f) {
+    mMissileIconIncrement -= 3.f * dt;
+    if (mMissileIconIncrement <= -1.f) {
+      mMissileIconIncrement = 1.f;
     }
-  } else if (x54_missileIconIncrement > 0.f) {
-    x54_missileIconIncrement = rstl::max_val(0.f, x54_missileIconIncrement - dt);
+  } else if (mMissileIconIncrement > 0.f) {
+    mMissileIconIncrement = rstl::max_val(0.f, mMissileIconIncrement - dt);
   }
   const CColor& inactiveColor = gpTweakGuiColors->GetMissileIconColorInactive();
-  const uchar flashValue = CCast::ToUint8(255.f * CMath::AbsF(x54_missileIconIncrement));
+  const uchar flashValue = CCast::ToUint8(255.f * CMath::AbsF(mMissileIconIncrement));
   const CColor flash(flashValue, flashValue, flashValue, flashValue);
   const CColor addColor = CColor::Modulate(flash, gpTweakGuiColors->GetMissileIconColorActive());
-  if (x50_missileIconAltDeplete > 0.f) {
+  if (mMissileIconAltDeplete > 0.f) {
     CColor color = CColor::Lerp(inactiveColor, gpTweakGuiColors->GetMissileIconColorDepleteAlt(),
-                                x50_missileIconAltDeplete);
+                                mMissileIconAltDeplete);
     color = CColor::Add(color, addColor);
-    x74_basewidget_missileicon->SetColor(color);
-  } else if (x4c_chargeBeamFactor > 0.f) {
+    mBaseWidgetMissileIconB->SetColor(color);
+  } else if (mChargeBeamFactor > 0.f) {
     const float factor =
-        rstl::min_val(1.f, x4c_chargeBeamFactor / CPlayerState::GetMissileComboChargeFactor());
-    if (x8_numMissiles >= playerState.GetMissileCostForAltAttack()) {
+        rstl::min_val(1.f, mChargeBeamFactor / CPlayerState::GetMissileComboChargeFactor());
+    if (mNumMissiles >= playerState.GetMissileCostForAltAttack()) {
       CColor color =
           CColor::Lerp(inactiveColor, gpTweakGuiColors->GetMissileIconColorChargedCanAlt(), factor);
       color = CColor::Add(color, addColor);
-      x74_basewidget_missileicon->SetColor(color);
+      mBaseWidgetMissileIconB->SetColor(color);
     } else {
       CColor color =
           CColor::Lerp(inactiveColor, gpTweakGuiColors->GetMissileIconColorChargedNoAlt(), factor);
       color = CColor::Add(color, addColor);
-      x74_basewidget_missileicon->SetColor(color);
+      mBaseWidgetMissileIconB->SetColor(color);
     }
-  } else if (x58_24_missilesActive) {
+  } else if (mMissilesActive) {
     const CColor color = CColor::Add(gpTweakGuiColors->GetMissileIconColorActive(), addColor);
-    x74_basewidget_missileicon->SetColor(color);
+    mBaseWidgetMissileIconB->SetColor(color);
   } else {
     const CColor color = CColor::Add(gpTweakGuiColors->GetMissileIconColorInactive(), addColor);
-    x74_basewidget_missileicon->SetColor(color);
+    mBaseWidgetMissileIconB->SetColor(color);
   }
-  x50_missileIconAltDeplete = rstl::max_val(0.f, x50_missileIconAltDeplete - dt);
-  x64_energybart01_missilebar->SetMaxEnergy(x4_missileCapacity);
-  x64_energybart01_missilebar->SetCurrEnergy(x8_numMissiles, CAuiEnergyBarT01::kSM_Normal);
-  if (x58_28_notXRay) {
-    x74_basewidget_missileicon->SetO2PTransform(
-        x10_missileIconXf *
+  mMissileIconAltDeplete = rstl::max_val(0.f, mMissileIconAltDeplete - dt);
+  mEnergybart01_missilebar->SetMaxEnergy(mMissileCapacity);
+  mEnergybart01_missilebar->SetCurrEnergy(mNumMissiles, CAuiEnergyBarT01::kSM_Normal);
+  if (mNotXRay) {
+    mBaseWidgetMissileIconB->SetO2PTransform(
+        mMissileIconXf *
         CTransform4f::Translate(CVector3f(0.f, 0.f,
-                                          x8_numMissiles * skIconTranslateRanges[x0_hudType] /
-                                              float(x4_missileCapacity))));
+                                          mNumMissiles * skIconTranslateRanges[mHudType] /
+                                              float(mMissileCapacity))));
   }
   const CColor& activeColor = gpTweakGuiColors->GetMissileIconColorActive();
-  if (x58_27_hasArrows) {
-    if (xc_arrowTimer > 0.f) {
-      xc_arrowTimer = rstl::max_val(0.f, xc_arrowTimer - dt);
-      const float alpha = xc_arrowTimer / gpTweakGui->GetMissileArrowVisTime();
-      x6c_model_missilearrowup->SetIsVisible(true);
-      x6c_model_missilearrowup->SetColor(activeColor.WithAlphaModulatedBy(alpha));
-      x70_model_missilearrowdown->SetIsVisible(false);
-    } else if (xc_arrowTimer < 0.f) {
-      xc_arrowTimer = rstl::min_val(0.f, xc_arrowTimer + dt);
-      const float alpha = -xc_arrowTimer / gpTweakGui->GetMissileArrowVisTime();
-      x70_model_missilearrowdown->SetIsVisible(true);
-      x70_model_missilearrowdown->SetColor(activeColor.WithAlphaModulatedBy(alpha));
-      x6c_model_missilearrowup->SetIsVisible(false);
+  if (mHasArrows) {
+    if (mArrowTimer > 0.f) {
+      mArrowTimer = rstl::max_val(0.f, mArrowTimer - dt);
+      const float alpha = mArrowTimer / gpTweakGui->GetMissileArrowVisTime();
+      mModel_missilearrowup->SetIsVisible(true);
+      mModel_missilearrowup->SetColor(activeColor.WithAlphaModulatedBy(alpha));
+      mModel_missilearrowdown->SetIsVisible(false);
+    } else if (mArrowTimer < 0.f) {
+      mArrowTimer = rstl::min_val(0.f, mArrowTimer + dt);
+      const float alpha = -mArrowTimer / gpTweakGui->GetMissileArrowVisTime();
+      mModel_missilearrowdown->SetIsVisible(true);
+      mModel_missilearrowdown->SetColor(activeColor.WithAlphaModulatedBy(alpha));
+      mModel_missilearrowup->SetIsVisible(false);
     } else {
-      x6c_model_missilearrowup->SetIsVisible(false);
-      x70_model_missilearrowdown->SetIsVisible(false);
+      mModel_missilearrowup->SetIsVisible(false);
+      mModel_missilearrowdown->SetIsVisible(false);
     }
   }
-  if (x68_textpane_missilewarning) {
+  if (mTextpane_missilewarning) {
     const EInventoryStatus status = GetMissileInventoryStatus();
-    if (status != x44_latestStatus) {
+    if (status != mLatestStatus) {
       const rstl::wstring text =
           status == kIS_Warning    ? rstl::wstring_l(gpStringTable->GetString(12))
           : status == kIS_Depleted ? rstl::wstring_l(gpStringTable->GetString(13))
                                    : rstl::wstring_l(L"");
-      x68_textpane_missilewarning->TextSupport().SetText(text);
-      if (x44_latestStatus == kIS_Normal && status == kIS_Warning) {
+      mTextpane_missilewarning->TextSupport().SetText(text);
+      if (mLatestStatus == kIS_Normal && status == kIS_Warning) {
         CSfxManager::SfxStart(0x575);
-        x48_missileWarningPulse = gpTweakGui->GetMissileWarningPulseTime();
+        mMissileWarningPulse = gpTweakGui->GetMissileWarningPulseTime();
       } else if (status == kIS_Depleted) {
         CSfxManager::SfxStart(0x575);
-        x48_missileWarningPulse = gpTweakGui->GetMissileWarningPulseTime();
+        mMissileWarningPulse = gpTweakGui->GetMissileWarningPulseTime();
       }
-      x44_latestStatus = status;
+      mLatestStatus = status;
     }
-    x48_missileWarningPulse = rstl::max_val(0.f, x48_missileWarningPulse - dt);
-    const float warningPulse = rstl::min_val(1.f, x48_missileWarningPulse);
-    if (x44_latestStatus != kIS_Normal) {
-      x40_missileWarningAlpha = rstl::min_val(1.f, x40_missileWarningAlpha + 2.f * dt);
+    mMissileWarningPulse = rstl::max_val(0.f, mMissileWarningPulse - dt);
+    const float warningPulse = rstl::min_val(1.f, mMissileWarningPulse);
+    if (mLatestStatus != kIS_Normal) {
+      mMissileWarningAlpha = rstl::min_val(1.f, mMissileWarningAlpha + 2.f * dt);
     } else {
-      x40_missileWarningAlpha = rstl::max_val(0.f, x40_missileWarningAlpha - 2.f * dt);
+      mMissileWarningAlpha = rstl::max_val(0.f, mMissileWarningAlpha - 2.f * dt);
     }
     float pulse = CMath::AbsF(CMath::ModF(CGraphics::GetSecondsMod900(), 0.5f));
     const float alpha =
-        x40_missileWarningAlpha * (pulse < 0.25f ? pulse / 0.25f : (0.5f - pulse) / 0.25f);
+        mMissileWarningAlpha * (pulse < 0.25f ? pulse / 0.25f : (0.5f - pulse) / 0.25f);
     const float warningAlpha = warningPulse * alpha;
-    x68_textpane_missilewarning->SetColor(CColor::White().WithAlphaOf(warningAlpha));
-    if (x68_textpane_missilewarning->GetModifiedColor().GetAlphau8()) {
-      x68_textpane_missilewarning->SetIsVisible(true);
+    mTextpane_missilewarning->SetColor(CColor::White().WithAlphaOf(warningAlpha));
+    if (mTextpane_missilewarning->GetModifiedColor().GetAlphau8()) {
+      mTextpane_missilewarning->SetIsVisible(true);
     } else {
-      x68_textpane_missilewarning->SetIsVisible(false);
+      mTextpane_missilewarning->SetIsVisible(false);
     }
   }
 }

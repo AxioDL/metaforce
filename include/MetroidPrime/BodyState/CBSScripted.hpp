@@ -14,9 +14,9 @@ public:
   void Shutdown(CBodyController&) override;
 
 private:
-  bool x4_24_loopAnim : 1;
-  bool x4_25_timedLoop : 1;
-  float x8_remTime;
+  bool mLoopAnim : 1;
+  bool mTimedLoop : 1;
+  float mRemTime;
 
   pas::EAnimationState GetBodyStateTransition(float dt, CBodyController& bc);
 };

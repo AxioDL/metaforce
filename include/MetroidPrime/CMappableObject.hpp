@@ -59,9 +59,9 @@ public:
   bool GetIsVisibleToAutoMapper(bool worldVis, const CMapWorldInfo& mwInfo) const;
   CTransform4f AdjustTransformForType() const;
 
-  EMappableObjectType GetType() const { return x0_type; }
-  TEditorId GetObjId() const { return x8_objId; }
-  const CTransform4f& GetTransform() const { return x10_transform; }
+  EMappableObjectType GetType() const { return mType; }
+  TEditorId GetObjId() const { return mObjId; }
+  const CTransform4f& GetTransform() const { return mTransform; }
 
   static bool IsDoorType(EMappableObjectType type) {
     return type >= kMOT_BlueDoor && type <= kMOT_PlasmaDoorFloor2;
@@ -70,12 +70,12 @@ public:
   static void ReadAutomapperTweaks(const CTweakAutoMapper&);
 
 private:
-  EMappableObjectType x0_type;
-  EVisMode x4_visibilityMode;
-  TEditorId x8_objId;
+  EMappableObjectType mType;
+  EVisMode mVisibilityMode;
+  TEditorId mObjId;
   uint xc_;
-  CTransform4f x10_transform;
-  uchar x40_pad[0x10];
+  CTransform4f mTransform;
+  uchar mPad[0x10];
 };
 CHECK_SIZEOF(CMappableObject, 0x50)
 

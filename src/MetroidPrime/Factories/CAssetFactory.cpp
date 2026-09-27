@@ -23,10 +23,10 @@ void CCharacterFactoryBuilder::CDummyFactory::BuildAsync(const SObjectTag& tag,
 
 void CCharacterFactoryBuilder::CDummyFactory::CancelBuild(const SObjectTag&) {}
 
-CCharacterFactoryBuilder::CCharacterFactoryBuilder() : x4_dummyStore(x0_dummyFactory) {}
+CCharacterFactoryBuilder::CCharacterFactoryBuilder() : mDummyStore(mDummyFactory) {}
 
 CCharacterFactoryBuilder::~CCharacterFactoryBuilder() {}
 
 TToken< CCharacterFactory > CCharacterFactoryBuilder::GetFactory(const CAnimRes& res) {
-  return x4_dummyStore.GetObj(SObjectTag('ANCS', res.GetId()), CVParamTransfer::Null());
+  return mDummyStore.GetObj(SObjectTag('ANCS', res.GetId()), CVParamTransfer::Null());
 }

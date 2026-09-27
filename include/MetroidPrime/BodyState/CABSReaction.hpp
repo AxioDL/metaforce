@@ -12,14 +12,14 @@ public:
   pas::EAnimationState UpdateBody(float dt, CBodyController& bc, CStateManager& mgr) override;
   void Shutdown(CBodyController& bc) override;
 
-  float GetWeight() const { return x4_weight; }
-  bool IsActive() const { return x10_active; }
+  float GetWeight() const { return mWeight; }
+  bool IsActive() const { return mActive; }
 
 private:
-  float x4_weight;
-  int x8_anim;
-  pas::EAdditiveReactionType xc_type;
-  bool x10_active;
+  float mWeight;
+  int mAnim;
+  pas::EAdditiveReactionType mType;
+  bool mActive;
 
   pas::EAnimationState GetBodyStateTransition(float dt, CBodyController& bc);
   void StopAnimation(CBodyController& bc);

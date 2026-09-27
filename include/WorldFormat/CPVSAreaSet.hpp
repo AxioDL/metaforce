@@ -10,7 +10,7 @@ public:
   CPVSAreaSet(const int, const int, const int, const int, const int, const int, const char*,
               const char*, const char*);
 
-  const CPVSVisOctree& GetOctree() const { return x20_octree; }
+  const CPVSVisOctree& GetOctree() const { return mOctree; }
 
   static rstl::auto_ptr< CPVSAreaSet > MakeAreaSet(const char* data, int len);
   CPVSVisSet GetLightSet(int) const;
@@ -27,11 +27,11 @@ private:
   int x4_;
   int x8_;
   int xc_;
-  int x10_leafSize;
+  int mLeafSize;
   int x14_;
   const char* x18_;
-  const char* x1c_lightLeaves;
-  mutable CPVSVisOctree x20_octree;
+  const char* mLightLeaves;
+  mutable CPVSVisOctree mOctree;
 };
 
 #endif // _CPVSAREASET

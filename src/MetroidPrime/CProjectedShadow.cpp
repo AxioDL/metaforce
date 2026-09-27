@@ -24,21 +24,21 @@ struct SShadowDrawContext {
 };
 
 CProjectedShadow::CProjectedShadow(const int w, const int h, const uchar persistent)
-: x0_texture(kTF_I4, w, h, 1)
-, x68_bounds(CAABox::MakeMaxInvertedBox())
-, x80_enabled(false)
-, x81_persistent(persistent)
-, x84_scale(1.f)
-, x88_translation(CVector3f::Zero())
-, x94_zDistanceAdjust(0.f)
-, x98_opacity(1.f)
-#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
-, x9c_nextShadow(nullptr)
+: mTexture(kTF_I4, w, h, 1)
+, mBounds(CAABox::MakeMaxInvertedBox())
+, mEnabled(false)
+, mPersistent(persistent)
+, mScale(1.f)
+, mTranslation(CVector3f::Zero())
+, mZDistanceAdjust(0.f)
+, mOpacity(1.f)
+#if VERSION >= VERSION_GM8P_00
+, mNextShadow(nullptr)
 #endif
 {
 }
 
-CProjectedShadow::~CProjectedShadow() { x0_texture.ScheduleDeletion(); }
+CProjectedShadow::~CProjectedShadow() { mTexture.ScheduleDeletion(); }
 
 void CProjectedShadow::ModelDrawCallback(TModelPositions positions, TModelNormals normals,
                                          const SShadowDrawContext* context) {
@@ -49,13 +49,13 @@ void CProjectedShadow::ModelDrawCallback(TModelPositions positions, TModelNormal
 }
 
 void CProjectedShadow::ExpandBoundsForTexture() {
-  const float texelScale = 1.f / (x0_texture.GetWidth() - 2);
-  const CVector3f offset(texelScale * x68_bounds.GetWidth(), texelScale * x68_bounds.GetHeight(),
+  const float texelScale = 1.f / (mTexture.GetWidth() - 2);
+  const CVector3f offset(texelScale * mBounds.GetWidth(), texelScale * mBounds.GetHeight(),
                          0.f);
-  x68_bounds = CAABox(x68_bounds.GetMinPoint() - offset, x68_bounds.GetMaxPoint() + offset);
+  mBounds = CAABox(mBounds.GetMinPoint() - offset, mBounds.GetMaxPoint() + offset);
 }
 
-#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+#if VERSION >= VERSION_GM8P_00
 void CProjectedShadow::RenderShadowBuffer(CStateManager& mgr, const CModelData& modelData,
                                           const CTransform4f& xf, int flags,
                                           const CVector3f& translation, float scale,
@@ -74,21 +74,21 @@ void CProjectedShadow::RenderShadowBuffer(CStateManager& mgr, int count,
     return;
   }
 
-  x68_bounds = models[0]->GetBounds(*transforms[0]);
+  mBounds = models[0]->GetBounds(*transforms[0]);
   for (int i = 1; i < count; ++i) {
-    x68_bounds.Include(models[i]->GetBounds(*transforms[i]));
+    mBounds.Include(models[i]->GetBounds(*transforms[i]));
   }
 #else
 void CProjectedShadow::RenderShadowBuffer(CStateManager& mgr, const CModelData& modelData,
                                           const CTransform4f& xf, int flags,
                                           const CVector3f& translation, float scale,
                                           float zDistanceAdjust) {
-  x68_bounds = modelData.GetBounds(xf);
+  mBounds = modelData.GetBounds(xf);
 #endif
-  x84_scale = scale;
-  x88_translation = translation;
-  x94_zDistanceAdjust = zDistanceAdjust;
-  x80_enabled = true;
+  mScale = scale;
+  mTranslation = translation;
+  mZDistanceAdjust = zDistanceAdjust;
+  mEnabled = true;
   ExpandBoundsForTexture();
 
   const CTransform4f oldView = CGraphics::GetViewMatrix();
@@ -96,24 +96,24 @@ void CProjectedShadow::RenderShadowBuffer(CStateManager& mgr, const CModelData& 
   const float oldFar = CGraphics::GetDepthFar();
   const CGraphics::CProjectionState oldProjection = CGraphics::GetProjectionState();
   const CViewport oldViewport = CGraphics::GetViewport();
-  const short width = x0_texture.GetWidth();
-  const short height = x0_texture.GetHeight();
+  const short width = mTexture.GetWidth();
+  const short height = mTexture.GetHeight();
   const int renderWidth = width * 2;
   const int renderHeight = height * 2;
-#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
-  const CVector3f center = (x68_bounds.GetMinPoint() + x68_bounds.GetMaxPoint()) * 0.5f;
+#if VERSION >= VERSION_GM8P_00
+  const CVector3f center = (mBounds.GetMinPoint() + mBounds.GetMaxPoint()) * 0.5f;
 #else
-  const CVector3f center = x68_bounds.CenterPoint();
+  const CVector3f center = mBounds.CenterPoint();
 #endif
   const CTransform4f view = CTransform4f::FromColumns(
       CVector3f::Right(), CVector3f::Down(), CVector3f::Forward(),
-      CVector3f(center.GetX(), center.GetY(), x68_bounds.GetMaxPoint().GetZ()));
+      CVector3f(center.GetX(), center.GetY(), mBounds.GetMaxPoint().GetZ()));
   CGraphics::SetViewPointMatrix(view);
   CGraphics::SetDepthRange(0.f, 1.f);
-  const float halfWidth = 0.5f * x68_bounds.GetWidth();
-  const float halfHeight = 0.5f * x68_bounds.GetHeight();
+  const float halfWidth = 0.5f * mBounds.GetWidth();
+  const float halfHeight = 0.5f * mBounds.GetHeight();
   CGraphics::SetOrtho(-halfWidth, halfWidth, halfHeight, -halfHeight, 0.f,
-                      FLT_EPSILON + x68_bounds.GetDepth());
+                      FLT_EPSILON + mBounds.GetDepth());
 #if defined(TARGET_PC)
   GXCreateFrameBuffer(renderWidth, renderHeight);
 #endif
@@ -134,7 +134,7 @@ void CProjectedShadow::RenderShadowBuffer(CStateManager& mgr, const CModelData& 
   CGX::SetBlendMode(GX_BM_BLEND, GX_BL_ONE, GX_BL_ZERO, GX_LO_CLEAR);
   CGX::SetAlphaCompare(GX_ALWAYS, 0, GX_AOP_AND, GX_ALWAYS, 0);
 
-#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+#if VERSION >= VERSION_GM8P_00
   for (int i = 0; i < count; ++i) {
     const CModelData& modelData = *models[i];
     const CTransform4f& xf = *transforms[i];
@@ -167,11 +167,11 @@ void CProjectedShadow::RenderShadowBuffer(CStateManager& mgr, const CModelData& 
   GXSetTexCopySrc(0, 0, renderWidth, renderHeight);
   GXSetTexCopyDst(width, height, GX_CTF_R4, true);
 #if defined(TARGET_PC)
-  GXCopyTex(x0_texture.GetBitMapData(0), true);
+  GXCopyTex(mTexture.GetBitMapData(0), true);
 #else
-  GXCopyTex(x0_texture.Lock(), true);
+  GXCopyTex(mTexture.Lock(), true);
 #endif
-  x0_texture.UnLock();
+  mTexture.UnLock();
   GXPixModeSync();
 #if defined(TARGET_PC)
   GXRestoreFrameBuffer();
@@ -199,16 +199,16 @@ CAABox ScaleAndTranslateBounds(const CAABox& bounds, const CVector3f& translatio
 }
 
 void CProjectedShadow::Render(const CStateManager& mgr) const {
-  if (!x80_enabled) {
+  if (!mEnabled) {
     return;
   }
 
   const CAABox bounds =
-      ScaleAndTranslateBounds(x68_bounds, x88_translation, rstl::max_val(1.f, x84_scale));
-  x0_texture.Load(GX_TEXMAP7, CTexture::kCM_Clamp);
+      ScaleAndTranslateBounds(mBounds, mTranslation, rstl::max_val(1.f, mScale));
+  mTexture.Load(GX_TEXMAP7, CTexture::kCM_Clamp);
   CGraphics::DisableAllLights();
-  if (x81_persistent) {
-    const uchar alpha = CCast::ToUint8(255.f * x98_opacity);
+  if (mPersistent) {
+    const uchar alpha = CCast::ToUint8(255.f * mOpacity);
     const CColor color(alpha, alpha, alpha, alpha);
     const CLight light = CLight::BuildDirectional(CVector3f::Down(), color);
     CGraphics::LoadLight(kLight0, light);
@@ -230,13 +230,13 @@ void CProjectedShadow::Render(const CStateManager& mgr) const {
   CGX::SetNumTevStages(1);
   CGX::SetNumTexGens(1);
   CGX::SetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_ZERO, GX_CC_ZERO, GX_CC_ZERO);
-  if (x81_persistent) {
+  if (mPersistent) {
     CGX::SetTevAlphaIn(GX_TEVSTAGE0, GX_CA_ZERO, GX_CA_TEXA, GX_CA_RASA, GX_CA_ZERO);
     CGX::SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP7, GX_COLOR0A0);
   } else {
     CGX::SetTevAlphaIn(GX_TEVSTAGE0, GX_CA_ZERO, GX_CA_TEXA, GX_CA_KONST, GX_CA_ZERO);
     CGX::SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP7, GX_COLOR_NULL);
-    CGX::SetTevKColor(GX_KCOLOR0, CColor::White().WithAlphaOf(x98_opacity).GetGXColor());
+    CGX::SetTevKColor(GX_KCOLOR0, CColor::White().WithAlphaOf(mOpacity).GetGXColor());
     CGX::SetTevKAlphaSel(GX_TEVSTAGE0, GX_TEV_KASEL_K0_A);
   }
   CGX::SetStandardTevColorAlphaOp(GX_TEVSTAGE0);
@@ -253,7 +253,7 @@ void CProjectedShadow::Render(const CStateManager& mgr) const {
   textureScale.SetZ(1.f / textureScale.GetZ());
   const CTransform4f textureXf =
       CTransform4f::Scale(textureScale) * CTransform4f::Translate(-bounds.GetMinPoint());
-  const CAABox queryBounds(bounds.GetMinPoint() - CVector3f(0.f, 0.f, x94_zDistanceAdjust),
+  const CAABox queryBounds(bounds.GetMinPoint() - CVector3f(0.f, 0.f, mZDistanceAdjust),
                            bounds.GetMaxPoint());
   TEntityList nearList;
   mgr.BuildNearList(nearList, queryBounds, CMaterialFilter::skPassEverything, nullptr);
@@ -277,10 +277,10 @@ void CProjectedShadow::Render(const CStateManager& mgr) const {
   gpRender->DrawXRayOutline(queryBounds, nullptr, nullptr);
   CGX::SetZMode(true, GX_LEQUAL, true);
   CGX::SetAlphaCompare(GX_ALWAYS, 0, GX_AOP_AND, GX_ALWAYS, 0);
-  if (x81_persistent) {
+  if (mPersistent) {
     GXSetChanCtrl(GX_ALPHA0, false, GX_SRC_REG, GX_SRC_VTX, GX_LIGHT_NULL, GX_DF_NONE, GX_AF_NONE);
     GXSetNumChans(0);
   }
 }
 
-void CProjectedShadow::Disable() { x80_enabled = false; }
+void CProjectedShadow::Disable() { mEnabled = false; }

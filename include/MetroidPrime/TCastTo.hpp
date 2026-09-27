@@ -71,7 +71,7 @@ VISIT(CWeapon)
 TCASTTO_VISITORS
 #undef VISIT
 
-#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+#if VERSION >= VERSION_GM8P_00
 
 template < class T >
 T* TCastToPtr(CEntity* p);

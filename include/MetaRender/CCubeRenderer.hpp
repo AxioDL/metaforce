@@ -52,22 +52,22 @@ private:
                   const rstl::auto_ptr< rstl::vector< rstl::auto_ptr< CCubeModel > > >& models,
                   int areaIdx);
 
-    const rstl::vector< CMetroidModelInstance >* GetModelVector() const { return x0_geometry; }
+    const rstl::vector< CMetroidModelInstance >* GetModelVector() const { return mGeometry; }
     const rstl::auto_ptr< rstl::vector< TCachedToken< CTexture > > >& GetTextures() const {
-      return x8_textures;
+      return mTextures;
     }
     const rstl::auto_ptr< rstl::vector< rstl::auto_ptr< CCubeModel > > >& GetModelList() const {
-      return x10_models;
+      return mModels;
     }
-    int GetAreaId() const { return x18_areaIdx; }
+    int GetAreaId() const { return mAreaIdx; }
 
     // private:
-    const rstl::vector< CMetroidModelInstance >* x0_geometry;
-    const CAreaRenderOctTree* x4_octTree;
-    const rstl::auto_ptr< rstl::vector< TCachedToken< CTexture > > > x8_textures;
-    const rstl::auto_ptr< rstl::vector< rstl::auto_ptr< CCubeModel > > > x10_models;
-    int x18_areaIdx;
-    rstl::vector< uint > x1c_lightOctreeWords;
+    const rstl::vector< CMetroidModelInstance >* mGeometry;
+    const CAreaRenderOctTree* mOctTree;
+    const rstl::auto_ptr< rstl::vector< TCachedToken< CTexture > > > mTextures;
+    const rstl::auto_ptr< rstl::vector< rstl::auto_ptr< CCubeModel > > > mModels;
+    int mAreaIdx;
+    rstl::vector< uint > mLightOctreeWords;
   };
 
 public:
@@ -76,11 +76,11 @@ public:
     CFogVolumeListItem(const CTransform4f&, CColor, const CAABox&, const TLockedToken< CModel >*,
                        const CSkinnedModel*);
 
-    CTransform4f x0_xf;
-    CColor x30_color;
-    CAABox x34_aabb;
-    rstl::optional_object< TLockedToken< CModel > > x4c_model;
-    const CSkinnedModel* x5c_skinnedModel;
+    CTransform4f mXf;
+    CColor mColor;
+    CAABox mAabb;
+    rstl::optional_object< TLockedToken< CModel > > mModel;
+    const CSkinnedModel* mSkinnedModel;
   };
 
 #if defined(TARGET_PC)
@@ -166,8 +166,8 @@ public:
   int DrawOverlappingWorldModelIDs(int, rstl::vector< uint >&, const CAABox&, int, int);
   void DrawOverlappingWorldModelShadows(int, rstl::vector< uint >&, const CAABox&, int, int);
 
-  bool GetThermal() const { return x318_29_thermalVisor; }
-  bool GetInAreaDraw() const { return x318_30_inAreaDraw; }
+  bool GetThermal() const { return mThermalVisor; }
+  bool GetInAreaDraw() const { return mInAreaDraw; }
 
   void AllocatePhazonSuitMaskTexture();
   void DrawPhazonSuitIndirectEffect(const CColor&,
@@ -195,58 +195,58 @@ public:
   void _DrawSpaceWarp(const CVector3f&, float);
   static void* GetRenderToTexBuffer(int);
 
-  void SetRequestRGBA6(bool req) { x318_26_requestRGBA6 = req; }
-  bool IsRGBA6Current() const { return x318_27_currentRGBA6; }
-  bool GetReflectionFlag() { return x318_24_reflectionDirty; }
-  void SetReflectionFlag() { x318_24_reflectionDirty = true; }
+  void SetRequestRGBA6(bool req) { mRequestRGBA6 = req; }
+  bool IsRGBA6Current() const { return mCurrentRGBA6; }
+  bool GetReflectionFlag() { return mReflectionDirty; }
+  void SetReflectionFlag() { mReflectionDirty = true; }
   CTexture* GetRealReflection();
-  const CPlane& GetViewPlane() const { return xb0_viewPlane; }
-  const CTexture& GetZeroTexture() const { return xe4_blackTex; }
-  const CTexture& GetSphereRamp() const { return x220_sphereRamp; }
+  const CPlane& GetViewPlane() const { return mViewPlane; }
+  const CTexture& GetZeroTexture() const { return mBlackTex; }
+  const CTexture& GetSphereRamp() const { return mSphereRamp; }
   static CCubeRenderer* That() { return sRenderer; }
 
 private:
-  CResFactory& x8_factory;
-  IObjectStore& xc_objStore;
-  CFont x10_font;
-  int x18_primVertCount;
-  rstl::list< CAreaListItem > x1c_areaListItems;
-  rstl::vector< CCubeSurface > x34_surfaces;
-  CFrustumPlanes x44_frustumPlanes;
-  TDrawableCallback xa8_drawableCallback;
-  const void* xac_drawableCallbackUserData;
-  CPlane xb0_viewPlane;
-  uchar xc0_pvsMode; // bool?
-  int xc4_pvsState;
-  rstl::optional_object< CPVSVisSet > xc8_pvsVisSet;
-  int xe0_pvsAreaIdx;
-  CTexture xe4_blackTex;
-  rstl::single_ptr< CTexture > x14c_reflectionTex;
-  CTexture x150_reflectionTex;
-  CTexture x1b8_fogVolumeRamp;
-  CTexture x220_sphereRamp;
-  CGraphicsPalette x288_thermalPalette;
-  CRandom16 x2a8_thermalRand;
-  rstl::list< CFogVolumeListItem > x2ac_fogVolumes;
-  rstl::list< rstl::pair< CVector3f, float > > x2c4_spaceWarps;
-  int x2dc_reflectionAge;
-  CColor x2e0_primColor;
-  CVector3f x2e4_primNormal;
-  float x2f0_thermalVisorLevel;
-  CColor x2f4_thermalColor;
-  uchar x2f8_thermalColdScale;
-  CColor x2fc_tevReg1Color;
-  rstl::vector< CLight > x300_dynamicLights;
-  int x310_phazonSuitMaskCountdown;
-  rstl::single_ptr< CTexture > x314_phazonSuitMask;
-  bool x318_24_reflectionDirty : 1;
-  bool x318_25_drawWireframe : 1;
-  bool x318_26_requestRGBA6 : 1;
-  bool x318_27_currentRGBA6 : 1;
-  bool x318_28_disableFog : 1;
-  bool x318_29_thermalVisor : 1;
-  bool x318_30_inAreaDraw : 1;
-  bool x318_31_persistRGBA6 : 1;
+  CResFactory& mFactory;
+  IObjectStore& mObjStore;
+  CFont mFont;
+  int mPrimVertCount;
+  rstl::list< CAreaListItem > mAreaListItems;
+  rstl::vector< CCubeSurface > mSurfaces;
+  CFrustumPlanes mFrustumPlanes;
+  TDrawableCallback mDrawableCallback;
+  const void* mDrawableCallbackUserData;
+  CPlane mViewPlane;
+  uchar mPvsMode; // bool?
+  int mPvsState;
+  rstl::optional_object< CPVSVisSet > mPvsVisSet;
+  int mPvsAreaIdx;
+  CTexture mBlackTex;
+  rstl::single_ptr< CTexture > mReflectionTexPtr;
+  CTexture mReflectionTex;
+  CTexture mFogVolumeRamp;
+  CTexture mSphereRamp;
+  CGraphicsPalette mThermalPalette;
+  CRandom16 mThermalRand;
+  rstl::list< CFogVolumeListItem > mFogVolumes;
+  rstl::list< rstl::pair< CVector3f, float > > mSpaceWarps;
+  int mReflectionAge;
+  CColor mPrimColor;
+  CVector3f mPrimNormal;
+  float mThermalVisorLevel;
+  CColor mThermalColor;
+  uchar mThermalColdScale;
+  CColor mTevReg1Color;
+  rstl::vector< CLight > mDynamicLights;
+  int mPhazonSuitMaskCountdown;
+  rstl::single_ptr< CTexture > mPhazonSuitMask;
+  bool mReflectionDirty : 1;
+  bool mDrawWireframe : 1;
+  bool mRequestRGBA6 : 1;
+  bool mCurrentRGBA6 : 1;
+  bool mDisableFog : 1;
+  bool mThermalVisor : 1;
+  bool mInAreaDraw : 1;
+  bool mPersistRGBA6 : 1;
 
   void GenerateReflectionTex();
   void GenerateFogVolumeRampTex();

@@ -44,7 +44,7 @@ CBomb::CBomb(TToken< CGenDescription > particle1, TToken< CGenDescription > part
 CBomb::~CBomb() {}
 
 void CBomb::Explode(const CVector3f& pos, CStateManager& mgr) {
-  mgr.ApplyDamageToWorld(GetOwnerId(), *this, pos, x12c_curDamageInfo, GetFilter());
+  mgr.ApplyDamageToWorld(GetOwnerId(), *this, pos, mCurDamageInfo, GetFilter());
   CSfxManager::AddEmitter(SFXsam_misl_expl_01, GetTranslation(), CVector3f::Zero(), true);
   mgr.InformListeners(pos, kLNT_BombExplode);
   mgr.RemoveWeaponId(GetOwnerId(), GetType());
@@ -169,7 +169,7 @@ void CBomb::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateMa
 }
 
 rstl::optional_object< CAABox > CBomb::GetTouchBounds() const {
-  float radius = mIsNotDetonated ? kBombBoxAllowance : x12c_curDamageInfo.GetRadius();
+  float radius = mIsNotDetonated ? kBombBoxAllowance : mCurDamageInfo.GetRadius();
   return CAABox(rstl::min_val(mPrevLocation.GetX(), GetTranslation().GetX()) - radius,
                 rstl::min_val(mPrevLocation.GetY(), GetTranslation().GetY()) - radius,
                 rstl::min_val(mPrevLocation.GetZ(), GetTranslation().GetZ()) - radius,

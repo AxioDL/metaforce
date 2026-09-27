@@ -6,8 +6,8 @@
 #include "Kyoto/Math/CVector3f.hpp"
 
 class CScriptRipple : public CEntity {
-  float x34_magnitude;
-  CVector3f x38_center;
+  float mMagnitude;
+  CVector3f mCenter;
 
 public:
   CScriptRipple(TUniqueId, const rstl::string&, const CEntityInfo&, const CVector3f&, bool, float);

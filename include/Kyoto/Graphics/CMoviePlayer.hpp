@@ -68,35 +68,35 @@ public:
   class CTHPTextureSet {
   public:
     CTHPTextureSet(void* y, void* u, void* v, void* audio)
-    : x0_y(static_cast< uchar* >(y))
-    , x8_u(static_cast< uchar* >(u))
-    , x10_v(static_cast< uchar* >(v))
-    , x18_audio(static_cast< uchar* >(audio))
-    , x20_audioSamples(0)
-    , x24_audioSamplesConsumed(0) {}
+    : mY(static_cast< uchar* >(y))
+    , mU(static_cast< uchar* >(u))
+    , mV(static_cast< uchar* >(v))
+    , mAudio(static_cast< uchar* >(audio))
+    , mAudioSamples(0)
+    , mAudioSamplesConsumed(0) {}
 
-    void* Y() { return x0_y.get(); }
+    void* Y() { return mY.get(); }
 
-    void* U() { return x8_u.get(); }
+    void* U() { return mU.get(); }
 
-    void* V() { return x10_v.get(); }
+    void* V() { return mV.get(); }
 
-    void* Audio() { return x18_audio.get(); }
+    void* Audio() { return mAudio.get(); }
 
-    uint GetAudioSamples() const { return x20_audioSamples; }
+    uint GetAudioSamples() const { return mAudioSamples; }
 
-    void SetAudioSamples(uint samples) { x20_audioSamples = samples; }
-    uint GetAudioSamplesConsumed() const { return x24_audioSamplesConsumed; }
+    void SetAudioSamples(uint samples) { mAudioSamples = samples; }
+    uint GetAudioSamplesConsumed() const { return mAudioSamplesConsumed; }
 
-    void SetAudioSamplesConsumed(uint samples) { x24_audioSamplesConsumed = samples; }
+    void SetAudioSamplesConsumed(uint samples) { mAudioSamplesConsumed = samples; }
 
   private:
-    rstl::auto_ptr< uchar > x0_y;
-    rstl::auto_ptr< uchar > x8_u;
-    rstl::auto_ptr< uchar > x10_v;
-    rstl::auto_ptr< uchar > x18_audio;
-    uint x20_audioSamples;
-    uint x24_audioSamplesConsumed;
+    rstl::auto_ptr< uchar > mY;
+    rstl::auto_ptr< uchar > mU;
+    rstl::auto_ptr< uchar > mV;
+    rstl::auto_ptr< uchar > mAudio;
+    uint mAudioSamples;
+    uint mAudioSamplesConsumed;
   };
 
   static void SetSfxVolume(uchar);
@@ -111,22 +111,25 @@ public:
   void DecodeFromRead(const void* ptr);
 
   bool DrawVideo() const;
+#if VERSION >= VERSION_GM8P_00
+  void DrawFrame(int left, int right, int top, int bottom);
+#endif
   void DrawFrame(const CVector3f&, const CVector3f&, const CVector3f&, const CVector3f&);
   void MixAudio(short* out, const short* in, unsigned long samples);
 
-  EPlayMode GetPlayMode() const { return xe0_playMode; }
+  EPlayMode GetPlayMode() const { return mPlayMode; }
   void SetPlayMode(EPlayMode mode);
   float GetTotalSeconds() const;
   float GetPlayedSeconds() const;
   uint GetWidth() const;
   uint GetHeight() const;
-  bool CanDrawVideo() const { return xac_indexLoad.null(); }
+  bool CanDrawVideo() const { return mIndexLoad.null(); }
   bool PumpIndexLoad();
   void Rewind();
   bool GetIsFullyCached() const;
   bool GetIsMovieFinishedPlaying() const;
-  void DisableLoop() { xf4_24_loop = false; }
-  bool IsLooping() const { return xf4_24_loop; }
+  void DisableLoop() { mLoop = false; }
+  bool IsLooping() const { return mLoop; }
 
 private:
   struct SIndexLoad;
@@ -139,43 +142,43 @@ private:
   void InitializeTextures();
   void ReadCompleted();
   void PostDVDReadRequestIfNeeded();
-  CDvdFile x0_dvdFile;
-  THPHeader x28_header;
-  THPFrameCompInfo x58_thpComponents;
-  THPVideoInfoOld x6c_videoInfo;
+  CDvdFile mDvdFile;
+  THPHeader mHeader;
+  THPFrameCompInfo mThpComponents;
+  THPVideoInfoOld mVideoInfo;
 #if defined(TARGET_PC)
-  THPAudioInfoOld x74_audioInfo{};
+  THPAudioInfoOld mAudioInfo{};
 #else
-  THPAudioInfoOld x74_audioInfo;
+  THPAudioInfoOld mAudioInfo;
 #endif
-  rstl::vector< CTHPTextureSet > x80_textures;
-  rstl::auto_ptr< uchar > x90_requestBuffer;
-  rstl::single_ptr< CDvdRequest > x98_request;
-  rstl::vector< rstl::auto_ptr< uchar > > x9c_requestQueue;
-  rstl::single_ptr< SIndexLoad > xac_indexLoad;
-  uint xb0_nextReadSize;
-  uint xb4_nextReadOff;
-  uint xb8_readSizeWrapped;
-  uint xbc_readOffWrapped;
-  int xc0_curLoadFrame;
-  int xc4_requestFrameWrapped;
-  int xc8_curFrame;
-  int xcc_decodedTexSlot;
-  int xd0_drawTexSlot;
-  int xd4_audioSlot;
-  int xd8_decodedTexCount;
-  float xdc_frameRem;
-  EPlayMode xe0_playMode;
-  float xe4_totalSeconds;
-  float xe8_curSeconds;
-  float xec_preLoadSeconds;
-  int xf0_preLoadFrames;
-  bool xf4_24_loop : 1;
-  bool xf4_25_deinterlace : 1;
-  bool xf4_26_hasAudio : 1;
-  bool xf4_27_fieldFlip : 1;
-  uint xf8_cachedBytes;
-  int xfc_fieldIndex;
+  rstl::vector< CTHPTextureSet > mTextures;
+  rstl::auto_ptr< uchar > mRequestBuffer;
+  rstl::single_ptr< CDvdRequest > mRequest;
+  rstl::vector< rstl::auto_ptr< uchar > > mRequestQueue;
+  rstl::single_ptr< SIndexLoad > mIndexLoad;
+  uint mNextReadSize;
+  uint mNextReadOff;
+  uint mReadSizeWrapped;
+  uint mReadOffWrapped;
+  int mCurLoadFrame;
+  int mRequestFrameWrapped;
+  int mCurFrame;
+  int mDecodedTexSlot;
+  int mDrawTexSlot;
+  int mAudioSlot;
+  int mDecodedTexCount;
+  float mFrameRem;
+  EPlayMode mPlayMode;
+  float mTotalSeconds;
+  float mCurSeconds;
+  float mPreLoadSeconds;
+  int mPreLoadFrames;
+  bool mLoop : 1;
+  bool mDeinterlace : 1;
+  bool mHasAudio : 1;
+  bool mFieldFlip : 1;
+  uint mCachedBytes;
+  int mFieldIndex;
 #if defined(TARGET_PC)
   u32 m_audioPhase = 0;
   short m_audioHistory[2][2] = {};

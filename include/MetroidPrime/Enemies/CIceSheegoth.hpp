@@ -38,8 +38,8 @@ public:
   float GetX170() const { return x170_; }
   float GetX174() const { return x174_; }
   CAssetId GetX178() const { return x178_; }
-  CAssetId GetFireBreathResId() const { return x17c_fireBreathResId; }
-  const CDamageInfo& GetFireBreathDamage() const { return x180_fireBreathDamage; }
+  CAssetId GetFireBreathResId() const { return mFireBreathResId; }
+  const CDamageInfo& GetFireBreathDamage() const { return mFireBreathDamage; }
   CAssetId GetX19c() const { return x19c_; }
   CAssetId GetX1a0() const { return x1a0_; }
   CAssetId GetX1a4() const { return x1a4_; }
@@ -51,7 +51,7 @@ public:
   short GetX1d4() const { return x1d4_; }
   float GetX1d8() const { return x1d8_; }
   float GetX1dc() const { return x1dc_; }
-  float GetMaxInterestTime() const { return x1e0_maxInterestTime; }
+  float GetMaxInterestTime() const { return mMaxInterestTime; }
   CAssetId GetX1e4() const { return x1e4_; }
   const ushort GetX1e8() const { return x1e8_; }
   CAssetId GetX1ec() const { return x1ec_; }
@@ -73,8 +73,8 @@ private:
   float x170_;
   float x174_;
   CAssetId x178_;
-  CAssetId x17c_fireBreathResId;
-  CDamageInfo x180_fireBreathDamage;
+  CAssetId mFireBreathResId;
+  CDamageInfo mFireBreathDamage;
   CAssetId x19c_;
   CAssetId x1a0_;
   CAssetId x1a4_;
@@ -86,7 +86,7 @@ private:
   ushort x1d4_;
   float x1d8_;
   float x1dc_;
-  float x1e0_maxInterestTime;
+  float mMaxInterestTime;
   CAssetId x1e4_;
   ushort x1e8_;
   CAssetId x1ec_;
@@ -125,7 +125,7 @@ public:
                                                          const CWeaponMode&, int) const override;
   void DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type,
                        float dt) override;
-  CProjectileInfo* ProjectileInfo() override { return &xa58_projectileInfo; }
+  CProjectileInfo* ProjectileInfo() override { return &mProjectileInfo; }
   void Patrol(CStateManager& mgr, EStateMsg msg, float arg) override;
   void ProjectileAttack(CStateManager& mgr, EStateMsg msg, float arg) override;
   void Attack(CStateManager& mgr, EStateMsg msg, float arg) override;
@@ -161,8 +161,8 @@ public:
 
   CPathFindSearch* GetSearchPath() override;
   void UpdateHeadTracking(float dt, CStateManager& mgr) {
-    x9f4_boneTracking.Update(dt);
-    x9f4_boneTracking.PreRender(mgr, *AnimationData(), GetTransform(), GetModelScale(),
+    mBoneTracking.Update(dt);
+    mBoneTracking.PreRender(mgr, *AnimationData(), GetTransform(), GetModelScale(),
                                 *BodyCtrl());
   }
   const CCollisionPrimitive* GetCollisionPrimitive() const override;
@@ -216,35 +216,35 @@ private:
   void UpdateSteeringBlendSpeed(float dt);
   void UpdateParticleEffects(float dt, CStateManager& mgr);
 
-  int x568_state;
-  CIceSheegothData x56c_data;
-  CPathFindSearch x760_pathSearch;
-  CPathFindSearch x844_approachSearch;
-  EPathFindMode x928_pathFindMode;
-  CVector3f x92c_lastDest;
+  int mState;
+  CIceSheegothData mData;
+  CPathFindSearch mPathSearch;
+  CPathFindSearch mApproachSearch;
+  EPathFindMode mPathFindMode;
+  CVector3f mLastDest;
   CVector3f x938_;
   float x944_;
   float x948_;
   float x94c_;
   float x950_;
-  float x954_attackTimeLeft;
+  float mAttackTimeLeft;
   float x958_;
   float x95c_;
   float x960_;
   float x964_;
-  float x968_interestTimer;
+  float mInterestTimer;
   float x96c_;
-  float x970_maxHp;
+  float mMaxHp;
   float x974_;
   float x978_;
   float x97c_;
   CVector3f x980_;
-  CDamageVulnerability x98c_mouthVulnerability;
-  CBoneTracking x9f4_boneTracking;
-  rstl::single_ptr< CCollisionActorManager > xa2c_collisionActorManager;
+  CDamageVulnerability mMouthVulnerability;
+  CBoneTracking mBoneTracking;
+  rstl::single_ptr< CCollisionActorManager > mCollisionActorManager;
   CCollidableAABox xa30_;
-  CProjectileInfo xa58_projectileInfo;
-  TUniqueId xa80_flameThrowerId;
+  CProjectileInfo mProjectileInfo;
+  TUniqueId mFlameThrowerId;
   TToken< CWeaponDescription > xa84_;
   TLockedToken< CGenDescription > xa8c_;
   rstl::auto_ptr< CElementGen > xa98_;
@@ -256,14 +256,14 @@ private:
   rstl::auto_ptr< CParticleElectric > xad4_;
   TLockedToken< CGenDescription > xadc_;
   rstl::auto_ptr< CElementGen > xae8_;
-  CSfxHandle xaf0_crackleSfx;
-  CSegId xaf4_mouthLocator;
-  TUniqueId xaf6_iceShardsCollider;
-  TUniqueId xaf8_mouthCollider;
-  rstl::reserved_vector< TUniqueId, 2 > xafc_gillColliders;
+  CSfxHandle mCrackleSfx;
+  CSegId mMouthLocator;
+  TUniqueId mIceShardsCollider;
+  TUniqueId mMouthCollider;
+  rstl::reserved_vector< TUniqueId, 2 > mGillColliders;
   rstl::reserved_vector< TUniqueId, 10 > xb04_;
   rstl::reserved_vector< CSegId, 7 > xb1c_;
-  bool xb28_24_shotAt : 1;
+  bool mShotAt : 1;
   bool xb28_25_ : 1;
   bool xb28_26_ : 1;
   bool xb28_27_ : 1;
@@ -276,7 +276,7 @@ private:
   bool xb29_26_ : 1;
   bool xb29_27_ : 1;
   bool xb29_28_ : 1;
-  bool xb29_29_scanned : 1;
+  bool mScanned : 1;
 
   static const SJointInfo skLeftLegJointList[];
   static const SJointInfo skRightLegJointList[];
@@ -288,6 +288,6 @@ private:
   static const char* const skpLeftGillJoint;
   static const char* const skpRightGillJoint;
 };
-CHECK_SIZEOF(CIceSheegoth, (VERSION >= VERSION_GM8P_00 ? 0xb40 : 0xb30))
+CHECK_SIZEOF(CIceSheegoth, (VERSION >= VERSION_GM8E_02 ? 0xb40 : 0xb30))
 
 #endif // _CICESHEEGOTH

@@ -169,9 +169,9 @@ public:
   virtual bool ShouldCallForBackup(CStateManager& mgr, float arg);
 
 private:
-  CHealthInfo x258_healthInfo;
-  CDamageVulnerability x260_damageVulnerability;
-  TCachedToken< CStateMachine > x2c8_stateMachine;
+  CHealthInfo mHealthInfo;
+  CDamageVulnerability mDamageVulnerability;
+  TCachedToken< CStateMachine > mStateMachine;
 
   static CAiFuncMap* mFuncMap;
 };

@@ -17,7 +17,7 @@ public:
   bool IsFastConstant() const override { return true; }
 
 private:
-  CVector3f x4_val;
+  CVector3f mVal;
 };
 
 class CVEParticleLocation : public CVectorElement {
@@ -69,9 +69,9 @@ public:
   bool GetValue(int frame, CVector3f& valOut) const override;
 
 public:
-  CRealElement* x4_x;
-  CRealElement* x8_y;
-  CRealElement* xc_z;
+  CRealElement* mX;
+  CRealElement* mY;
+  CRealElement* mZ;
 };
 
 class CVECircleCluster : public CVectorElement {
@@ -91,10 +91,10 @@ private:
 };
 
 class CVECone : public CVectorElement {
-  CVectorElement* x4_direction;
-  CRealElement* x8_magnitude;
-  CVector3f xc_xVec;
-  CVector3f x18_yVec;
+  CVectorElement* mDirection;
+  CRealElement* mMagnitude;
+  CVector3f mXVec;
+  CVector3f mYVec;
 
 public:
   CVECone(CVectorElement* direction, CRealElement* magnitude);
@@ -110,11 +110,11 @@ public:
   bool GetValue(int frame, CVector3f& valOut) const override;
 
 private:
-  CRealElement* x4_angleXConstant;
-  CRealElement* x8_angleYConstant;
-  CRealElement* xc_angleXRange;
-  CRealElement* x10_angleYRange;
-  CRealElement* x14_magnitude;
+  CRealElement* mAngleXConstant;
+  CRealElement* mAngleYConstant;
+  CRealElement* mAngleXRange;
+  CRealElement* mAngleYRange;
+  CRealElement* mMagnitude;
 };
 
 class CVECircle : public CVectorElement {

@@ -35,17 +35,17 @@ private:
     kAS_Impact,
   };
 
-  CHealthInfo x258_initialHealthInfo;
-  CHealthInfo x260_healthInfo;
-  CDamageVulnerability x268_dVuln;
-  EAnimationState x2d0_animState;
-  float x2d4_alertRange;
-  float x2d8_impactRange;
-  s32 x2dc_currentAnim;
-  s32 x2e0_alertAnim;
-  s32 x2e4_impactAnim;
-  bool x2e8_24_dead : 1;
-  bool x2e8_25_animating : 1;
+  CHealthInfo mInitialHealthInfo;
+  CHealthInfo mHealthInfo;
+  CDamageVulnerability mDVuln;
+  EAnimationState mAnimState;
+  float mAlertRange;
+  float mImpactRange;
+  s32 mCurrentAnim;
+  s32 mAlertAnim;
+  s32 mImpactAnim;
+  bool mDead : 1;
+  bool mAnimating : 1;
 };
 
 #endif // _CAMBIENTAI

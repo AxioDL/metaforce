@@ -15,24 +15,24 @@ CScriptWorldTeleporter::CScriptWorldTeleporter(const TUniqueId uid, const rstl::
                                                const CEntityInfo& info, const bool active,
                                                const CAssetId worldId, const CAssetId areaId)
 : CEntity(uid, info, active, name)
-, x34_worldId(worldId)
-, x38_areaId(areaId)
-, x3c_type(kTT_NoTransition)
-, x40_24_upElevator(false)
-, x40_25_inTransition(false)
-, x40_27_fadeWhite(false)
-, x44_charFadeIn(0.1f)
-, x48_charsPerSecond(8.0f)
-, x4c_showDelay(0.0f)
-, x50_playerAnim(kInvalidAssetId, -1, 0)
-, x5c_playerScale(CVector3f::Zero())
-, x68_platformModel(kInvalidAssetId)
-, x6c_platformScale(CVector3f::Zero())
-, x78_backgroundModel(kInvalidAssetId)
-, x7c_backgroundScale(CVector3f::Zero())
-, x88_soundId(CSfxManager::kInternalInvalidSfxId)
-, x8a_volume(0)
-, x8b_panning(0) {}
+, mWorldId(worldId)
+, mAreaId(areaId)
+, mType(kTT_NoTransition)
+, mUpElevator(false)
+, mInTransition(false)
+, mFadeWhite(false)
+, mCharFadeIn(0.1f)
+, mCharsPerSecond(8.0f)
+, mShowDelay(0.0f)
+, mPlayerAnim(kInvalidAssetId, -1, 0)
+, mPlayerScale(CVector3f::Zero())
+, mPlatformModel(kInvalidAssetId)
+, mPlatformScale(CVector3f::Zero())
+, mBackgroundModel(kInvalidAssetId)
+, mBackgroundScale(CVector3f::Zero())
+, mSoundId(CSfxManager::kInternalInvalidSfxId)
+, mVolume(0)
+, mPanning(0) {}
 
 CScriptWorldTeleporter::CScriptWorldTeleporter(
     const TUniqueId uid, const rstl::string& name, const CEntityInfo& info, const bool active,
@@ -41,24 +41,24 @@ CScriptWorldTeleporter::CScriptWorldTeleporter(
     const CAssetId backgroundModel, const CVector3f& backgroundScale, const bool upElevator,
     const ushort soundId, const uchar volume, const uchar panning)
 : CEntity(uid, info, active, name)
-, x34_worldId(worldId)
-, x38_areaId(areaId)
-, x3c_type(kTT_Elevator)
-, x40_24_upElevator(upElevator)
-, x40_25_inTransition(false)
-, x40_27_fadeWhite(false)
-, x44_charFadeIn(0.1f)
-, x48_charsPerSecond(8.0f)
-, x4c_showDelay(0.0f)
-, x50_playerAnim(playerAncs, charIdx, defaultAnim)
-, x5c_playerScale(playerScale)
-, x68_platformModel(platformModel)
-, x6c_platformScale(platformScale)
-, x78_backgroundModel(backgroundModel)
-, x7c_backgroundScale(backgroundScale)
-, x88_soundId(CSfxManager::TranslateSFXID(soundId))
-, x8a_volume(volume)
-, x8b_panning(panning) {}
+, mWorldId(worldId)
+, mAreaId(areaId)
+, mType(kTT_Elevator)
+, mUpElevator(upElevator)
+, mInTransition(false)
+, mFadeWhite(false)
+, mCharFadeIn(0.1f)
+, mCharsPerSecond(8.0f)
+, mShowDelay(0.0f)
+, mPlayerAnim(playerAncs, charIdx, defaultAnim)
+, mPlayerScale(playerScale)
+, mPlatformModel(platformModel)
+, mPlatformScale(platformScale)
+, mBackgroundModel(backgroundModel)
+, mBackgroundScale(backgroundScale)
+, mSoundId(CSfxManager::TranslateSFXID(soundId))
+, mVolume(volume)
+, mPanning(panning) {}
 
 CScriptWorldTeleporter::CScriptWorldTeleporter(
     const TUniqueId uid, const rstl::string& name, const CEntityInfo& info, const bool active,
@@ -66,26 +66,26 @@ CScriptWorldTeleporter::CScriptWorldTeleporter(
     const uchar panning, CAssetId fontId, const CAssetId stringId, const bool fadeWhite,
     const float charFadeIn, const float charsPerSecond, const float showDelay)
 : CEntity(uid, info, active, name)
-, x34_worldId(worldId)
-, x38_areaId(areaId)
-, x3c_type(kTT_Text)
-, x40_24_upElevator(false)
-, x40_25_inTransition(false)
-, x40_27_fadeWhite(fadeWhite)
-, x44_charFadeIn(charFadeIn)
-, x48_charsPerSecond(charsPerSecond)
-, x4c_showDelay(showDelay)
-, x50_playerAnim(kInvalidAssetId, -1, 0)
-, x5c_playerScale(CVector3f::Zero())
-, x68_platformModel(kInvalidAssetId)
-, x6c_platformScale(CVector3f::Zero())
-, x78_backgroundModel(kInvalidAssetId)
-, x7c_backgroundScale(CVector3f::Zero())
-, x88_soundId(CSfxManager::TranslateSFXID(soundId))
-, x8a_volume(volume)
-, x8b_panning(panning)
-, x8c_fontId(fontId)
-, x90_stringId(stringId) {}
+, mWorldId(worldId)
+, mAreaId(areaId)
+, mType(kTT_Text)
+, mUpElevator(false)
+, mInTransition(false)
+, mFadeWhite(fadeWhite)
+, mCharFadeIn(charFadeIn)
+, mCharsPerSecond(charsPerSecond)
+, mShowDelay(showDelay)
+, mPlayerAnim(kInvalidAssetId, -1, 0)
+, mPlayerScale(CVector3f::Zero())
+, mPlatformModel(kInvalidAssetId)
+, mPlatformScale(CVector3f::Zero())
+, mBackgroundModel(kInvalidAssetId)
+, mBackgroundScale(CVector3f::Zero())
+, mSoundId(CSfxManager::TranslateSFXID(soundId))
+, mVolume(volume)
+, mPanning(panning)
+, mFontId(fontId)
+, mStringId(stringId) {}
 
 CScriptWorldTeleporter::~CScriptWorldTeleporter() {}
 
@@ -100,16 +100,16 @@ void CScriptWorldTeleporter::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
       CWorld* world = mgr.World();
       world->SetLoadPauseState(true);
       CAssetId currentWorld = gpGameState->CurrentWorldAssetId();
-      gpGameState->SetCurrentWorldId(x34_worldId);
+      gpGameState->SetCurrentWorldId(mWorldId);
 
-      if (gpResourceFactory->GetResLoader().GetResourceTypeById(x34_worldId) == 'MLVL') {
+      if (gpResourceFactory->GetResLoader().GetResourceTypeById(mWorldId) == 'MLVL') {
         StartTransition(mgr);
-        gpGameState->SetCurrentWorldId(x34_worldId);
-        gpGameState->CurrentWorldState().SetDesiredAreaAssetId(x38_areaId);
+        gpGameState->SetCurrentWorldId(mWorldId);
+        gpGameState->CurrentWorldState().SetDesiredAreaAssetId(mAreaId);
         gpMain->SetRestartMode(CMain::kRM_None);
         mgr.QuitGame();
       } else {
-        x40_25_inTransition = false;
+        mInTransition = false;
         transMgr->DisableTransition();
         gpGameState->SetCurrentWorldId(currentWorld);
       }
@@ -117,12 +117,12 @@ void CScriptWorldTeleporter::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
     }
     case kSM_Play:
       StartTransition(mgr);
-      transMgr->SetSfx(x88_soundId, x8a_volume, x8b_panning);
+      transMgr->SetSfx(mSoundId, mVolume, mPanning);
       transMgr->SfxStart();
       break;
 
     case kSM_Stop:
-      x40_25_inTransition = false;
+      mInTransition = false;
       transMgr->DisableTransition();
       transMgr->SfxStop();
       break;
@@ -135,24 +135,24 @@ void CScriptWorldTeleporter::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
 }
 
 void CScriptWorldTeleporter::StartTransition(CStateManager& mgr) {
-  if (x40_25_inTransition) {
+  if (mInTransition) {
     return;
   }
 
   CWorldTransManager* transMgr = mgr.WorldTransManager();
 
-  if (x3c_type == kTT_Elevator && x50_playerAnim.GetACSFile() != kInvalidAssetId &&
-      x50_playerAnim.GetCharacter() != u32(-1)) {
-    CAnimRes animRes(x50_playerAnim.GetACSFile(), x50_playerAnim.GetInitialAnimation(),
-                     x5c_playerScale, x50_playerAnim.GetCharacter(), true);
-    transMgr->EnableTransition(animRes, x68_platformModel, x6c_platformScale, x78_backgroundModel,
-                               x7c_backgroundScale, x40_24_upElevator);
-    x40_25_inTransition = true;
+  if (mType == kTT_Elevator && mPlayerAnim.GetACSFile() != kInvalidAssetId &&
+      mPlayerAnim.GetCharacter() != u32(-1)) {
+    CAnimRes animRes(mPlayerAnim.GetACSFile(), mPlayerAnim.GetInitialAnimation(),
+                     mPlayerScale, mPlayerAnim.GetCharacter(), true);
+    transMgr->EnableTransition(animRes, mPlatformModel, mPlatformScale, mBackgroundModel,
+                               mBackgroundScale, mUpElevator);
+    mInTransition = true;
 
-  } else if (x3c_type == kTT_Text) {
-    transMgr->EnableTransition(x8c_fontId, x90_stringId, 0, GetFadeWhite(), x44_charFadeIn,
-                               x48_charsPerSecond, x4c_showDelay);
-    x40_25_inTransition = true;
+  } else if (mType == kTT_Text) {
+    transMgr->EnableTransition(mFontId, mStringId, 0, GetFadeWhite(), mCharFadeIn,
+                               mCharsPerSecond, mShowDelay);
+    mInTransition = true;
 
   } else {
     transMgr->DisableTransition();

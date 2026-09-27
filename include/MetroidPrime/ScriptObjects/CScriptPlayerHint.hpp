@@ -11,20 +11,20 @@ public:
 
   DECLARE_TYPES_MATCH_OR_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
-  int GetPriority() const { return x100_priority; }
-  int GetOverrideFlags() const { return x104_overrideFlags; }
-  TUniqueId GetActorId() const { return x108_mpId; }
+  int GetPriority() const { return mPriority; }
+  int GetOverrideFlags() const { return mOverrideFlags; }
+  TUniqueId GetActorId() const { return mMpId; }
   void ClearObjectList();
-  uint GetObjectCount() const { return xe8_objectList.size(); }
-  bool GetDeactivated() const { return xfc_deactivated; }
-  void SetDeactivated() { xfc_deactivated = true; }
+  uint GetObjectCount() const { return mObjectList.size(); }
+  bool GetDeactivated() const { return mDeactivated; }
+  void SetDeactivated() { mDeactivated = true; }
 
 private:
-  rstl::reserved_vector< TUniqueId, 8 > xe8_objectList;
-  bool xfc_deactivated;
-  int x100_priority;
-  int x104_overrideFlags;
-  TUniqueId x108_mpId;
+  rstl::reserved_vector< TUniqueId, 8 > mObjectList;
+  bool mDeactivated;
+  int mPriority;
+  int mOverrideFlags;
+  TUniqueId mMpId;
 
   void AddToObjectList(TUniqueId uid);
   void RemoveFromObjectList(TUniqueId uid, CStateManager& mgr);

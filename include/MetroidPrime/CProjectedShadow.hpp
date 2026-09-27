@@ -20,15 +20,15 @@ public:
   void RenderShadowBuffer(CStateManager&, const CModelData&, const CTransform4f&, int,
                           const CVector3f&, float, float);
 
-#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+#if VERSION >= VERSION_GM8P_00
   void RenderShadowBuffer(CStateManager&, int, const CModelData* const*, const CTransform4f* const*,
                           int, const CVector3f&, float, float);
 
-  void SetNextShadow(CProjectedShadow* shadow) { x9c_nextShadow = shadow; }
-  CProjectedShadow* GetNextShadow() const { return x9c_nextShadow; }
+  void SetNextShadow(CProjectedShadow* shadow) { mNextShadow = shadow; }
+  CProjectedShadow* GetNextShadow() const { return mNextShadow; }
 #endif
 
-  void SetOpacity(float opacity) { x98_opacity = opacity; }
+  void SetOpacity(float opacity) { mOpacity = opacity; }
 
   void Disable();
 
@@ -37,19 +37,19 @@ public:
 private:
   void ExpandBoundsForTexture();
 
-  CTexture x0_texture;
-  CAABox x68_bounds;
-  bool x80_enabled;
-  uchar x81_persistent;
-  float x84_scale;
-  CVector3f x88_translation;
-  float x94_zDistanceAdjust;
-  float x98_opacity;
-#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
-  CProjectedShadow* x9c_nextShadow;
+  CTexture mTexture;
+  CAABox mBounds;
+  bool mEnabled;
+  uchar mPersistent;
+  float mScale;
+  CVector3f mTranslation;
+  float mZDistanceAdjust;
+  float mOpacity;
+#if VERSION >= VERSION_GM8P_00
+  CProjectedShadow* mNextShadow;
 #endif
 };
-#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+#if VERSION >= VERSION_GM8P_00
 CHECK_SIZEOF(CProjectedShadow, 0xa0)
 #else
 CHECK_SIZEOF(CProjectedShadow, 0x9c)

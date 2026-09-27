@@ -57,7 +57,7 @@ public:
                    const CVector2f& vec = CVector2f(kCameraBobExtentX, kCameraBobExtentY),
                    float bobPeriod = kCameraBobPeriod);
 
-  CVector3f GetCameraBobTranslation() const { return x2c_cameraBobTransform.GetTranslation(); }
+  CVector3f GetCameraBobTranslation() const { return mCameraBobTransform.GetTranslation(); }
   const CTransform4f& GetViewWanderTransform() const;
   CVector3f GetHelmetBobTranslation() const;
   CTransform4f GetGunBobTransformation() const;
@@ -66,7 +66,7 @@ public:
   void SetBobMagnitude(float);
   void SetBobTimeScale(float);
   void ResetCameraBobTime();
-  void SetCameraBobTransform(const CTransform4f& xf) { x2c_cameraBobTransform = xf; }
+  void SetCameraBobTransform(const CTransform4f& xf) { mCameraBobTransform = xf; }
   void SetState(ECameraBobState state, CStateManager& mgr);
   void InitViewWander(CStateManager&);
   void UpdateViewWander(float, CStateManager&);
@@ -77,7 +77,7 @@ public:
   float CalculateLandingTranslation() const;
   CTransform4f CalculateCameraBobTransformation() const;
 
-  const float& GetViewWanderMagnitude() const { return x100_wanderMagnitude; }
+  const float& GetViewWanderMagnitude() const { return mWanderMagnitude; }
   static void ReadTweaks(CInputStream& in);
 
   static float GetCameraBobExtentX() { return kCameraBobExtentX; }
@@ -91,32 +91,32 @@ public:
   }
 
 private:
-  ECameraBobType x0_type;
-  CVector2f x4_vec;
-  float xc_bobPeriod;
-  float x10_targetBobMagnitude;
-  float x14_bobMagnitude;
-  float x18_bobTimeScale;
-  float x1c_bobTime;
-  ECameraBobState x20_oldState;
-  ECameraBobState x24_curState;
-  bool x28_applyLandingTrans;
-  bool x29_hardLand;
-  CTransform4f x2c_cameraBobTransform;
-  CVector3f x5c_playerVelocity;
-  float x68_playerPeakFallVel;
-  float x6c_landingVelocity;
-  float x70_landingTranslation;
-  float x74_camVelocity;
-  float x78_camTranslation;
-  rstl::reserved_vector< CVector3f, 4 > x7c_wanderPoints;
-  rstl::reserved_vector< float, 4 > xb0_wanderPitches;
-  float xc4_wanderTime;
-  float xc8_viewWanderSpeed;
-  int xcc_wanderIndex;
-  CTransform4f xd0_viewWanderXf;
-  float x100_wanderMagnitude;
-  float x104_targetWanderMagnitude;
+  ECameraBobType mType;
+  CVector2f mVec;
+  float mBobPeriod;
+  float mTargetBobMagnitude;
+  float mBobMagnitude;
+  float mBobTimeScale;
+  float mBobTime;
+  ECameraBobState mOldState;
+  ECameraBobState mCurState;
+  bool mApplyLandingTrans;
+  bool mHardLand;
+  CTransform4f mCameraBobTransform;
+  CVector3f mPlayerVelocity;
+  float mPlayerPeakFallVel;
+  float mLandingVelocity;
+  float mLandingTranslation;
+  float mCamVelocity;
+  float mCamTranslation;
+  rstl::reserved_vector< CVector3f, 4 > mWanderPoints;
+  rstl::reserved_vector< float, 4 > mWanderPitches;
+  float mWanderTime;
+  float mViewWanderSpeed;
+  int mWanderIndex;
+  CTransform4f mViewWanderXf;
+  float mWanderMagnitude;
+  float mTargetWanderMagnitude;
 };
 CHECK_SIZEOF(CPlayerCameraBob, 0x108)
 

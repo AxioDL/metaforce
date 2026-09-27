@@ -23,40 +23,40 @@ public:
 
   static float GetOccludedVolumeAmount(const CVector3f& pos, const CStateManager& mgr);
 
-  ushort GetSoundId() const { return x100_soundId; }
+  ushort GetSoundId() const { return mSoundId; }
 
 private:
   static bool sFirstInFrame;
 
-  float xe8_occUpdateTimer;
-  CSfxHandle xec_sfxHandle;
-  short xf0_maxVol;
-  short xf2_maxVolUpd;
-  short xf4_maxVolUpdDelta;
-  float xf8_updateTimer;
-  float xfc_startDelay;
-  ushort x100_soundId;
-  float x104_maxDist;
-  float x108_distComp;
-  short x10c_minVol;
-  short x10e_vol;
+  float mOccUpdateTimer;
+  CSfxHandle mSfxHandle;
+  short mMaxVol;
+  short mMaxVolUpd;
+  short mMaxVolUpdDelta;
+  float mUpdateTimer;
+  float mStartDelay;
+  ushort mSoundId;
+  float mMaxDist;
+  float mDistComp;
+  short mMinVol;
+  short mVol;
   short x110_;
-  short x112_prio;
-  short x114_pan;
+  short mPrio;
+  short mPan;
   short x116_;
-  int x118_pitch;
-  bool x11c_24_playRequested : 1;
-  bool x11c_25_looped : 1;
-  bool x11c_26_nonEmitter : 1;
-  bool x11c_27_autoStart : 1;
-  bool x11c_28_occlusionTest : 1;
-  bool x11c_29_acoustics : 1;
-  bool x11c_30_worldSfx : 1;
-  bool x11c_31_selfFree : 1;
-  bool x11d_24_allowDuplicates : 1;
-  bool x11d_25_processedThisFrame : 1;
+  int mPitch;
+  bool mPlayRequested : 1;
+  bool mLooped : 1;
+  bool mNonEmitter : 1;
+  bool mAutoStart : 1;
+  bool mOcclusionTest : 1;
+  bool mAcoustics : 1;
+  bool mWorldSfx : 1;
+  bool mSelfFree : 1;
+  bool mAllowDuplicates : 1;
+  bool mProcessedThisFrame : 1;
 };
 
-CHECK_SIZEOF(CScriptSound, (VERSION >= VERSION_GM8P_00 ? 0x130 : 0x120))
+CHECK_SIZEOF(CScriptSound, (VERSION >= VERSION_GM8E_02 ? 0x130 : 0x120))
 
 #endif // _CSCRIPTSOUND

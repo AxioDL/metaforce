@@ -9,21 +9,21 @@
 class CTri {
 public:
   CTri(const CVector3f& a, const CVector3f& b, const CVector3f& c)
-  : x0_plane(a, b, c), x10_a(a), x1c_b(b), x28_c(c) {}
+  : mPlane(a, b, c), mA(a), mB(b), mC(c) {}
 
-  const CPlane& GetPlane() const { return x0_plane; }
-  const CVector3f& GetPointA() const { return x10_a; }
-  const CVector3f& GetPointB() const { return x1c_b; }
-  const CVector3f& GetPointC() const { return x28_c; }
+  const CPlane& GetPlane() const { return mPlane; }
+  const CVector3f& GetPointA() const { return mA; }
+  const CVector3f& GetPointB() const { return mB; }
+  const CVector3f& GetPointC() const { return mC; }
 
   // TODO: Verify, this should be right though
-  CPlane GetState() const { return CPlane(x10_a, x1c_b, x28_c); }
+  CPlane GetState() const { return CPlane(mA, mB, mC); }
 
 private:
-  CPlane x0_plane;
-  CVector3f x10_a;
-  CVector3f x1c_b;
-  CVector3f x28_c;
+  CPlane mPlane;
+  CVector3f mA;
+  CVector3f mB;
+  CVector3f mC;
 };
 CHECK_SIZEOF(CTri, 0x34)
 

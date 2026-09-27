@@ -17,24 +17,24 @@ public:
   virtual ~CPauseScreenBlur();
 
   void OnNewInGameGuiState(EInGameGuiState state, const CStateManager& stateMgr);
-  bool IsGameDraw() const { return x50_25_gameDraw; }
+  bool IsGameDraw() const { return mGameDraw; }
   void Update(float dt, const CStateManager& stateMgr, bool);
   void Draw(const CStateManager& stateMgr);
   float GetBlurAmt() const;
-  bool IsNotTransitioning() const { return x10_prevState == x14_nextState; }
+  bool IsNotTransitioning() const { return mPrevState == mNextState; }
 
 private:
-  TLockedToken< CTexture > x4_mapLightQuarter;
-  EState x10_prevState;
-  EState x14_nextState;
-  float x18_blurAmt;   
-  CCameraBlurPass x1c_camBlur;
-  bool x50_24_blurring : 1;
-  bool x50_25_gameDraw : 1;
+  TLockedToken< CTexture > mMapLightQuarter;
+  EState mPrevState;
+  EState mNextState;
+  float mBlurAmt;
+  CCameraBlurPass mCamBlur;
+  bool mBlurring : 1;
+  bool mGameDraw : 1;
 
   void OnBlurComplete(bool);
   void SetState(EState state);
-  float GetBlurAmtInline() const { return fabs(x18_blurAmt); }
+  float GetBlurAmtInline() const { return fabs(mBlurAmt); }
 };
 
 #endif // _CPAUSESCREENBLUR

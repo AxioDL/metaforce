@@ -40,20 +40,20 @@ public:
   void SetNoHorizontalAim(const bool aim);
 
 private:
-  CQuaternion x0_rotation;
+  CQuaternion mRotation;
   float x10_;
-  CSegId x14_segId;
-  float x18_time;
-  float x1c_maxTrackingAngle;
-  float x20_angSpeed;
-  rstl::optional_object< CVector3f > x24_targetPosition;
-  TUniqueId x34_target;
-  bool x36_24_active : 1;
-  bool x36_25_hasTrackedRotation : 1;
-  bool x36_26_noParent : 1;
-  bool x36_27_noParentOrigin : 1;
-  bool x36_28_noHorizontalAim : 1;
-  bool x36_29_parentIk : 1;
+  CSegId mSegId;
+  float mTime;
+  float mMaxTrackingAngle;
+  float mAngSpeed;
+  rstl::optional_object< CVector3f > mTargetPosition;
+  TUniqueId mTarget;
+  bool mActive : 1;
+  bool mHasTrackedRotation : 1;
+  bool mNoParent : 1;
+  bool mNoParentOrigin : 1;
+  bool mNoHorizontalAim : 1;
+  bool mParentIk : 1;
 };
 
 CHECK_SIZEOF(CBoneTracking, 0x38)

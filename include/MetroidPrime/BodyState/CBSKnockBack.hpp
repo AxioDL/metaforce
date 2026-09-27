@@ -14,9 +14,9 @@ public:
   bool IsMoving() const override;
 
 private:
-  float x4_curTime;
-  float x8_rotateSpeed;
-  float xc_remTime;
+  float mCurTime;
+  float mRotateSpeed;
+  float mRemTime;
 
   pas::EAnimationState GetBodyStateTransition(float dt, CBodyController& bc);
 };

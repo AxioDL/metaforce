@@ -2,49 +2,49 @@
 #include "Kyoto/Text/CFontRenderState.hpp"
 
 void CBlockInstruction::Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const {
-  state.GetOptions().SetTextDirection(x14_dir);
+  state.GetOptions().SetTextDirection(mDir);
   state.SetBlock(this);
-  if (x14_dir == kTD_Horizontal) {
+  if (mDir == kTD_Horizontal) {
     SetupPositionLTR(state);
   }
 }
 void CBlockInstruction::SetupPositionLTR(CFontRenderState& state) const {
-  switch (x1c_vertJustification) {
+  switch (mVertJustification) {
   case kVerticalJustification_Top:
   case kVerticalJustification_Full:
   case kVerticalJustification_NTop:
   case kVerticalJustification_TopMono:
-    state.SetY(x8_offsetY);
+    state.SetY(mOffsetY);
     break;
   case kVerticalJustification_Center:
   case kVerticalJustification_NCenter:
-    state.SetY(x8_offsetY + (x10_blockExtentY - x30_lineY) / 2);
+    state.SetY(mOffsetY + (mBlockExtentY - mLineY) / 2);
     break;
   case kVerticalJustification_CenterMono:
-    state.SetY(x8_offsetY + (x10_blockExtentY - x34_lineCount * x24_largestMonoH) / 2);
+    state.SetY(mOffsetY + (mBlockExtentY - mLineCount * mLargestMonoH) / 2);
     break;
   case kVerticalJustification_Bottom:
   case kVerticalJustification_NBottom:
-    state.SetY(x8_offsetY + x10_blockExtentY - x30_lineY);
+    state.SetY(mOffsetY + mBlockExtentY - mLineY);
     break;
   case kVerticalJustification_RightMono:
-    state.SetY(x8_offsetY + x10_blockExtentY - x34_lineCount * x24_largestMonoH);
+    state.SetY(mOffsetY + mBlockExtentY - mLineCount * mLargestMonoH);
     break;
   }
 }
 
 void CBlockInstruction::TestLargestFont(int monoW, int monoH, int baseline) {
-  if (!x28_largestBaseline) {
-    x28_largestBaseline = baseline;
+  if (!mLargestBaseline) {
+    mLargestBaseline = baseline;
   }
 
-  if (x20_largestMonoW < monoW) {
-    x20_largestMonoW = monoW;
+  if (mLargestMonoW < monoW) {
+    mLargestMonoW = monoW;
   }
 
-  if (x24_largestMonoH < monoH) {
-    x24_largestMonoH = monoH;
-    x28_largestBaseline = baseline;
+  if (mLargestMonoH < monoH) {
+    mLargestMonoH = monoH;
+    mLargestBaseline = baseline;
   }
 }
 

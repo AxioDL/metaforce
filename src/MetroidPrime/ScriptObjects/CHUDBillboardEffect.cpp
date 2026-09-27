@@ -40,74 +40,74 @@ CHUDBillboardEffect::CHUDBillboardEffect(
 : CEffect(uid, CEntityInfo(kInvalidAreaId, CEntity::NullConnectionList), active, name,
           CTransform4f::Identity())
 
-, xec_translation(translation.GetX(), translation.GetY() + dist, translation.GetZ())
-, xf8_localScale(CVector3f::ByElementMultiply(scale1, scale0))
-, x104_24_renderAsParticleGen(true)
-, x104_25_enableRender(false)
-, x104_26_isElementGen(false)
-, x104_27_runIndefinitely(false)
-, x108_timeoutTimer(0.f) {
+, mTranslation(translation.GetX(), translation.GetY() + dist, translation.GetZ())
+, mLocalScale(CVector3f::ByElementMultiply(scale1, scale0))
+, mRenderAsParticleGen(true)
+, mEnableRender(false)
+, mIsElementGen(false)
+, mRunIndefinitely(false)
+, mTimeoutTimer(0.f) {
 
   if (particle) {
-    x104_26_isElementGen = true;
-    xe8_generator = rs_new CElementGen(*particle);
-    if (static_cast< CElementGen& >(*xe8_generator).IsIndirectTextured())
+    mIsElementGen = true;
+    mGenerator = rs_new CElementGen(*particle);
+    if (static_cast< CElementGen& >(*mGenerator).IsIndirectTextured())
       ++g_IndirectTexturedBillboardCount;
   } else {
-    xe8_generator = rs_new CParticleElectric(TToken< CElectricDescription >(*electric));
+    mGenerator = rs_new CParticleElectric(TToken< CElectricDescription >(*electric));
   }
   ++g_BillboardCount;
-  xe8_generator->SetModulationColor(color);
-  xe8_generator->SetLocalScale(xf8_localScale);
+  mGenerator->SetModulationColor(color);
+  mGenerator->SetLocalScale(mLocalScale);
 }
 
 CHUDBillboardEffect::~CHUDBillboardEffect() {
   --g_BillboardCount;
-  if (xe8_generator->Get4CharId() == 'PART')
-    if (static_cast< CElementGen& >(*xe8_generator).IsIndirectTextured())
+  if (mGenerator->Get4CharId() == 'PART')
+    if (static_cast< CElementGen& >(*mGenerator).IsIndirectTextured())
       --g_IndirectTexturedBillboardCount;
 }
 
 void CHUDBillboardEffect::AddToRenderer(const CFrustumPlanes& frustum,
                                         const CStateManager& mgr) const {
-  if (x104_25_enableRender && x104_24_renderAsParticleGen) {
-    gpRender->AddParticleGen(*xe8_generator);
+  if (mEnableRender && mRenderAsParticleGen) {
+    gpRender->AddParticleGen(*mGenerator);
   }
 }
 
 void CHUDBillboardEffect::PreRender(CStateManager& mgr, const CFrustumPlanes& frustum) {
   if (mgr.GetPlayer()->GetCameraState() == CPlayer::kCS_FirstPerson) {
     CTransform4f camXf = mgr.GetCameraManager()->GetCurrentCameraTransform(mgr);
-    xe8_generator->SetGlobalTranslation(camXf * xec_translation);
-    xe8_generator->SetGlobalOrientation(camXf);
-    x104_25_enableRender = true;
+    mGenerator->SetGlobalTranslation(camXf * mTranslation);
+    mGenerator->SetGlobalOrientation(camXf);
+    mEnableRender = true;
   } else {
-    x104_25_enableRender = false;
+    mEnableRender = false;
   }
-  x104_24_renderAsParticleGen = !mgr.RenderLast(GetUniqueId());
+  mRenderAsParticleGen = !mgr.RenderLast(GetUniqueId());
 }
 
 void CHUDBillboardEffect::Render(const CStateManager& mgr) const {
-  if (x104_25_enableRender && !x104_24_renderAsParticleGen) {
-    xe8_generator->Render();
+  if (mEnableRender && !mRenderAsParticleGen) {
+    mGenerator->Render();
   }
 }
 
 void CHUDBillboardEffect::Think(float dt, CStateManager& mgr) {
   if (GetActive()) {
     mgr.SetActorAreaId(*this, mgr.GetWorld()->GetCurrentAreaId());
-    float oldGenRate = xe8_generator->GetGeneratorRate();
-    xe8_generator->SetGeneratorRate(oldGenRate * CalcGenRate());
-    xe8_generator->Update(dt);
-    xe8_generator->SetGeneratorRate(oldGenRate);
-    if (!x104_27_runIndefinitely) {
-      x108_timeoutTimer += dt;
-      if (x108_timeoutTimer > 30.f) {
+    float oldGenRate = mGenerator->GetGeneratorRate();
+    mGenerator->SetGeneratorRate(oldGenRate * CalcGenRate());
+    mGenerator->Update(dt);
+    mGenerator->SetGeneratorRate(oldGenRate);
+    if (!mRunIndefinitely) {
+      mTimeoutTimer += dt;
+      if (mTimeoutTimer > 30.f) {
         mgr.DeleteObjectRequest(GetUniqueId());
         return;
       }
     }
-    if (xe8_generator->IsSystemDeletable())
+    if (mGenerator->IsSystemDeletable())
       mgr.DeleteObjectRequest(GetUniqueId());
   }
 }

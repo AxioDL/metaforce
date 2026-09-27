@@ -15,12 +15,12 @@ class CVertexMorphEffect {
 public:
   CVertexMorphEffect(const CUnitVector3f& dir, const CVector3f& pos, float duration,
                      float diagExtent, CRandom16& random)
-  : x0_dir(dir)
-  , xc_pos(pos)
-  , x18_duration(duration)
-  , x1c_elapsed(0.f)
-  , x20_diagExtent(diagExtent)
-  , x24_random(random) {}
+  : mDir(dir)
+  , mPos(pos)
+  , mDuration(duration)
+  , mElapsed(0.f)
+  , mDiagExtent(diagExtent)
+  , mRandom(random) {}
   void Update(float dt);
 
   void MorphVertices(CVector3f* workspace, const CVector3f* averageNormals,
@@ -29,14 +29,14 @@ public:
   void Reset(const CUnitVector3f& dir, const CVector3f& pos, float duration);
 
 private:
-  CUnitVector3f x0_dir;
-  CVector3f xc_pos;
-  float x18_duration;
-  float x1c_elapsed;
-  float x20_diagExtent;
-  CRandom16& x24_random;
-  mutable rstl::vector< uint > x28_indices;
-  mutable rstl::vector< float > x38_floats;
+  CUnitVector3f mDir;
+  CVector3f mPos;
+  float mDuration;
+  float mElapsed;
+  float mDiagExtent;
+  CRandom16& mRandom;
+  mutable rstl::vector< uint > mIndices;
+  mutable rstl::vector< float > mFloats;
 };
 
 CHECK_SIZEOF(CVertexMorphEffect, 0x48)

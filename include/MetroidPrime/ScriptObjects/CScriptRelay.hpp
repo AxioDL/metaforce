@@ -4,8 +4,8 @@
 #include "MetroidPrime/CEntity.hpp"
 
 class CScriptRelay : public CEntity {
-  TUniqueId x34_nextRelay;
-  int x38_sendCount;
+  TUniqueId mNextRelay;
+  int mSendCount;
 
 public:
   CScriptRelay(TUniqueId, const rstl::string&, const CEntityInfo&, bool);

@@ -6,10 +6,10 @@
 
 class CArchMsgParmString : public IArchitectureMessageParm {
 public:
-  const rstl::string& GetString() const { return x4_string; }
+  const rstl::string& GetString() const { return mString; }
 
 private:
-  rstl::string x4_string;
+  rstl::string mString;
 };
 CHECK_SIZEOF(CArchMsgParmString, 0x14)
 

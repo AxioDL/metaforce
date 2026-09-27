@@ -44,26 +44,26 @@ CMapUniverse::CMapUniverseDrawParms::CMapUniverseDrawParms(float alpha, int wldI
 , mCameraTransform(view) {}
 
 CMapUniverse::CMapUniverse(CInputStream& in, uint version)
-: x0_hexagonId(in.Get< CAssetId >())
-, x4_hexagonToken(gpSimplePool->GetObj(SObjectTag('MAPA', x0_hexagonId)))
-, x20_universeCenter(CVector3f::Zero())
-, x2c_universeRadius(1600.f) {
-  x10_worldDatas.reserve(in.Get< uint >());
-  for (int i = 0; i < x10_worldDatas.capacity(); ++i) {
-    x10_worldDatas.push_back(CMapWorldData(in, version));
+: mHexagonId(in.Get< CAssetId >())
+, mHexagonToken(gpSimplePool->GetObj(SObjectTag('MAPA', mHexagonId)))
+, mUniverseCenter(CVector3f::Zero())
+, mUniverseRadius(1600.f) {
+  mWorldDatas.reserve(in.Get< uint >());
+  for (int i = 0; i < mWorldDatas.capacity(); ++i) {
+    mWorldDatas.push_back(CMapWorldData(in, version));
   }
-  x4_hexagonToken.Lock();
+  mHexagonToken.Lock();
 }
 
 CMapUniverse::~CMapUniverse() {}
 
 void CMapUniverse::Draw(const CMapUniverseDrawParms& parms, const CVector3f& pos, float depth1,
                         float depth2) const {
-  if (x4_hexagonToken.TryCache()) {
+  if (mHexagonToken.TryCache()) {
     int surfaceCount = 0;
-    int numSurfaces = x4_hexagonToken.GetObject()->GetNumSurfaces();
-    for (int i = 0; i < x10_worldDatas.size(); ++i) {
-      int numAreas = x10_worldDatas[i].GetNumMapAreaDatas();
+    int numSurfaces = mHexagonToken.GetObject()->GetNumSurfaces();
+    for (int i = 0; i < mWorldDatas.size(); ++i) {
+      int numAreas = mWorldDatas[i].GetNumMapAreaDatas();
       surfaceCount += numSurfaces * numAreas;
     }
     rstl::vector< CMapObjectSortInfo > sortInfos;
@@ -71,9 +71,9 @@ void CMapUniverse::Draw(const CMapUniverseDrawParms& parms, const CVector3f& pos
     const float alpha = parms.GetAlpha();
     const CTransform4f& model = parms.GetPaneProjectionTransform();
     const CTransform4f& camera = parms.GetCameraTransform();
-    const CMapArea& mapArea = *x4_hexagonToken.GetObject();
-    for (int w = 0; w < x10_worldDatas.size(); ++w) {
-      const CMapWorldData& world = x10_worldDatas[w];
+    const CMapArea& mapArea = *mHexagonToken.GetObject();
+    for (int w = 0; w < mWorldDatas.size(); ++w) {
+      const CMapWorldData& world = mWorldDatas[w];
       if (gpGameState->StateForWorld(world.GetWorldAssetId()).GetMapWorldInfo()->IsAnythingSet()) {
         const bool selected = w == parms.GetFocusWorldIndex();
         const CColor& surfaceColor =
@@ -106,7 +106,7 @@ void CMapUniverse::Draw(const CMapUniverseDrawParms& parms, const CVector3f& pos
         int objectIndex = sortInfos[i].GetObjectIndex();
         CColor surfaceColor = sortInfos[i].GetSurfaceColor();
         CColor outlineColor = sortInfos[i].GetOutlineColor();
-        const CMapWorldData& world = x10_worldDatas[worldIndex];
+        const CMapWorldData& world = mWorldDatas[worldIndex];
         const CTransform4f& transform = world.GetMapAreaData(areaIndex).GetTransform();
         const CMapArea::CMapAreaSurface& surface = mapArea.GetSurface(objectIndex);
         if (parms.GetFocusWorldRes() == world.GetWorldAssetId() &&
@@ -114,18 +114,18 @@ void CMapUniverse::Draw(const CMapUniverseDrawParms& parms, const CVector3f& pos
           const uchar surfaceAlpha = surfaceColor.GetAlphau8();
           const uchar outlineAlpha = outlineColor.GetAlphau8();
           surfaceColor =
-              CColor::Lerp(gpTweakAutoMapper->x4c_surfaceSelectColorVisited,
-                           gpTweakAutoMapper->xf4_areaFlashPulseColor, parms.GetFlashPulse());
+              CColor::Lerp(gpTweakAutoMapper->mSurfaceSelectColorVisited,
+                           gpTweakAutoMapper->mAreaFlashPulseColor, parms.GetFlashPulse());
           outlineColor =
-              CColor::Lerp(gpTweakAutoMapper->x50_outlineSelectColorVisited,
-                           gpTweakAutoMapper->xf4_areaFlashPulseColor, parms.GetFlashPulse());
+              CColor::Lerp(gpTweakAutoMapper->mOutlineSelectColorVisited,
+                           gpTweakAutoMapper->mAreaFlashPulseColor, parms.GetFlashPulse());
           surfaceColor.SetAlpha(surfaceAlpha);
           outlineColor.SetAlpha(outlineAlpha);
         }
         CTransform4f normalTransform = transform;
         normalTransform.Orthonormalize();
-        const float linear = gpTweakAutoMapper->x54_mapSurfaceNormColorLinear;
-        const float constant = gpTweakAutoMapper->x58_mapSurfaceNormColorConstant;
+        const float linear = gpTweakAutoMapper->mMapSurfaceNormColorLinear;
+        const float constant = gpTweakAutoMapper->mMapSurfaceNormColorConstant;
         const float lit =
             linear *
             rstl::max_val(0.f, CVector3f::Dot(-1.f * camera.GetForward(),
@@ -148,27 +148,27 @@ void CMapUniverse::Draw(const CMapUniverseDrawParms& parms, const CVector3f& pos
 CMapUniverse::CMapAreaData::CMapAreaData(CInputStream& in) : mTransform(in) {}
 
 CMapUniverse::CMapWorldData::CMapWorldData(CInputStream& in, uint version)
-: x0_label(in)
-, x10_worldAssetId(in.Get< CAssetId >())
-, x14_transform(in)
-, x44_areaDatas(in)
-, x54_surfColorSelected(version != 0 ? CColor(in) : CColor(0))
-, x58_outlineColorSelected(static_cast< uchar >(255), 0, 255)
-, x5c_surfColorUnselected(static_cast< uchar >(255), 0, 255)
-, x60_outlineColorUnselected(static_cast< uchar >(255), 0, 255)
-, x64_centerPoint(CVector3f::Zero()) {
+: mLabel(in)
+, mWorldAssetId(in.Get< CAssetId >())
+, mTransform(in)
+, mAreaDatas(in)
+, mSurfColorSelected(version != 0 ? CColor(in) : CColor(0))
+, mOutlineColorSelected(static_cast< uchar >(255), 0, 255)
+, mSurfColorUnselected(static_cast< uchar >(255), 0, 255)
+, mOutlineColorUnselected(static_cast< uchar >(255), 0, 255)
+, mCenterPoint(CVector3f::Zero()) {
   if (version == 0) {
-    x54_surfColorSelected = CColor(x10_worldAssetId).WithAlphaOf(1.f);
+    mSurfColorSelected = CColor(mWorldAssetId).WithAlphaOf(1.f);
   }
 
-  x58_outlineColorSelected = CColor::Lerp(CColor::White(), x54_surfColorSelected, 0.5f);
-  x5c_surfColorUnselected = CColor::Lerp(CColor::Black(), x54_surfColorSelected, 0.5f);
-  x60_outlineColorUnselected = CColor::Lerp(CColor::White(), x5c_surfColorUnselected, 0.5f);
+  mOutlineColorSelected = CColor::Lerp(CColor::White(), mSurfColorSelected, 0.5f);
+  mSurfColorUnselected = CColor::Lerp(CColor::Black(), mSurfColorSelected, 0.5f);
+  mOutlineColorUnselected = CColor::Lerp(CColor::White(), mSurfColorUnselected, 0.5f);
 
-  for (int i = 0; i < x44_areaDatas.size(); ++i) {
-    x64_centerPoint += x44_areaDatas[i].GetTransform().GetTranslation();
+  for (int i = 0; i < mAreaDatas.size(); ++i) {
+    mCenterPoint += mAreaDatas[i].GetTransform().GetTranslation();
   }
-  x64_centerPoint *= 1.f / static_cast< float >(x44_areaDatas.size());
+  mCenterPoint *= 1.f / static_cast< float >(mAreaDatas.size());
 }
 
 const CMapUniverse::CMapWorldData& CMapUniverse::GetMapWorldDataByWorldId(CAssetId id) {
@@ -179,7 +179,7 @@ const CMapUniverse::CMapWorldData& CMapUniverse::GetMapWorldDataByWorldId(CAsset
     }
   }
 
-  return x10_worldDatas[0];
+  return mWorldDatas[0];
 }
 const CFactoryFnReturn FMapUniverseFactory(const SObjectTag& tag, CInputStream& in,
                                      const CVParamTransfer& xfer) {

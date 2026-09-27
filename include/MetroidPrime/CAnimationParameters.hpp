@@ -5,22 +5,22 @@
 #include "Kyoto/Streams/CInputStream.hpp"
 
 class CAnimationParameters {
-  CAssetId x0_ancs;
-  uint x4_charIdx;
-  uint x8_defaultAnim;
+  CAssetId mAncs;
+  uint mCharIdx;
+  uint mDefaultAnim;
 
 public:
   CAnimationParameters(CAssetId ancs, uint charIdx, uint defaultAnim)
-  : x0_ancs(ancs), x4_charIdx(charIdx), x8_defaultAnim(defaultAnim) {}
+  : mAncs(ancs), mCharIdx(charIdx), mDefaultAnim(defaultAnim) {}
 
   CAnimationParameters(CInputStream& in)
-  : x0_ancs(in.ReadLong()), x4_charIdx(in.ReadLong()), x8_defaultAnim(in.ReadLong()) {}
+  : mAncs(in.ReadLong()), mCharIdx(in.ReadLong()), mDefaultAnim(in.ReadLong()) {}
 
-  CAssetId GetACSFile() const { return x0_ancs; }
-  uint GetCharacter() const { return x4_charIdx; }
-  uint GetInitialAnimation() const { return x8_defaultAnim; }
+  CAssetId GetACSFile() const { return mAncs; }
+  uint GetCharacter() const { return mCharIdx; }
+  uint GetInitialAnimation() const { return mDefaultAnim; }
 
-  void SetCharacter(uint charIdx) { x4_charIdx = charIdx; }
+  void SetCharacter(uint charIdx) { mCharIdx = charIdx; }
 };
 
 

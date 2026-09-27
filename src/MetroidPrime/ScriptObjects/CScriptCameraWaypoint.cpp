@@ -7,7 +7,7 @@ CScriptCameraWaypoint::CScriptCameraWaypoint(TUniqueId uid, const rstl::string& 
                                              const bool active, float hfov, uint w1)
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(kMT_NoStepLogic),
          CActorParameters::None(), kInvalidUniqueId)
-, xe8_hfov(hfov)
+, mHfov(hfov)
 , xec_(w1) {}
 
 CScriptCameraWaypoint::~CScriptCameraWaypoint() {}
@@ -31,8 +31,8 @@ TUniqueId CScriptCameraWaypoint::NextWaypoint(CStateManager& mgr) {
 
   rstl::vector< SConnection >::const_iterator conn = GetConnectionList().begin();
   for (; conn != GetConnectionList().end(); ++conn) {
-    if (conn->x0_state == kSS_Arrived && conn->x4_msg == kSM_Next) {
-      TUniqueId uid = mgr.GetIdForScript(conn->x8_objId);
+    if (conn->mState == kSS_Arrived && conn->mMsg == kSM_Next) {
+      TUniqueId uid = mgr.GetIdForScript(conn->mObjId);
       if (uid == kInvalidUniqueId) {
         continue;
       }

@@ -20,7 +20,7 @@ public:
   void Think(float dt, CStateManager& mgr) override;
   void Death(CStateManager& mgr, const CVector3f& direction, EScriptObjectState state) override;
 
-  int GetBallType() const { return x570_ballType; }
+  int GetBallType() const { return mBallType; }
 
 private:
   void Detonate(CStateManager& mgr);
@@ -31,7 +31,7 @@ private:
 
   CSteeringBehaviors mSteeringBehaviors;
   float x56c;
-  int x570_ballType;
+  int mBallType;
   float x574;
   CDamageInfo x578;
   float mInitialTurnSpeed;
@@ -47,6 +47,6 @@ private:
   CDamageInfo x5cc;
   float x5e8;
 };
-CHECK_SIZEOF(CEnergyBall, (VERSION >= VERSION_GM8P_00 ? 0x600 : 0x5f0))
+CHECK_SIZEOF(CEnergyBall, (VERSION >= VERSION_GM8E_02 ? 0x600 : 0x5f0))
 
 #endif // _CENERGYBALL

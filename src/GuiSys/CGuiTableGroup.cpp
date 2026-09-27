@@ -11,16 +11,16 @@ void CGuiTableGroup::ProcessUserInput(const CFinalInput& input) {
     DoCancel();
   } else {
     bool decrement =
-        xd1_vertical ? input.DLAUp() || input.DDPUp() : input.DLALeft() || input.DDPLeft();
+        mVertical ? input.DLAUp() || input.DDPUp() : input.DLALeft() || input.DDPLeft();
     bool increment =
-        xd1_vertical ? input.DLADown() || input.DDPDown() : input.DLARight() || input.DDPRight();
+        mVertical ? input.DLADown() || input.DDPDown() : input.DLARight() || input.DDPRight();
 
-    if (xb8_decRepeat.Update(input.Time(), decrement) && decrement) {
+    if (mDecRepeat.Update(input.Time(), decrement) && decrement) {
       DoDecrement();
       return;
     }
 
-    if (!decrement && xbc_incRepeat.Update(input.Time(), increment) && increment) {
+    if (!decrement && mIncRepeat.Update(input.Time(), increment) && increment) {
       DoIncrement();
     }
   }
@@ -52,39 +52,39 @@ CGuiTableGroup* CGuiTableGroup::Create(CGuiFrame* frame, CInputStream& in, CSimp
 CGuiTableGroup::CGuiTableGroup(const CGuiWidgetParms& parms, int elementCount, int defSel,
                                bool selectWrapAround)
 : CGuiCompoundWidget(parms)
-, xc0_elementCount(elementCount)
-, xc4_userSelection(defSel)
-, xc8_prevUserSelection(defSel)
-, xcc_defaultUserSelection(defSel)
-, xd0_selectWrapAround(selectWrapAround)
-, xd1_vertical(true) {}
+, mElementCount(elementCount)
+, mUserSelection(defSel)
+, mPrevUserSelection(defSel)
+, mDefaultUserSelection(defSel)
+, mSelectWrapAround(selectWrapAround)
+, mVertical(true) {}
 
 CGuiTableGroup::~CGuiTableGroup() {}
 
 void CGuiTableGroup::SetSelectionToDefault() {
-  xc8_prevUserSelection = xc4_userSelection;
-  xc4_userSelection = xcc_defaultUserSelection;
-  DeactivateWorker(GetWorkerWidget(xc8_prevUserSelection));
-  ActivateWorker(GetWorkerWidget(xc4_userSelection));
+  mPrevUserSelection = mUserSelection;
+  mUserSelection = mDefaultUserSelection;
+  DeactivateWorker(GetWorkerWidget(mPrevUserSelection));
+  ActivateWorker(GetWorkerWidget(mUserSelection));
 }
 
 void CGuiTableGroup::DoSelectNextRow() {
   IncrementSelectedRow();
-  DeactivateWorker(GetWorkerWidget(xc8_prevUserSelection));
-  ActivateWorker(GetWorkerWidget(xc4_userSelection));
+  DeactivateWorker(GetWorkerWidget(mPrevUserSelection));
+  ActivateWorker(GetWorkerWidget(mUserSelection));
 }
 
 void CGuiTableGroup::DoSelectPrevRow() {
   DecrementSelectedRow();
-  DeactivateWorker(GetWorkerWidget(xc8_prevUserSelection));
-  ActivateWorker(GetWorkerWidget(xc4_userSelection));
+  DeactivateWorker(GetWorkerWidget(mPrevUserSelection));
+  ActivateWorker(GetWorkerWidget(mUserSelection));
 }
 
 bool CGuiTableGroup::DoIncrement() {
-  int userSelect = xc4_userSelection;
+  int userSelect = mUserSelection;
   if (PreIncrement()) {
-    if (x104_doMenuSelChange) {
-      x104_doMenuSelChange(this, userSelect);
+    if (mDoMenuSelChange) {
+      mDoMenuSelChange(this, userSelect);
     }
     return true;
   }
@@ -99,16 +99,16 @@ bool CGuiTableGroup::IsWorkerSelectable(int worker) {
 }
 
 bool CGuiTableGroup::PreIncrement() {
-  if (xd0_selectWrapAround) {
-    for (int sel = (xc4_userSelection + 1) % xc0_elementCount; sel != xc4_userSelection;
-         sel = (sel + 1) % xc0_elementCount) {
+  if (mSelectWrapAround) {
+    for (int sel = (mUserSelection + 1) % mElementCount; sel != mUserSelection;
+         sel = (sel + 1) % mElementCount) {
       if (IsWorkerSelectable(sel)) {
         SelectWorker(sel);
         return true;
       }
     }
   } else {
-    for (int sel = rstl::min_val(xc4_userSelection + 1, xc0_elementCount); sel < xc0_elementCount;
+    for (int sel = rstl::min_val(mUserSelection + 1, mElementCount); sel < mElementCount;
          ++sel) {
       if (IsWorkerSelectable(sel)) {
         SelectWorker(sel);
@@ -120,10 +120,10 @@ bool CGuiTableGroup::PreIncrement() {
 }
 
 bool CGuiTableGroup::DoDecrement() {
-  int userSelect = xc4_userSelection;
+  int userSelect = mUserSelection;
   if (PreDecrement()) {
-    if (x104_doMenuSelChange) {
-      x104_doMenuSelChange(this, userSelect);
+    if (mDoMenuSelChange) {
+      mDoMenuSelChange(this, userSelect);
     }
     return true;
   }
@@ -131,16 +131,16 @@ bool CGuiTableGroup::DoDecrement() {
 }
 
 bool CGuiTableGroup::PreDecrement() {
-  if (xd0_selectWrapAround) {
-    for (int sel = (xc4_userSelection + xc0_elementCount - 1) % xc0_elementCount;
-         sel != xc4_userSelection; sel = (sel + xc0_elementCount - 1) % xc0_elementCount) {
+  if (mSelectWrapAround) {
+    for (int sel = (mUserSelection + mElementCount - 1) % mElementCount;
+         sel != mUserSelection; sel = (sel + mElementCount - 1) % mElementCount) {
       if (IsWorkerSelectable(sel)) {
         SelectWorker(sel);
         return true;
       }
     }
   } else {
-    for (int sel = rstl::max_val(-1, xc4_userSelection - 1); sel >= 0; --sel) {
+    for (int sel = rstl::max_val(-1, mUserSelection - 1); sel >= 0; --sel) {
       if (IsWorkerSelectable(sel)) {
         SelectWorker(sel);
         return true;
@@ -151,13 +151,13 @@ bool CGuiTableGroup::PreDecrement() {
 }
 
 void CGuiTableGroup::SelectWorker(const int worker) {
-  const int selection = CMath::Clamp(0, worker, xc0_elementCount - 1);
-  if (selection < xc4_userSelection) {
-    while (selection != xc4_userSelection) {
+  const int selection = CMath::Clamp(0, worker, mElementCount - 1);
+  if (selection < mUserSelection) {
+    while (selection != mUserSelection) {
       DoSelectPrevRow();
     }
   } else {
-    while (selection != xc4_userSelection) {
+    while (selection != mUserSelection) {
       DoSelectNextRow();
     }
   }
@@ -165,34 +165,34 @@ void CGuiTableGroup::SelectWorker(const int worker) {
 
 bool CGuiTableGroup::DoAdvance() {
   if (HasMenuAdvanceCallback()) {
-    xd4_doMenuAdvance(this);
+    mDoMenuAdvance(this);
   }
   return true;
 }
 
 bool CGuiTableGroup::DoCancel() {
-  if (xec_doMenuCancel) {
-    xec_doMenuCancel(this);
+  if (mDoMenuCancel) {
+    mDoMenuCancel(this);
   }
   return true;
 }
 
 void CGuiTableGroup::SetMenuAdvanceCallback(const TFunctor1< CGuiTableGroup* const >& func) {
-  xd4_doMenuAdvance = func;
+  mDoMenuAdvance = func;
 }
 
 void CGuiTableGroup::SetMenuCancelCallback(const TFunctor1< CGuiTableGroup* const >& func) {
-  xec_doMenuCancel = func;
+  mDoMenuCancel = func;
 }
 
 void CGuiTableGroup::SetMenuSelectionChangeCallback(
     const TFunctor2< CGuiTableGroup* const, const int >& func) {
-  x104_doMenuSelChange = func;
+  mDoMenuSelChange = func;
 }
 
 void CGuiTableGroup::OnActivate() {
   CGuiWidget::OnActivate();
-  CGuiWidget* const& widget = GetWorkerWidget(xc4_userSelection);
+  CGuiWidget* const& widget = GetWorkerWidget(mUserSelection);
   widget->SetIsActive(GetIsActive());
 }
 
@@ -201,25 +201,25 @@ void CGuiTableGroup::ActivateWorker(CGuiWidget* worker) { worker->SetIsActive(tr
 void CGuiTableGroup::DeactivateWorker(CGuiWidget* worker) { worker->SetIsActive(false); }
 
 CGuiTableGroup::ETableSelectReturn CGuiTableGroup::IncrementSelectedRow() {
-  xc8_prevUserSelection = xc4_userSelection;
-  if (++xc4_userSelection >= xc0_elementCount) {
-    xc4_userSelection = xd0_selectWrapAround ? 0 : xc0_elementCount - 1;
-    return xd0_selectWrapAround ? kTSR_WrappedAround : kTSR_Unchanged;
+  mPrevUserSelection = mUserSelection;
+  if (++mUserSelection >= mElementCount) {
+    mUserSelection = mSelectWrapAround ? 0 : mElementCount - 1;
+    return mSelectWrapAround ? kTSR_WrappedAround : kTSR_Unchanged;
   }
   return kTSR_Changed;
 }
 
 CGuiTableGroup::ETableSelectReturn CGuiTableGroup::DecrementSelectedRow() {
-  xc8_prevUserSelection = xc4_userSelection;
-  if (--xc4_userSelection < 0) {
-    xc4_userSelection = xd0_selectWrapAround ? xc0_elementCount - 1 : 0;
-    return xd0_selectWrapAround ? kTSR_WrappedAround : kTSR_Unchanged;
+  mPrevUserSelection = mUserSelection;
+  if (--mUserSelection < 0) {
+    mUserSelection = mSelectWrapAround ? mElementCount - 1 : 0;
+    return mSelectWrapAround ? kTSR_WrappedAround : kTSR_Unchanged;
   }
   return kTSR_Changed;
 }
 
 void CGuiTableGroup::SetColors(const CColor& selected, const CColor& unselected) {
-  const int selection = xc4_userSelection;
+  const int selection = mUserSelection;
   for (int id = 0;; ++id) {
     CGuiWidget* worker = GetWorkerWidget(id);
     if (!worker) {

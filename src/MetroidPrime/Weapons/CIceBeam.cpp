@@ -10,21 +10,21 @@ CIceBeam::CIceBeam(CAssetId characterId, EWeaponType type, TUniqueId playerId,
                    EMaterialTypes playerMaterial, const CVector3f& scale)
 : CGunWeapon(characterId, type, playerId, playerMaterial, scale)
 
-, x21c_iceSmoke(gpSimplePool->GetObj("IceSmoke"))
-, x228_ice2nd1(gpSimplePool->GetObj("Ice2nd_1"))
-, x234_ice2nd2(gpSimplePool->GetObj("Ice2nd_2"))
+, mIceSmoke(gpSimplePool->GetObj("IceSmoke"))
+, mIce2nd1(gpSimplePool->GetObj("Ice2nd_1"))
+, mIce2nd2(gpSimplePool->GetObj("Ice2nd_2"))
 
-, x248_24_loaded(false)
-, x248_25_inEndFx(false) {}
+, mLoaded(false)
+, mInEndFx(false) {}
 
 CIceBeam::~CIceBeam() {}
 
 void CIceBeam::ReInitVariables() {
-  x240_smokeGen = nullptr;
-  x244_chargeFx = nullptr;
-  x248_24_loaded = false;
-  x248_25_inEndFx = false;
-  x1cc_enabledSecondaryEffect = kSFT_None;
+  mSmokeGen = nullptr;
+  mChargeFx = nullptr;
+  mLoaded = false;
+  mInEndFx = false;
+  mEnabledSecondaryEffect = kSFT_None;
 }
 
 void CIceBeam::PreRenderGunFx(const CStateManager& mgr, const CTransform4f& xf) {
@@ -35,10 +35,10 @@ void CIceBeam::PostRenderGunFx(const CStateManager& mgr, const CTransform4f& xf)
   bool subtractBlend = mgr.GetThermalDrawFlag() == kTD_Hot;
   if (subtractBlend)
     CElementGen::SetSubtractBlend(true);
-  if (x240_smokeGen.get())
-    x240_smokeGen->Render();
-  if (x1cc_enabledSecondaryEffect != kSFT_None && x244_chargeFx.get())
-    x244_chargeFx->Render();
+  if (mSmokeGen.get())
+    mSmokeGen->Render();
+  if (mEnabledSecondaryEffect != kSFT_None && mChargeFx.get())
+    mChargeFx->Render();
   CGunWeapon::PostRenderGunFx(mgr, xf);
   if (subtractBlend)
     CElementGen::SetSubtractBlend(false);
@@ -46,27 +46,27 @@ void CIceBeam::PostRenderGunFx(const CStateManager& mgr, const CTransform4f& xf)
 
 void CIceBeam::UpdateGunFx(const bool shotSmoke, const float dt, const CStateManager& mgr,
                            const CTransform4f& xf) {
-  if (x240_smokeGen.get()) {
+  if (mSmokeGen.get()) {
     CTransform4f beamLoc =
-        x10_solidModelData->GetScaledLocatorTransform(rstl::string_l(GetMuzzleLocator()));
-    x240_smokeGen->SetTranslation(beamLoc.GetTranslation());
-    x240_smokeGen->SetOrientation(beamLoc.GetRotation());
-    x240_smokeGen->Update(dt);
+        mSolidModelData->GetScaledLocatorTransform(rstl::string_l(GetMuzzleLocator()));
+    mSmokeGen->SetTranslation(beamLoc.GetTranslation());
+    mSmokeGen->SetOrientation(beamLoc.GetRotation());
+    mSmokeGen->Update(dt);
   }
 
-  if (!x244_chargeFx.null()) {
-    if (x248_25_inEndFx && x244_chargeFx->IsSystemDeletable()) {
-      x1cc_enabledSecondaryEffect = kSFT_None;
-      x244_chargeFx = nullptr;
+  if (!mChargeFx.null()) {
+    if (mInEndFx && mChargeFx->IsSystemDeletable()) {
+      mEnabledSecondaryEffect = kSFT_None;
+      mChargeFx = nullptr;
     }
-    if (x1cc_enabledSecondaryEffect != kSFT_None) {
-      if (x248_25_inEndFx) {
-        x244_chargeFx->SetTranslation(xf.GetTranslation());
-        x244_chargeFx->SetOrientation(xf.GetRotation());
+    if (mEnabledSecondaryEffect != kSFT_None) {
+      if (mInEndFx) {
+        mChargeFx->SetTranslation(xf.GetTranslation());
+        mChargeFx->SetOrientation(xf.GetRotation());
       } else {
-        x244_chargeFx->SetGlobalOrientAndTrans(xf);
+        mChargeFx->SetGlobalOrientAndTrans(xf);
       }
-      x244_chargeFx->Update(dt);
+      mChargeFx->Update(dt);
     }
   }
 
@@ -76,12 +76,12 @@ void CIceBeam::UpdateGunFx(const bool shotSmoke, const float dt, const CStateMan
 void CIceBeam::Update(const float dt, CStateManager& mgr) {
   CGunWeapon::Update(dt, mgr);
 
-  if (!x248_24_loaded) {
-    x248_24_loaded = x21c_iceSmoke.TryCache() && x228_ice2nd1.TryCache() && x234_ice2nd2.TryCache();
-    if (x248_24_loaded) {
-      x240_smokeGen = rs_new CElementGen(x21c_iceSmoke);
-      x240_smokeGen->SetGlobalScale(x4_scale);
-      x240_smokeGen->SetParticleEmission(false);
+  if (!mLoaded) {
+    mLoaded = mIceSmoke.TryCache() && mIce2nd1.TryCache() && mIce2nd2.TryCache();
+    if (mLoaded) {
+      mSmokeGen = rs_new CElementGen(mIceSmoke);
+      mSmokeGen->SetGlobalScale(mScale);
+      mSmokeGen->SetParticleEmission(false);
     }
   }
 }
@@ -99,45 +99,45 @@ void CIceBeam::Fire(const bool underwater, const float dt,
 
 void CIceBeam::Load(CStateManager& mgr, const bool subtypeBasePose) {
   CGunWeapon::Load(mgr, subtypeBasePose);
-  x21c_iceSmoke.Lock();
-  x228_ice2nd1.Lock();
-  x234_ice2nd2.Lock();
-  x248_25_inEndFx = false;
+  mIceSmoke.Lock();
+  mIce2nd1.Lock();
+  mIce2nd2.Lock();
+  mInEndFx = false;
 }
 
 void CIceBeam::Unload(CStateManager& mgr) {
   CGunWeapon::Unload(mgr);
-  x234_ice2nd2.Unlock();
-  x228_ice2nd1.Unlock();
-  x21c_iceSmoke.Unlock();
+  mIce2nd2.Unlock();
+  mIce2nd1.Unlock();
+  mIceSmoke.Unlock();
   ReInitVariables();
 }
 
-bool CIceBeam::IsLoaded() const { return CGunWeapon::IsLoaded() && x248_24_loaded; }
+bool CIceBeam::IsLoaded() const { return CGunWeapon::IsLoaded() && mLoaded; }
 
 void CIceBeam::EnableSecondaryFx(const ESecondaryFxType type) {
   switch (type) {
   case kSFT_CancelCharge:
   case kSFT_None:
-    if (x1cc_enabledSecondaryEffect == kSFT_None)
+    if (mEnabledSecondaryEffect == kSFT_None)
       break;
   default:
     switch (type) {
     case kSFT_None:
     case kSFT_ToCombo:
     case kSFT_CancelCharge:
-      if (!x248_25_inEndFx) {
-        x244_chargeFx = rs_new CElementGen(x234_ice2nd2);
-        x244_chargeFx->SetGlobalScale(x4_scale);
-        x248_25_inEndFx = true;
-        x1cc_enabledSecondaryEffect = kSFT_CancelCharge;
+      if (!mInEndFx) {
+        mChargeFx = rs_new CElementGen(mIce2nd2);
+        mChargeFx->SetGlobalScale(mScale);
+        mInEndFx = true;
+        mEnabledSecondaryEffect = kSFT_CancelCharge;
       }
       break;
     case kSFT_Charge:
-      x244_chargeFx = rs_new CElementGen(x228_ice2nd1);
-      x244_chargeFx->SetGlobalScale(x4_scale);
-      x1cc_enabledSecondaryEffect = type;
-      x248_25_inEndFx = false;
+      mChargeFx = rs_new CElementGen(mIce2nd1);
+      mChargeFx->SetGlobalScale(mScale);
+      mEnabledSecondaryEffect = type;
+      mInEndFx = false;
       break;
     }
     break;
@@ -145,6 +145,6 @@ void CIceBeam::EnableSecondaryFx(const ESecondaryFxType type) {
 }
 
 void CIceBeam::EnableFx(const bool enable) {
-  if (x240_smokeGen.get())
-    x240_smokeGen->SetParticleEmission(enable);
+  if (mSmokeGen.get())
+    mSmokeGen->SetParticleEmission(enable);
 }

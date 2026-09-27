@@ -4,4 +4,4 @@
 #include "Kyoto/Streams/CInputStream.hpp"
 
 CHalfTransition::CHalfTransition(CInputStream& in)
-: x0_id(in.Get< uint >()), x4_trans(CMetaTransFactory::CreateMetaTrans(in)) {}
+: mId(in.Get< uint >()), mTrans(CMetaTransFactory::CreateMetaTrans(in)) {}

@@ -9,8 +9,8 @@ class CTexture;
 class CStateManager;
 
 class CFaceplateDecoration {
-  CAssetId x0_id;
-  rstl::optional_object< TToken< CTexture > > x4_tex;
+  CAssetId mId;
+  rstl::optional_object< TToken< CTexture > > mTex;
 
 public:
   explicit CFaceplateDecoration(const CStateManager& stateMgr);

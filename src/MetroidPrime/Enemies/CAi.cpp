@@ -217,26 +217,26 @@ const CAiTriggerFunc gkTriggerFuncs[] = {
 
 const int kTriggerCount = sizeof(gkTriggerNames) / sizeof(gkTriggerNames[0]);
 CAiFuncMap::CAiFuncMap() {
-  x0_states.reserve(kStateCount);
+  mStates.reserve(kStateCount);
   int i;
-  for (i = 0; i < x0_states.capacity(); ++i) {
-    x0_states.push_back(rstl::pair< const char*, CAiStateFunc >(gkStateNames[i], gkStateFuncs[i]));
+  for (i = 0; i < mStates.capacity(); ++i) {
+    mStates.push_back(rstl::pair< const char*, CAiStateFunc >(gkStateNames[i], gkStateFuncs[i]));
   }
-  x10_triggers.reserve(kTriggerCount);
-  for (i = 0; i < x10_triggers.capacity(); ++i) {
-    x10_triggers.push_back(
+  mTriggers.reserve(kTriggerCount);
+  for (i = 0; i < mTriggers.capacity(); ++i) {
+    mTriggers.push_back(
         rstl::pair< const char*, CAiTriggerFunc >(gkTriggerNames[i], gkTriggerFuncs[i]));
   }
-  rstl::sort_by_key(x0_states, cstr_less());
-  rstl::sort_by_key(x10_triggers, cstr_less());
+  rstl::sort_by_key(mStates, cstr_less());
+  rstl::sort_by_key(mTriggers, cstr_less());
   CAi::CreateFuncLookup(this);
 }
 
 const CAiStateFunc CAiFuncMap::GetStateFunc(const char* const state) const {
   CAiStateFunc func = nullptr;
   rstl::vector< rstl::pair< const char*, CAiStateFunc > >::const_iterator it =
-      rstl::find_by_key(x0_states, state, cstr_less());
-  if (it != x0_states.end()) {
+      rstl::find_by_key(mStates, state, cstr_less());
+  if (it != mStates.end()) {
     func = it->second;
   }
   return func;
@@ -244,7 +244,7 @@ const CAiStateFunc CAiFuncMap::GetStateFunc(const char* const state) const {
 
 const CAiTriggerFunc CAiFuncMap::GetTriggerFunc(const char* trigger) const {
   rstl::vector< rstl::pair< const char*, CAiTriggerFunc > >::const_iterator it =
-      rstl::find_by_key(x10_triggers, trigger, cstr_less());
+      rstl::find_by_key(mTriggers, trigger, cstr_less());
   return it->second;
 }
 CAi::CAi(TUniqueId uid, bool active, const rstl::string& name, const CEntityInfo& entityInfo,
@@ -255,10 +255,10 @@ CAi::CAi(TUniqueId uid, bool active, const rstl::string& name, const CEntityInfo
 : CPhysicsActor(uid, active, name, entityInfo, transform, modelData,
                 materialList.Union(CMaterialList(kMT_AIBlock, kMT_CameraPassthrough)), bounds,
                 SMoverData(mass), actorParams, stepUp, stepDown)
-, x258_healthInfo(healthInfo)
-, x260_damageVulnerability(vuln)
-, x2c8_stateMachine(gpSimplePool->GetObj(SObjectTag(FourCC('AFSM'), stateMachine))) {
-  x2c8_stateMachine.Lock();
+, mHealthInfo(healthInfo)
+, mDamageVulnerability(vuln)
+, mStateMachine(gpSimplePool->GetObj(SObjectTag(FourCC('AFSM'), stateMachine))) {
+  mStateMachine.Lock();
   CreateShadowIfNeeded();
   if (GetShadow()) {
     SetDrawShadow(true);
@@ -272,11 +272,11 @@ CAi::CAi(TUniqueId uid, bool active, const rstl::string& name, const CEntityInfo
 
 CAi::~CAi() {}
 
-CHealthInfo* CAi::HealthInfo(CStateManager& mgr) { return &x258_healthInfo; }
+CHealthInfo* CAi::HealthInfo(CStateManager& mgr) { return &mHealthInfo; }
 const CDamageVulnerability* CAi::GetDamageVulnerability() const {
-  return &x260_damageVulnerability;
+  return &mDamageVulnerability;
 }
-CDamageVulnerability* CAi::GetDamageVulnerability() { return &x260_damageVulnerability; }
+CDamageVulnerability* CAi::GetDamageVulnerability() { return &mDamageVulnerability; }
 
 void CAi::TakeDamage(const CVector3f& direction, float magnitude) {}
 
@@ -335,10 +335,10 @@ const CAiTriggerFunc CAi::GetTriggerFunc(const char* trigger) {
 }
 
 CStateMachine* CAi::GetStateMachine() {
-  if (!x2c8_stateMachine.TryCache()) {
+  if (!mStateMachine.TryCache()) {
     return nullptr;
   }
-  return x2c8_stateMachine.GetObject();
+  return mStateMachine.GetObject();
 }
 
 EWeaponCollisionResponseTypes CAi::GetCollisionResponseType(const CVector3f&, const CVector3f&,

@@ -9,19 +9,19 @@
 #include "Kyoto/Streams/CInputStream.hpp"
 
 CProjectileInfo::CProjectileInfo(CAssetId proj, const CDamageInfo& dInfo)
-: x0_weaponDescription(gpSimplePool->GetObj(SObjectTag('WPSC', proj))), xc_damageInfo(dInfo) {}
+: mWeaponDescription(gpSimplePool->GetObj(SObjectTag('WPSC', proj))), mDamageInfo(dInfo) {}
 
 CProjectileInfo::CProjectileInfo(CInputStream& in)
-: x0_weaponDescription(gpSimplePool->GetObj(SObjectTag('WPSC', CAssetId(in.ReadLong()))))
-, xc_damageInfo(in) {}
+: mWeaponDescription(gpSimplePool->GetObj(SObjectTag('WPSC', CAssetId(in.ReadLong()))))
+, mDamageInfo(in) {}
 
 float CProjectileInfo::GetProjectileSpeed() const {
   float result = 45000.0f;
-  TToken< CWeaponDescription > token(x0_weaponDescription);
+  TToken< CWeaponDescription > token(mWeaponDescription);
 
-  if (token->x4_IVEC) {
+  if (token->mIVEC) {
     CVector3f vec = CVector3f::Zero();
-    token->x4_IVEC->GetValue(0, vec);
+    token->mIVEC->GetValue(0, vec);
     result = vec.Magnitude() / CProjectileWeapon::GetTickPeriod();
   }
   return result;

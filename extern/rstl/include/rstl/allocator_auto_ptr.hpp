@@ -6,23 +6,23 @@
 namespace rstl {
 template < typename T, typename Alloc >
 struct allocator_auto_ptr {
-  allocator_auto_ptr(T* ptr, Alloc* alloc) : x0_ptr(ptr), x4_alloc(alloc) {}
+  allocator_auto_ptr(T* ptr, Alloc* alloc) : mPtr(ptr), mAlloc(alloc) {}
   ~allocator_auto_ptr() {
-    if (x0_ptr != nullptr) {
-      x4_alloc->deallocate(x0_ptr);
-      x0_ptr = nullptr;
+    if (mPtr != nullptr) {
+      mAlloc->deallocate(mPtr);
+      mPtr = nullptr;
     }
   }
 
   T* release() const {
-    T* ret = x0_ptr;
-    const_cast< allocator_auto_ptr* >(this)->x0_ptr = nullptr;
+    T* ret = mPtr;
+    const_cast< allocator_auto_ptr* >(this)->mPtr = nullptr;
     return ret;
   }
 
 private:
-  T* x0_ptr;
-  Alloc* x4_alloc;
+  T* mPtr;
+  Alloc* mAlloc;
 };
 } // namespace rstl
 

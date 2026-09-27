@@ -22,16 +22,16 @@ public:
   CGraphicsPalette(CInputStream& in);
   ~CGraphicsPalette();
 
-  inline GXTlutFmt GetTlutFmt() const { return static_cast< GXTlutFmt >(x0_fmt); }
-  ushort* GetPaletteData() { return xc_entries.get(); }
-  const ushort* GetPaletteData() const { return xc_entries.get(); }
+  inline GXTlutFmt GetTlutFmt() const { return static_cast< GXTlutFmt >(mFmt); }
+  ushort* GetPaletteData() { return mEntries.get(); }
+  const ushort* GetPaletteData() const { return mEntries.get(); }
   void Load() const;
 #if defined(TARGET_PC)
   void* Lock();
 #else
   void* Lock() {
-    x1c_locked = true;
-    return xc_entries.get();
+    mLocked = true;
+    return mEntries.get();
   }
 #endif
   void UnLock();
@@ -40,12 +40,12 @@ public:
   static uint sCurrentFrameCount;
 
 private:
-  EPaletteFormat x0_fmt;
-  mutable uint x4_frameLoaded;
-  uint x8_entryCount;
-  rstl::single_ptr< ushort > xc_entries;
-  GXTlutObj x10_tlutObj;
-  bool x1c_locked;
+  EPaletteFormat mFmt;
+  mutable uint mFrameLoaded;
+  uint mEntryCount;
+  rstl::single_ptr< ushort > mEntries;
+  GXTlutObj mTlutObj;
+  bool mLocked;
 };
 
 static inline GXTlutFmt format_to_format(EPaletteFormat fmt) {

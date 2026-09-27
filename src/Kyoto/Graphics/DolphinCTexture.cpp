@@ -292,15 +292,15 @@ void* CTexture::CDumpedBitmapDataReloader::TryBuildReloadedBitmapData(CResFactor
 
     SObjectTag tag('TXTR', x4_);
     rstl::single_ptr< CInputStream > buf = factory.LoadResourceFromMemorySync(tag, x18_.get());
-    CInputStream* in = buf.get();
-    ETexelFormat format = ETexelFormat(in->ReadInt32());
-    const int w = in->ReadInt16();
-    const int h = in->ReadInt16();
-    const int numMips = in->ReadInt32();
+    CInputStream& in = *buf;
+    ETexelFormat format = ETexelFormat(in.ReadInt32());
+    const int w = in.ReadInt16();
+    const int h = in.ReadInt16();
+    const int numMips = in.ReadInt32();
     const int bitsPerPixel = TexelFormatBitsPerPixel(format);
 
     if (IsCITextureFormat(format)) {
-      CGraphicsPalette tmp(*in);
+      CGraphicsPalette tmp(in);
     }
 
     int bufLen = 0;
@@ -320,7 +320,7 @@ void* CTexture::CDumpedBitmapDataReloader::TryBuildReloadedBitmapData(CResFactor
         len = 256;
       }
 
-      in->Get((char*)ptr + off, len);
+      in.Get((char*)ptr + off, len);
       DCFlushRangeNoSync((char*)ptr + off, OSRoundUp32B(len));
     }
     PPCSync();

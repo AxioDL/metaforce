@@ -11,9 +11,9 @@ CScriptPickupGenerator::CScriptPickupGenerator(const TUniqueId uid, const rstl::
                                                const CEntityInfo& info, const CVector3f& pos,
                                                const float frequency, const bool active)
 : CEntity(uid, info, active, name)
-, x34_position(pos)
-, x40_frequency(frequency)
-, x44_delayTimer(0.0f) {
+, mPosition(pos)
+, mFrequency(frequency)
+, mDelayTimer(0.0f) {
   ResetSpawnNothingCounter();
 }
 
@@ -24,8 +24,8 @@ void CScriptPickupGenerator::GetTargets(CStateManager& mgr, TUniqueId sender,
   idsOut.reserve(rstl::max_val(1, GetConnectionList().size()));
   rstl::vector< SConnection >::const_iterator iter = GetConnectionList().begin();
   for (; iter != GetConnectionList().end(); ++iter) {
-    if (iter->x0_state == kSS_Zero && iter->x4_msg == kSM_Follow) {
-      const TUniqueId id = mgr.GetIdForScript(iter->x8_objId);
+    if (iter->mState == kSS_Zero && iter->mMsg == kSM_Follow) {
+      const TUniqueId id = mgr.GetIdForScript(iter->mObjId);
       if (id != kInvalidUniqueId) {
         if (const CEntity* ent = mgr.GetObjectById(id)) {
           if (ent->GetActive()) {
@@ -47,8 +47,8 @@ float CScriptPickupGenerator::GetSpawnablePickups(
   idsOut.reserve(GetConnectionList().size());
   rstl::vector< SConnection >::const_iterator iter = GetConnectionList().begin();
   for (; iter != GetConnectionList().end(); ++iter) {
-    if (iter->x0_state == kSS_Zero && iter->x4_msg == kSM_Activate) {
-      const TUniqueId id = mgr.GetIdForScript(iter->x8_objId);
+    if (iter->mState == kSS_Zero && iter->mMsg == kSM_Activate) {
+      const TUniqueId id = mgr.GetIdForScript(iter->mObjId);
       if (id != kInvalidUniqueId) {
         if (const CScriptPickup* const pickup =
                 TCastToConstPtr< CScriptPickup >(mgr.GetObjectById(id))) {
@@ -97,7 +97,7 @@ float CScriptPickupGenerator::GetSpawnablePickups(
           const bool thirtyPercTest = mgr.Random()->Float() < 0.3f;
           if ((doAlways || (doThirtyPerc && thirtyPercTest)) && possibility > 0.f) {
             totalPossibility += possibility * multiplier;
-            idsOut.push_back(rstl::pair< float, TEditorId >(possibility, iter->x8_objId));
+            idsOut.push_back(rstl::pair< float, TEditorId >(possibility, iter->mObjId));
           }
         }
       }
@@ -129,9 +129,9 @@ void CScriptPickupGenerator::SpawnPickup(CStateManager& mgr, TEditorId templateI
     const CWallCrawlerSwarm* swarmAct = TCastToConstPtr< CWallCrawlerSwarm >(generator);
 
     if (newAct && swarmAct) {
-      newAct->SetTranslation(swarmAct->GetLastKilledOffset() + x34_position);
+      newAct->SetTranslation(swarmAct->GetLastKilledOffset() + mPosition);
     } else if (newAct && generatorAct) {
-      newAct->SetTranslation(generatorAct->GetTranslation() + x34_position);
+      newAct->SetTranslation(generatorAct->GetTranslation() + mPosition);
     }
 
     if (newPickup) {
@@ -143,10 +143,10 @@ void CScriptPickupGenerator::SpawnPickup(CStateManager& mgr, TEditorId templateI
 }
 
 void CScriptPickupGenerator::ResetSpawnNothingCounter() {
-  if (x40_frequency > 0.f) {
-    x44_delayTimer += 100.f / x40_frequency;
+  if (mFrequency > 0.f) {
+    mDelayTimer += 100.f / mFrequency;
   } else {
-    x44_delayTimer = FLT_MAX;
+    mDelayTimer = FLT_MAX;
   }
 }
 
@@ -154,9 +154,9 @@ void CScriptPickupGenerator::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
                                              CStateManager& stateMgr) {
   switch (msg) {
   case kSM_SetToZero:
-    if (GetActive() && x40_frequency != 100.f) {
-      x44_delayTimer -= 1.f;
-      if (x44_delayTimer < 0.00001f) {
+    if (GetActive() && mFrequency != 100.f) {
+      mDelayTimer -= 1.f;
+      if (mDelayTimer < 0.00001f) {
         ResetSpawnNothingCounter();
       } else {
         rstl::vector< TUniqueId > generatorIds;

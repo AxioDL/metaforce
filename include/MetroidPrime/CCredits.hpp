@@ -18,6 +18,7 @@ class CMoviePlayer;
 class CStaticAudioPlayer;
 class CGuiTextSupport;
 class CVector3f;
+class CTransform4f;
 
 class CCredits : public CIOWin {
 public:
@@ -32,29 +33,39 @@ public:
   EMessageReturn Update(float, CArchitectureQueue& queue);
   EMessageReturn ProcessUserInput(const CFinalInput& input);
 
+#if VERSION >= VERSION_GM8P_00
+  static void DrawText(CGuiTextSupport&, const CTransform4f& transform);
+#else
   static void DrawText(CGuiTextSupport&, const CVector3f& translation);
+#endif
 
 private:
-  int x14_state;
-  TToken< CStringTable > x18_creditsTable;
-  TToken< CRasterFont > x20_creditsFont;
-  rstl::single_ptr< CMoviePlayer > x28_moviePlayer;
-  rstl::single_ptr< CStaticAudioPlayer > x2c_audioPlayer;
-  rstl::list< rstl::pair< rstl::ncrc_ptr< CGuiTextSupport >, CVector2i > > x30_text;
-  float x48_scrollPosition;
-  float x4c_totalScrollDistance;
-  float x50_scrollSpeed;
-  float x54_textFadeRemaining;
-  float x58_videoFadeTime;
-  bool x5c_24_finished : 1;
-  bool x5c_25_videoFaded : 1;
-  bool x5c_26_textFaded : 1;
-  bool x5c_27_fadingIn : 1;
-  bool x5c_28_fadingOut : 1;
+  int mState;
+  TToken< CStringTable > mCreditsTable;
+#if VERSION < VERSION_GM8P_00
+  TToken< CRasterFont > mCreditsFont;
+#endif
+  rstl::single_ptr< CMoviePlayer > mMoviePlayer;
+  rstl::single_ptr< CStaticAudioPlayer > mAudioPlayer;
+  rstl::list< rstl::pair< rstl::ncrc_ptr< CGuiTextSupport >, CVector2i > > mText;
+  float mScrollPosition;
+  float mTotalScrollDistance;
+  float mScrollSpeed;
+  float mTextFadeRemaining;
+  float mVideoFadeTime;
+  bool mFinished : 1;
+  bool mVideoFaded : 1;
+  bool mTextFaded : 1;
+  bool mFadingIn : 1;
+  bool mFadingOut : 1;
 
   void DrawVideo() const;
   void DrawText() const;
 };
+#if VERSION >= VERSION_GM8P_00
+CHECK_SIZEOF(CCredits, 0x58)
+#else
 CHECK_SIZEOF(CCredits, 0x60)
+#endif
 
 #endif // _CCREDITS

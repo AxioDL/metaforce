@@ -43,101 +43,101 @@ CScriptEffect::CScriptEffect(const TUniqueId uid, const rstl::string& name, cons
                              const bool dieWhenSystemsDone)
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(kMT_NoStepLogic),
          CActorParameters::None().HotInThermal(hotInThermal), kInvalidUniqueId)
-, xe8_electricToken(nullptr)
-, xf8_particleSystemToken(nullptr)
-, x108_lightId(kInvalidUniqueId)
-, x10c_partId(partId)
-, x110_24_enable(active)
-, x110_25_noTimerUnlessAreaOccluded(noTimerUnlessAreaOccluded)
-, x110_26_rebuildSystemsOnActivate(rebuildSystemsOnActivate)
-, x110_27_useRateInverseCamDist(useRateInverseCamDist)
-, x110_28_combatVisorVisible(combatVisorVisible)
-, x110_29_thermalVisorVisible(thermalVisorVisible)
-, x110_30_xrayVisorVisible(xrayVisorVisible)
-, x110_31_anyVisorVisible(xrayVisorVisible && thermalVisorVisible && combatVisorVisible)
-, x111_24_useRateCamDistRange(useRateCamDistRange)
-, x111_25_dieWhenSystemsDone(dieWhenSystemsDone)
-, x111_26_canRender(false)
-, x114_rateInverseCamDist(rateInverseCamDist)
-, x118_rateInverseCamDistSq(rateInverseCamDist * rateInverseCamDist)
-, x11c_rateInverseCamDistRate(rateInverseCamDistRate)
-, x120_rateCamDistRangeMin(rateCamDistRangeMin)
-, x124_rateCamDistRangeMax(rateCamDistRangeMax)
-, x128_rateCamDistRangeFarRate(rateCamDistRangeFarRate)
-, x12c_remTime(duration)
-, x130_duration(duration)
-, x134_durationResetWhileVisible(durationResetWhileVisible)
-, x138_actorLights(lParms.MakeActorLights().release())
-, x13c_triggerId(kInvalidUniqueId)
-, x140_destroyDelayTimer(0.f) {
+, mElectricToken(nullptr)
+, mParticleSystemToken(nullptr)
+, mLightId(kInvalidUniqueId)
+, mPartId(partId)
+, mEnable(active)
+, mNoTimerUnlessAreaOccluded(noTimerUnlessAreaOccluded)
+, mRebuildSystemsOnActivate(rebuildSystemsOnActivate)
+, mUseRateInverseCamDist(useRateInverseCamDist)
+, mCombatVisorVisible(combatVisorVisible)
+, mThermalVisorVisible(thermalVisorVisible)
+, mXrayVisorVisible(xrayVisorVisible)
+, mAnyVisorVisible(xrayVisorVisible && thermalVisorVisible && combatVisorVisible)
+, mUseRateCamDistRange(useRateCamDistRange)
+, mDieWhenSystemsDone(dieWhenSystemsDone)
+, mCanRender(false)
+, mRateInverseCamDist(rateInverseCamDist)
+, mRateInverseCamDistSq(rateInverseCamDist * rateInverseCamDist)
+, mRateInverseCamDistRate(rateInverseCamDistRate)
+, mRateCamDistRangeMin(rateCamDistRangeMin)
+, mRateCamDistRangeMax(rateCamDistRangeMax)
+, mRateCamDistRangeFarRate(rateCamDistRangeFarRate)
+, mRemTime(duration)
+, mDuration(duration)
+, mDurationResetWhileVisible(durationResetWhileVisible)
+, mActorLights(lParms.MakeActorLights().release())
+, mTriggerId(kInvalidUniqueId)
+, mDestroyDelayTimer(0.f) {
   if (partId != kInvalidAssetId) {
-    xf8_particleSystemToken = gpSimplePool->GetObj(SObjectTag('PART', partId));
-    x104_particleSystem = rs_new CElementGen(xf8_particleSystemToken);
-    x104_particleSystem->SetOrientation(ClearTrans(xf));
-    x104_particleSystem->SetGlobalTranslation(xf.GetTranslation());
-    x104_particleSystem->SetGlobalScale(scale);
-    x104_particleSystem->SetParticleEmission(active);
-    x104_particleSystem->SetModulationColor(lParms.GetAmbientColor());
-    x104_particleSystem->SetLeaveLightsEnabledForModelRender(x138_actorLights.get() != nullptr);
+    mParticleSystemToken = gpSimplePool->GetObj(SObjectTag('PART', partId));
+    mParticleSystem = rs_new CElementGen(mParticleSystemToken);
+    mParticleSystem->SetOrientation(ClearTrans(xf));
+    mParticleSystem->SetGlobalTranslation(xf.GetTranslation());
+    mParticleSystem->SetGlobalScale(scale);
+    mParticleSystem->SetParticleEmission(active);
+    mParticleSystem->SetModulationColor(lParms.GetAmbientColor());
+    mParticleSystem->SetLeaveLightsEnabledForModelRender(mActorLights.get() != nullptr);
   }
   if (elscId != kInvalidAssetId) {
-    xe8_electricToken = gpSimplePool->GetObj(SObjectTag('ELSC', elscId));
-    xf4_electric = rs_new CParticleElectric(xe8_electricToken);
-    xf4_electric->SetOrientation(ClearTrans(xf));
-    xf4_electric->SetGlobalTranslation(xf.GetTranslation());
-    xf4_electric->SetGlobalScale(scale);
-    xf4_electric->SetParticleEmission(active);
-    xf4_electric->SetModulationColor(lParms.GetAmbientColor());
+    mElectricToken = gpSimplePool->GetObj(SObjectTag('ELSC', elscId));
+    mElectric = rs_new CParticleElectric(mElectricToken);
+    mElectric->SetOrientation(ClearTrans(xf));
+    mElectric->SetGlobalTranslation(xf.GetTranslation());
+    mElectric->SetGlobalScale(scale);
+    mElectric->SetParticleEmission(active);
+    mElectric->SetModulationColor(lParms.GetAmbientColor());
   }
   SetDrawEnabled(true);
 }
 
 void CScriptEffect::Think(float dt, CStateManager& mgr) {
   if (GetTransformDirtySpare()) {
-    if (x104_particleSystem.get()) {
-      x104_particleSystem->SetOrientation(ClearTrans(GetTransform()));
-      x104_particleSystem->SetGlobalTranslation(GetTranslation());
+    if (mParticleSystem.get()) {
+      mParticleSystem->SetOrientation(ClearTrans(GetTransform()));
+      mParticleSystem->SetGlobalTranslation(GetTranslation());
     }
-    if (xf4_electric.get()) {
-      xf4_electric->SetOrientation(ClearTrans(GetTransform()));
-      xf4_electric->SetGlobalTranslation(GetTranslation());
+    if (mElectric.get()) {
+      mElectric->SetOrientation(ClearTrans(GetTransform()));
+      mElectric->SetGlobalTranslation(GetTranslation());
     }
-    if (CActor* light = TCastToPtr< CActor >(mgr.ObjectById(x108_lightId))) {
+    if (CActor* light = TCastToPtr< CActor >(mgr.ObjectById(mLightId))) {
       light->SetTransform(GetTransform());
     }
     SetTransformDirtySpare(false);
   }
-  if (!x110_25_noTimerUnlessAreaOccluded) {
-    if (x12c_remTime <= 0.f) {
+  if (!mNoTimerUnlessAreaOccluded) {
+    if (mRemTime <= 0.f) {
       return;
     }
   } else {
     if (mgr.GetWorld()->GetAreaAlways(GetCurrentAreaId()).GetOcclusionState() ==
             CGameArea::kOS_Occluded &&
-        x12c_remTime <= 0.f) {
+        mRemTime <= 0.f) {
       return;
     }
   }
-  x12c_remTime -= dt;
-  if (x110_24_enable) {
-    if (x104_particleSystem.get()) {
-      x104_particleSystem->Update(dt);
-      mNumParticlesUpdating += x104_particleSystem->GetParticleCountAll();
+  mRemTime -= dt;
+  if (mEnable) {
+    if (mParticleSystem.get()) {
+      mParticleSystem->Update(dt);
+      mNumParticlesUpdating += mParticleSystem->GetParticleCountAll();
     }
-    if (xf4_electric.get()) {
-      xf4_electric->Update(dt);
-      mNumParticlesUpdating += xf4_electric->GetParticleCount();
+    if (mElectric.get()) {
+      mElectric->Update(dt);
+      mNumParticlesUpdating += mElectric->GetParticleCount();
     }
-    if (x108_lightId != kInvalidUniqueId) {
-      if (CGameLight* light = TCastToPtr< CGameLight >(mgr.ObjectById(x108_lightId))) {
+    if (mLightId != kInvalidUniqueId) {
+      if (CGameLight* light = TCastToPtr< CGameLight >(mgr.ObjectById(mLightId))) {
         if (GetActive()) {
-          light->SetLight(x104_particleSystem->GetLight());
+          light->SetLight(mParticleSystem->GetLight());
         }
       }
     }
-    if (x111_25_dieWhenSystemsDone) {
-      x140_destroyDelayTimer += dt;
-      if (x140_destroyDelayTimer > 15.f) {
+    if (mDieWhenSystemsDone) {
+      mDestroyDelayTimer += dt;
+      if (mDestroyDelayTimer > 15.f) {
         mgr.DeleteObjectRequest(GetUniqueId());
         return;
       }
@@ -147,11 +147,11 @@ void CScriptEffect::Think(float dt, CStateManager& mgr) {
       }
     }
   }
-  if (x104_particleSystem.get()) {
+  if (mParticleSystem.get()) {
     if (GetModelFlags().GetTrans() != 0) {
-      x104_particleSystem->SetModulationColor(GetModelFlags().GetColorRef());
+      mParticleSystem->SetModulationColor(GetModelFlags().GetColorRef());
     } else {
-      x104_particleSystem->SetModulationColor(CColor(0xffffffff));
+      mParticleSystem->SetModulationColor(CColor(0xffffffff));
     }
   }
 }
@@ -161,53 +161,53 @@ void CScriptEffect::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSt
   switch (msg) {
   case kSM_InitializedInArea:
     for (AUTO(conn, GetConnectionList().begin()); conn != GetConnectionList().end(); ++conn) {
-      if ((conn->x0_state == kSS_Modify && conn->x4_msg == kSM_Follow) ||
-          (conn->x0_state == kSS_InheritBounds && conn->x4_msg == kSM_Activate)) {
-        CStateManager::TIdListResult ids = mgr.GetIdListForScript(conn->x8_objId);
+      if ((conn->mState == kSS_Modify && conn->mMsg == kSM_Follow) ||
+          (conn->mState == kSS_InheritBounds && conn->mMsg == kSM_Activate)) {
+        CStateManager::TIdListResult ids = mgr.GetIdListForScript(conn->mObjId);
         for (AUTO(it, ids.first); it != ids.second; ++it) {
           if (TCastToConstPtr< CScriptTrigger >(mgr.GetObjectById(it->second))) {
-            x13c_triggerId = it->second;
+            mTriggerId = it->second;
           }
         }
       }
     }
     break;
   case kSM_Registered:
-    if (x104_particleSystem.get() && x104_particleSystem->SystemHasLight()) {
-      x108_lightId = mgr.AllocateUniqueId();
-      const CAssetId sourceId = x10c_partId;
-      mgr.AddObject(rs_new CGameLight(x108_lightId, GetCurrentAreaId(), GetActive(),
+    if (mParticleSystem.get() && mParticleSystem->SystemHasLight()) {
+      mLightId = mgr.AllocateUniqueId();
+      const CAssetId sourceId = mPartId;
+      mgr.AddObject(rs_new CGameLight(mLightId, GetCurrentAreaId(), GetActive(),
                                       rstl::string_l("EffectPLight_") + GetDebugName(),
                                       GetTransform(), GetUniqueId(),
-                                      x104_particleSystem->GetLight(), sourceId, 1, 0.f));
+                                      mParticleSystem->GetLight(), sourceId, 1, 0.f));
     }
     break;
   case kSM_Deleted:
-    if (x108_lightId != kInvalidUniqueId) {
-      mgr.DeleteObjectRequest(x108_lightId);
-      x108_lightId = kInvalidUniqueId;
+    if (mLightId != kInvalidUniqueId) {
+      mgr.DeleteObjectRequest(mLightId);
+      mLightId = kInvalidUniqueId;
     }
     break;
   case kSM_Activate:
-    if (x110_26_rebuildSystemsOnActivate) {
-      if (x104_particleSystem.get()) {
-        const CVector3f scale = x104_particleSystem->GetGlobalScale();
-        const CColor color = x104_particleSystem->GetModulationColor();
-        x104_particleSystem = rs_new CElementGen(xf8_particleSystemToken);
-        x104_particleSystem->SetOrientation(ClearTrans(GetTransform()));
-        x104_particleSystem->SetGlobalTranslation(GetTranslation());
-        x104_particleSystem->SetGlobalScale(scale);
-        x104_particleSystem->SetLeaveLightsEnabledForModelRender(x138_actorLights.get() != nullptr);
-        x104_particleSystem->SetModulationColor(color);
+    if (mRebuildSystemsOnActivate) {
+      if (mParticleSystem.get()) {
+        const CVector3f scale = mParticleSystem->GetGlobalScale();
+        const CColor color = mParticleSystem->GetModulationColor();
+        mParticleSystem = rs_new CElementGen(mParticleSystemToken);
+        mParticleSystem->SetOrientation(ClearTrans(GetTransform()));
+        mParticleSystem->SetGlobalTranslation(GetTranslation());
+        mParticleSystem->SetGlobalScale(scale);
+        mParticleSystem->SetLeaveLightsEnabledForModelRender(mActorLights.get() != nullptr);
+        mParticleSystem->SetModulationColor(color);
       }
-      if (xf4_electric.get()) {
-        const CVector3f scale = xf4_electric->GetGlobalScale();
-        const CColor color = xf4_electric->GetModulationColor();
-        xf4_electric = rs_new CParticleElectric(xe8_electricToken);
-        xf4_electric->SetOrientation(ClearTrans(GetTransform()));
-        xf4_electric->SetGlobalTranslation(GetTranslation());
-        xf4_electric->SetGlobalScale(scale);
-        xf4_electric->SetModulationColor(color);
+      if (mElectric.get()) {
+        const CVector3f scale = mElectric->GetGlobalScale();
+        const CColor color = mElectric->GetModulationColor();
+        mElectric = rs_new CParticleElectric(mElectricToken);
+        mElectric->SetOrientation(ClearTrans(GetTransform()));
+        mElectric->SetGlobalTranslation(GetTranslation());
+        mElectric->SetGlobalScale(scale);
+        mElectric->SetModulationColor(color);
       }
     }
     break;
@@ -215,15 +215,15 @@ void CScriptEffect::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSt
     break;
   }
   CActor::AcceptScriptMsg(msg, uid, mgr);
-  CActor* light = TCastToPtr< CActor >(mgr.ObjectById(x108_lightId));
+  CActor* light = TCastToPtr< CActor >(mgr.ObjectById(mLightId));
   mgr.DeliverScriptMsg(light, uid, msg);
   if (oldActive != GetActive()) {
     if (GetActive()) {
       rstl::vector< TUniqueId > playIds;
       playIds.reserve(GetConnectionList().size());
       for (AUTO(conn, GetConnectionList().begin()); conn != GetConnectionList().end(); ++conn) {
-        if (conn->x0_state == kSS_Play && conn->x4_msg == kSM_Activate) {
-          TUniqueId id = mgr.GetIdForScript(conn->x8_objId);
+        if (conn->mState == kSS_Play && conn->mMsg == kSM_Activate) {
+          TUniqueId id = mgr.GetIdForScript(conn->mObjId);
           if (id != kInvalidUniqueId) {
             playIds.push_back(id);
           }
@@ -239,96 +239,96 @@ void CScriptEffect::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSt
         }
       }
     }
-    x110_24_enable = true;
-    if (x104_particleSystem.get()) {
-      x104_particleSystem->SetParticleEmission(GetActive());
+    mEnable = true;
+    if (mParticleSystem.get()) {
+      mParticleSystem->SetParticleEmission(GetActive());
     }
-    if (xf4_electric.get()) {
-      xf4_electric->SetParticleEmission(GetActive());
+    if (mElectric.get()) {
+      mElectric->SetParticleEmission(GetActive());
     }
     if (GetActive()) {
-      x12c_remTime = rstl::max_val(x130_duration, x12c_remTime);
+      mRemTime = rstl::max_val(mDuration, mRemTime);
     }
   }
 }
 
 void CScriptEffect::AddToRenderer(const CFrustumPlanes& frustum, const CStateManager& mgr) const {
-  if (!x111_26_canRender) {
-    x12c_remTime = rstl::max_val(x134_durationResetWhileVisible, x12c_remTime);
+  if (!mCanRender) {
+    mRemTime = rstl::max_val(mDurationResetWhileVisible, mRemTime);
     return;
   }
   const CAABox& bounds = GetRenderBoundsCached();
   if (!frustum.BoxInFrustumPlanes(bounds)) {
     return;
   }
-  x12c_remTime = rstl::max_val(x134_durationResetWhileVisible, x12c_remTime);
+  mRemTime = rstl::max_val(mDurationResetWhileVisible, mRemTime);
   bool visible = true;
-  if (!x110_31_anyVisorVisible) {
+  if (!mAnyVisorVisible) {
     switch (mgr.GetPlayerState()->GetActiveVisor(mgr)) {
     case CPlayerState::kPV_Combat:
     case CPlayerState::kPV_Scan:
-      visible = x110_28_combatVisorVisible;
+      visible = mCombatVisorVisible;
       break;
     case CPlayerState::kPV_XRay:
-      visible = x110_30_xrayVisorVisible;
+      visible = mXrayVisorVisible;
       break;
     case CPlayerState::kPV_Thermal:
-      visible = x110_29_thermalVisorVisible;
+      visible = mThermalVisorVisible;
       break;
     }
   }
   if (visible) {
-    if (x138_actorLights.get()) {
+    if (mActorLights.get()) {
       const CVector3f center = bounds.GetCenterPoint();
-      x138_actorLights->BuildAreaLightList(mgr, mgr.GetWorld()->GetAreaAlways(GetCurrentAreaId()),
+      mActorLights->BuildAreaLightList(mgr, mgr.GetWorld()->GetAreaAlways(GetCurrentAreaId()),
                                            CAABox(center, center));
-      x138_actorLights->BuildDynamicLightList(mgr, bounds);
+      mActorLights->BuildDynamicLightList(mgr, bounds);
     }
     EnsureRendered(mgr);
   }
 }
 
 void CScriptEffect::Render(const CStateManager& mgr) const {
-  if (x138_actorLights.get()) {
-    x138_actorLights->ActivateLights();
+  if (mActorLights.get()) {
+    mActorLights->ActivateLights();
   }
-  if (x104_particleSystem.get()) {
-    const int count = x104_particleSystem->GetParticleCountAll();
+  if (mParticleSystem.get()) {
+    const int count = mParticleSystem->GetParticleCountAll();
     if (count > 0) {
       mNumParticlesDrawing += count;
-      x104_particleSystem->Render();
+      mParticleSystem->Render();
     }
   }
-  if (xf4_electric.get()) {
-    const int count = xf4_electric->GetParticleCount();
+  if (mElectric.get()) {
+    const int count = mElectric->GetParticleCount();
     if (count > 0) {
       mNumParticlesDrawing += count;
-      xf4_electric->Render();
+      mElectric->Render();
     }
   }
 }
 
 void CScriptEffect::PreRender(CStateManager& mgr, const CFrustumPlanes& frustum) {
-  if (x110_27_useRateInverseCamDist || x111_24_useRateCamDistRange) {
+  if (mUseRateInverseCamDist || mUseRateCamDistRange) {
     float genRate = 1.f;
     const float camMagSq =
         (mgr.GetCameraManager()->GetCurrentCamera(mgr).GetTranslation() - GetTranslation())
             .MagSquared();
     const float camMag = camMagSq > 0.001f ? CMath::FastSqrtF(camMagSq) : 0.f;
-    if (x110_27_useRateInverseCamDist && camMagSq < x118_rateInverseCamDistSq) {
-      genRate = (1.f - x11c_rateInverseCamDistRate) * (camMag / x114_rateInverseCamDist) +
-                x11c_rateInverseCamDistRate;
+    if (mUseRateInverseCamDist && camMagSq < mRateInverseCamDistSq) {
+      genRate = (1.f - mRateInverseCamDistRate) * (camMag / mRateInverseCamDist) +
+                mRateInverseCamDistRate;
     }
-    if (x111_24_useRateCamDistRange) {
-      const float range = x124_rateCamDistRangeMax - x120_rateCamDistRangeMin;
+    if (mUseRateCamDistRange) {
+      const float range = mRateCamDistRangeMax - mRateCamDistRangeMin;
       const float t =
-          rstl::min_val(1.f, rstl::max_val(0.f, camMag - x120_rateCamDistRangeMin) / range);
-      genRate = (1.f - t) * genRate + t * x128_rateCamDistRangeFarRate;
+          rstl::min_val(1.f, rstl::max_val(0.f, camMag - mRateCamDistRangeMin) / range);
+      genRate = (1.f - t) * genRate + t * mRateCamDistRangeFarRate;
     }
-    x104_particleSystem->SetGeneratorRate(genRate);
+    mParticleSystem->SetGeneratorRate(genRate);
   }
-  if (!mgr.GetObjectById(x13c_triggerId)) {
-    x13c_triggerId = kInvalidUniqueId;
+  if (!mgr.GetObjectById(mTriggerId)) {
+    mTriggerId = kInvalidUniqueId;
   }
 }
 
@@ -340,18 +340,18 @@ void CScriptEffect::ResetParticleCounts() {
 }
 
 bool CScriptEffect::AreBothSystemsDeleteable() const {
-  return (!x104_particleSystem.get() || x104_particleSystem->IsSystemDeletable()) &&
-         (!xf4_electric.get() || xf4_electric->IsSystemDeletable());
+  return (!mParticleSystem.get() || mParticleSystem->IsSystemDeletable()) &&
+         (!mElectric.get() || mElectric->IsSystemDeletable());
 }
 
 bool CScriptEffect::CanRenderUnsorted(const CStateManager& mgr) const { return false; }
 
 void CScriptEffect::CalculateRenderBounds() {
-  const rstl::optional_object< CAABox > particleBounds = x104_particleSystem.get()
-                                                             ? x104_particleSystem->GetBounds()
+  const rstl::optional_object< CAABox > particleBounds = mParticleSystem.get()
+                                                             ? mParticleSystem->GetBounds()
                                                              : rstl::optional_object< CAABox >();
   const rstl::optional_object< CAABox > electricBounds =
-      xf4_electric.get() ? xf4_electric->GetBounds() : rstl::optional_object< CAABox >();
+      mElectric.get() ? mElectric->GetBounds() : rstl::optional_object< CAABox >();
   if (particleBounds.valid() || electricBounds.valid()) {
     CAABox bounds = CAABox::MakeMaxInvertedBox();
     if (particleBounds.valid()) {
@@ -361,18 +361,18 @@ void CScriptEffect::CalculateRenderBounds() {
       bounds.Include(*electricBounds);
     }
     SetRenderBounds(bounds);
-    x111_26_canRender = true;
+    mCanRender = true;
   } else {
     const CVector3f translation = GetTranslation();
     SetRenderBounds(CAABox(translation, translation));
-    x111_26_canRender = false;
+    mCanRender = false;
   }
 }
 
 CAABox CScriptEffect::GetSortingBounds(const CStateManager& mgr) const {
-  if (x13c_triggerId != kInvalidUniqueId) {
+  if (mTriggerId != kInvalidUniqueId) {
     if (const CScriptTrigger* trigger =
-            static_cast< const CScriptTrigger* >(mgr.GetObjectById(x13c_triggerId))) {
+            static_cast< const CScriptTrigger* >(mgr.GetObjectById(mTriggerId))) {
       return trigger->GetTriggerBoundsWR();
     }
   }

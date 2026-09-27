@@ -34,45 +34,45 @@ CWarWasp::CWarWasp(TUniqueId uid, const rstl::string& name, const CEntityInfo& i
                    CAssetId projectileVisorParticle, uint projectileVisorSfx)
 : CPatterned(kC_WarWasp, uid, name, flavor, info, xf, mData, pInfo, kMT_Flyer, collider, kBT_Flyer,
              actParms, kCS_Small)
-, x568_stateProg(-1)
-, x570_cSphere(CSphere(CVector3f(0.f, 0.f, 1.8f), 1.f), GetMaterialList())
-, x590_pfSearch(nullptr, 3, pInfo.GetPathfindingIndex(), 1.f, 1.f)
-, x674_aiMgr(kInvalidUniqueId)
-, x678_targetPos(CVector3f::Zero())
-, x684_contactDamage(dInfo)
-, x6a0_initialRot(CQuaternion::NoRotation())
-, x6b0_circleBurstPos(CVector3f::Zero())
-, x6bc_circleBurstDir(CVector3f(0.f, 0.f, 0.f))
-, x6c8_circleBurstRight(CVector3f(0.f, 0.f, 0.f))
-, x6d4_projectileInfo(projectileWeapon, projectileDamage)
-, x6fc_initialSpeed(x3b4_speed)
-, x700_attackRemTime(0.f)
-, x704_dodgeDir(pas::kSD_Invalid)
-, x708_circleAttackTeam(-1)
-, x70c_initialCircleAttackTeam(-1)
-, x710_initialCircleAttackTeamUnit(-1)
-, x714_circleTelegraphSeekHeight(0.f)
-, x718_circleBurstOffTotemAngle(1.5707964f)
-, x72c_projectileVisorSfx(CSfxManager::TranslateSFXID(projectileVisorSfx))
-, x72e_24_jumpBackRepeat(true)
-, x72e_25_canApplyDamage(false)
-, x72e_26_initiallyInactive(!pInfo.GetActive())
-, x72e_27_teamMatesMelee(false)
-, x72e_28_inProjectileAttack(false)
-, x72e_29_pathObstructed(false)
-, x72e_30_isRetreating(false)
-, x72e_31_heardNoise(false) {
+, mStateProg(-1)
+, mCSphere(CSphere(CVector3f(0.f, 0.f, 1.8f), 1.f), GetMaterialList())
+, mPfSearch(nullptr, 3, pInfo.GetPathfindingIndex(), 1.f, 1.f)
+, mAiMgr(kInvalidUniqueId)
+, mTargetPos(CVector3f::Zero())
+, mContactDamage(dInfo)
+, mInitialRot(CQuaternion::NoRotation())
+, mCircleBurstPos(CVector3f::Zero())
+, mCircleBurstDir(CVector3f(0.f, 0.f, 0.f))
+, mCircleBurstRight(CVector3f(0.f, 0.f, 0.f))
+, mProjectileInfo(projectileWeapon, projectileDamage)
+, mInitialSpeed(mSpeed)
+, mAttackRemTime(0.f)
+, mDodgeDir(pas::kSD_Invalid)
+, mCircleAttackTeam(-1)
+, mInitialCircleAttackTeam(-1)
+, mInitialCircleAttackTeamUnit(-1)
+, mCircleTelegraphSeekHeight(0.f)
+, mCircleBurstOffTotemAngle(1.5707964f)
+, mProjectileVisorSfx(CSfxManager::TranslateSFXID(projectileVisorSfx))
+, mJumpBackRepeat(true)
+, mCanApplyDamage(false)
+, mInitiallyInactive(!pInfo.GetActive())
+, mTeamMatesMelee(false)
+, mInProjectileAttack(false)
+, mPathObstructed(false)
+, mIsRetreating(false)
+, mHeardNoise(false) {
   if (flavor == kFT_Two) {
-    x6d4_projectileInfo.Token().Lock();
+    mProjectileInfo.Token().Lock();
   }
   UpdateTouchBounds();
   SetCoefficientOfRestitutionModifier(0.1f);
   if (projectileVisorParticle != kInvalidAssetId) {
-    x71c_projectileVisorParticle =
+    mProjectileVisorParticle =
         gpSimplePool->GetObj(SObjectTag('PART', projectileVisorParticle));
   }
-  x328_29_noPatternShagging = true;
-  x460_knockBackController.SetAnimationStateRange(kAR_KnockBack, kAR_KnockBack);
+  mNoPatternShagging = true;
+  mKnockBackController.SetAnimationStateRange(kAR_KnockBack, kAR_KnockBack);
 }
 
 CWarWasp::~CWarWasp() {}
@@ -88,13 +88,13 @@ void CWarWasp::AcceptScriptMsg(const EScriptObjectMessage msg, const TUniqueId u
     SwarmRemove(mgr);
     break;
   case kSM_InitializedInArea: {
-    if (x674_aiMgr == kInvalidUniqueId) {
-      x674_aiMgr = CTeamAiMgr::GetTeamAiMgr(*this, mgr);
+    if (mAiMgr == kInvalidUniqueId) {
+      mAiMgr = CTeamAiMgr::GetTeamAiMgr(*this, mgr);
     }
 
     const TAreaId aid = GetCurrentAreaId();
-    x590_pfSearch.SetArea(mgr.World()->GetAreaAlways(aid).GetPostConstructed()->x10bc_pathArea);
-    if (!x6b0_circleBurstPos.IsNonZero()) {
+    mPfSearch.SetArea(mgr.World()->GetAreaAlways(aid).GetPostConstructed()->mPathArea);
+    if (!mCircleBurstPos.IsNonZero()) {
       SetUpCircleBurstWaypoint(mgr);
     }
   } break;
@@ -106,7 +106,7 @@ void CWarWasp::AcceptScriptMsg(const EScriptObjectMessage msg, const TUniqueId u
 void CWarWasp::Death(CStateManager& mgr, const CVector3f& direction,
                      const EScriptObjectState state) {
   CPatterned::Death(mgr, direction, state);
-  x328_25_verticalMovement = false;
+  mVerticalMovement = false;
   AddMaterial(kMT_GroundCollider, mgr);
   SwarmRemove(mgr);
 }
@@ -116,7 +116,7 @@ void CWarWasp::Think(float dt, CStateManager& mgr) {
     return;
   }
 
-  if (x700_attackRemTime > 0.f) {
+  if (mAttackRemTime > 0.f) {
     const CPlayer* player = mgr.GetPlayer();
     float multiplier = 1.f;
     if (player->GetMorphballTransitionState() == CPlayer::kMS_Unmorphed) {
@@ -126,20 +126,20 @@ void CWarWasp::Think(float dt, CStateManager& mgr) {
                           M_PIF * 0.666f);
     }
 
-    x700_attackRemTime -= dt * multiplier;
+    mAttackRemTime -= dt * multiplier;
   }
 
   ApplyDamage(mgr);
   CPatterned::Think(dt, mgr);
 }
 
-CProjectileInfo* CWarWasp::ProjectileInfo() { return &x6d4_projectileInfo; }
+CProjectileInfo* CWarWasp::ProjectileInfo() { return &mProjectileInfo; }
 
 rstl::optional_object< CAABox > CWarWasp::GetTouchBounds() const {
-  return x570_cSphere.CalculateAABox(GetTransform());
+  return mCSphere.CalculateAABox(GetTransform());
 }
 
-const CCollisionPrimitive* CWarWasp::GetCollisionPrimitive() const { return &x570_cSphere; }
+const CCollisionPrimitive* CWarWasp::GetCollisionPrimitive() const { return &mCSphere; }
 
 void CWarWasp::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type,
                                float dt) {
@@ -166,8 +166,8 @@ void CWarWasp::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EU
     CVector3f intercept = ProjectileInfo()->PredictInterceptPos(xf.GetTranslation(), aimPos,
                                                                 *mgr.GetPlayer(), true, dt);
     CTransform4f projectileXf = CTransform4f::LookAt(xf.GetTranslation(), intercept);
-    LaunchProjectile(projectileXf, mgr, 4, CWeapon::kPA_None, false, x71c_projectileVisorParticle,
-                     x72c_projectileVisorSfx, true, CVector3f(1.f, 1.f, 1.f));
+    LaunchProjectile(projectileXf, mgr, 4, CWeapon::kPA_None, false, mProjectileVisorParticle,
+                     mProjectileVisorSfx, true, CVector3f(1.f, 1.f, 1.f));
     handled = true;
     break;
   }
@@ -181,10 +181,10 @@ void CWarWasp::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EU
     handled = true;
     break;
   case kUE_DamageOn:
-    x72e_25_canApplyDamage = true;
+    mCanApplyDamage = true;
     break;
   case kUE_DamageOff:
-    x72e_25_canApplyDamage = false;
+    mCanApplyDamage = false;
     break;
   case kUE_BeginAction:
   default:
@@ -201,8 +201,8 @@ bool CWarWasp::Listen(const CVector3f& pos, EListenNoiseType type) {
   case kLNT_BombExplode:
   case kLNT_ProjectileExplode: {
     const CVector3f diff = GetTranslation() - pos;
-    if (diff.MagSquared() < x3bc_detectionRange * x3bc_detectionRange) {
-      x72e_31_heardNoise = true;
+    if (diff.MagSquared() < mDetectionRange * mDetectionRange) {
+      mHeardNoise = true;
       return true;
     }
   } break;
@@ -215,7 +215,7 @@ bool CWarWasp::Listen(const CVector3f& pos, EListenNoiseType type) {
 
 CVector3f CWarWasp::GetOrigin(const CStateManager& mgr, const CTeamAiRole& role,
                               const CVector3f& aimPos) const {
-  if (!x6b0_circleBurstPos.IsNonZero()) {
+  if (!mCircleBurstPos.IsNonZero()) {
     const CVector3f ret = GetCloseInPos(mgr, aimPos);
     return ret;
   }
@@ -230,11 +230,11 @@ bool CWarWasp::PathShagged(CStateManager& mgr, float arg) {
 }
 
 bool CWarWasp::HearShot(CStateManager& mgr, float arg) {
-  if (x72e_31_heardNoise || x400_24_hitByPlayerProjectile) {
+  if (mHeardNoise || mHitByPlayerProjectile) {
     return true;
   }
 
-  if (const CTeamAiMgr* teamMgr = TCastToConstPtr< CTeamAiMgr >(mgr.GetObjectById(x674_aiMgr))) {
+  if (const CTeamAiMgr* teamMgr = TCastToConstPtr< CTeamAiMgr >(mgr.GetObjectById(mAiMgr))) {
     return teamMgr->GetNumRoles() != 0;
   }
 
@@ -246,9 +246,9 @@ bool CWarWasp::InAttackPosition(CStateManager& mgr, float arg) {
   CVector3f aimPos = GetProjectileAimPos(mgr, -1.25f);
   CVector3f delta = aimPos - pos;
   float distanceSq = delta.MagSquared();
-  float minRange = x2fc_minAttackRange - 5.f;
+  float minRange = mMinAttackRange - 5.f;
   bool ret = distanceSq > minRange * minRange &&
-             distanceSq < (5.f + x300_maxAttackRange) * (5.f + x300_maxAttackRange) &&
+             distanceSq < (5.f + mMaxAttackRange) * (5.f + mMaxAttackRange) &&
              !ShouldTurn(mgr, 45.f);
   if (ret) {
     const CVector3f& currentPos = GetTranslation();
@@ -266,16 +266,16 @@ bool CWarWasp::InAttackPosition(CStateManager& mgr, float arg) {
 }
 
 bool CWarWasp::ShouldAttack(CStateManager& mgr, float arg) {
-  if (x700_attackRemTime <= 0.f) {
-    if (const CTeamAiRole* role = CTeamAiMgr::GetTeamAiRole(mgr, x674_aiMgr, GetUniqueId())) {
+  if (mAttackRemTime <= 0.f) {
+    if (const CTeamAiRole* role = CTeamAiMgr::GetTeamAiRole(mgr, mAiMgr, GetUniqueId())) {
       if (role->GetTeamAiRole() == CTeamAiRole::kTAR_Melee && !mgr.GetPlayer()->IsInsideFluid()) {
-        if (CTeamAiMgr* teamMgr = TCastToPtr< CTeamAiMgr >(mgr.ObjectById(x674_aiMgr))) {
+        if (CTeamAiMgr* teamMgr = TCastToPtr< CTeamAiMgr >(mgr.ObjectById(mAiMgr))) {
           if (!teamMgr->HasMeleeAttackers()) {
             return !IsPatternObstructed(mgr, GetTranslation(), GetProjectileAimPos(mgr, -1.25f));
           }
         }
       }
-    } else if (x3fc_flavor != kFT_Two && !mgr.GetPlayer()->IsInsideFluid()) {
+    } else if (mFlavor != kFT_Two && !mgr.GetPlayer()->IsInsideFluid()) {
       return !IsPatternObstructed(mgr, GetTranslation(), GetProjectileAimPos(mgr, -1.25f));
     }
   }
@@ -283,19 +283,19 @@ bool CWarWasp::ShouldAttack(CStateManager& mgr, float arg) {
 }
 
 bool CWarWasp::ShouldFire(CStateManager& mgr, float arg) {
-  if (x700_attackRemTime <= 0.f) {
-    if (const CTeamAiRole* role = CTeamAiMgr::GetTeamAiRole(mgr, x674_aiMgr, GetUniqueId())) {
+  if (mAttackRemTime <= 0.f) {
+    if (const CTeamAiRole* role = CTeamAiMgr::GetTeamAiRole(mgr, mAiMgr, GetUniqueId())) {
       if (role->GetTeamAiRole() == CTeamAiRole::kTAR_Projectile) {
         CVector3f aimPos = GetProjectileAimPos(mgr, -1.25f);
         CVector3f delta = aimPos - GetTranslation();
         CVector3f forward = GetTransform().GetForward();
         if (delta.CanBeNormalized() && CVector3f::Dot(forward, delta.AsNormalized()) >= 0.906f) {
-          if (CTeamAiMgr* teamMgr = TCastToPtr< CTeamAiMgr >(mgr.ObjectById(x674_aiMgr))) {
+          if (CTeamAiMgr* teamMgr = TCastToPtr< CTeamAiMgr >(mgr.ObjectById(mAiMgr))) {
             return !teamMgr->HasProjectileAttackers();
           }
         }
       }
-    } else if (x3fc_flavor == kFT_Two) {
+    } else if (mFlavor == kFT_Two) {
       CVector3f aimPos = GetProjectileAimPos(mgr, -1.25f);
       CVector3f delta = aimPos - GetTranslation();
       CVector3f forward = GetTransform().GetForward();
@@ -308,35 +308,35 @@ bool CWarWasp::ShouldFire(CStateManager& mgr, float arg) {
 }
 
 bool CWarWasp::ShouldSpecialAttack(CStateManager& mgr, float arg) {
-  if (x708_circleAttackTeam == 0 && !mgr.GetPlayer()->IsInsideFluid()) {
-    if (const CTeamAiMgr* teamMgr = TCastToConstPtr< CTeamAiMgr >(mgr.GetObjectById(x674_aiMgr))) {
-      if (CheckCircleAttackSpread(mgr, x708_circleAttackTeam)) {
-        TUniqueId leaderId = GetAttackTeamLeader(mgr, x708_circleAttackTeam);
+  if (mCircleAttackTeam == 0 && !mgr.GetPlayer()->IsInsideFluid()) {
+    if (const CTeamAiMgr* teamMgr = TCastToConstPtr< CTeamAiMgr >(mgr.GetObjectById(mAiMgr))) {
+      if (CheckCircleAttackSpread(mgr, mCircleAttackTeam)) {
+        TUniqueId leaderId = GetAttackTeamLeader(mgr, mCircleAttackTeam);
         if (leaderId == GetUniqueId()) {
-          if (x700_attackRemTime <= 0.f) {
+          if (mAttackRemTime <= 0.f) {
             CVector2f delta =
-                mgr.GetPlayer()->GetTranslation().DropZ() - x6b0_circleBurstPos.DropZ();
+                mgr.GetPlayer()->GetTranslation().DropZ() - mCircleBurstPos.DropZ();
             if (delta.MagSquared() < 90.25f) {
-              CVector3f fromCenter = GetTranslation() - x6b0_circleBurstPos;
-              CVector3f threshold = x6bc_circleBurstDir;
-              if (x718_circleBurstOffTotemAngle <= M_PIF / 2.f) {
-                threshold = CVector3f::Slerp(x6c8_circleBurstRight, x6bc_circleBurstDir,
-                                             CRelAngle::FromRadians(x718_circleBurstOffTotemAngle));
+              CVector3f fromCenter = GetTranslation() - mCircleBurstPos;
+              CVector3f threshold = mCircleBurstDir;
+              if (mCircleBurstOffTotemAngle <= M_PIF / 2.f) {
+                threshold = CVector3f::Slerp(mCircleBurstRight, mCircleBurstDir,
+                                             CRelAngle::FromRadians(mCircleBurstOffTotemAngle));
               } else {
                 threshold = CVector3f::Slerp(
-                    x6bc_circleBurstDir, -x6c8_circleBurstRight,
-                    CRelAngle::FromRadians(x718_circleBurstOffTotemAngle - M_PIF / 2.f));
+                    mCircleBurstDir, -mCircleBurstRight,
+                    CRelAngle::FromRadians(mCircleBurstOffTotemAngle - M_PIF / 2.f));
               }
               if (CVector3f::GetAngleDiff(threshold, fromCenter) <
                   CRelAngle::FromDegrees(10.f).AsRadians()) {
-                return CTeamAiMgr::AddAttacker(kAT_Melee, mgr, x674_aiMgr, GetUniqueId());
+                return CTeamAiMgr::AddAttacker(kAT_Melee, mgr, mAiMgr, GetUniqueId());
               }
             }
           }
         } else {
           if (const CWarWasp* leader = PATTERNED_CAST_TO(CWarWasp, const_cast< CEntity* >(mgr.GetObjectById(leaderId)))) {
-            if (leader->x72e_27_teamMatesMelee) {
-              return CTeamAiMgr::AddAttacker(kAT_Melee, mgr, x674_aiMgr, GetUniqueId());
+            if (leader->mTeamMatesMelee) {
+              return CTeamAiMgr::AddAttacker(kAT_Melee, mgr, mAiMgr, GetUniqueId());
             }
           }
         }
@@ -367,7 +367,7 @@ bool CWarWasp::ShouldDodge(CStateManager& mgr, float arg) {
           CVector3f delta = proj->GetTranslation() - GetTranslation();
           if (CVector3f::GetAngleDiff(forward, delta) < M_PIF / 4.f) {
             CVector3f right = GetTransform().GetRight();
-            x704_dodgeDir = CVector3f::Dot(right, delta) > 0.f ? pas::kSD_Right : pas::kSD_Left;
+            mDodgeDir = CVector3f::Dot(right, delta) > 0.f ? pas::kSD_Right : pas::kSD_Left;
             return true;
           }
         }
@@ -378,11 +378,11 @@ bool CWarWasp::ShouldDodge(CStateManager& mgr, float arg) {
 }
 
 bool CWarWasp::Leash(CStateManager& mgr, float arg) {
-  const CVector3f leashDelta = x3a0_latestLeashPosition - GetTranslation();
-  if (leashDelta.MagSquared() > x3c8_leashRadius * x3c8_leashRadius) {
+  const CVector3f leashDelta = mLatestLeashPosition - GetTranslation();
+  if (leashDelta.MagSquared() > mLeashRadius * mLeashRadius) {
     const CVector3f playerDelta = mgr.GetPlayer()->GetTranslation() - GetTranslation();
-    return playerDelta.MagSquared() > x3cc_playerLeashRadius * x3cc_playerLeashRadius &&
-           x3d4_curPlayerLeashTime > x3d0_playerLeashTime;
+    return playerDelta.MagSquared() > mPlayerLeashRadius * mPlayerLeashRadius &&
+           mCurPlayerLeashTime > mPlayerLeashTime;
   }
   return false;
 }
@@ -391,43 +391,43 @@ bool CWarWasp::InPosition(CStateManager& mgr, float arg) {
   if (GetSearchPath()) {
     return GetSearchPath()->IsOver();
   }
-  CVector3f delta = x678_targetPos - GetTranslation();
+  CVector3f delta = mTargetPos - GetTranslation();
   return delta.MagSquared() < 1.f;
 }
 
-bool CWarWasp::AnimOver(CStateManager& mgr, float arg) { return x568_stateProg == 3; }
+bool CWarWasp::AnimOver(CStateManager& mgr, float arg) { return mStateProg == 3; }
 
 void CWarWasp::Generate(CStateManager& mgr, EStateMsg msg, float dt) {
   CBodyController* const bc = BodyCtrl();
   switch (msg) {
   case kStateMsg_Activate:
     bc->Activate(mgr);
-    if (x72e_26_initiallyInactive) {
+    if (mInitiallyInactive) {
       RemoveMaterial(kMT_Character, kMT_Solid, mgr);
-      x6a0_initialRot = CQuaternion::FromMatrix(GetTransform());
-      CQuaternion rot = x6a0_initialRot;
+      mInitialRot = CQuaternion::FromMatrix(GetTransform());
+      CQuaternion rot = mInitialRot;
       rot *= CQuaternion::ZRotation(
           CRelAngle::FromRadians((M_PIF / 4.f) * mgr.Random()->Float() - M_PIF / 8.f));
       SetRotation(rot.BuildNormalized());
-      x568_stateProg = 0;
+      mStateProg = 0;
     } else {
-      x568_stateProg = 3;
+      mStateProg = 3;
     }
     break;
   case kStateMsg_Update:
-    switch (x568_stateProg) {
+    switch (mStateProg) {
     case 0:
       if (bc->GetCurrentStateId() == pas::kAS_Generate) {
-        x568_stateProg = 2;
+        mStateProg = 2;
       } else {
-        const int anim = x388_anim;
+        const int anim = mAnim;
         CBCGenerateCmd cmd(pas::kGType_Zero, anim);
         bc->CommandMgr().DeliverCmd(cmd);
       }
       break;
     case 2:
       if (bc->GetCurrentStateId() != pas::kAS_Generate) {
-        x568_stateProg = 3;
+        mStateProg = 3;
       } else {
         CVector3f move = CVector3f::Zero();
         const CObjectList& list = mgr.GetObjectListById(kOL_ListeningAi);
@@ -435,7 +435,7 @@ void CWarWasp::Generate(CStateManager& mgr, EStateMsg msg, float dt) {
           if (const CPatterned* other = TCastToPtr< CPatterned >(const_cast< CEntity* >(list[i]))) {
             if (other != this && other->GetCurrentAreaId() == GetCurrentAreaId()) {
               move += (5.f * dt) *
-                      x45c_steeringBehaviors.Separation(*this, other->GetTranslation(), 5.f);
+                      mSteeringBehaviors.Separation(*this, other->GetTranslation(), 5.f);
             }
           }
         }
@@ -450,10 +450,10 @@ void CWarWasp::Generate(CStateManager& mgr, EStateMsg msg, float dt) {
     }
     break;
   case kStateMsg_Deactivate:
-    if (x72e_26_initiallyInactive) {
+    if (mInitiallyInactive) {
       AddMaterial(kMT_Character, kMT_Solid, mgr);
-      if (x328_26_solidCollision) {
-        x401_30_pendingDeath = true;
+      if (mSolidCollision) {
+        mPendingDeath = true;
       }
     }
     break;
@@ -463,24 +463,24 @@ void CWarWasp::Generate(CStateManager& mgr, EStateMsg msg, float dt) {
 void CWarWasp::Attack(CStateManager& mgr, EStateMsg msg, float dt) {
   switch (msg) {
   case kStateMsg_Activate:
-    x72e_27_teamMatesMelee = true;
-    x72e_25_canApplyDamage = false;
-    if (x674_aiMgr != kInvalidUniqueId) {
-      bool added = CTeamAiMgr::AddAttacker(kAT_Melee, mgr, x674_aiMgr, GetUniqueId());
+    mTeamMatesMelee = true;
+    mCanApplyDamage = false;
+    if (mAiMgr != kInvalidUniqueId) {
+      bool added = CTeamAiMgr::AddAttacker(kAT_Melee, mgr, mAiMgr, GetUniqueId());
       int state = 3;
       if (added) {
         state = 0;
       }
-      x568_stateProg = state;
+      mStateProg = state;
     } else {
-      x568_stateProg = 0;
+      mStateProg = 0;
     }
     break;
   case kStateMsg_Update:
-    switch (x568_stateProg) {
+    switch (mStateProg) {
     case 0:
       if (BodyCtrl()->GetCurrentStateId() == pas::kAS_MeleeAttack) {
-        x568_stateProg = 2;
+        mStateProg = 2;
       } else {
         CVector3f aimPos = GetProjectileAimPos(mgr, -1.25f);
         CVector3f delta = aimPos - GetTranslation();
@@ -492,7 +492,7 @@ void CWarWasp::Attack(CStateManager& mgr, EStateMsg msg, float dt) {
       break;
     case 2:
       if (BodyCtrl()->GetCurrentStateId() != pas::kAS_MeleeAttack) {
-        x568_stateProg = 3;
+        mStateProg = 3;
       } else {
         BodyCtrl()->CommandMgr().DeliverTargetVector(mgr.GetPlayer()->GetTranslation() -
                                                      GetTranslation());
@@ -503,9 +503,9 @@ void CWarWasp::Attack(CStateManager& mgr, EStateMsg msg, float dt) {
     }
     break;
   case kStateMsg_Deactivate:
-    CTeamAiMgr::ResetTeamAiRole(kAT_Melee, mgr, x674_aiMgr, GetUniqueId(), false);
-    x700_attackRemTime = CalcTimeToNextAttack(mgr);
-    x72e_27_teamMatesMelee = false;
+    CTeamAiMgr::ResetTeamAiRole(kAT_Melee, mgr, mAiMgr, GetUniqueId(), false);
+    mAttackRemTime = CalcTimeToNextAttack(mgr);
+    mTeamMatesMelee = false;
     break;
   }
 }
@@ -513,33 +513,33 @@ void CWarWasp::Attack(CStateManager& mgr, EStateMsg msg, float dt) {
 void CWarWasp::ProjectileAttack(CStateManager& mgr, EStateMsg msg, float dt) {
   switch (msg) {
   case kStateMsg_Activate:
-    x72e_28_inProjectileAttack = true;
-    if (x674_aiMgr != kInvalidUniqueId) {
-      bool added = CTeamAiMgr::AddAttacker(kAT_Projectile, mgr, x674_aiMgr, GetUniqueId());
+    mInProjectileAttack = true;
+    if (mAiMgr != kInvalidUniqueId) {
+      bool added = CTeamAiMgr::AddAttacker(kAT_Projectile, mgr, mAiMgr, GetUniqueId());
       int state = 3;
       if (added) {
         state = 0;
       }
-      x568_stateProg = state;
+      mStateProg = state;
     } else {
-      x568_stateProg = 0;
+      mStateProg = 0;
     }
     break;
   case kStateMsg_Update:
-    switch (x568_stateProg) {
+    switch (mStateProg) {
     case 0:
       if (BodyCtrl()->GetCurrentStateId() == pas::kAS_ProjectileAttack) {
-        x568_stateProg = 2;
+        mStateProg = 2;
       } else {
         SetDestPos(GetProjectileAimPos(mgr, -0.07f));
         BodyCtrl()->CommandMgr().DeliverCmd(
-            CBCProjectileAttackCmd(pas::kS_One, x2e0_destPos, false));
+            CBCProjectileAttackCmd(pas::kS_One, mDestPos, false));
       }
       break;
     case 2:
       if (BodyCtrl()->GetCurrentStateId() != pas::kAS_ProjectileAttack) {
-        BodyCtrl()->CommandMgr().DeliverTargetVector(x2e0_destPos - GetTranslation());
-        x568_stateProg = 3;
+        BodyCtrl()->CommandMgr().DeliverTargetVector(mDestPos - GetTranslation());
+        mStateProg = 3;
       }
       break;
     default:
@@ -547,9 +547,9 @@ void CWarWasp::ProjectileAttack(CStateManager& mgr, EStateMsg msg, float dt) {
     }
     break;
   case kStateMsg_Deactivate:
-    CTeamAiMgr::ResetTeamAiRole(kAT_Projectile, mgr, x674_aiMgr, GetUniqueId(), false);
-    x700_attackRemTime = CalcTimeToNextAttack(mgr);
-    x72e_28_inProjectileAttack = false;
+    CTeamAiMgr::ResetTeamAiRole(kAT_Projectile, mgr, mAiMgr, GetUniqueId(), false);
+    mAttackRemTime = CalcTimeToNextAttack(mgr);
+    mInProjectileAttack = false;
     break;
   }
 }
@@ -573,7 +573,7 @@ void CWarWasp::PathFind(CStateManager& mgr, EStateMsg msg, float dt) {
     }
     ApplySeparationBehavior(mgr, 9.f);
     CVector3f delta = mgr.GetPlayer()->GetTranslation() - GetTranslation();
-    float range = 2.f * x300_maxAttackRange;
+    float range = 2.f * mMaxAttackRange;
     if (delta.MagSquared() > range * range) {
       BodyCtrl()->CommandMgr().SetSteeringBlendMode(kSBM_FullSpeed);
       BodyCtrl()->CommandMgr().SetSteeringSpeedRange(1.f, 1.f);
@@ -592,20 +592,20 @@ void CWarWasp::Shuffle(CStateManager& mgr, EStateMsg msg, float dt) {
   switch (msg) {
   case kStateMsg_Activate:
     BodyCtrl()->SetLocomotionType(pas::kLT_Lurk);
-    x568_stateProg = 2;
+    mStateProg = 2;
     break;
   case kStateMsg_Update: {
     int numRoles = 0;
-    if (const CTeamAiMgr* teamMgr = TCastToConstPtr< CTeamAiMgr >(mgr.GetObjectById(x674_aiMgr))) {
+    if (const CTeamAiMgr* teamMgr = TCastToConstPtr< CTeamAiMgr >(mgr.GetObjectById(mAiMgr))) {
       numRoles = teamMgr->GetNumAssignedAiRoles();
     }
-    if (numRoles != 0u && x700_attackRemTime > 0.f) {
+    if (numRoles != 0u && mAttackRemTime > 0.f) {
       CVector3f shuffleDest = CalcShuffleDest(mgr);
       float zDelta = shuffleDest.GetZ() - GetTranslation().GetZ();
       const CVector3f& pos = GetTranslation();
       if (zDelta * zDelta > 1.f) {
         CVector3f dest(GetTranslation()[kDX], GetTranslation()[kDY], shuffleDest[kDZ]);
-        CVector3f move = x45c_steeringBehaviors.Arrival(*this, dest, 1.f);
+        CVector3f move = mSteeringBehaviors.Arrival(*this, dest, 1.f);
         if (move.MagSquared() > 0.01f) {
           BodyCtrl()->CommandMgr().DeliverCmd(CBCLocomotionCmd(move, CVector3f::Zero(), 1.f));
         }
@@ -617,17 +617,17 @@ void CWarWasp::Shuffle(CStateManager& mgr, EStateMsg msg, float dt) {
             BodyCtrl()->CommandMgr().DeliverCmd(CBCStepCmd(stepDir, pas::kStep_Normal));
           } else {
             BodyCtrl()->CommandMgr().DeliverCmd(CBCLocomotionCmd(
-                x45c_steeringBehaviors.Seek(*this, shuffleDest), CVector3f::Zero(), 1.f));
+                mSteeringBehaviors.Seek(*this, shuffleDest), CVector3f::Zero(), 1.f));
             ApplySeparationBehavior(mgr, 15.f);
           }
         } else {
-          x568_stateProg = 3;
+          mStateProg = 3;
         }
       }
       BodyCtrl()->CommandMgr().DeliverTargetVector(mgr.GetPlayer()->GetTranslation() -
                                                    GetTranslation());
     } else {
-      x568_stateProg = 3;
+      mStateProg = 3;
     }
     break;
   }
@@ -640,15 +640,15 @@ void CWarWasp::Shuffle(CStateManager& mgr, EStateMsg msg, float dt) {
 void CWarWasp::JumpBack(CStateManager& mgr, EStateMsg msg, float dt) {
   switch (msg) {
   case kStateMsg_Activate:
-    x568_stateProg = 0;
-    x72e_24_jumpBackRepeat = true;
+    mStateProg = 0;
+    mJumpBackRepeat = true;
     SwarmRemove(mgr);
     break;
   case kStateMsg_Update:
-    switch (x568_stateProg) {
+    switch (mStateProg) {
     case 0:
       if (BodyCtrl()->GetCurrentStateId() == pas::kAS_Step) {
-        x568_stateProg = 2;
+        mStateProg = 2;
       } else {
         BodyCtrl()->CommandMgr().DeliverCmd(CBCStepCmd(pas::kSD_Backward, pas::kStep_Normal));
       }
@@ -656,11 +656,11 @@ void CWarWasp::JumpBack(CStateManager& mgr, EStateMsg msg, float dt) {
     case 2:
       if (BodyCtrl()->GetCurrentStateId() != pas::kAS_Step) {
         int state = 3;
-        if (x72e_24_jumpBackRepeat) {
+        if (mJumpBackRepeat) {
           state = 0;
         }
-        x568_stateProg = state;
-        x72e_24_jumpBackRepeat = false;
+        mStateProg = state;
+        mJumpBackRepeat = false;
       } else {
         const CVector3f& playerPos = mgr.GetPlayer()->GetTranslation();
         BodyCtrl()->CommandMgr().DeliverTargetVector(playerPos - GetTranslation());
@@ -683,12 +683,12 @@ void CWarWasp::Retreat(CStateManager& mgr, EStateMsg msg, float dt) {
     break;
   case kStateMsg_Update:
     BodyCtrl()->CommandMgr().DeliverCmd(CBCLocomotionCmd(
-        CVector3f(x45c_steeringBehaviors.Flee2D(*this, mgr.GetPlayer()->GetTranslation().DropZ()),
+        CVector3f(mSteeringBehaviors.Flee2D(*this, mgr.GetPlayer()->GetTranslation().DropZ()),
                   0.f),
         CVector3f::Zero(), 1.f));
     break;
   case kStateMsg_Deactivate:
-    x400_24_hitByPlayerProjectile = false;
+    mHitByPlayerProjectile = false;
     BodyCtrl()->SetLocomotionType(pas::kLT_Relaxed);
     break;
   }
@@ -704,7 +704,7 @@ void CWarWasp::Patrol(CStateManager& mgr, EStateMsg msg, float dt) {
       BodyCtrl()->CommandMgr().SetSteeringSpeedRange(speed, speed);
     }
     BodyCtrl()->SetLocomotionType(pas::kLT_Relaxed);
-    x72e_31_heardNoise = false;
+    mHeardNoise = false;
     break;
   }
   case kStateMsg_Deactivate:
@@ -720,37 +720,37 @@ void CWarWasp::Deactivate(CStateManager& mgr, EStateMsg msg, float dt) {
   CBodyController& bc = *BodyCtrl();
   switch (msg) {
   case kStateMsg_Activate:
-    x568_stateProg = 1;
-    x72e_30_isRetreating = true;
+    mStateProg = 1;
+    mIsRetreating = true;
     BodyCtrl()->SetLocomotionType(pas::kLT_Relaxed);
     SwarmRemove(mgr);
-    x674_aiMgr = kInvalidUniqueId;
-    x678_targetPos = x3a0_latestLeashPosition;
-    SetDestPos(x678_targetPos);
+    mAiMgr = kInvalidUniqueId;
+    mTargetPos = mLatestLeashPosition;
+    SetDestPos(mTargetPos);
     if (GetSearchPath()) {
       CPatterned::PathFind(mgr, msg, dt);
     }
     break;
   case kStateMsg_Update:
-    switch (x568_stateProg) {
+    switch (mStateProg) {
     case 1:
       if (SteerToDeactivatePos(mgr, msg, dt)) {
         RemoveMaterial(kMT_Solid, mgr);
-        x568_stateProg = 0;
+        mStateProg = 0;
       }
       break;
     case 0:
       if (bc.GetCurrentStateId() == pas::kAS_Generate) {
         RemoveMaterial(kMT_Character, kMT_Target, kMT_Orbit, mgr);
         mgr.Player()->TryToBreakOrbit(GetUniqueId(), CPlayer::kOB_ActivateOrbitSource, mgr);
-        x568_stateProg = 2;
+        mStateProg = 2;
       } else {
         bc.CommandMgr().DeliverCmd(CBCGenerateCmd(pas::kGType_One, -1));
       }
       break;
     case 2:
       if (bc.GetCurrentStateId() != pas::kAS_Generate) {
-        x568_stateProg = 3;
+        mStateProg = 3;
       }
       break;
     default:
@@ -765,21 +765,21 @@ void CWarWasp::Deactivate(CStateManager& mgr, EStateMsg msg, float dt) {
 void CWarWasp::Dodge(CStateManager& mgr, EStateMsg msg, float dt) {
   switch (msg) {
   case kStateMsg_Activate:
-    if (x704_dodgeDir != pas::kSD_Invalid) {
-      BodyCtrl()->CommandMgr().DeliverCmd(CBCStepCmd(x704_dodgeDir, pas::kStep_Dodge));
-      x568_stateProg = 2;
+    if (mDodgeDir != pas::kSD_Invalid) {
+      BodyCtrl()->CommandMgr().DeliverCmd(CBCStepCmd(mDodgeDir, pas::kStep_Dodge));
+      mStateProg = 2;
     }
     break;
   case kStateMsg_Update:
     if (BodyCtrl()->GetCurrentStateId() != pas::kAS_Step) {
-      x568_stateProg = 3;
+      mStateProg = 3;
     } else {
       BodyCtrl()->CommandMgr().DeliverTargetVector(mgr.GetPlayer()->GetTranslation() -
                                                    GetTranslation());
     }
     break;
   case kStateMsg_Deactivate:
-    x704_dodgeDir = pas::kSD_Invalid;
+    mDodgeDir = pas::kSD_Invalid;
     break;
   }
 }
@@ -791,7 +791,7 @@ void CWarWasp::TargetPatrol(CStateManager& mgr, EStateMsg msg, float dt) {
     SwarmRemove(mgr);
     CPatterned::Patrol(mgr, msg, dt);
     CPatterned::UpdateDest(mgr);
-    x678_targetPos = x2e0_destPos;
+    mTargetPos = mDestPos;
     if (GetSearchPath()) {
       CPatterned::PathFind(mgr, msg, dt);
     }
@@ -819,24 +819,24 @@ void CWarWasp::TelegraphAttack(CStateManager& mgr, EStateMsg msg, float dt) {
     SetUpCircleTelegraphTeam(mgr);
     break;
   case kStateMsg_Update:
-    if (x6b0_circleBurstPos.IsNonZero()) {
+    if (mCircleBurstPos.IsNonZero()) {
       TryCircleTeamMerge(mgr);
-      CVector3f delta = GetTranslation() - x6b0_circleBurstPos;
+      CVector3f delta = GetTranslation() - mCircleBurstPos;
       delta.SetZ(0.f);
       CVector3f move = GetTransform().GetForward();
       if (delta.CanBeNormalized()) {
         CVector3f dir = delta.AsNormalized();
         move = CVector3f::Cross(dir, CVector3f::Up());
-        CVector3f radial = x2fc_minAttackRange * dir;
-        CVector3f seekOrigin = x6b0_circleBurstPos + radial;
-        if (x708_circleAttackTeam > 0) {
+        CVector3f radial = mMinAttackRange * dir;
+        CVector3f seekOrigin = mCircleBurstPos + radial;
+        if (mCircleAttackTeam > 0) {
           move = -1.f * move;
         }
-        float seekHeight = x714_circleTelegraphSeekHeight + GetTeamZStratum(x708_circleAttackTeam);
+        float seekHeight = mCircleTelegraphSeekHeight + GetTeamZStratum(mCircleAttackTeam);
         float seekMag = CalcSeekMagnitude(mgr);
         CVector3f seekDest = seekOrigin + 5.f * move;
         move = seekMag *
-               x45c_steeringBehaviors.Seek(*this, seekDest + CVector3f(0.f, 0.f, seekHeight));
+               mSteeringBehaviors.Seek(*this, seekDest + CVector3f(0.f, 0.f, seekHeight));
       }
       BodyCtrl()->CommandMgr().DeliverCmd(CBCLocomotionCmd(move, CVector3f::Zero(), 1.f));
       UpdateTelegraphMoveSpeed(mgr);
@@ -851,25 +851,25 @@ void CWarWasp::TelegraphAttack(CStateManager& mgr, EStateMsg msg, float dt) {
 void CWarWasp::SpecialAttack(CStateManager& mgr, EStateMsg msg, float dt) {
   switch (msg) {
   case kStateMsg_Activate:
-    x72e_27_teamMatesMelee = true;
-    x72e_25_canApplyDamage = true;
-    x568_stateProg = 0;
-    x3b4_speed = x6fc_initialSpeed;
+    mTeamMatesMelee = true;
+    mCanApplyDamage = true;
+    mStateProg = 0;
+    mSpeed = mInitialSpeed;
     break;
   case kStateMsg_Update:
-    switch (x568_stateProg) {
+    switch (mStateProg) {
     case 0:
       if (BodyCtrl()->GetCurrentStateId() == pas::kAS_MeleeAttack) {
-        x568_stateProg = 2;
+        mStateProg = 2;
       } else {
         BodyCtrl()->CommandMgr().DeliverCmd(CBCMeleeAttackCmd(pas::kS_Eight));
       }
       break;
     case 2:
       if (BodyCtrl()->GetCurrentStateId() != pas::kAS_MeleeAttack) {
-        x568_stateProg = 3;
+        mStateProg = 3;
       } else {
-        CVector3f delta = x6b0_circleBurstPos - GetTranslation();
+        CVector3f delta = mCircleBurstPos - GetTranslation();
         CVector3f forward = GetTransform().GetForward();
         if (CVector3f::Dot(forward, delta) > 0.f) {
           BodyCtrl()->CommandMgr().DeliverTargetVector(delta);
@@ -881,31 +881,31 @@ void CWarWasp::SpecialAttack(CStateManager& mgr, EStateMsg msg, float dt) {
     }
     break;
   case kStateMsg_Deactivate:
-    CTeamAiMgr::ResetTeamAiRole(kAT_Melee, mgr, x674_aiMgr, GetUniqueId(), false);
-    x72e_27_teamMatesMelee = false;
-    x708_circleAttackTeam = -1;
-    x718_circleBurstOffTotemAngle = CalcOffTotemAngle(mgr);
+    CTeamAiMgr::ResetTeamAiRole(kAT_Melee, mgr, mAiMgr, GetUniqueId(), false);
+    mTeamMatesMelee = false;
+    mCircleAttackTeam = -1;
+    mCircleBurstOffTotemAngle = CalcOffTotemAngle(mgr);
     break;
   }
 }
 
 void CWarWasp::JoinCircleAttackTeam(int unit, CStateManager& mgr) {
-  if (x6b0_circleBurstPos.IsNonZero()) {
-    if (x70c_initialCircleAttackTeam == -1) {
-      x710_initialCircleAttackTeamUnit = GetAttackTeamSize(mgr, unit);
-      x70c_initialCircleAttackTeam = unit;
+  if (mCircleBurstPos.IsNonZero()) {
+    if (mInitialCircleAttackTeam == -1) {
+      mInitialCircleAttackTeamUnit = GetAttackTeamSize(mgr, unit);
+      mInitialCircleAttackTeam = unit;
     }
-    x708_circleAttackTeam = unit;
-    x700_attackRemTime = CalcTimeToNextAttack(mgr);
-    x718_circleBurstOffTotemAngle = CalcOffTotemAngle(mgr);
+    mCircleAttackTeam = unit;
+    mAttackRemTime = CalcTimeToNextAttack(mgr);
+    mCircleBurstOffTotemAngle = CalcOffTotemAngle(mgr);
   }
 }
 
 void CWarWasp::SwarmAdd(CStateManager& mgr) {
-  if (x674_aiMgr != kInvalidUniqueId) {
-    if (CTeamAiMgr* teamMgr = TCastToPtr< CTeamAiMgr >(mgr.ObjectById(x674_aiMgr))) {
+  if (mAiMgr != kInvalidUniqueId) {
+    if (CTeamAiMgr* teamMgr = TCastToPtr< CTeamAiMgr >(mgr.ObjectById(mAiMgr))) {
       CTeamAiRole::ETeamAiRole role =
-          x3fc_flavor == kFT_Two ? CTeamAiRole::kTAR_Projectile : CTeamAiRole::kTAR_Melee;
+          mFlavor == kFT_Two ? CTeamAiRole::kTAR_Projectile : CTeamAiRole::kTAR_Melee;
       if (!teamMgr->IsPartOfTeam(GetUniqueId())) {
         teamMgr->AssignTeamAiRole(*this, role, CTeamAiRole::kTAR_Invalid,
                                   CTeamAiRole::kTAR_Invalid);
@@ -915,8 +915,8 @@ void CWarWasp::SwarmAdd(CStateManager& mgr) {
 }
 
 void CWarWasp::SwarmRemove(CStateManager& mgr) {
-  if (x674_aiMgr != kInvalidUniqueId) {
-    if (CTeamAiMgr* teamMgr = TCastToPtr< CTeamAiMgr >(mgr.ObjectById(x674_aiMgr))) {
+  if (mAiMgr != kInvalidUniqueId) {
+    if (CTeamAiMgr* teamMgr = TCastToPtr< CTeamAiMgr >(mgr.ObjectById(mAiMgr))) {
       if (teamMgr->IsPartOfTeam(GetUniqueId())) {
         teamMgr->RemoveTeamAiRole(GetUniqueId());
       }
@@ -931,14 +931,14 @@ void CWarWasp::ApplySeparationBehavior(CStateManager& mgr, float sep) {
       if (other != this && other->GetCurrentAreaId() == GetCurrentAreaId()) {
         float useSep = sep;
         if (const CTeamAiRole* role =
-                CTeamAiMgr::GetTeamAiRole(mgr, x674_aiMgr, other->GetUniqueId())) {
+                CTeamAiMgr::GetTeamAiRole(mgr, mAiMgr, other->GetUniqueId())) {
           if (role->GetTeamAiRole() == CTeamAiRole::kTAR_Melee ||
               role->GetTeamAiRole() == CTeamAiRole::kTAR_Projectile) {
             useSep *= 2.f;
           }
         }
         CVector3f separation =
-            x45c_steeringBehaviors.Separation(*this, other->GetTranslation(), useSep);
+            mSteeringBehaviors.Separation(*this, other->GetTranslation(), useSep);
         if (separation.IsNonZero()) {
           BodyCtrl()->CommandMgr().DeliverCmd(CBCLocomotionCmd(separation, CVector3f::Zero(), 1.f));
         }
@@ -949,7 +949,7 @@ void CWarWasp::ApplySeparationBehavior(CStateManager& mgr, float sep) {
 
 void CWarWasp::ApplyNormalSteering(CStateManager& mgr) {
   CVector3f delta = mgr.GetPlayer()->GetTranslation() - GetTranslation();
-  const CTeamAiRole* role = CTeamAiMgr::GetTeamAiRole(mgr, x674_aiMgr, GetUniqueId());
+  const CTeamAiRole* role = CTeamAiMgr::GetTeamAiRole(mgr, mAiMgr, GetUniqueId());
   CVector3f teamPos = role ? role->GetTeamPosition() : GetProjectileAimPos(mgr, -1.25f);
   const CVector3f& teamDelta = teamPos - GetTranslation();
   CVector2f toTeamPos = teamDelta.DropZ();
@@ -960,9 +960,9 @@ void CWarWasp::ApplyNormalSteering(CStateManager& mgr) {
       BodyCtrl()->CommandMgr().DeliverCmd(CBCStepCmd(stepDir, pas::kStep_Normal));
     } else {
       BodyCtrl()->CommandMgr().DeliverCmd(CBCLocomotionCmd(
-          x45c_steeringBehaviors.Arrival(*this, teamPos, 3.f), CVector3f::Zero(), 1.f));
+          mSteeringBehaviors.Arrival(*this, teamPos, 3.f), CVector3f::Zero(), 1.f));
       CVector3f target(GetTranslation()[kDX], GetTranslation()[kDY], teamPos[kDZ]);
-      CVector3f move = x45c_steeringBehaviors.Arrival(*this, target, 2.5f);
+      CVector3f move = mSteeringBehaviors.Arrival(*this, target, 2.5f);
       if (move.MagSquared() > 0.01f) {
         BodyCtrl()->CommandMgr().DeliverCmd(CBCLocomotionCmd(move, CVector3f::Zero(), 3.f));
       }
@@ -989,12 +989,12 @@ void CWarWasp::ApplyNormalSteering(CStateManager& mgr) {
 }
 
 bool CWarWasp::SteerToDeactivatePos(CStateManager& mgr, EStateMsg msg, float dt) {
-  CVector3f delta = x3a0_latestLeashPosition - GetTranslation();
+  CVector3f delta = mLatestLeashPosition - GetTranslation();
   float distanceSq = delta.MagSquared();
-  float radius = x570_cSphere.GetSphere().GetRadius();
+  float radius = mCSphere.GetSphere().GetRadius();
   if (distanceSq > 1.f + radius) {
     if (PathToHiveIsClear(mgr)) {
-      CVector3f arrival = x45c_steeringBehaviors.Arrival(*this, x3a0_latestLeashPosition, 15.f);
+      CVector3f arrival = mSteeringBehaviors.Arrival(*this, mLatestLeashPosition, 15.f);
       float maxSpeed = BodyCtrl()->BodyStateInfo().GetMaxSpeed();
       float minMoveFactor;
       if (maxSpeed > 0.f) {
@@ -1017,8 +1017,8 @@ bool CWarWasp::SteerToDeactivatePos(CStateManager& mgr, EStateMsg msg, float dt)
       } else {
         RemoveMaterial(kMT_Solid, mgr);
         CVector3f target(GetTranslation()[kDX], GetTranslation()[kDY],
-                         x3a0_latestLeashPosition[kDZ]);
-        CVector3f verticalMove = x45c_steeringBehaviors.Arrival(*this, target, 2.5f);
+                         mLatestLeashPosition[kDZ]);
+        CVector3f verticalMove = mSteeringBehaviors.Arrival(*this, target, 2.5f);
         if (verticalMove.MagSquared() > 0.01f) {
           BodyCtrl()->CommandMgr().DeliverCmd(
               CBCLocomotionCmd(verticalMove, CVector3f::Zero(), 3.f));
@@ -1029,8 +1029,8 @@ bool CWarWasp::SteerToDeactivatePos(CStateManager& mgr, EStateMsg msg, float dt)
     return false;
   } else if (distanceSq > 0.01f) {
     RemoveMaterial(kMT_Solid, mgr);
-    CQuaternion targetRot = x6a0_initialRot * CQuaternion::ZRotation(CRelAngle::FromRadians(M_PIF));
-    CVector3f pos = CVector3f::Lerp(GetTranslation(), x3a0_latestLeashPosition, 0.1f);
+    CQuaternion targetRot = mInitialRot * CQuaternion::ZRotation(CRelAngle::FromRadians(M_PIF));
+    CVector3f pos = CVector3f::Lerp(GetTranslation(), mLatestLeashPosition, 0.1f);
     CQuaternion rot =
         CQuaternion::SlerpLocal(CQuaternion::FromMatrix(GetTransform()), targetRot, 0.1f);
     SetTranslation(pos);
@@ -1042,7 +1042,7 @@ bool CWarWasp::SteerToDeactivatePos(CStateManager& mgr, EStateMsg msg, float dt)
 
 bool CWarWasp::PathToHiveIsClear(CStateManager& mgr) const {
   CVector3f pos = GetTranslation();
-  CVector3f delta = x3a0_latestLeashPosition - pos;
+  CVector3f delta = mLatestLeashPosition - pos;
   CVector3f forward = GetTransform().GetForward();
   if (CVector3f::Dot(forward, delta) > 0.f) {
     CAABox bounds(pos - CVector3f(10.f, 10.f, 10.f), pos + CVector3f(10.f, 10.f, 10.f));
@@ -1053,11 +1053,11 @@ bool CWarWasp::PathToHiveIsClear(CStateManager& mgr) const {
       float distanceSq = delta.MagSquared();
       for (AUTO(it, nearList.begin()); it != nearList.end(); ++it) {
         if (const CWarWasp* other = PATTERNED_CAST_TO(CWarWasp, const_cast< CEntity* >(mgr.GetObjectById(*it)))) {
-          if (other->GetUniqueId() != GetUniqueId() && other->x72e_30_isRetreating &&
-              close_enough(other->x3a0_latestLeashPosition, x3a0_latestLeashPosition, 3.f)) {
+          if (other->GetUniqueId() != GetUniqueId() && other->mIsRetreating &&
+              close_enough(other->mLatestLeashPosition, mLatestLeashPosition, 3.f)) {
             CVector3f otherDelta = other->GetTranslation() - GetTranslation();
             if (CVector3f::Dot(forward, otherDelta) > 0.f) {
-              CVector3f toHive = other->GetTranslation() - x3a0_latestLeashPosition;
+              CVector3f toHive = other->GetTranslation() - mLatestLeashPosition;
               if (otherDelta.MagSquared() < 3.f && toHive.MagSquared() < distanceSq) {
                 return false;
               }
@@ -1071,18 +1071,18 @@ bool CWarWasp::PathToHiveIsClear(CStateManager& mgr) const {
 }
 
 void CWarWasp::SetUpPathFindBehavior(CStateManager& mgr) {
-  x72e_29_pathObstructed = false;
+  mPathObstructed = false;
   if (GetSearchPath()) {
     SwarmAdd(mgr);
-    const CTeamAiRole* role = CTeamAiMgr::GetTeamAiRole(mgr, x674_aiMgr, GetUniqueId());
+    const CTeamAiRole* role = CTeamAiMgr::GetTeamAiRole(mgr, mAiMgr, GetUniqueId());
     CVector3f pos =
         role ? role->GetTeamPosition() : GetCloseInPos(mgr, GetProjectileAimPos(mgr, -1.25f));
     SetDestPos(pos);
-    const CVector3f& destPos = x2e0_destPos;
+    const CVector3f& destPos = mDestPos;
     CVector3f delta = destPos - GetTranslation();
     if (delta.MagSquared() > 64.f || IsPatternObstructed(mgr, GetTranslation(), destPos)) {
       CVector3f aimPos = GetProjectileAimPos(mgr, -1.25f);
-      CVector3f aimDelta = x2e0_destPos - aimPos;
+      CVector3f aimDelta = mDestPos - aimPos;
       if (aimDelta.CanBeNormalized()) {
         const CMaterialFilter filter = CMaterialFilter::MakeIncludeExclude(
             CMaterialList(kMT_Solid), CMaterialList(kMT_Player));
@@ -1091,7 +1091,7 @@ void CWarWasp::SetUpPathFindBehavior(CStateManager& mgr) {
         CRayCastResult res = mgr.RayStaticIntersection(aimPos, dir, length, filter);
         if (res.IsValid()) {
           SetDestPos(aimPos + 0.5f * (res.GetTime() * dir));
-          x72e_29_pathObstructed = true;
+          mPathObstructed = true;
         }
       }
       CPatterned::PathFind(mgr, kStateMsg_Activate, 0.f);
@@ -1101,13 +1101,13 @@ void CWarWasp::SetUpPathFindBehavior(CStateManager& mgr) {
 
 void CWarWasp::UpdateTouchBounds() {
   CAABox bounds = GetAnimationData()->GetBoundingBox();
-  x570_cSphere.SetSphereCenter(bounds.GetCenterPoint());
+  mCSphere.SetSphereCenter(bounds.GetCenterPoint());
   CTransform4f xf(GetTransform().BuildMatrix3f(), CVector3f::Zero());
   SetBoundingBox(bounds.GetTransformedAABox(xf));
 }
 
 void CWarWasp::ApplyDamage(CStateManager& mgr) {
-  if (x72e_25_canApplyDamage && BodyCtrl()->GetCurrentStateId() == pas::kAS_MeleeAttack) {
+  if (mCanApplyDamage && BodyCtrl()->GetCurrentStateId() == pas::kAS_MeleeAttack) {
     CVector3f scale = GetModelScale();
     CVector3f locator = GetLocatorTransform(rstl::string(kStingLctrName)).GetTranslation();
     CVector3f pos = CVector3f::ByElementMultiply(scale, locator);
@@ -1117,7 +1117,7 @@ void CWarWasp::ApplyDamage(CStateManager& mgr) {
           GetUniqueId(), mgr.GetPlayer()->GetUniqueId(), GetUniqueId(), GetContactDamage(),
           CMaterialFilter::MakeIncludeExclude(CMaterialList(kMT_Solid), CMaterialList()),
           CVector3f::Zero());
-      x72e_25_canApplyDamage = false;
+      mCanApplyDamage = false;
     }
   }
 }
@@ -1132,17 +1132,17 @@ CVector3f CWarWasp::GetProjectileAimPos(const CStateManager& mgr, float zBias) c
 
 float CWarWasp::CalcTimeToNextAttack(CStateManager& mgr) const {
   float multiplier = 1.f;
-  if (const CTeamAiMgr* teamMgr = TCastToConstPtr< CTeamAiMgr >(mgr.GetObjectById(x674_aiMgr))) {
-    uint maxCount = x3fc_flavor == kFT_Two ? teamMgr->GetMaxProjectileAttackerCount()
+  if (const CTeamAiMgr* teamMgr = TCastToConstPtr< CTeamAiMgr >(mgr.GetObjectById(mAiMgr))) {
+    uint maxCount = mFlavor == kFT_Two ? teamMgr->GetMaxProjectileAttackerCount()
                                            : teamMgr->GetMaxMeleeAttackerCount();
-    uint count = x3fc_flavor == kFT_Two
+    uint count = mFlavor == kFT_Two
                      ? teamMgr->GetNumAssignedOfRole(CTeamAiRole::kTAR_Projectile)
                      : teamMgr->GetNumAssignedOfRole(CTeamAiRole::kTAR_Melee);
     if (count <= maxCount) {
       multiplier *= 0.5f;
     }
   }
-  return multiplier * (x308_attackTimeVariation * mgr.Random()->Float() + x304_averageAttackTime);
+  return multiplier * (mAttackTimeVariation * mgr.Random()->Float() + mAverageAttackTime);
 }
 
 CVector3f CWarWasp::CalcShuffleDest(const CStateManager& mgr) const {
@@ -1151,7 +1151,7 @@ CVector3f CWarWasp::CalcShuffleDest(const CStateManager& mgr) const {
   forward.SetZ(0.f);
   forward = forward.CanBeNormalized() ? forward.AsNormalized()
                                       : static_cast< const CVector3f& >(CVector3f::Forward());
-  CVector3f dest = aimPos + (7.5f + x300_maxAttackRange) * forward;
+  CVector3f dest = aimPos + (7.5f + mMaxAttackRange) * forward;
   dest.SetZ(GetCloseInZBasis(mgr));
   return dest;
 }
@@ -1161,7 +1161,7 @@ float CWarWasp::GetCloseInZBasis(const CStateManager& mgr) const {
 }
 
 CVector3f CWarWasp::GetCloseInPos(const CStateManager& mgr, const CVector3f& aimPos) const {
-  float midRange = 0.5f * (x2fc_minAttackRange + x300_maxAttackRange);
+  float midRange = 0.5f * (mMinAttackRange + mMaxAttackRange);
   CVector3f ret = aimPos;
   if (mgr.GetPlayer()->GetMorphballTransitionState() == CPlayer::kMS_Unmorphed) {
     ret += midRange * mgr.GetPlayer()->GetTransform().GetForward();
@@ -1177,12 +1177,12 @@ CVector3f CWarWasp::GetCloseInPos(const CStateManager& mgr, const CVector3f& aim
 void CWarWasp::SetUpCircleBurstWaypoint(CStateManager& mgr) {
   const rstl::vector< SConnection >& conns = GetConnectionList();
   for (AUTO(it, conns.begin()); it != conns.end(); ++it) {
-    if (it->x0_state == kSS_CloseIn && it->x4_msg == kSM_Follow) {
+    if (it->mState == kSS_CloseIn && it->mMsg == kSM_Follow) {
       if (const CScriptWaypoint* waypoint = TCastToConstPtr< CScriptWaypoint >(
-              mgr.GetObjectById(mgr.GetIdForScript(it->x8_objId)))) {
-        x6b0_circleBurstPos = waypoint->GetTranslation();
-        x6bc_circleBurstDir = waypoint->GetTransform().GetForward();
-        x6c8_circleBurstRight = waypoint->GetTransform().GetRight();
+              mgr.GetObjectById(mgr.GetIdForScript(it->mObjId)))) {
+        mCircleBurstPos = waypoint->GetTranslation();
+        mCircleBurstDir = waypoint->GetTransform().GetForward();
+        mCircleBurstRight = waypoint->GetTransform().GetRight();
         break;
       }
     }
@@ -1191,17 +1191,17 @@ void CWarWasp::SetUpCircleBurstWaypoint(CStateManager& mgr) {
 
 float CWarWasp::CalcSeekMagnitude(const CStateManager& mgr) const {
   float ret = 0.9f;
-  ret *= ((x708_circleAttackTeam >= 0 && x708_circleAttackTeam < 3)
-              ? skSeekMagTable[x708_circleAttackTeam]
+  ret *= ((mCircleAttackTeam >= 0 && mCircleAttackTeam < 3)
+              ? skSeekMagTable[mCircleAttackTeam]
               : 1.f);
-  if (const CTeamAiMgr* teamMgr = TCastToConstPtr< CTeamAiMgr >(mgr.GetObjectById(x674_aiMgr))) {
+  if (const CTeamAiMgr* teamMgr = TCastToConstPtr< CTeamAiMgr >(mgr.GetObjectById(mAiMgr))) {
     if (teamMgr->IsPartOfTeam(GetUniqueId()) && teamMgr->GetMaxMeleeAttackerCount() > 1) {
-      if (GetUniqueId() != GetAttackTeamLeader(mgr, x708_circleAttackTeam)) {
-        float count = GetAttackTeamSize(mgr, x708_circleAttackTeam) - 1;
+      if (GetUniqueId() != GetAttackTeamLeader(mgr, mCircleAttackTeam)) {
+        float count = GetAttackTeamSize(mgr, mCircleAttackTeam) - 1;
         float spacing = CRelAngle::FromDegrees(40.f).AsRadians();
         float angle = (spacing * count) / count;
         float targetAngle = rstl::max_val(skMinAngle, angle);
-        CVector3f fromCenter = GetTranslation() - x6b0_circleBurstPos;
+        CVector3f fromCenter = GetTranslation() - mCircleBurstPos;
         CVector3f forward = GetTransform().GetForward();
         float minAngle = M_2PIF;
         const rstl::vector< CTeamAiRole >& roles = teamMgr->GetTeamAiRoles();
@@ -1210,10 +1210,10 @@ float CWarWasp::CalcSeekMagnitude(const CStateManager& mgr) const {
             continue;
           }
           if (const CWarWasp* other = PATTERNED_CAST_TO(CWarWasp, const_cast< CEntity* >(mgr.GetObjectById(it->GetOwnerId())))) {
-            if (other->x708_circleAttackTeam == x708_circleAttackTeam) {
+            if (other->mCircleAttackTeam == mCircleAttackTeam) {
               CVector3f delta = other->GetTranslation() - GetTranslation();
               if (CVector3f::Dot(forward, delta) > 0.f) {
-                CVector3f otherFromCenter = other->GetTranslation() - x6b0_circleBurstPos;
+                CVector3f otherFromCenter = other->GetTranslation() - mCircleBurstPos;
                 float angle = CVector3f::GetAngleDiff(fromCenter, otherFromCenter);
                 if (angle < minAngle) {
                   minAngle = angle;
@@ -1235,7 +1235,7 @@ float CWarWasp::CalcSeekMagnitude(const CStateManager& mgr) const {
 }
 
 bool CWarWasp::CheckCircleAttackSpread(const CStateManager& mgr, int team) const {
-  if (const CTeamAiMgr* teamMgr = TCastToConstPtr< CTeamAiMgr >(mgr.GetObjectById(x674_aiMgr))) {
+  if (const CTeamAiMgr* teamMgr = TCastToConstPtr< CTeamAiMgr >(mgr.GetObjectById(mAiMgr))) {
     int teamSize = GetAttackTeamSize(mgr, team);
     if (teamSize == 1) {
       return true;
@@ -1244,7 +1244,7 @@ bool CWarWasp::CheckCircleAttackSpread(const CStateManager& mgr, int team) const
     if (const CWarWasp* leader = PATTERNED_CAST_TO(CWarWasp, const_cast< CEntity* >(mgr.GetObjectById(leaderId)))) {
       CVector3f leaderPos = leader->GetTranslation();
       CVector3f leaderForward = leader->GetTransform().GetForward();
-      CVector3f fromCenter = leaderPos - x6b0_circleBurstPos;
+      CVector3f fromCenter = leaderPos - mCircleBurstPos;
       float maxAngle = 0.f;
       for (AUTO(it, teamMgr->GetTeamAiRoles().begin()); it != teamMgr->GetTeamAiRoles().end();
            it++) {
@@ -1252,13 +1252,13 @@ bool CWarWasp::CheckCircleAttackSpread(const CStateManager& mgr, int team) const
           continue;
         }
         if (const CWarWasp* other = PATTERNED_CAST_TO(CWarWasp, const_cast< CEntity* >(mgr.GetObjectById(it->GetOwnerId())))) {
-          if (team == other->x708_circleAttackTeam) {
+          if (team == other->mCircleAttackTeam) {
             CVector3f otherPos = other->GetTranslation();
             CVector3f delta = otherPos - leaderPos;
             if (CVector3f::Dot(leaderForward, delta) > 0.f) {
               return false;
             }
-            CVector3f otherFromCenter = otherPos - x6b0_circleBurstPos;
+            CVector3f otherFromCenter = otherPos - mCircleBurstPos;
             float angle = CVector3f::GetAngleDiff(otherFromCenter, fromCenter);
             if (angle > maxAngle) {
               maxAngle = angle;
@@ -1275,8 +1275,8 @@ bool CWarWasp::CheckCircleAttackSpread(const CStateManager& mgr, int team) const
 }
 
 void CWarWasp::SetUpCircleTelegraphTeam(CStateManager& mgr) {
-  if (x708_circleAttackTeam == -1) {
-    if (const CTeamAiMgr* teamMgr = TCastToConstPtr< CTeamAiMgr >(mgr.GetObjectById(x674_aiMgr))) {
+  if (mCircleAttackTeam == -1) {
+    if (const CTeamAiMgr* teamMgr = TCastToConstPtr< CTeamAiMgr >(mgr.GetObjectById(mAiMgr))) {
       if (teamMgr->IsPartOfTeam(GetUniqueId())) {
         const int maxCount = teamMgr->GetMaxMeleeAttackerCount();
         if (maxCount > 0) {
@@ -1286,26 +1286,26 @@ void CWarWasp::SetUpCircleTelegraphTeam(CStateManager& mgr) {
           const rstl::vector< CTeamAiRole >& roles = teamMgr->GetTeamAiRoles();
           for (AUTO(it, roles.begin()); it != roles.end(); it++) {
             if (const CWarWasp* other = PATTERNED_CAST_TO(CWarWasp, const_cast< CEntity* >(mgr.GetObjectById(it->GetOwnerId())))) {
-              if (x70c_initialCircleAttackTeam != -1 &&
-                  x70c_initialCircleAttackTeam == other->x70c_initialCircleAttackTeam &&
-                  other->x708_circleAttackTeam >= 0) {
-                unit = other->x708_circleAttackTeam;
+              if (mInitialCircleAttackTeam != -1 &&
+                  mInitialCircleAttackTeam == other->mInitialCircleAttackTeam &&
+                  other->mCircleAttackTeam >= 0) {
+                unit = other->mCircleAttackTeam;
                 rejoinInitial = true;
                 break;
               }
-              if (other->x708_circleAttackTeam > unit) {
-                unit = other->x708_circleAttackTeam;
+              if (other->mCircleAttackTeam > unit) {
+                unit = other->mCircleAttackTeam;
                 count = 1;
-              } else if (unit == other->x708_circleAttackTeam) {
+              } else if (unit == other->mCircleAttackTeam) {
                 ++count;
               }
             }
           }
-          if (!rejoinInitial && (x70c_initialCircleAttackTeam != -1 || count >= maxCount)) {
+          if (!rejoinInitial && (mInitialCircleAttackTeam != -1 || count >= maxCount)) {
             ++unit;
           }
           JoinCircleAttackTeam(unit, mgr);
-          x714_circleTelegraphSeekHeight = -0.5f * mgr.Random()->Float();
+          mCircleTelegraphSeekHeight = -0.5f * mgr.Random()->Float();
         }
       }
     }
@@ -1313,17 +1313,17 @@ void CWarWasp::SetUpCircleTelegraphTeam(CStateManager& mgr) {
 }
 
 void CWarWasp::TryCircleTeamMerge(CStateManager& mgr) {
-  int team = x708_circleAttackTeam;
+  int team = mCircleAttackTeam;
   if (team > 0) {
     if (const CTeamAiMgr* const teamMgr =
-            TCastToConstPtr< CTeamAiMgr >(mgr.GetObjectById(x674_aiMgr))) {
+            TCastToConstPtr< CTeamAiMgr >(mgr.GetObjectById(mAiMgr))) {
       if (teamMgr->IsPartOfTeam(GetUniqueId())) {
         if (GetAttackTeamLeader(mgr, team) == GetUniqueId() &&
             GetAttackTeamSize(mgr, team - 1) == 0) {
           const rstl::vector< CTeamAiRole >& roles = teamMgr->GetTeamAiRoles();
           for (AUTO(it, roles.begin()); it != roles.end(); it++) {
             if (CWarWasp* other = PATTERNED_CAST_TO(CWarWasp, mgr.ObjectById(it->GetOwnerId()))) {
-              if (team == other->x708_circleAttackTeam) {
+              if (team == other->mCircleAttackTeam) {
                 other->JoinCircleAttackTeam(team - 1, mgr);
               }
             }
@@ -1335,12 +1335,12 @@ void CWarWasp::TryCircleTeamMerge(CStateManager& mgr) {
 }
 
 TUniqueId CWarWasp::GetAttackTeamLeader(const CStateManager& mgr, int team) const {
-  if (const CTeamAiMgr* teamMgr = TCastToConstPtr< CTeamAiMgr >(mgr.GetObjectById(x674_aiMgr))) {
+  if (const CTeamAiMgr* teamMgr = TCastToConstPtr< CTeamAiMgr >(mgr.GetObjectById(mAiMgr))) {
     if (teamMgr->IsPartOfTeam(GetUniqueId())) {
       for (AUTO(it, teamMgr->GetTeamAiRoles().begin()); it != teamMgr->GetTeamAiRoles().end();
            it++) {
         if (const CWarWasp* other = PATTERNED_CAST_TO(CWarWasp, const_cast< CEntity* >(mgr.GetObjectById(it->GetOwnerId())))) {
-          if (team == other->x708_circleAttackTeam) {
+          if (team == other->mCircleAttackTeam) {
             return it->GetOwnerId();
           }
         }
@@ -1352,12 +1352,12 @@ TUniqueId CWarWasp::GetAttackTeamLeader(const CStateManager& mgr, int team) cons
 
 int CWarWasp::GetAttackTeamSize(const CStateManager& mgr, int team) const {
   int count = 0;
-  if (const CTeamAiMgr* teamMgr = TCastToConstPtr< CTeamAiMgr >(mgr.GetObjectById(x674_aiMgr))) {
+  if (const CTeamAiMgr* teamMgr = TCastToConstPtr< CTeamAiMgr >(mgr.GetObjectById(mAiMgr))) {
     if (teamMgr->IsPartOfTeam(GetUniqueId())) {
       for (AUTO(it, teamMgr->GetTeamAiRoles().begin()); it != teamMgr->GetTeamAiRoles().end();
            it++) {
         if (const CWarWasp* other = PATTERNED_CAST_TO(CWarWasp, const_cast< CEntity* >(mgr.GetObjectById(it->GetOwnerId())))) {
-          if (team == other->x708_circleAttackTeam) {
+          if (team == other->mCircleAttackTeam) {
             ++count;
           }
         }
@@ -1385,25 +1385,25 @@ float CWarWasp::CalcOffTotemAngle(CStateManager& mgr) const {
 }
 
 void CWarWasp::UpdateTelegraphMoveSpeed(CStateManager& mgr) {
-  TUniqueId leaderId = GetAttackTeamLeader(mgr, x708_circleAttackTeam);
+  TUniqueId leaderId = GetAttackTeamLeader(mgr, mCircleAttackTeam);
   if (const CWarWasp* leader = PATTERNED_CAST_TO(CWarWasp, const_cast< CEntity* >(mgr.GetObjectById(leaderId)))) {
     if (leaderId == GetUniqueId()) {
-      float time = x330_stateMachineState.GetTime();
+      float time = mStateMachineState.GetTime();
       float cycleTime = CMath::FastFmod(time, 2.8f);
       if (cycleTime < 2.f) {
-        x3b4_speed = x6fc_initialSpeed;
+        mSpeed = mInitialSpeed;
       } else {
         float t = (cycleTime - 2.f) / 0.8f;
-        x3b4_speed = ((1.f - t) * 0.7f + 2.f * t) * x6fc_initialSpeed;
+        mSpeed = ((1.f - t) * 0.7f + 2.f * t) * mInitialSpeed;
       }
     } else {
-      x3b4_speed = leader->x3b4_speed;
+      mSpeed = leader->mSpeed;
     }
   } else {
-    x3b4_speed = x6fc_initialSpeed;
+    mSpeed = mInitialSpeed;
   }
 }
 
 bool CWarWasp::IsListening() const { return true; }
 
-CPathFindSearch* CWarWasp::GetSearchPath() { return &x590_pfSearch; }
+CPathFindSearch* CWarWasp::GetSearchPath() { return &mPfSearch; }

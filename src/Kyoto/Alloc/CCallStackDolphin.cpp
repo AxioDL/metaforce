@@ -3,8 +3,8 @@
 const char CCallStack::kUnknownType[] = "UnknownType\0";
 
 CCallStack::CCallStack(uint lineNum, const char* fileAndLine, const char* type)
-: x0_line(fileAndLine), x4_type(type) {}
+: mLine(fileAndLine), mType(type) {}
 
-const char* CCallStack::GetFileAndLineText() const { return x0_line; }
+const char* CCallStack::GetFileAndLineText() const { return mLine; }
 
-const char* CCallStack::GetTypeText() const { return x4_type; }
+const char* CCallStack::GetTypeText() const { return mType; }

@@ -4,23 +4,23 @@
 #include "Kyoto/Streams/COutputStream.hpp"
 
 CMetaTransTrans::CMetaTransTrans(CInputStream& in)
-: x4_transDur(CCharAnimTime(in))
+: mTransDur(CCharAnimTime(in))
 , xc_(in.ReadBool())
-, xd_runA(in.ReadBool())
-, x10_flags(in.ReadLong()) {}
+, mRunA(in.ReadBool())
+, mFlags(in.ReadLong()) {}
 
 rstl::ncrc_ptr< CAnimTreeNode >
 CMetaTransTrans::VGetTransitionTree(const rstl::ncrc_ptr< CAnimTreeNode >& a,
                                     const rstl::ncrc_ptr< CAnimTreeNode >& b,
                                     const CAnimSysContext& animSys) const {
   return rs_new CAnimTreeTransition(
-      xc_, a, b, x4_transDur, xd_runA, x10_flags,
-      CAnimTreeTransition::CreatePrimitiveName(a, b, x4_transDur.GetSeconds()));
+      xc_, a, b, mTransDur, mRunA, mFlags,
+      CAnimTreeTransition::CreatePrimitiveName(a, b, mTransDur.GetSeconds()));
 }
 
 void CMetaTransTrans::WriteTransData(COutputStream& out) const {
-  x4_transDur.PutTo(out);
+  mTransDur.PutTo(out);
   out.WriteChar(bool(xc_));
-  out.WriteChar(bool(xd_runA));
-  out.WriteLong(x10_flags);
+  out.WriteChar(bool(mRunA));
+  out.WriteLong(mFlags);
 }

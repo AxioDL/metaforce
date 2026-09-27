@@ -13,30 +13,30 @@ public:
                         const rstl::vector< CInt32POINode >& int32Nodes,
                         const rstl::vector< CParticlePOINode >& particleNodes,
                         const rstl::vector< CSoundPOINode >& soundNodes)
-  : x0_steadyStateAnimInfo(info)
-  , x18_boolPOINodes(boolNodes)
-  , x28_int32POINodes(int32Nodes)
-  , x38_particlePOINodes(particleNodes)
-  , x48_soundPOINodes(soundNodes) {}
+  : mSteadyStateAnimInfo(info)
+  , mBoolPOINodes(boolNodes)
+  , mInt32POINodes(int32Nodes)
+  , mParticlePOINodes(particleNodes)
+  , mSoundPOINodes(soundNodes) {}
 
-  const CSteadyStateAnimInfo& GetSteadyStateAnimInfo() const { return x0_steadyStateAnimInfo; }
-  const rstl::vector< CBoolPOINode >& GetBoolPointsOfInterest() const { return x18_boolPOINodes; }
+  const CSteadyStateAnimInfo& GetSteadyStateAnimInfo() const { return mSteadyStateAnimInfo; }
+  const rstl::vector< CBoolPOINode >& GetBoolPointsOfInterest() const { return mBoolPOINodes; }
   const rstl::vector< CInt32POINode >& GetInt32PointsOfInterest() const {
-    return x28_int32POINodes;
+    return mInt32POINodes;
   }
   const rstl::vector< CParticlePOINode >& GetParticlePointsOfInterest() const {
-    return x38_particlePOINodes;
+    return mParticlePOINodes;
   }
   const rstl::vector< CSoundPOINode >& GetSoundPointsOfInterest() const {
-    return x48_soundPOINodes;
+    return mSoundPOINodes;
   }
 
 private:
-  CSteadyStateAnimInfo x0_steadyStateAnimInfo;
-  rstl::vector< CBoolPOINode > x18_boolPOINodes;
-  rstl::vector< CInt32POINode > x28_int32POINodes;
-  rstl::vector< CParticlePOINode > x38_particlePOINodes;
-  rstl::vector< CSoundPOINode > x48_soundPOINodes;
+  CSteadyStateAnimInfo mSteadyStateAnimInfo;
+  rstl::vector< CBoolPOINode > mBoolPOINodes;
+  rstl::vector< CInt32POINode > mInt32POINodes;
+  rstl::vector< CParticlePOINode > mParticlePOINodes;
+  rstl::vector< CSoundPOINode > mSoundPOINodes;
 };
 CHECK_SIZEOF(CSequenceFundamentals, 0x58)
 #endif // _CSEQUENCEFUNDAMENTALS

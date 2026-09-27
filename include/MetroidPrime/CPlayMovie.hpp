@@ -2,6 +2,7 @@
 #define _CPLAYMOVIE
 
 #include "Kyoto/TToken.hpp"
+#include "Kyoto/Graphics/CColor.hpp"
 #include "MetroidPrime/CIOWin.hpp"
 #include "rstl/auto_ptr.hpp"
 #include "rstl/reserved_vector.hpp"
@@ -42,28 +43,36 @@ private:
   EMessageReturn ProcessUserInput(const CFinalInput& input);
   void SetMovieIndex(int index);
 
-  int x14_state;
-  EWhichMovie x18_which;
-  rstl::reserved_vector< rstl::auto_ptr< CMoviePlayer >, 3 > x1c_movies;
-  CMoviePlayer* x38_moviePlayer;
-  int x3c_movieIndex;
-  rstl::single_ptr< CQuitGameScreen > x40_quitScreen;
-  rstl::single_ptr< CStaticAudioPlayer > x44_audioPlayer;
-  TToken< CStringTable > x48_completionScreenStrings;
-  TToken< CRasterFont > x50_largeFont;
-  rstl::single_ptr< CGuiTextSupport > x58_titleText;
-  rstl::single_ptr< CGuiTextSupport > x5c_resultsText;
-  rstl::single_ptr< CGuiTextSupport > x60_unlockText;
-  rstl::single_ptr< CGuiTextSupport > x64_continueText;
-  float x68_textDelay;
-  float x6c_resultsTime;
-  float x70_pulseTime;
-  float x74_printedCharacters;
-  bool x78_24_finished : 1;
-  bool x78_25_exit : 1;
-  bool x78_26_resultsScreen : 1;
-  bool x78_27_quitScreen : 1;
+  int mState;
+  EWhichMovie mWhich;
+  rstl::reserved_vector< rstl::auto_ptr< CMoviePlayer >, 3 > mMovies;
+  CMoviePlayer* mMoviePlayer;
+  int mMovieIndex;
+  rstl::single_ptr< CQuitGameScreen > mQuitScreen;
+  rstl::single_ptr< CStaticAudioPlayer > mAudioPlayer;
+  TToken< CStringTable > mCompletionScreenStrings;
+  TToken< CRasterFont > mLargeFont;
+  rstl::single_ptr< CGuiTextSupport > mTitleText;
+  rstl::single_ptr< CGuiTextSupport > mResultsText;
+  rstl::single_ptr< CGuiTextSupport > mUnlockText;
+  rstl::single_ptr< CGuiTextSupport > mContinueText;
+  float mTextDelay;
+  float mResultsTime;
+  float mPulseTime;
+  float mPrintedCharacters;
+#if VERSION >= VERSION_GM8P_00
+  CColor mPulseStartColor;
+  CColor mPulseEndColor;
+#endif
+  bool mFinished : 1;
+  bool mExit : 1;
+  bool mResultsScreen : 1;
+  bool mQuitScreenFlag : 1;
 };
+#if VERSION >= VERSION_GM8P_00
+CHECK_SIZEOF(CPlayMovie, 0x84)
+#else
 CHECK_SIZEOF(CPlayMovie, 0x7c)
+#endif
 
 #endif // _CPLAYMOVIE

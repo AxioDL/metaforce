@@ -20,11 +20,11 @@ public:
   void MakeLoadDependancyList();
 
 private:
-  rstl::ncrc_ptr< CStateManager > x14_stateManager;
-  rstl::ncrc_ptr< CInGameGuiManager > x18_guiManager;
-  rstl::vector< CToken > x1c_loadList;
-  bool x2c_24_initialized : 1;
-  bool x2c_25_transitionFinished : 1;
+  rstl::ncrc_ptr< CStateManager > mStateManager;
+  rstl::ncrc_ptr< CInGameGuiManager > mGuiManager;
+  rstl::vector< CToken > mLoadList;
+  bool mInitialized : 1;
+  bool mTransitionFinished : 1;
 };
 CHECK_SIZEOF(CMFGameLoader, 0x30)
 

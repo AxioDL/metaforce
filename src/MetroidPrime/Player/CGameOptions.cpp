@@ -34,30 +34,30 @@ inline void WriteValue(COutputStream& out, uint value, int maxSize) {
 
 void CGameOptions::InitSoundMode() {
   if (OSGetSoundMode() == 0) {
-    x44_soundMode = 0;
+    mSoundMode = 0;
   } else {
-    x44_soundMode = (x44_soundMode != 0) ? x44_soundMode : 1;
+    mSoundMode = (mSoundMode != 0) ? mSoundMode : 1;
   }
 }
 
 CGameOptions::CGameOptions()
 : x0_(0)
-, x44_soundMode(1)
-, x48_screenBrightness(4)
-, x4c_screenXOffset(0)
-, x50_screenYOffset(0)
-, x54_screenStretch(0)
-, x58_sfxVol(0x7f)
-, x5c_musicVol(0x7f)
-, x60_hudAlpha(0xff)
-, x64_helmetAlpha(0xff)
-, x68_24_hudLag(skDefaultHudLag)
-, x68_25_invertY(skDefaultInvertY)
-, x68_26_rumble(skDefaultRumble)
-, x68_27_swapBeamsControls(skDefaultSwapBeamsControls)
-, x68_28_hintSystem(skDefaultHintSystem)
-#if VERSION >= VERSION_GM8P_00
-, x68_29_palExclusive(false)
+, mSoundMode(1)
+, mScreenBrightness(4)
+, mScreenXOffset(0)
+, mScreenYOffset(0)
+, mScreenStretch(0)
+, mSfxVol(0x7f)
+, mMusicVol(0x7f)
+, mHudAlpha(0xff)
+, mHelmetAlpha(0xff)
+, mHudLag(skDefaultHudLag)
+, mInvertY(skDefaultInvertY)
+, mRumble(skDefaultRumble)
+, mSwapBeamsControls(skDefaultSwapBeamsControls)
+, mHintSystem(skDefaultHintSystem)
+#if VERSION >= VERSION_GM8E_02
+, mPalExclusive(false)
 #endif
 {
   InitSoundMode();
@@ -65,45 +65,45 @@ CGameOptions::CGameOptions()
 
 CGameOptions::CGameOptions(CInputStream& in)
 : x0_(0)
-, x44_soundMode(1)
-, x48_screenBrightness(4)
-, x4c_screenXOffset(0)
-, x50_screenYOffset(0)
-, x54_screenStretch(0)
-, x58_sfxVol(0x7f)
-, x5c_musicVol(0x7f)
-, x60_hudAlpha(0xff)
-, x64_helmetAlpha(0xff)
-, x68_24_hudLag(skDefaultHudLag)
-, x68_25_invertY(skDefaultInvertY)
-, x68_26_rumble(skDefaultRumble)
-, x68_27_swapBeamsControls(skDefaultSwapBeamsControls)
-, x68_28_hintSystem(skDefaultHintSystem)
-#if VERSION >= VERSION_GM8P_00
-, x68_29_palExclusive(false)
+, mSoundMode(1)
+, mScreenBrightness(4)
+, mScreenXOffset(0)
+, mScreenYOffset(0)
+, mScreenStretch(0)
+, mSfxVol(0x7f)
+, mMusicVol(0x7f)
+, mHudAlpha(0xff)
+, mHelmetAlpha(0xff)
+, mHudLag(skDefaultHudLag)
+, mInvertY(skDefaultInvertY)
+, mRumble(skDefaultRumble)
+, mSwapBeamsControls(skDefaultSwapBeamsControls)
+, mHintSystem(skDefaultHintSystem)
+#if VERSION >= VERSION_GM8E_02
+, mPalExclusive(false)
 #endif
 {
 
   for (int i = 0; i < x0_.size(); ++i) {
     x0_[i] = in.ReadBits(8);
   }
-  x44_soundMode = in.ReadBits(CalculateBits(2));
-  x48_screenBrightness = in.ReadBits(CalculateBits(8));
-  x4c_screenXOffset = in.ReadBits(CalculateBits(0x3c)) - 0x1e;
-  x50_screenYOffset = in.ReadBits(CalculateBits(0x3c)) - 0x1e;
-  x54_screenStretch = in.ReadBits(CalculateBits(0x14)) - 10;
-  x58_sfxVol = in.ReadBits(CalculateBits(0x7f));
-  x5c_musicVol = in.ReadBits(CalculateBits(0x7f));
-  x60_hudAlpha = in.ReadBits(CalculateBits(0xff));
-  x64_helmetAlpha = in.ReadBits(CalculateBits(0xff));
+  mSoundMode = in.ReadBits(CalculateBits(2));
+  mScreenBrightness = in.ReadBits(CalculateBits(8));
+  mScreenXOffset = in.ReadBits(CalculateBits(0x3c)) - 0x1e;
+  mScreenYOffset = in.ReadBits(CalculateBits(0x3c)) - 0x1e;
+  mScreenStretch = in.ReadBits(CalculateBits(0x14)) - 10;
+  mSfxVol = in.ReadBits(CalculateBits(0x7f));
+  mMusicVol = in.ReadBits(CalculateBits(0x7f));
+  mHudAlpha = in.ReadBits(CalculateBits(0xff));
+  mHelmetAlpha = in.ReadBits(CalculateBits(0xff));
 
-  x68_24_hudLag = in.ReadPackedBool();
-  x68_28_hintSystem = in.ReadPackedBool();
-  x68_25_invertY = in.ReadPackedBool();
-  x68_26_rumble = in.ReadPackedBool();
-  x68_27_swapBeamsControls = in.ReadPackedBool();
-#if VERSION >= VERSION_GM8P_00
-  x68_29_palExclusive = in.ReadPackedBool();
+  mHudLag = in.ReadPackedBool();
+  mHintSystem = in.ReadPackedBool();
+  mInvertY = in.ReadPackedBool();
+  mRumble = in.ReadPackedBool();
+  mSwapBeamsControls = in.ReadPackedBool();
+#if VERSION >= VERSION_GM8E_02
+  mPalExclusive = in.ReadPackedBool();
 #endif
 
   InitSoundMode();
@@ -114,177 +114,177 @@ void CGameOptions::PutTo(COutputStream& out) {
     out.WriteBits(x0_[i], 8);
   }
 
-  WriteValue(out, x44_soundMode, 2);
-  WriteValue(out, x48_screenBrightness, 8);
-  WriteValue(out, x4c_screenXOffset + 0x1e, 0x3c);
-  WriteValue(out, x50_screenYOffset + 0x1e, 0x3c);
-  WriteValue(out, x54_screenStretch + 10, 0x14);
-  WriteValue(out, x58_sfxVol, 0x7f);
-  WriteValue(out, x5c_musicVol, 0x7f);
-  WriteValue(out, x60_hudAlpha, 0xff);
-  WriteValue(out, x64_helmetAlpha, 0xff);
+  WriteValue(out, mSoundMode, 2);
+  WriteValue(out, mScreenBrightness, 8);
+  WriteValue(out, mScreenXOffset + 0x1e, 0x3c);
+  WriteValue(out, mScreenYOffset + 0x1e, 0x3c);
+  WriteValue(out, mScreenStretch + 10, 0x14);
+  WriteValue(out, mSfxVol, 0x7f);
+  WriteValue(out, mMusicVol, 0x7f);
+  WriteValue(out, mHudAlpha, 0xff);
+  WriteValue(out, mHelmetAlpha, 0xff);
 
-  out.WriteBits(x68_24_hudLag != false, 1);
-  out.WriteBits(x68_28_hintSystem != false, 1);
-  out.WriteBits(x68_25_invertY != false, 1);
-  out.WriteBits(x68_26_rumble != false, 1);
-  out.WriteBits(x68_27_swapBeamsControls != false, 1);
-#if VERSION >= VERSION_GM8P_00
-  out.WriteBits(x68_29_palExclusive != false, 1);
+  out.WriteBits(mHudLag != false, 1);
+  out.WriteBits(mHintSystem != false, 1);
+  out.WriteBits(mInvertY != false, 1);
+  out.WriteBits(mRumble != false, 1);
+  out.WriteBits(mSwapBeamsControls != false, 1);
+#if VERSION >= VERSION_GM8E_02
+  out.WriteBits(mPalExclusive != false, 1);
 #endif
 }
 
 void CGameOptions::ResetToDefaults() {
-  x48_screenBrightness = 4;
-  x4c_screenXOffset = 0;
-  x50_screenYOffset = 0;
-  x54_screenStretch = 0;
-  x58_sfxVol = 0x7f;
-  x5c_musicVol = 0x7f;
-  x44_soundMode = CAudioSys::kSM_Stereo;
-  x60_hudAlpha = 0xff;
-  x64_helmetAlpha = 0xff;
-  x68_24_hudLag = skDefaultHudLag;
-  x68_25_invertY = skDefaultInvertY;
-  x68_26_rumble = skDefaultRumble;
-  x68_27_swapBeamsControls = skDefaultSwapBeamsControls;
-  x68_28_hintSystem = skDefaultHintSystem;
-#if VERSION >= VERSION_GM8P_00
-  x68_29_palExclusive = false;
+  mScreenBrightness = 4;
+  mScreenXOffset = 0;
+  mScreenYOffset = 0;
+  mScreenStretch = 0;
+  mSfxVol = 0x7f;
+  mMusicVol = 0x7f;
+  mSoundMode = CAudioSys::kSM_Stereo;
+  mHudAlpha = 0xff;
+  mHelmetAlpha = 0xff;
+  mHudLag = skDefaultHudLag;
+  mInvertY = skDefaultInvertY;
+  mRumble = skDefaultRumble;
+  mSwapBeamsControls = skDefaultSwapBeamsControls;
+  mHintSystem = skDefaultHintSystem;
+#if VERSION >= VERSION_GM8E_02
+  mPalExclusive = false;
 #endif
   InitSoundMode();
   EnsureOptions();
 }
 
 void CGameOptions::EnsureOptions() {
-  SetScreenBrightness(x48_screenBrightness, true);
-  SetScreenPositionX(x4c_screenXOffset, true);
-  SetScreenPositionY(x50_screenYOffset, true);
-  SetScreenStretch(x54_screenStretch, true);
-  SetSfxVolume(x58_sfxVol, true);
-  SetMusicVolume(x5c_musicVol, true);
-  SetSurroundMode(CAudioSys::ESurroundModes(x44_soundMode), true);
-#if VERSION >= VERSION_GM8P_00
-  SetHudAlpha(x60_hudAlpha);
+  SetScreenBrightness(mScreenBrightness, true);
+  SetScreenPositionX(mScreenXOffset, true);
+  SetScreenPositionY(mScreenYOffset, true);
+  SetScreenStretch(mScreenStretch, true);
+  SetSfxVolume(mSfxVol, true);
+  SetMusicVolume(mMusicVol, true);
+  SetSurroundMode(CAudioSys::ESurroundModes(mSoundMode), true);
+#if VERSION >= VERSION_GM8E_02
+  SetHudAlpha(mHudAlpha);
 #endif
-  SetHelmetAlpha(x64_helmetAlpha);
-  SetHUDLag(x68_24_hudLag);
-  SetInvertYAxis(x68_25_invertY);
-  SetIsRumbleEnabled(x68_26_rumble);
-  SetIsHintSystemEnabled(x68_28_hintSystem);
-  ToggleControls(x68_27_swapBeamsControls);
-#if VERSION >= VERSION_GM8P_00
-  fn_80200564(x68_29_palExclusive);
+  SetHelmetAlpha(mHelmetAlpha);
+  SetHUDLag(mHudLag);
+  SetInvertYAxis(mInvertY);
+  SetIsRumbleEnabled(mRumble);
+  SetIsHintSystemEnabled(mHintSystem);
+  ToggleControls(mSwapBeamsControls);
+#if VERSION >= VERSION_GM8E_02
+  fn_80200564(mPalExclusive);
 #endif
 }
 
 void CGameOptions::SetScreenBrightness(int value, bool apply) {
-  x48_screenBrightness = CMath::Clamp(0, value, 8);
+  mScreenBrightness = CMath::Clamp(0, value, 8);
   if (apply) {
     CGraphics::SetBrightness(TuneScreenBrightness());
   }
 }
 
 const float CGameOptions::TuneScreenBrightness() {
-  float f = x48_screenBrightness - 4;
+  float f = mScreenBrightness - 4;
   return f / 4.f * 0.375f + 1.f;
 }
 
 void CGameOptions::SetScreenPositionX(int position, bool apply) {
-  x4c_screenXOffset = CMath::Clamp(-30, position, 30);
+  mScreenXOffset = CMath::Clamp(-30, position, 30);
   if (apply) {
     int a, b, c;
     CGraphics::GetScreenPosition(&a, &b, &c);
-    CGraphics::SetScreenPosition(a, x4c_screenXOffset, c);
+    CGraphics::SetScreenPosition(a, mScreenXOffset, c);
   }
 }
 
 void CGameOptions::SetScreenPositionY(int position, bool apply) {
-  x50_screenYOffset = CMath::Clamp(-30, position, 30);
+  mScreenYOffset = CMath::Clamp(-30, position, 30);
   if (apply) {
     int a, b, c;
     CGraphics::GetScreenPosition(&a, &b, &c);
-    CGraphics::SetScreenPosition(a, b, x50_screenYOffset);
+    CGraphics::SetScreenPosition(a, b, mScreenYOffset);
   }
 }
 
 void CGameOptions::SetScreenStretch(int value, bool apply) {
-  x54_screenStretch = CMath::Clamp(-10, value, 10);
+  mScreenStretch = CMath::Clamp(-10, value, 10);
 
   if (apply) {
     int a, b, c;
     CGraphics::GetScreenPosition(&a, &b, &c);
-    CGraphics::SetScreenPosition(x54_screenStretch, b, c);
+    CGraphics::SetScreenPosition(mScreenStretch, b, c);
   }
 }
 
 void CGameOptions::SetSfxVolume(int value, bool apply) {
-  x58_sfxVol = CMath::Clamp(0, value, 0x7f);
+  mSfxVol = CMath::Clamp(0, value, 0x7f);
   if (apply) {
-    CAudioSys::SysSetSfxVolume(x58_sfxVol, 1, true, true);
-    CStreamAudioManager::SetSfxVolume(x58_sfxVol);
-    CMoviePlayer::SetSfxVolume(x58_sfxVol);
+    CAudioSys::SysSetSfxVolume(mSfxVol, 1, true, true);
+    CStreamAudioManager::SetSfxVolume(mSfxVol);
+    CMoviePlayer::SetSfxVolume(mSfxVol);
   }
 }
 
 void CGameOptions::SetMusicVolume(int value, bool apply) {
-  x5c_musicVol = CMath::Clamp(0, value, 0x7f);
+  mMusicVol = CMath::Clamp(0, value, 0x7f);
   if (apply) {
-    CStreamAudioManager::SetMusicVolume(x5c_musicVol);
+    CStreamAudioManager::SetMusicVolume(mMusicVol);
   }
 }
 
 void CGameOptions::SetSurroundMode(CAudioSys::ESurroundModes mode, bool apply) {
-  x44_soundMode = CMath::Clamp< int >(0, mode, 2);
+  mSoundMode = CMath::Clamp< int >(0, mode, 2);
   if (apply) {
-    CAudioSys::SetSurroundMode(CAudioSys::ESurroundModes(x44_soundMode));
+    CAudioSys::SetSurroundMode(CAudioSys::ESurroundModes(mSoundMode));
   }
 }
 
 int CGameOptions::GetHudAlphaRaw() const {
-  return x60_hudAlpha;
+  return mHudAlpha;
 }
 
 void CGameOptions::SetHudAlpha(int hudAlpha) {
-  x60_hudAlpha = hudAlpha;
+  mHudAlpha = hudAlpha;
 }
 
-const float CGameOptions::GetHudAlpha() const { return x60_hudAlpha * 0.003921569f; }
+const float CGameOptions::GetHudAlpha() const { return mHudAlpha * 0.003921569f; }
 
-#if VERSION >= VERSION_GM8P_00
+#if VERSION >= VERSION_GM8E_02
 
-void CGameOptions::SetHelmetAlpha(const int alpha) { x64_helmetAlpha = alpha; }
+void CGameOptions::SetHelmetAlpha(const int alpha) { mHelmetAlpha = alpha; }
 
 int CGameOptions::GetHelmetAlphaRaw() const {
-  return x64_helmetAlpha;
+  return mHelmetAlpha;
 }
 
-const float CGameOptions::GetHelmetAlpha() const { return x64_helmetAlpha * 0.003921569f; }
+const float CGameOptions::GetHelmetAlpha() const { return mHelmetAlpha * 0.003921569f; }
 
 #else
 
-const float CGameOptions::GetHelmetAlpha() const { return x64_helmetAlpha * 0.003921569f; }
+const float CGameOptions::GetHelmetAlpha() const { return mHelmetAlpha * 0.003921569f; }
 
-void CGameOptions::SetHelmetAlpha(const int alpha) { x64_helmetAlpha = alpha; }
+void CGameOptions::SetHelmetAlpha(const int alpha) { mHelmetAlpha = alpha; }
 
 #endif
 
-void CGameOptions::SetHUDLag(const bool flag) { x68_24_hudLag = flag; }
+void CGameOptions::SetHUDLag(const bool flag) { mHudLag = flag; }
 
-void CGameOptions::SetIsHintSystemEnabled(bool flag) { x68_28_hintSystem = flag; }
+void CGameOptions::SetIsHintSystemEnabled(bool flag) { mHintSystem = flag; }
 
 void CGameOptions::fn_80200564(const bool flag) {
-#if VERSION >= VERSION_GM8P_00
-  x68_29_palExclusive = flag;
+#if VERSION >= VERSION_GM8E_02
+  mPalExclusive = flag;
 #endif
 }
 
-void CGameOptions::SetInvertYAxis(const bool flag) { x68_25_invertY = flag; }
+void CGameOptions::SetInvertYAxis(const bool flag) { mInvertY = flag; }
 
-void CGameOptions::SetIsRumbleEnabled(const bool flag) { x68_26_rumble = flag; }
+void CGameOptions::SetIsRumbleEnabled(const bool flag) { mRumble = flag; }
 
 void CGameOptions::ToggleControls(const bool flag) {
-  x68_27_swapBeamsControls = flag;
+  mSwapBeamsControls = flag;
   if (flag) {
     SetControls(1);
   } else {
@@ -295,11 +295,11 @@ void CGameOptions::ToggleControls(const bool flag) {
 void CGameOptions::ResetControllerAssets(int controls) {
   switch (controls) {
   case 0: {
-    x6c_controlTxtrMap = rstl::vector< rstl::pair< CAssetId, CAssetId > >();
+    mControlTxtrMap = rstl::vector< rstl::pair< CAssetId, CAssetId > >();
     break;
   }
   case 1: {
-    if (x6c_controlTxtrMap.empty()) {
+    if (mControlTxtrMap.empty()) {
       const rstl::pair< CAssetId, CAssetId > CStickToDPadRemap[] = {
           rstl::pair< CAssetId, CAssetId >(0x2A13C23Eu, 0xF13452F8u),
           rstl::pair< CAssetId, CAssetId >(0xA91A7703u, 0xC042EC91u),
@@ -316,21 +316,21 @@ void CGameOptions::ResetControllerAssets(int controls) {
           rstl::pair< CAssetId, CAssetId >(0x409AA72Eu, 0x8ADA8184u),
       };
 
-      x6c_controlTxtrMap.reserve(15);
+      mControlTxtrMap.reserve(15);
 
       for (int i = 0; i < 5; ++i) {
-        x6c_controlTxtrMap.push_back(rstl::pair< CAssetId, CAssetId >(CStickToDPadRemap[i].first,
+        mControlTxtrMap.push_back(rstl::pair< CAssetId, CAssetId >(CStickToDPadRemap[i].first,
                                                                       CStickToDPadRemap[i].second));
-        x6c_controlTxtrMap.push_back(rstl::pair< CAssetId, CAssetId >(CStickToDPadRemap[i].second,
+        mControlTxtrMap.push_back(rstl::pair< CAssetId, CAssetId >(CStickToDPadRemap[i].second,
                                                                       CStickToDPadRemap[i].first));
       }
 
       for (int i = 0; i < 5; ++i) {
         rstl::pair< CAssetId, CAssetId > value(CStickOutlineToDPadRemap[i]);
-        x6c_controlTxtrMap.push_back(value);
+        mControlTxtrMap.push_back(value);
       }
 
-      rstl::sort_by_key(x6c_controlTxtrMap);
+      rstl::sort_by_key(mControlTxtrMap);
     }
     break;
   }

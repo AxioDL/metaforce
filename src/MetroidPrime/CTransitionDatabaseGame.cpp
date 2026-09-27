@@ -2,7 +2,7 @@
 
 #include "Kyoto/Animation/CHalfTransition.hpp"
 #include "Kyoto/Animation/CTransition.hpp"
-#if VERSION < VERSION_GM8P_00 || VERSION == VERSION_GM8E_02
+#if VERSION < VERSION_GM8P_00
 #define RSTL_DONT_INLINE_ALGORITHM
 #endif
 #include "rstl/algorithm.hpp"
@@ -23,37 +23,37 @@ struct uint_comparer {
 CTransitionDatabaseGame::CTransitionDatabaseGame(
     const rstl::vector< CTransition >& transitions,
     const rstl::vector< CHalfTransition >& halfTransitions, rstl::rc_ptr< IMetaTrans > defaultTrans)
-: x10_defaultTrans(defaultTrans) {
+: mDefaultTrans(defaultTrans) {
   rstl::vector< CTransition >::const_iterator it = transitions.begin(), end = transitions.end();
-  x14_transitions.reserve(transitions.size());
+  mTransitions.reserve(transitions.size());
   for (; it != end;) {
     const rstl::pair< rstl::pair< uint, uint >, rstl::rc_ptr< IMetaTrans > > entry(
         rstl::pair< uint, uint >(it->GetFromAnimIndex(), it->GetToAnimIndex()), it->GetMetaTrans());
-    x14_transitions.push_back(entry);
+    mTransitions.push_back(entry);
     ++it;
   }
-  rstl::sort_by_key(x14_transitions, uint_comparer());
+  rstl::sort_by_key(mTransitions, uint_comparer());
 
   rstl::vector< CHalfTransition >::const_iterator halfIt = halfTransitions.begin(),
                                                 halfEnd = halfTransitions.end();
-  x24_halfTransitions.reserve(halfTransitions.size());
+  mHalfTransitions.reserve(halfTransitions.size());
   for (; halfIt != halfEnd;) {
     const rstl::pair< uint, rstl::rc_ptr< IMetaTrans > > entry(
         halfIt->GetPrimitiveIndex(), halfIt->GetMetaTrans());
-    x24_halfTransitions.push_back(entry);
+    mHalfTransitions.push_back(entry);
     ++halfIt;
   }
-  rstl::sort_by_key(x24_halfTransitions, uint_comparer());
+  rstl::sort_by_key(mHalfTransitions, uint_comparer());
 }
 
 const rstl::rc_ptr< IMetaTrans >& CTransitionDatabaseGame::GetMetaTrans(uint from, uint to) const {
-  AUTO(it, rstl::find_by_key(x14_transitions, rstl::pair< uint, uint >(from, to), uint_comparer()));
-  if (it != x14_transitions.end()) {
+  AUTO(it, rstl::find_by_key(mTransitions, rstl::pair< uint, uint >(from, to), uint_comparer()));
+  if (it != mTransitions.end()) {
     return it->second;
   }
-  AUTO(halfIt, rstl::find_by_key(x24_halfTransitions, to, uint_comparer()));
-  if (halfIt != x24_halfTransitions.end()) {
+  AUTO(halfIt, rstl::find_by_key(mHalfTransitions, to, uint_comparer()));
+  if (halfIt != mHalfTransitions.end()) {
     return halfIt->second;
   }
-  return x10_defaultTrans;
+  return mDefaultTrans;
 }

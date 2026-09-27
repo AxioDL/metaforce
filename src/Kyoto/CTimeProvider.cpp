@@ -5,9 +5,9 @@
 CTimeProvider* CTimeProvider::gCurrentTimeProvider = nullptr;
 
 CTimeProvider::CTimeProvider(const float& time)
-: x0_currentTime(time), x4_first(true), x8_lastProvider(gCurrentTimeProvider) {
-  if (x8_lastProvider != nullptr) {
-    x8_lastProvider->x4_first = false;
+: mCurrentTime(time), mFirst(true), mLastProvider(gCurrentTimeProvider) {
+  if (mLastProvider != nullptr) {
+    mLastProvider->mFirst = false;
   }
 
   gCurrentTimeProvider = this;
@@ -16,9 +16,9 @@ CTimeProvider::CTimeProvider(const float& time)
 }
 
 CTimeProvider::~CTimeProvider() {
-  gCurrentTimeProvider = x8_lastProvider;
+  gCurrentTimeProvider = mLastProvider;
   if (gCurrentTimeProvider != nullptr) {
-    gCurrentTimeProvider->x4_first = true;
+    gCurrentTimeProvider->mFirst = true;
     CGraphics::SetExternalTimeProvider(gCurrentTimeProvider);
   } else {
     CGraphics::SetExternalTimeProvider(nullptr);

@@ -16,22 +16,22 @@ public:
   void Think(float, CStateManager&) override;
   rstl::optional_object< CAABox > GetTouchBounds() const override;
   void Touch(CActor&, CStateManager&) override;
-  const CRelAngle& GetUpPitch() const { return x124_upPitch; }
-  const CRelAngle& GetDownPitch() const { return x128_downPitch; }
-  const CVector3f& GetScale() const { return x12c_scale; }
-  float GetMaxInterpolationDistance() const { return x138_maxInterpDistance; }
+  const CRelAngle& GetUpPitch() const { return mUpPitch; }
+  const CRelAngle& GetDownPitch() const { return mDownPitch; }
+  const CVector3f& GetScale() const { return mScale; }
+  float GetMaxInterpolationDistance() const { return mMaxInterpDistance; }
   void Entered(CStateManager&);
   void Exited(CStateManager&);
 
 private:
   static const CVector3f skScaleFactor;
-  COBBox xe8_obbox;
-  CRelAngle x124_upPitch;
-  CRelAngle x128_downPitch;
-  CVector3f x12c_scale;
-  float x138_maxInterpDistance;
-  bool x13c_24_entered : 1;
-  bool x13c_25_occupied : 1;
+  COBBox mObbox;
+  CRelAngle mUpPitch;
+  CRelAngle mDownPitch;
+  CVector3f mScale;
+  float mMaxInterpDistance;
+  bool mEntered : 1;
+  bool mOccupied : 1;
 };
 
 #endif // _CSCRIPTCAMERAPITCHVOLUME

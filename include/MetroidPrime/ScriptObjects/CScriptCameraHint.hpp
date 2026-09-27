@@ -54,6 +54,6 @@ private:
   bool mInactive;
   CTransform4f mOrigXf;
 };
-CHECK_SIZEOF(CScriptCameraHint, (VERSION >= VERSION_GM8P_00 ? 0x1a8 : 0x198))
+CHECK_SIZEOF(CScriptCameraHint, (VERSION >= VERSION_GM8E_02 ? 0x1a8 : 0x198))
 
 #endif // _CSCRIPTCAMERAHINT

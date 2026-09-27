@@ -333,7 +333,7 @@ asm u32 LCQueueLength() {
 
 asm void LCQueueWait(register u32 len) {
   nofralloc
-#if VERSION < VERSION_GM8P_00
+#if VERSION < VERSION_GM8E_02
   addi len, len, 1
 @1
   mfspr r4, HID2

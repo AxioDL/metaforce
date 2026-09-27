@@ -14,11 +14,11 @@ public:
     kT_ZeroDecreasing,
     kT_Infinity,
   };
-  const float GetSeconds() const { return x0_time; }
+  const float GetSeconds() const { return mTime; }
 
   explicit CCharAnimTime(CInputStream& in);
   explicit CCharAnimTime(float time = 0.f);
-  explicit CCharAnimTime(const EType& type, const float& time) : x0_time(time), x4_type(type) {}
+  explicit CCharAnimTime(const EType& type, const float& time) : mTime(time), mType(type) {}
 
   bool operator>(const CCharAnimTime& other) const;
   bool operator==(const CCharAnimTime& other) const;
@@ -41,10 +41,10 @@ public:
   static CCharAnimTime ZeroMinus() { return CCharAnimTime(kT_ZeroDecreasing, 0.f); }
 
   int ZeroOrdering() const {
-    if (x4_type == kT_ZeroDecreasing) {
+    if (mType == kT_ZeroDecreasing) {
       return -1;
     }
-    if (x4_type == kT_ZeroSteady) {
+    if (mType == kT_ZeroSteady) {
       return 0;
     }
     return 1;
@@ -71,8 +71,8 @@ public:
   }
 
 private:
-  float x0_time;
-  EType x4_type;
+  float mTime;
+  EType mType;
 };
 CHECK_SIZEOF(CCharAnimTime, 0x8)
 

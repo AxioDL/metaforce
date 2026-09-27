@@ -30,9 +30,9 @@ public:
   void RenderCleanup() const;
 
 private:
-  float xa0_tileSize;
-  int xa4_tileSubdivisions;
-  float xa8_rippleResolution;
+  float mTileSize;
+  int mTileSubdivisions;
+  float mRippleResolution;
 };
 
 #endif // _CFLUIDPLANEDOOR

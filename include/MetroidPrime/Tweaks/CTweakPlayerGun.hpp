@@ -12,9 +12,9 @@
 #include "rstl/reserved_vector.hpp"
 
 struct SWeaponInfo {
-  float x0_coolDown;
-  CDamageInfo x4_normal;
-  CDamageInfo x20_charged;
+  float mCoolDown;
+  CDamageInfo mNormal;
+  CDamageInfo mCharged;
 
   SWeaponInfo() {}
 };
@@ -25,34 +25,34 @@ public:
   CTweakPlayerGun(CInputStream& in);
   ~CTweakPlayerGun() override {}
 
-  float GetUpLookAngle() const { return x4_upLookAngle; }
-  float GetDownLookAngle() const { return x8_downLookAngle; }
-  float GetVerticalSpread() const { return xc_verticalSpread; }
-  float GetHorizontalSpread() const { return x10_horizontalSpread; }
-  float GetHighVerticalSpread() const { return x14_highVerticalSpread; }
-  float GetHighHorizontalSpread() const { return x18_highHorizontalSpread; }
-  float GetLowVerticalSpread() const { return x1c_lowVerticalSpread; }
-  float GetLowHorizontalSpread() const { return x20_lowHorizontalSpread; }
-  float GetAimVerticalSpeed() const { return x24_aimVerticalSpeed; }
-  float GetAimHorizontalSpeed() const { return x28_aimHorizontalSpeed; }
-  float GetBombFuseTime() const { return x2c_bombFuseTime; }
-  float GetBombDropDelayTime() const { return x30_bombDropDelayTime; }
-  float GetHoloHoldTime() const { return x34_holoHoldTime; }
-  float GetGunTransformTime() const { return x38_gunTransformTime; }
-  float GetGunHolsterTime() const { return x3c_gunHolsterTime; }
-  float GetGunNotFiringTime() const { return x40_gunNotFiringTime; }
-  float GetFixedVerticalAim() const { return x44_fixedVerticalAim; }
-  float GetGunExtendDistance() const { return x48_gunExtendDistance; }
-  const CVector3f& GetGunPosition() const { return x4c_gunPosition; }
-  const CVector3f& GetGrapplingArmPosition() const { return x64_grapplingArmPosition; }
+  float GetUpLookAngle() const { return mUpLookAngle; }
+  float GetDownLookAngle() const { return mDownLookAngle; }
+  float GetVerticalSpread() const { return mVerticalSpread; }
+  float GetHorizontalSpread() const { return mHorizontalSpread; }
+  float GetHighVerticalSpread() const { return mHighVerticalSpread; }
+  float GetHighHorizontalSpread() const { return mHighHorizontalSpread; }
+  float GetLowVerticalSpread() const { return mLowVerticalSpread; }
+  float GetLowHorizontalSpread() const { return mLowHorizontalSpread; }
+  float GetAimVerticalSpeed() const { return mAimVerticalSpeed; }
+  float GetAimHorizontalSpeed() const { return mAimHorizontalSpeed; }
+  float GetBombFuseTime() const { return mBombFuseTime; }
+  float GetBombDropDelayTime() const { return mBombDropDelayTime; }
+  float GetHoloHoldTime() const { return mHoloHoldTime; }
+  float GetGunTransformTime() const { return mGunTransformTime; }
+  float GetGunHolsterTime() const { return mGunHolsterTime; }
+  float GetGunNotFiringTime() const { return mGunNotFiringTime; }
+  float GetFixedVerticalAim() const { return mFixedVerticalAim; }
+  float GetGunExtendDistance() const { return mGunExtendDistance; }
+  const CVector3f& GetGunPosition() const { return mGunPosition; }
+  const CVector3f& GetGrapplingArmPosition() const { return mGrapplingArmPosition; }
 
   const SWeaponInfo& GetBeamInfo(int beam) const;
   float GetRichochetDamage(EWeaponType type) const;
 
-  const CDamageInfo& GetComboDamage(int beam) const { return x1f0_combos[beam]; }
-  const CDamageInfo& GetMissleDamage() const { return x1d4_missile; }
+  const CDamageInfo& GetComboDamage(int beam) const { return mCombos[beam]; }
+  const CDamageInfo& GetMissleDamage() const { return mMissile; }
 
-  const CDamageInfo& GetBombInfo() const { return x70_bomb; }
+  const CDamageInfo& GetBombInfo() const { return mBomb; }
 
 private:
   void InitBeamData(CInputStream& in);
@@ -60,37 +60,37 @@ private:
 
 public:
   // private:
-  float x4_upLookAngle;
-  float x8_downLookAngle;
-  float xc_verticalSpread;
-  float x10_horizontalSpread;
-  float x14_highVerticalSpread;
-  float x18_highHorizontalSpread;
-  float x1c_lowVerticalSpread;
-  float x20_lowHorizontalSpread;
-  float x24_aimVerticalSpeed;
-  float x28_aimHorizontalSpeed;
-  float x2c_bombFuseTime;
-  float x30_bombDropDelayTime;
-  float x34_holoHoldTime;
-  float x38_gunTransformTime;
-  float x3c_gunHolsterTime;
-  float x40_gunNotFiringTime;
-  float x44_fixedVerticalAim;
-  float x48_gunExtendDistance;
-  CVector3f x4c_gunPosition;
+  float mUpLookAngle;
+  float mDownLookAngle;
+  float mVerticalSpread;
+  float mHorizontalSpread;
+  float mHighVerticalSpread;
+  float mHighHorizontalSpread;
+  float mLowVerticalSpread;
+  float mLowHorizontalSpread;
+  float mAimVerticalSpeed;
+  float mAimHorizontalSpeed;
+  float mBombFuseTime;
+  float mBombDropDelayTime;
+  float mHoloHoldTime;
+  float mGunTransformTime;
+  float mGunHolsterTime;
+  float mGunNotFiringTime;
+  float mFixedVerticalAim;
+  float mGunExtendDistance;
+  CVector3f mGunPosition;
   CVector3f x58_;
-  CVector3f x64_grapplingArmPosition;
-  CDamageInfo x70_bomb;
-  CDamageInfo x8c_powerBomb;
-  SWeaponInfo xa8_powerBeam;
-  SWeaponInfo xe4_iceBeam;
-  SWeaponInfo x120_waveBeam;
-  SWeaponInfo x15c_plasmaBeam;
-  SWeaponInfo x198_phazonBeam;
-  CDamageInfo x1d4_missile;
-  rstl::reserved_vector< CDamageInfo, 5 > x1f0_combos;
-  rstl::reserved_vector< float, 5 > x280_ricochetData;
+  CVector3f mGrapplingArmPosition;
+  CDamageInfo mBomb;
+  CDamageInfo mPowerBomb;
+  SWeaponInfo mPowerBeam;
+  SWeaponInfo mIceBeam;
+  SWeaponInfo mWaveBeam;
+  SWeaponInfo mPlasmaBeam;
+  SWeaponInfo mPhazonBeam;
+  CDamageInfo mMissile;
+  rstl::reserved_vector< CDamageInfo, 5 > mCombos;
+  rstl::reserved_vector< float, 5 > mRicochetData;
 };
 CHECK_SIZEOF(CTweakPlayerGun, 0x298)
 

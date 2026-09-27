@@ -7,14 +7,14 @@
 
 struct SPositionHistory {
 private:
-  float x0_magSquared;
-  rstl::reserved_vector< CVector3f, 16 > x4_values;
+  float mMagSquared;
+  rstl::reserved_vector< CVector3f, 16 > mValues;
 
 public:
   explicit SPositionHistory(float mag);
   CVector3f GetValue(CVector3f pos, CVector3f face);
   void AddValue(CVector3f pos);
-  void Clear() { x4_values.clear(); }
+  void Clear() { mValues.clear(); }
 };
 
 #endif // _SPOSITIONHISTORY

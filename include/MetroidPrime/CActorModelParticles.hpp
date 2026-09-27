@@ -40,9 +40,9 @@ public:
   };
 
   struct CSystem {
-    rstl::vector< CToken > x0_tokens;
-    int x10_refCount;
-    bool x14_loaded;
+    rstl::vector< CToken > mTokens;
+    int mRefCount;
+    bool mLoaded;
 
     explicit CSystem(const char* name);
 
@@ -57,34 +57,34 @@ public:
     friend class CActorModelParticles;
 
   private:
-    TUniqueId x0_id;
-    TAreaId x4_areaId;
-    rstl::reserved_vector< rstl::pair< rstl::auto_ptr< CElementGen >, uint >, 8 > x8_onFireGens;
-    float x6c_onFireDelayTimer;
-    bool x70_onFire;
-    CSfxHandle x74_sfx;
-    rstl::auto_ptr< CElementGen > x78_ashGen;
-    int x80_ashPointIterator;
-    int x84_ashMaxParticles;
-    uint x88_ashSeed;
-    rstl::reserved_vector< rstl::auto_ptr< CElementGen >, 4 > x8c_iceGens;
-    int xb0_icePointIterator;
-    uint xb4_iceSeed;
-    rstl::auto_ptr< CElementGen > xb8_firePopGen;
-    rstl::auto_ptr< CParticleElectric > xc0_electricGen;
-    int xc8_electricPointIterator;
-    uint xcc_electricSeed;
-    CColor xd0_electricColor;
-    rstl::auto_ptr< CRainSplashGenerator > xd4_rainSplashGen;
-    CToken xdc_ashy;
-    rstl::auto_ptr< CElementGen > xe4_icePopGen;
-    CVector3f xec_particleOffsetScale;
-    CTransform4f xf8_iceXf;
-    CActorModelParticles* x128_parent;
-    mutable bool x12c_24_thermalCold : 1;
-    mutable bool x12c_25_thermalHot : 1;
-    float x130_remTime;
-    mutable uchar x134_lockDeps;
+    TUniqueId mId;
+    TAreaId mAreaId;
+    rstl::reserved_vector< rstl::pair< rstl::auto_ptr< CElementGen >, uint >, 8 > mOnFireGens;
+    float mOnFireDelayTimer;
+    bool mOnFire;
+    CSfxHandle mSfx;
+    rstl::auto_ptr< CElementGen > mAshGen;
+    int mAshPointIterator;
+    int mAshMaxParticles;
+    uint mAshSeed;
+    rstl::reserved_vector< rstl::auto_ptr< CElementGen >, 4 > mIceGens;
+    int mIcePointIterator;
+    uint mIceSeed;
+    rstl::auto_ptr< CElementGen > mFirePopGen;
+    rstl::auto_ptr< CParticleElectric > mElectricGen;
+    int mElectricPointIterator;
+    uint mElectricSeed;
+    CColor mElectricColor;
+    rstl::auto_ptr< CRainSplashGenerator > mRainSplashGen;
+    CToken mAshy;
+    rstl::auto_ptr< CElementGen > mIcePopGen;
+    CVector3f mParticleOffsetScale;
+    CTransform4f mIceXf;
+    CActorModelParticles* mParent;
+    mutable bool mThermalCold : 1;
+    mutable bool mThermalHot : 1;
+    float mRemTime;
+    mutable uchar mLockDeps;
 
     bool UpdateOnFire(float dt, CActor* actor, CStateManager& mgr);
     bool UpdateAshGen(float dt, const CActor* actor, CStateManager& mgr);
@@ -133,18 +133,18 @@ public:
 private:
   friend class CItem;
 
-  rstl::list< CItem > x0_items;
-  TToken< CGenDescription > x18_onFire;
-  TToken< CGenDescription > x20_ash;
-  TToken< CGenDescription > x28_iceBreak;
-  TToken< CGenDescription > x30_firePop;
-  TToken< CGenDescription > x38_icePop;
-  TToken< CElectricDescription > x40_electric;
-  CToken x48_ashy;
-  rstl::reserved_vector< CSystem, 6 > x50_dgrps;
-  uchar xe4_loadingDeps;
-  uchar xe5_justLoadedDeps;
-  uchar xe6_loadedDeps;
+  rstl::list< CItem > mItems;
+  TToken< CGenDescription > mOnFire;
+  TToken< CGenDescription > mAsh;
+  TToken< CGenDescription > mIceBreak;
+  TToken< CGenDescription > mFirePop;
+  TToken< CGenDescription > mIcePop;
+  TToken< CElectricDescription > mElectric;
+  CToken mAshy;
+  rstl::reserved_vector< CSystem, 6 > mDgrps;
+  uchar mLoadingDeps;
+  uchar mJustLoadedDeps;
+  uchar mLoadedDeps;
 
   void UpdateSystemTypes();
   void DelTypeRef(ESystemTypes dep);

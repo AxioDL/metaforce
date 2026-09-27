@@ -54,18 +54,18 @@ public:
                               CArchitectureQueue& queue);
   bool CheckLoadComplete(const CStateManager& mgr);
   bool IsInGameplayStateNotTransitioning() const {
-    const bool ret = InGameGuiStates::IsGameplayState(x1bc_prevState) &&
-                     InGameGuiStates::IsGameplayState(x1c0_nextState);
+    const bool ret = InGameGuiStates::IsGameplayState(mPrevState) &&
+                     InGameGuiStates::IsGameplayState(mNextState);
     return ret;
   }
   const bool IsInOrTransitioningToOrFromState(EInGameGuiState state) const {
-    return x1bc_prevState == state || x1c0_nextState == state;
+    return mPrevState == state || mNextState == state;
   }
-  bool IsStateTransitioning() const { return x1bc_prevState != x1c0_nextState; }
+  bool IsStateTransitioning() const { return mPrevState != mNextState; }
   bool IsInStateNotTransitioning(EInGameGuiState state) const {
-    return x1bc_prevState == state && x1c0_nextState == state;
+    return mPrevState == state && mNextState == state;
   }
-  bool IsInSaveUI() const { return x1f8_27_inSaveUI; }
+  bool IsInSaveUI() const { return mInSaveUI; }
 
 private:
   enum ELoadPhase { kLP_LoadDepsGroup, kLP_PreLoadDeps, kLP_LoadDeps, kLP_Done };
@@ -85,56 +85,56 @@ private:
   void TryCompleteStateTransition(CArchitectureQueue& queue);
   void RefreshHudOptions();
   bool IsInPausedStateNotTransitioning() const {
-    return InGameGuiStates::IsPausedState(x1bc_prevState) &&
-           InGameGuiStates::IsPausedState(x1c0_nextState);
+    return InGameGuiStates::IsPausedState(mPrevState) &&
+           InGameGuiStates::IsPausedState(mNextState);
   }
 
-  TToken< CDependencyGroup > x0_iggmPreLoad;
-  rstl::vector< CToken > x8_preLoadDeps;
-  ELoadPhase x18_loadPhase;
-  CRandom16 x1c_rand;
-  CFaceplateDecoration x20_faceplateDecor;
-  rstl::single_ptr< CPlayerVisor > x30_playerVisor;
-  rstl::single_ptr< CSamusHud > x34_samusHud;
-  rstl::single_ptr< CAutoMapper > x38_autoMapper;
-  rstl::single_ptr< CPauseScreenBlur > x3c_pauseScreenBlur;
-  rstl::single_ptr< CSamusFaceReflection > x40_samusReflection;
-  rstl::single_ptr< CMessageScreen > x44_messageScreen;
-  rstl::single_ptr< CPauseScreen > x48_pauseScreen;
-  rstl::single_ptr< CSaveGameScreen > x4c_saveUI;
-  TCachedToken< CTexture > x50_deathDot;
-  TPauseScreenDGRPs x5c_pauseScreenDGRPs;
-  rstl::vector< TToken< CDependencyGroup > > xc8_inGameGuiDGRPs;
-  rstl::vector< CAssetId > xd8_inGameTextureIDs;
-  rstl::vector< CToken > xe8_pauseResources;
-  CCameraFilterPass xf8_camFilter;
-  CAssetId x124_pauseGameHudMessage;
-  float x128_pauseGameHudTime;
-  rstl::list< TDumpedTexture > x12c_dumpedTextures;
-  CGuiWidget* x144_basewidget_automapper;
-  CGuiModel* x148_model_automapper;
-  CGuiCamera* x14c_basehud_camera;
-  CGuiWidget* x150_basewidget_functional;
-  CQuaternion x154_automapperRotate;
-  CVector3f x164_automapperOffset;
-  CQuaternion x170_camRotate;
-  CVector3f x180_camOffset;
-  CTransform4f x18c_mapCamXf;
-  EInGameGuiState x1bc_prevState;
-  EInGameGuiState x1c0_nextState;
-  SOnScreenTex x1c4_onScreenTex;
-  float x1d8_onScreenTexAlpha;
-  rstl::single_ptr< TCachedToken< CTexture > > x1dc_onScreenTexTok;
-  CTweakGui::EHelmetVisMode x1e0_helmetVisMode;
-  uint x1e4_enableTargetingManager;
-  uint x1e8_enableAutoMapper;
-  CTweakGui::EHudVisMode x1ec_hudVisMode;
-  uint x1f0_enablePlayerVisor;
-  float x1f4_visorStaticAlpha;
+  TToken< CDependencyGroup > mIggmPreLoad;
+  rstl::vector< CToken > mPreLoadDeps;
+  ELoadPhase mLoadPhase;
+  CRandom16 mRand;
+  CFaceplateDecoration mFaceplateDecor;
+  rstl::single_ptr< CPlayerVisor > mPlayerVisor;
+  rstl::single_ptr< CSamusHud > mSamusHud;
+  rstl::single_ptr< CAutoMapper > mAutoMapper;
+  rstl::single_ptr< CPauseScreenBlur > mPauseScreenBlur;
+  rstl::single_ptr< CSamusFaceReflection > mSamusReflection;
+  rstl::single_ptr< CMessageScreen > mMessageScreen;
+  rstl::single_ptr< CPauseScreen > mPauseScreen;
+  rstl::single_ptr< CSaveGameScreen > mSaveUI;
+  TCachedToken< CTexture > mDeathDot;
+  TPauseScreenDGRPs mPauseScreenDGRPs;
+  rstl::vector< TToken< CDependencyGroup > > mInGameGuiDGRPs;
+  rstl::vector< CAssetId > mInGameTextureIDs;
+  rstl::vector< CToken > mPauseResources;
+  CCameraFilterPass mCamFilter;
+  CAssetId mPauseGameHudMessage;
+  float mPauseGameHudTime;
+  rstl::list< TDumpedTexture > mDumpedTextures;
+  CGuiWidget* mBasewidget_automapper;
+  CGuiModel* mModel_automapper;
+  CGuiCamera* mBasehud_camera;
+  CGuiWidget* mBasewidget_functional;
+  CQuaternion mAutomapperRotate;
+  CVector3f mAutomapperOffset;
+  CQuaternion mCamRotate;
+  CVector3f mCamOffset;
+  CTransform4f mMapCamXf;
+  EInGameGuiState mPrevState;
+  EInGameGuiState mNextState;
+  SOnScreenTex mOnScreenTex;
+  float mOnScreenTexAlpha;
+  rstl::single_ptr< TCachedToken< CTexture > > mOnScreenTexTok;
+  CTweakGui::EHelmetVisMode mHelmetVisMode;
+  uint mEnableTargetingManager;
+  uint mEnableAutoMapper;
+  CTweakGui::EHudVisMode mHudVisMode;
+  uint mEnablePlayerVisor;
+  float mVisorStaticAlpha;
   bool x1f8_24_ : 1;
-  bool x1f8_25_playerAlive : 1;
-  bool x1f8_26_deferTransition : 1;
-  bool x1f8_27_inSaveUI : 1;
+  bool mPlayerAlive : 1;
+  bool mDeferTransition : 1;
+  bool mInSaveUI : 1;
 };
 CHECK_SIZEOF(CInGameGuiManager, 0x1fc)
 #endif

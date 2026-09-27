@@ -8,28 +8,28 @@
 CSequenceHelper::CSequenceHelper(const rstl::ncrc_ptr< CAnimTreeNode >& a,
                                  const rstl::ncrc_ptr< CAnimTreeNode >& b,
                                  const CAnimSysContext& context)
-: x0_context(context) {
-  x10_nodes.reserve(2);
-  x10_nodes.push_back(a);
-  x10_nodes.push_back(b);
+: mContext(context) {
+  mNodes.reserve(2);
+  mNodes.push_back(a);
+  mNodes.push_back(b);
 }
 
 CSequenceHelper::CSequenceHelper(const rstl::vector< rstl::rc_ptr< IMetaAnim > >& anims,
                                  const CAnimSysContext& context)
-: x0_context(context) {
-  x10_nodes.reserve(anims.size());
+: mContext(context) {
+  mNodes.reserve(anims.size());
 
   AUTO(it, anims.begin());
   AUTO(end, anims.end());
   for (; it != end; ++it) {
     const rstl::rc_ptr< IMetaAnim >& anim = *it;
-    x10_nodes.push_back(
+    mNodes.push_back(
         anim->GetAnimationTree(context, CMetaAnimTreeBuildOrders::NoSpecialOrders()));
   }
 }
 
 CSequenceFundamentals CSequenceHelper::ComputeSequenceFundamentals() const {
-  const int numNodes = x10_nodes.size();
+  const int numNodes = mNodes.size();
   CCharAnimTime elapsed = CCharAnimTime::ZeroFlat();
   CVector3f offset = CVector3f::Zero();
   CCharAnimTime duration = CCharAnimTime::ZeroFlat();
@@ -39,7 +39,7 @@ CSequenceFundamentals CSequenceHelper::ComputeSequenceFundamentals() const {
   rstl::vector< CSoundPOINode > soundNodes;
 
   if (numNodes > 0) {
-    rstl::ncrc_ptr< CAnimTreeNode > node = Cast(x10_nodes[0]->Clone());
+    rstl::ncrc_ptr< CAnimTreeNode > node = Cast(mNodes[0]->Clone());
     for (int i = 0; i < numNodes; ++i) {
       CBoolPOINode boolArray[64];
       const uint numBools = node->GetBoolPOIList(CCharAnimTime::Infinity(), boolArray, 64, 0, 0);
@@ -97,7 +97,7 @@ CSequenceFundamentals CSequenceHelper::ComputeSequenceFundamentals() const {
       }
 
       if (i < numNodes - 1) {
-        node = CTreeUtils::GetTransitionTree(node, Cast(x10_nodes[i + 1]->Clone()), x0_context);
+        node = CTreeUtils::GetTransitionTree(node, Cast(mNodes[i + 1]->Clone()), mContext);
       }
     }
   }

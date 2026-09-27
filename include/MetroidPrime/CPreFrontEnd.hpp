@@ -12,7 +12,7 @@ public:
   void Draw() const;
 
 private:
-  bool x14_resourceTweaksRegistered;
+  bool mResourceTweaksRegistered;
 };
 
 #endif // _CPREFRONTEND

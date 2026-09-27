@@ -24,8 +24,8 @@ public:
   struct CRotationAndOffsetVectors {
     CRotationAndOffsetVectors(CInputStream& in);
 
-    rstl::vector< CQuaternion > x0_rotations;
-    rstl::vector< CVector3f > x10_offsets;
+    rstl::vector< CQuaternion > mRotations;
+    rstl::vector< CVector3f > mOffsets;
   };
 
   RotationAndOffsetStorage(const CRotationAndOffsetVectors&, uint numFrames);
@@ -41,7 +41,7 @@ public:
   uint GetFrameSizeInBytes() const;
 
   const uint* StartForFrame(uint frame) const {
-    return x0_storage.get() + frame * (xc_rotationsPerFrame * 4 + x10_offsetsPerFrame * 3);
+    return mStorage.get() + frame * (mRotationsPerFrame * 4 + mOffsetsPerFrame * 3);
   }
 
   const CQuaternion& GetRotation(uint channel, uint frame) const {
@@ -51,15 +51,15 @@ public:
 
   const CVector3f& GetOffset(uint channel, uint frame) const {
     const uint* start = StartForFrame(frame);
-    const uint offset = xc_rotationsPerFrame * 4 + channel * 3;
+    const uint offset = mRotationsPerFrame * 4 + channel * 3;
     return *reinterpret_cast< const CVector3f* >(start + offset);
   }
 
 private:
-  rstl::auto_ptr< uint > x0_storage;
-  uint x8_numFrames;
-  uint xc_rotationsPerFrame;
-  uint x10_offsetsPerFrame;
+  rstl::auto_ptr< uint > mStorage;
+  uint mNumFrames;
+  uint mRotationsPerFrame;
+  uint mOffsetsPerFrame;
 };
 CHECK_SIZEOF(RotationAndOffsetStorage, 0x14)
 
@@ -73,14 +73,14 @@ public:
   CQuaternion GetRotation(const CSegId& seg, const CCharAnimTime& animTime) const;
   void GetSegStatementSet(const CSegIdList& list, CSegStatementSet& set,
                           const CCharAnimTime& time) const;
-  const CCharAnimTime& GetAnimationDuration() const { return x0_duration; }
-  const CCharAnimTime& GetTimePerFrame() const { return x8_interval; }
-  bool HasPOIData() const { return !x58_eventData.null(); }
+  const CCharAnimTime& GetAnimationDuration() const { return mDuration; }
+  const CCharAnimTime& GetTimePerFrame() const { return mInterval; }
+  bool HasPOIData() const { return !mEventData.null(); }
   const rstl::vector< CBoolPOINode >& GetBoolPOIStream() const;
   const rstl::vector< CInt32POINode >& GetInt32POIStream() const;
   const rstl::vector< CParticlePOINode >& GetParticlePOIStream() const;
   const rstl::vector< CSoundPOINode >& GetSoundPOIStream() const;
-  CSegId GetPrimaryOffsetChannel() const { return x1c_root; }
+  CSegId GetPrimaryOffsetChannel() const { return mRoot; }
   CVector3f GetOverallOffset(const CCharAnimTime& time) const {
     return GetOffset(GetPrimaryOffsetChannel(), time);
   }
@@ -88,21 +88,21 @@ public:
     return CSteadyStateAnimInfo(false, GetAnimationDuration(), GetOverallOffset(time));
   }
   void CalcAverageVelocity();
-  float GetAverageVelocity() const { return x60_averageVelocity; }
+  float GetAverageVelocity() const { return mAverageVelocity; }
 
 private:
-  CCharAnimTime x0_duration;
-  CCharAnimTime x8_interval;
-  uint x10_frameCount;
+  CCharAnimTime mDuration;
+  CCharAnimTime mInterval;
+  uint mFrameCount;
   uint x14_;
   uint x18_;
-  CSegId x1c_root;
-  rstl::vector< schar > x20_rotationChannels;
-  rstl::vector< schar > x30_offsetChannels;
-  RotationAndOffsetStorage x40_storage;
-  CAssetId x54_eventId;
-  rstl::auto_ptr< TLockedToken< CAnimPOIData > > x58_eventData;
-  float x60_averageVelocity;
+  CSegId mRoot;
+  rstl::vector< schar > mRotationChannels;
+  rstl::vector< schar > mOffsetChannels;
+  RotationAndOffsetStorage mStorage;
+  CAssetId mEventId;
+  rstl::auto_ptr< TLockedToken< CAnimPOIData > > mEventData;
+  float mAverageVelocity;
 };
 CHECK_SIZEOF(CAnimSource, 0x64)
 

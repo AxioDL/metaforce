@@ -7,23 +7,23 @@
 
 class CSegId {
 public:
-  CSegId(int id) : x0_id(id) {}
-  CSegId(const char& id) : x0_id(id) {}
-  CSegId(uint id) : x0_id(id) {}
-  CSegId(CInputStream& in) : x0_id(in.Get< uint >()) {}
+  CSegId(int id) : mId(id) {}
+  CSegId(const char& id) : mId(id) {}
+  CSegId(uint id) : mId(id) {}
+  CSegId(CInputStream& in) : mId(in.Get< uint >()) {}
 
-  const uchar val() const { return x0_id; }
+  const uchar val() const { return mId; }
 
   static CSegId Null() { return CSegId(0); }
   static CSegId Invalid() { return CSegId(-1); }
   static CSegId Root() { return CSegId(3); }
   static CSegId Character() { return CSegId(2); }
 
-  bool operator==(const CSegId& rhs) const { return x0_id == rhs.x0_id; }
-  bool operator!=(const CSegId& rhs) const { return x0_id != rhs.x0_id; }
+  bool operator==(const CSegId& rhs) const { return mId == rhs.mId; }
+  bool operator!=(const CSegId& rhs) const { return mId != rhs.mId; }
 
 private:
-  uchar x0_id;
+  uchar mId;
 };
 
 #endif // _CSEGID

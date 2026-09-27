@@ -52,19 +52,19 @@ public:
 
 private:
   void UpdateVisibility();
-  CQuaternion x4_rotation;
-  CVector3f x14_pivotPosition;
-  CVector3f x20_offset;
-  CVector3f x2c_camPos;
-  CVector3f x38_basePosition;
-  CMatrix3f x44_baseRotation;
-  bool x68_24_visDebug : 1;
-  bool x68_25_visGame : 1;
-  CGuiCamera* x6c_camera;
-  CGuiWidget* x70_basewidget_pivot;
-  CGuiWidget* x74_basewidget_deco;
-  CGuiWidget* x78_basewidget_tickdeco0;
-  CGuiWidget* x7c_basewidget_frame;
+  CQuaternion mRotation;
+  CVector3f mPivotPosition;
+  CVector3f mOffset;
+  CVector3f mCamPos;
+  CVector3f mBasePosition;
+  CMatrix3f mBaseRotation;
+  bool mVisDebug : 1;
+  bool mVisGame : 1;
+  CGuiCamera* mCamera;
+  CGuiWidget* mBasewidget_pivot;
+  CGuiWidget* mBasewidget_deco;
+  CGuiWidget* mBasewidget_tickdeco0;
+  CGuiWidget* mBasewidget_frame;
 };
 CHECK_SIZEOF(CHudDecoInterfaceCombat, 0x80)
 
@@ -91,41 +91,41 @@ private:
   void InitializeFlatFrame();
   void UpdateScanDisplay(const CStateManager& mgr, float dt);
   const CScannableObjectInfo* GetCurrScanInfo(const CStateManager& mgr) const;
-  TCachedToken< CGuiFrame > x4_scanHudFlat;
-  CGuiFrame* x10_loadedScanHudFlat;
-  CGuiFrame& x14_selHud;
-  CScanDisplay x18_scanDisplay;
-  TUniqueId x1d0_latestHudPoi;
-  TUniqueId x1d2_latestScanningObject;
-  CPlayer::EPlayerScanState x1d4_latestScanState;
-  float x1d8_scanningTime;
+  TCachedToken< CGuiFrame > mScanHudFlat;
+  CGuiFrame* mLoadedScanHudFlat;
+  CGuiFrame& mSelHud;
+  CScanDisplay mScanDisplay;
+  TUniqueId mLatestHudPoi;
+  TUniqueId mLatestScanningObject;
+  CPlayer::EPlayerScanState mLatestScanState;
+  float mScanningTime;
   float x1dc_;
   float x1e0_;
-  CQuaternion x1e4_rotation;
-  CVector3f x1f4_pivotPosition;
-  CVector3f x200_offset;
-  CVector3f x20c_camPos;
-  CVector3f x218_leftsidePosition;
-  CVector3f x224_rightsidePosition;
-  float x230_sidesTimer;
-  float x234_sidesPositioner;
-  float x238_scanningTextAlpha;
-  float x23c_scanBarAlpha;
-  bool x240_24_visDebug : 1;
-  bool x240_25_visGame : 1;
-  CGuiCamera* x244_camera;
-  CGuiWidget* x248_basewidget_pivot;
-  CGuiWidget* x24c_basewidget_leftside;
-  CGuiWidget* x250_basewidget_rightside;
-  CGuiTextPane* x254_flat_textpane_scanning;
-  CGuiWidget* x258_flat_basewidget_scanguage;
-  CAuiEnergyBarT01* x25c_flat_energybart01_scanbar;
-  CGuiWidget* x260_flat_basewidget_textgroup;
-  CGuiTextPane* x264_flat_textpane_message;
-  CGuiTextPane* x268_flat_textpane_scrollmessage;
-  CGuiModel* x26c_flat_model_xmark;
-  CGuiModel* x270_flat_model_abutton;
-  CGuiModel* x274_flat_model_dash;
+  CQuaternion mRotation;
+  CVector3f mPivotPosition;
+  CVector3f mOffset;
+  CVector3f mCamPos;
+  CVector3f mLeftsidePosition;
+  CVector3f mRightsidePosition;
+  float mSidesTimer;
+  float mSidesPositioner;
+  float mScanningTextAlpha;
+  float mScanBarAlpha;
+  bool mVisDebug : 1;
+  bool mVisGame : 1;
+  CGuiCamera* mCamera;
+  CGuiWidget* mBasewidget_pivot;
+  CGuiWidget* mBasewidget_leftside;
+  CGuiWidget* mBasewidget_rightside;
+  CGuiTextPane* mFlat_textpane_scanning;
+  CGuiWidget* mFlat_basewidget_scanguage;
+  CAuiEnergyBarT01* mFlat_energybart01_scanbar;
+  CGuiWidget* mFlat_basewidget_textgroup;
+  CGuiTextPane* mFlat_textpane_message;
+  CGuiTextPane* mFlat_textpane_scrollmessage;
+  CGuiModel* mFlat_model_xmark;
+  CGuiModel* mFlat_model_abutton;
+  CGuiModel* mFlat_model_dash;
 };
 CHECK_SIZEOF(CHudDecoInterfaceScan, 0x278)
 
@@ -147,21 +147,21 @@ public:
 
 private:
   void UpdateVisibility();
-  float x4_seekerScale;
-  CQuaternion x8_rotation;
-  CVector3f x18_pivotPosition;
-  CVector3f x24_offset;
-  CVector3f x30_camPos;
-  CMatrix3f x3c_reticuleXf;
-  CVector3f x60_seekerPosition;
+  float mSeekerScale;
+  CQuaternion mRotation;
+  CVector3f mPivotPosition;
+  CVector3f mOffset;
+  CVector3f mCamPos;
+  CMatrix3f mReticuleXf;
+  CVector3f mSeekerPosition;
   CVector3f x6c_;
   CMatrix3f x78_;
-  bool x9c_24_visDebug : 1;
-  bool x9c_25_visGame : 1;
-  CGuiCamera* xa0_camera;
-  CGuiWidget* xa4_basewidget_pivot;
-  CGuiWidget* xa8_basewidget_seeker;
-  CGuiWidget* xac_basewidget_rotate;
+  bool mVisDebug : 1;
+  bool mVisGame : 1;
+  CGuiCamera* mCamera;
+  CGuiWidget* mBasewidget_pivot;
+  CGuiWidget* mBasewidget_seeker;
+  CGuiWidget* mBasewidget_rotate;
 };
 CHECK_SIZEOF(CHudDecoInterfaceXRay, 0xb0)
 
@@ -182,25 +182,25 @@ public:
 private:
   struct SLockWidget {
     explicit SLockWidget(CGuiWidget* widget);
-    CGuiWidget* x0_widget;
-    CTransform4f x4_transform;
+    CGuiWidget* mWidget;
+    CTransform4f mTransform;
   };
   void UpdateVisibility();
-  CQuaternion x4_rotation;
-  CVector3f x14_pivotPosition;
-  CVector3f x20_offset;
-  CVector3f x2c_camPos;
-  CMatrix3f x38_reticuleXf;
-  CVector3f x5c_reticulePosition;
-  float x68_lockonScale;
-  float x6c_retflashTimer;
-  bool x70_24_visDebug : 1;
-  bool x70_25_visGame : 1;
-  CGuiCamera* x74_camera;
-  CGuiWidget* x78_basewidget_pivot;
-  CGuiWidget* x7c_basewidget_reticle;
-  CGuiModel* x80_model_retflash;
-  rstl::vector< SLockWidget > x84_lockonWidgets;
+  CQuaternion mRotation;
+  CVector3f mPivotPosition;
+  CVector3f mOffset;
+  CVector3f mCamPos;
+  CMatrix3f mReticuleXf;
+  CVector3f mReticulePosition;
+  float mLockonScale;
+  float mRetflashTimer;
+  bool mVisDebug : 1;
+  bool mVisGame : 1;
+  CGuiCamera* mCamera;
+  CGuiWidget* mBasewidget_pivot;
+  CGuiWidget* mBasewidget_reticle;
+  CGuiModel* mModel_retflash;
+  rstl::vector< SLockWidget > mLockonWidgets;
 };
 CHECK_SIZEOF(CHudDecoInterfaceThermal, 0x94)
 

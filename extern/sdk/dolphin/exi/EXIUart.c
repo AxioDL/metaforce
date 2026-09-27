@@ -119,7 +119,7 @@ static int QueueLength(void) {
 
 u32 WriteUARTN(const void* buf, unsigned long len) {
   u32 cmd;
-#if VERSION >= VERSION_GM8P_00
+#if VERSION >= VERSION_GM8E_02
   s32 enabled;
 #endif
   int qLen;
@@ -131,12 +131,12 @@ u32 WriteUARTN(const void* buf, unsigned long len) {
   if (Enabled != EXI_MAGIC)
     return 2;
 
-#if VERSION >= VERSION_GM8P_00
+#if VERSION >= VERSION_GM8E_02
   enabled = OSDisableInterrupts();
 #endif
   locked = EXILock(Chan, Dev, 0);
   if (!locked) {
-#if VERSION >= VERSION_GM8P_00
+#if VERSION >= VERSION_GM8E_02
     OSRestoreInterrupts(enabled);
 #endif
     return 0;
@@ -181,7 +181,7 @@ u32 WriteUARTN(const void* buf, unsigned long len) {
   }
 
   EXIUnlock(Chan);
-#if VERSION >= VERSION_GM8P_00
+#if VERSION >= VERSION_GM8E_02
   OSRestoreInterrupts(enabled);
 #endif
   return error;

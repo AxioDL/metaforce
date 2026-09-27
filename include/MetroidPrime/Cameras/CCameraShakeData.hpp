@@ -6,12 +6,12 @@
 #include "Kyoto/Math/CVector3f.hpp"
 
 struct SCameraShakePoint {
-  uint x0_useEnvelope;
-  float x4_value;
-  float x8_magnitude;
-  float xc_attackTime;
-  float x10_sustainTime;
-  float x14_duration;
+  uint mUseEnvelope;
+  float mValue;
+  float mMagnitude;
+  float mAttackTime;
+  float mSustainTime;
+  float mDuration;
 
   SCameraShakePoint(int flags, float attackTime, float sustainTime, float duration,
                     float magnitude);
@@ -30,16 +30,16 @@ public:
 
   static CCameraShakerComponent NoMotion();
   void UpdateMotion(float curTime, float duration, float distAtt);
-  float GetValue() const { return x38_value; }
-  bool IsModulated() const { return (x4_useModulation & 1) != 0; }
-  float GetAmplitude() const { return x8_am.GetValue(); }
-  float GetSeverity() const { return x20_fm.GetValue(); }
+  float GetValue() const { return mValue; }
+  bool IsModulated() const { return (mUseModulation & 1) != 0; }
+  float GetAmplitude() const { return mAm.GetValue(); }
+  float GetSeverity() const { return mFm.GetValue(); }
 
 private:
-  uint x4_useModulation;
-  SCameraShakePoint x8_am;
-  SCameraShakePoint x20_fm;
-  float x38_value;
+  uint mUseModulation;
+  SCameraShakePoint mAm;
+  SCameraShakePoint mFm;
+  float mValue;
 };
 CHECK_SIZEOF(CCameraShakerComponent, 0x3c)
 
@@ -51,8 +51,8 @@ public:
                    const CCameraShakerComponent& shakerX, const CCameraShakerComponent& shakerY,
                    const CCameraShakerComponent& shakerZ);
 
-  void SetId(int id) { xbc_shakerId = id; }
-  int GetId() const { return xbc_shakerId; }
+  void SetId(int id) { mShakerId = id; }
+  int GetId() const { return mShakerId; }
   void Update(float dt, CStateManager& mgr);
   float GetMaxAmplitude() const;
   float GetMaxSeverity() const;
@@ -68,26 +68,26 @@ public:
   static CCameraShakeData HardVertShakeDistance(float duration, float magnitude, float distance,
                                                 CVector3f pos);
 
-  float GetDuration() const { return x0_duration; }
-  float GetCurTime() const { return x4_curTime; }
+  float GetDuration() const { return mDuration; }
+  float GetCurTime() const { return mCurTime; }
   CVector3f GetPoint() const;
-  bool Done() const { return x4_curTime >= x0_duration; }
-  uint GetFlags() const { return xc0_flags; }
-  const CVector3f& GetSfxPos() const { return xc4_sfxPos; }
+  bool Done() const { return mCurTime >= mDuration; }
+  uint GetFlags() const { return mFlags; }
+  const CVector3f& GetSfxPos() const { return mSfxPos; }
 
   static CCameraShakeData skSoftRecoil;
   static CCameraShakeData skHardRecoil;
 
 private:
-  float x0_duration;
-  float x4_curTime;
-  CCameraShakerComponent x8_shakerX;
-  CCameraShakerComponent x44_shakerY;
-  CCameraShakerComponent x80_shakerZ;
-  int xbc_shakerId;
-  uint xc0_flags;
-  CVector3f xc4_sfxPos;
-  float xd0_sfxDist;
+  float mDuration;
+  float mCurTime;
+  CCameraShakerComponent mShakerX;
+  CCameraShakerComponent mShakerY;
+  CCameraShakerComponent mShakerZ;
+  int mShakerId;
+  uint mFlags;
+  CVector3f mSfxPos;
+  float mSfxDist;
 };
 CHECK_SIZEOF(CCameraShakeData, 0xd4)
 

@@ -3,7 +3,7 @@
 #include "Kyoto/Text/CFontRenderState.hpp"
 
 void CLineSpacingInstruction::Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const {
-  state.SetLineSpacing(x4_spacing);
+  state.SetLineSpacing(mSpacing);
 }
 
 void CLineSpacingInstruction::PageInvoke(CFontRenderState& state, CTextRenderBuffer* buf) const {

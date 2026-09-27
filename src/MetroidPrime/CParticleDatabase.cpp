@@ -9,44 +9,44 @@
 #include "MetroidPrime/CParticleGenInfoGeneric.hpp"
 
 CParticleDatabase::CParticleDatabase()
-: xb4_24_updatesEnabled(true), xb4_25_anySystemsDrawnWithModel(false) {}
+: mUpdatesEnabled(true), mAnySystemsDrawnWithModel(false) {}
 
 CParticleDatabase::~CParticleDatabase() {}
 
 void CParticleDatabase::CacheParticleDesc(const CCharacterInfo::CParticleResData& data) {
-  for (rstl::vector< CAssetId >::const_iterator it = data.x0_part.begin(), end = data.x0_part.end();
+  for (rstl::vector< CAssetId >::const_iterator it = data.mPart.begin(), end = data.mPart.end();
        it != end; ++it) {
     const CAssetId id = *it;
-    AUTO(cached, x0_particleDescs.find(id));
-    if (cached == x0_particleDescs.end()) {
+    AUTO(cached, mParticleDescs.find(id));
+    if (cached == mParticleDescs.end()) {
       rstl::rc_ptr< TLockedToken< CGenDescription > > desc(
           rs_new TLockedToken< CGenDescription >(gpSimplePool->GetObj(SObjectTag('PART', id))));
-      x0_particleDescs.insert(
+      mParticleDescs.insert(
           rstl::pair< CAssetId, rstl::rc_ptr< TLockedToken< CGenDescription > > >(id, desc));
     }
   }
-  for (rstl::vector< CAssetId >::const_iterator it = data.x10_swhc.begin(),
-                                                end = data.x10_swhc.end();
+  for (rstl::vector< CAssetId >::const_iterator it = data.mSwhc.begin(),
+                                                end = data.mSwhc.end();
        it != end; ++it) {
     const CAssetId id = *it;
-    AUTO(cached, x14_swooshDescs.find(id));
-    if (cached == x14_swooshDescs.end()) {
+    AUTO(cached, mSwooshDescs.find(id));
+    if (cached == mSwooshDescs.end()) {
       rstl::rc_ptr< TLockedToken< CSwooshDescription > > desc(
           rs_new TLockedToken< CSwooshDescription >(gpSimplePool->GetObj(SObjectTag('SWHC', id))));
-      x14_swooshDescs.insert(
+      mSwooshDescs.insert(
           rstl::pair< CAssetId, rstl::rc_ptr< TLockedToken< CSwooshDescription > > >(id, desc));
     }
   }
-  for (rstl::vector< CAssetId >::const_iterator it = data.x20_elsc.begin(),
-                                                end = data.x20_elsc.end();
+  for (rstl::vector< CAssetId >::const_iterator it = data.mElscA.begin(),
+                                                end = data.mElscA.end();
        it != end; ++it) {
     const CAssetId id = *it;
-    AUTO(cached, x28_electricDescs.find(id));
-    if (cached == x28_electricDescs.end()) {
+    AUTO(cached, mElectricDescs.find(id));
+    if (cached == mElectricDescs.end()) {
       rstl::rc_ptr< TLockedToken< CElectricDescription > > desc(
           rs_new TLockedToken< CElectricDescription >(
               gpSimplePool->GetObj(SObjectTag('ELSC', id))));
-      x28_electricDescs.insert(
+      mElectricDescs.insert(
           rstl::pair< CAssetId, rstl::rc_ptr< TLockedToken< CElectricDescription > > >(id, desc));
     }
   }
@@ -56,32 +56,32 @@ void CParticleDatabase::CacheParticleDesc(const SObjectTag& tag) {
   const CAssetId id = tag.GetId();
   switch (tag.GetType()) {
   case 'PART': {
-    AUTO(cached, x0_particleDescs.find(id));
-    if (cached == x0_particleDescs.end()) {
+    AUTO(cached, mParticleDescs.find(id));
+    if (cached == mParticleDescs.end()) {
       rstl::rc_ptr< TLockedToken< CGenDescription > > desc(
           rs_new TLockedToken< CGenDescription >(gpSimplePool->GetObj(SObjectTag('PART', id))));
-      x0_particleDescs.insert(
+      mParticleDescs.insert(
           rstl::pair< CAssetId, rstl::rc_ptr< TLockedToken< CGenDescription > > >(id, desc));
     }
     break;
   }
   case 'SWHC': {
-    AUTO(cached, x14_swooshDescs.find(id));
-    if (cached == x14_swooshDescs.end()) {
+    AUTO(cached, mSwooshDescs.find(id));
+    if (cached == mSwooshDescs.end()) {
       rstl::rc_ptr< TLockedToken< CSwooshDescription > > desc(
           rs_new TLockedToken< CSwooshDescription >(gpSimplePool->GetObj(SObjectTag('SWHC', id))));
-      x14_swooshDescs.insert(
+      mSwooshDescs.insert(
           rstl::pair< CAssetId, rstl::rc_ptr< TLockedToken< CSwooshDescription > > >(id, desc));
     }
     break;
   }
   case 'ELSC': {
-    AUTO(cached, x28_electricDescs.find(id));
-    if (cached == x28_electricDescs.end()) {
+    AUTO(cached, mElectricDescs.find(id));
+    if (cached == mElectricDescs.end()) {
       rstl::rc_ptr< TLockedToken< CElectricDescription > > desc(
           rs_new TLockedToken< CElectricDescription >(
               gpSimplePool->GetObj(SObjectTag('ELSC', id))));
-      x28_electricDescs.insert(
+      mElectricDescs.insert(
           rstl::pair< CAssetId, rstl::rc_ptr< TLockedToken< CElectricDescription > > >(id, desc));
     }
     break;
@@ -95,31 +95,31 @@ void CParticleDatabase::InsertParticleGen(const bool oneShot, int flags, const r
   if (oneShot) {
     switch (flags & 0x60) {
     case 0x20:
-      map = &x8c_firstDraw;
+      map = &mFirstDraw;
       break;
     case 0x40:
-      map = &xa0_lastDraw;
+      map = &mLastDraw;
       break;
     default:
-      map = &x78_rendererDraw;
+      map = &mRendererDraw;
       break;
     }
   } else {
     switch (flags & 0x60) {
     case 0x20:
-      map = &x50_firstDrawLoop;
+      map = &mFirstDrawLoop;
       break;
     case 0x40:
-      map = &x64_lastDrawLoop;
+      map = &mLastDrawLoop;
       break;
     default:
-      map = &x3c_rendererDrawLoop;
+      map = &mRendererDrawLoop;
       break;
     }
   }
   map->insert(DrawMap::value_type(name, gen));
   if ((flags & 0x60) != 0) {
-    xb4_25_anySystemsDrawnWithModel = true;
+    mAnySystemsDrawnWithModel = true;
   }
 }
 
@@ -152,8 +152,8 @@ void CParticleDatabase::AddParticleEffect(const rstl::string& name, int flags,
     }
     rstl::auto_ptr< CParticleGenInfo > gen;
     if (type == 'PART') {
-      AUTO(it, x0_particleDescs.find(tag.GetId()));
-      if (it != x0_particleDescs.end()) {
+      AUTO(it, mParticleDescs.find(tag.GetId()));
+      if (it != mParticleDescs.end()) {
         rstl::ncrc_ptr< CParticleGen > system = rs_new CElementGen(*it->second);
         const int lightId =
             particleLightIdx +
@@ -163,15 +163,15 @@ void CParticleDatabase::AddParticleEffect(const rstl::string& name, int flags,
                                              flags, mgr, areaId, lightId, kPGT_Normal);
       }
     } else if (type == 'SWHC') {
-      AUTO(it, x14_swooshDescs.find(tag.GetId()));
-      if (it != x14_swooshDescs.end()) {
+      AUTO(it, mSwooshDescs.find(tag.GetId()));
+      if (it != mSwooshDescs.end()) {
         rstl::ncrc_ptr< CParticleGen > system = rs_new CParticleSwoosh(*it->second, 0);
         gen = rs_new CParticleGenInfoGeneric(tag, system, duration, locator, particleScale, mode,
                                              flags, mgr, areaId, -1, kPGT_Normal);
       }
     } else if (type == 'ELSC') {
-      AUTO(it, x28_electricDescs.find(tag.GetId()));
-      if (it != x28_electricDescs.end()) {
+      AUTO(it, mElectricDescs.find(tag.GetId()));
+      if (it != mElectricDescs.end()) {
         rstl::ncrc_ptr< CParticleGen > system = rs_new CParticleElectric(*it->second);
         const int lightId =
             particleLightIdx +
@@ -214,8 +214,8 @@ void CParticleDatabase::AddAuxiliaryParticleEffect(const rstl::string& name, int
     }
     rstl::auto_ptr< CParticleGenInfo > gen;
     if (type == 'PART') {
-      AUTO(it, x0_particleDescs.find(tag.GetId()));
-      if (it != x0_particleDescs.end()) {
+      AUTO(it, mParticleDescs.find(tag.GetId()));
+      if (it != mParticleDescs.end()) {
         rstl::ncrc_ptr< CParticleGen > system = rs_new CElementGen(*it->second);
         const int lightId =
             particleLightIdx +
@@ -241,38 +241,38 @@ void CParticleDatabase::AddAuxiliaryParticleEffect(const rstl::string& name, int
 
 CParticleGenInfo* CParticleDatabase::GetParticleEffect(const rstl::string& name) {
   {
-    AUTO(it, x3c_rendererDrawLoop.find(name));
-    if (it != x3c_rendererDrawLoop.end()) {
+    AUTO(it, mRendererDrawLoop.find(name));
+    if (it != mRendererDrawLoop.end()) {
       return it->second.get();
     }
   }
   {
-    DrawMap::const_iterator it = x50_firstDrawLoop.find(name);
-    if (it != x50_firstDrawLoop.end()) {
+    DrawMap::const_iterator it = mFirstDrawLoop.find(name);
+    if (it != mFirstDrawLoop.end()) {
       return it->second.get();
     }
   }
   {
-    DrawMap::const_iterator it = x64_lastDrawLoop.find(name);
-    if (it != x64_lastDrawLoop.end()) {
+    DrawMap::const_iterator it = mLastDrawLoop.find(name);
+    if (it != mLastDrawLoop.end()) {
       return it->second.get();
     }
   }
   {
-    DrawMap::const_iterator it = x78_rendererDraw.find(name);
-    if (it != x78_rendererDraw.end()) {
+    DrawMap::const_iterator it = mRendererDraw.find(name);
+    if (it != mRendererDraw.end()) {
       return it->second.get();
     }
   }
   {
-    DrawMap::const_iterator it = x8c_firstDraw.find(name);
-    if (it != x8c_firstDraw.end()) {
+    DrawMap::const_iterator it = mFirstDraw.find(name);
+    if (it != mFirstDraw.end()) {
       return it->second.get();
     }
   }
   {
-    DrawMap::const_iterator it = xa0_lastDraw.find(name);
-    if (it != xa0_lastDraw.end()) {
+    DrawMap::const_iterator it = mLastDraw.find(name);
+    if (it != mLastDraw.end()) {
       return it->second.get();
     }
   }
@@ -304,17 +304,17 @@ void CParticleDatabase::SetExternalVarValue(const rstl::string& name, int index,
 void CParticleDatabase::Update(float dt, const CPoseAsTransforms& pose,
                                const CCharLayoutInfo& layout, const CTransform4f& xf,
                                const CVector3f& scale, CStateManager& mgr) {
-  if (!xb4_24_updatesEnabled) {
+  if (!mUpdatesEnabled) {
     return;
   }
-  UpdateParticleGenDB(dt, pose, layout, xf, scale, mgr, x3c_rendererDrawLoop, true);
-  UpdateParticleGenDB(dt, pose, layout, xf, scale, mgr, x50_firstDrawLoop, true);
-  UpdateParticleGenDB(dt, pose, layout, xf, scale, mgr, x64_lastDrawLoop, true);
-  UpdateParticleGenDB(dt, pose, layout, xf, scale, mgr, x78_rendererDraw, false);
-  UpdateParticleGenDB(dt, pose, layout, xf, scale, mgr, x8c_firstDraw, false);
-  UpdateParticleGenDB(dt, pose, layout, xf, scale, mgr, xa0_lastDraw, false);
-  xb4_25_anySystemsDrawnWithModel = x50_firstDrawLoop.size() || x64_lastDrawLoop.size() ||
-                                    x8c_firstDraw.size() || xa0_lastDraw.size();
+  UpdateParticleGenDB(dt, pose, layout, xf, scale, mgr, mRendererDrawLoop, true);
+  UpdateParticleGenDB(dt, pose, layout, xf, scale, mgr, mFirstDrawLoop, true);
+  UpdateParticleGenDB(dt, pose, layout, xf, scale, mgr, mLastDrawLoop, true);
+  UpdateParticleGenDB(dt, pose, layout, xf, scale, mgr, mRendererDraw, false);
+  UpdateParticleGenDB(dt, pose, layout, xf, scale, mgr, mFirstDraw, false);
+  UpdateParticleGenDB(dt, pose, layout, xf, scale, mgr, mLastDraw, false);
+  mAnySystemsDrawnWithModel = mFirstDrawLoop.size() || mLastDrawLoop.size() ||
+                                    mFirstDraw.size() || mLastDraw.size();
 }
 
 void CParticleDatabase::UpdateParticleGenDB(float dt, const CPoseAsTransforms& pose,
@@ -434,14 +434,14 @@ void CParticleDatabase::UpdateParticleGenDB(float dt, const CPoseAsTransforms& p
 }
 
 void CParticleDatabase::AddToRendererClipped(const CFrustumPlanes& frustum) const {
-  AddToRendererClippedParticleGenMap(x78_rendererDraw, frustum);
-  AddToRendererClippedParticleGenMap(x3c_rendererDrawLoop, frustum);
+  AddToRendererClippedParticleGenMap(mRendererDraw, frustum);
+  AddToRendererClippedParticleGenMap(mRendererDrawLoop, frustum);
 }
 
 void CParticleDatabase::AddToRendererClippedMasked(const CFrustumPlanes& frustum, int mask,
                                                    int target) const {
-  AddToRendererClippedParticleGenMapMasked(x78_rendererDraw, frustum, mask, target);
-  AddToRendererClippedParticleGenMapMasked(x3c_rendererDrawLoop, frustum, mask, target);
+  AddToRendererClippedParticleGenMapMasked(mRendererDraw, frustum, mask, target);
+  AddToRendererClippedParticleGenMapMasked(mRendererDrawLoop, frustum, mask, target);
 }
 
 void CParticleDatabase::AddToRendererClippedParticleGenMap(const DrawMap& map,
@@ -467,23 +467,23 @@ void CParticleDatabase::AddToRendererClippedParticleGenMapMasked(const DrawMap& 
 }
 
 void CParticleDatabase::RenderSystemsToBeDrawnFirst() const {
-  RenderParticleGenMap(x8c_firstDraw);
-  RenderParticleGenMap(x50_firstDrawLoop);
+  RenderParticleGenMap(mFirstDraw);
+  RenderParticleGenMap(mFirstDrawLoop);
 }
 
 void CParticleDatabase::RenderSystemsToBeDrawnFirstMasked(int mask, int target) const {
-  RenderParticleGenMapMasked(x8c_firstDraw, mask, target);
-  RenderParticleGenMapMasked(x50_firstDrawLoop, mask, target);
+  RenderParticleGenMapMasked(mFirstDraw, mask, target);
+  RenderParticleGenMapMasked(mFirstDrawLoop, mask, target);
 }
 
 void CParticleDatabase::RenderSystemsToBeDrawnLast() const {
-  RenderParticleGenMap(xa0_lastDraw);
-  RenderParticleGenMap(x64_lastDrawLoop);
+  RenderParticleGenMap(mLastDraw);
+  RenderParticleGenMap(mLastDrawLoop);
 }
 
 void CParticleDatabase::RenderSystemsToBeDrawnLastMasked(int mask, int target) const {
-  RenderParticleGenMapMasked(xa0_lastDraw, mask, target);
-  RenderParticleGenMapMasked(x64_lastDrawLoop, mask, target);
+  RenderParticleGenMapMasked(mLastDraw, mask, target);
+  RenderParticleGenMapMasked(mLastDrawLoop, mask, target);
 }
 
 void CParticleDatabase::RenderParticleGenMap(const DrawMap& map) {
@@ -501,12 +501,12 @@ void CParticleDatabase::RenderParticleGenMapMasked(const DrawMap& map, int mask,
 }
 
 void CParticleDatabase::DeleteAllLights(CStateManager& mgr) {
-  DeleteAllLightsForParticleDB(mgr, x3c_rendererDrawLoop);
-  DeleteAllLightsForParticleDB(mgr, x50_firstDrawLoop);
-  DeleteAllLightsForParticleDB(mgr, x64_lastDrawLoop);
-  DeleteAllLightsForParticleDB(mgr, x78_rendererDraw);
-  DeleteAllLightsForParticleDB(mgr, x8c_firstDraw);
-  DeleteAllLightsForParticleDB(mgr, xa0_lastDraw);
+  DeleteAllLightsForParticleDB(mgr, mRendererDrawLoop);
+  DeleteAllLightsForParticleDB(mgr, mFirstDrawLoop);
+  DeleteAllLightsForParticleDB(mgr, mLastDrawLoop);
+  DeleteAllLightsForParticleDB(mgr, mRendererDraw);
+  DeleteAllLightsForParticleDB(mgr, mFirstDraw);
+  DeleteAllLightsForParticleDB(mgr, mLastDraw);
 }
 
 void CParticleDatabase::DeleteAllLightsForParticleDB(CStateManager& mgr, DrawMap& map) {
@@ -516,9 +516,9 @@ void CParticleDatabase::DeleteAllLightsForParticleDB(CStateManager& mgr, DrawMap
 }
 
 void CParticleDatabase::SuspendAllActiveEffects(CStateManager& mgr) {
-  SuspendAllActiveEffectsForParticleDB(mgr, x3c_rendererDrawLoop);
-  SuspendAllActiveEffectsForParticleDB(mgr, x50_firstDrawLoop);
-  SuspendAllActiveEffectsForParticleDB(mgr, x64_lastDrawLoop);
+  SuspendAllActiveEffectsForParticleDB(mgr, mRendererDrawLoop);
+  SuspendAllActiveEffectsForParticleDB(mgr, mFirstDrawLoop);
+  SuspendAllActiveEffectsForParticleDB(mgr, mLastDrawLoop);
 }
 
 void CParticleDatabase::SuspendAllActiveEffectsForParticleDB(CStateManager& mgr, DrawMap& map) {
@@ -528,12 +528,12 @@ void CParticleDatabase::SuspendAllActiveEffectsForParticleDB(CStateManager& mgr,
 }
 
 void CParticleDatabase::SetModulationColorAllActiveEffects(const CColor& color) {
-  SetModulationColorAllActiveEffectsForParticleDB(color, x3c_rendererDrawLoop);
-  SetModulationColorAllActiveEffectsForParticleDB(color, x50_firstDrawLoop);
-  SetModulationColorAllActiveEffectsForParticleDB(color, x64_lastDrawLoop);
-  SetModulationColorAllActiveEffectsForParticleDB(color, x78_rendererDraw);
-  SetModulationColorAllActiveEffectsForParticleDB(color, x8c_firstDraw);
-  SetModulationColorAllActiveEffectsForParticleDB(color, xa0_lastDraw);
+  SetModulationColorAllActiveEffectsForParticleDB(color, mRendererDrawLoop);
+  SetModulationColorAllActiveEffectsForParticleDB(color, mFirstDrawLoop);
+  SetModulationColorAllActiveEffectsForParticleDB(color, mLastDrawLoop);
+  SetModulationColorAllActiveEffectsForParticleDB(color, mRendererDraw);
+  SetModulationColorAllActiveEffectsForParticleDB(color, mFirstDraw);
+  SetModulationColorAllActiveEffectsForParticleDB(color, mLastDraw);
 }
 
 void CParticleDatabase::SetModulationColorAllActiveEffectsForParticleDB(const CColor& color,

@@ -23,15 +23,15 @@ enum EGunState {
 class CStateManager;
 
 class CGunController {
-  CModelData& x0_modelData;
-  CGSFreeLook x4_freeLook;
-  CGSComboFire x1c_comboFire;
-  CGSFidget x30_fidget;
-  char x4c_pad[0x4];
-  EGunState x50_gunState;
-  int x54_curAnimId;
-  bool x58_24_animDone : 1;
-  bool x58_25_enteredComboFire : 1;
+  CModelData& mModelData;
+  CGSFreeLook mFreeLook;
+  CGSComboFire mComboFire;
+  CGSFidget mFidget;
+  char mPad[0x4];
+  EGunState mGunState;
+  int mCurAnimId;
+  bool mAnimDone : 1;
+  bool mEnteredComboFire : 1;
 
 public:
   explicit CGunController(CModelData& modelData);
@@ -47,12 +47,12 @@ public:
   void ReturnToDefault(CStateManager&, float, bool);
   void Reset();
   void ReturnToBasePosition(CStateManager&);
-  bool IsComboOver() const { return x1c_comboFire.IsComboOver(); }
-  void UnLoadFidget() { x30_fidget.UnLoadAnim(); }
-  bool IsFidgetLoaded() const { return x30_fidget.IsAnimLoaded(); }
+  bool IsComboOver() const { return mComboFire.IsComboOver(); }
+  void UnLoadFidget() { mFidget.UnLoadAnim(); }
+  bool IsFidgetLoaded() const { return mFidget.IsAnimLoaded(); }
 
-  int GetCurAnimId() const { return x54_curAnimId; }
-  int GetFreeLookSetId() const { return x4_freeLook.GetSetId(); }
+  int GetCurAnimId() const { return mCurAnimId; }
+  int GetFreeLookSetId() const { return mFreeLook.GetSetId(); }
 };
 CHECK_SIZEOF(CGunController, 0x5C)
 

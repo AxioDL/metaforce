@@ -9,20 +9,20 @@ class CElectricDescription;
 struct SElectricBeamInfo {
   SElectricBeamInfo(const TToken< CElectricDescription >& tok, float maxLength, float radius,
                     float travelSpeed, CAssetId particle, float fadeSpeed, float damageInterval)
-  : x0_electricDescription(tok)
-  , x8_maxLength(maxLength)
-  , xc_radius(radius)
-  , x10_travelSpeed(travelSpeed)
-  , x14_particleId(particle)
-  , x18_fadeSpeed(fadeSpeed)
-  , x1c_damageInterval(damageInterval) {}
-  TToken< CElectricDescription > x0_electricDescription;
-  float x8_maxLength;
-  float xc_radius;
-  float x10_travelSpeed;
-  CAssetId x14_particleId;
-  float x18_fadeSpeed;
-  float x1c_damageInterval;
+  : mElectricDescription(tok)
+  , mMaxLength(maxLength)
+  , mRadius(radius)
+  , mTravelSpeed(travelSpeed)
+  , mParticleId(particle)
+  , mFadeSpeed(fadeSpeed)
+  , mDamageInterval(damageInterval) {}
+  TToken< CElectricDescription > mElectricDescription;
+  float mMaxLength;
+  float mRadius;
+  float mTravelSpeed;
+  CAssetId mParticleId;
+  float mFadeSpeed;
+  float mDamageInterval;
 };
 
 class CElectricBeamProjectile : public CBeamProjectile {
@@ -45,13 +45,13 @@ public:
   void Fire(const CTransform4f&, CStateManager&, bool) override;
 
 private:
-  rstl::single_ptr< CParticleElectric > x468_electric;
-  TLockedToken< CGenDescription > x46c_genDescription;
-  rstl::single_ptr< CElementGen > x478_elementGen;
-  float x47c_fadeSpeed;
-  float x480_intensity;
-  float x484_damageTimer;
-  float x488_damageInterval;
+  rstl::single_ptr< CParticleElectric > mElectric;
+  TLockedToken< CGenDescription > mGenDescription;
+  rstl::single_ptr< CElementGen > mElementGen;
+  float mFadeSpeed;
+  float mIntensity;
+  float mDamageTimer;
+  float mDamageInterval;
   bool x48c_;
 };
 

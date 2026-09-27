@@ -43,33 +43,33 @@ public:
   class Dock {
   public:
     struct SDockReference {
-      TAreaId x0_area;
-      s16 x4_dock;
-      short x6_loadOther : 1;
+      TAreaId mArea;
+      s16 mDock;
+      short mLoadOther : 1;
 
       SDockReference(const TAreaId& area, short dock, short loadOther)
-      : x0_area(area), x4_dock(dock), x6_loadOther(loadOther) {}
+      : mArea(area), mDock(dock), mLoadOther(loadOther) {}
     };
 
   private:
-    int x0_referenceCount;
-    rstl::vector< SDockReference > x4_dockReferences;
-    rstl::reserved_vector< CVector3f, 4 > x14_planeVertices;
-    bool x48_isReferenced;
+    int mReferenceCount;
+    rstl::vector< SDockReference > mDockReferences;
+    rstl::reserved_vector< CVector3f, 4 > mPlaneVertices;
+    bool mIsReferenced;
 
   public:
     const rstl::reserved_vector< CVector3f, 4 >& GetPlaneVertices() const {
-      return x14_planeVertices;
+      return mPlaneVertices;
     }
     int GetReferenceCount() const;
-    const rstl::vector< SDockReference >& GetDockRefs() const { return x4_dockReferences; }
+    const rstl::vector< SDockReference >& GetDockRefs() const { return mDockReferences; }
     Dock(CInputStream& in, const CTransform4f& xf);
     TAreaId GetConnectedAreaId(int other) const;
     int GetOtherDockNumber(int other) const;
     bool GetShouldLoadOther(int other) const;
     void SetShouldLoadOther(int other, bool should);
     bool ShouldLoadOtherArea(int other) const;
-    const CVector3f& GetPoint(int idx) const { return x14_planeVertices[idx]; }
+    const CVector3f& GetPoint(int idx) const { return mPlaneVertices[idx]; }
     bool IsReferenced() const;
     void SetReferenceCount(int v);
   };
@@ -90,13 +90,13 @@ class CGameArea : public IGameArea {
 public:
   class CAreaFog {
   private:
-    ERglFogMode x0_fogMode;
-    CVector2f x4_rangeCur;
-    CVector2f xc_rangeTarget;
-    CVector2f x14_rangeDelta;
-    CVector3f x1c_colorCur;
-    CVector3f x28_colorTarget;
-    float x34_colorDelta;
+    ERglFogMode mFogMode;
+    CVector2f mRangeCur;
+    CVector2f mRangeTarget;
+    CVector2f mRangeDelta;
+    CVector3f mColorCur;
+    CVector3f mColorTarget;
+    float mColorDelta;
 
   public:
     CAreaFog();
@@ -152,65 +152,65 @@ public:
   class CAreaObjectList : public CObjectList {
   public:
     uchar IsQualified(const CEntity& ent) override;
-    explicit CAreaObjectList(TAreaId areaId) : CObjectList(kOL_Invalid), x200c_areaId(areaId) {}
+    explicit CAreaObjectList(TAreaId areaId) : CObjectList(kOL_Invalid), mAreaId(areaId) {}
 
   private:
-    TAreaId x200c_areaId;
+    TAreaId mAreaId;
   };
 
   struct SPVSActorInfo {
-    ushort x0_pvsId;
-    TUniqueId x2_uniqueId;
+    ushort mPvsId;
+    TUniqueId mUniqueId;
 
-    SPVSActorInfo(ushort pvsId, TUniqueId uniqueId) : x0_pvsId(pvsId), x2_uniqueId(uniqueId) {}
+    SPVSActorInfo(ushort pvsId, TUniqueId uniqueId) : mPvsId(pvsId), mUniqueId(uniqueId) {}
   };
 
   struct CPostConstructed {
-    rstl::auto_ptr< CAreaOctTree > x0_collision;
-    int x8_collisionSize;
-    rstl::optional_object< CAreaRenderOctTree > xc_octTree;
-    rstl::vector< CMetroidModelInstance > x4c_insts;
-    rstl::single_ptr< CAreaBspTree > x5c_bspTree;
-    rstl::vector< CWorldLight > x60_lightsA;
-    rstl::vector< CLight > x70_gfxLightsA;
-    rstl::vector< CWorldLight > x80_lightsB;
-    rstl::vector< CLight > x90_gfxLightsB;
-    rstl::single_ptr< CPVSAreaSet > xa0_pvs;
-    rstl::reserved_vector< SPVSActorInfo, 1024 > xa4_pvsEntityMap;
-    int x10a8_pvsVersion;
-    rstl::optional_object< TLockedToken< CPFArea > > x10ac_pathToken;
-    CPFArea* x10bc_pathArea;
-    rstl::single_ptr< CAreaObjectList > x10c0_areaObjectList;
-    rstl::single_ptr< CAreaFog > x10c4_areaFog;
-    rstl::auto_ptr< char > x10c8_sclyBuf;
-    size_t x10d0_sclySize;
-    const u8* x10d4_firstMatPtr;
-    const CScriptAreaAttributes* x10d8_areaAttributes;
-    EOcclusionState x10dc_occlusionState;
+    rstl::auto_ptr< CAreaOctTree > mCollision;
+    int mCollisionSize;
+    rstl::optional_object< CAreaRenderOctTree > mOctTree;
+    rstl::vector< CMetroidModelInstance > mInsts;
+    rstl::single_ptr< CAreaBspTree > mBspTree;
+    rstl::vector< CWorldLight > mLightsA;
+    rstl::vector< CLight > mGfxLightsA;
+    rstl::vector< CWorldLight > mLightsB;
+    rstl::vector< CLight > mGfxLightsB;
+    rstl::single_ptr< CPVSAreaSet > mPvs;
+    rstl::reserved_vector< SPVSActorInfo, 1024 > mPvsEntityMap;
+    int mPvsVersion;
+    rstl::optional_object< TLockedToken< CPFArea > > mPathToken;
+    CPFArea* mPathArea;
+    rstl::single_ptr< CAreaObjectList > mAreaObjectList;
+    rstl::single_ptr< CAreaFog > mAreaFog;
+    rstl::auto_ptr< char > mSclyBuf;
+    size_t mSclySize;
+    const u8* mFirstMatPtr;
+    const CScriptAreaAttributes* mAreaAttributes;
+    EOcclusionState mOcclusionState;
     int x10e0_;
-    float x10e4_occludedTime;
+    float mOccludedTime;
     uint x10e8_;
-    uint x10ec_firstMatSection;
-    rstl::vector< rstl::pair< CARAMToken, int > > x10f0_tokens;
+    uint mFirstMatSection;
+    rstl::vector< rstl::pair< CARAMToken, int > > mTokens;
     uint x1100_;
     uint x1104_;
     bool x1108_24_ : 1;
-    bool x1108_25_modelsConstructed : 1;
+    bool mModelsConstructed : 1;
     bool x1108_26_ : 1;
     bool x1108_27_ : 1;
-    bool x1108_28_occlusionPinged : 1;
-    bool x1108_29_pvsHasActors : 1;
+    bool mOcclusionPinged : 1;
+    bool mPvsHasActors : 1;
     bool x1108_30_ : 1;
-    rstl::vector< rstl::pair< int, int > > x110c_layerOffsets;
-    float x111c_thermalCurrent;
-    float x1120_thermalSpeed;
-    float x1124_thermalTarget;
-    float x1128_worldLightingLevel;
-    float x112c_xraySpeed;
-    float x1130_xrayTarget;
-    float x1134_weaponWorldLightingSpeed;
-    float x1138_weaponWorldLightingTarget;
-    int x113c_playerActorsLoading;
+    rstl::vector< rstl::pair< int, int > > mLayerOffsets;
+    float mThermalCurrent;
+    float mThermalSpeed;
+    float mThermalTarget;
+    float mWorldLightingLevel;
+    float mXraySpeed;
+    float mXrayTarget;
+    float mWeaponWorldLightingSpeed;
+    float mWeaponWorldLightingTarget;
+    int mPlayerActorsLoading;
 
     CPostConstructed();
   };
@@ -227,21 +227,21 @@ public:
   int IGetAreaSaveId() const override;
   rstl::pair< rstl::auto_ptr< char >, int > IGetScriptingMemoryAlways() const override;
 
-  TAreaId GetId() const { return x4_selfIdx; }
-  int GetNumAttachedAreas() const { return x8c_attachedAreaIndices.size(); }
-  TAreaId GetAttachedAreaId(int idx) const { return TAreaId(x8c_attachedAreaIndices[idx]); }
-  int GetTokenCount() const { return xdc_tokens.size(); }
-  const rstl::pair< uint, uint >& GetAssetID(int idx) const { return xac_deps2[idx]; }
+  TAreaId GetId() const { return mSelfIdx; }
+  int GetNumAttachedAreas() const { return mAttachedAreaIndices.size(); }
+  TAreaId GetAttachedAreaId(int idx) const { return TAreaId(mAttachedAreaIndices[idx]); }
+  int GetTokenCount() const { return mTokens.size(); }
+  const rstl::pair< uint, uint >& GetAssetID(int idx) const { return mDeps2[idx]; }
   int GetScriptingSize() const {
-    return xf0_24_postConstructed ? x12c_postConstructed->x10d0_sclySize : 0;
+    return mPostConstructedFlag ? mPostConstructed->mSclySize : 0;
   }
-  const CTransform4f& GetTM() const { return xc_transform; }
-  const CTransform4f& GetInverseTransform() const { return x3c_invTransform; }
-  bool IsLoaded() const { return xf0_24_postConstructed; }
-  bool IsActive() const { return xf0_25_active; }
-  void SetActive(bool active) { xf0_25_active = active; }
-  bool IsValidated() const { return xf0_28_validated; }
-  const CAABox& GetAABB() const { return x6c_aabb; }
+  const CTransform4f& GetTM() const { return mTransform; }
+  const CTransform4f& GetInverseTransform() const { return mInvTransform; }
+  bool IsLoaded() const { return mPostConstructedFlag; }
+  bool IsActive() const { return mActive; }
+  void SetActive(bool active) { mActive = active; }
+  bool IsValidated() const { return mValidated; }
+  const CAABox& GetAABB() const { return mAabb; }
   CGameArea* GetNext() const; // { return x130_next; }
 
   bool IsFinishedOccluding() const;
@@ -281,40 +281,40 @@ public:
   bool DoesAreaNeedSkyNow() const;
   EEnvFxType DoesAreaNeedEnvFx() const;
 
-  CAssetId GetAreaAssetId() const { return x84_mrea; }
-  const TAreaId& GetAreaId() const { return x4_selfIdx; }
-  int GetAreaSaveId() const { return x88_areaId; }
-  const Dock& GetDock(int idx) const { return xcc_docks[idx]; }
-  Dock& DockNC(int idx) { return xcc_docks[idx]; }
-  int GetDockCount() const { return xcc_docks.size(); }
-  CAreaObjectList* ObjectList() const { return x12c_postConstructed->x10c0_areaObjectList.get(); }
+  CAssetId GetAreaAssetId() const { return mMrea; }
+  const TAreaId& GetAreaId() const { return mSelfIdx; }
+  int GetAreaSaveId() const { return mAreaId; }
+  const Dock& GetDock(int idx) const { return mDocks[idx]; }
+  Dock& DockNC(int idx) { return mDocks[idx]; }
+  int GetDockCount() const { return mDocks.size(); }
+  CAreaObjectList* ObjectList() const { return mPostConstructed->mAreaObjectList.get(); }
   const CAreaObjectList* GetObjectList() const {
-    return x12c_postConstructed->x10c0_areaObjectList.get();
+    return mPostConstructed->mAreaObjectList.get();
   }
-  const CAreaFog* GetAreaFog() const { return x12c_postConstructed->x10c4_areaFog.get(); }
-  CAreaFog* AreaFog() { return x12c_postConstructed->x10c4_areaFog.get(); }
+  const CAreaFog* GetAreaFog() const { return mPostConstructed->mAreaFog.get(); }
+  CAreaFog* AreaFog() { return mPostConstructed->mAreaFog.get(); }
   EOcclusionState GetOcclusionState() const {
     if (!IsPostConstructed()) {
       return kOS_Occluded;
     }
-    return x12c_postConstructed->x10dc_occlusionState;
+    return mPostConstructed->mOcclusionState;
   }
   const rstl::vector< CWorldLight >& GetLightsA() const {
-    return x12c_postConstructed->x60_lightsA;
+    return mPostConstructed->mLightsA;
   }
   const rstl::vector< CWorldLight >& GetLightsB() const {
-    return x12c_postConstructed->x80_lightsB;
+    return mPostConstructed->mLightsB;
   }
   uint Get1stPVSLightFeature(uint idx) const;
   uint Get2ndPVSLightFeature(uint idx) const;
-  const CPVSAreaSet* GetAreaVisSet() const { return x12c_postConstructed->xa0_pvs.get(); }
-  bool IsPostConstructed() const { return xf0_24_postConstructed; }                         // name?
-  CPostConstructed* GetPostConstructed() { return x12c_postConstructed.get(); }             // name?
-  const CPostConstructed* GetPostConstructed() const { return x12c_postConstructed.get(); } // name?
-  const CAreaOctTree& GetOctTree() const { return *GetPostConstructed()->x0_collision; }
-  CGameArea* GetNext() { return x130_next; }                                                // name?
-  CGameArea* GetPrev() { return x134_prev; }                                                // name?
-  int GetCurChain() const { return x138_curChain; }                                         // name?
+  const CPVSAreaSet* GetAreaVisSet() const { return mPostConstructed->mPvs.get(); }
+  bool IsPostConstructed() const { return mPostConstructedFlag; }                         // name?
+  CPostConstructed* GetPostConstructed() { return mPostConstructed.get(); }             // name?
+  const CPostConstructed* GetPostConstructed() const { return mPostConstructed.get(); } // name?
+  const CAreaOctTree& GetOctTree() const { return *GetPostConstructed()->mCollision; }
+  CGameArea* GetNext() { return mNext; }                                                // name?
+  CGameArea* GetPrev() { return mPrev; }                                                // name?
+  int GetCurChain() const { return mCurChain; }                                         // name?
 
 private:
   int GetPreConstructedSize() const;
@@ -336,35 +336,35 @@ private:
     kP_LoadDataSections,
     kP_WaitForFinish,
   };
-  TAreaId x4_selfIdx;
-  CAssetId x8_nameSTRG;
-  CTransform4f xc_transform;
-  CTransform4f x3c_invTransform;
-  CAABox x6c_aabb;
-  CAssetId x84_mrea;
-  int x88_areaId;
-  rstl::vector< ushort > x8c_attachedAreaIndices;
-  rstl::vector< rstl::pair< uint, uint > > x9c_deps1;
-  rstl::vector< rstl::pair< uint, uint > > xac_deps2;
-  rstl::vector< uint > xbc_layerDepOffsets;
-  rstl::vector< Dock > xcc_docks;
-  rstl::vector< CToken > xdc_tokens;
-  uint xec_totalResourcesSize;
-  bool xf0_24_postConstructed : 1;
-  bool xf0_25_active : 1;
-  bool xf0_26_tokensReady : 1;
-  bool xf0_27_loadPaused : 1;
-  bool xf0_28_validated : 1;
-  EPhase xf4_phase;
-  rstl::list< rstl::auto_ptr< CDvdRequest > > xf8_loadTransactions;
-  rstl::vector< rstl::pair< rstl::auto_ptr< char >, int > > x110_mreaSecBufs;
-  int x120_unk;
-  int x124_secCount;
-  int x128_mreaDataOffset;
-  rstl::single_ptr< CPostConstructed > x12c_postConstructed;
-  CGameArea* x130_next;
-  CGameArea* x134_prev;
-  int x138_curChain;
+  TAreaId mSelfIdx;
+  CAssetId mNameSTRG;
+  CTransform4f mTransform;
+  CTransform4f mInvTransform;
+  CAABox mAabb;
+  CAssetId mMrea;
+  int mAreaId;
+  rstl::vector< ushort > mAttachedAreaIndices;
+  rstl::vector< rstl::pair< uint, uint > > mDeps1;
+  rstl::vector< rstl::pair< uint, uint > > mDeps2;
+  rstl::vector< uint > mLayerDepOffsets;
+  rstl::vector< Dock > mDocks;
+  rstl::vector< CToken > mTokens;
+  uint mTotalResourcesSize;
+  bool mPostConstructedFlag : 1;
+  bool mActive : 1;
+  bool mTokensReady : 1;
+  bool mLoadPaused : 1;
+  bool mValidated : 1;
+  EPhase mPhase;
+  rstl::list< rstl::auto_ptr< CDvdRequest > > mLoadTransactions;
+  rstl::vector< rstl::pair< rstl::auto_ptr< char >, int > > mMreaSecBufs;
+  int mUnk;
+  int mSecCount;
+  int mMreaDataOffset;
+  rstl::single_ptr< CPostConstructed > mPostConstructed;
+  CGameArea* mNext;
+  CGameArea* mPrev;
+  int mCurChain;
 };
 NESTED_CHECK_SIZEOF(CGameArea, CPostConstructed, 0x1140)
 CHECK_SIZEOF(CGameArea, 0x13c)
@@ -384,13 +384,13 @@ public:
   const CTransform4f& IGetTM() const override;
 
 private:
-  int x4_selfIdx;
-  CAssetId x8_nameSTRG;
-  CAssetId xc_mrea;
-  int x10_areaId;
-  CTransform4f x14_transform;
-  rstl::vector< u16 > x44_attachedAreaIndices;
-  rstl::vector< Dock > x54_docks;
+  int mSelfIdx;
+  CAssetId mNameSTRG;
+  CAssetId mMrea;
+  int mAreaId;
+  CTransform4f mTransform;
+  rstl::vector< u16 > mAttachedAreaIndices;
+  rstl::vector< Dock > mDocks;
 };
 CHECK_SIZEOF(CDummyGameArea, 0x64)
 

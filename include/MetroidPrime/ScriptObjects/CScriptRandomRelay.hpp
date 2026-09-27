@@ -14,9 +14,9 @@ public:
   void SendLocalScriptMsgs(EScriptObjectState state, CStateManager& stateMgr);
 
 private:
-  int x34_sendSetSize;
-  int x38_sendSetVariance;
-  bool x3c_percentSize;
+  int mSendSetSize;
+  int mSendSetVariance;
+  bool mPercentSize;
 };
 
 #endif // _CSCRIPTRANDOMRELAY

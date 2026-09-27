@@ -39,11 +39,11 @@ public:
                                             const CTransform4f& localXf);
 
 private:
-  rstl::vector< CJointCollisionDescription > x0_jointDescriptions;
-  TUniqueId x10_ownerId;
-  uchar x12_active;
-  mutable bool x13_destroyed;
-  bool x14_movable;
+  rstl::vector< CJointCollisionDescription > mJointDescriptions;
+  TUniqueId mOwnerId;
+  uchar mActive;
+  mutable bool mDestroyed;
+  bool mMovable;
 };
 
 CHECK_SIZEOF(CCollisionActorManager, 0x18)

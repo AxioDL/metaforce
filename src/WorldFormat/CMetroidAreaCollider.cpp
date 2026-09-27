@@ -93,7 +93,7 @@ bool CMetroidAreaCollider::AABoxCollisionCheck_Internal(const CAreaOctTree::Node
     for (int i = 0; i < 8; ++i) {
       CAreaOctTree::Node ch = node.GetChild(i);
       CAABox box = ch.GetBoundingBox();
-      if (box.DoBoundsOverlap(cache.x0_aabb))
+      if (box.DoBoundsOverlap(cache.mAabb))
         if (AABoxCollisionCheck_Internal(ch, cache))
           ret = true;
     }
@@ -103,8 +103,8 @@ bool CMetroidAreaCollider::AABoxCollisionCheck_Internal(const CAreaOctTree::Node
     CAreaOctTree::TriListReference list = node.GetTriangleArray();
     int size = list.GetSize();
     const CAreaOctTree& owner = node.GetOwner();
-    const CMaterialFilter& filter = cache.x8_filter;
-    const CPlane* planes = cache.x4_planes;
+    const CMaterialFilter& filter = cache.mFilter;
+    const CPlane* planes = cache.mPlanes;
     for (int j = 0; j < size; ++j) {
       ++gTrianglesProcessed;
       ushort triIdx = list.GetAt(j);
@@ -115,12 +115,12 @@ bool CMetroidAreaCollider::AABoxCollisionCheck_Internal(const CAreaOctTree::Node
         const CCollisionSurface& surf = owner.GetMasterListTriangle(triIdx);
         CMaterialList material(surf.GetSurfaceFlags());
         if (filter.Passes(material)) {
-          if (CollisionUtil::TriBoxOverlap(cache.x14_center, cache.x20_halfExtent, surf.GetVert(0),
+          if (CollisionUtil::TriBoxOverlap(cache.mCenter, cache.mHalfExtent, surf.GetVert(0),
                                            surf.GetVert(1), surf.GetVert(2)) == true) {
             CAABox aabb = CAABox::MakeMaxInvertedBox();
             if (ConvexPolyCollision(planes, &surf.GetVert(0), aabb)) {
               CPlane plane = surf.GetPlane();
-              cache.x10_collisionList.Add(CCollisionInfo(aabb, cache.xc_material, material,
+              cache.mCollisionList.Add(CCollisionInfo(aabb, cache.mMaterial, material,
                                                          plane.GetNormal(), -plane.GetNormal()),
                                           false);
               ret = true;
@@ -198,13 +198,13 @@ bool CMetroidAreaCollider::AABoxCollisionCheck_Cached(const COctreeLeafCache& le
 CAABoxAreaCache::CAABoxAreaCache(const CAABox& aabb, const CPlane* pl,
                                  const CMaterialFilter& filter, const CMaterialList& material,
                                  CCollisionInfoList& collisionList)
-: x0_aabb(aabb)
-, x4_planes(pl)
-, x8_filter(filter)
-, xc_material(material)
-, x10_collisionList(collisionList)
-, x14_center(aabb.GetCenterPoint())
-, x20_halfExtent(aabb.GetHalfExtent()) {}
+: mAabb(aabb)
+, mPlanes(pl)
+, mFilter(filter)
+, mMaterial(material)
+, mCollisionList(collisionList)
+, mCenter(aabb.GetCenterPoint())
+, mHalfExtent(aabb.GetHalfExtent()) {}
 
 bool CMetroidAreaCollider::AABoxCollisionCheck(const CAreaOctTree& octTree, const CAABox& aabb,
                                                const CMaterialFilter& filter,
@@ -238,7 +238,7 @@ bool CMetroidAreaCollider::AABoxCollisionCheckBoolean_Internal(
     CAreaOctTree::Node::ETreeType type = node.GetChildType(i);
     if (type != CAreaOctTree::Node::kTT_Invalid) {
       CAreaOctTree::Node ch = node.GetChild(i);
-      if (cache.x0_aabb.DoBoundsOverlap(ch.GetBoundingBox())) {
+      if (cache.mAabb.DoBoundsOverlap(ch.GetBoundingBox())) {
         if (type == CAreaOctTree::Node::kTT_Leaf) {
           CAreaOctTree::TriListReference list = ch.GetTriangleArray();
           const CAreaOctTree& owner = ch.GetOwner();
@@ -246,8 +246,8 @@ bool CMetroidAreaCollider::AABoxCollisionCheckBoolean_Internal(
           for (int j = 0; j < size; ++j) {
             ++gTrianglesProcessed;
             const CCollisionSurface& surf = owner.GetMasterListTriangle(list.GetAt(j));
-            if (cache.x4_filter.Passes(CMaterialList(surf.GetSurfaceFlags()))) {
-              if (CollisionUtil::TriBoxOverlap(cache.x8_center, cache.x14_halfExtent,
+            if (cache.mFilter.Passes(CMaterialList(surf.GetSurfaceFlags()))) {
+              if (CollisionUtil::TriBoxOverlap(cache.mCenter, cache.mHalfExtent,
                                                surf.GetVert(0), surf.GetVert(1),
                                                surf.GetVert(2)) == true)
                 return true;
@@ -291,10 +291,10 @@ bool CMetroidAreaCollider::AABoxCollisionCheckBoolean_Cached(const COctreeLeafCa
 }
 
 CBooleanAABoxAreaCache::CBooleanAABoxAreaCache(const CAABox& aabb, const CMaterialFilter& filter)
-: x0_aabb(aabb)
-, x4_filter(filter)
-, x8_center(aabb.GetCenterPoint())
-, x14_halfExtent(aabb.GetHalfExtent()) {}
+: mAabb(aabb)
+, mFilter(filter)
+, mCenter(aabb.GetCenterPoint())
+, mHalfExtent(aabb.GetHalfExtent()) {}
 
 bool CMetroidAreaCollider::AABoxCollisionCheckBoolean(const CAreaOctTree& octTree,
                                                       const CAABox& aabb,
@@ -315,7 +315,7 @@ bool CMetroidAreaCollider::SphereCollisionCheck_Internal(const CAreaOctTree::Nod
     CAreaOctTree::Node::ETreeType chTp = node.GetChildType(i);
     if (chTp != CAreaOctTree::Node::kTT_Invalid) {
       CAreaOctTree::Node ch = node.GetChild(i);
-      if (cache.x0_aabb.DoBoundsOverlap(ch.GetBoundingBox())) {
+      if (cache.mAabb.DoBoundsOverlap(ch.GetBoundingBox())) {
         if (chTp == CAreaOctTree::Node::kTT_Leaf) {
           CAreaOctTree::TriListReference list = ch.GetTriangleArray();
           const CAreaOctTree& owner = ch.GetOwner();
@@ -329,12 +329,12 @@ bool CMetroidAreaCollider::SphereCollisionCheck_Internal(const CAreaOctTree::Nod
               sDupTriangleList[triIdx] = sDupPrimitiveCheckCount;
               const CCollisionSurface& surf = owner.GetMasterListTriangle(triIdx);
               CMaterialList material(surf.GetSurfaceFlags());
-              if (cache.x8_filter.Passes(material)) {
-                if (CollisionUtil::TriSphereIntersection(cache.x4_sphere, surf.GetVert(0),
+              if (cache.mFilter.Passes(material)) {
+                if (CollisionUtil::TriSphereIntersection(cache.mSphere, surf.GetVert(0),
                                                          surf.GetVert(1), surf.GetVert(2), point,
                                                          normal)) {
-                  cache.x10_collisionList.Add(
-                      CCollisionInfo(point, cache.xc_material, material, normal), false);
+                  cache.mCollisionList.Add(
+                      CCollisionInfo(point, cache.mMaterial, material, normal), false);
                   ret = true;
                 }
               }
@@ -409,7 +409,7 @@ bool CMetroidAreaCollider::SphereCollisionCheckBoolean_Internal(
     CAreaOctTree::Node::ETreeType type = node.GetChildType(i);
     if (type != CAreaOctTree::Node::kTT_Invalid) {
       CAreaOctTree::Node ch = node.GetChild(i);
-      if (cache.x0_aabb.DoBoundsOverlap(ch.GetBoundingBox())) {
+      if (cache.mAabb.DoBoundsOverlap(ch.GetBoundingBox())) {
         if (type == CAreaOctTree::Node::kTT_Leaf) {
           CAreaOctTree::TriListReference list = ch.GetTriangleArray();
           const CAreaOctTree& owner = ch.GetOwner();
@@ -417,8 +417,8 @@ bool CMetroidAreaCollider::SphereCollisionCheckBoolean_Internal(
           for (int j = 0; j < size; ++j) {
             ++gTrianglesProcessed;
             const CCollisionSurface& surf = owner.GetMasterListTriangle(list.GetAt(j));
-            if (cache.x8_filter.Passes(CMaterialList(surf.GetSurfaceFlags()))) {
-              if (CollisionUtil::TriSphereOverlap(cache.x4_sphere, surf.GetVert(0), surf.GetVert(1),
+            if (cache.mFilter.Passes(CMaterialList(surf.GetSurfaceFlags()))) {
+              if (CollisionUtil::TriSphereOverlap(cache.mSphere, surf.GetVert(0), surf.GetVert(1),
                                                   surf.GetVert(2)) == true)
                 return true;
             }
@@ -675,7 +675,7 @@ bool CMetroidAreaCollider::MovingAABoxCollisionCheck_Cached(
   CVector3f moveVec = mag * dir;
   CMovingAABoxComponents components(aabb, dir);
 
-  CAABox movedAABB = components.x6e8_aabb;
+  CAABox movedAABB = components.mAabb;
   movedAABB.AccumulateBounds(aabb.GetMinPoint() + moveVec);
   movedAABB.AccumulateBounds(aabb.GetMaxPoint() + moveVec);
 
@@ -709,7 +709,7 @@ bool CMetroidAreaCollider::MovingAABoxCollisionCheck_Cached(
                                              surf.GetVert(2)) == true) {
               bool triRet = false;
               double d = dOut;
-              if (MovingAABoxCollisionCheck_BoxVertexTri(surf, aabb, components.x6c4_vertIdxs, dir,
+              if (MovingAABoxCollisionCheck_BoxVertexTri(surf, aabb, components.mVertIdxs, dir,
                                                          d, normal, point) &&
                   d < dOut) {
                 triRet = true;
@@ -748,7 +748,7 @@ bool CMetroidAreaCollider::MovingAABoxCollisionCheck_Cached(
                     const CCollisionEdge& edge = owner.GetEdge(edgeIdx);
                     if (MovingAABoxCollisionCheck_Edge(owner.GetVert(edge.GetVertIndex1()),
                                                        owner.GetVert(edge.GetVertIndex2()),
-                                                       components.x0_edges, dir, d, normal,
+                                                       components.mEdges, dir, d, normal,
                                                        point) &&
                         d < dOut) {
                       triRet = true;
@@ -762,7 +762,7 @@ bool CMetroidAreaCollider::MovingAABoxCollisionCheck_Cached(
 
               if (triRet) {
                 moveVec = static_cast< float >(dOut) * dir;
-                movedAABB = components.x6e8_aabb;
+                movedAABB = components.mAabb;
                 movedAABB.AccumulateBounds(aabb.GetMinPoint() + moveVec);
                 movedAABB.AccumulateBounds(aabb.GetMaxPoint() + moveVec);
                 center = movedAABB.GetCenterPoint();
@@ -832,12 +832,12 @@ bool CMetroidAreaCollider::MovingAABoxCollisionCheck_Edge(
     const SBoxEdge& edge = edges[i];
     CVector3d ev0d = ev0;
     CVector3d ev1d = ev1;
-    if ((CVector3d::Dot(edge.x70_coDir, ev0d) >= edge.x88_dirCoDirDot) ==
-        (CVector3d::Dot(edge.x70_coDir, ev1d) >= edge.x88_dirCoDirDot))
+    if ((CVector3d::Dot(edge.mCoDir, ev0d) >= edge.mDirCoDirDot) ==
+        (CVector3d::Dot(edge.mCoDir, ev1d) >= edge.mDirCoDirDot))
       continue;
 
     CVector3d delta = ev0d - ev1d;
-    CVector3d cross0 = CVector3d::Cross(edge.x58_delta, delta);
+    CVector3d cross0 = CVector3d::Cross(edge.mDelta, delta);
     if (cross0.MagSquared() < FLT_EPSILON)
       continue;
 
@@ -846,19 +846,19 @@ bool CMetroidAreaCollider::MovingAABoxCollisionCheck_Edge(
       ev1d = ev0;
       ev0d = ev1;
       delta = ev0d - ev1d;
-      cross0 = CVector3d::Cross(edge.x58_delta, delta);
+      cross0 = CVector3d::Cross(edge.mDelta, delta);
       cross0Norm = cross0.AsNormalized();
     }
 
-    CVector3d clipped = ev0d + (-(CVector3d::Dot(ev0d, edge.x70_coDir) - edge.x88_dirCoDirDot) /
-                                CVector3d::Dot(delta, edge.x70_coDir)) *
+    CVector3d clipped = ev0d + (-(CVector3d::Dot(ev0d, edge.mCoDir) - edge.mDirCoDirDot) /
+                                CVector3d::Dot(delta, edge.mCoDir)) *
                                    delta;
     int maxCompIdx;
-    if (CMath::AbsD(edge.x70_coDir.GetX()) > CMath::AbsD(edge.x70_coDir.GetY()))
+    if (CMath::AbsD(edge.mCoDir.GetX()) > CMath::AbsD(edge.mCoDir.GetY()))
       maxCompIdx = 0;
     else
       maxCompIdx = 1;
-    if (CMath::AbsD(edge.x70_coDir[maxCompIdx]) < CMath::AbsD(edge.x70_coDir.GetZ()))
+    if (CMath::AbsD(edge.mCoDir[maxCompIdx]) < CMath::AbsD(edge.mCoDir.GetZ()))
       maxCompIdx = 2;
 
     int ci0, ci1;
@@ -875,19 +875,19 @@ bool CMetroidAreaCollider::MovingAABoxCollisionCheck_Edge(
 
     const float& dir0 = dir[ci0];
     const float& dir1 = dir[ci1];
-    const double& edgeDelta0 = edge.x58_delta[ci0];
-    const double& edgeDelta1 = edge.x58_delta[ci1];
+    const double& edgeDelta0 = edge.mDelta[ci0];
+    const double& edgeDelta1 = edge.mDelta[ci1];
     const double denominator = edgeDelta0 * dir1 - edgeDelta1 * dir0;
-    double eMag = (edge.x58_delta[ci0] * (clipped[ci1] - edge.x28_start[ci1]) -
-                   edge.x58_delta[ci1] * (clipped[ci0] - edge.x28_start[ci0])) /
+    double eMag = (edge.mDelta[ci0] * (clipped[ci1] - edge.mStart[ci1]) -
+                   edge.mDelta[ci1] * (clipped[ci0] - edge.mStart[ci0])) /
                   denominator;
 
     if (!(eMag < 0.0) && !(eMag >= d)) {
       CVector3d clippedMag = clipped - eMag * CVector3d(dir);
       double dotCheck =
-          (edge.x28_start.GetX() - clippedMag.GetX()) * (edge.x40_end.GetX() - clippedMag.GetX()) +
-          (edge.x28_start.GetY() - clippedMag.GetY()) * (edge.x40_end.GetY() - clippedMag.GetY()) +
-          (edge.x28_start.GetZ() - clippedMag.GetZ()) * (edge.x40_end.GetZ() - clippedMag.GetZ());
+          (edge.mStart.GetX() - clippedMag.GetX()) * (edge.mEnd.GetX() - clippedMag.GetX()) +
+          (edge.mStart.GetY() - clippedMag.GetY()) * (edge.mEnd.GetY() - clippedMag.GetY()) +
+          (edge.mStart.GetZ() - clippedMag.GetZ()) * (edge.mEnd.GetZ() - clippedMag.GetZ());
       if (dotCheck < 0.0 && eMag < d) {
         normal = cross0Norm.AsCVector3f();
         d = eMag;
@@ -901,18 +901,18 @@ bool CMetroidAreaCollider::MovingAABoxCollisionCheck_Edge(
 }
 
 CMetroidAreaCollider::COctreeLeafCache::COctreeLeafCache(const CAreaOctTree& octTree)
-: x0_octTree(octTree), x908_24_overflow(false) {}
+: mOctTree(octTree), mOverflow(false) {}
 
 void CMetroidAreaCollider::COctreeLeafCache::AddLeaf(const CAreaOctTree::Node& node) {
-  if (x4_nodeCache.size() == x4_nodeCache.capacity()) {
-    x908_24_overflow = true;
+  if (mNodeCache.size() == mNodeCache.capacity()) {
+    mOverflow = true;
     return;
   }
-  x4_nodeCache.push_back(node);
+  mNodeCache.push_back(node);
 }
 
 CAreaCollisionCache::CAreaCollisionCache(const CAABox& aabb)
-: x0_aabb(aabb), x1b40_24_leafOverflow(false), x1b40_25_cacheOverflow(false) {}
+: mAabb(aabb), mLeafOverflow(false), mCacheOverflow(false) {}
 
 void CAreaCollisionCache::AddOctreeLeafCache(
     const CMetroidAreaCollider::COctreeLeafCache& leafCache) {
@@ -920,22 +920,22 @@ void CAreaCollisionCache::AddOctreeLeafCache(
     return;
 
   if (leafCache.HasCacheOverflowed())
-    x1b40_24_leafOverflow = true;
+    mLeafOverflow = true;
 
-  if (x18_leafCaches.size() < 3) {
-    x18_leafCaches.push_back(leafCache);
+  if (mLeafCaches.size() < 3) {
+    mLeafCaches.push_back(leafCache);
   } else {
-    x1b40_24_leafOverflow = true;
-    x1b40_25_cacheOverflow = true;
+    mLeafOverflow = true;
+    mCacheOverflow = true;
   }
 }
 
-void CAreaCollisionCache::SetCacheBounds(const CAABox& aabb) { x0_aabb = aabb; }
+void CAreaCollisionCache::SetCacheBounds(const CAABox& aabb) { mAabb = aabb; }
 
 void CAreaCollisionCache::ClearCache() {
-  x18_leafCaches.clear();
-  x1b40_24_leafOverflow = false;
-  x1b40_25_cacheOverflow = false;
+  mLeafCaches.clear();
+  mLeafOverflow = false;
+  mCacheOverflow = false;
 }
 
 void CMetroidAreaCollider::BuildOctreeLeafCache(const CAreaOctTree::Node& node, const CAABox& aabb,
@@ -1041,16 +1041,16 @@ static void FlagVertexIndicesForFace(uint face, bool* vertFlags) {
 }
 
 CMetroidAreaCollider::SBoxEdge::SBoxEdge(const CAABox& aabb, int idx, const CVector3f& dir)
-: x0_seg(aabb.GetEdge(static_cast< CAABox::EBoxEdgeId >(idx)))
-, x28_start(x0_seg.GetRefPoint())
-, x40_end(x0_seg.GetEndPoint())
-, x58_delta(x40_end - x28_start)
-, x70_coDir(CVector3d::Cross(x58_delta, CVector3d(dir)).AsNormalized())
-, x88_dirCoDirDot(CVector3d::Dot(x28_start, x70_coDir)) {}
+: mSeg(aabb.GetEdge(static_cast< CAABox::EBoxEdgeId >(idx)))
+, mStart(mSeg.GetRefPoint())
+, mEnd(mSeg.GetEndPoint())
+, mDelta(mEnd - mStart)
+, mCoDir(CVector3d::Cross(mDelta, CVector3d(dir)).AsNormalized())
+, mDirCoDirDot(CVector3d::Dot(mStart, mCoDir)) {}
 
 CMetroidAreaCollider::CMovingAABoxComponents::CMovingAABoxComponents(const CAABox& aabb,
                                                                      const CVector3f& dir)
-: x6e8_aabb(aabb) {
+: mAabb(aabb) {
   bool edgeFlags[12] = {};
   bool vertFlags[8] = {};
   uint useFaces = 0;
@@ -1066,21 +1066,21 @@ CMetroidAreaCollider::CMovingAABoxComponents::CMovingAABoxComponents(const CAABo
 
   for (int i = 0; i < 12; ++i) {
     if (edgeFlags[i]) {
-      x0_edges.push_back(SBoxEdge(aabb, i, dir));
+      mEdges.push_back(SBoxEdge(aabb, i, dir));
     }
   }
 
   for (int i = 0; i < 8; ++i) {
     if (vertFlags[i]) {
-      x6c4_vertIdxs.push_back(i);
+      mVertIdxs.push_back(i);
     }
   }
 
   if (useFaces == 1) {
-    x6e8_aabb = CAABox::MakeMaxInvertedBox();
-    x6e8_aabb.AccumulateBounds(aabb.GetPoint(x6c4_vertIdxs[0]));
-    x6e8_aabb.AccumulateBounds(aabb.GetPoint(x6c4_vertIdxs[1]));
-    x6e8_aabb.AccumulateBounds(aabb.GetPoint(x6c4_vertIdxs[2]));
-    x6e8_aabb.AccumulateBounds(aabb.GetPoint(x6c4_vertIdxs[3]));
+    mAabb = CAABox::MakeMaxInvertedBox();
+    mAabb.AccumulateBounds(aabb.GetPoint(mVertIdxs[0]));
+    mAabb.AccumulateBounds(aabb.GetPoint(mVertIdxs[1]));
+    mAabb.AccumulateBounds(aabb.GetPoint(mVertIdxs[2]));
+    mAabb.AccumulateBounds(aabb.GetPoint(mVertIdxs[3]));
   }
 }

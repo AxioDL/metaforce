@@ -4,15 +4,15 @@
 
 rstl::ncrc_ptr< CAnimTreeNode >
 CAnimationManager::GetAnimationTree(uint animIdx, const CMetaAnimTreeBuildOrders& orders) const {
-  const rstl::rc_ptr< IMetaAnim >& anim = x0_animDB.NonConstCopy()->GetMetaAnim(animIdx);
-  return anim->GetAnimationTree(x8_sysCtx, orders);
+  const rstl::rc_ptr< IMetaAnim >& anim = mAnimDB.NonConstCopy()->GetMetaAnim(animIdx);
+  return anim->GetAnimationTree(mSysCtx, orders);
 }
 
 rstl::rc_ptr< IMetaAnim > CAnimationManager::GetMetaAnimation(uint animIdx) const {
-  return x0_animDB.NonConstCopy()->GetMetaAnim(animIdx);
+  return mAnimDB.NonConstCopy()->GetMetaAnim(animIdx);
 }
 
 
 void CAnimationManager::ForceOrdering() {
-  x0_animDB.NonConstCopy();
+  mAnimDB.NonConstCopy();
 }

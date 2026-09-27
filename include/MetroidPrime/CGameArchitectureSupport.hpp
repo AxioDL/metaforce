@@ -31,30 +31,30 @@ public:
   bool LoadAudio();
   void UnloadAudio();
 
-  inline CStopwatch& GetStopwatch1() { return x20_tickStopwatch; }
-  inline CStopwatch& GetStopwatch2() { return x28_frameStopwatch; }
-  inline CIOWinManager& GetIOWinManager() { return x58_ioWinMgr; }
-  inline int& GetFramesDrawn() { return x78_gameFrameCount; }
-  bool IsInfiniteLoopAlarmSet() const { return xc8_infiniteLoopAlarmSet; }
-  OSAlarm& GetInfiniteLoopAlarm() { return xa0_infiniteLoopAlarm; }
-  void SetInfiniteLoopAlarmSet(bool set) { xc8_infiniteLoopAlarmSet = set; }
+  inline CStopwatch& GetStopwatch1() { return mTickStopwatch; }
+  inline CStopwatch& GetStopwatch2() { return mFrameStopwatch; }
+  inline CIOWinManager& GetIOWinManager() { return mIoWinMgr; }
+  inline int& GetFramesDrawn() { return mGameFrameCount; }
+  bool IsInfiniteLoopAlarmSet() const { return mInfiniteLoopAlarmSet; }
+  OSAlarm& GetInfiniteLoopAlarm() { return mInfiniteLoopAlarm; }
+  void SetInfiniteLoopAlarmSet(bool set) { mInfiniteLoopAlarmSet = set; }
 
 private:
-  CAudioSys x0_audioSys;
-  CArchitectureQueue x4_archQueue;
-  CStopwatch x20_tickStopwatch;
-  CStopwatch x28_frameStopwatch;
-  CInputGenerator x30_inputGenerator;
-  CGuiSys x44_guiSys;
-  CIOWinManager x58_ioWinMgr;
-  int x78_gameFrameCount;
-  float x7c_tickRemainder;
-  float x80_previousTickRemainder2;
-  float x84_previousTickRemainder;
-  EAudioLoadStatus x88_audioLoadStatus;
-  rstl::vector< CToken > x8c_pendingAudioGroups;
-  OSAlarm xa0_infiniteLoopAlarm;
-  bool xc8_infiniteLoopAlarmSet;
+  CAudioSys mAudioSys;
+  CArchitectureQueue mArchQueue;
+  CStopwatch mTickStopwatch;
+  CStopwatch mFrameStopwatch;
+  CInputGenerator mInputGenerator;
+  CGuiSys mGuiSys;
+  CIOWinManager mIoWinMgr;
+  int mGameFrameCount;
+  float mTickRemainder;
+  float mPreviousTickRemainder2;
+  float mPreviousTickRemainder;
+  EAudioLoadStatus mAudioLoadStatus;
+  rstl::vector< CToken > mPendingAudioGroups;
+  OSAlarm mInfiniteLoopAlarm;
+  bool mInfiniteLoopAlarmSet;
 };
 CHECK_SIZEOF(CGameArchitectureSupport, 0xd0)
 

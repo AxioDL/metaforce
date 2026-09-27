@@ -16,7 +16,7 @@ public:
     const bool Update(float dt, bool state);
 
   private:
-    float x0_timer;
+    float mTimer;
   };
 
   ~CGuiTableGroup() override;
@@ -38,15 +38,15 @@ public:
   void SetColors(const CColor& selected, const CColor& unselected);
   void SelectWorker(int worker);
   bool IsWorkerSelectable(int worker);
-  int GetUserSelection() const { return xc4_userSelection; }
-  int GetElementCount() const { return xc0_elementCount; }
+  int GetUserSelection() const { return mUserSelection; }
+  int GetElementCount() const { return mElementCount; }
   void SetUserSelection(int sel) {
-    xc8_prevUserSelection = xc4_userSelection;
-    xc4_userSelection = sel;
+    mPrevUserSelection = mUserSelection;
+    mUserSelection = sel;
   }
-  void SetVertical(bool v) { xd1_vertical = v; }
+  void SetVertical(bool v) { mVertical = v; }
 
-  bool HasMenuAdvanceCallback() const { return xd4_doMenuAdvance; }
+  bool HasMenuAdvanceCallback() const { return mDoMenuAdvance; }
 
 private:
   bool DoAdvance();
@@ -64,17 +64,17 @@ private:
   void DoSelectNextRow();
   void DoSelectPrevRow();
 
-  CRepeatState xb8_decRepeat;
-  CRepeatState xbc_incRepeat;
-  int xc0_elementCount;
-  int xc4_userSelection;
-  int xc8_prevUserSelection;
-  int xcc_defaultUserSelection;
-  bool xd0_selectWrapAround;
-  bool xd1_vertical;
-  TFunctor1< CGuiTableGroup* const > xd4_doMenuAdvance;
-  TFunctor1< CGuiTableGroup* const > xec_doMenuCancel;
-  TFunctor2< CGuiTableGroup* const, const int > x104_doMenuSelChange;
+  CRepeatState mDecRepeat;
+  CRepeatState mIncRepeat;
+  int mElementCount;
+  int mUserSelection;
+  int mPrevUserSelection;
+  int mDefaultUserSelection;
+  bool mSelectWrapAround;
+  bool mVertical;
+  TFunctor1< CGuiTableGroup* const > mDoMenuAdvance;
+  TFunctor1< CGuiTableGroup* const > mDoMenuCancel;
+  TFunctor2< CGuiTableGroup* const, const int > mDoMenuSelChange;
 };
 
 CHECK_SIZEOF(CGuiTableGroup, 0x11c)

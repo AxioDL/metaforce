@@ -15,7 +15,7 @@ public:
             bool flag);
   ~CGuiModel();
 
-  const rstl::optional_object< TCachedToken< CModel > >& GetModel() const { return xb8_model; }
+  const rstl::optional_object< TCachedToken< CModel > >& GetModel() const { return mModel; }
   bool GetIsFinishedLoadingWidgetSpecific() const override;
   void Touch() const override;
   void Draw(const CGuiWidgetDrawParms& parms) const override;
@@ -27,9 +27,9 @@ public:
   FourCC GetWidgetTypeID() const override;
 
 private:
-  mutable rstl::optional_object< TCachedToken< CModel > > xb8_model;
-  CAssetId xc8_modelId;
-  uint xcc_lightMask;
+  mutable rstl::optional_object< TCachedToken< CModel > > mModel;
+  CAssetId mModelId;
+  uint mLightMask;
 };
 CHECK_SIZEOF(CGuiModel, 0xd0)
 

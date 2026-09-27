@@ -11,9 +11,9 @@ CGuiWidget* CGuiGroup::Create(CGuiFrame* frame, CInputStream& in, CSimplePool* s
 
 CGuiGroup::CGuiGroup(const CGuiWidgetParms& parms, int defaultWorker, bool b)
 : CGuiCompoundWidget(parms)
-, xb8_workerCount(0)
-, xbc_selectedWorker(defaultWorker)
-, xc0_b(b) {}
+, mWorkerCount(0)
+, mSelectedWorker(defaultWorker)
+, mB(b) {}
 
 void CGuiGroup::OnActivate() {
   CGuiWidget* widget = GetSelectedWidget();
@@ -23,8 +23,8 @@ void CGuiGroup::OnActivate() {
 }
 
 bool CGuiGroup::AddWorkerWidget(CGuiWidget* worker) {
-  ++xb8_workerCount;
+  ++mWorkerCount;
   return true;
 }
 
-CGuiWidget* CGuiGroup::GetSelectedWidget() { return GetWorkerWidget(xbc_selectedWorker); }
+CGuiWidget* CGuiGroup::GetSelectedWidget() { return GetWorkerWidget(mSelectedWorker); }

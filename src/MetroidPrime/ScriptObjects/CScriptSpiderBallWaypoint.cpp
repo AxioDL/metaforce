@@ -33,8 +33,8 @@ void CScriptSpiderBallWaypoint::AcceptScriptMsg(EScriptObjectMessage msg, TUniqu
 }
 
 void CScriptSpiderBallWaypoint::ClearWaypoints() {
-  xfc_aabox.clear();
-  xec_waypoints.clear();
+  mAabox.clear();
+  mWaypoints.clear();
 }
 
 void CScriptSpiderBallWaypoint::BuildWaypointListAndBounds(CStateManager& mgr) {
@@ -42,8 +42,8 @@ void CScriptSpiderBallWaypoint::BuildWaypointListAndBounds(CStateManager& mgr) {
   int validConnections = 0;
 
   for (; it != GetConnectionList().end(); ++it) {
-    if (it->x0_state == kSS_Arrived && it->x4_msg == kSM_Next) {
-      TUniqueId uid = mgr.GetIdForScript(it->x8_objId);
+    if (it->mState == kSS_Arrived && it->mMsg == kSM_Next) {
+      TUniqueId uid = mgr.GetIdForScript(it->mObjId);
       if (uid != kInvalidUniqueId) {
         CScriptSpiderBallWaypoint* wp =
             static_cast< CScriptSpiderBallWaypoint* >(mgr.ObjectById(uid));
@@ -68,10 +68,10 @@ void CScriptSpiderBallWaypoint::BuildWaypointListAndBounds(CStateManager& mgr) {
 }
 
 void CScriptSpiderBallWaypoint::AddPointToTouchBounds(const CVector3f& point) {
-  if (!xfc_aabox) {
-    xfc_aabox = CAABox(point, point);
+  if (!mAabox) {
+    mAabox = CAABox(point, point);
   } else {
-    xfc_aabox->AccumulateBounds(point);
+    mAabox->AccumulateBounds(point);
   }
 }
 
@@ -80,8 +80,8 @@ TUniqueId CScriptSpiderBallWaypoint::NextWaypoint(const CStateManager& mgr,
   rstl::vector< SConnection >::const_iterator it = GetConnectionList().begin();
 
   for (; it != GetConnectionList().end(); ++it) {
-    if (it->x0_state == kSS_Arrived && it->x4_msg == kSM_Next) {
-      TUniqueId uid = mgr.GetIdForScript(it->x8_objId);
+    if (it->mState == kSS_Arrived && it->mMsg == kSM_Next) {
+      TUniqueId uid = mgr.GetIdForScript(it->mObjId);
       if (const CScriptSpiderBallWaypoint* wp =
               static_cast< const CScriptSpiderBallWaypoint* >(mgr.GetObjectById(uid))) {
         if (check == kCAW_SkipCheck) {
@@ -97,13 +97,13 @@ TUniqueId CScriptSpiderBallWaypoint::NextWaypoint(const CStateManager& mgr,
 
 TUniqueId CScriptSpiderBallWaypoint::PreviousWaypoint(const CStateManager& mgr,
                                                       ECheckActiveWaypoint check) const {
-  for (int i = 0; i < xec_waypoints.size(); ++i) {
+  for (int i = 0; i < mWaypoints.size(); ++i) {
     if (const CScriptSpiderBallWaypoint* wp =
-            static_cast< const CScriptSpiderBallWaypoint* >(mgr.GetObjectById(xec_waypoints[i]))) {
+            static_cast< const CScriptSpiderBallWaypoint* >(mgr.GetObjectById(mWaypoints[i]))) {
       if (check == kCAW_SkipCheck) {
-        return xec_waypoints[i];
+        return mWaypoints[i];
       } else if (wp->GetActive()) {
-        return xec_waypoints[i];
+        return mWaypoints[i];
       }
     }
   }
@@ -112,10 +112,10 @@ TUniqueId CScriptSpiderBallWaypoint::PreviousWaypoint(const CStateManager& mgr,
 }
 
 void CScriptSpiderBallWaypoint::AddPreviousWaypoint(TUniqueId uid) {
-  if (xec_waypoints.size() == xec_waypoints.capacity()) {
-    xec_waypoints.reserve(xec_waypoints.capacity() == 0 ? 4 : xec_waypoints.capacity() * 2);
+  if (mWaypoints.size() == mWaypoints.capacity()) {
+    mWaypoints.reserve(mWaypoints.capacity() == 0 ? 4 : mWaypoints.capacity() * 2);
   }
-  xec_waypoints.push_back(uid);
+  mWaypoints.push_back(uid);
 }
 
 void CScriptSpiderBallWaypoint::GetClosestPointAlongWaypoints(
@@ -233,5 +233,5 @@ void CScriptSpiderBallWaypoint::Render(const CStateManager& mgr) const { CActor:
 ENTITY_ACCEPT_IMPL(CScriptSpiderBallWaypoint)
 
 rstl::optional_object< CAABox > CScriptSpiderBallWaypoint::GetTouchBounds() const {
-  return xfc_aabox;
+  return mAabox;
 }

@@ -20,15 +20,15 @@ CScriptBallTrigger::CScriptBallTrigger(const TUniqueId uid, const rstl::string& 
 : CScriptTrigger(uid, name, info, pos, calculate_ball_aabox(),
                  CDamageInfo(CWeaponMode::Power(), 0.f, 0.f, 0.f), CVector3f::Zero(),
                  kTFL_DetectMorphedPlayer, active, false, false)
-, x150_force(f1)
-, x154_minAngle(f2)
-, x158_maxDistance(f3)
-, x15c_forceAngle(CVector3f::Zero())
-, x168_24_canApplyForce(false)
-, x168_25_stopPlayer(b2) {
+, mForce(f1)
+, mMinAngle(f2)
+, mMaxDistance(f3)
+, mForceAngle(CVector3f::Zero())
+, mCanApplyForce(false)
+, mStopPlayer(b2) {
 
   if (vec.CanBeNormalized()) {
-    x15c_forceAngle = vec.AsNormalized();
+    mForceAngle = vec.AsNormalized();
   }
 }
 
@@ -43,7 +43,7 @@ void CScriptBallTrigger::InhabitantAdded(CActor& act, CStateManager& /*mgr*/) {
 void CScriptBallTrigger::InhabitantExited(CActor& act, CStateManager&) {
   if (CPlayer* player = TCastToPtr< CPlayer >(act)) {
     player->MorphBall()->SetBallBoostState(CMorphBall::kBBS_BoostAvailable);
-    x168_24_canApplyForce = false;
+    mCanApplyForce = false;
   }
 }
 
@@ -61,15 +61,15 @@ void CScriptBallTrigger::Think(float dt, CStateManager& mgr) {
     const CVector3f radiusPosDif = GetTranslation() - playerTrans;
     const float distance = radiusPosDif.Magnitude();
 
-    if (!x168_24_canApplyForce) {
+    if (!mCanApplyForce) {
       if (distance < ballRadius) {
-        x168_24_canApplyForce = true;
+        mCanApplyForce = true;
       } else {
         const CVector3f offset = radiusPosDif.AsNormalized();
         // TODO: why doesn't Deg2Rad match?
-        float angleCos = cosf(x154_minAngle * (1.f * (M_PIF / 180.f)));
-        if (angleCos < CVector3f::Dot(-offset, x15c_forceAngle) && distance < x158_maxDistance) {
-          float a = x150_force * (x158_maxDistance / (distance * distance));
+        float angleCos = cosf(mMinAngle * (1.f * (M_PIF / 180.f)));
+        if (angleCos < CVector3f::Dot(-offset, mForceAngle) && distance < mMaxDistance) {
+          float a = mForce * (mMaxDistance / (distance * distance));
           float b = 1.f / dt * distance;
           const float force = rstl::min_val(a, b);
           player.ApplyForceWR(force * (player.GetMass() * offset), CAxisAngle::Identity());
@@ -77,15 +77,15 @@ void CScriptBallTrigger::Think(float dt, CStateManager& mgr) {
       }
     }
 
-    if (x148_28_playerTriggerProc) {
+    if (mPlayerTriggerProc) {
       const CVector3f offset = GetTranslation() - CVector3f(0.f, 0.f, ballRadius);
-      if (x168_25_stopPlayer) {
+      if (mStopPlayer) {
         player.Stop();
       }
       player.MoveToWR(offset, dt);
     }
   } else {
-    x168_24_canApplyForce = false;
+    mCanApplyForce = false;
   }
 }
 
@@ -95,7 +95,7 @@ void CScriptBallTrigger::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid
                                          CStateManager& mgr) {
   if (msg == kSM_Deactivate && GetActive()) {
     mgr.Player()->MorphBall()->SetBallBoostState(CMorphBall::kBBS_BoostAvailable);
-    x168_24_canApplyForce = false;
+    mCanApplyForce = false;
   }
 
   CScriptTrigger::AcceptScriptMsg(msg, uid, mgr);

@@ -15,9 +15,9 @@ public:
   bool AddWorkerWidget(CGuiWidget* worker) override;
   void OnActivate() override;
 private:
-  uint xb8_workerCount;
-  int xbc_selectedWorker;
-  bool xc0_b;
+  uint mWorkerCount;
+  int mSelectedWorker;
+  bool mB;
 };
 
 CHECK_SIZEOF(CGuiGroup, 0xc4)

@@ -8,11 +8,11 @@ CScriptMidi::CScriptMidi(const TUniqueId id, const CEntityInfo& info, const rstl
                          const bool active, const CAssetId csng, const float fadeIn,
                          const float fadeOut, const int volume)
 : CEntity(id, info, active, name)
-, x34_song(gpSimplePool->GetObj(SObjectTag('CSNG', csng)))
-, x3c_handle()
-, x40_fadeInTime(fadeIn)
-, x44_fadeOutTime(fadeOut)
-, x48_volume(volume) {}
+, mSong(gpSimplePool->GetObj(SObjectTag('CSNG', csng)))
+, mHandle()
+, mFadeInTime(fadeIn)
+, mFadeOutTime(fadeOut)
+, mVolume(volume) {}
 
 ENTITY_ACCEPT_IMPL(CScriptMidi)
 
@@ -22,12 +22,12 @@ void CScriptMidi::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId,
   switch (msg) {
   case kSM_Play:
     if (GetActive()) {
-      Play(stateMgr, x40_fadeInTime);
+      Play(stateMgr, mFadeInTime);
     }
     break;
   case kSM_Stop:
     if (GetActive()) {
-      Stop(stateMgr, x44_fadeOutTime);
+      Stop(stateMgr, mFadeOutTime);
     }
     break;
   case kSM_Deactivate:
@@ -46,15 +46,15 @@ void CScriptMidi::Play(CStateManager& mgr, float fadeTime) {
   const rstl::string twkName = CInGameTweakManager::GetIdentifierForMidiEvent(
       wld->GetWorldAssetId(), area.GetAreaAssetId(), GetDebugName());
 
-  short volume = x48_volume;
+  short volume = mVolume;
   if (gpTweakManager->HasTweakValue(twkName)) {
     const CTweakValue::Audio& audio = gpTweakManager->GetTweakValue(twkName)->GetAudio();
     fadeTime = audio.GetFadeIn();
-    x34_song = gpSimplePool->GetObj(SObjectTag('CSNG', audio.GetResId()));
+    mSong = gpSimplePool->GetObj(SObjectTag('CSNG', audio.GetResId()));
     volume = static_cast< short >(audio.GetVolume() * 127.f);
   }
 
-  x3c_handle = CMidiManager::Play(**x34_song, CCast::FtoUS(fadeTime * 1000.f), false, volume);
+  mHandle = CMidiManager::Play(**mSong, CCast::FtoUS(fadeTime * 1000.f), false, volume);
 }
 
 void CScriptMidi::Stop(CStateManager& mgr, float fadeTime) {
@@ -72,8 +72,8 @@ void CScriptMidi::Stop(CStateManager& mgr, float fadeTime) {
 }
 
 void CScriptMidi::StopInternal(float fadeTime) {
-  if (x3c_handle != CSfxHandle::NullHandle()) {
-    CMidiManager::Stop(x3c_handle, CCast::FtoUS(fadeTime * 1000.f));
+  if (mHandle != CSfxHandle::NullHandle()) {
+    CMidiManager::Stop(mHandle, CCast::FtoUS(fadeTime * 1000.f));
   }
-  x3c_handle.Clear();
+  mHandle.Clear();
 }

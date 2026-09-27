@@ -44,18 +44,18 @@ void CFluidPlaneManager::CFluidProfile::Clear() {
 }
 
 CFluidPlaneManager::CFluidPlaneManager()
-: x0_rippleManager(20, 0.5f), x11c_uvT(0.f), x120_(false), x121_(false) {
+: mRippleManager(20, 0.5f), mUvT(0.f), x120_(false), x121_(false) {
   sProfile.Clear();
-  for (rstl::reserved_vector< CSplashRecord, 32 >::iterator it = x18_splashes.begin();
-       it != x18_splashes.end(); ++it) {
+  for (rstl::reserved_vector< CSplashRecord, 32 >::iterator it = mSplashes.begin();
+       it != mSplashes.end(); ++it) {
     it->SetTime(9999.f);
   }
   SetupRippleMap();
 }
 
 void CFluidPlaneManager::Update(float dt) {
-  x11c_uvT = dt + x11c_uvT;
-  x0_rippleManager.Update(dt);
+  mUvT = dt + mUvT;
+  mRippleManager.Update(dt);
   for (CSplashRecord* it = SplashRecords().begin(); it != SplashRecords().end(); ++it) {
     it->SetTime(dt + it->GetTime());
     if (it->GetTime() > 9999.f) {
@@ -82,7 +82,7 @@ float CFluidPlaneManager::GetLastSplashDeltaTime(TUniqueId splasher) const {
 }
 
 float CFluidPlaneManager::GetLastRippleDeltaTime(TUniqueId rippler) const {
-  return x0_rippleManager.GetLastRippleDeltaTime(rippler);
+  return mRippleManager.GetLastRippleDeltaTime(rippler);
 }
 
 void CFluidPlaneManager::CreateSplash(TUniqueId splasher, CStateManager& mgr,

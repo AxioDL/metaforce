@@ -233,24 +233,26 @@ enum EScriptObjectMessage {
 };
 
 struct SConnection {
-  EScriptObjectState x0_state;
-  EScriptObjectMessage x4_msg;
-  TEditorId x8_objId;
+  EScriptObjectState mState;
+  EScriptObjectMessage mMsg;
+  TEditorId mObjId;
   SConnection(EScriptObjectState state, EScriptObjectMessage msg, TEditorId id)
-  : x0_state(state), x4_msg(msg), x8_objId(id) {}
+  : mState(state), mMsg(msg), mObjId(id) {}
 };
 
 class CEntityInfo {
-  TAreaId x0_areaId;
-  rstl::vector< SConnection > x4_conns;
-  TEditorId x14_editorId;
+  TAreaId mAreaId;
+  rstl::vector< SConnection > mConns;
+  TEditorId mEditorId;
 
 public:
   CEntityInfo(TAreaId aid, const rstl::vector< SConnection >& conns,
               TEditorId eid = kInvalidEditorId);
-  TAreaId GetAreaId() const { return x0_areaId; }
-  const rstl::vector< SConnection >& GetConnectionList() const { return x4_conns; }
-  TEditorId GetEditorId() const { return x14_editorId; }
+  static u64 GetGloballyUniqueIdForScriptObject(uint worldId, TEditorId editorId);
+  u64 GetGloballyUniqueIdForScriptObject(uint worldId) const;
+  TAreaId GetAreaId() const { return mAreaId; }
+  const rstl::vector< SConnection >& GetConnectionList() const { return mConns; }
+  TEditorId GetEditorId() const { return mEditorId; }
 };
 
 #endif // _CENTITYINFO

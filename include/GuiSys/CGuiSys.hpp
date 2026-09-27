@@ -35,21 +35,21 @@ public:
   }
 
   static CGuiSys* GetGlobalGuiSys() { return spGuiSys; }
-#if VERSION < VERSION_GM8P_00 || VERSION == VERSION_GM8E_02
+#if VERSION < VERSION_GM8P_00
   static CGuiWidget* CreateWidgetInGame(uint type, CInputStream& in, CGuiFrame* parent, CSimplePool* sp);
 #endif
 
   void AddFactories(EUsageMode mode);
 
-  bool GetIsUsedInGame() const { return x8_mode == kUM_Zero; }
-  EUsageMode GetUsageMode() const { return x8_mode; }
+  bool GetIsUsedInGame() const { return mMode == kUM_Zero; }
+  EUsageMode GetUsageMode() const { return mMode; }
 
 private:
-  IFactory* x0_resFactory;
-  CSimplePool* x4_resStore;
-  EUsageMode x8_mode;
-  rstl::single_ptr< CTextExecuteBuffer > xc_textExecuteBuffer;
-  rstl::single_ptr< CTextParser > x10_textParser;
+  IFactory* mResFactory;
+  CSimplePool* mResStore;
+  EUsageMode mMode;
+  rstl::single_ptr< CTextExecuteBuffer > mTextExecuteBuffer;
+  rstl::single_ptr< CTextParser > mTextParser;
   static CGuiSys* spGuiSys;
 };
 

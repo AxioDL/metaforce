@@ -21,24 +21,24 @@ public:
   void ProcessInput(const CFinalInput& input, CStateManager& mgr) override;
   void Reset(const CTransform4f& xf, CStateManager& mgr) override;
 
-  void SetScriptPitchId(TUniqueId uid) { x1c4_pitchId = uid; }
+  void SetScriptPitchId(TUniqueId uid) { mPitchId = uid; }
   void UpdateElevation(CStateManager& mgr);
   void UpdateTransform(CStateManager& mgr, float dt);
   const CTransform4f& GetGunFollowTransform() const;
-  void SetLockCamera(bool lock) { x18c_lockCamera = lock; }
+  void SetLockCamera(bool lock) { mLockCamera = lock; }
   void CancelCinematicOffset();
-  void DeferBallTransitionProcessing() { x1c6_24_deferBallTransitionProcessing = true; }
+  void DeferBallTransitionProcessing() { mDeferBallTransitionProcessing = true; }
 
 private:
-  float x188_orbitCameraSpeed;
-  bool x18c_lockCamera;
-  CTransform4f x190_gunFollowXf;
-  float x1c0_pitch;
-  TUniqueId x1c4_pitchId;
-  bool x1c6_24_deferBallTransitionProcessing : 1;
-  CVector3f x1c8_closeInVec;
-  float x1d4_closeInTimer;
+  float mOrbitCameraSpeed;
+  bool mLockCamera;
+  CTransform4f mGunFollowXf;
+  float mPitch;
+  TUniqueId mPitchId;
+  bool mDeferBallTransitionProcessing : 1;
+  CVector3f mCloseInVec;
+  float mCloseInTimer;
 };
-CHECK_SIZEOF(CFirstPersonCamera, (VERSION >= VERSION_GM8P_00 ? 0x1e8 : 0x1d8))
+CHECK_SIZEOF(CFirstPersonCamera, (VERSION >= VERSION_GM8E_02 ? 0x1e8 : 0x1d8))
 
 #endif // _CFIRSTPERSONCAMERA

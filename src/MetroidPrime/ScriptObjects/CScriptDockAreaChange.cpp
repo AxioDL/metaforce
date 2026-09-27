@@ -5,7 +5,7 @@
 
 CScriptDockAreaChange::CScriptDockAreaChange(const TUniqueId uid, const rstl::string& name,
                                              const CEntityInfo& info, const int w1, const bool active)
-: CEntity(uid, info, active, name), x34_dockReference(w1) {}
+: CEntity(uid, info, active, name), mDockReference(w1) {}
 
 void CScriptDockAreaChange::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId,
                                             CStateManager& stateMgr) {
@@ -15,16 +15,16 @@ void CScriptDockAreaChange::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId 
     if (GetActive()) {
       rstl::vector< SConnection >::const_iterator it = GetConnectionList().begin();
       for (; it != GetConnectionList().end(); ++it) {
-        if (it->x0_state != kSS_Play || it->x4_msg == kSM_UNKM0) {
+        if (it->mState != kSS_Play || it->mMsg == kSM_UNKM0) {
           continue;
         }
 
-        CStateManager::TIdListResult search = stateMgr.GetIdListForScript(it->x8_objId);
+        CStateManager::TIdListResult search = stateMgr.GetIdListForScript(it->mObjId);
         CStateManager::TIdList::const_iterator searchItem = search.first;
         for (; searchItem != search.second; ++searchItem) {
           if (CScriptDock* dock =
                   TCastToPtr< CScriptDock >(stateMgr.ObjectById(searchItem->second))) {
-            dock->SetDockReference(stateMgr, x34_dockReference);
+            dock->SetDockReference(stateMgr, mDockReference);
           }
         }
       }

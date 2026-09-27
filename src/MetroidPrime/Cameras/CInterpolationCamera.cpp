@@ -19,15 +19,15 @@ CInterpolationCamera::CInterpolationCamera(TUniqueId uid, const CTransform4f& xf
               CCameraManager::GetDefaultFirstPersonNearClipDistance(),
               CCameraManager::GetDefaultFirstPersonFarClipDistance(),
               CCameraManager::GetDefaultAspectRatio(), kInvalidUniqueId, false, 0)
-, x188_targetId(kInvalidUniqueId)
-, x18c_time(0.f)
-, x190_maxTime(0.f)
-, x194_startTransform(CTransform4f::Identity())
-, x1c4_lookPos(CVector3f::Zero())
-, x1d0_positionSpeed(0.f)
-, x1d4_rotationSpeed(0.f)
-, x1d8_24_sinusoidal(false)
-, x1dc_closeInAngle(M_2PIF) {}
+, mTargetId(kInvalidUniqueId)
+, mTime(0.f)
+, mMaxTime(0.f)
+, mStartTransform(CTransform4f::Identity())
+, mLookPos(CVector3f::Zero())
+, mPositionSpeed(0.f)
+, mRotationSpeed(0.f)
+, mSinusoidal(false)
+, mCloseInAngle(M_2PIF) {}
 
 CInterpolationCamera::~CInterpolationCamera() {}
 
@@ -60,7 +60,7 @@ const bool CInterpolationCamera::InterpolateWithDistance(CTransform4f& xf,
     positionDone = true;
   }
 
-  CVector3f lookPosDelta = lookPos - x1c4_lookPos;
+  CVector3f lookPosDelta = lookPos - mLookPos;
   if (lookPosDelta.Magnitude() > positionSpeed) {
     const float deltaMag = lookPosDelta.Magnitude();
     lookPosDelta.Normalize();
@@ -68,12 +68,12 @@ const bool CInterpolationCamera::InterpolateWithDistance(CTransform4f& xf,
     scale *= positionSpeed;
     CVector3f delta = lookPosDelta;
     delta *= scale;
-    x1c4_lookPos += delta;
+    mLookPos += delta;
   } else {
-    x1c4_lookPos = lookPos;
+    mLookPos = lookPos;
   }
 
-  CVector3f lookDir = x1c4_lookPos - interpOrigin;
+  CVector3f lookDir = mLookPos - interpOrigin;
   if (lookDir.CanBeNormalized()) {
     lookDir.Normalize();
   } else {
@@ -129,10 +129,10 @@ bool CInterpolationCamera::InterpolateSinusoidal(CTransform4f& xf, const CVector
   if (lookDirFlat.CanBeNormalized()) {
     const float lookProj = CMath::Limit(CVector3f::Dot(GetTransform().GetForward(), lookDir), 1.f);
     float ang = acosf(lookProj) * (1.f - CMath::Limit(2.f * t, 1.f));
-    if (ang > x1dc_closeInAngle) {
-      ang = x1dc_closeInAngle;
+    if (ang > mCloseInAngle) {
+      ang = mCloseInAngle;
     } else {
-      x1dc_closeInAngle = ang;
+      mCloseInAngle = ang;
     }
     CTransform4f lookXf = CTransform4f::LookAt(interpOrigin, interpOrigin + lookDir);
     if (CMath::AbsF(lookProj) < 0.999999f) {
@@ -155,15 +155,15 @@ void CInterpolationCamera::SetInterpolation(const CTransform4f& xf, CVector3f lo
                                             CStateManager& mgr) {
   SetActive(true);
   SetTransform(xf);
-  x194_startTransform = xf;
-  x1c4_lookPos = lookPos;
-  x188_targetId = targetId;
-  x1d8_24_sinusoidal = sinusoidal;
-  x190_maxTime = maxTime;
-  x1d0_positionSpeed = positionSpeed;
-  x1d4_rotationSpeed = rotationSpeed;
-  x1dc_closeInAngle = M_2PIF;
-  x18c_time = 0.f;
+  mStartTransform = xf;
+  mLookPos = lookPos;
+  mTargetId = targetId;
+  mSinusoidal = sinusoidal;
+  mMaxTime = maxTime;
+  mPositionSpeed = positionSpeed;
+  mRotationSpeed = rotationSpeed;
+  mCloseInAngle = M_2PIF;
+  mTime = 0.f;
 
   if (const CGameCamera* cam = TCastToConstPtr< CGameCamera >(mgr.GetObjectById(targetId))) {
     SetFov(cam->GetFov());
@@ -173,7 +173,7 @@ void CInterpolationCamera::SetInterpolation(const CTransform4f& xf, CVector3f lo
 void CInterpolationCamera::EndInterpolation(CStateManager& mgr) {
   SetActive(false);
   if (!mgr.GetCameraManager()->ShouldBypassInterpolationCamera()) {
-    mgr.CameraManager()->SetCurrentCameraId(x188_targetId);
+    mgr.CameraManager()->SetCurrentCameraId(mTargetId);
   }
 }
 
@@ -185,12 +185,12 @@ void CInterpolationCamera::Think(float dt, CStateManager& mgr) {
   if (mgr.GetPlayer()->GetMorphballTransitionState() == CPlayer::kMS_Unmorphing) {
     EndInterpolation(mgr);
   }
-  x18c_time += dt;
-  if (x18c_time > x190_maxTime) {
-    x18c_time = x190_maxTime;
+  mTime += dt;
+  if (mTime > mMaxTime) {
+    mTime = mMaxTime;
   }
   CTransform4f xf = GetTransform();
-  const CGameCamera* cam = TCastToConstPtr< CGameCamera >(mgr.GetObjectById(x188_targetId));
+  const CGameCamera* cam = TCastToConstPtr< CGameCamera >(mgr.GetObjectById(mTargetId));
   if (!cam) {
     EndInterpolation(mgr);
     return;
@@ -212,11 +212,11 @@ void CInterpolationCamera::Think(float dt, CStateManager& mgr) {
     break;
   }
   bool deactivate = false;
-  if (x1d8_24_sinusoidal) {
-    deactivate = InterpolateSinusoidal(xf, targetOrigin, ballLookPos, x190_maxTime, x18c_time);
+  if (mSinusoidal) {
+    deactivate = InterpolateSinusoidal(xf, targetOrigin, ballLookPos, mMaxTime, mTime);
   } else {
-    deactivate = InterpolateWithDistance(xf, targetOrigin, ballLookPos, x1d0_positionSpeed,
-                                         x1d4_rotationSpeed, dt, x190_maxTime, x18c_time);
+    deactivate = InterpolateWithDistance(xf, targetOrigin, ballLookPos, mPositionSpeed,
+                                         mRotationSpeed, dt, mMaxTime, mTime);
   }
   SetTransform(xf);
   if (deactivate) {

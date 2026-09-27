@@ -32,20 +32,20 @@ private:
   static bool SetPasswordIntoEntryScreen(uchar* vram, uchar* wram, const uchar* password);
   static EPasswordEntryState CheckForPasswordEntryScreen(const uchar* vram);
 
-  rstl::single_ptr< CDvdRequest > x0_dvdRequest;
-  rstl::single_ptr< uchar > x4_resultBuffer;
-  ksNesCommonWorkObj* x8_work;
-  ksNesStateObj* xc_state;
-  OSModuleHeader* x10_module;
-  void* x14_bss;
-  uchar* x18_chrRam;
-  uchar* x1c_bbRam;
-  bool x20_gameOver;
-  uchar x21_password[18];
-  EPasswordEntryState x34_passwordEntryState;
-  bool x38_passwordPending;
-  uchar x39_passwordToLoad[18];
-  uchar x4b_pad[0x54 - 0x4b];
+  rstl::single_ptr< CDvdRequest > mDvdRequest;
+  rstl::single_ptr< uchar > mResultBuffer;
+  ksNesCommonWorkObj* mWork;
+  ksNesStateObj* mState;
+  OSModuleHeader* mModule;
+  void* mBss;
+  uchar* mChrRam;
+  uchar* mBbRam;
+  bool mGameOver;
+  uchar mPassword[18];
+  EPasswordEntryState mPasswordEntryState;
+  bool mPasswordPending;
+  uchar mPasswordToLoad[18];
+  uchar mPad[0x54 - 0x4b];
 };
 CHECK_SIZEOF(CNESEmulator, 0x54)
 

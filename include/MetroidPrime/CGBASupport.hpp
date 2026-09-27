@@ -21,16 +21,16 @@ public:
   };
 
 private:
-  CDvdFile x0_file;
-  uint x28_fileSize;
-  rstl::single_ptr<uchar> x2c_buffer;
-  rstl::single_ptr<CDvdRequest> x30_dvdReq;
-  EPhase x34_phase;
-  float x38_timeout;
-  uchar x3c_status;
-  uint x40_siChan;
-  bool x44_fusionLinked;
-  bool x45_fusionBeat;
+  CDvdFile mFile;
+  uint mFileSize;
+  rstl::single_ptr<uchar> mBuffer;
+  rstl::single_ptr<CDvdRequest> mDvdReq;
+  EPhase mPhase;
+  float mTimeout;
+  uchar mStatus;
+  uint mSiChan;
+  bool mFusionLinked;
+  bool mFusionBeat;
 
 // this is inlined weirdly... this probably should be handled differently
   bool CheckReadyStatus();
@@ -45,9 +45,9 @@ public:
   bool IsReady();
   void InitializeSupport();
   void StartLink();
-  EPhase GetPhase() const { return x34_phase; }
-  bool IsFusionLinked() const { return x44_fusionLinked; }
-  bool IsFusionBeat() const { return x45_fusionBeat; }
+  EPhase GetPhase() const { return mPhase; }
+  bool IsFusionLinked() const { return mFusionLinked; }
+  bool IsFusionBeat() const { return mFusionBeat; }
 };
 
 extern CGBASupport* g_GBA;

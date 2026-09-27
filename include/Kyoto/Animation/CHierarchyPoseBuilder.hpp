@@ -27,41 +27,41 @@ public:
   class CTreeNode {
   public:
     CTreeNode(const CSegId& sibling, const CSegId& child, const CVector3f& offset)
-    : x0_child(child)
-    , x1_sibling(sibling)
-    , x4_rotation(CQuaternion::NoRotation())
-    , x14_offset(offset) {}
+    : mChild(child)
+    , mSibling(sibling)
+    , mRotation(CQuaternion::NoRotation())
+    , mOffset(offset) {}
 
-    const CQuaternion& GetRotation() const { return x4_rotation; }
-    const CVector3f& GetOffset() const { return x14_offset; }
-    CSegId GetFirstChildSegment() const { return x0_child; }
-    CSegId GetNextSiblingSegment() const { return x1_sibling; }
-    void SetRotation(const CQuaternion& rot) { x4_rotation = rot; }
-    void SetOffset(const CVector3f& off) { x14_offset = off; }
+    const CQuaternion& GetRotation() const { return mRotation; }
+    const CVector3f& GetOffset() const { return mOffset; }
+    CSegId GetFirstChildSegment() const { return mChild; }
+    CSegId GetNextSiblingSegment() const { return mSibling; }
+    void SetRotation(const CQuaternion& rot) { mRotation = rot; }
+    void SetOffset(const CVector3f& off) { mOffset = off; }
     CTreeNode NodeForNextChildInserted(const CSegId& child, const CSegId& nullId,
                                        const CVector3f& offset) {
-      CSegId sibling = x0_child;
-      x0_child = child;
+      CSegId sibling = mChild;
+      mChild = child;
       return CTreeNode(sibling, nullId, offset);
     }
 
   private:
-    CSegId x0_child;
-    CSegId x1_sibling;
-    CQuaternion x4_rotation;
-    CVector3f x14_offset;
+    CSegId mChild;
+    CSegId mSibling;
+    CQuaternion mRotation;
+    CVector3f mOffset;
   };
 
-#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+#if VERSION >= VERSION_GM8P_00
   void Insert(const CSegId& id, const CQuaternion& rot);
   void Insert(const CSegId& id, const CVector3f& off);
 #else
-  void Insert(const CSegId& id, const CQuaternion& rot) { x38_treeMap[id].SetRotation(rot); }
-  void Insert(const CSegId& id, const CVector3f& off) { x38_treeMap[id].SetOffset(off); }
+  void Insert(const CSegId& id, const CQuaternion& rot) { mTreeMap[id].SetRotation(rot); }
+  void Insert(const CSegId& id, const CVector3f& off) { mTreeMap[id].SetOffset(off); }
 #endif
-  CQuaternion GetSegRotation(const CSegId& id) const { return x38_treeMap[id].GetRotation(); }
+  CQuaternion GetSegRotation(const CSegId& id) const { return mTreeMap[id].GetRotation(); }
   const TLockedToken< CCharLayoutInfo >& CharLayoutInfo() const {
-    return x0_layoutDesc.ScaledLayout();
+    return mLayoutDesc.ScaledLayout();
   }
 
 private:
@@ -73,9 +73,9 @@ private:
                         const CQuaternion& rotation, const CMatrix3f& matrix,
                         const CVector3f& offset) const;
 
-  CLayoutDescription x0_layoutDesc;
-  rstl::construction_deferred< CSegId > x30_rootId;
-  TSegIdMap< CTreeNode > x38_treeMap;
+  CLayoutDescription mLayoutDesc;
+  rstl::construction_deferred< CSegId > mRootId;
+  TSegIdMap< CTreeNode > mTreeMap;
 };
 CHECK_SIZEOF(CHierarchyPoseBuilder, 0x110)
 NESTED_CHECK_SIZEOF(CHierarchyPoseBuilder, CTreeNode, 0x20)

@@ -28,53 +28,67 @@
 static const int skQuitTitles[] = {24, 25, 26, 27, 28};
 
 CQuitGameScreen::CQuitGameScreen(EQuitType type)
-: x0_type(type)
-, x4_frame(gpSimplePool->GetObj("FRME_QuitScreen"))
-, x10_loadedFrame(nullptr)
-, x14_tablegroup_quitgame(nullptr)
-, x18_action(kQA_None) {
-  x4_frame.Lock();
+: mType(type)
+, mFrame(gpSimplePool->GetObj("FRME_QuitScreen"))
+, mLoadedFrame(nullptr)
+, mTablegroup_quitgame(nullptr)
+, mAction(kQA_None)
+#if VERSION >= VERSION_GM8P_00
+, mTextpane_title(nullptr)
+, mTextpane_yes(nullptr)
+, mTextpane_no(nullptr)
+#endif
+{
+  mFrame.Lock();
 }
+
+#if VERSION >= VERSION_GM8P_00
+CQuitGameScreen::~CQuitGameScreen() {}
+#endif
 
 void CQuitGameScreen::ProcessUserInput(const CFinalInput& input) {
   if (input.ControllerNumber() != 0) {
     return;
   }
-  if (x10_loadedFrame != nullptr) {
-    x10_loadedFrame->ProcessUserInput(input);
-    if (input.PB() && x0_type != kQT_ContinueFromLastSave) {
-      x18_action = kQA_No;
+  if (mLoadedFrame != nullptr) {
+    mLoadedFrame->ProcessUserInput(input);
+    if (input.PB() && mType != kQT_ContinueFromLastSave) {
+      mAction = kQA_No;
     }
   }
 }
 
-void CQuitGameScreen::Draw() const {
-  if (x0_type == kQT_QuitGame) {
+void CQuitGameScreen::Draw()
+#if VERSION != VERSION_GM8J_00
+    const
+#endif
+{
+  if (mType == kQT_QuitGame) {
     CCameraFilterPass::DrawFilter(CCameraFilterPass::kFT_Blend, CCameraFilterPass::kFS_Fullscreen,
                                   CColor::Black().WithAlphaOf(0.5f), nullptr, 1.f);
   }
   const float offsets[] = {0.f, 1.6f, 1.f, 0.f, 1.f};
-  if (x10_loadedFrame != nullptr) {
-    x10_loadedFrame->Draw(CGuiWidgetDrawParms(1.f, CVector3f(0.f, 0.f, offsets[x0_type])));
+  if (mLoadedFrame != nullptr) {
+    mLoadedFrame->Draw(CGuiWidgetDrawParms(1.f, CVector3f(0.f, 0.f, offsets[mType])));
   }
 }
 
 EQuitAction CQuitGameScreen::Update(float dt) {
-  if (x10_loadedFrame == nullptr && x4_frame.TryCache()) {
+  if (mLoadedFrame == nullptr && mFrame.TryCache()) {
     FinishedLoading();
   }
-  return x18_action;
+  return mAction;
 }
 
 void CQuitGameScreen::DoAdvance(CGuiTableGroup* caller) {
   if (caller->GetUserSelection() == 0) {
     CSfxManager::SfxStart(0x598, 0x7f, 0x40, false, CSfxManager::kMedPriority, false,
                           CSfxManager::kAllAreas);
-    x18_action = kQA_Yes;
+    mAction = kQA_Yes;
   } else {
     CSfxManager::SfxStart(0x597, 0x7f, 0x40, false, CSfxManager::kMedPriority, false,
                           CSfxManager::kAllAreas);
-    x18_action = kQA_No;
+    mAction = kQA_No;
   }
 }
 
@@ -85,33 +99,43 @@ void CQuitGameScreen::DoSelectionChange(CGuiTableGroup* caller, int oldSel) {
 }
 
 void CQuitGameScreen::FinishedLoading() {
-  x10_loadedFrame = x4_frame.GetObject();
-  x14_tablegroup_quitgame =
-      static_cast< CGuiTableGroup* >(x10_loadedFrame->FindWidget("tablegroup_quitgame"));
-  x14_tablegroup_quitgame->SetVertical(false);
-  x14_tablegroup_quitgame->SetMenuAdvanceCallback(
+  mLoadedFrame = mFrame.GetObject();
+  mTablegroup_quitgame =
+      static_cast< CGuiTableGroup* >(mLoadedFrame->FindWidget("tablegroup_quitgame"));
+  mTablegroup_quitgame->SetVertical(false);
+  mTablegroup_quitgame->SetMenuAdvanceCallback(
       TFunctor1FromMethod< CQuitGameScreen, CGuiTableGroup* const >::Make(
           *this, &CQuitGameScreen::DoAdvance));
-  x14_tablegroup_quitgame->SetMenuSelectionChangeCallback(
+  mTablegroup_quitgame->SetMenuSelectionChangeCallback(
       TFunctor2FromMethod< CQuitGameScreen, CGuiTableGroup* const, const int >::Make(
           *this, &CQuitGameScreen::DoSelectionChange));
-  CGuiTextPane* title = static_cast< CGuiTextPane* >(x10_loadedFrame->FindWidget("textpane_title"));
-  title->TextSupport().SetText(rstl::wstring_l(gpStringTable->GetString(skQuitTitles[x0_type])));
-  CGuiTextPane* yes = static_cast< CGuiTextPane* >(x10_loadedFrame->FindWidget("textpane_yes"));
+#if VERSION >= VERSION_GM8P_00
+  mTextpane_title = static_cast< CGuiTextPane* >(mLoadedFrame->FindWidget("textpane_title"));
+  mTextpane_title->TextSupport().SetText(
+      rstl::wstring_l(gpStringTable->GetString(skQuitTitles[mType])));
+  mTextpane_yes = static_cast< CGuiTextPane* >(mLoadedFrame->FindWidget("textpane_yes"));
+  mTextpane_yes->TextSupport().SetText(rstl::wstring_l(gpStringTable->GetString(22)));
+  mTextpane_no = static_cast< CGuiTextPane* >(mLoadedFrame->FindWidget("textpane_no"));
+  mTextpane_no->TextSupport().SetText(rstl::wstring_l(gpStringTable->GetString(23)));
+#else
+  CGuiTextPane* title = static_cast< CGuiTextPane* >(mLoadedFrame->FindWidget("textpane_title"));
+  title->TextSupport().SetText(rstl::wstring_l(gpStringTable->GetString(skQuitTitles[mType])));
+  CGuiTextPane* yes = static_cast< CGuiTextPane* >(mLoadedFrame->FindWidget("textpane_yes"));
   yes->TextSupport().SetText(rstl::wstring_l(gpStringTable->GetString(22)));
-  CGuiTextPane* no = static_cast< CGuiTextPane* >(x10_loadedFrame->FindWidget("textpane_no"));
+  CGuiTextPane* no = static_cast< CGuiTextPane* >(mLoadedFrame->FindWidget("textpane_no"));
   no->TextSupport().SetText(rstl::wstring_l(gpStringTable->GetString(23)));
+#endif
   const int defaults[] = {1, 0, 1, 1, 0};
-  x14_tablegroup_quitgame->SetUserSelection(defaults[x0_type]);
+  mTablegroup_quitgame->SetUserSelection(defaults[mType]);
   SetColors();
 }
 
 void CQuitGameScreen::SetColors() {
   const CColor selected(uchar(200), uchar(200), uchar(200), uchar(255));
   const CColor unselected(uchar(50), uchar(50), uchar(50), uchar(255));
-  const int selection = x14_tablegroup_quitgame->GetUserSelection();
+  const int selection = mTablegroup_quitgame->GetUserSelection();
   for (int i = 0; i < 2; ++i) {
-    CGuiWidget* worker = x14_tablegroup_quitgame->GetWorkerWidget(i);
+    CGuiWidget* worker = mTablegroup_quitgame->GetWorkerWidget(i);
     worker->SetColor(i == selection ? selected : unselected);
   }
 }
@@ -173,27 +197,27 @@ int CGameOptions::GetOption(EGameOption option) {
   const CGameOptions& options = gpGameState->GameOptions();
   switch (option) {
   case kGO_VisorOpacity:
-    return options.x60_hudAlpha;
+    return options.mHudAlpha;
   case kGO_HelmetOpacity:
-    return options.x64_helmetAlpha;
+    return options.mHelmetAlpha;
   case kGO_HUDLag:
     return options.GetHUDLag() ? 1 : 0;
   case kGO_HintSystem:
     return options.GetIsHintSystemEnabled() ? 1 : 0;
   case kGO_ScreenBrightness:
-    return options.x48_screenBrightness;
+    return options.mScreenBrightness;
   case kGO_ScreenOffsetX:
-    return options.x4c_screenXOffset;
+    return options.mScreenXOffset;
   case kGO_ScreenOffsetY:
-    return options.x50_screenYOffset;
+    return options.mScreenYOffset;
   case kGO_ScreenStretch:
-    return options.x54_screenStretch;
+    return options.mScreenStretch;
   case kGO_SFXVolume:
-    return options.x58_sfxVol;
+    return options.mSfxVol;
   case kGO_MusicVolume:
-    return options.x5c_musicVol;
+    return options.mMusicVol;
   case kGO_SoundMode:
-    return options.x44_soundMode;
+    return options.mSoundMode;
   case kGO_ReverseYAxis:
     return options.GetInvertYAxis() ? 1 : 0;
   case kGO_Rumble:
@@ -209,7 +233,7 @@ void CGameOptions::SetOption(EGameOption option, int value) {
   CGameOptions& options = gpGameState->GameOptions();
   switch (option) {
   case kGO_VisorOpacity:
-    options.x60_hudAlpha = value;
+    options.mHudAlpha = value;
     break;
   case kGO_HelmetOpacity:
     options.SetHelmetAlpha(value);
@@ -271,15 +295,15 @@ void CGameOptions::TryRestoreDefaults(const CFinalInput& input, int category, in
     CGameOptions& options = gpGameState->GameOptions();
     switch (category) {
     case 0:
-#if VERSION >= VERSION_GM8P_00
+#if VERSION >= VERSION_GM8E_02
       options.SetHudAlpha(255);
 #else
-      options.x60_hudAlpha = 255;
+      options.mHudAlpha = 255;
 #endif
       options.SetHelmetAlpha(255);
       options.SetHUDLag(skDefaultHudLag);
       options.SetIsHintSystemEnabled(skDefaultHintSystem);
-#if VERSION >= VERSION_GM8P_00
+#if VERSION >= VERSION_GM8E_02
       options.fn_80200564(skDefaultPalFlag);
 #endif
       break;
@@ -308,46 +332,46 @@ void CGameOptions::TryRestoreDefaults(const CFinalInput& input, int category, in
 COptionsScreen::COptionsScreen(const CStateManager& mgr, CGuiFrame& frame,
                                const CStringTable& pauseStrg)
 : CPauseScreenBase(mgr, frame, pauseStrg)
-, x19c_quitGame(nullptr)
-, x1a0_gameCube(rs_new CGameCubeDoll())
-, x29c_optionAlpha(0.f)
-, x2a0_24_inOptionBody(false) {}
+, mQuitGame(nullptr)
+, mGameCube(rs_new CGameCubeDoll())
+, mOptionAlpha(0.f)
+, mInOptionBody(false) {}
 
-COptionsScreen::~COptionsScreen() { CSfxManager::SfxStop(x1a4_sliderSfx); }
+COptionsScreen::~COptionsScreen() { CSfxManager::SfxStop(mSliderSfx); }
 
 bool COptionsScreen::VReady() const { return true; }
 
-bool COptionsScreen::InputDisabled() const { return !x19c_quitGame.null(); }
+bool COptionsScreen::InputDisabled() const { return !mQuitGame.null(); }
 
 void COptionsScreen::Update(float dt, CRandom16& rand, CArchitectureQueue& queue) {
-  x1a8_rumble.Update(dt);
+  mRumble.Update(dt);
   CPauseScreenBase::Update(dt, rand, queue);
-  const bool sliding = x18c_slidergroup_slider->GetState() != CGuiSliderGroup::kS_None;
-  if (bool(x1a4_sliderSfx) != sliding) {
+  const bool sliding = mSlidergroup_slider->GetState() != CGuiSliderGroup::kS_None;
+  if (bool(mSliderSfx) != sliding) {
     if (sliding) {
-      x1a4_sliderSfx = CSfxManager::SfxStart(0x5ab, 0x7f, 0x40, false, CSfxManager::kMedPriority,
+      mSliderSfx = CSfxManager::SfxStart(0x5ab, 0x7f, 0x40, false, CSfxManager::kMedPriority,
                                              false, CSfxManager::kAllAreas);
     } else {
-      CSfxManager::SfxStop(x1a4_sliderSfx);
-      x1a4_sliderSfx.Clear();
+      CSfxManager::SfxStop(mSliderSfx);
+      mSliderSfx.Clear();
     }
   }
-  if (x2a0_24_inOptionBody) {
-    x29c_optionAlpha = rstl::min_val(1.f, x29c_optionAlpha + 4.f * dt);
+  if (mInOptionBody) {
+    mOptionAlpha = rstl::min_val(1.f, mOptionAlpha + 4.f * dt);
   } else {
-    x29c_optionAlpha = rstl::max_val(0.f, x29c_optionAlpha - 4.f * dt);
+    mOptionAlpha = rstl::max_val(0.f, mOptionAlpha - 4.f * dt);
   }
-  if (close_enough(x29c_optionAlpha, 0.f)) {
+  if (close_enough(mOptionAlpha, 0.f)) {
     ResetOptionWidgetVisibility();
-    x174_textpane_body->SetIsVisible(false);
+    mTextpane_body->SetIsVisible(false);
   }
   const CColor color =
-      gpTweakGuiColors->GetPauseItemAmberColor().WithAlphaModulatedBy(x29c_optionAlpha);
-  x18c_slidergroup_slider->SetColor(color);
-  x190_tablegroup_double->SetColor(color);
-  x194_tablegroup_triple->SetColor(color);
-  if (!x19c_quitGame.null()) {
-    const EQuitAction action = x19c_quitGame->Update(dt);
+      gpTweakGuiColors->GetPauseItemAmberColor().WithAlphaModulatedBy(mOptionAlpha);
+  mSlidergroup_slider->SetColor(color);
+  mTablegroup_double->SetColor(color);
+  mTablegroup_triple->SetColor(color);
+  if (!mQuitGame.null()) {
+    const EQuitAction action = mQuitGame->Update(dt);
     if (action == kQA_Yes) {
       queue.Push(MakeMsg::CreateQuitGameplay(kAMT_Game));
       CSfxManager::SetChannel(CSfxManager::kSC_Default);
@@ -356,68 +380,68 @@ void COptionsScreen::Update(float dt, CRandom16& rand, CArchitectureQueue& queue
     } else if (action == kQA_No) {
       CSfxManager::SfxStart(0x58f, 0x7f, 0x40, false, CSfxManager::kMedPriority, false,
                             CSfxManager::kAllAreas);
-      x19c_quitGame = nullptr;
+      mQuitGame = nullptr;
     }
   }
-  x1a0_gameCube->Update(dt);
+  mGameCube->Update(dt);
 }
 
 void COptionsScreen::Touch() {
   CPauseScreenBase::Touch();
-  x1a0_gameCube->Touch();
+  mGameCube->Touch();
 }
 
 void COptionsScreen::ProcessInput(const CFinalInput& input) {
-  if (x19c_quitGame.null()) {
+  if (mQuitGame.null()) {
     CPauseScreenBase::ProcessInput(input);
-    CGameOptions::TryRestoreDefaults(input, x70_tablegroup_leftlog->GetUserSelection(),
-                                     x1c_rightSel, false);
-    if (x70_tablegroup_leftlog->GetUserSelection() == 4 && input.PA()) {
-      x19c_quitGame = rs_new CQuitGameScreen(kQT_QuitGame);
+    CGameOptions::TryRestoreDefaults(input, mTablegroup_leftlog->GetUserSelection(),
+                                     mRightSel, false);
+    if (mTablegroup_leftlog->GetUserSelection() == 4 && input.PA()) {
+      mQuitGame = rs_new CQuitGameScreen(kQT_QuitGame);
     }
   } else {
-    x19c_quitGame->ProcessUserInput(input);
+    mQuitGame->ProcessUserInput(input);
   }
 }
 
 void COptionsScreen::Draw(float transInterp, float totalAlpha, float yOff) const {
   CPauseScreenBase::Draw(transInterp, totalAlpha, yOff);
-  x1a0_gameCube->Draw(transInterp * (1.f - x29c_optionAlpha));
-  if (!x19c_quitGame.null()) {
+  mGameCube->Draw(transInterp * (1.f - mOptionAlpha));
+  if (!mQuitGame.null()) {
     CGraphics::SetDepthRange(0.f, 0.001f);
-    x19c_quitGame->Draw();
+    mQuitGame->Draw();
     CGraphics::SetDepthRange(0.f, 1.f);
   }
 }
 
 void COptionsScreen::VActivate() {
   for (int i = 0; i < 5; ++i) {
-    CGuiTextPane* pane = xa8_textpane_categories[i];
-    pane->TextSupport().SetText(rstl::wstring(xc_pauseStrg.GetString(i + 16)));
+    CGuiTextPane* pane = mTextpane_categories[i];
+    pane->TextSupport().SetText(rstl::wstring(mPauseStrg.GetString(i + 16)));
   }
-  x178_textpane_title->TextSupport().SetText(rstl::wstring(xc_pauseStrg.GetString(15)));
-  for (int i = ARRAY_SIZE(skGameOptions); i < xa8_textpane_categories.capacity(); ++i) {
-    x70_tablegroup_leftlog->GetWorkerWidget(i)->SetIsSelectable(false);
+  mTextpane_title->TextSupport().SetText(rstl::wstring(mPauseStrg.GetString(15)));
+  for (int i = ARRAY_SIZE(skGameOptions); i < mTextpane_categories.capacity(); ++i) {
+    mTablegroup_leftlog->GetWorkerWidget(i)->SetIsSelectable(false);
   }
-  x174_textpane_body->TextSupport().SetJustification(kJustification_Center);
-  x174_textpane_body->TextSupport().SetVerticalJustification(kVerticalJustification_Bottom);
-  CGuiTextPane* off = static_cast< CGuiTextPane* >(x190_tablegroup_double->GetWorkerWidget(0));
-  off->TextSupport().SetText(rstl::wstring_l(xc_pauseStrg.GetString(95)));
-  CGuiTextPane* on = static_cast< CGuiTextPane* >(x190_tablegroup_double->GetWorkerWidget(1));
-  on->TextSupport().SetText(rstl::wstring_l(xc_pauseStrg.GetString(94)));
-  CGuiTextPane* mono = static_cast< CGuiTextPane* >(x194_tablegroup_triple->GetWorkerWidget(0));
-  mono->TextSupport().SetText(rstl::wstring_l(xc_pauseStrg.GetString(96)));
-  CGuiTextPane* stereo = static_cast< CGuiTextPane* >(x194_tablegroup_triple->GetWorkerWidget(1));
-  stereo->TextSupport().SetText(rstl::wstring_l(xc_pauseStrg.GetString(97)));
-  CGuiTextPane* surround = static_cast< CGuiTextPane* >(x194_tablegroup_triple->GetWorkerWidget(2));
-  surround->TextSupport().SetText(rstl::wstring_l(xc_pauseStrg.GetString(98)));
-  x18c_slidergroup_slider->SetSelectionChangedCallback(
+  mTextpane_body->TextSupport().SetJustification(kJustification_Center);
+  mTextpane_body->TextSupport().SetVerticalJustification(kVerticalJustification_Bottom);
+  CGuiTextPane* off = static_cast< CGuiTextPane* >(mTablegroup_double->GetWorkerWidget(0));
+  off->TextSupport().SetText(rstl::wstring_l(mPauseStrg.GetString(95)));
+  CGuiTextPane* on = static_cast< CGuiTextPane* >(mTablegroup_double->GetWorkerWidget(1));
+  on->TextSupport().SetText(rstl::wstring_l(mPauseStrg.GetString(94)));
+  CGuiTextPane* mono = static_cast< CGuiTextPane* >(mTablegroup_triple->GetWorkerWidget(0));
+  mono->TextSupport().SetText(rstl::wstring_l(mPauseStrg.GetString(96)));
+  CGuiTextPane* stereo = static_cast< CGuiTextPane* >(mTablegroup_triple->GetWorkerWidget(1));
+  stereo->TextSupport().SetText(rstl::wstring_l(mPauseStrg.GetString(97)));
+  CGuiTextPane* surround = static_cast< CGuiTextPane* >(mTablegroup_triple->GetWorkerWidget(2));
+  surround->TextSupport().SetText(rstl::wstring_l(mPauseStrg.GetString(98)));
+  mSlidergroup_slider->SetSelectionChangedCallback(
       TFunctor2FromMethod< COptionsScreen, CGuiSliderGroup* const, const float >::Make(
           *this, &COptionsScreen::OnSliderChanged));
-  x190_tablegroup_double->SetMenuSelectionChangeCallback(
+  mTablegroup_double->SetMenuSelectionChangeCallback(
       TFunctor2FromMethod< COptionsScreen, CGuiTableGroup* const, const int >::Make(
           *this, &COptionsScreen::OnEnumChanged));
-  x194_tablegroup_triple->SetMenuSelectionChangeCallback(
+  mTablegroup_triple->SetMenuSelectionChangeCallback(
       TFunctor2FromMethod< COptionsScreen, CGuiTableGroup* const, const int >::Make(
           *this, &COptionsScreen::OnEnumChanged));
 }
@@ -425,21 +449,21 @@ void COptionsScreen::VActivate() {
 bool COptionsScreen::ShouldRightTableAdvance() { return false; }
 
 bool COptionsScreen::ShouldLeftTableAdvance() {
-  return x70_tablegroup_leftlog->GetUserSelection() != 4;
+  return mTablegroup_leftlog->GetUserSelection() != 4;
 }
 
 uint COptionsScreen::GetRightTableCount() const {
-  return skGameOptions[x70_tablegroup_leftlog->GetUserSelection()].count;
+  return skGameOptions[mTablegroup_leftlog->GetUserSelection()].count;
 }
 
 void COptionsScreen::UpdateRightTable() {
   CPauseScreenBase::UpdateRightTable();
-  const SOptionCategory& category = skGameOptions[x70_tablegroup_leftlog->GetUserSelection()];
+  const SOptionCategory& category = skGameOptions[mTablegroup_leftlog->GetUserSelection()];
   for (int i = 0; i < 5; ++i) {
-    CGuiTextPane* pane = xd8_textpane_titles[i];
+    CGuiTextPane* pane = mTextpane_titles[i];
     if (i < category.count) {
       pane->TextSupport().SetText(
-          rstl::wstring(xc_pauseStrg.GetString(category.options[i].stringId)));
+          rstl::wstring(mPauseStrg.GetString(category.options[i].stringId)));
     } else {
       pane->TextSupport().SetText(rstl::wstring_l(L""));
     }
@@ -447,57 +471,57 @@ void COptionsScreen::UpdateRightTable() {
 }
 
 void COptionsScreen::ChangedMode(EMode oldMode) {
-  if (x10_mode == kM_RightTable) {
-    x174_textpane_body->SetIsVisible(true);
+  if (mMode == kM_RightTable) {
+    mTextpane_body->SetIsVisible(true);
     UpdateOptionView();
-    x2a0_24_inOptionBody = true;
+    mInOptionBody = true;
   } else {
-    x2a0_24_inOptionBody = false;
+    mInOptionBody = false;
   }
 }
 
 void COptionsScreen::RightTableSelectionChanged(int oldSel, int newSel) { UpdateOptionView(); }
 
 void COptionsScreen::ResetOptionWidgetVisibility() {
-  x18c_slidergroup_slider->SetIsActive(false);
-  x18c_slidergroup_slider->SetVisibility(false, kTM_Children);
-  x190_tablegroup_double->SetIsVisible(false);
-  x190_tablegroup_double->SetIsActive(false);
-  x194_tablegroup_triple->SetIsActive(false);
-  x194_tablegroup_triple->SetIsVisible(false);
+  mSlidergroup_slider->SetIsActive(false);
+  mSlidergroup_slider->SetVisibility(false, kTM_Children);
+  mTablegroup_double->SetIsVisible(false);
+  mTablegroup_double->SetIsActive(false);
+  mTablegroup_triple->SetIsActive(false);
+  mTablegroup_triple->SetIsVisible(false);
 }
 
 void COptionsScreen::UpdateOptionView() {
   ResetOptionWidgetVisibility();
-  const SOptionCategory& category = skGameOptions[x70_tablegroup_leftlog->GetUserSelection()];
+  const SOptionCategory& category = skGameOptions[mTablegroup_leftlog->GetUserSelection()];
   if (category.count == 0) {
     return;
   }
-  const SGameOption& opt = category.options[x1c_rightSel];
-  const float zOff = x38_highlightPitch * x1c_rightSel;
+  const SGameOption& opt = category.options[mRightSel];
+  const float zOff = mHighlightPitch * mRightSel;
   switch (opt.type) {
   case kOT_Float:
-    x18c_slidergroup_slider->SetIsActive(true);
-    x18c_slidergroup_slider->SetVisibility(true, kTM_Children);
-    x18c_slidergroup_slider->SetMinVal(opt.minVal);
-    x18c_slidergroup_slider->SetMaxVal(opt.maxVal);
-    x18c_slidergroup_slider->SetIncrement(opt.increment);
-    x18c_slidergroup_slider->SetCurVal(CGameOptions::GetOption(opt.option));
-    x18c_slidergroup_slider->SetLocalPosition(x3c_sliderStart + CVector3f(0.f, 0.f, zOff));
+    mSlidergroup_slider->SetIsActive(true);
+    mSlidergroup_slider->SetVisibility(true, kTM_Children);
+    mSlidergroup_slider->SetMinVal(opt.minVal);
+    mSlidergroup_slider->SetMaxVal(opt.maxVal);
+    mSlidergroup_slider->SetIncrement(opt.increment);
+    mSlidergroup_slider->SetCurVal(CGameOptions::GetOption(opt.option));
+    mSlidergroup_slider->SetLocalPosition(mSliderStart + CVector3f(0.f, 0.f, zOff));
     break;
   case kOT_DoubleEnum:
-    x190_tablegroup_double->SetUserSelection(CGameOptions::GetOption(opt.option));
-    x190_tablegroup_double->SetIsVisible(true);
-    x190_tablegroup_double->SetIsActive(true);
-    UpdateSideTable(x190_tablegroup_double);
-    x190_tablegroup_double->SetLocalPosition(x48_tableDoubleStart + CVector3f(0.f, 0.f, zOff));
+    mTablegroup_double->SetUserSelection(CGameOptions::GetOption(opt.option));
+    mTablegroup_double->SetIsVisible(true);
+    mTablegroup_double->SetIsActive(true);
+    UpdateSideTable(mTablegroup_double);
+    mTablegroup_double->SetLocalPosition(mTableDoubleStart + CVector3f(0.f, 0.f, zOff));
     break;
   case kOT_TripleEnum:
-    x194_tablegroup_triple->SetUserSelection(CGameOptions::GetOption(opt.option));
-    x194_tablegroup_triple->SetIsVisible(true);
-    x194_tablegroup_triple->SetIsActive(true);
-    UpdateSideTable(x194_tablegroup_triple);
-    x194_tablegroup_triple->SetLocalPosition(x54_tableTripleStart + CVector3f(0.f, 0.f, zOff));
+    mTablegroup_triple->SetUserSelection(CGameOptions::GetOption(opt.option));
+    mTablegroup_triple->SetIsVisible(true);
+    mTablegroup_triple->SetIsActive(true);
+    UpdateSideTable(mTablegroup_triple);
+    mTablegroup_triple->SetLocalPosition(mTableTripleStart + CVector3f(0.f, 0.f, zOff));
     break;
   case kOT_RestoreDefaults:
     break;
@@ -507,22 +531,22 @@ void COptionsScreen::UpdateOptionView() {
 }
 
 void COptionsScreen::OnSliderChanged(CGuiSliderGroup* caller, float value) {
-  if (x10_mode == kM_RightTable) {
-    const SOptionCategory& category = skGameOptions[x70_tablegroup_leftlog->GetUserSelection()];
-    const EGameOption option = category.options[x1c_rightSel].option;
+  if (mMode == kM_RightTable) {
+    const SOptionCategory& category = skGameOptions[mTablegroup_leftlog->GetUserSelection()];
+    const EGameOption option = category.options[mRightSel].option;
     CGameOptions::SetOption(option, caller->GetCurVal());
   }
 }
 
 void COptionsScreen::OnEnumChanged(CGuiTableGroup* caller, int oldSel) {
-  if (x10_mode == kM_RightTable) {
-    const SOptionCategory& category = skGameOptions[x70_tablegroup_leftlog->GetUserSelection()];
-    const SGameOption& option = category.options[x1c_rightSel];
+  if (mMode == kM_RightTable) {
+    const SOptionCategory& category = skGameOptions[mTablegroup_leftlog->GetUserSelection()];
+    const SGameOption& option = category.options[mRightSel];
     const int selection = caller->GetUserSelection();
     CGameOptions::SetOption(option.option, selection);
     if (option.option == kGO_Rumble && selection > 0) {
-      x1a8_rumble.HardStopAll();
-      x1a8_rumble.Rumble(skRumbleFxTable[kRFX_PlayerBump], 1.f, kRP_One, kIOP_Player1);
+      mRumble.HardStopAll();
+      mRumble.Rumble(skRumbleFxTable[kRFX_PlayerBump], 1.f, kRP_One, kIOP_Player1);
     }
     CPauseScreenBase::UpdateSideTable(caller);
     CSfxManager::SfxStart(0x59d, 0x7f, 0x40, false, CSfxManager::kMedPriority, false,
@@ -531,34 +555,34 @@ void COptionsScreen::OnEnumChanged(CGuiTableGroup* caller, int oldSel) {
 }
 
 SOptionsFrontEndFrame::SOptionsFrontEndFrame()
-: x0_uiAlpha(0.f)
-, x4_frme(gpSimplePool->GetObj("FRME_OptionsFrontEnd"))
-, x10_pauseScreen(gpSimplePool->GetObj("STRG_PauseScreen"))
-, x1c_loadedFrame(nullptr)
-, x20_loadedPauseStrg(nullptr)
-, x24_tablegroup_leftmenu(nullptr)
-, x28_tablegroup_rightmenu(nullptr)
-, x2c_tablegroup_double(nullptr)
-, x30_tablegroup_triple(nullptr)
-, x34_slidergroup_slider(nullptr)
-, x38_rowPitch(0.f)
-, x134_24_visible(true)
-, x134_25_exitOptions(false) {
-  x4_frme.Lock();
-  x10_pauseScreen.Lock();
+: mUiAlpha(0.f)
+, mFrme(gpSimplePool->GetObj("FRME_OptionsFrontEnd"))
+, mPauseScreen(gpSimplePool->GetObj("STRG_PauseScreen"))
+, mLoadedFrame(nullptr)
+, mLoadedPauseStrg(nullptr)
+, mTablegroup_leftmenu(nullptr)
+, mTablegroup_rightmenu(nullptr)
+, mTablegroup_double(nullptr)
+, mTablegroup_triple(nullptr)
+, mSlidergroup_slider(nullptr)
+, mRowPitch(0.f)
+, mVisible(true)
+, mExitOptions(false) {
+  mFrme.Lock();
+  mPauseScreen.Lock();
 }
 
-SOptionsFrontEndFrame::~SOptionsFrontEndFrame() { CSfxManager::SfxStop(x3c_sliderSfx); }
+SOptionsFrontEndFrame::~SOptionsFrontEndFrame() { CSfxManager::SfxStop(mSliderSfx); }
 
 bool SOptionsFrontEndFrame::PumpLoad() {
-  if (x1c_loadedFrame != nullptr) {
+  if (mLoadedFrame != nullptr) {
     return true;
   }
-  if (x4_frme.TryCache() && x10_pauseScreen.TryCache()) {
-    CGuiFrame* frame = x4_frme.GetObject();
+  if (mFrme.TryCache() && mPauseScreen.TryCache()) {
+    CGuiFrame* frame = mFrme.GetObject();
     if (frame->GetIsFinishedLoading()) {
-      x1c_loadedFrame = frame;
-      x20_loadedPauseStrg = x10_pauseScreen.GetObject();
+      mLoadedFrame = frame;
+      mLoadedPauseStrg = mPauseScreen.GetObject();
       FinishedLoading();
       return true;
     }
@@ -567,58 +591,58 @@ bool SOptionsFrontEndFrame::PumpLoad() {
 }
 
 void SOptionsFrontEndFrame::FinishedLoading() {
-  x24_tablegroup_leftmenu =
-      static_cast< CGuiTableGroup* >(x1c_loadedFrame->FindWidget("tablegroup_leftmenu"));
-  x28_tablegroup_rightmenu =
-      static_cast< CGuiTableGroup* >(x1c_loadedFrame->FindWidget("tablegroup_rightmenu"));
-  x2c_tablegroup_double =
-      static_cast< CGuiTableGroup* >(x1c_loadedFrame->FindWidget("tablegroup_double"));
-  x30_tablegroup_triple =
-      static_cast< CGuiTableGroup* >(x1c_loadedFrame->FindWidget("tablegroup_triple"));
-  x34_slidergroup_slider =
-      static_cast< CGuiSliderGroup* >(x1c_loadedFrame->FindWidget("slidergroup_slider"));
-  x24_tablegroup_leftmenu->SetMenuAdvanceCallback(
+  mTablegroup_leftmenu =
+      static_cast< CGuiTableGroup* >(mLoadedFrame->FindWidget("tablegroup_leftmenu"));
+  mTablegroup_rightmenu =
+      static_cast< CGuiTableGroup* >(mLoadedFrame->FindWidget("tablegroup_rightmenu"));
+  mTablegroup_double =
+      static_cast< CGuiTableGroup* >(mLoadedFrame->FindWidget("tablegroup_double"));
+  mTablegroup_triple =
+      static_cast< CGuiTableGroup* >(mLoadedFrame->FindWidget("tablegroup_triple"));
+  mSlidergroup_slider =
+      static_cast< CGuiSliderGroup* >(mLoadedFrame->FindWidget("slidergroup_slider"));
+  mTablegroup_leftmenu->SetMenuAdvanceCallback(
       TFunctor1FromMethod< SOptionsFrontEndFrame, CGuiTableGroup* const >::Make(
           *this, &SOptionsFrontEndFrame::DoLeftMenuAdvance));
-  x24_tablegroup_leftmenu->SetMenuSelectionChangeCallback(
+  mTablegroup_leftmenu->SetMenuSelectionChangeCallback(
       TFunctor2FromMethod< SOptionsFrontEndFrame, CGuiTableGroup* const, const int >::Make(
           *this, &SOptionsFrontEndFrame::DoMenuSelectionChange));
-  x38_rowPitch = x24_tablegroup_leftmenu->GetWorkerWidget(1)->GetIdlePosition().GetZ() -
-                 x24_tablegroup_leftmenu->GetWorkerWidget(0)->GetIdlePosition().GetZ();
-  x28_tablegroup_rightmenu->SetMenuSelectionChangeCallback(
+  mRowPitch = mTablegroup_leftmenu->GetWorkerWidget(1)->GetIdlePosition().GetZ() -
+                 mTablegroup_leftmenu->GetWorkerWidget(0)->GetIdlePosition().GetZ();
+  mTablegroup_rightmenu->SetMenuSelectionChangeCallback(
       TFunctor2FromMethod< SOptionsFrontEndFrame, CGuiTableGroup* const, const int >::Make(
           *this, &SOptionsFrontEndFrame::DoMenuSelectionChange));
-  x28_tablegroup_rightmenu->SetMenuCancelCallback(
+  mTablegroup_rightmenu->SetMenuCancelCallback(
       TFunctor1FromMethod< SOptionsFrontEndFrame, CGuiTableGroup* const >::Make(
           *this, &SOptionsFrontEndFrame::DoMenuCancel));
-  x2c_tablegroup_double->SetMenuSelectionChangeCallback(
+  mTablegroup_double->SetMenuSelectionChangeCallback(
       TFunctor2FromMethod< SOptionsFrontEndFrame, CGuiTableGroup* const, const int >::Make(
           *this, &SOptionsFrontEndFrame::DoMenuSelectionChange));
-  x2c_tablegroup_double->SetMenuCancelCallback(
+  mTablegroup_double->SetMenuCancelCallback(
       TFunctor1FromMethod< SOptionsFrontEndFrame, CGuiTableGroup* const >::Make(
           *this, &SOptionsFrontEndFrame::DoMenuCancel));
-  x30_tablegroup_triple->SetMenuSelectionChangeCallback(
+  mTablegroup_triple->SetMenuSelectionChangeCallback(
       TFunctor2FromMethod< SOptionsFrontEndFrame, CGuiTableGroup* const, const int >::Make(
           *this, &SOptionsFrontEndFrame::DoMenuSelectionChange));
-  x30_tablegroup_triple->SetMenuCancelCallback(
+  mTablegroup_triple->SetMenuCancelCallback(
       TFunctor1FromMethod< SOptionsFrontEndFrame, CGuiTableGroup* const >::Make(
           *this, &SOptionsFrontEndFrame::DoMenuCancel));
-  x34_slidergroup_slider->SetSelectionChangedCallback(
+  mSlidergroup_slider->SetSelectionChangedCallback(
       TFunctor2FromMethod< SOptionsFrontEndFrame, CGuiSliderGroup* const, const float >::Make(
           *this, &SOptionsFrontEndFrame::DoSliderChange));
 
-  SetTextPanePair(x1c_loadedFrame, "textpane_double0", x20_loadedPauseStrg->GetString(95));
-  SetTextPanePair(x1c_loadedFrame, "textpane_double1", x20_loadedPauseStrg->GetString(94));
-  SetTextPanePair(x1c_loadedFrame, "textpane_triple0", x20_loadedPauseStrg->GetString(96));
-  SetTextPanePair(x1c_loadedFrame, "textpane_triple1", x20_loadedPauseStrg->GetString(97));
-  SetTextPanePair(x1c_loadedFrame, "textpane_triple2", x20_loadedPauseStrg->GetString(98));
-  SetTextPanePair(x1c_loadedFrame, "textpane_title", gpStringTable->GetString(99));
+  SetTextPanePair(mLoadedFrame, "textpane_double0", mLoadedPauseStrg->GetString(95));
+  SetTextPanePair(mLoadedFrame, "textpane_double1", mLoadedPauseStrg->GetString(94));
+  SetTextPanePair(mLoadedFrame, "textpane_triple0", mLoadedPauseStrg->GetString(96));
+  SetTextPanePair(mLoadedFrame, "textpane_triple1", mLoadedPauseStrg->GetString(97));
+  SetTextPanePair(mLoadedFrame, "textpane_triple2", mLoadedPauseStrg->GetString(98));
+  SetTextPanePair(mLoadedFrame, "textpane_title", gpStringTable->GetString(99));
   if (CGuiTextPane* proceed =
-          static_cast< CGuiTextPane* >(x1c_loadedFrame->FindWidget("textpane_proceed"))) {
+          static_cast< CGuiTextPane* >(mLoadedFrame->FindWidget("textpane_proceed"))) {
     proceed->TextSupport().SetText(rstl::wstring_l(gpStringTable->GetString(85)));
   }
   if (CGuiTextPane* cancel =
-          static_cast< CGuiTextPane* >(x1c_loadedFrame->FindWidget("textpane_cancel"))) {
+          static_cast< CGuiTextPane* >(mLoadedFrame->FindWidget("textpane_cancel"))) {
     cancel->TextSupport().SetText(rstl::wstring_l(gpStringTable->GetString(82)));
   }
   for (int i = 0; i < 4; ++i) {
@@ -628,22 +652,22 @@ void SOptionsFrontEndFrame::FinishedLoading() {
 #else
     sprintf(name, "textpane_filename%d", i);
 #endif
-    SetTextPanePair(x1c_loadedFrame, name, x20_loadedPauseStrg->GetString(16 + i));
+    SetTextPanePair(mLoadedFrame, name, mLoadedPauseStrg->GetString(16 + i));
   }
-  x2c_tablegroup_double->SetVertical(false);
-  x30_tablegroup_triple->SetVertical(false);
-  x24_tablegroup_leftmenu->SetIsActive(true);
-  x28_tablegroup_rightmenu->SetIsActive(false);
-  SetTableColors(x24_tablegroup_leftmenu);
-  SetTableColors(x28_tablegroup_rightmenu);
-  SetTableColors(x2c_tablegroup_double);
-  SetTableColors(x30_tablegroup_triple);
+  mTablegroup_double->SetVertical(false);
+  mTablegroup_triple->SetVertical(false);
+  mTablegroup_leftmenu->SetIsActive(true);
+  mTablegroup_rightmenu->SetIsActive(false);
+  SetTableColors(mTablegroup_leftmenu);
+  SetTableColors(mTablegroup_rightmenu);
+  SetTableColors(mTablegroup_double);
+  SetTableColors(mTablegroup_triple);
   SetRightUIText();
   DeactivateRightMenu();
 }
 
 void SOptionsFrontEndFrame::SetRightUIText() {
-  const SOptionCategory& options = skGameOptions[x24_tablegroup_leftmenu->GetUserSelection()];
+  const SOptionCategory& options = skGameOptions[mTablegroup_leftmenu->GetUserSelection()];
   for (int i = 0; i < 5; ++i) {
     char name[32];
 #if defined(TARGET_PC)
@@ -652,52 +676,52 @@ void SOptionsFrontEndFrame::SetRightUIText() {
     sprintf(name, "textpane_right%d", i);
 #endif
     if (i < options.count) {
-      SetTextPanePair(x1c_loadedFrame, name,
-                      x20_loadedPauseStrg->GetString(options.options[i].stringId));
-      x28_tablegroup_rightmenu->GetWorkerWidget(i)->SetIsSelectable(true);
+      SetTextPanePair(mLoadedFrame, name,
+                      mLoadedPauseStrg->GetString(options.options[i].stringId));
+      mTablegroup_rightmenu->GetWorkerWidget(i)->SetIsSelectable(true);
     } else {
-      SetTextPanePair(x1c_loadedFrame, name, L"");
-      x28_tablegroup_rightmenu->GetWorkerWidget(i)->SetIsSelectable(false);
+      SetTextPanePair(mLoadedFrame, name, L"");
+      mTablegroup_rightmenu->GetWorkerWidget(i)->SetIsSelectable(false);
     }
   }
 }
 
 void SOptionsFrontEndFrame::HandleRightSelectionChange() {
   DeactivateRightMenu();
-  const SOptionCategory& category = skGameOptions[x24_tablegroup_leftmenu->GetUserSelection()];
-  const SGameOption& option = category.options[x28_tablegroup_rightmenu->GetUserSelection()];
+  const SOptionCategory& category = skGameOptions[mTablegroup_leftmenu->GetUserSelection()];
+  const SGameOption& option = category.options[mTablegroup_rightmenu->GetUserSelection()];
   switch (option.type) {
   case kOT_Float:
-    x34_slidergroup_slider->SetIsActive(true);
-    x34_slidergroup_slider->SetVisibility(true, kTM_Children);
-    x34_slidergroup_slider->SetMinVal(option.minVal);
-    x34_slidergroup_slider->SetMaxVal(option.maxVal);
-    x34_slidergroup_slider->SetIncrement(option.increment);
-    x34_slidergroup_slider->SetCurVal(CGameOptions::GetOption(option.option));
-    x34_slidergroup_slider->SetO2PTransform(
+    mSlidergroup_slider->SetIsActive(true);
+    mSlidergroup_slider->SetVisibility(true, kTM_Children);
+    mSlidergroup_slider->SetMinVal(option.minVal);
+    mSlidergroup_slider->SetMaxVal(option.maxVal);
+    mSlidergroup_slider->SetIncrement(option.increment);
+    mSlidergroup_slider->SetCurVal(CGameOptions::GetOption(option.option));
+    mSlidergroup_slider->SetO2PTransform(
         CTransform4f::Translate(0.f, 0.f,
-                                x28_tablegroup_rightmenu->GetUserSelection() * x38_rowPitch) *
-        x34_slidergroup_slider->GetTransform());
+                                mTablegroup_rightmenu->GetUserSelection() * mRowPitch) *
+        mSlidergroup_slider->GetTransform());
     break;
   case kOT_DoubleEnum:
-    x2c_tablegroup_double->SetUserSelection(CGameOptions::GetOption(option.option));
-    x2c_tablegroup_double->SetIsVisible(true);
-    x2c_tablegroup_double->SetIsActive(true);
-    x2c_tablegroup_double->SetO2PTransform(
+    mTablegroup_double->SetUserSelection(CGameOptions::GetOption(option.option));
+    mTablegroup_double->SetIsVisible(true);
+    mTablegroup_double->SetIsActive(true);
+    mTablegroup_double->SetO2PTransform(
         CTransform4f::Translate(0.f, 0.f,
-                                x28_tablegroup_rightmenu->GetUserSelection() * x38_rowPitch) *
-        x2c_tablegroup_double->GetTransform());
-    SetTableColors(x2c_tablegroup_double);
+                                mTablegroup_rightmenu->GetUserSelection() * mRowPitch) *
+        mTablegroup_double->GetTransform());
+    SetTableColors(mTablegroup_double);
     break;
   case kOT_TripleEnum:
-    x30_tablegroup_triple->SetUserSelection(CGameOptions::GetOption(option.option));
-    x30_tablegroup_triple->SetIsVisible(true);
-    x30_tablegroup_triple->SetIsActive(true);
-    x30_tablegroup_triple->SetO2PTransform(
+    mTablegroup_triple->SetUserSelection(CGameOptions::GetOption(option.option));
+    mTablegroup_triple->SetIsVisible(true);
+    mTablegroup_triple->SetIsActive(true);
+    mTablegroup_triple->SetO2PTransform(
         CTransform4f::Translate(0.f, 0.f,
-                                x28_tablegroup_rightmenu->GetUserSelection() * x38_rowPitch) *
-        x30_tablegroup_triple->GetTransform());
-    SetTableColors(x30_tablegroup_triple);
+                                mTablegroup_rightmenu->GetUserSelection() * mRowPitch) *
+        mTablegroup_triple->GetTransform());
+    SetTableColors(mTablegroup_triple);
     break;
   default:
     break;
@@ -705,20 +729,20 @@ void SOptionsFrontEndFrame::HandleRightSelectionChange() {
 }
 
 void SOptionsFrontEndFrame::DeactivateRightMenu() {
-  x2c_tablegroup_double->SetIsActive(false);
-  x30_tablegroup_triple->SetIsActive(false);
-  x34_slidergroup_slider->SetIsActive(false);
-  x2c_tablegroup_double->SetVisibility(false, kTM_Children);
-  x30_tablegroup_triple->SetVisibility(false, kTM_Children);
-  x34_slidergroup_slider->SetVisibility(false, kTM_Children);
+  mTablegroup_double->SetIsActive(false);
+  mTablegroup_triple->SetIsActive(false);
+  mSlidergroup_slider->SetIsActive(false);
+  mTablegroup_double->SetVisibility(false, kTM_Children);
+  mTablegroup_triple->SetVisibility(false, kTM_Children);
+  mSlidergroup_slider->SetVisibility(false, kTM_Children);
 }
 
 void SOptionsFrontEndFrame::DoLeftMenuAdvance(CGuiTableGroup* caller) {
-  if (caller == x24_tablegroup_leftmenu) {
+  if (caller == mTablegroup_leftmenu) {
     HandleRightSelectionChange();
-    x28_tablegroup_rightmenu->SetUserSelection(0);
-    x24_tablegroup_leftmenu->SetIsActive(false);
-    x28_tablegroup_rightmenu->SetIsActive(true);
+    mTablegroup_rightmenu->SetUserSelection(0);
+    mTablegroup_leftmenu->SetIsActive(false);
+    mTablegroup_rightmenu->SetIsActive(true);
     CSfxManager::SfxStart(0x448, 0x7f, 0x40, false, CSfxManager::kMedPriority, false,
                           CSfxManager::kAllAreas);
     CSfxManager::SfxStart(0x443, 0x7f, 0x40, false, CSfxManager::kMedPriority, false,
@@ -728,84 +752,84 @@ void SOptionsFrontEndFrame::DoLeftMenuAdvance(CGuiTableGroup* caller) {
 
 void SOptionsFrontEndFrame::DoMenuSelectionChange(CGuiTableGroup* caller, int oldSel) {
   SetTableColors(caller);
-  if (caller == x24_tablegroup_leftmenu) {
+  if (caller == mTablegroup_leftmenu) {
     SetRightUIText();
     CSfxManager::SfxStart(0x445, 0x7f, 0x40, false, CSfxManager::kMedPriority, false,
                           CSfxManager::kAllAreas);
-  } else if (caller == x28_tablegroup_rightmenu) {
+  } else if (caller == mTablegroup_rightmenu) {
     HandleRightSelectionChange();
     CSfxManager::SfxStart(0x445, 0x7f, 0x40, false, CSfxManager::kMedPriority, false,
                           CSfxManager::kAllAreas);
-  } else if (caller == x2c_tablegroup_double || caller == x30_tablegroup_triple) {
-    if (x28_tablegroup_rightmenu->GetIsActive()) {
-      const SOptionCategory& category = skGameOptions[x24_tablegroup_leftmenu->GetUserSelection()];
-      const SGameOption& option = category.options[x28_tablegroup_rightmenu->GetUserSelection()];
+  } else if (caller == mTablegroup_double || caller == mTablegroup_triple) {
+    if (mTablegroup_rightmenu->GetIsActive()) {
+      const SOptionCategory& category = skGameOptions[mTablegroup_leftmenu->GetUserSelection()];
+      const SGameOption& option = category.options[mTablegroup_rightmenu->GetUserSelection()];
       const int selection = caller->GetUserSelection();
       CGameOptions::SetOption(option.option, selection);
       CSfxManager::SfxStart(0x447, 0x7f, 0x40, false, CSfxManager::kMedPriority, false,
                             CSfxManager::kAllAreas);
       if (option.option == kGO_Rumble && selection > 0) {
-        x40_rumbleGen.HardStopAll();
-        x40_rumbleGen.Rumble(skRumbleFxTable[kRFX_PlayerBump], 1.f, kRP_One, kIOP_Player1);
+        mRumbleGen.HardStopAll();
+        mRumbleGen.Rumble(skRumbleFxTable[kRFX_PlayerBump], 1.f, kRP_One, kIOP_Player1);
       }
     }
   }
 }
 
 void SOptionsFrontEndFrame::DoMenuCancel(CGuiTableGroup* caller) {
-  if (caller == x28_tablegroup_rightmenu) {
+  if (caller == mTablegroup_rightmenu) {
     DeactivateRightMenu();
-    x24_tablegroup_leftmenu->SetIsActive(true);
-    x28_tablegroup_rightmenu->SetIsActive(false);
-    x28_tablegroup_rightmenu->SetUserSelection(0);
-    SetTableColors(x28_tablegroup_rightmenu);
+    mTablegroup_leftmenu->SetIsActive(true);
+    mTablegroup_rightmenu->SetIsActive(false);
+    mTablegroup_rightmenu->SetUserSelection(0);
+    SetTableColors(mTablegroup_rightmenu);
     CSfxManager::SfxStart(0x446, 0x7f, 0x40, false, CSfxManager::kMedPriority, false,
                           CSfxManager::kAllAreas);
   }
 }
 
 void SOptionsFrontEndFrame::Update(float dt, const CSaveGameScreen* saveUI) {
-  x40_rumbleGen.Update(dt);
-  x134_24_visible = saveUI == nullptr || saveUI->GetUIType() == CSaveGameScreen::kUIT_SaveReady;
+  mRumbleGen.Update(dt);
+  mVisible = saveUI == nullptr || saveUI->GetUIType() == CSaveGameScreen::kUIT_SaveReady;
   if (!PumpLoad()) {
     return;
   }
-  x0_uiAlpha = rstl::min_val(1.f, x0_uiAlpha + dt);
-  x1c_loadedFrame->Update(dt);
-  const bool sliding = x34_slidergroup_slider->GetState() != CGuiSliderGroup::kS_None;
-  if (bool(x3c_sliderSfx) != sliding) {
+  mUiAlpha = rstl::min_val(1.f, mUiAlpha + dt);
+  mLoadedFrame->Update(dt);
+  const bool sliding = mSlidergroup_slider->GetState() != CGuiSliderGroup::kS_None;
+  if (bool(mSliderSfx) != sliding) {
     if (sliding) {
-      x3c_sliderSfx = CSfxManager::SfxStart(0x5b2, 0x7f, 0x40, false, CSfxManager::kMedPriority,
+      mSliderSfx = CSfxManager::SfxStart(0x5b2, 0x7f, 0x40, false, CSfxManager::kMedPriority,
                                             false, CSfxManager::kAllAreas);
     } else {
-      CSfxManager::SfxStop(x3c_sliderSfx);
-      x3c_sliderSfx.Clear();
+      CSfxManager::SfxStop(mSliderSfx);
+      mSliderSfx.Clear();
     }
   }
 }
 
 bool SOptionsFrontEndFrame::ProcessUserInput(const CFinalInput& input, CSaveGameScreen* saveUI) {
-  x134_25_exitOptions = false;
+  mExitOptions = false;
   if (saveUI != nullptr) {
     saveUI->ProcessUserInput(input);
   }
-  if (x1c_loadedFrame != nullptr && x134_24_visible) {
-    if (input.PB() && x24_tablegroup_leftmenu->GetIsActive()) {
-      x134_25_exitOptions = true;
+  if (mLoadedFrame != nullptr && mVisible) {
+    if (input.PB() && mTablegroup_leftmenu->GetIsActive()) {
+      mExitOptions = true;
       CSfxManager::SfxStart(0x446, 0x7f, 0x40, false, CSfxManager::kMedPriority, false,
                             CSfxManager::kAllAreas);
     } else {
-      x1c_loadedFrame->ProcessUserInput(input);
-      CGameOptions::TryRestoreDefaults(input, x24_tablegroup_leftmenu->GetUserSelection(),
-                                       x28_tablegroup_rightmenu->GetUserSelection(), true);
+      mLoadedFrame->ProcessUserInput(input);
+      CGameOptions::TryRestoreDefaults(input, mTablegroup_leftmenu->GetUserSelection(),
+                                       mTablegroup_rightmenu->GetUserSelection(), true);
     }
   }
-  return !x134_25_exitOptions;
+  return !mExitOptions;
 }
 
 void SOptionsFrontEndFrame::Draw() const {
-  if (x1c_loadedFrame != nullptr && x134_24_visible) {
-    x1c_loadedFrame->Draw(CGuiWidgetDrawParms(x0_uiAlpha, CVector3f::Zero()));
+  if (mLoadedFrame != nullptr && mVisible) {
+    mLoadedFrame->Draw(CGuiWidgetDrawParms(mUiAlpha, CVector3f::Zero()));
   }
 }
 
@@ -816,10 +840,10 @@ void SOptionsFrontEndFrame::SetTableColors(CGuiTableGroup* table) const {
 }
 
 void SOptionsFrontEndFrame::DoSliderChange(CGuiSliderGroup* caller, float value) {
-  if (x28_tablegroup_rightmenu->GetIsActive()) {
-    const SOptionCategory& category = skGameOptions[x24_tablegroup_leftmenu->GetUserSelection()];
+  if (mTablegroup_rightmenu->GetIsActive()) {
+    const SOptionCategory& category = skGameOptions[mTablegroup_leftmenu->GetUserSelection()];
     const EGameOption option =
-        category.options[x28_tablegroup_rightmenu->GetUserSelection()].option;
+        category.options[mTablegroup_rightmenu->GetUserSelection()].option;
     CGameOptions::SetOption(option, caller->GetCurVal());
   }
 }

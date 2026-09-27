@@ -6,12 +6,12 @@
 #include "Collision/COBBox.hpp"
 
 class CScriptCameraHintTrigger : public CActor {
-  COBBox xe8_obb;
-  CVector3f x124_scale;
-  bool x130_24_deactivateOnEnter : 1;
-  bool x130_25_deactivateOnExit : 1;
-  bool x130_26_playerInside : 1;
-  bool x130_27_playerWasInside : 1;
+  COBBox mObb;
+  CVector3f mScale;
+  bool mDeactivateOnEnter : 1;
+  bool mDeactivateOnExit : 1;
+  bool mPlayerInside : 1;
+  bool mPlayerWasInside : 1;
 
 public:
   CScriptCameraHintTrigger(TUniqueId uid, bool active, const rstl::string& name,

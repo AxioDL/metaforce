@@ -27,7 +27,7 @@ static ComparisonFunc sNullCollider = nullptr;
 static BooleanComparisonFunc sNullBooleanCollider = nullptr;
 static MovingComparisonFunc sNullMovingCollider = nullptr;
 
-CCollisionPrimitive::CCollisionPrimitive(const CMaterialList& list) : x8_material(list) {}
+CCollisionPrimitive::CCollisionPrimitive(const CMaterialList& list) : mMaterial(list) {}
 
 
 void CCollisionPrimitive::InitBeginTypes() {

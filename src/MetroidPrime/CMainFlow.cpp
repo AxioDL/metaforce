@@ -17,7 +17,7 @@
 #include "Metaforce/Runtime.hpp"
 #endif
 
-CMainFlow::CMainFlow() : CIOWin(rstl::string_l("MainFlow")), x14_gameState(kCFS_Unspecified) {}
+CMainFlow::CMainFlow() : CIOWin(rstl::string_l("MainFlow")), mGameState(kCFS_Unspecified) {}
 
 CIOWin::EMessageReturn CMainFlow::OnMessage(const CArchitectureMessage& msg,
                                             CArchitectureQueue& queue) {
@@ -39,7 +39,7 @@ bool CMainFlow::GetIsContinueDraw() const { return false; }
 void CMainFlow::Draw() const {}
 
 void CMainFlow::AdvanceGameState(CArchitectureQueue& queue) {
-  switch (x14_gameState) {
+  switch (mGameState) {
   case kCFS_Game:
     SetGameState(kCFS_GameExit, queue);
     break;
@@ -69,9 +69,9 @@ static inline bool IsCreditsMode(CMain::ERestartMode m) {
 }
 
 void CMainFlow::SetGameState(EClientFlowStates state, CArchitectureQueue& queue) {
-  x14_gameState = state;
+  mGameState = state;
 
-  switch (x14_gameState) {
+  switch (mGameState) {
   case kCFS_GameExit: {
     CMain::ERestartMode m = gpMain->GetRestartMode();
     if (IsCreditsMode(m)) {

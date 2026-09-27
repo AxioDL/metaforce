@@ -10,27 +10,27 @@ IAllocator::SMetrics::SMetrics(uint heapSize, uint unk1, uint unk2, uint unk3, u
                                uint mediumAllocAllocatedSize, uint mediumAllocBlocksAvailable,
                                uint unk10, uint unk11, uint unk12, uint mediumAllocTotalAllocated,
                                uint fakeStatics)
-: x0_heapSize(heapSize)
+: mHeapSize(heapSize)
 , x4_(unk1)
 , x8_(unk2)
 , xc_(unk3)
 , x10_(unk4)
-, x14_heapSize2(heapSize2)
+, mHeapSize2(heapSize2)
 , x18_(unk5)
 , x1c_(unk6)
 , x20_(unk7)
 , x24_(unk8)
 , x28_(unk9)
-, x2c_smallNumAllocs(smallAllocNumAllocs)
-, x30_smallAllocatedSize(smallAllocAllocatedSize)
-, x34_smallRemainingSize(smallAllocRemainingSize)
-, x38_mediumNumAllocs(mediumAllocNumAllocs)
-, x3c_mediumAllocatedSize(mediumAllocAllocatedSize)
-, x40_mediumBlocksAvailable(mediumAllocBlocksAvailable)
+, mSmallNumAllocs(smallAllocNumAllocs)
+, mSmallAllocatedSize(smallAllocAllocatedSize)
+, mSmallRemainingSize(smallAllocRemainingSize)
+, mMediumNumAllocs(mediumAllocNumAllocs)
+, mMediumAllocatedSize(mediumAllocAllocatedSize)
+, mMediumBlocksAvailable(mediumAllocBlocksAvailable)
 , x44_(unk10)
 , x48_(unk11)
 , x4c_(unk12)
-, x50_mediumTotalAllocated(mediumAllocTotalAllocated)
-, x54_fakeStatics(fakeStatics) {}
+, mMediumTotalAllocated(mediumAllocTotalAllocated)
+, mFakeStatics(fakeStatics) {}
 
 IAllocator::~IAllocator() {}

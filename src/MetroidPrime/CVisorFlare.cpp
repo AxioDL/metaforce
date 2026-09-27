@@ -24,8 +24,8 @@
 #include "math.h"
 
 CVisorFlare::CFlareDef::CFlareDef(const TToken< CTexture >& tex, float pos, float scale, uint color)
-: x0_tex(tex), x8_pos(pos), xc_scale(scale), x10_color(color) {
-  x0_tex.Lock();
+: mTex(tex), mPos(pos), mScale(scale), mColor(color) {
+  mTex.Lock();
 }
 
 rstl::optional_object< CVisorFlare::CFlareDef > CVisorFlare::LoadFlareDef(CInputStream& in) {
@@ -48,22 +48,22 @@ rstl::optional_object< CVisorFlare::CFlareDef > CVisorFlare::LoadFlareDef(CInput
 CVisorFlare::CVisorFlare(EBlendMode blendMode, bool distanceScaled, float fadeTime,
                          float angularFalloff, float rotationScale, uint thermalVisorMode,
                          uint combatVisorMode, const rstl::vector< CFlareDef >& flares)
-: x0_blendMode(blendMode)
-, x4_flareDefs(flares)
-, x14_distanceScaled(distanceScaled)
-, x18_fadeTime(rstl::max_val(1.0E-4f, fadeTime))
-, x1c_angularFalloff(angularFalloff)
-, x20_rotationScale(rotationScale)
-, x24_intensity(0.f)
-, x28_occlusionTime(0.f)
-, x2c_thermalVisorMode(thermalVisorMode)
-, x30_combatVisorMode(combatVisorMode) {}
+: mBlendMode(blendMode)
+, mFlareDefs(flares)
+, mDistanceScaled(distanceScaled)
+, mFadeTime(rstl::max_val(1.0E-4f, fadeTime))
+, mAngularFalloff(angularFalloff)
+, mRotationScale(rotationScale)
+, mIntensity(0.f)
+, mOcclusionTime(0.f)
+, mThermalVisorMode(thermalVisorMode)
+, mCombatVisorMode(combatVisorMode) {}
 
 void CVisorFlare::Update(float dt, const CVector3f& pos, const CActor* act, CStateManager& mgr) {
   CPlayerState::EPlayerVisor visor = mgr.GetPlayerState()->GetCurrentVisor();
 
   if ((visor == CPlayerState::kPV_Combat ||
-       (x2c_thermalVisorMode != 1 && visor == CPlayerState::kPV_Thermal)) &&
+       (mThermalVisorMode != 1 && visor == CPlayerState::kPV_Thermal)) &&
       mgr.GetPlayer()->GetMorphballTransitionState() == CPlayer::kMS_Unmorphed) {
 
     CVector3f camPos = mgr.GetCameraManager()->GetCurrentCamera(mgr).GetTranslation();
@@ -87,39 +87,39 @@ void CVisorFlare::Update(float dt, const CVector3f& pos, const CActor* act, CSta
     }
 
     if (blocked) {
-      x28_occlusionTime += dt;
+      mOcclusionTime += dt;
     } else {
-      x28_occlusionTime -= dt;
+      mOcclusionTime -= dt;
     }
-    x28_occlusionTime = rstl::min_val(x18_fadeTime, rstl::max_val(0.f, x28_occlusionTime));
+    mOcclusionTime = rstl::min_val(mFadeTime, rstl::max_val(0.f, mOcclusionTime));
 
     const CGameCamera& curCam = mgr.GetCameraManager()->GetCurrentCamera(mgr);
     CVector3f cameraForward = curCam.GetTransform().GetColumn(kDY);
     CVector3f dir = pos - curCam.GetTranslation();
-    x24_intensity = 1.f - x28_occlusionTime / x18_fadeTime;
+    mIntensity = 1.f - mOcclusionTime / mFadeTime;
 
     float dot = CVector3f::Dot(dir.AsNormalized(), cameraForward);
-    x24_intensity *= rstl::max_val(0.f, 1.f - (x1c_angularFalloff * 4.f * (1.f - dot)));
+    mIntensity *= rstl::max_val(0.f, 1.f - (mAngularFalloff * 4.f * (1.f - dot)));
 
-    if (x2c_thermalVisorMode == 2) {
-      mgr.AddThermalColdScale2(x24_intensity);
+    if (mThermalVisorMode == 2) {
+      mgr.AddThermalColdScale2(mIntensity);
     }
   }
 }
 
 void CVisorFlare::Render(const CVector3f& inPos, const CStateManager& mgr) const {
-  if (close_enough(x28_occlusionTime, x18_fadeTime) ||
+  if (close_enough(mOcclusionTime, mFadeTime) ||
       mgr.GetPlayer()->GetMorphballTransitionState() != CPlayer::kMS_Unmorphed) {
     return;
   }
 
   switch (mgr.GetPlayerState()->GetActiveVisor(mgr)) {
   case CPlayerState::kPV_Combat:
-    if (x30_combatVisorMode != 0)
+    if (mCombatVisorMode != 0)
       return;
     break;
   case CPlayerState::kPV_Thermal:
-    if (x2c_thermalVisorMode != 0)
+    if (mThermalVisorMode != 0)
       return;
     break;
   default:
@@ -138,27 +138,27 @@ void CVisorFlare::Render(const CVector3f& inPos, const CStateManager& mgr) const
   const CVector3f invPos2 = viewMatrix * invPos;
   CVector3f camFront = cam.GetTransform().GetForward();
   CVector3f toFlare = inPosCopy - camPos;
-  if (!close_enough(x24_intensity, 0.f)) {
+  if (!close_enough(mIntensity, 0.f)) {
     float angle = 0.f;
-    if (!close_enough(x20_rotationScale, 0.f)) {
+    if (!close_enough(mRotationScale, 0.f)) {
       CVector3f camDist(CVector3f(toFlare.GetX(), toFlare.GetY(), 0.f).AsNormalized());
       CVector3f camDir(CVector3f(camFront.GetX(), camFront.GetY(), 0.f).AsNormalized());
       float acos = CMath::ArcCosineR(CVector3f::Dot(camDist, camDir));
       if (camDist.GetX() * camDir.GetY() - camDir.GetX() * camDist.GetY() < 0.f) {
         acos = -acos;
       }
-      angle = x20_rotationScale * acos;
+      angle = mRotationScale * acos;
     }
     const bool drawDirect = mgr.GetThermalDrawFlag() == kTD_Hot;
     const float radians = angle;
     SetupRenderState(mgr);
-    for (int i = 0; i < x4_flareDefs.size(); ++i) {
-      const CFlareDef* item = &x4_flareDefs[i];
+    for (int i = 0; i < mFlareDefs.size(); ++i) {
+      const CFlareDef* item = &mFlareDefs[i];
       CVector3f origin = CVector3f::Lerp(inPosCopy, invPos2, item->GetPosition());
       CTransform4f modelMatrix = CTransform4f::LookAt(origin, camPos);
       gpRender->SetModelMatrix(modelMatrix);
-      float scale = 0.5f * x24_intensity * item->GetScale();
-      if (x14_distanceScaled) {
+      float scale = 0.5f * mIntensity * item->GetScale();
+      if (mDistanceScaled) {
         CVector3f dist = origin - camPos;
         if (dist.CanBeNormalized()) {
           scale *= dist.Magnitude();
@@ -190,7 +190,7 @@ void CVisorFlare::Render(const CVector3f& inPos, const CStateManager& mgr) const
 
 void CVisorFlare::DrawDirect(const CColor& color, float f1, float f2) const {
   CColor kcolor = color;
-  kcolor.SetAlpha(kcolor.GetRed() * x24_intensity);
+  kcolor.SetAlpha(kcolor.GetRed() * mIntensity);
   CGX::SetTevKColor(GX_KCOLOR0, kcolor.GetGXColor());
   CGX::Begin(GX_TRIANGLESTRIP, GX_VTXFMT0, 4);
   GXPosition3f32(f1 - f2, 0.f, f2 + f1);
@@ -206,7 +206,7 @@ void CVisorFlare::DrawDirect(const CColor& color, float f1, float f2) const {
 
 void CVisorFlare::DrawStreamed(const CColor& color, float f1, float f2) const {
   CGraphics::StreamBegin(kP_TriangleStrip);
-  CGraphics::StreamColor(color.WithAlphaModulatedBy(x24_intensity));
+  CGraphics::StreamColor(color.WithAlphaModulatedBy(mIntensity));
   CGraphics::StreamTexcoord(0.f, 1.f);
   CGraphics::StreamVertex(f1 - f2, 0.f, f2 + f1);
   CGraphics::StreamTexcoord(1.f, 1.f);
@@ -232,7 +232,7 @@ void CVisorFlare::SetupRenderState(const CStateManager& mgr) const {
     CGX::SetNumTexGens(1);
     CGX::SetNumChans(0);
     CGX::SetTexCoordGen(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_TEX0, GX_IDENTITY, false, GX_PTIDENTITY);
-    switch (x0_blendMode) {
+    switch (mBlendMode) {
     case kBM_Additive:
       CGX::SetNumTevStages(1);
       break;
@@ -251,7 +251,7 @@ void CVisorFlare::SetupRenderState(const CStateManager& mgr) const {
     };
     CGX::SetVtxDescv(vtxDescList);
   } else {
-    switch (x0_blendMode) {
+    switch (mBlendMode) {
     case kBM_Additive:
       gpRender->SetBlendMode_AdditiveAlpha();
       break;

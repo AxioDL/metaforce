@@ -75,8 +75,8 @@ void CGameCollision::BuildAreaCollisionCache(const CStateManager& mgr, CAreaColl
 
   for (CGameArea::CConstChainIterator it = mgr.GetWorld()->GetChainHead(CWorld::kC_Alive);
        it != CWorld::skGlobalEnd; ++it) {
-    CMetroidAreaCollider::COctreeLeafCache leafCache(*(*it).GetPostConstructed()->x0_collision);
-    const CAreaOctTree& collision = *(*it).GetPostConstructed()->x0_collision;
+    CMetroidAreaCollider::COctreeLeafCache leafCache(*(*it).GetPostConstructed()->mCollision);
+    const CAreaOctTree& collision = *(*it).GetPostConstructed()->mCollision;
     CAreaOctTree::Node node(collision.GetTreeMemory(), collision.GetBoundingBox(), collision,
                             collision.GetTreeType());
     CMetroidAreaCollider::BuildOctreeLeafCache(node, cache.GetCacheBounds(), leafCache);
@@ -641,14 +641,14 @@ CRayCastResult CGameCollision::RayStaticIntersection(const CStateManager& mgr, c
                             collision.GetTreeType());
     node.LineTestEx(line, filter, rayRes, mag);
 
-    if (!rayRes.x10_surface || (mag != 0.f && mag < rayRes.x3c_t)) {
+    if (!rayRes.mSurface || (mag != 0.f && mag < rayRes.mT)) {
       continue;
     }
 
-    if (rayRes.x3c_t < bestT) {
-      ret = CRayCastResult(rayRes.x3c_t, pos + dir * rayRes.x3c_t, rayRes.x0_plane,
-                           CMaterialList(rayRes.x10_surface->GetSurfaceFlags()));
-      bestT = rayRes.x3c_t;
+    if (rayRes.mT < bestT) {
+      ret = CRayCastResult(rayRes.mT, pos + dir * rayRes.mT, rayRes.mPlane,
+                           CMaterialList(rayRes.mSurface->GetSurfaceFlags()));
+      bestT = rayRes.mT;
     }
   }
 

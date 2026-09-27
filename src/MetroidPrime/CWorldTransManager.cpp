@@ -39,72 +39,72 @@
 #include "rstl/list.hpp"
 
 struct CWorldTransManager::SModelDatas {
-  CAnimRes x0_samusRes;
-  CModelData x1c_samusModelData;
-  CModelData x68_beamModelData;
-  CModelData xb4_platformModelData;
-  CModelData x100_bgModelData;
-  rstl::optional_object< CToken > x14c_beamModel;
-  rstl::optional_object< CToken > x158_suitModel;
-  rstl::optional_object< CToken > x164_suitSkin;
-  CTransform4f x170_gunXf;
-  rstl::vector< CLight > x1a0_lights;
-  rstl::single_ptr< uchar > x1b0_dissolveTextureBuffer;
-  CVector2f x1b4_shakeResult;
-  CVector2f x1bc_shakeDelta;
-  float x1c4_randTimeout;
-  float x1c8_blurResult;
-  float x1cc_blurDelta;
-  float x1d0_dissolveStartTime;
-  float x1d4_dissolveEndTime;
-  float x1d8_transCompleteTime;
-  bool x1dc_dissolveStarted;
+  CAnimRes mSamusRes;
+  CModelData mSamusModelData;
+  CModelData mBeamModelData;
+  CModelData mPlatformModelData;
+  CModelData mBgModelData;
+  rstl::optional_object< CToken > mBeamModel;
+  rstl::optional_object< CToken > mSuitModel;
+  rstl::optional_object< CToken > mSuitSkin;
+  CTransform4f mGunXf;
+  rstl::vector< CLight > mLights;
+  rstl::single_ptr< uchar > mDissolveTextureBuffer;
+  CVector2f mShakeResult;
+  CVector2f mShakeDelta;
+  float mRandTimeout;
+  float mBlurResult;
+  float mBlurDelta;
+  float mDissolveStartTime;
+  float mDissolveEndTime;
+  float mTransCompleteTime;
+  bool mDissolveStarted;
 
   explicit SModelDatas(const CAnimRes& samusRes);
 };
 NESTED_CHECK_SIZEOF(CWorldTransManager, SModelDatas, 0x1e0)
 
-CWorldTransManager::CWorldTransManager() : x0_curTime(0.f)
-, x4_modelData(nullptr)
-, x8_textData(nullptr)
-, x20_random(99)
-, x24_sfx(1189)
-, x2c_volume(127)
-, x2d_panning(64)
-, x30_transType(kTT_Disabled)
-, x38_textStartTime(0.f)
-, x44_24_transitionFinished(true)
-, x44_25_stopSoon(false)
-, x44_26_goingUp(false)
-, x44_27_fadeWhite(false)
-, x44_28_textDirty(false) {}
+CWorldTransManager::CWorldTransManager() : mCurTime(0.f)
+, mModelData(nullptr)
+, mTextData(nullptr)
+, mRandom(99)
+, mSfx(1189)
+, mVolume(127)
+, mPanning(64)
+, mTransType(kTT_Disabled)
+, mTextStartTime(0.f)
+, mTransitionFinished(true)
+, mStopSoon(false)
+, mGoingUp(false)
+, mFadeWhite(false)
+, mTextDirty(false) {}
 
 CWorldTransManager::~CWorldTransManager() {}
 
-CWorldTransManager::SModelDatas::SModelDatas(const CAnimRes& samusRes) : x0_samusRes(samusRes)
-, x1c_samusModelData(CModelData::CModelDataNull())
-, x68_beamModelData(CModelData::CModelDataNull())
-, xb4_platformModelData(CModelData::CModelDataNull())
-, x100_bgModelData(CModelData::CModelDataNull())
-, x170_gunXf(CTransform4f::Identity())
-, x1b0_dissolveTextureBuffer(rs_new uchar[0x8c000])
-, x1b4_shakeResult(0.f, 0.f)
-, x1bc_shakeDelta(0.f, 0.f)
-, x1c4_randTimeout(0.f)
-, x1c8_blurResult(0.f)
-, x1cc_blurDelta(0.f)
-, x1d0_dissolveStartTime(99999.f)
-, x1d4_dissolveEndTime(99999.f)
-, x1d8_transCompleteTime(99999.f)
-, x1dc_dissolveStarted(false) {
-  x1a0_lights.reserve(8);
+CWorldTransManager::SModelDatas::SModelDatas(const CAnimRes& samusRes) : mSamusRes(samusRes)
+, mSamusModelData(CModelData::CModelDataNull())
+, mBeamModelData(CModelData::CModelDataNull())
+, mPlatformModelData(CModelData::CModelDataNull())
+, mBgModelData(CModelData::CModelDataNull())
+, mGunXf(CTransform4f::Identity())
+, mDissolveTextureBuffer(rs_new uchar[0x8c000])
+, mShakeResult(0.f, 0.f)
+, mShakeDelta(0.f, 0.f)
+, mRandTimeout(0.f)
+, mBlurResult(0.f)
+, mBlurDelta(0.f)
+, mDissolveStartTime(99999.f)
+, mDissolveEndTime(99999.f)
+, mTransCompleteTime(99999.f)
+, mDissolveStarted(false) {
+  mLights.reserve(8);
 }
 
 void CWorldTransManager::DisableTransition() {
-  x30_transType = kTT_Disabled;
-  x4_modelData = nullptr;
-  x8_textData = nullptr;
-  x44_26_goingUp = false;
+  mTransType = kTT_Disabled;
+  mModelData = nullptr;
+  mTextData = nullptr;
+  mGoingUp = false;
 }
 
 int CWorldTransManager::GetSuitCharIdx() {
@@ -130,91 +130,91 @@ int CWorldTransManager::GetSuitCharIdx() {
 }
 
 void CWorldTransManager::TouchModels() {
-  SModelDatas* data = x4_modelData.get();
+  SModelDatas* data = mModelData.get();
   if (data == nullptr)
     return;
 
-  if (data->x14c_beamModel && data->x14c_beamModel->IsLoaded()) {
-    data->x68_beamModelData = CModelData(
-        CStaticRes(data->x14c_beamModel->GetTag().GetId(), data->x0_samusRes.GetScale()));
-    data->x14c_beamModel = rstl::optional_object< CToken >();
+  if (data->mBeamModel && data->mBeamModel->IsLoaded()) {
+    data->mBeamModelData = CModelData(
+        CStaticRes(data->mBeamModel->GetTag().GetId(), data->mSamusRes.GetScale()));
+    data->mBeamModel = rstl::optional_object< CToken >();
   }
-  if (data->x158_suitModel && data->x164_suitSkin && data->x158_suitModel->IsLoaded() &&
-      data->x164_suitSkin->IsLoaded()) {
+  if (data->mSuitModel && data->mSuitSkin && data->mSuitModel->IsLoaded() &&
+      data->mSuitSkin->IsLoaded()) {
     const int suit = GetSuitCharIdx();
-    CAnimRes samusRes(data->x0_samusRes.GetId(), suit,
-                      data->x0_samusRes.GetScale(), data->x0_samusRes.GetDefaultAnim(), true);
+    CAnimRes samusRes(data->mSamusRes.GetId(), suit,
+                      data->mSamusRes.GetScale(), data->mSamusRes.GetDefaultAnim(), true);
     CModelData samusModel(samusRes);
-    data->x1c_samusModelData = samusModel;
-    data->x1c_samusModelData.AnimationData()->SetAnimation(
+    data->mSamusModelData = samusModel;
+    data->mSamusModelData.AnimationData()->SetAnimation(
         CAnimPlaybackParms(samusRes.GetDefaultAnim(), -1, 1.f, true), false);
-    data->x158_suitModel = rstl::optional_object< CToken >();
-    data->x164_suitSkin = rstl::optional_object< CToken >();
+    data->mSuitModel = rstl::optional_object< CToken >();
+    data->mSuitSkin = rstl::optional_object< CToken >();
   }
-  if (!data->x1c_samusModelData.IsNull())
-    data->x1c_samusModelData.Touch(CModelData::kWM_Normal, 0);
-  if (!data->xb4_platformModelData.IsNull())
-    data->xb4_platformModelData.Touch(CModelData::kWM_Normal, 0);
-  if (!data->x100_bgModelData.IsNull())
-    data->x100_bgModelData.Touch(CModelData::kWM_Normal, 0);
-  if (!data->x68_beamModelData.IsNull())
-    data->x68_beamModelData.Touch(CModelData::kWM_Normal, 0);
+  if (!data->mSamusModelData.IsNull())
+    data->mSamusModelData.Touch(CModelData::kWM_Normal, 0);
+  if (!data->mPlatformModelData.IsNull())
+    data->mPlatformModelData.Touch(CModelData::kWM_Normal, 0);
+  if (!data->mBgModelData.IsNull())
+    data->mBgModelData.Touch(CModelData::kWM_Normal, 0);
+  if (!data->mBeamModelData.IsNull())
+    data->mBeamModelData.Touch(CModelData::kWM_Normal, 0);
 }
 
 void CWorldTransManager::EnableTransition(const CAnimRes& samusRes, CAssetId platformRes,
                                          const CVector3f& platformScale, CAssetId bgRes,
                                          const CVector3f& bgScale, bool goingUp) {
-  x44_25_stopSoon = false;
-  x30_transType = kTT_Enabled;
-  x44_26_goingUp = goingUp;
-  x4_modelData = rs_new SModelDatas(samusRes);
-  x8_textData = nullptr;
-  x20_random.SetSeed(99);
-  x4_modelData->x1c_samusModelData = CModelData(samusRes);
-  x4_modelData->x1c_samusModelData.AnimationData()->SetAnimation(
+  mStopSoon = false;
+  mTransType = kTT_Enabled;
+  mGoingUp = goingUp;
+  mModelData = rs_new SModelDatas(samusRes);
+  mTextData = nullptr;
+  mRandom.SetSeed(99);
+  mModelData->mSamusModelData = CModelData(samusRes);
+  mModelData->mSamusModelData.AnimationData()->SetAnimation(
       CAnimPlaybackParms(samusRes.GetDefaultAnim(), -1, 1.f, true), false);
 
   CAssetId beamRes =
       gpTweakPlayerRes->GetCinematicBeamResId(gpGameState->GetPlayerState()->GetCurrentBeam());
-  x4_modelData->x14c_beamModel = gpSimplePool->GetObj(SObjectTag('CMDL', beamRes));
-  x4_modelData->x14c_beamModel->Lock();
+  mModelData->mBeamModel = gpSimplePool->GetObj(SObjectTag('CMDL', beamRes));
+  mModelData->mBeamModel->Lock();
   {
     TLockedToken< CCharacterFactory > factory = gpCharacterFactoryBuilder->GetFactory(samusRes);
     const CCharacterInfo& info = factory->GetCharInfo(GetSuitCharIdx());
-    x4_modelData->x158_suitModel = gpSimplePool->GetObj(SObjectTag('CMDL', info.GetModelId()));
-    x4_modelData->x158_suitModel->Lock();
-    x4_modelData->x164_suitSkin = gpSimplePool->GetObj(SObjectTag('CSKR', info.GetSkinRulesId()));
-    x4_modelData->x164_suitSkin->Lock();
+    mModelData->mSuitModel = gpSimplePool->GetObj(SObjectTag('CMDL', info.GetModelId()));
+    mModelData->mSuitModel->Lock();
+    mModelData->mSuitSkin = gpSimplePool->GetObj(SObjectTag('CSKR', info.GetSkinRulesId()));
+    mModelData->mSuitSkin->Lock();
   }
   if (platformRes != kInvalidAssetId) {
-    x4_modelData->xb4_platformModelData = CModelData(CStaticRes(platformRes, platformScale));
-    x4_modelData->xb4_platformModelData.Touch(CModelData::kWM_Normal, 0);
+    mModelData->mPlatformModelData = CModelData(CStaticRes(platformRes, platformScale));
+    mModelData->mPlatformModelData.Touch(CModelData::kWM_Normal, 0);
   }
   if (bgRes != kInvalidAssetId) {
-    x4_modelData->x100_bgModelData = CModelData(CStaticRes(bgRes, bgScale));
-    x4_modelData->x100_bgModelData.Touch(CModelData::kWM_Normal, 0);
-    const CAABox bounds = x4_modelData->x100_bgModelData.GetBounds();
+    mModelData->mBgModelData = CModelData(CStaticRes(bgRes, bgScale));
+    mModelData->mBgModelData.Touch(CModelData::kWM_Normal, 0);
+    const CAABox bounds = mModelData->mBgModelData.GetBounds();
     const float height = bounds.GetMaxPoint().GetZ() - bounds.GetMinPoint().GetZ();
-    x1c_bgHeight = height * bgScale.GetZ();
+    mBgHeight = height * bgScale.GetZ();
   } else {
-    x1c_bgHeight = 0.f;
+    mBgHeight = 0.f;
   }
   StartTransition();
   TouchModels();
 }
 
 void CWorldTransManager::StartTransition() {
-  x0_curTime = 0.f;
-  x18_bgOffset = 0.f;
-  x44_24_transitionFinished = false;
-  x44_28_textDirty = true;
+  mCurTime = 0.f;
+  mBgOffset = 0.f;
+  mTransitionFinished = false;
+  mTextDirty = true;
 }
 
 void CWorldTransManager::EndTransition() { DisableTransition(); }
 
 void CWorldTransManager::Update(float dt) {
-  x0_curTime += dt;
-  switch (x30_transType) {
+  mCurTime += dt;
+  switch (mTransType) {
   case kTT_Enabled:
     UpdateEnabled(dt);
     break;
@@ -228,52 +228,52 @@ void CWorldTransManager::Update(float dt) {
 }
 
 void CWorldTransManager::UpdateDisabled(float) {
-  if (x0_curTime > 2.f)
-    x44_24_transitionFinished = true;
+  if (mCurTime > 2.f)
+    mTransitionFinished = true;
 }
 
 void CWorldTransManager::UpdateEnabled(const float dt) {
-  if (!x4_modelData.null() && !x4_modelData->x1c_samusModelData.IsNull()) {
-    if (x44_25_stopSoon && !x4_modelData->x1dc_dissolveStarted && x0_curTime >= 2.f) {
-      x4_modelData->x1dc_dissolveStarted = true;
-      x4_modelData->x1d0_dissolveStartTime = x0_curTime;
-      x4_modelData->x1d4_dissolveEndTime = 4.f + x0_curTime - 2.f;
-      x4_modelData->x1d8_transCompleteTime = 5.f + x0_curTime - 2.f;
+  if (!mModelData.null() && !mModelData->mSamusModelData.IsNull()) {
+    if (mStopSoon && !mModelData->mDissolveStarted && mCurTime >= 2.f) {
+      mModelData->mDissolveStarted = true;
+      mModelData->mDissolveStartTime = mCurTime;
+      mModelData->mDissolveEndTime = 4.f + mCurTime - 2.f;
+      mModelData->mTransCompleteTime = 5.f + mCurTime - 2.f;
     }
-    if (x0_curTime > x4_modelData->x1d8_transCompleteTime && x4_modelData->x1dc_dissolveStarted)
-      x44_24_transitionFinished = true;
+    if (mCurTime > mModelData->mTransCompleteTime && mModelData->mDissolveStarted)
+      mTransitionFinished = true;
 
     static const char* const kGunLocator = "GUN_LCTR";
-    x4_modelData->x1c_samusModelData.AdvanceAnimationIgnoreParticles(dt, x20_random, true);
-    x4_modelData->x170_gunXf =
-        x4_modelData->x1c_samusModelData.GetScaledLocatorTransform(rstl::string_l(kGunLocator));
-    x4_modelData->x1c4_randTimeout -= dt;
-    if (x4_modelData->x1c4_randTimeout <= 0.f) {
-      x4_modelData->x1c4_randTimeout = x20_random.Range(0.016666668f, 0.1f);
-      CVector2f randVec(x20_random.Range(-0.025f, 0.025f), x20_random.Range(-0.075f, 0.075f));
-      x4_modelData->x1bc_shakeDelta =
-          (randVec - x4_modelData->x1b4_shakeResult) / x4_modelData->x1c4_randTimeout;
-      const float blur = x20_random.Range(-2.f, 4.f);
-      x4_modelData->x1cc_blurDelta =
-          (blur - x4_modelData->x1c8_blurResult) / x4_modelData->x1c4_randTimeout;
+    mModelData->mSamusModelData.AdvanceAnimationIgnoreParticles(dt, mRandom, true);
+    mModelData->mGunXf =
+        mModelData->mSamusModelData.GetScaledLocatorTransform(rstl::string_l(kGunLocator));
+    mModelData->mRandTimeout -= dt;
+    if (mModelData->mRandTimeout <= 0.f) {
+      mModelData->mRandTimeout = mRandom.Range(0.016666668f, 0.1f);
+      CVector2f randVec(mRandom.Range(-0.025f, 0.025f), mRandom.Range(-0.075f, 0.075f));
+      mModelData->mShakeDelta =
+          (randVec - mModelData->mShakeResult) / mModelData->mRandTimeout;
+      const float blur = mRandom.Range(-2.f, 4.f);
+      mModelData->mBlurDelta =
+          (blur - mModelData->mBlurResult) / mModelData->mRandTimeout;
     }
-    x4_modelData->x1b4_shakeResult += x4_modelData->x1bc_shakeDelta * dt;
-    x4_modelData->x1c8_blurResult += dt * x4_modelData->x1cc_blurDelta;
+    mModelData->mShakeResult += mModelData->mShakeDelta * dt;
+    mModelData->mBlurResult += dt * mModelData->mBlurDelta;
   }
 
   float delta = 50.f * dt;
-  if (x44_26_goingUp)
+  if (mGoingUp)
     delta = -delta;
-  x18_bgOffset += delta;
-  if (x18_bgOffset > x1c_bgHeight)
-    x18_bgOffset -= x1c_bgHeight;
-  if (x18_bgOffset < 0.f)
-    x18_bgOffset += x1c_bgHeight;
+  mBgOffset += delta;
+  if (mBgOffset > mBgHeight)
+    mBgOffset -= mBgHeight;
+  if (mBgOffset < 0.f)
+    mBgOffset += mBgHeight;
   UpdateLights(dt);
 }
 
 void CWorldTransManager::Draw() const {
-  switch (x30_transType) {
+  switch (mTransType) {
   case kTT_Enabled:
     DrawEnabled();
     break;
@@ -287,25 +287,25 @@ void CWorldTransManager::Draw() const {
 }
 
 void CWorldTransManager::UpdateLights(float) {
-  if (x4_modelData.null())
+  if (mModelData.null())
     return;
 
-  rstl::vector< CLight >& lights = x4_modelData->x1a0_lights;
+  rstl::vector< CLight >& lights = mModelData->mLights;
   lights.clear();
   const CVector3f lightPos(0.f, 10.f, 0.f);
   CLight spot = CLight::BuildSpot(lightPos, CVector3f::Back(), CColor::White(), 90.f);
   spot.SetAttenuation(1.f, 0.f, 0.f);
   CLight movingSpot = spot;
-  movingSpot.SetPosition(lightPos + CVector3f(0.f, 0.f, 2.f * x18_bgOffset - x1c_bgHeight));
+  movingSpot.SetPosition(lightPos + CVector3f(0.f, 0.f, 2.f * mBgOffset - mBgHeight));
   float intensity = 1.f;
-  if (!x44_26_goingUp && x1c_bgHeight - x18_bgOffset < 2.f)
-    intensity = (x1c_bgHeight - x18_bgOffset) / 2.f;
-  else if (x44_26_goingUp && x18_bgOffset < 2.f)
-    intensity = x18_bgOffset / 2.f;
+  if (!mGoingUp && mBgHeight - mBgOffset < 2.f)
+    intensity = (mBgHeight - mBgOffset) / 2.f;
+  else if (mGoingUp && mBgOffset < 2.f)
+    intensity = mBgOffset / 2.f;
 
   if (intensity < 1.f) {
     CLight nextSpot = spot;
-    nextSpot.SetPosition(lightPos + CVector3f(0.f, 0.f, x44_26_goingUp ? x1c_bgHeight : -x1c_bgHeight));
+    nextSpot.SetPosition(lightPos + CVector3f(0.f, 0.f, mGoingUp ? mBgHeight : -mBgHeight));
     nextSpot.SetColor(CColor::Lerp(CColor::Black(), spot.GetColor(), 1.f - intensity));
     lights.push_back(nextSpot);
     movingSpot.SetColor(CColor::Lerp(CColor::Black(), movingSpot.GetColor(), intensity));
@@ -313,56 +313,56 @@ void CWorldTransManager::UpdateLights(float) {
   lights.push_back(movingSpot);
 }
 void CWorldTransManager::DrawAllModels() const {
-  SModelDatas& data = *x4_modelData.get();
+  SModelDatas& data = *mModelData.get();
   CActorLights lights(0, CVector3f::Zero(), 4, 4);
-  lights.BuildFakeLightList(data.x1a0_lights, CColor(0.1f, 0.1f, 0.1f, 1.f));
-  if (!data.x100_bgModelData.IsNull()) {
-    data.x100_bgModelData.Render(
-        CModelData::kWM_Normal, CTransform4f::Translate(0.f, 0.f, -(2.f * x1c_bgHeight - x18_bgOffset)),
+  lights.BuildFakeLightList(data.mLights, CColor(0.1f, 0.1f, 0.1f, 1.f));
+  if (!data.mBgModelData.IsNull()) {
+    data.mBgModelData.Render(
+        CModelData::kWM_Normal, CTransform4f::Translate(0.f, 0.f, -(2.f * mBgHeight - mBgOffset)),
         &lights, CModelFlags::Normal());
-    data.x100_bgModelData.Render(
-        CModelData::kWM_Normal, CTransform4f::Translate(0.f, 0.f, x18_bgOffset - x1c_bgHeight),
+    data.mBgModelData.Render(
+        CModelData::kWM_Normal, CTransform4f::Translate(0.f, 0.f, mBgOffset - mBgHeight),
         &lights, CModelFlags::Normal());
-    data.x100_bgModelData.Render(CModelData::kWM_Normal, CTransform4f::Translate(0.f, 0.f, x18_bgOffset),
+    data.mBgModelData.Render(CModelData::kWM_Normal, CTransform4f::Translate(0.f, 0.f, mBgOffset),
                                  &lights, CModelFlags::Normal());
   }
-  if (!data.xb4_platformModelData.IsNull())
-    data.xb4_platformModelData.Render(CModelData::kWM_Normal, CTransform4f::Identity(),
+  if (!data.mPlatformModelData.IsNull())
+    data.mPlatformModelData.Render(CModelData::kWM_Normal, CTransform4f::Identity(),
                                        &lights, CModelFlags::Normal());
-  if (!data.x1c_samusModelData.IsNull()) {
+  if (!data.mSamusModelData.IsNull()) {
     const CTransform4f& samusXf = CTransform4f::Identity();
-    data.x1c_samusModelData.AnimationData()->PreRender();
-    data.x1c_samusModelData.Render(CModelData::kWM_Normal, samusXf, &lights, CModelFlags::Normal());
-    if (!data.x68_beamModelData.IsNull())
-      data.x68_beamModelData.Render(CModelData::kWM_Normal, samusXf * data.x170_gunXf,
+    data.mSamusModelData.AnimationData()->PreRender();
+    data.mSamusModelData.Render(CModelData::kWM_Normal, samusXf, &lights, CModelFlags::Normal());
+    if (!data.mBeamModelData.IsNull())
+      data.mBeamModelData.Render(CModelData::kWM_Normal, samusXf * data.mGunXf,
                                      &lights, CModelFlags::Normal());
   }
 }
 void CWorldTransManager::DrawFirstPass() const {
-  const float rotationT = CMath::Clamp(0.f, x0_curTime / 25.f, 100.f);
-  const float translationT = CMath::Clamp(0.f, x0_curTime / 10.f, 1.f);
+  const float rotationT = CMath::Clamp(0.f, mCurTime / 25.f, 100.f);
+  const float translationT = CMath::Clamp(0.f, mCurTime / 10.f, 1.f);
   const CRelAngle angle = CRelAngle::FromDegrees(360.f * rotationT + 180.f - 90.f);
-  const float cameraX = x4_modelData->x1b4_shakeResult.GetX();
+  const float cameraX = mModelData->mShakeResult.GetX();
   const CTransform4f viewXf =
       CTransform4f::RotateZ(angle) *
       CTransform4f::Translate(cameraX,
                               -3.5f * (1.f - translationT) + -3.5f,
-                              2.f + x4_modelData->x1b4_shakeResult.GetY());
+                              2.f + mModelData->mShakeResult.GetY());
   CGraphics::SetViewPointMatrix(viewXf);
   DrawAllModels();
-  if (x4_modelData->x1c8_blurResult > 0.f) {
+  if (mModelData->mBlurResult > 0.f) {
     const CGraphics::CProjectionState projection = CGraphics::GetProjectionState();
     CCameraBlurPass blurPass;
-    blurPass.SetBlur(CCameraBlurPass::kBT_LoBlur, x4_modelData->x1c8_blurResult, 0.f, false);
+    blurPass.SetBlur(CCameraBlurPass::kBT_LoBlur, mModelData->mBlurResult, 0.f, false);
     blurPass.Draw();
     CGraphics::SetProjectionState(projection);
   }
 }
 
 void CWorldTransManager::DrawSecondPass() const {
-  const float t = CMath::Clamp(0.f, (2.f + (x0_curTime - x4_modelData->x1d0_dissolveStartTime)) / 5.f, 1.f);
+  const float t = CMath::Clamp(0.f, (2.f + (mCurTime - mModelData->mDissolveStartTime)) / 5.f, 1.f);
   const CRelAngle angle = CRelAngle::FromDegrees(48.f * t + 180.f - 24.f);
-  const CVector3f& scale = x4_modelData->x0_samusRes.GetScale();
+  const CVector3f& scale = mModelData->mSamusRes.GetScale();
   const CTransform4f viewXf =
       CTransform4f::RotateZ(angle) *
       CTransform4f::Translate(CVector3f(-0.1f * scale.GetX(), -0.5f * scale.GetY(), 1.5f * scale.GetZ()));
@@ -370,7 +370,7 @@ void CWorldTransManager::DrawSecondPass() const {
   DrawAllModels();
 }
 void CWorldTransManager::DrawEnabled() const {
-  if (x4_modelData.null())
+  if (mModelData.null())
     return;
 
   const float fov = CCameraManager::GetDefaultFirstPersonVerticalFOV();
@@ -388,17 +388,17 @@ void CWorldTransManager::DrawEnabled() const {
       nearPlane, farPlane);
 #endif
   gpRender->SetRequestRGBA6(true);
-  const float drawTime = x0_curTime;
-  if (drawTime <= x4_modelData->x1d0_dissolveStartTime) {
+  const float drawTime = mCurTime;
+  if (drawTime <= mModelData->mDissolveStartTime) {
     DrawFirstPass();
-  } else if (drawTime >= x4_modelData->x1d4_dissolveEndTime) {
+  } else if (drawTime >= mModelData->mDissolveEndTime) {
     DrawSecondPass();
   } else {
-    float alpha = 1.f - CMath::Clamp(0.f, (drawTime - x4_modelData->x1d0_dissolveStartTime) / 2.f, 1.f);
+    float alpha = 1.f - CMath::Clamp(0.f, (drawTime - mModelData->mDissolveStartTime) / 2.f, 1.f);
     alpha *= alpha;
     int left, top, width, height;
     CGraphics::GetViewport(left, top, width, height);
-    uchar* const buffer = x4_modelData->x1b0_dissolveTextureBuffer.get();
+    uchar* const buffer = mModelData->mDissolveTextureBuffer.get();
 #if defined(TARGET_PC)
     GXCreateFrameBuffer(width, height);
     gpRender->SetViewport(0, CGraphics::GetRenderMode().efbHeight - height, width, height);
@@ -450,14 +450,14 @@ void CWorldTransManager::DrawEnabled() const {
   }
   CCameraFilterPass::DrawFilter(CCameraFilterPass::kFT_Multiply, CCameraFilterPass::kFS_CinemaBars,
                                 CColor::Black(), nullptr, 1.f);
-  const float fadeTime = x0_curTime;
+  const float fadeTime = mCurTime;
   float filterAlpha = 0.f;
   if (fadeTime < 0.25f)
     filterAlpha = 1.f - fadeTime / 0.25f;
-  else if (fadeTime > x4_modelData->x1d8_transCompleteTime)
+  else if (fadeTime > mModelData->mTransCompleteTime)
     filterAlpha = 1.f;
-  else if (fadeTime > x4_modelData->x1d8_transCompleteTime - 0.25f)
-    filterAlpha = 1.f - (x4_modelData->x1d8_transCompleteTime - fadeTime) / 0.25f;
+  else if (fadeTime > mModelData->mTransCompleteTime - 0.25f)
+    filterAlpha = 1.f - (mModelData->mTransCompleteTime - fadeTime) / 0.25f;
   if (filterAlpha > 0.f) {
     const CColor filterColor(0.f, 0.f, 0.f, filterAlpha);
     CCameraFilterPass::DrawFilter(CCameraFilterPass::kFT_Blend, CCameraFilterPass::kFS_Fullscreen,
@@ -472,69 +472,69 @@ void CWorldTransManager::DrawDisabled() const {
 }
 
 void CWorldTransManager::SfxStart() {
-  if (!x28_sfxHandle && x24_sfx != CSfxManager::kInternalInvalidSfxId)
-    x28_sfxHandle = CSfxManager::SfxStart(x24_sfx, x2c_volume, x2d_panning, false,
+  if (!mSfxHandle && mSfx != CSfxManager::kInternalInvalidSfxId)
+    mSfxHandle = CSfxManager::SfxStart(mSfx, mVolume, mPanning, false,
                                         CSfxManager::kMedPriority, true);
 }
 
 void CWorldTransManager::SfxStop() {
-  if (x28_sfxHandle) {
-    CSfxManager::SfxStop(x28_sfxHandle);
-    x28_sfxHandle.Clear();
+  if (mSfxHandle) {
+    CSfxManager::SfxStop(mSfxHandle);
+    mSfxHandle.Clear();
   }
 }
 
 void CWorldTransManager::SetSfx(ushort sfx, uchar volume, uchar panning) {
-  x24_sfx = sfx;
-  x2c_volume = volume;
-  x2d_panning = panning;
+  mSfx = sfx;
+  mVolume = volume;
+  mPanning = panning;
 }
 
 void CWorldTransManager::EnableTransition(int fontId, int stringId, int stringIdx, const bool fadeWhite,
                                         float chFadeTime, float chFadeRate, float textStartTime) {
-  x40_strIdx = stringIdx;
-  x38_textStartTime = textStartTime;
-  x44_25_stopSoon = false;
-  x30_transType = kTT_Text;
-  x4_modelData = nullptr;
-  x44_27_fadeWhite = fadeWhite;
-  x8_textData = rs_new CGuiTextSupport(
+  mStrIdx = stringIdx;
+  mTextStartTime = textStartTime;
+  mStopSoon = false;
+  mTransType = kTT_Text;
+  mModelData = nullptr;
+  mFadeWhite = fadeWhite;
+  mTextData = rs_new CGuiTextSupport(
       fontId, CGuiTextProperties(false, true, kJustification_Center, kVerticalJustification_Center),
       CColor::White(), CColor::Black(), CColor::White(), 640, 448, gpSimplePool);
-  x8_textData->SetTypeWriteEffectOptions(true, chFadeTime, chFadeRate);
-  xc_strTable = TToken< CStringTable >(gpSimplePool->GetObj(SObjectTag('STRG', stringId)));
-  xc_strTable->Lock();
-  x8_textData->SetText(rstl::wstring_l(L""));
+  mTextData->SetTypeWriteEffectOptions(true, chFadeTime, chFadeRate);
+  mStrTable = TToken< CStringTable >(gpSimplePool->GetObj(SObjectTag('STRG', stringId)));
+  mStrTable->Lock();
+  mTextData->SetText(rstl::wstring_l(L""));
   StartTransition();
 }
 
 void CWorldTransManager::UpdateText(float dt) {
-  if (x44_28_textDirty) {
-    TToken< CStringTable > strTable = *xc_strTable;
+  if (mTextDirty) {
+    TToken< CStringTable > strTable = *mStrTable;
     if (strTable.IsLoaded()) {
-      if (x40_strIdx < strTable->GetStringCount())
-        x8_textData->SetText(strTable->GetString(x40_strIdx));
-      x3c_sfxInterval = 0.f;
-      x44_28_textDirty = false;
-    } else if (x0_curTime >= x38_textStartTime) {
-      x38_textStartTime += dt;
+      if (mStrIdx < strTable->GetStringCount())
+        mTextData->SetText(strTable->GetString(mStrIdx));
+      mSfxInterval = 0.f;
+      mTextDirty = false;
+    } else if (mCurTime >= mTextStartTime) {
+      mTextStartTime += dt;
     }
   }
-  if (x0_curTime >= x38_textStartTime) {
-    x8_textData->Update(dt);
-    const float printed = x8_textData->GetNumCharactersPrinted();
+  if (mCurTime >= mTextStartTime) {
+    mTextData->Update(dt);
+    const float printed = mTextData->GetNumCharactersPrinted();
     const float charsPerSfx = gpTweakGui->GetWorldTransManagerCharsPerSfx();
-    if (printed >= x3c_sfxInterval + charsPerSfx) {
-      x3c_sfxInterval += charsPerSfx;
+    if (printed >= mSfxInterval + charsPerSfx) {
+      mSfxInterval += charsPerSfx;
       CSfxManager::SfxStart(0x59e, 127, 64);
     }
   }
-  if (x44_25_stopSoon) {
-    if (1.f + x8_textData->GetTotalAnimationTime() < x8_textData->GetCurTime()) {
-      if (x0_curTime - x34_stopTime > 1.f)
-        x44_24_transitionFinished = true;
+  if (mStopSoon) {
+    if (1.f + mTextData->GetTotalAnimationTime() < mTextData->GetCurTime()) {
+      if (mCurTime - mStopTime > 1.f)
+        mTransitionFinished = true;
     } else {
-      x34_stopTime = x0_curTime;
+      mStopTime = mCurTime;
     }
   }
 }
@@ -547,16 +547,16 @@ void CWorldTransManager::DrawText() const {
   CGraphics::SetCullMode(kCM_None);
   gpRender->SetDepthReadWrite(false, false);
   gpRender->SetBlendMode_AdditiveAlpha();
-  x8_textData->Render();
+  mTextData->Render();
 
   float filterAlpha = 0.f;
-  if (x0_curTime < 1.f)
-    filterAlpha = 1.f - rstl::min_val(1.f, x0_curTime);
-  else if (x44_25_stopSoon)
-    filterAlpha = rstl::min_val(1.f, x0_curTime - x34_stopTime);
+  if (mCurTime < 1.f)
+    filterAlpha = 1.f - rstl::min_val(1.f, mCurTime);
+  else if (mStopSoon)
+    filterAlpha = rstl::min_val(1.f, mCurTime - mStopTime);
   if (filterAlpha > 0.f) {
     const CColor filterColor =
-        (x44_27_fadeWhite ? CColor::White() : CColor::Black()).WithAlphaOf(filterAlpha);
+        (mFadeWhite ? CColor::White() : CColor::Black()).WithAlphaOf(filterAlpha);
     CCameraFilterPass::DrawFilter(CCameraFilterPass::kFT_Blend, CCameraFilterPass::kFS_Fullscreen,
                                   filterColor, nullptr, 1.f);
   }
@@ -564,9 +564,9 @@ void CWorldTransManager::DrawText() const {
 }
 
 void CWorldTransManager::StartTextFadeOut() {
-  if (!x44_25_stopSoon)
-    x34_stopTime = x0_curTime;
-  x44_25_stopSoon = true;
+  if (!mStopSoon)
+    mStopTime = mCurTime;
+  mStopSoon = true;
 }
 
 bool CWorldTransManager::WaitForModelsAndTextures() {

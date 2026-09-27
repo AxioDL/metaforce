@@ -15,17 +15,17 @@ CGuiWidget::CGuiWidgetParms::CGuiWidgetParms(CGuiFrame* frame, bool useAnimContr
                                              const bool cullFaces, const CColor& color,
                                              EGuiModelDrawFlags drawFlags, const bool g,
                                              const bool h)
-: x0_frame(frame)
-, x4_useAnimController(useAnimController)
-, x6_selfId(selfId)
-, x8_parentId(parentId)
-, xa_defaultVisible(defaultVisible)
-, xb_defaultActive(defaultActive)
-, xc_cullFaces(cullFaces)
-, xd_g(g)
-, xe_h(h)
-, x10_color(color)
-, x14_drawFlags(drawFlags) {}
+: mFrame(frame)
+, mUseAnimController(useAnimController)
+, mSelfId(selfId)
+, mParentId(parentId)
+, mDefaultVisible(defaultVisible)
+, mDefaultActive(defaultActive)
+, mCullFaces(cullFaces)
+, mG(g)
+, mH(h)
+, mColor(color)
+, mDrawFlags(drawFlags) {}
 
 CGuiWidget* CGuiWidget::Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp) {
   CGuiWidgetParms parms = ReadWidgetHeader(frame, in);
@@ -52,39 +52,39 @@ CGuiWidget::CGuiWidgetParms CGuiWidget::ReadWidgetHeader(CGuiFrame* frame, CInpu
 }
 
 CGuiWidget::CGuiWidget(const CGuiWidgetParms& parms)
-: x70_selfId(parms.x6_selfId)
-, x72_parentId(parms.x8_parentId)
-, x74_transform(CTransform4f::Identity())
-, xa4_color(parms.x10_color)
-, xa8_color2(xa4_color)
-, xac_drawFlags(parms.x14_drawFlags)
-, xb0_frame(parms.x0_frame)
-, xb4_workerId(-1)
-, xb6_24_pg(parms.xd_g)
-, xb6_25_isVisible(parms.xa_defaultVisible)
-, xb6_26_isActive(parms.xb_defaultActive)
-, xb6_27_isSelectable(true)
-, xb6_28_eventLock(false)
-, xb6_29_cullFaces(parms.xc_cullFaces)
-, xb6_30_depthGreater(false)
-, xb6_31_depthTest(true)
-, xb7_24_depthWrite(false)
+: mSelfId(parms.mSelfId)
+, mParentId(parms.mParentId)
+, mTransform(CTransform4f::Identity())
+, mColor(parms.mColor)
+, mColor2(mColor)
+, mDrawFlags(parms.mDrawFlags)
+, mFrame(parms.mFrame)
+, mWorkerId(-1)
+, mPg(parms.mG)
+, mIsVisible(parms.mDefaultVisible)
+, mIsActive(parms.mDefaultActive)
+, mIsSelectable(true)
+, mEventLock(false)
+, mCullFaces(parms.mCullFaces)
+, mDepthGreater(false)
+, mDepthTest(true)
+, mDepthWrite(false)
 , xb7_25_(true) {
   RecalcWidgetColor(kTM_Single);
 }
 
-CGuiWidget::~CGuiWidget() { xb0_frame->RemoveWidgetFromDrawList(this); }
+CGuiWidget::~CGuiWidget() { mFrame->RemoveWidgetFromDrawList(this); }
 
 void CGuiWidget::ParseBaseInfo(CGuiFrame* frame, CInputStream& in, const CGuiWidgetParms& parms) {
-  CGuiWidget* parent = frame->FindWidget(parms.x8_parentId);
+  CGuiWidget* parent = frame->FindWidget(parms.mParentId);
   bool isWorker = in.ReadBool();
   if (isWorker) {
-    xb4_workerId = in.ReadShort();
+    mWorkerId = in.ReadShort();
   }
   CVector3f translation(in);
   CMatrix3f orientation(in);
   const CTransform4f transform(orientation, translation);
-  x74_transform = transform;
+  mTransform = transform;
   ReapplyXform();
   CVector3f unused(in);
   ReadUnusedThing(in);
@@ -92,7 +92,7 @@ void CGuiWidget::ParseBaseInfo(CGuiFrame* frame, CInputStream& in, const CGuiWid
   if (isWorker) {
     if (!parent->AddWorkerWidget(this)) {
       printf("Warning: Discarding useless worker id.  Parent is not a compound widget.");
-      xb4_workerId = -1;
+      mWorkerId = -1;
     }
   }
   parent->AddChildWidget(this, false, true);
@@ -126,7 +126,7 @@ void CGuiWidget::InitializeRecursive() {
 bool CGuiWidget::GetIsFinishedLoading() const { return GetIsFinishedLoadingWidgetSpecific(); }
 
 CGuiWidget* CGuiWidget::FindWidget(short id) {
-  if (x70_selfId == id) {
+  if (mSelfId == id) {
     return this;
   }
   if (ChildObject()) {
@@ -145,16 +145,16 @@ CGuiWidget* CGuiWidget::FindWidget(short id) {
 }
 
 void CGuiWidget::SetColor(const CColor& color) {
-  xa4_color = color;
+  mColor = color;
   RecalcWidgetColor(kTM_Children);
 }
 
 void CGuiWidget::RecalcWidgetColor(ETraversalMode mode) {
   CGuiWidget* parent = static_cast< CGuiWidget* >(Parent());
   if (parent) {
-    xa8_color2 = CColor::Modulate(xa4_color, parent->GetModifiedColor());
+    mColor2 = CColor::Modulate(mColor, parent->GetModifiedColor());
   } else {
-    xa8_color2 = xa4_color;
+    mColor2 = mColor;
   }
   switch (mode) {
   case kTM_Single:
@@ -197,23 +197,23 @@ void CGuiWidget::AddChildWidget(CGuiWidget* widget, bool makeWorldLocal, bool at
 }
 
 CVector3f CGuiWidget::GetIdlePosition() const {
-  return CVector3f(x74_transform.Get03(), x74_transform.Get13(), x74_transform.Get23());
+  return CVector3f(mTransform.Get03(), mTransform.Get13(), mTransform.Get23());
 }
 
 void CGuiWidget::ReapplyXform() {
   RotateReset();
   SetLocalPosition(CVector3f::Zero());
-  MultiplyO2P(x74_transform);
+  MultiplyO2P(mTransform);
 }
 
 void CGuiWidget::SetIsVisible(const bool visible) {
-  xb6_25_isVisible = visible;
+  mIsVisible = visible;
   OnVisible();
 }
 
 void CGuiWidget::SetIsActive(const bool active) {
-  if (xb6_26_isActive != active) {
-    xb6_26_isActive = active;
+  if (mIsActive != active) {
+    mIsActive = active;
     OnActivate();
   }
 }

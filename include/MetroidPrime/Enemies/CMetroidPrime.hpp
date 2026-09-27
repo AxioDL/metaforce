@@ -34,31 +34,31 @@ class CInputStream;
 struct CMetroidPrimeData;
 
 struct SPrimeCameraShakePoint {
-  float x0_attackTime;
-  float x4_sustainTime;
-  float x8_duration;
-  float xc_magnitude;
+  float mAttackTime;
+  float mSustainTime;
+  float mDuration;
+  float mMagnitude;
 
   explicit inline SPrimeCameraShakePoint(CInputStream& in);
 };
 CHECK_SIZEOF(SPrimeCameraShakePoint, 0x10)
 
 struct SPrimeCameraShakerComponent {
-  bool x0_useModulation;
-  SPrimeCameraShakePoint x4_am;
-  SPrimeCameraShakePoint x14_fm;
+  bool mUseModulation;
+  SPrimeCameraShakePoint mAm;
+  SPrimeCameraShakePoint mFm;
 
   explicit SPrimeCameraShakerComponent(CInputStream& in);
 };
 CHECK_SIZEOF(SPrimeCameraShakerComponent, 0x24)
 
 struct SPrimeCameraShakeData {
-  bool x0_useSfx;
-  float x4_duration;
-  float x8_sfxDist;
-  SPrimeCameraShakerComponent xc_shakerX;
-  SPrimeCameraShakerComponent x30_shakerY;
-  SPrimeCameraShakerComponent x54_shakerZ;
+  bool mUseSfx;
+  float mDuration;
+  float mSfxDist;
+  SPrimeCameraShakerComponent mShakerX;
+  SPrimeCameraShakerComponent mShakerY;
+  SPrimeCameraShakerComponent mShakerZ;
 
   explicit SPrimeCameraShakeData(CInputStream& in);
 };
@@ -69,14 +69,14 @@ CCameraShakerComponent BuildCameraShakerComponent(const SPrimeCameraShakerCompon
 CCameraShakeData BuildCameraShakeData(const SPrimeCameraShakeData& data);
 
 struct CMetroidPrimeIceAttack {
-  uint x0_propertyCount;
-  CAssetId x4_particle1;
-  CAssetId x8_particle2;
-  CAssetId xc_particle3;
-  CDamageInfo x10_dInfo;
+  uint mPropertyCount;
+  CAssetId mParticle1;
+  CAssetId mParticle2;
+  CAssetId mParticle3;
+  CDamageInfo mDInfo;
   float x2c_;
   float x30_;
-  CAssetId x34_texture;
+  CAssetId mTexture;
   ushort x38_;
   ushort x3a_;
 
@@ -85,12 +85,12 @@ struct CMetroidPrimeIceAttack {
 CHECK_SIZEOF(CMetroidPrimeIceAttack, 0x3C)
 
 struct CMetroidPrimeParasiteQueenAttack {
-  CBeamInfo x0_beamInfo;
+  CBeamInfo mBeamInfo;
   uint x44_;
-  CDamageInfo x48_dInfo1;
-  CWeaponAssetInfo x64_struct5;
+  CDamageInfo mDInfo1;
+  CWeaponAssetInfo mStruct5;
   float x88_;
-  CDamageInfo x8c_dInfo2;
+  CDamageInfo mDInfo2;
 
   explicit CMetroidPrimeParasiteQueenAttack(CInputStream& in);
 };
@@ -190,9 +190,9 @@ public:
   };
 
   struct CVulnerabilityEntry {
-    uint x0_propertyCount;
-    CDamageVulnerability x4_damageVulnerability;
-    CColor x6c_color;
+    uint mPropertyCount;
+    CDamageVulnerability mDamageVulnerability;
+    CColor mColor;
     uint x70_[2];
 
     explicit CVulnerabilityEntry(CInputStream& in);
@@ -288,8 +288,8 @@ private:
   bool CanJump(CStateManager& mgr, float distance);
   TUniqueId FindBestAttackWaypoint(CStateManager& mgr, bool forward);
 
-  TUniqueId x568_relayId;
-  rstl::single_ptr< CCollisionActorManager > x56c_collisionManager;
+  TUniqueId mRelayId;
+  rstl::single_ptr< CCollisionActorManager > mCollisionManager;
   int x570_;
   uint x574_;
   uint x578_;
@@ -300,14 +300,14 @@ private:
   rstl::reserved_vector< CBoneTracking, 6 > x76c_;
   CHealthInfo x8c0_;
   float x8c8_;
-  TUniqueId x8cc_headColActor;
+  TUniqueId mHeadColActor;
   int x8d0_;
   int x8d4_;
-  CColor x8d8_beamColor;
+  CColor mBeamColor;
   CColor x8dc_;
   CColor x8e0_;
   float x8e4_;
-  int x8e8_headUpAdditiveBodyAnimIndex;
+  int mHeadUpAdditiveBodyAnimIndex;
   float x8ec_;
   float x8f0_;
   bool x8f4_24_ : 1;
@@ -327,12 +327,12 @@ private:
   CMetroidPrimeIceAttack x930_;
   rstl::reserved_vector< CBeamInfo, 4 > x96c_;
   rstl::reserved_vector< CProjectileInfo, 4 > xa80_;
-  rstl::reserved_vector< TUniqueId, 4 > xb24_plasmaProjectileIds;
+  rstl::reserved_vector< TUniqueId, 4 > mPlasmaProjectileIds;
   rstl::reserved_vector< CWeaponAssetInfo, 4 > xb30_;
   rstl::reserved_vector< rstl::pair< float, CDamageInfo >, 4 > xbc4_;
   TToken< CGenDescription > xc48_;
   rstl::auto_ptr< CElementGen > xc50_;
-  int xc58_curPlasmaProjectile;
+  int mCurPlasmaProjectile;
   float xc5c_;
   CVector3f xc60_;
   CVector3f xc6c_;
@@ -361,7 +361,7 @@ private:
   rstl::auto_ptr< CElementGen > x1024_;
   rstl::reserved_vector< float, 2 > x102c_;
   rstl::reserved_vector< float, 2 > x1038_;
-  TUniqueId x1044_billboardId;
+  TUniqueId mBillboardId;
   TUniqueId x1046_;
   float x1048_;
   CHealthInfo x104c_;
@@ -370,7 +370,7 @@ private:
   bool x1054_26_ : 1;
   bool x1054_27_ : 1;
   rstl::reserved_vector< TEditorId, 4 > x1058_;
-  rstl::reserved_vector< TUniqueId, 2 > x106c_energyBallIds;
+  rstl::reserved_vector< TUniqueId, 2 > mEnergyBallIds;
   float x1074_;
   int x1078_;
   float x107c_;
@@ -388,41 +388,41 @@ private:
   bool x1444_24_ : 1;
   bool x1444_25_ : 1;
 };
-CHECK_SIZEOF(CMetroidPrime, (VERSION >= VERSION_GM8P_00 ? 0x1458 : 0x1448))
-NESTED_CHECK_SIZEOF(CMetroidPrime, CMissileTarget, (VERSION >= VERSION_GM8P_00 ? 0x268 : 0x258))
+CHECK_SIZEOF(CMetroidPrime, (VERSION >= VERSION_GM8E_02 ? 0x1458 : 0x1448))
+NESTED_CHECK_SIZEOF(CMetroidPrime, CMissileTarget, (VERSION >= VERSION_GM8E_02 ? 0x268 : 0x258))
 NESTED_CHECK_SIZEOF(CMetroidPrime, CMetroidPrimeAttackWeights, 0x3C)
 NESTED_CHECK_SIZEOF(CMetroidPrime, CVulnerabilityEntry, 0x78)
 
 struct CMetroidPrimeData {
-  uint x0_propertyCount;
-  CPatternedInfo x4_patternedInfo;
-  CActorParameters x13c_actorParms;
+  uint mPropertyCount;
+  CPatternedInfo mPatternedInfo;
+  CActorParameters mActorParms;
   int x1a4_;
   CCameraShakeData x1a8_;
   CCameraShakeData x27c_;
   CCameraShakeData x350_;
   CMetroidPrimeIceAttack x424_;
-  CAssetId x460_particle1;
+  CAssetId mParticle1;
   rstl::reserved_vector< CMetroidPrimeParasiteQueenAttack, 4 > x464_;
-  CAssetId x708_wpsc1;
-  CDamageInfo x70c_dInfo1;
-  CCameraShakeData x728_shakeData1;
-  CAssetId x7fc_wpsc2;
-  CDamageInfo x800_dInfo2;
-  CCameraShakeData x81c_shakeData2;
+  CAssetId mWpsc1;
+  CDamageInfo mDInfo1;
+  CCameraShakeData mShakeData1;
+  CAssetId mWpsc2;
+  CDamageInfo mDInfo2;
+  CCameraShakeData mShakeData2;
   CPoisonInfo x8f0_;
   CDamageInfo x92c_;
   CCameraShakeData x948_;
-  CAssetId xa1c_particle2;
-  CAssetId xa20_swoosh;
-  CAssetId xa24_particle3;
-  CAssetId xa28_particle4;
+  CAssetId mParticle2;
+  CAssetId mSwoosh;
+  CAssetId mParticle3;
+  CAssetId mParticle4;
   rstl::reserved_vector< CMetroidPrime::CVulnerabilityEntry, 4 > xa2c_;
 
   explicit CMetroidPrimeData(CInputStream& in);
   static uint VerifyExportCount(CInputStream& in);
 
-  const CPatternedInfo& GetPatternedInfo() const { return x4_patternedInfo; }
+  const CPatternedInfo& GetPatternedInfo() const { return mPatternedInfo; }
 
   static rstl::reserved_vector< CMetroidPrimeParasiteQueenAttack, 4 >
   LoadParasiteQueenBeams(CInputStream& in);

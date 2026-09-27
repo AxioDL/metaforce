@@ -10,50 +10,50 @@
 #include "MetroidPrime/Enemies/CBouncyGrenade.hpp"
 
 class CEPGrenadeLaunchParms {
-  float x0_velocityMin;
-  float x4_velocityMax;
-  float x8_angleMin;
-  float xc_angleMax;
+  float mVelocityMin;
+  float mVelocityMax;
+  float mAngleMin;
+  float mAngleMax;
 
 public:
   CEPGrenadeLaunchParms(float velocityMin, float velocityMax, float angleMin, float angleMax)
-  : x0_velocityMin(velocityMin)
-  , x4_velocityMax(velocityMax)
-  , x8_angleMin(angleMin)
-  , xc_angleMax(angleMax) {}
+  : mVelocityMin(velocityMin)
+  , mVelocityMax(velocityMax)
+  , mAngleMin(angleMin)
+  , mAngleMax(angleMax) {}
   explicit CEPGrenadeLaunchParms(CInputStream& in)
-  : x0_velocityMin(in.ReadFloat())
-  , x4_velocityMax(in.ReadFloat())
-  , x8_angleMin(CRelAngle::FromDegrees(in.ReadFloat()).AsRadians())
-  , xc_angleMax(CRelAngle::FromDegrees(in.ReadFloat()).AsRadians()) {}
-  float GetVelocityMin() const { return x0_velocityMin; }
-  float GetVelocityMax() const { return x4_velocityMax; }
-  float GetAngleMin() const { return x8_angleMin; }
-  float GetAngleMax() const { return xc_angleMax; }
+  : mVelocityMin(in.ReadFloat())
+  , mVelocityMax(in.ReadFloat())
+  , mAngleMin(CRelAngle::FromDegrees(in.ReadFloat()).AsRadians())
+  , mAngleMax(CRelAngle::FromDegrees(in.ReadFloat()).AsRadians()) {}
+  float GetVelocityMin() const { return mVelocityMin; }
+  float GetVelocityMax() const { return mVelocityMax; }
+  float GetAngleMin() const { return mAngleMin; }
+  float GetAngleMax() const { return mAngleMax; }
 };
 CHECK_SIZEOF(CEPGrenadeLaunchParms, 0x10)
 
 class CEPGrenadeLauncherData {
-  CBouncyGrenadeData x0_grenadeData;
-  CAssetId x3c_grenadeModelId;
-  CAssetId x40_shootParticleGenDescId;
-  ushort x44_shootSfxId;
-  CEPGrenadeLaunchParms x48_launchParms;
+  CBouncyGrenadeData mGrenadeData;
+  CAssetId mGrenadeModelId;
+  CAssetId mShootParticleGenDescId;
+  ushort mShootSfxId;
+  CEPGrenadeLaunchParms mLaunchParms;
 
 public:
   CEPGrenadeLauncherData(const CBouncyGrenadeData& data, CAssetId grenadeModelId,
                          CAssetId shootParticleGenDescId, ushort shootSfxId,
                          const CEPGrenadeLaunchParms& launchParms)
-  : x0_grenadeData(data)
-  , x3c_grenadeModelId(grenadeModelId)
-  , x40_shootParticleGenDescId(shootParticleGenDescId)
-  , x44_shootSfxId(shootSfxId)
-  , x48_launchParms(launchParms) {}
-  const CBouncyGrenadeData& GetGrenadeData() const { return x0_grenadeData; }
-  CAssetId GetGrenadeModelId() const { return x3c_grenadeModelId; }
-  CAssetId GetShootParticleGenDescId() const { return x40_shootParticleGenDescId; }
-  ushort GetShootSfxId() const { return x44_shootSfxId; }
-  const CEPGrenadeLaunchParms& GetLaunchParms() const { return x48_launchParms; }
+  : mGrenadeData(data)
+  , mGrenadeModelId(grenadeModelId)
+  , mShootParticleGenDescId(shootParticleGenDescId)
+  , mShootSfxId(shootSfxId)
+  , mLaunchParms(launchParms) {}
+  const CBouncyGrenadeData& GetGrenadeData() const { return mGrenadeData; }
+  CAssetId GetGrenadeModelId() const { return mGrenadeModelId; }
+  CAssetId GetShootParticleGenDescId() const { return mShootParticleGenDescId; }
+  ushort GetShootSfxId() const { return mShootSfxId; }
+  const CEPGrenadeLaunchParms& GetLaunchParms() const { return mLaunchParms; }
 };
 CHECK_SIZEOF(CEPGrenadeLauncherData, 0x58)
 
@@ -69,9 +69,9 @@ public:
   void Touch(CActor& act, CStateManager& mgr) override;
   rstl::optional_object< CAABox > GetTouchBounds() const override;
   const CCollisionPrimitive* GetCollisionPrimitive() const override;
-  CHealthInfo* HealthInfo(CStateManager& mgr) override { return &x25c_healthInfo; }
+  CHealthInfo* HealthInfo(CStateManager& mgr) override { return &mHealthInfo; }
   const CDamageVulnerability* GetDamageVulnerability() const override {
-    return &x264_vulnerability;
+    return &mVulnerability;
   }
 
   CGrenadeLauncher(TUniqueId uid, const rstl::string& name, const CEntityInfo& info,
@@ -79,9 +79,9 @@ public:
                    const CHealthInfo& healthInfo, const CDamageVulnerability& vulnerability,
                    const CActorParameters& actParams, TUniqueId parentId,
                    const CEPGrenadeLauncherData& data, float explodePlayerDistance);
-  void SetAddColor(const CColor& color) { x3f4_damageAddColor = color; }
-  void SetVisible(bool visible) { x3fd_visible = visible; }
-  void SetFollowPlayer(bool follow) { x3fe_followPlayer = follow; }
+  void SetAddColor(const CColor& color) { mDamageAddColor = color; }
+  void SetVisible(bool visible) { mVisible = visible; }
+  void SetFollowPlayer(bool follow) { mFollowPlayer = follow; }
   static CVector3f PredictTargetPosition(const CStateManager& mgr);
   static void ComputeLaunchSpeedAndAngle(const CVector3f& target, const CVector3f& origin,
                                          const CEPGrenadeLaunchParms& parms, float& angleOut,
@@ -98,29 +98,29 @@ private:
   void StartExplosionEffect(CStateManager& mgr);
   void UpdateHitDamageTime(float dt);
 
-  int x258_started;
-  CHealthInfo x25c_healthInfo;
-  CDamageVulnerability x264_vulnerability;
-  TUniqueId x2cc_parentId;
-  CEPGrenadeLauncherData x2d0_data;
-  CCollidableSphere x328_cSphere;
-  float x348_shotTimer;
-  CColor x34c_color;
-  CActorParameters x350_grenadeActorParams;
-  rstl::optional_object< TLockedToken< CGenDescription > > x3b8_particleGenDesc;
-  int x3c8_animIds[4];
-  float x3d8_yaw;
-  float x3dc_yawVelocity;
-  float x3e0_pitch;
-  float x3e4_pitchVelocity;
-  float x3e8_thermalMag;
-  float x3ec_damageTimer;
-  CColor x3f0_damageColor;
-  CColor x3f4_damageAddColor;
-  float x3f8_explodePlayerDistance;
-  bool x3fc_launchGrenade;
-  bool x3fd_visible;
-  bool x3fe_followPlayer;
+  int mStarted;
+  CHealthInfo mHealthInfo;
+  CDamageVulnerability mVulnerability;
+  TUniqueId mParentId;
+  CEPGrenadeLauncherData mData;
+  CCollidableSphere mCSphere;
+  float mShotTimer;
+  CColor mColor;
+  CActorParameters mGrenadeActorParams;
+  rstl::optional_object< TLockedToken< CGenDescription > > mParticleGenDesc;
+  int mAnimIds[4];
+  float mYaw;
+  float mYawVelocity;
+  float mPitch;
+  float mPitchVelocity;
+  float mThermalMag;
+  float mDamageTimer;
+  CColor mDamageColor;
+  CColor mDamageAddColor;
+  float mExplodePlayerDistance;
+  bool mLaunchGrenade;
+  bool mVisible;
+  bool mFollowPlayer;
 };
-CHECK_SIZEOF(CGrenadeLauncher, (VERSION >= VERSION_GM8P_00 ? 0x410 : 0x400))
+CHECK_SIZEOF(CGrenadeLauncher, (VERSION >= VERSION_GM8E_02 ? 0x410 : 0x400))
 #endif // _CGRENADELAUNCHER

@@ -15,43 +15,43 @@ class CVParamTransfer;
 #if !defined(TARGET_PC)
 class CPFMemoryStream {
 public:
-  CPFMemoryStream(uchar* data, int size) : x0_data(data), x4_size(size) {}
+  CPFMemoryStream(uchar* data, int size) : mData(data), mSize(size) {}
   int ReadInt32() {
-    int value = *reinterpret_cast< int* >(x0_data);
-    x0_data += sizeof(int);
+    int value = *reinterpret_cast< int* >(mData);
+    mData += sizeof(int);
     return value;
   }
   void* GetBlock(int count, int size) {
-    void* block = x0_data;
-    x0_data += count * size;
+    void* block = mData;
+    mData += count * size;
     return block;
   }
 
 private:
-  uchar* x0_data;
-  int x4_size;
+  uchar* mData;
+  int mSize;
 };
 #endif
 
 uint CPFAreaOctree::GetChildIndex(const CVector3f& point) const {
   uint index = 0;
-  if (point[kDX] > x1c_center[kDX]) {
+  if (point[kDX] > mCenter[kDX]) {
     index = 1;
   }
-  if (point[kDY] > x1c_center[kDY]) {
+  if (point[kDY] > mCenter[kDY]) {
     index |= 2;
   }
-  if (point[kDZ] > x1c_center[kDZ]) {
+  if (point[kDZ] > mCenter[kDZ]) {
     index |= 4;
   }
   return index;
 }
 
 prereserved_vector< CPFRegion* >* CPFAreaOctree::GetRegionList(const CVector3f& point) {
-  if (x0_isLeaf) {
-    return &x48_regions;
+  if (mIsLeaf) {
+    return &mRegions;
   }
-  return x28_children[GetChildIndex(point)]->GetRegionList(point);
+  return mChildren[GetChildIndex(point)]->GetRegionList(point);
 }
 
 void CPFAreaOctree::GetRegionListList(
@@ -60,86 +60,86 @@ void CPFAreaOctree::GetRegionListList(
   if (lists.size() >= lists.capacity()) {
     return;
   }
-  if (x0_isLeaf) {
-    lists.push_back(&x48_regions);
+  if (mIsLeaf) {
+    lists.push_back(&mRegions);
   } else {
     for (int i = 0; i < 8; ++i) {
-      if (x28_children[i]->IsPointInsidePaddedAABox(point, padding)) {
-        x28_children[i]->GetRegionListList(lists, point, padding);
+      if (mChildren[i]->IsPointInsidePaddedAABox(point, padding)) {
+        mChildren[i]->GetRegionListList(lists, point, padding);
       }
     }
   }
 }
 
 CPFArea::CPFArea(const rstl::auto_ptr< uchar >& data, int size)
-: x0_bestPointDistSq(FLT_MAX)
-, x4_closestPoint(CVector3f::Zero())
-, x20_cachedRegionList(nullptr)
-, x24_cachedRegionListPoint(CVector3f::Zero())
-, x30_hasCachedRegionList(false)
-, x34_regionFindCookie(0)
+: mBestPointDistSq(FLT_MAX)
+, mClosestPoint(CVector3f::Zero())
+, mCachedRegionList(nullptr)
+, mCachedRegionListPoint(CVector3f::Zero())
+, mHasCachedRegionList(false)
+, mRegionFindCookie(0)
 #if !defined(TARGET_PC)
-, x13c_data(data.release())
+, mData(data.release())
 #endif
-, x188_transform(CTransform4f::Identity()) {
+, mTransform(CTransform4f::Identity()) {
 #if defined(TARGET_PC)
   rstl::single_ptr resource{data.release()};
   ReadData(size < 0 || resource.null() ? std::span< const uchar >{}
                                        : std::span< const uchar >(resource.get(), size));
 #else
-  CPFMemoryStream stream(x13c_data.get(), size);
+  CPFMemoryStream stream(mData.get(), size);
   stream.ReadInt32();
 
   int numNodes = stream.ReadInt32();
-  x140_nodes.set_size(numNodes);
-  x140_nodes.set_data(static_cast< CPFNode* >(stream.GetBlock(numNodes, sizeof(CPFNode))));
+  mNodes.set_size(numNodes);
+  mNodes.set_data(static_cast< CPFNode* >(stream.GetBlock(numNodes, sizeof(CPFNode))));
   int numLinks = stream.ReadInt32();
-  x148_links.set_size(numLinks);
-  x148_links.set_data(static_cast< CPFLink* >(stream.GetBlock(numLinks, sizeof(CPFLink))));
+  mLinks.set_size(numLinks);
+  mLinks.set_data(static_cast< CPFLink* >(stream.GetBlock(numLinks, sizeof(CPFLink))));
   const int numRegions = stream.ReadInt32();
-  x150_regions.set_size(numRegions);
-  x150_regions.set_data(static_cast< CPFRegion* >(stream.GetBlock(numRegions, sizeof(CPFRegion))));
-  x178_regionData.reserve(numRegions);
+  mRegions.set_size(numRegions);
+  mRegions.set_data(static_cast< CPFRegion* >(stream.GetBlock(numRegions, sizeof(CPFRegion))));
+  mRegionData.reserve(numRegions);
   CPFRegionData dataValue = CPFRegionData();
-  x178_regionData.resize(numRegions, dataValue);
+  mRegionData.resize(numRegions, dataValue);
   int maxRegionNodes = 0;
   int i;
   for (i = 0; i < numRegions; ++i) {
-    x150_regions[i].Fixup(*this, maxRegionNodes);
+    mRegions[i].Fixup(*this, maxRegionNodes);
   }
   maxRegionNodes = maxRegionNodes > 4 ? maxRegionNodes : 4;
-  x10_polyPoints.reserve(maxRegionNodes);
+  mPolyPoints.reserve(maxRegionNodes);
 
   int numWords = (numRegions * (numRegions - 1) / 2 + 31) / 32;
-  x168_connectionsGround.set_size(numWords);
-  x168_connectionsGround.set_data(static_cast< uint* >(stream.GetBlock(numWords, sizeof(uint))));
-  x170_connectionsFlyers.set_size(numWords);
-  x170_connectionsFlyers.set_data(static_cast< uint* >(stream.GetBlock(numWords, sizeof(uint))));
+  mConnectionsGround.set_size(numWords);
+  mConnectionsGround.set_data(static_cast< uint* >(stream.GetBlock(numWords, sizeof(uint))));
+  mConnectionsFlyers.set_size(numWords);
+  mConnectionsFlyers.set_data(static_cast< uint* >(stream.GetBlock(numWords, sizeof(uint))));
   stream.GetBlock(((numRegions * numRegions + 31) / 32 - numWords) * 2, sizeof(uint));
 
   int numRegionPtrs = stream.ReadInt32();
-  x160_octreeRegions.set_size(numRegionPtrs);
-  x160_octreeRegions.set_data(
+  mOctreeRegions.set_size(numRegionPtrs);
+  mOctreeRegions.set_data(
       static_cast< CPFRegion** >(stream.GetBlock(numRegionPtrs, sizeof(CPFRegion*))));
   for (i = 0; i < numRegionPtrs; ++i) {
-    CPFRegion* const& region = x160_octreeRegions[i];
-    x160_octreeRegions[i] = &x150_regions[reinterpret_cast< intptr_t >(region)];
+    CPFRegion* const& region = mOctreeRegions[i];
+    mOctreeRegions[i] = &mRegions[reinterpret_cast< intptr_t >(region)];
   }
   int numOctreeNodes = stream.ReadInt32();
-  x158_octree.set_size(numOctreeNodes);
-  x158_octree.set_data(
+  mOctree.set_size(numOctreeNodes);
+  mOctree.set_data(
       static_cast< CPFAreaOctree* >(stream.GetBlock(numOctreeNodes, sizeof(CPFAreaOctree))));
   for (i = 0; i < numOctreeNodes; ++i) {
-    x158_octree[i].Fixup(*this);
+    mOctree[i].Fixup(*this);
   }
 #endif
 }
 
 prereserved_vector< CPFRegion* >* CPFArea::GetOctreeRegionList(const CVector3f& point) {
-  if (x30_hasCachedRegionList && close_enough(point, x24_cachedRegionListPoint)) {
-    return x20_cachedRegionList;
+  if (mHasCachedRegionList && close_enough(point, mCachedRegionListPoint)) {
+    return mCachedRegionList;
   }
-  return x158_octree.back().GetRegionList(point);
+  return mOctree.back().GetRegionList(point);
 }
 
 int CPFArea::FindRegions(rstl::reserved_vector< CPFRegion*, 4 >& regions, const CVector3f& point,
@@ -166,32 +166,32 @@ CPFRegion* CPFArea::FindClosestRegion(const CVector3f& point, uint flags, uint i
   OSGetTick();
   int i, j;
   uint searchTicks = 0;
-  x158_octree.back().GetRegionListList(lists, point, padding);
+  mOctree.back().GetRegionListList(lists, point, padding);
   OSGetTick();
   for (i = 0; i < lists.size(); ++i) {
     prereserved_vector< CPFRegion* >* list = lists[i];
     for (j = 0; j < list->size(); ++j) {
       CPFRegion* region = (*list)[j];
-      if (region->Data()->GetCookie() != x34_regionFindCookie) {
+      if (region->Data()->GetCookie() != mRegionFindCookie) {
         if ((region->GetFlags() & 0xff & flags) &&
             ((region->GetFlags() >> 16) & 0xff & indexMask) &&
             region->IsPointInsidePaddedAABox(point, padding)) {
           uint startTick = OSGetTick();
           if ((flags & 2) || region->PointHeight(point) < 3.f) {
-            if (region->FindBestPoint(x10_polyPoints, point, flags, padding * padding)) {
+            if (region->FindBestPoint(mPolyPoints, point, flags, padding * padding)) {
               padding = CMath::FastSqrtF(region->Data()->GetBestDistanceSquared());
               result = region;
-              x4_closestPoint = region->Data()->GetBestPoint();
+              mClosestPoint = region->Data()->GetBestPoint();
             }
             searchTicks += OSGetTick() - startTick;
           }
         }
-        region->Data()->SetCookie(x34_regionFindCookie);
+        region->Data()->SetCookie(mRegionFindCookie);
       }
     }
   }
   OSGetTick();
-  ++x34_regionFindCookie;
+  ++mRegionFindCookie;
   return result;
 }
 
@@ -233,9 +233,9 @@ bool CPFArea::PathExists(const CPFRegion* source, const CPFRegion* destination, 
   int remainingConnections = (numRegions - sourceIndex - 1) * (numRegions - sourceIndex) / 2;
   uint bit = totalConnections - remainingConnections + destinationIndex - (sourceIndex + 1);
   if (flags & 2) {
-    return (x170_connectionsFlyers[bit / 32] >> (bit % 32)) & 1;
+    return (mConnectionsFlyers[bit / 32] >> (bit % 32)) & 1;
   }
-  return (x168_connectionsGround[bit / 32] >> (bit % 32)) & 1;
+  return (mConnectionsGround[bit / 32] >> (bit % 32)) & 1;
 }
 
 const CFactoryFnReturn FPathFindAreaFactory(const SObjectTag& tag,

@@ -13,13 +13,13 @@ public:
   pas::EAnimationState UpdateBody(float dt, CBodyController& bc, CStateManager& mgr) override;
   void Shutdown(CBodyController&) override;
 
-  pas::ECoverDirection GetCoverDirection() const { return x8_coverDirection; }
-  bool GetNeedsExit() const { return xc_needsExit; }
+  pas::ECoverDirection GetCoverDirection() const { return mCoverDirection; }
+  bool GetNeedsExit() const { return mNeedsExit; }
 
 private:
-  pas::ECoverState x4_state;
-  pas::ECoverDirection x8_coverDirection;
-  bool xc_needsExit;
+  pas::ECoverState mState;
+  pas::ECoverDirection mCoverDirection;
+  bool mNeedsExit;
 
   pas::EAnimationState GetBodyStateTransition(float dt, CBodyController& bc);
 };

@@ -5,7 +5,7 @@
 
 #pragma scheduling off
 
-#if VERSION < VERSION_GM8P_00
+#if VERSION < VERSION_GM8E_02
 static const char* __EXIVersion =
     "<< Dolphin SDK - EXI\trelease build: Sep  5 2002 05:33:04 (0x2301) >>";
 #else
@@ -203,7 +203,7 @@ BOOL EXISync(s32 chan) {
       if (exi->state & STATE_SELECTED) {
         CompleteTransfer(chan);
         if (__OSGetDIConfig() != 0xff
-#if VERSION >= VERSION_GM8P_00
+#if VERSION >= VERSION_GM8E_02
           || (OSGetConsoleType() & OS_CONSOLE_MASK) == OS_CONSOLE_TDEV
 #endif
           || exi->immLen != 4 ||
@@ -524,7 +524,7 @@ static void EXTIntrruptHandler(__OSInterrupt interrupt, OSContext* context) {
 
 void EXIInit(void) {
   
-#if VERSION < VERSION_GM8P_00
+#if VERSION < VERSION_GM8E_02
   OSRegisterVersion(__EXIVersion);
 #else
   while (((REG(0, 3) & 1) == 1) || ((REG(1, 3) & 1) == 1) || ((REG(2, 3) & 1) == 1)) {}
@@ -557,7 +557,7 @@ void EXIInit(void) {
     __EXIProbe(1);
   }
   
-#if VERSION >= VERSION_GM8P_00
+#if VERSION >= VERSION_GM8E_02
   EXIGetID(0, 2, &IDSerialPort1);
   OSRegisterVersion(__EXIVersion);
 #endif
@@ -637,7 +637,7 @@ s32 EXIGetID(s32 chan, u32 dev, u32* id) {
   s32 startTime;
   BOOL enabled;
   
-#if VERSION >= VERSION_GM8P_00
+#if VERSION >= VERSION_GM8E_02
   if (chan == 0 && dev == 2 && IDSerialPort1 != 0) {
     *id = IDSerialPort1;
     return 1;
@@ -661,7 +661,7 @@ s32 EXIGetID(s32 chan, u32 dev, u32* id) {
     startTime = __EXIProbeStartTime[chan];
   }
 
-#if VERSION >= VERSION_GM8P_00
+#if VERSION >= VERSION_GM8E_02
   enabled = OSDisableInterrupts();
 #endif
   err = !EXILock(chan, dev, (chan < 2 && dev == 0) ? UnlockedHandler : NULL);
@@ -677,7 +677,7 @@ s32 EXIGetID(s32 chan, u32 dev, u32* id) {
     }
     EXIUnlock(chan);
   }
-#if VERSION >= VERSION_GM8P_00
+#if VERSION >= VERSION_GM8E_02
   OSRestoreInterrupts(enabled);
 #endif
 
@@ -707,7 +707,7 @@ char* EXIGetTypeString(u32 type) {
     return "Memory Card 251";
   case EXI_MEMORY_CARD_507:
     return "Memory Card 507";
-#if VERSION >= VERSION_GM8P_00
+#if VERSION >= VERSION_GM8E_02
   case EXI_MEMORY_CARD_1019:
     return "Memory Card 1019";
   case EXI_MEMORY_CARD_2043:
@@ -722,14 +722,14 @@ char* EXIGetTypeString(u32 type) {
     return "Net Card";
   case EXI_ETHER_VIEWER:
     return "Artist Ether";
-#if VERSION >= VERSION_GM8P_00
+#if VERSION >= VERSION_GM8E_02
   case 0x4220000:
     return "Broadband Adapter";
 #endif
   case EXI_STREAM_HANGER:
     return "Stream Hanger";
   case EXI_IS_VIEWER:
-#if VERSION < VERSION_GM8P_00
+#if VERSION < VERSION_GM8E_02
     return "IS Viewer";
 #else
     return "IS-DOL-VIEWER";

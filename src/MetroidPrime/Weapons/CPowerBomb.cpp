@@ -21,24 +21,24 @@ CPowerBomb::CPowerBomb(TToken< CGenDescription > particle, TUniqueId uid, TAreaI
           CMaterialList(kMT_Projectile, kMT_PowerBomb), dInfo, CWeapon::kPA_PowerBombs,
           CModelData::CModelDataNull())
 
-, x158_24_canStartFilter(true)
-, x158_25_filterEnabled(false)
-, x15c_curTime(0.f)
-, x160_curRadius(0.f)
-, x164_radiusIncrement(dInfo.GetRadius() / 2.5f)
-, x168_particle(rs_new CElementGen(particle))
-, x16c_radius(dInfo.GetRadius()) {
-  x168_particle->SetGlobalTranslation(xf.GetTranslation());
+, mCanStartFilter(true)
+, mFilterEnabled(false)
+, mCurTime(0.f)
+, mCurRadius(0.f)
+, mRadiusIncrement(dInfo.GetRadius() / 2.5f)
+, mParticle(rs_new CElementGen(particle))
+, mRadius(dInfo.GetRadius()) {
+  mParticle->SetGlobalTranslation(xf.GetTranslation());
 }
 
 CPowerBomb::~CPowerBomb() {}
 
 void CPowerBomb::ApplyDynamicDamage(const CVector3f& pos, CStateManager& mgr) {
-  mgr.ApplyDamageToWorld(GetOwnerId(), *this, pos, x12c_curDamageInfo, CMaterialFilter(xf8_filter));
+  mgr.ApplyDamageToWorld(GetOwnerId(), *this, pos, mCurDamageInfo, CMaterialFilter(mFilter));
 }
 
 void CPowerBomb::Touch(CActor&, CStateManager&) {
-  if (x158_24_canStartFilter) {
+  if (mCanStartFilter) {
     return;
   }
 }
@@ -48,7 +48,7 @@ rstl::optional_object< CAABox > CPowerBomb::GetTouchBounds() const {
 }
 
 void CPowerBomb::AddToRenderer(const CFrustumPlanes&, const CStateManager&) const {
-  gpRender->AddParticleGen(*x168_particle);
+  gpRender->AddParticleGen(*mParticle);
 }
 
 void CPowerBomb::Render(const CStateManager&) const {}
@@ -56,41 +56,41 @@ void CPowerBomb::Render(const CStateManager&) const {}
 void CPowerBomb::Think(float dt, CStateManager& mgr) {
   CWeapon::Think(dt, mgr);
 
-  if (x158_24_canStartFilter) {
-    if (x15c_curTime > 1.f && x158_25_filterEnabled != true) {
+  if (mCanStartFilter) {
+    if (mCurTime > 1.f && mFilterEnabled != true) {
       mgr.CameraFilterPass(CStateManager::kCFS_Six)
           .SetFilter(CCameraFilterPass::kFT_Add, CCameraFilterPass::kFS_Fullscreen, 1.5f,
                      kFadeColor, kInvalidAssetId);
-      x158_25_filterEnabled = true;
+      mFilterEnabled = true;
     }
 
-    if (x15c_curTime > 2.5f)
-      x158_24_canStartFilter = false;
+    if (mCurTime > 2.5f)
+      mCanStartFilter = false;
   } else {
-    if (x15c_curTime > 3.75f && x158_25_filterEnabled) {
+    if (mCurTime > 3.75f && mFilterEnabled) {
       mgr.CameraFilterPass(CStateManager::kCFS_Six).DisableFilter(.5f);
-      x158_25_filterEnabled = false;
+      mFilterEnabled = false;
     }
 
-    if (x15c_curTime > 7.f) {
-      if (x168_particle->IsSystemDeletable())
+    if (mCurTime > 7.f) {
+      if (mParticle->IsSystemDeletable())
         mgr.DeleteObjectRequest(GetUniqueId());
     }
 
-    if (x15c_curTime > 30.f) {
+    if (mCurTime > 30.f) {
       mgr.DeleteObjectRequest(GetUniqueId());
       return;
     }
   }
 
-  if (x15c_curTime > 1.f && x15c_curTime < 4.f) {
-    x110_origDamageInfo.SetRadius(x160_curRadius);
+  if (mCurTime > 1.f && mCurTime < 4.f) {
+    mOrigDamageInfo.SetRadius(mCurRadius);
     ApplyDynamicDamage(GetTranslation(), mgr);
-    x160_curRadius += x164_radiusIncrement * dt;
+    mCurRadius += mRadiusIncrement * dt;
   }
 
-  x168_particle->Update(dt);
-  x15c_curTime += dt;
+  mParticle->Update(dt);
+  mCurTime += dt;
 }
 
 ENTITY_ACCEPT_IMPL(CPowerBomb)
@@ -111,7 +111,7 @@ void CPowerBomb::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CState
     break;
 
   case kSM_Deleted:
-    if (x15c_curTime <= 7.0f) {
+    if (mCurTime <= 7.0f) {
       mgr.CameraFilterPass(CStateManager::kCFS_Six).DisableFilter(0.f);
     }
     mgr.RemoveWeaponId(GetOwnerId(), GetType());

@@ -16,10 +16,10 @@ public:
   void WriteTransData(COutputStream&) const override;
 
 private:
-  CCharAnimTime x4_transDur;
+  CCharAnimTime mTransDur;
   bool xc_;
-  bool xd_runA;
-  uint x10_flags;
+  bool mRunA;
+  uint mFlags;
 };
 CHECK_SIZEOF(CMetaTransPhaseTrans, 0x14)
 

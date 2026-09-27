@@ -36,23 +36,23 @@ public:
 private:
   void UpdateVisibility();
 
-  EHudType x4_hudType;
-  CTransform4f x8_freeLookLeftXf;
-  CTransform4f x38_freeLookRightXf;
-  float x68_freeLookInterp;
-  float x6c_lockOnInterp;
-  bool x70_24_inFreeLook : 1;
-  bool x70_25_lookControlHeld : 1;
-  bool x70_26_lockedOnObj : 1;
-  bool x70_27_visibleDebug : 1;
-  bool x70_28_visibleGame : 1;
-  CGuiWidget* x74_basewidget_freelookleft;
-  CGuiModel* x78_model_shieldleft;
-  CGuiModel* x7c_model_freelookleft;
-  CGuiWidget* x80_basewidget_freelookright;
-  CGuiModel* x84_model_shieldright;
-  CGuiModel* x88_model_freelookright;
-  CGuiWidget* x8c_basewidget_outlinesb;
+  EHudType mHudType;
+  CTransform4f mFreeLookLeftXf;
+  CTransform4f mFreeLookRightXf;
+  float mFreeLookInterp;
+  float mLockOnInterp;
+  bool mInFreeLook : 1;
+  bool mLookControlHeld : 1;
+  bool mLockedOnObj : 1;
+  bool mVisibleDebug : 1;
+  bool mVisibleGame : 1;
+  CGuiWidget* mBasewidget_freelookleft;
+  CGuiModel* mModel_shieldleft;
+  CGuiModel* mModel_freelookleft;
+  CGuiWidget* mBasewidget_freelookright;
+  CGuiModel* mModel_shieldright;
+  CGuiModel* mModel_freelookright;
+  CGuiWidget* mBasewidget_outlinesb;
 };
 CHECK_SIZEOF(CHudFreeLookInterface, 0x90)
 
@@ -68,17 +68,17 @@ public:
 private:
   void UpdateVisibility();
 
-  CVector3f x4_freeLookLeftPos;
-  CVector3f x10_freeLookRightPos;
-  float x1c_freeLookInterp;
-  bool x20_inFreeLook;
-  bool x21_lookControlHeld;
-  bool x22_24_visibleDebug : 1;
-  bool x22_25_visibleGame : 1;
-  CGuiWidget* x24_basewidget_freelook;
-  CGuiModel* x28_model_shield;
-  CGuiModel* x2c_model_freelookleft;
-  CGuiModel* x30_model_freelookright;
+  CVector3f mFreeLookLeftPos;
+  CVector3f mFreeLookRightPos;
+  float mFreeLookInterp;
+  bool mInFreeLook;
+  bool mLookControlHeld;
+  bool mVisibleDebug : 1;
+  bool mVisibleGame : 1;
+  CGuiWidget* mBasewidget_freelook;
+  CGuiModel* mModel_shield;
+  CGuiModel* mModel_freelookleft;
+  CGuiModel* mModel_freelookright;
 };
 CHECK_SIZEOF(CHudFreeLookInterfaceXRay, 0x34)
 

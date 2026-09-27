@@ -121,32 +121,32 @@ bool ReadDSPHeader(std::span< const u8 > bytes, dspadpcm_header& result) {
   }
   const u8* p = bytes.data();
   dspadpcm_header header{};
-  header.x0_numSamples = read_bits< uint >(p);
-  header.x4_numNibbles = read_bits< uint >(p + 4);
-  header.x8_sampleRate = read_bits< uint >(p + 8);
-  header.xc_loopFlag = read_bits< ushort >(p + 12);
-  header.xe_format = read_bits< ushort >(p + 14);
-  header.x10_loopStartNibble = read_bits< uint >(p + 16);
-  header.x14_loopEndNibble = read_bits< uint >(p + 20);
-  header.x18_currentAddress = read_bits< uint >(p + 24);
+  header.mNumSamples = read_bits< uint >(p);
+  header.mNumNibbles = read_bits< uint >(p + 4);
+  header.mSampleRate = read_bits< uint >(p + 8);
+  header.mLoopFlag = read_bits< ushort >(p + 12);
+  header.mFormat = read_bits< ushort >(p + 14);
+  header.mLoopStartNibble = read_bits< uint >(p + 16);
+  header.mLoopEndNibble = read_bits< uint >(p + 20);
+  header.mCurrentAddress = read_bits< uint >(p + 24);
   for (u32 i = 0; i < 16; ++i) {
-    header.x1c_coef[i / 2][i % 2] = read_bits< short >(p + 28 + i * 2);
+    header.mCoef[i / 2][i % 2] = read_bits< short >(p + 28 + i * 2);
   }
-  header.x3c_gain = read_bits< short >(p + 60);
-  header.x3e_predScale = read_bits< short >(p + 62);
-  header.x40_hist1 = read_bits< short >(p + 64);
-  header.x42_hist2 = read_bits< short >(p + 66);
-  header.x44_loopPredScale = read_bits< short >(p + 68);
-  header.x46_loopHist1 = read_bits< short >(p + 70);
-  header.x48_loopHist2 = read_bits< short >(p + 72);
-  u64 samples = static_cast< u64 >(header.x4_numNibbles / 16) * 14;
-  if (header.x4_numNibbles % 16 > 2) {
-    samples += header.x4_numNibbles % 16 - 2;
+  header.mGain = read_bits< short >(p + 60);
+  header.mPredScale = read_bits< short >(p + 62);
+  header.mHist1 = read_bits< short >(p + 64);
+  header.mHist2 = read_bits< short >(p + 66);
+  header.mLoopPredScale = read_bits< short >(p + 68);
+  header.mLoopHist1 = read_bits< short >(p + 70);
+  header.mLoopHist2 = read_bits< short >(p + 72);
+  u64 samples = static_cast< u64 >(header.mNumNibbles / 16) * 14;
+  if (header.mNumNibbles % 16 > 2) {
+    samples += header.mNumNibbles % 16 - 2;
   }
-  if (!header.x0_numSamples || header.x0_numSamples > samples || !header.x8_sampleRate ||
-      header.x8_sampleRate > 65535 || header.xc_loopFlag > 1 || header.xe_format != 0 ||
-      (header.xc_loopFlag && (header.x10_loopStartNibble >= header.x14_loopEndNibble ||
-                              header.x14_loopEndNibble >= header.x4_numNibbles))) {
+  if (!header.mNumSamples || header.mNumSamples > samples || !header.mSampleRate ||
+      header.mSampleRate > 65535 || header.mLoopFlag > 1 || header.mFormat != 0 ||
+      (header.mLoopFlag && (header.mLoopStartNibble >= header.mLoopEndNibble ||
+                            header.mLoopEndNibble >= header.mNumNibbles))) {
     return false;
   }
   result = header;

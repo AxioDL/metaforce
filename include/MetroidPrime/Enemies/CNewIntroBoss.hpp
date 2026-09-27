@@ -51,39 +51,39 @@ public:
   void DeleteBeam(CStateManager& mgr);
   void StopRumble(CStateManager& mgr);
 
-  float GetInitialHP() const { return x640_initialHp; }
+  float GetInitialHP() const { return mInitialHp; }
 
 private:
-  pas::ELocomotionType x568_locomotion;
-  int x56c_stateProg;
-  float x570_minTurnAngle;
-  CBoneTracking x574_boneTracking;
-  CProjectileInfo x5ac_projectileInfo;
-  TUniqueId x5d4_stage1Projectile;
-  TUniqueId x5d6_stage2Projectile;
-  TUniqueId x5d8_stage3Projectile;
-  rstl::string x5dc_damageLocator;
-  rstl::single_ptr< CCollisionActorManager > x5ec_collisionManager;
-  CAssetId x5f0_beamContactFxId;
-  CAssetId x5f4_beamPulseFxId;
-  CAssetId x5f8_beamTextureId;
-  CAssetId x5fc_beamGlowTextureId;
-  TUniqueId x600_headActor;
-  TUniqueId x602_pelvisActor;
-  CVector3f x604_predictedPlayerPos;
-  CVector3f x610_lookPos;
-  CVector3f x61c_startPlayerPos;
-  float x628_firingTime;
-  CVector3f x62c_targetPos;
+  pas::ELocomotionType mLocomotion;
+  int mStateProg;
+  float mMinTurnAngle;
+  CBoneTracking mBoneTracking;
+  CProjectileInfo mProjectileInfo;
+  TUniqueId mStage1Projectile;
+  TUniqueId mStage2Projectile;
+  TUniqueId mStage3Projectile;
+  rstl::string mDamageLocator;
+  rstl::single_ptr< CCollisionActorManager > mCollisionManager;
+  CAssetId mBeamContactFxId;
+  CAssetId mBeamPulseFxId;
+  CAssetId mBeamTextureId;
+  CAssetId mBeamGlowTextureId;
+  TUniqueId mHeadActor;
+  TUniqueId mPelvisActor;
+  CVector3f mPredictedPlayerPos;
+  CVector3f mLookPos;
+  CVector3f mStartPlayerPos;
+  float mFiringTime;
+  CVector3f mTargetPos;
   float x638_;
-  float x63c_attackTime;
-  float x640_initialHp;
-  CTransform4f x644_initialXf;
-  short x674_rumbleVoice;
-  TUniqueId x676_curProjectile;
+  float mAttackTime;
+  float mInitialHp;
+  CTransform4f mInitialXf;
+  short mRumbleVoice;
+  TUniqueId mCurProjectile;
   bool x678_;
 };
 
-CHECK_SIZEOF(CNewIntroBoss, (VERSION >= VERSION_GM8P_00 ? 0x690 : 0x680))
+CHECK_SIZEOF(CNewIntroBoss, (VERSION >= VERSION_GM8E_02 ? 0x690 : 0x680))
 
 #endif // _CNEWINTROBOSS

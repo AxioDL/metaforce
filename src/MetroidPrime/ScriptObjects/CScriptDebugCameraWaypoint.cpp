@@ -6,7 +6,7 @@ CScriptDebugCameraWaypoint::CScriptDebugCameraWaypoint(TUniqueId uid, const rstl
                                                        const CTransform4f& xf, uint value)
 : CActor(uid, true, name, info, xf, CModelData::CModelDataNull(), CMaterialList(kMT_NoStepLogic),
          CActorParameters::None(), kInvalidUniqueId)
-, xe8_value(value) {}
+, mValue(value) {}
 
 ENTITY_ACCEPT_IMPL(CScriptDebugCameraWaypoint)
 

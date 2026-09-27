@@ -31,45 +31,45 @@ CBeetle::CBeetle(TUniqueId uid, const rstl::string& name, const CEntityInfo& inf
                  const rstl::optional_object< CStaticRes >& tailModel)
 : CPatterned(kC_Beetle, uid, name, flavor, info, xf, mData, pInfo, kMT_Ground, kCT_One, kBT_BiPedal,
              actorParams, flavor != kFT_Zero ? kCS_Medium : kCS_Small)
-, x568_stateProg(-1)
-, x56c_entranceType(entranceType)
-, x570_aiMgr(kInvalidUniqueId)
-, x574_tailAimReference(tailAimReference)
-, x580_f3(f3)
-, x584_touchDamage(touchDamage)
-, x5a0_headbuttDist(FLT_MAX)
-, x5a4_jumpBackwardDist(FLT_MAX)
-, x5a8_animTimeRem(0.f)
-, x5ac_tailModel(tailModel.valid() ? rstl::optional_object< CModelData >(*tailModel)
+, mStateProg(-1)
+, mEntranceType(entranceType)
+, mAiMgr(kInvalidUniqueId)
+, mTailAimReference(tailAimReference)
+, mF3(f3)
+, mTouchDamage(touchDamage)
+, mHeadbuttDist(FLT_MAX)
+, mJumpBackwardDist(FLT_MAX)
+, mAnimTimeRem(0.f)
+, mTailModel(tailModel.valid() ? rstl::optional_object< CModelData >(*tailModel)
                                    : rstl::optional_object_null())
-, x5fc_pathFindSearch(NULL, 1, pInfo.GetPathfindingIndex(), 1.f, 1.f)
-, x6e0_retreatPoints()
-, x744_platingVuln(platingVuln)
-, x7ac_tailVuln(tailVuln)
-, x814_attackDelayTimer(initialAttackDelay)
-, x818_stateFinishTimer(FLT_MAX)
-, x81c_speedBackup(x3b4_speed)
-, x820_posDeviationCounter(0)
-, x824_predictPos(CVector3f::Zero())
-, x830_intoGroundFactor(1.f)
-, x834_retreatTime(retreatTime)
-, x838_24_hitSomething(false)
-, x838_25_burrowing(false)
-, x838_26_canSkid(false) {
+, mPathFindSearch(NULL, 1, pInfo.GetPathfindingIndex(), 1.f, 1.f)
+, mRetreatPoints()
+, mPlatingVuln(platingVuln)
+, mTailVuln(tailVuln)
+, mAttackDelayTimer(initialAttackDelay)
+, mStateFinishTimer(FLT_MAX)
+, mSpeedBackup(mSpeed)
+, mPosDeviationCounter(0)
+, mPredictPos(CVector3f::Zero())
+, mIntoGroundFactor(1.f)
+, mRetreatTime(retreatTime)
+, mHitSomething(false)
+, mBurrowing(false)
+, mCanSkid(false) {
   CPASAnimParmData headbuttParms(pas::kAS_MeleeAttack, CPASAnimParm::FromEnum(0),
                                  CPASAnimParm::FromEnum(1));
-  x5a0_headbuttDist = GetAnimationDistance(headbuttParms);
+  mHeadbuttDist = GetAnimationDistance(headbuttParms);
 
   CPASAnimParmData jumpBackParms(pas::kAS_Step, CPASAnimParm::FromEnum(1),
                                  CPASAnimParm::FromEnum(0));
   const CVector3f& scale = ModelData()->ScaleCopy();
   const float jumpBackDist = GetAnimationDistance(jumpBackParms);
   const float scaleY = scale.GetY();
-  x5a4_jumpBackwardDist = scaleY * jumpBackDist;
+  mJumpBackwardDist = scaleY * jumpBackDist;
 
   MakeThermalColdAndHot();
-  if (x3fc_flavor == kFT_One) {
-    x460_knockBackController.SetLocomotionDuringElectrocution(true);
+  if (mFlavor == kFT_One) {
+    mKnockBackController.SetLocomotionDuringElectrocution(true);
   }
 }
 
@@ -91,19 +91,19 @@ void CBeetle::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMan
   case kSM_OnFloor:
     forward = false;
     SetMomentumWR(CVector3f::Zero());
-    x328_27_onGround = true;
+    mOnGround = true;
     break;
   case kSM_Falling:
-    if (!x450_bodyController->IsFrozen()) {
+    if (!mBodyController->IsFrozen()) {
       const float momentum = GetGravityConstant() * GetMass();
       SetMomentumWR(CVector3f(0.f, 0.f, -momentum));
-      x328_27_onGround = false;
+      mOnGround = false;
     }
     forward = false;
     break;
   case kSM_InitializedInArea: {
-    if (x570_aiMgr == kInvalidUniqueId) {
-      x570_aiMgr = CTeamAiMgr::GetTeamAiMgr(*this, mgr);
+    if (mAiMgr == kInvalidUniqueId) {
+      mAiMgr = CTeamAiMgr::GetTeamAiMgr(*this, mgr);
       if (GetActive()) {
         SquadAdd(mgr);
       }
@@ -113,7 +113,7 @@ void CBeetle::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMan
 
     const TAreaId aid = GetCurrentAreaId();
     const CGameArea& area = mgr.GetWorld()->GetAreaAlways(aid);
-    x5fc_pathFindSearch.SetArea(area.GetPostConstructed()->x10bc_pathArea);
+    mPathFindSearch.SetArea(area.GetPostConstructed()->mPathArea);
     break;
   }
   default:
@@ -132,11 +132,11 @@ CVector3f CBeetle::GetOrbitPosition(const CStateManager& mgr) const {
 }
 
 void CBeetle::Generate(CStateManager& mgr, EStateMsg msg, float dt) {
-  CBodyController* bodyCtrl = x450_bodyController.get();
+  CBodyController* bodyCtrl = mBodyController.get();
 
   switch (msg) {
   case kStateMsg_Activate:
-    if (x56c_entranceType == kET_FacePlayer || bodyCtrl->GetIsActive()) {
+    if (mEntranceType == kET_FacePlayer || bodyCtrl->GetIsActive()) {
       bodyCtrl->CommandMgr().DeliverCmd(CBCGenerateCmd(pas::kGType_Zero, -1));
 
       CVector3f playerPos = mgr.GetPlayer()->GetTranslation();
@@ -145,7 +145,7 @@ void CBeetle::Generate(CStateManager& mgr, EStateMsg msg, float dt) {
       lookAt.SetTranslation(GetTranslation());
       SetTransform(lookAt);
     } else {
-      bodyCtrl->CommandMgr().DeliverCmd(CBCGenerateCmd(pas::kGType_Zero, x388_anim));
+      bodyCtrl->CommandMgr().DeliverCmd(CBCGenerateCmd(pas::kGType_Zero, mAnim));
     }
 
     if (!bodyCtrl->GetIsActive()) {
@@ -153,15 +153,15 @@ void CBeetle::Generate(CStateManager& mgr, EStateMsg msg, float dt) {
     }
 
     RemoveMaterial(kMT_Character, kMT_Solid, mgr);
-    x568_stateProg = 0;
+    mStateProg = 0;
     break;
 
   case kStateMsg_Update:
-    switch (x568_stateProg) {
+    switch (mStateProg) {
     case 0:
       if (bodyCtrl->GetCurrentStateId() == pas::kAS_Generate) {
-        x568_stateProg = 2;
-        x5a8_animTimeRem = x450_bodyController->GetAnimTimeRemaining();
+        mStateProg = 2;
+        mAnimTimeRem = mBodyController->GetAnimTimeRemaining();
       } else {
         bodyCtrl->CommandMgr().DeliverCmd(CBCGenerateCmd(pas::kGType_Zero, -1));
       }
@@ -169,8 +169,8 @@ void CBeetle::Generate(CStateManager& mgr, EStateMsg msg, float dt) {
 
     case 2:
       if (bodyCtrl->GetCurrentStateId() != pas::kAS_Generate) {
-        x568_stateProg = 4;
-      } else if (GetMaterialList().HasMaterial(kMT_Solid) && x5a8_animTimeRem > 0.f) {
+        mStateProg = 4;
+      } else if (GetMaterialList().HasMaterial(kMT_Solid) && mAnimTimeRem > 0.f) {
         TEntityList nearList;
 
         const CVector3f pos = GetTranslation();
@@ -181,12 +181,12 @@ void CBeetle::Generate(CStateManager& mgr, EStateMsg msg, float dt) {
 
         if (nearList.size() != 0) {
           CVector3f total = CVector3f::Zero();
-          const float sepFactor = 5.f * dt / x5a8_animTimeRem;
+          const float sepFactor = 5.f * dt / mAnimTimeRem;
 
           for (AUTO(it, nearList.begin()); it != nearList.end(); ++it) {
             if (CActor* act = static_cast< CActor* >(mgr.ObjectById(*it))) {
               CVector3f separation =
-                  x45c_steeringBehaviors.Separation(*this, act->GetTranslation(), 5.f);
+                  mSteeringBehaviors.Separation(*this, act->GetTranslation(), 5.f);
               separation[kDZ] = rstl::max_val(0.f, separation[kDZ]);
               total += separation * sepFactor;
             }
@@ -204,9 +204,9 @@ void CBeetle::Generate(CStateManager& mgr, EStateMsg msg, float dt) {
 
   case kStateMsg_Deactivate:
     AddMaterial(kMT_Character, kMT_Solid, kMT_GroundCollider, mgr);
-    x328_25_verticalMovement = false;
-    x838_25_burrowing = false;
-    if (x328_26_solidCollision) {
+    mVerticalMovement = false;
+    mBurrowing = false;
+    if (mSolidCollision) {
       DeathDelete(mgr);
     }
     break;
@@ -217,37 +217,37 @@ void CBeetle::Generate(CStateManager& mgr, EStateMsg msg, float dt) {
 }
 
 void CBeetle::Deactivate(CStateManager& mgr, EStateMsg msg, float dt) {
-  CBodyController* bodyCtrl = x450_bodyController.get();
+  CBodyController* bodyCtrl = mBodyController.get();
 
   switch (msg) {
   case kStateMsg_Activate:
-    x568_stateProg = 0;
+    mStateProg = 0;
     SquadRemove(mgr);
-    x818_stateFinishTimer = 0.f;
+    mStateFinishTimer = 0.f;
     break;
 
   case kStateMsg_Update:
-    switch (x568_stateProg) {
+    switch (mStateProg) {
     case 0:
       if (bodyCtrl->GetCurrentStateId() == pas::kAS_Generate) {
         RemoveMaterial(kMT_Character, kMT_Solid, kMT_Target, kMT_Orbit, mgr);
         mgr.Player()->TryToBreakOrbit(GetUniqueId(), CPlayer::kOB_ActivateOrbitSource, mgr);
-        x838_25_burrowing = true;
-        x5a8_animTimeRem = x450_bodyController->GetAnimTimeRemaining();
-        x568_stateProg = 2;
+        mBurrowing = true;
+        mAnimTimeRem = mBodyController->GetAnimTimeRemaining();
+        mStateProg = 2;
       } else if (IsOnGround()) {
         bodyCtrl->CommandMgr().DeliverCmd(CBCGenerateCmd(pas::kGType_One, -1));
       } else {
         const CVector3f move =
-            x45c_steeringBehaviors.Seek(*this, mgr.GetPlayer()->GetTranslation());
+            mSteeringBehaviors.Seek(*this, mgr.GetPlayer()->GetTranslation());
         bodyCtrl->CommandMgr().DeliverCmd(CBCLocomotionCmd(move, CVector3f::Zero(), 1.f));
       }
       break;
 
     case 2:
       if (bodyCtrl->GetCurrentStateId() != pas::kAS_Generate) {
-        x568_stateProg = 3;
-        x830_intoGroundFactor = 0.f;
+        mStateProg = 3;
+        mIntoGroundFactor = 0.f;
 
         CAABox aabb = GetBoundingBox();
         const CVector3f downMove =
@@ -255,17 +255,17 @@ void CBeetle::Deactivate(CStateManager& mgr, EStateMsg msg, float dt) {
         SetTranslation(GetTranslation() + downMove);
       } else {
         const float remTime = bodyCtrl->GetAnimTimeRemaining();
-        x830_intoGroundFactor = x5a8_animTimeRem > 0.f ? remTime / x5a8_animTimeRem : 0.f;
+        mIntoGroundFactor = mAnimTimeRem > 0.f ? remTime / mAnimTimeRem : 0.f;
       }
       break;
 
     case 3:
-      x818_stateFinishTimer += dt;
-      if (x818_stateFinishTimer >= 0.75f) {
+      mStateFinishTimer += dt;
+      if (mStateFinishTimer >= 0.75f) {
         SendScriptMsgs(kSS_DeactivateState, mgr, kSM_None);
         mgr.DeleteObjectRequest(GetUniqueId());
-        x568_stateProg = 4;
-        x830_intoGroundFactor = 0.f;
+        mStateProg = 4;
+        mIntoGroundFactor = 0.f;
       } else {
         CAABox aabb = GetBoundingBox();
         const CVector3f downMove =
@@ -287,14 +287,14 @@ void CBeetle::Deactivate(CStateManager& mgr, EStateMsg msg, float dt) {
 void CBeetle::TargetPlayer(CStateManager& mgr, EStateMsg msg, float dt) {
   switch (msg) {
   case kStateMsg_Activate:
-    if (const CTeamAiRole* role = CTeamAiMgr::GetTeamAiRole(mgr, x570_aiMgr, GetUniqueId())) {
-      x2e0_destPos = role->GetTeamPosition();
+    if (const CTeamAiRole* role = CTeamAiMgr::GetTeamAiRole(mgr, mAiMgr, GetUniqueId())) {
+      mDestPos = role->GetTeamPosition();
     } else {
-      x2e0_destPos = mgr.GetPlayer()->GetTranslation();
+      mDestPos = mgr.GetPlayer()->GetTranslation();
     }
-    x2dc_destObj = mgr.GetPlayer()->GetUniqueId();
-    x2ec_reflectedDestPos = GetTranslation();
-    x328_24_inPosition = false;
+    mDestObj = mgr.GetPlayer()->GetUniqueId();
+    mReflectedDestPos = GetTranslation();
+    mInPosition = false;
     break;
 
   default:
@@ -307,18 +307,18 @@ void CBeetle::Attack(CStateManager& mgr, EStateMsg msg, float dt) {
   case kStateMsg_Activate: {
     CVector3f target = mgr.GetPlayer()->GetTranslation();
     target[kDZ] = GetTranslation()[kDZ];
-    x838_24_hitSomething = x838_26_canSkid = false;
-    x2e0_destPos = target;
-    x568_stateProg = 0;
+    mHitSomething = mCanSkid = false;
+    mDestPos = target;
+    mStateProg = 0;
     break;
   }
 
   case kStateMsg_Update:
-    switch (x568_stateProg) {
+    switch (mStateProg) {
     case 0: {
-      if (x450_bodyController->GetCurrentStateId() == pas::kAS_MeleeAttack) {
-        x568_stateProg = 1;
-        x838_26_canSkid = true;
+      if (mBodyController->GetCurrentStateId() == pas::kAS_MeleeAttack) {
+        mStateProg = 1;
+        mCanSkid = true;
       } else if (IsOnGround()) {
         CVector3f aimPos = mgr.GetPlayer()->GetAimPosition(mgr, 0.f);
         aimPos[kDZ] = GetTranslation()[kDZ];
@@ -328,23 +328,23 @@ void CBeetle::Attack(CStateManager& mgr, EStateMsg msg, float dt) {
           aimPos += 5.f * aimDelta.AsNormalized();
         }
 
-        x450_bodyController->CommandMgr().DeliverCmd(CBCMeleeAttackCmd(pas::kS_One, aimPos));
+        mBodyController->CommandMgr().DeliverCmd(CBCMeleeAttackCmd(pas::kS_One, aimPos));
       }
       break;
     }
     case 1: {
-      if (x450_bodyController->GetCurrentStateId() != pas::kAS_MeleeAttack) {
-        x568_stateProg = 4;
+      if (mBodyController->GetCurrentStateId() != pas::kAS_MeleeAttack) {
+        mStateProg = 4;
       } else if (IsOnGround()) {
-        x450_bodyController->CommandMgr().DeliverTargetVector(x2e0_destPos - GetTranslation());
+        mBodyController->CommandMgr().DeliverTargetVector(mDestPos - GetTranslation());
       } else {
-        x568_stateProg = 2;
+        mStateProg = 2;
       }
       break;
     }
     case 2: {
-      if (x450_bodyController->GetCurrentStateId() != pas::kAS_MeleeAttack) {
-        x568_stateProg = 4;
+      if (mBodyController->GetCurrentStateId() != pas::kAS_MeleeAttack) {
+        mStateProg = 4;
       }
       break;
     }
@@ -352,15 +352,15 @@ void CBeetle::Attack(CStateManager& mgr, EStateMsg msg, float dt) {
       break;
     }
 
-    if (x328_26_solidCollision) {
-      x838_24_hitSomething = true;
+    if (mSolidCollision) {
+      mHitSomething = true;
     }
     break;
 
   case kStateMsg_Deactivate:
-    CTeamAiMgr::ResetTeamAiRole(kAT_Melee, mgr, x570_aiMgr, GetUniqueId(), true);
-    x814_attackDelayTimer =
-        mgr.Random()->Float() * x308_attackTimeVariation + x304_averageAttackTime;
+    CTeamAiMgr::ResetTeamAiRole(kAT_Melee, mgr, mAiMgr, GetUniqueId(), true);
+    mAttackDelayTimer =
+        mgr.Random()->Float() * mAttackTimeVariation + mAverageAttackTime;
     break;
 
   default:
@@ -371,29 +371,29 @@ void CBeetle::Attack(CStateManager& mgr, EStateMsg msg, float dt) {
 void CBeetle::FollowPattern(CStateManager& mgr, EStateMsg msg, float dt) {
   switch (msg) {
   case kStateMsg_Activate:
-    x568_stateProg = 1;
+    mStateProg = 1;
     break;
 
   case kStateMsg_Update:
-    switch (x568_stateProg) {
+    switch (mStateProg) {
     case 1:
-      if (x450_bodyController->GetCurrentStateId() == pas::kAS_Step) {
-        x568_stateProg = 3;
+      if (mBodyController->GetCurrentStateId() == pas::kAS_Step) {
+        mStateProg = 3;
       } else if (IsOnGround()) {
-        x450_bodyController->CommandMgr().DeliverCmd(CBCStepCmd(pas::kSD_Left, pas::kStep_Normal));
+        mBodyController->CommandMgr().DeliverCmd(CBCStepCmd(pas::kSD_Left, pas::kStep_Normal));
       }
       break;
 
     case 3:
-      if (x450_bodyController->GetCurrentStateId() != pas::kAS_Step && IsOnGround()) {
-        x450_bodyController->CommandMgr().DeliverCmd(CBCStepCmd(pas::kSD_Right, pas::kStep_Normal));
-        x568_stateProg = 2;
+      if (mBodyController->GetCurrentStateId() != pas::kAS_Step && IsOnGround()) {
+        mBodyController->CommandMgr().DeliverCmd(CBCStepCmd(pas::kSD_Right, pas::kStep_Normal));
+        mStateProg = 2;
       }
       break;
 
     case 2:
-      if (x450_bodyController->GetCurrentStateId() != pas::kAS_Step) {
-        x568_stateProg = x814_attackDelayTimer <= 0.f ? 4 : 1;
+      if (mBodyController->GetCurrentStateId() != pas::kAS_Step) {
+        mStateProg = mAttackDelayTimer <= 0.f ? 4 : 1;
       }
       break;
 
@@ -401,7 +401,7 @@ void CBeetle::FollowPattern(CStateManager& mgr, EStateMsg msg, float dt) {
       break;
     }
 
-    x450_bodyController->CommandMgr().DeliverTargetVector(mgr.GetPlayer()->GetTranslation() -
+    mBodyController->CommandMgr().DeliverTargetVector(mgr.GetPlayer()->GetTranslation() -
                                                           GetTranslation());
     break;
 
@@ -415,7 +415,7 @@ bool CBeetle::HasAttackPattern(CStateManager& mgr, float arg) { return true; }
 bool CBeetle::InRange(CStateManager& mgr, float arg) {
   CVector3f target = mgr.GetPlayer()->GetTranslation();
 
-  if (const CTeamAiRole* role = CTeamAiMgr::GetTeamAiRole(mgr, x570_aiMgr, GetUniqueId())) {
+  if (const CTeamAiRole* role = CTeamAiMgr::GetTeamAiRole(mgr, mAiMgr, GetUniqueId())) {
     if (role->GetTeamAiRole() == CTeamAiRole::kTAR_Melee) {
       target = role->GetTeamPosition();
     }
@@ -432,10 +432,10 @@ bool CBeetle::InAttackPosition(CStateManager& mgr, float arg) {
   const CVector3f& delta = player->GetTranslation() - GetTranslation();
   float distSq = delta.MagSquared();
 
-  const float minRange = x2fc_minAttackRange;
+  const float minRange = mMinAttackRange;
   if (distSq > minRange * minRange) {
-    const float maxRange = x300_maxAttackRange;
-    if (distSq < maxRange * maxRange && SpotPlayer(mgr, x3c8_leashRadius)) {
+    const float maxRange = mMaxAttackRange;
+    if (distSq < maxRange * maxRange && SpotPlayer(mgr, mLeashRadius)) {
       inAttackPos = true;
     }
   }
@@ -444,8 +444,8 @@ bool CBeetle::InAttackPosition(CStateManager& mgr, float arg) {
 }
 
 bool CBeetle::ShouldAttack(CStateManager& mgr, float arg) {
-  if (x814_attackDelayTimer <= 0.f) {
-    if (CTeamAiMgr* aiMgr = TCastToPtr< CTeamAiMgr >(mgr.ObjectById(x570_aiMgr))) {
+  if (mAttackDelayTimer <= 0.f) {
+    if (CTeamAiMgr* aiMgr = TCastToPtr< CTeamAiMgr >(mgr.ObjectById(mAiMgr))) {
       if (aiMgr->HasTeamAiRole(GetUniqueId())) {
         return aiMgr->AddMeleeAttacker(GetUniqueId());
       }
@@ -469,12 +469,12 @@ bool CBeetle::ShouldJumpBack(CStateManager& mgr, float arg) {
   bool doJumpBack = false;
   TEntityList nearList;
   CMaterialFilter charFilter = CMaterialFilter::MakeInclude(CMaterialList(kMT_Character));
-  mgr.BuildNearList(nearList, pos, backDir, x5a4_jumpBackwardDist, charFilter, this);
+  mgr.BuildNearList(nearList, pos, backDir, mJumpBackwardDist, charFilter, this);
 
   TUniqueId id = kInvalidUniqueId;
   CMaterialFilter solidFilter = CMaterialFilter::MakeInclude(CMaterialList(kMT_Solid));
   CRayCastResult result =
-      mgr.RayWorldIntersection(id, pos, backDir, x5a4_jumpBackwardDist, solidFilter, nearList);
+      mgr.RayWorldIntersection(id, pos, backDir, mJumpBackwardDist, solidFilter, nearList);
   if (!result.IsValid()) {
     doJumpBack = true;
   }
@@ -485,21 +485,21 @@ bool CBeetle::ShouldJumpBack(CStateManager& mgr, float arg) {
 void CBeetle::JumpBack(CStateManager& mgr, EStateMsg msg, float dt) {
   switch (msg) {
   case kStateMsg_Activate:
-    x568_stateProg = 0;
+    mStateProg = 0;
     break;
   case kStateMsg_Update:
-    switch (x568_stateProg) {
+    switch (mStateProg) {
     case 0:
-      if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() == pas::kAS_Step) {
-        x568_stateProg = 2;
+      if (mBodyController->GetBodyStateInfo().GetCurrentStateId() == pas::kAS_Step) {
+        mStateProg = 2;
       } else if (IsOnGround()) {
-        x450_bodyController->CommandMgr().DeliverCmd(
+        mBodyController->CommandMgr().DeliverCmd(
             CBCStepCmd(pas::kSD_Backward, pas::kStep_Normal));
       }
       break;
     case 2:
-      if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() != pas::kAS_Step) {
-        x568_stateProg = 4;
+      if (mBodyController->GetBodyStateInfo().GetCurrentStateId() != pas::kAS_Step) {
+        mStateProg = 4;
       }
       break;
     default:
@@ -515,10 +515,10 @@ bool CBeetle::ShouldDoubleSnap(CStateManager& mgr, float arg) {
   bool doDoubleSnap = false;
   if (!GetSearchPath() && IsOnGround()) {
     const CPlayer* player = mgr.GetPlayer();
-    const float dist = x5a0_headbuttDist + x300_maxAttackRange;
+    const float dist = mHeadbuttDist + mMaxAttackRange;
     const float distSq = dist * dist;
     CVector3f targetPos = player->GetTranslation();
-    if (const CTeamAiRole* role = CTeamAiMgr::GetTeamAiRole(mgr, x570_aiMgr, GetUniqueId())) {
+    if (const CTeamAiRole* role = CTeamAiMgr::GetTeamAiRole(mgr, mAiMgr, GetUniqueId())) {
       targetPos = role->GetTeamPosition();
     }
 
@@ -528,12 +528,12 @@ bool CBeetle::ShouldDoubleSnap(CStateManager& mgr, float arg) {
       if (CVector3f::Dot(forward, delta.AsNormalized()) > 0.98f) {
         TEntityList nearList;
         CMaterialFilter charFilter = CMaterialFilter::MakeInclude(CMaterialList(kMT_Character));
-        mgr.BuildNearList(nearList, GetTranslation(), forward, x5a0_headbuttDist, charFilter, this);
+        mgr.BuildNearList(nearList, GetTranslation(), forward, mHeadbuttDist, charFilter, this);
 
         TUniqueId id = kInvalidUniqueId;
         CMaterialFilter solidFilter = CMaterialFilter::MakeInclude(CMaterialList(kMT_Solid));
         CRayCastResult result = mgr.RayWorldIntersection(id, GetTranslation(), forward,
-                                                         x5a0_headbuttDist, solidFilter, nearList);
+                                                         mHeadbuttDist, solidFilter, nearList);
         if (!result.IsValid()) {
           doDoubleSnap = true;
         }
@@ -547,22 +547,22 @@ bool CBeetle::ShouldDoubleSnap(CStateManager& mgr, float arg) {
 void CBeetle::DoubleSnap(CStateManager& mgr, EStateMsg msg, float dt) {
   switch (msg) {
   case kStateMsg_Activate:
-    x568_stateProg = 0;
+    mStateProg = 0;
     break;
   case kStateMsg_Update:
-    switch (x568_stateProg) {
+    switch (mStateProg) {
     case 0:
-      if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() == pas::kAS_MeleeAttack) {
-        x568_stateProg = 2;
+      if (mBodyController->GetBodyStateInfo().GetCurrentStateId() == pas::kAS_MeleeAttack) {
+        mStateProg = 2;
       } else {
-        x450_bodyController->CommandMgr().DeliverCmd(CBCMeleeAttackCmd(pas::kS_Zero));
+        mBodyController->CommandMgr().DeliverCmd(CBCMeleeAttackCmd(pas::kS_Zero));
       }
       break;
     case 2:
-      if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() != pas::kAS_MeleeAttack) {
-        x568_stateProg = 4;
+      if (mBodyController->GetBodyStateInfo().GetCurrentStateId() != pas::kAS_MeleeAttack) {
+        mStateProg = 4;
       } else {
-        x450_bodyController->CommandMgr().DeliverTargetVector(x2e0_destPos - GetTranslation());
+        mBodyController->CommandMgr().DeliverTargetVector(mDestPos - GetTranslation());
       }
       break;
     default:
@@ -577,11 +577,11 @@ void CBeetle::DoubleSnap(CStateManager& mgr, EStateMsg msg, float dt) {
 void CBeetle::Shuffle(CStateManager& mgr, EStateMsg msg, float dt) {
   switch (msg) {
   case kStateMsg_Activate:
-    x328_24_inPosition = false;
+    mInPosition = false;
     break;
   case kStateMsg_Update: {
     const CVector3f playerPos = mgr.GetPlayer()->GetTranslation();
-    const float midRange = (x2fc_minAttackRange + x300_maxAttackRange) * 0.5f;
+    const float midRange = (mMinAttackRange + mMaxAttackRange) * 0.5f;
     const CVector3f playerToThis = GetTranslation() - playerPos;
     const CVector3f& playerLimit = playerToThis.CanBeNormalized()
                                        ? playerPos + midRange * playerToThis.AsNormalized()
@@ -594,31 +594,31 @@ void CBeetle::Shuffle(CStateManager& mgr, EStateMsg msg, float dt) {
       case pas::kSD_Forward:
       case pas::kSD_Backward: {
         const CVector3f move =
-            x45c_steeringBehaviors.Arrival(*this, x2e0_destPos, x300_maxAttackRange);
+            mSteeringBehaviors.Arrival(*this, mDestPos, mMaxAttackRange);
         const CVector3f forward = GetTransform().GetForward();
 
         if (CVector3f::Dot(forward, move) >= 0.f || CVector3f::Dot(forward, playerToThis) >= 0.f) {
-          x450_bodyController->CommandMgr().DeliverCmd(
+          mBodyController->CommandMgr().DeliverCmd(
               CBCLocomotionCmd(move, CVector3f::Zero(), 1.f));
         } else {
           const CVector3f faceDir =
               playerToThis.CanBeNormalized() ? -playerToThis.AsNormalized() : forward;
-          x450_bodyController->CommandMgr().DeliverCmd(CBCLocomotionCmd(move, faceDir, 1.f));
+          mBodyController->CommandMgr().DeliverCmd(CBCLocomotionCmd(move, faceDir, 1.f));
         }
         break;
       }
       case pas::kSD_Left:
       case pas::kSD_Right:
-        x450_bodyController->CommandMgr().DeliverCmd(
+        mBodyController->CommandMgr().DeliverCmd(
             CBCStepCmd(static_cast< pas::EStepDirection >(stepDir), pas::kStep_Normal));
         break;
       default:
         break;
       }
 
-      x450_bodyController->CommandMgr().DeliverTargetVector(-playerToThis);
+      mBodyController->CommandMgr().DeliverTargetVector(-playerToThis);
     } else {
-      x328_24_inPosition = true;
+      mInPosition = true;
     }
     break;
   }
@@ -627,9 +627,9 @@ void CBeetle::Shuffle(CStateManager& mgr, EStateMsg msg, float dt) {
   }
 }
 
-bool CBeetle::HitSomething(CStateManager& mgr, float arg) { return x838_24_hitSomething; }
+bool CBeetle::HitSomething(CStateManager& mgr, float arg) { return mHitSomething; }
 
-bool CBeetle::Stuck(CStateManager& mgr, float arg) { return x820_posDeviationCounter > 30; }
+bool CBeetle::Stuck(CStateManager& mgr, float arg) { return mPosDeviationCounter > 30; }
 
 bool CBeetle::ShouldTurn(CStateManager& mgr, float arg) {
   CVector2f delta2f = (mgr.GetPlayer()->GetTranslation() - GetTranslation()).ToVec2f();
@@ -640,26 +640,26 @@ bool CBeetle::ShouldTurn(CStateManager& mgr, float arg) {
 void CBeetle::TurnAround(CStateManager& mgr, EStateMsg msg, float dt) {
   switch (msg) {
   case kStateMsg_Activate:
-    x568_stateProg = 0;
+    mStateProg = 0;
     break;
 
   case kStateMsg_Update:
-    switch (x568_stateProg) {
+    switch (mStateProg) {
     case 0:
-      if (x450_bodyController->GetCurrentStateId() == pas::kAS_Turn) {
-        x568_stateProg = 2;
+      if (mBodyController->GetCurrentStateId() == pas::kAS_Turn) {
+        mStateProg = 2;
       } else {
         CVector3f thisToPlayer = mgr.GetPlayer()->GetTranslation() - GetTranslation();
         CVector3f faceVec = thisToPlayer.Magnitude() > FLT_EPSILON ? thisToPlayer.AsNormalized()
                                                                    : CVector3f::Zero();
-        x450_bodyController->CommandMgr().DeliverCmd(
+        mBodyController->CommandMgr().DeliverCmd(
             CBCLocomotionCmd(CVector3f::Zero(), faceVec, 1.f));
       }
       break;
 
     case 2:
-      if (x450_bodyController->GetCurrentStateId() != pas::kAS_Turn) {
-        x568_stateProg = 4;
+      if (mBodyController->GetCurrentStateId() != pas::kAS_Turn) {
+        mStateProg = 4;
       }
       break;
 
@@ -673,10 +673,10 @@ void CBeetle::TurnAround(CStateManager& mgr, EStateMsg msg, float dt) {
   }
 }
 
-bool CBeetle::AnimOver(CStateManager& mgr, float arg) { return x568_stateProg == 4; }
+bool CBeetle::AnimOver(CStateManager& mgr, float arg) { return mStateProg == 4; }
 
 bool CBeetle::ShouldTaunt(CStateManager& mgr, float arg) {
-  if (const CTeamAiRole* role = CTeamAiMgr::GetTeamAiRole(mgr, x570_aiMgr, GetUniqueId())) {
+  if (const CTeamAiRole* role = CTeamAiMgr::GetTeamAiRole(mgr, mAiMgr, GetUniqueId())) {
     if (role->GetTeamAiRole() == CTeamAiRole::kTAR_Unknown ||
         role->GetTeamAiRole() == CTeamAiRole::kTAR_Unassigned) {
       const CVector3f delta = role->GetTeamPosition() - GetTranslation();
@@ -688,8 +688,8 @@ bool CBeetle::ShouldTaunt(CStateManager& mgr, float arg) {
 }
 
 bool CBeetle::ShotAt(CStateManager& mgr, float arg) {
-  if (x3fc_flavor == kFT_Two && x6e0_retreatPoints.size() > 0) {
-    return x400_24_hitByPlayerProjectile != 0;
+  if (mFlavor == kFT_Two && mRetreatPoints.size() > 0) {
+    return mHitByPlayerProjectile != 0;
   }
 
   return false;
@@ -699,20 +699,20 @@ bool CBeetle::PatternOver(CStateManager& mgr, float arg) { return AnimOver(mgr, 
 void CBeetle::Skid(CStateManager&, EStateMsg msg, float) {
   switch (msg) {
   case kStateMsg_Activate:
-    if (IsOnGround() && x838_26_canSkid) {
-      x450_bodyController->CommandMgr().DeliverCmd(CBCSlideCmd(pas::kSlide_Zero, GetTranslation()));
-      x568_stateProg = 2;
+    if (IsOnGround() && mCanSkid) {
+      mBodyController->CommandMgr().DeliverCmd(CBCSlideCmd(pas::kSlide_Zero, GetTranslation()));
+      mStateProg = 2;
     }
     break;
 
   case kStateMsg_Update:
-    if (x450_bodyController->GetCurrentStateId() != pas::kAS_Slide) {
-      x568_stateProg = 4;
+    if (mBodyController->GetCurrentStateId() != pas::kAS_Slide) {
+      mStateProg = 4;
     }
     break;
 
   case kStateMsg_Deactivate:
-    x838_26_canSkid = false;
+    mCanSkid = false;
     break;
 
   default:
@@ -723,16 +723,16 @@ void CBeetle::Skid(CStateManager&, EStateMsg msg, float) {
 void CBeetle::Taunt(CStateManager& mgr, EStateMsg msg, float dt) {
   switch (msg) {
   case kStateMsg_Activate:
-    x450_bodyController->CommandMgr().DeliverCmd(
+    mBodyController->CommandMgr().DeliverCmd(
         CBCTauntCmd(mgr.Random()->Float() < 0.75f ? pas::kTT_One : pas::kTT_Zero));
-    x568_stateProg = 2;
+    mStateProg = 2;
     break;
 
   case kStateMsg_Update:
-    if (x450_bodyController->GetCurrentStateId() != pas::kAS_Taunt) {
-      x568_stateProg = 4;
+    if (mBodyController->GetCurrentStateId() != pas::kAS_Taunt) {
+      mStateProg = 4;
     } else {
-      x450_bodyController->CommandMgr().DeliverTargetVector(mgr.GetPlayer()->GetTranslation() -
+      mBodyController->CommandMgr().DeliverTargetVector(mgr.GetPlayer()->GetTranslation() -
                                                             GetTranslation());
     }
     break;
@@ -746,7 +746,7 @@ void CBeetle::PathFind(CStateManager& mgr, EStateMsg msg, float dt) {
   switch (msg) {
   case kStateMsg_Activate:
     if (GetSearchPath()) {
-      RefinePathFindDest(mgr, x2e0_destPos);
+      RefinePathFindDest(mgr, mDestPos);
       CPatterned::PathFind(mgr, msg, dt);
     }
     break;
@@ -758,19 +758,19 @@ void CBeetle::PathFind(CStateManager& mgr, EStateMsg msg, float dt) {
     const CVector3f delta = dest - GetTranslation();
     CVector3f move;
     if (!PathShagged(mgr, 0.f) &&
-        x5fc_pathFindSearch.xc8_curWaypoint < x5fc_pathFindSearch.x4_waypoints.size() - 1) {
+        mPathFindSearch.mCurWaypoint < mPathFindSearch.mWaypoints.size() - 1) {
       CPatterned::PathFind(mgr, msg, dt);
-      move = x450_bodyController->CommandMgr().GetMoveVector();
+      move = mBodyController->CommandMgr().GetMoveVector();
     } else {
-      move = x45c_steeringBehaviors.Arrival(*this, dest, 5.f);
+      move = mSteeringBehaviors.Arrival(*this, dest, 5.f);
     }
 
     const CVector3f forward = GetTransform().GetForward();
     if (CVector3f::Dot(forward, move) >= 0.f || CVector3f::Dot(forward, delta) <= 0.f) {
-      x450_bodyController->CommandMgr().DeliverCmd(CBCLocomotionCmd(move, CVector3f::Zero(), 1.f));
+      mBodyController->CommandMgr().DeliverCmd(CBCLocomotionCmd(move, CVector3f::Zero(), 1.f));
     } else {
       const CVector3f face = delta.CanBeNormalized() ? delta.AsNormalized() : forward;
-      x450_bodyController->CommandMgr().DeliverCmd(CBCLocomotionCmd(move, face, 1.f));
+      mBodyController->CommandMgr().DeliverCmd(CBCLocomotionCmd(move, face, 1.f));
     }
 
     SeparateFromMelees(mgr);
@@ -785,57 +785,57 @@ void CBeetle::PathFind(CStateManager& mgr, EStateMsg msg, float dt) {
 void CBeetle::Retreat(CStateManager& mgr, EStateMsg msg, float dt) {
   switch (msg) {
   case kStateMsg_Activate:
-    x568_stateProg = 0;
+    mStateProg = 0;
     SquadRemove(mgr);
-    x818_stateFinishTimer = 0.f;
-    x3b4_speed = 2.f * x81c_speedBackup;
+    mStateFinishTimer = 0.f;
+    mSpeed = 2.f * mSpeedBackup;
     break;
 
   case kStateMsg_Update:
-    switch (x568_stateProg) {
+    switch (mStateProg) {
     case 0:
-      if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() == pas::kAS_Generate) {
+      if (mBodyController->GetBodyStateInfo().GetCurrentStateId() == pas::kAS_Generate) {
         RemoveMaterial(kMT_Character, kMT_Solid, kMT_Target, kMT_Orbit, mgr);
         mgr.Player()->TryToBreakOrbit(GetUniqueId(), CPlayer::kOB_ActivateOrbitSource, mgr);
-        x838_25_burrowing = true;
-        x5a8_animTimeRem = x450_bodyController->GetAnimTimeRemaining();
-        x568_stateProg = 2;
+        mBurrowing = true;
+        mAnimTimeRem = mBodyController->GetAnimTimeRemaining();
+        mStateProg = 2;
       } else if (IsOnGround()) {
-        x450_bodyController->CommandMgr().DeliverCmd(CBCGenerateCmd(pas::kGType_One, -1));
+        mBodyController->CommandMgr().DeliverCmd(CBCGenerateCmd(pas::kGType_One, -1));
       } else {
         const CVector3f move =
-            x45c_steeringBehaviors.Seek(*this, mgr.GetPlayer()->GetTranslation());
-        x450_bodyController->CommandMgr().DeliverCmd(
+            mSteeringBehaviors.Seek(*this, mgr.GetPlayer()->GetTranslation());
+        mBodyController->CommandMgr().DeliverCmd(
             CBCLocomotionCmd(move, CVector3f::Zero(), 1.f));
       }
       break;
 
     case 2:
-      if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() != pas::kAS_Generate) {
-        x568_stateProg = 3;
-        x830_intoGroundFactor = 0.f;
+      if (mBodyController->GetBodyStateInfo().GetCurrentStateId() != pas::kAS_Generate) {
+        mStateProg = 3;
+        mIntoGroundFactor = 0.f;
 
         CAABox aabb = GetBoundingBox();
         const float downScale = 3.f * (aabb.GetMaxPoint().GetZ() - aabb.GetMinPoint().GetZ());
         const CVector3f downMove = downScale * CVector3f::Down();
         SetTranslation(GetTranslation() + downMove);
       } else {
-        const float remTime = x450_bodyController->GetAnimTimeRemaining();
-        x830_intoGroundFactor = x5a8_animTimeRem > 0.f ? remTime / x5a8_animTimeRem : 0.f;
+        const float remTime = mBodyController->GetAnimTimeRemaining();
+        mIntoGroundFactor = mAnimTimeRem > 0.f ? remTime / mAnimTimeRem : 0.f;
       }
       break;
 
     case 3:
-      x818_stateFinishTimer += dt;
-      if (x818_stateFinishTimer >= x834_retreatTime) {
-        x568_stateProg = 4;
-        x830_intoGroundFactor = 0.f;
+      mStateFinishTimer += dt;
+      if (mStateFinishTimer >= mRetreatTime) {
+        mStateProg = 4;
+        mIntoGroundFactor = 0.f;
       } else {
         CAABox aabb = GetBoundingBox();
         const float downScale = 3.f * (aabb.GetMaxPoint().GetZ() - aabb.GetMinPoint().GetZ());
         const CVector3f downMove = downScale * CVector3f::Down();
         const CVector3f retreatMove =
-            x834_retreatTime > 0.f ? (1.f / x834_retreatTime) * downMove : downMove;
+            mRetreatTime > 0.f ? (1.f / mRetreatTime) * downMove : downMove;
         SetTranslation(GetTranslation() + dt * retreatMove);
       }
       break;
@@ -848,16 +848,16 @@ void CBeetle::Retreat(CStateManager& mgr, EStateMsg msg, float dt) {
   case kStateMsg_Deactivate: {
     const s32 point = FindFurthestRetreatPoint(mgr);
     if (point != -1) {
-      SetTranslation(x6e0_retreatPoints[point]);
+      SetTranslation(mRetreatPoints[point]);
       AddMaterial(kMT_Character, kMT_Solid, kMT_Target, kMT_Orbit, mgr);
     } else {
       SendScriptMsgs(kSS_DeactivateState, mgr, kSM_None);
       mgr.DeleteObjectRequest(GetUniqueId());
     }
 
-    x400_24_hitByPlayerProjectile = false;
-    x3b4_speed = x81c_speedBackup;
-    x838_25_burrowing = false;
+    mHitByPlayerProjectile = false;
+    mSpeed = mSpeedBackup;
+    mBurrowing = false;
     break;
   }
 
@@ -873,13 +873,13 @@ void CBeetle::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUs
   switch (type) {
   case kUE_ChangeMaterial:
     AddMaterial(kMT_Character, kMT_Solid, mgr);
-    x328_25_verticalMovement = true;
+    mVerticalMovement = true;
     RemoveMaterial(kMT_GroundCollider, mgr);
     handled = true;
     break;
 
   case kUE_GenerateEnd:
-    x328_25_verticalMovement = false;
+    mVerticalMovement = false;
     AddMaterial(kMT_GroundCollider, mgr);
     handled = true;
     break;
@@ -895,7 +895,7 @@ void CBeetle::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUs
       CMaterialFilter filter =
           CMaterialFilter::MakeIncludeExclude(CMaterialList(kMT_Solid), CMaterialList());
       mgr.ApplyDamage(GetUniqueId(), mgr.GetPlayer()->GetUniqueId(), GetUniqueId(),
-                      x584_touchDamage, filter, CVector3f::Zero());
+                      mTouchDamage, filter, CVector3f::Zero());
     }
 
     handled = true;
@@ -920,8 +920,8 @@ void CBeetle::Think(float dt, CStateManager& mgr) {
     return;
   }
 
-  if (const CTeamAiRole* role = CTeamAiMgr::GetTeamAiRole(mgr, x570_aiMgr, GetUniqueId())) {
-    CBodyController* bodyCtrl = x450_bodyController.get();
+  if (const CTeamAiRole* role = CTeamAiMgr::GetTeamAiRole(mgr, mAiMgr, GetUniqueId())) {
+    CBodyController* bodyCtrl = mBodyController.get();
     pas::ELocomotionType locomotion = pas::kLT_Relaxed;
     if (role->GetTeamAiRole() == CTeamAiRole::kTAR_Melee) {
       locomotion = pas::kLT_Lurk;
@@ -929,25 +929,25 @@ void CBeetle::Think(float dt, CStateManager& mgr) {
     bodyCtrl->SetLocomotionType(locomotion);
   } else {
     SquadAdd(mgr);
-    x450_bodyController->SetLocomotionType(pas::kLT_Lurk);
+    mBodyController->SetLocomotionType(pas::kLT_Lurk);
   }
 
-  x460_knockBackController.SetAutoResetImpulse(IsOnGround());
+  mKnockBackController.SetAutoResetImpulse(IsOnGround());
 
-  if (x814_attackDelayTimer > 0.f) {
-    x814_attackDelayTimer -= dt;
+  if (mAttackDelayTimer > 0.f) {
+    mAttackDelayTimer -= dt;
   }
 
-  CVector2f predictPos = (x824_predictPos - GetTranslation()).ToVec2f();
+  CVector2f predictPos = (mPredictPos - GetTranslation()).ToVec2f();
   if (CVector2f::Dot(predictPos, predictPos) > 0.1f * dt) {
-    ++x820_posDeviationCounter;
+    ++mPosDeviationCounter;
   } else {
-    x820_posDeviationCounter = 0;
+    mPosDeviationCounter = 0;
   }
 
   CPatterned::Think(dt, mgr);
 
-  x824_predictPos = GetTranslation() + dt * GetVelocityWR();
+  mPredictPos = GetTranslation() + dt * GetVelocityWR();
 }
 
 void CBeetle::CollidedWith(const TUniqueId& id, const CCollisionInfoList& list,
@@ -956,8 +956,8 @@ void CBeetle::CollidedWith(const TUniqueId& id, const CCollisionInfoList& list,
 
   for (int i = 0; i < list.GetCount(); ++i) {
     if (list[i].GetMaterialLeft().SharesMaterials(skEnvList) &&
-        x450_bodyController->GetCurrentStateId() == pas::kAS_MeleeAttack) {
-      x450_bodyController->CommandMgr().DeliverCmd(CBodyStateCmd(kBSC_NextState));
+        mBodyController->GetCurrentStateId() == pas::kAS_MeleeAttack) {
+      mBodyController->CommandMgr().DeliverCmd(CBodyStateCmd(kBSC_NextState));
       SetVelocityWR(CVector3f::Zero());
     }
   }
@@ -967,18 +967,18 @@ void CBeetle::CollidedWith(const TUniqueId& id, const CCollisionInfoList& list,
 
 void CBeetle::Burn(float duration, float damage) {
   CDamageVulnerability dVuln = *GetDamageVulnerability();
-  if (!x838_25_burrowing && x3fc_flavor == kFT_One) {
-    dVuln = x7ac_tailVuln;
+  if (!mBurrowing && mFlavor == kFT_One) {
+    dVuln = mTailVuln;
   }
 
   switch (dVuln.GetVulnerability(CWeaponMode(kWT_Wave), CDamageVulnerability::kRD_No)) {
   case kVN_Weak:
-    x450_bodyController->SetOnFire(1.5f * duration);
-    x3ec_pendingFireDamage = 1.5f * damage;
+    mBodyController->SetOnFire(1.5f * duration);
+    mPendingFireDamage = 1.5f * damage;
     break;
   case kVN_Normal:
-    x450_bodyController->SetOnFire(duration);
-    x3ec_pendingFireDamage = damage;
+    mBodyController->SetOnFire(duration);
+    mPendingFireDamage = damage;
     break;
   default:
     break;
@@ -987,18 +987,18 @@ void CBeetle::Burn(float duration, float damage) {
 
 void CBeetle::Shock(float duration, float damage) {
   CDamageVulnerability dVuln = *GetDamageVulnerability();
-  if (!x838_25_burrowing && x3fc_flavor == kFT_One) {
-    dVuln = x7ac_tailVuln;
+  if (!mBurrowing && mFlavor == kFT_One) {
+    dVuln = mTailVuln;
   }
 
   switch (dVuln.GetVulnerability(CWeaponMode(kWT_Wave), CDamageVulnerability::kRD_No)) {
   case kVN_Weak:
-    x450_bodyController->SetElectrocuting(1.5f * duration);
-    x3f0_pendingShockDamage = 1.5f * damage;
+    mBodyController->SetElectrocuting(1.5f * duration);
+    mPendingShockDamage = 1.5f * damage;
     break;
   case kVN_Normal:
-    x450_bodyController->SetElectrocuting(duration);
-    x3f0_pendingShockDamage = damage;
+    mBodyController->SetElectrocuting(duration);
+    mPendingShockDamage = damage;
     break;
   default:
     break;
@@ -1008,14 +1008,14 @@ void CBeetle::Shock(float duration, float damage) {
 const CDamageVulnerability* CBeetle::GetDamageVulnerability(const CVector3f& position,
                                                             const CVector3f& direction,
                                                             const CDamageInfo& damage) const {
-  if (x838_25_burrowing) {
+  if (mBurrowing) {
     return &CDamageVulnerability::PassThroughVulnerability();
   }
 
-  if (x3fc_flavor == kFT_One) {
+  if (mFlavor == kFT_One) {
     const CWeaponMode& mode = damage.GetWeaponMode();
     if (mode.IsComboed() && mode.GetType() == kWT_Wave) {
-      return &x7ac_tailVuln;
+      return &mTailVuln;
     }
 
     CUnitVector3f centerToPositionDir(position - GetBoundingBox().GetCenterPoint());
@@ -1024,25 +1024,25 @@ const CDamageVulnerability* CBeetle::GetDamageVulnerability(const CVector3f& pos
     float forwardDotCenterPos = CVector3f::Dot(forward, centerToPositionDir);
 
     if (forwardDotDirection > 0.f && forwardDotCenterPos < -0.5f) {
-      return &x7ac_tailVuln;
+      return &mTailVuln;
     }
 
-    return &x744_platingVuln;
+    return &mPlatingVuln;
   }
 
   return static_cast< const CActor* >(this)->GetDamageVulnerability();
 }
 
 const CDamageVulnerability* CBeetle::GetDamageVulnerability() const {
-  if (x838_25_burrowing) {
+  if (mBurrowing) {
     return &CDamageVulnerability::PassThroughVulnerability();
   }
 
-  if (x3fc_flavor == kFT_One) {
-    if (x450_bodyController->IsOnFire()) {
-      return &x7ac_tailVuln;
+  if (mFlavor == kFT_One) {
+    if (mBodyController->IsOnFire()) {
+      return &mTailVuln;
     }
-    return &x744_platingVuln;
+    return &mPlatingVuln;
   }
 
   return CAi::GetDamageVulnerability();
@@ -1054,11 +1054,11 @@ EWeaponCollisionResponseTypes CBeetle::GetCollisionResponseType(const CVector3f&
                                                                 int attrib) const {
   EWeaponCollisionResponseTypes ret = kWCR_Unknown19;
 
-  if (x450_bodyController->IsFrozen() && mode.GetType() == kWT_Ice) {
+  if (mBodyController->IsFrozen() && mode.GetType() == kWT_Ice) {
     ret = kWCR_None;
-  } else if (x838_25_burrowing) {
+  } else if (mBurrowing) {
     ret = kWCR_Unknown69;
-  } else if (x3fc_flavor == kFT_One) {
+  } else if (mFlavor == kFT_One) {
     CUnitVector3f centerToPositionDir(position - GetBoundingBox().GetCenterPoint());
     const CVector3f forward = GetTransform().GetForward();
     float forwardDotDirection = CVector3f::Dot(GetTransform().GetForward(), direction);
@@ -1066,7 +1066,7 @@ EWeaponCollisionResponseTypes CBeetle::GetCollisionResponseType(const CVector3f&
 
     if (forwardDotDirection > 0.f && forwardDotCenterPos < -0.5f) {
       ret = kWCR_Unknown44;
-    } else if (!x744_platingVuln.WeaponHurts(mode, CDamageVulnerability::kRD_No)) {
+    } else if (!mPlatingVuln.WeaponHurts(mode, CDamageVulnerability::kRD_No)) {
       ret = kWCR_Unknown69;
     }
   }
@@ -1075,15 +1075,15 @@ EWeaponCollisionResponseTypes CBeetle::GetCollisionResponseType(const CVector3f&
 }
 
 void CBeetle::TakeDamage(const CVector3f& direction, float magnitude) {
-  x428_damageCooldownTimer = CPatterned::skDamageHitTime;
+  mDamageCooldownTimer = CPatterned::skDamageHitTime;
 }
 
 CVector3f CBeetle::GetAimPosition(const CStateManager& mgr, float dt) const {
-  if (x3fc_flavor == kFT_One || x3fc_flavor == kFT_Two) {
+  if (mFlavor == kFT_One || mFlavor == kFT_Two) {
     CTransform4f tailXf = GetLctrTransform(rstl::string_l(kDamageLctrName));
 
     float minFactor = 10.f;
-    CVector3f scaleRange = tailXf * x574_tailAimReference - GetTranslation();
+    CVector3f scaleRange = tailXf * mTailAimReference - GetTranslation();
     const CAABox& aabb = GetBoundingBox();
     for (int i = 0; i < 3; ++i) {
       if (scaleRange[i] < 0.f) {
@@ -1106,16 +1106,16 @@ CVector3f CBeetle::GetAimPosition(const CStateManager& mgr, float dt) const {
 }
 
 void CBeetle::Render(const CStateManager& mgr) const {
-  if (x3fc_flavor == kFT_One && x400_25_alive) {
+  if (mFlavor == kFT_One && mAlive) {
     CTransform4f tailXf = GetLctrTransform(rstl::string_l(kBetaLctrName));
 
-    if (x428_damageCooldownTimer >= 0.f && x42c_color.GetAlphau8() == 255) {
-      if (x5ac_tailModel.valid()) {
-        x5ac_tailModel->Render(mgr, tailXf, GetActorLights(),
-                               CModelFlags(CModelFlags::kT_Two, x42c_color));
+    if (mDamageCooldownTimer >= 0.f && mColor.GetAlphau8() == 255) {
+      if (mTailModel.valid()) {
+        mTailModel->Render(mgr, tailXf, GetActorLights(),
+                               CModelFlags(CModelFlags::kT_Two, mColor));
       }
-    } else if (x5ac_tailModel.valid()) {
-      x5ac_tailModel->Render(mgr, tailXf, GetActorLights(),
+    } else if (mTailModel.valid()) {
+      mTailModel->Render(mgr, tailXf, GetActorLights(),
                              CModelFlags(CModelFlags::kT_Opaque, 1.f));
     }
   }
@@ -1124,8 +1124,8 @@ void CBeetle::Render(const CStateManager& mgr) const {
 }
 
 void CBeetle::Death(CStateManager& mgr, const CVector3f& direction, EScriptObjectState state) {
-  if (x400_25_alive) {
-    if (x3fc_flavor == kFT_One) {
+  if (mAlive) {
+    if (mFlavor == kFT_One) {
       CTransform4f backupXf = GetTransform();
       SetTransform(GetLctrTransform(rstl::string_l(kBetaLctrName)));
       SendScriptMsgs(kSS_DeathRattle, mgr, kSM_None);
@@ -1138,8 +1138,8 @@ void CBeetle::Death(CStateManager& mgr, const CVector3f& direction, EScriptObjec
 }
 
 void CBeetle::SquadAdd(CStateManager& mgr) {
-  if (x570_aiMgr != kInvalidUniqueId) {
-    if (CTeamAiMgr* aiMgr = TCastToPtr< CTeamAiMgr >(mgr.ObjectById(x570_aiMgr))) {
+  if (mAiMgr != kInvalidUniqueId) {
+    if (CTeamAiMgr* aiMgr = TCastToPtr< CTeamAiMgr >(mgr.ObjectById(mAiMgr))) {
       aiMgr->AssignTeamAiRole(*this, CTeamAiRole::kTAR_Melee, CTeamAiRole::kTAR_Unknown,
                               CTeamAiRole::kTAR_Invalid);
     }
@@ -1147,8 +1147,8 @@ void CBeetle::SquadAdd(CStateManager& mgr) {
 }
 
 void CBeetle::SquadRemove(CStateManager& mgr) {
-  if (x570_aiMgr != kInvalidUniqueId) {
-    if (CTeamAiMgr* aiMgr = TCastToPtr< CTeamAiMgr >(mgr.ObjectById(x570_aiMgr))) {
+  if (mAiMgr != kInvalidUniqueId) {
+    if (CTeamAiMgr* aiMgr = TCastToPtr< CTeamAiMgr >(mgr.ObjectById(mAiMgr))) {
       if (aiMgr->IsPartOfTeam(GetUniqueId())) {
         aiMgr->RemoveTeamAiRole(GetUniqueId());
       }
@@ -1158,7 +1158,7 @@ void CBeetle::SquadRemove(CStateManager& mgr) {
 
 CVector3f CBeetle::GetOrigin(const CStateManager& mgr, const CTeamAiRole& role,
                              const CVector3f& aimPos) const {
-  const float midRange = 0.5f * (x2fc_minAttackRange + x300_maxAttackRange);
+  const float midRange = 0.5f * (mMinAttackRange + mMaxAttackRange);
   const CVector3f playerToThis = GetTranslation() - aimPos;
   const CVector3f ret = playerToThis.CanBeNormalized()
                             ? aimPos + midRange * playerToThis.AsNormalized()
@@ -1173,15 +1173,15 @@ void CBeetle::SeparateFromMelees(CStateManager& mgr) {
       if (ai != this && ai->GetCurrentAreaId() == GetCurrentAreaId()) {
         float dist = 4.f;
         if (const CTeamAiRole* role =
-                CTeamAiMgr::GetTeamAiRole(mgr, x570_aiMgr, ai->GetUniqueId())) {
+                CTeamAiMgr::GetTeamAiRole(mgr, mAiMgr, ai->GetUniqueId())) {
           if (role->GetTeamAiRole() == CTeamAiRole::kTAR_Melee) {
             dist *= 2.f;
           }
         }
 
-        const CVector3f move = x45c_steeringBehaviors.Separation(*this, ai->GetTranslation(), dist);
+        const CVector3f move = mSteeringBehaviors.Separation(*this, ai->GetTranslation(), dist);
         if (move.IsNonZero()) {
-          x450_bodyController->CommandMgr().DeliverCmd(
+          mBodyController->CommandMgr().DeliverCmd(
               CBCLocomotionCmd(move, CVector3f::Zero(), 1.f));
         }
       }
@@ -1192,11 +1192,11 @@ void CBeetle::SeparateFromMelees(CStateManager& mgr) {
 void CBeetle::SetupRetreatPoints(CStateManager& mgr) {
   for (rstl::vector< SConnection >::const_iterator conn = GetConnectionList().begin();
        conn != GetConnectionList().end(); ++conn) {
-    if (conn->x0_state == kSS_Retreat && conn->x4_msg == kSM_Follow) {
-      TUniqueId wpId = mgr.GetIdForScript(conn->x8_objId);
+    if (conn->mState == kSS_Retreat && conn->mMsg == kSM_Follow) {
+      TUniqueId wpId = mgr.GetIdForScript(conn->mObjId);
       if (const CScriptWaypoint* wp = TCastToConstPtr< CScriptWaypoint >(mgr.GetObjectById(wpId))) {
-        x6e0_retreatPoints.push_back(wp->GetTranslation());
-        if (x6e0_retreatPoints.size() == 8) {
+        mRetreatPoints.push_back(wp->GetTranslation());
+        if (mRetreatPoints.size() == 8) {
           break;
         }
       }
@@ -1206,17 +1206,17 @@ void CBeetle::SetupRetreatPoints(CStateManager& mgr) {
 
 s32 CBeetle::FindFurthestRetreatPoint(CStateManager& mgr) {
   s32 ret = -1;
-  if (x6e0_retreatPoints.size() > 0) {
+  if (mRetreatPoints.size() > 0) {
     CVector2f playerPos = mgr.GetPlayer()->GetTranslation().ToVec2f();
 
-    ret = mgr.Random()->Range(0, x6e0_retreatPoints.size() - 1);
+    ret = mgr.Random()->Range(0, mRetreatPoints.size() - 1);
 
-    CVector2f retreatPos(x6e0_retreatPoints[ret].GetX(), x6e0_retreatPoints[ret].GetY());
+    CVector2f retreatPos(mRetreatPoints[ret].GetX(), mRetreatPoints[ret].GetY());
     CVector2f maxDelta = playerPos - retreatPos;
     float maxDist = maxDelta.MagSquared();
     if (maxDist < 100.f) {
-      for (int i = 0; i < x6e0_retreatPoints.size(); ++i) {
-        CVector2f pointPos(x6e0_retreatPoints[i].GetX(), x6e0_retreatPoints[i].GetY());
+      for (int i = 0; i < mRetreatPoints.size(); ++i) {
+        CVector2f pointPos(mRetreatPoints[i].GetX(), mRetreatPoints[i].GetY());
         CVector2f delta = playerPos - pointPos;
         const float dist = delta.MagSquared();
         if (dist > maxDist) {
@@ -1231,20 +1231,20 @@ s32 CBeetle::FindFurthestRetreatPoint(CStateManager& mgr) {
 }
 
 void CBeetle::PreRender(CStateManager& mgr, const CFrustumPlanes& frustum) {
-  if (x400_25_alive) {
+  if (mAlive) {
     switch (mgr.GetPlayerState()->GetActiveVisor(mgr)) {
     case CPlayerState::kPV_XRay:
-      x42c_color.SetAlpha(0.3f);
+      mColor.SetAlpha(0.3f);
       break;
     case CPlayerState::kPV_Thermal:
-      if (x838_25_burrowing) {
-        x42c_color.SetAlpha(x830_intoGroundFactor);
+      if (mBurrowing) {
+        mColor.SetAlpha(mIntoGroundFactor);
       } else {
-        x42c_color.SetAlpha(1.f);
+        mColor.SetAlpha(1.f);
       }
       break;
     default:
-      x42c_color.SetAlpha(1.f);
+      mColor.SetAlpha(1.f);
       break;
     }
   }
@@ -1255,13 +1255,13 @@ void CBeetle::PreRender(CStateManager& mgr, const CFrustumPlanes& frustum) {
 void CBeetle::RefinePathFindDest(CStateManager& mgr, CVector3f& dest) {
   dest = mgr.GetPlayer()->GetTranslation();
 
-  if (const CTeamAiRole* role = CTeamAiMgr::GetTeamAiRole(mgr, x570_aiMgr, GetUniqueId())) {
+  if (const CTeamAiRole* role = CTeamAiMgr::GetTeamAiRole(mgr, mAiMgr, GetUniqueId())) {
     dest = role->GetTeamPosition();
   } else {
     CVector3f thisToDest = dest - GetTranslation();
     const CVector3f thisToDestNorm =
         thisToDest.CanBeNormalized() ? -thisToDest.AsNormalized() : GetTransform().GetForward();
-    const float midRange = 0.5f * (x2fc_minAttackRange + x300_maxAttackRange);
+    const float midRange = 0.5f * (mMinAttackRange + mMaxAttackRange);
     dest += midRange * thisToDestNorm;
   }
 }
@@ -1274,4 +1274,4 @@ bool CBeetle::PathShagged(CStateManager& mgr, float arg) { return false; }
 
 bool CBeetle::NoPathNodes(CStateManager& mgr, float arg) { return false; }
 
-CPathFindSearch* CBeetle::GetSearchPath() { return &x5fc_pathFindSearch; }
+CPathFindSearch* CBeetle::GetSearchPath() { return &mPathFindSearch; }

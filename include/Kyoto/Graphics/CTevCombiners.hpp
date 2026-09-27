@@ -29,32 +29,32 @@ public:
   class ColorVar {
   public:
     ColorVar(EColorSrc src);
-    ColorVar(const ColorVar& other) : x0_src(other.GetSource()) {}
+    ColorVar(const ColorVar& other) : mSrc(other.GetSource()) {}
 
-    EColorSrc GetSource() const { return x0_src; }
+    EColorSrc GetSource() const { return mSrc; }
 
   private:
-    EColorSrc x0_src;
+    EColorSrc mSrc;
   };
 
   class ColorPass {
   public:
     ColorPass(const ColorVar& a, const ColorVar& b, const ColorVar& c, const ColorVar& d)
-    : x0_a(a), x4_b(b), x8_c(c), xc_d(d) {}
+    : mA(a), mB(b), mC(c), mD(d) {}
 
     ColorPass(const ColorPass& other)
-    : x0_a(other.x0_a), x4_b(other.x4_b), x8_c(other.x8_c), xc_d(other.xc_d) {}
+    : mA(other.mA), mB(other.mB), mC(other.mC), mD(other.mD) {}
 
-    ColorVar GetA() const { return x0_a; }
-    ColorVar GetB() const { return x4_b; }
-    ColorVar GetC() const { return x8_c; }
-    ColorVar GetD() const { return xc_d; }
+    ColorVar GetA() const { return mA; }
+    ColorVar GetB() const { return mB; }
+    ColorVar GetC() const { return mC; }
+    ColorVar GetD() const { return mD; }
 
   private:
-    ColorVar x0_a;
-    ColorVar x4_b;
-    ColorVar x8_c;
-    ColorVar xc_d;
+    ColorVar mA;
+    ColorVar mB;
+    ColorVar mC;
+    ColorVar mD;
   };
 
   enum EAlphaSrc {
@@ -71,32 +71,32 @@ public:
   class AlphaVar {
   public:
     AlphaVar(EAlphaSrc src);
-    AlphaVar(const AlphaVar& other) : x0_src(other.GetSource()) {}
+    AlphaVar(const AlphaVar& other) : mSrc(other.GetSource()) {}
 
-    EAlphaSrc GetSource() const { return x0_src; }
+    EAlphaSrc GetSource() const { return mSrc; }
 
   private:
-    EAlphaSrc x0_src;
+    EAlphaSrc mSrc;
   };
 
   class AlphaPass {
   public:
     AlphaPass(const AlphaVar& a, const AlphaVar& b, const AlphaVar& c, const AlphaVar& d)
-    : x0_a(a), x4_b(b), x8_c(c), xc_d(d) {}
+    : mA(a), mB(b), mC(c), mD(d) {}
 
     AlphaPass(const AlphaPass& other)
-    : x0_a(other.x0_a), x4_b(other.x4_b), x8_c(other.x8_c), xc_d(other.xc_d) {}
+    : mA(other.mA), mB(other.mB), mC(other.mC), mD(other.mD) {}
 
-    AlphaVar GetA() const { return x0_a; }
-    AlphaVar GetB() const { return x4_b; }
-    AlphaVar GetC() const { return x8_c; }
-    AlphaVar GetD() const { return xc_d; }
+    AlphaVar GetA() const { return mA; }
+    AlphaVar GetB() const { return mB; }
+    AlphaVar GetC() const { return mC; }
+    AlphaVar GetD() const { return mD; }
 
   private:
-    AlphaVar x0_a;
-    AlphaVar x4_b;
-    AlphaVar x8_c;
-    AlphaVar xc_d;
+    AlphaVar mA;
+    AlphaVar mB;
+    AlphaVar mC;
+    AlphaVar mD;
   };
 
   enum ETevOp {
@@ -128,46 +128,46 @@ public:
   public:
     CTevOp(ETevOp op = kTO_Add, ETevBias bias = kTB_Zero, ETevScale scale = kTS_Scale1,
            bool clamp = true, ETevOutput output = kTO_Previous)
-    : x0_clamp(clamp), x4_op(op), x8_bias(bias), xc_scale(scale), x10_output(output) {}
+    : mClamp(clamp), mOp(op), mBias(bias), mScale(scale), mOutput(output) {}
     CTevOp(const CTevOp& other)
-    : x0_clamp(other.GetClamp())
-    , x4_op(other.GetOp())
-    , x8_bias(other.GetBias())
-    , xc_scale(other.GetScale())
-    , x10_output(other.GetOutput()) {}
+    : mClamp(other.GetClamp())
+    , mOp(other.GetOp())
+    , mBias(other.GetBias())
+    , mScale(other.GetScale())
+    , mOutput(other.GetOutput()) {}
 
-    bool GetClamp() const { return x0_clamp; }
-    ETevOp GetOp() const { return x4_op; }
-    ETevBias GetBias() const { return x8_bias; }
-    ETevScale GetScale() const { return xc_scale; }
-    ETevOutput GetOutput() const { return x10_output; }
+    bool GetClamp() const { return mClamp; }
+    ETevOp GetOp() const { return mOp; }
+    ETevBias GetBias() const { return mBias; }
+    ETevScale GetScale() const { return mScale; }
+    ETevOutput GetOutput() const { return mOutput; }
 
   private:
-    bool x0_clamp;
-    ETevOp x4_op;
-    ETevBias x8_bias;
-    ETevScale xc_scale;
-    ETevOutput x10_output;
+    bool mClamp;
+    ETevOp mOp;
+    ETevBias mBias;
+    ETevScale mScale;
+    ETevOutput mOutput;
   };
 
   class CTevPass {
   public:
     CTevPass(const ColorPass& colorPass, const AlphaPass& alphaPass,
              const CTevOp& colorOp = CTevOp(), const CTevOp& alphaOp = CTevOp())
-    : x0_id(sNextUniquePass++)
-    , x4_colorPass(colorPass)
-    , x14_alphaPass(alphaPass)
-    , x24_colorOp(colorOp)
-    , x38_alphaOp(alphaOp) {}
+    : mId(sNextUniquePass++)
+    , mColorPass(colorPass)
+    , mAlphaPass(alphaPass)
+    , mColorOp(colorOp)
+    , mAlphaOp(alphaOp) {}
 
     void Execute(int) const;
 
   private:
-    uint x0_id;
-    ColorPass x4_colorPass;
-    AlphaPass x14_alphaPass;
-    CTevOp x24_colorOp;
-    CTevOp x38_alphaOp;
+    uint mId;
+    ColorPass mColorPass;
+    AlphaPass mAlphaPass;
+    CTevOp mColorOp;
+    CTevOp mAlphaOp;
   };
 
   static void RecomputePasses();

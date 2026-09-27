@@ -89,15 +89,15 @@ CHECK_SIZEOF(CAllFormatsAnimSource, 0x7c)
 template < typename T >
 class TSubAnimTypeToken {
 public:
-  TSubAnimTypeToken(const TLockedToken< CAllFormatsAnimSource >& tok) : x0_token(tok) {
-    x0_token->GetFormatPointer(xc_source);
+  TSubAnimTypeToken(const TLockedToken< CAllFormatsAnimSource >& tok) : mToken(tok) {
+    mToken->GetFormatPointer(mSource);
   }
-  const T* operator->() const { return xc_source; }
-  const T& operator*() const { return *xc_source; }
+  const T* operator->() const { return mSource; }
+  const T& operator*() const { return *mSource; }
 
 private:
-  TLockedToken< CAllFormatsAnimSource > x0_token;
-  const T* xc_source;
+  TLockedToken< CAllFormatsAnimSource > mToken;
+  const T* mSource;
 };
 
 const CFactoryFnReturn AnimSourceFactory(const SObjectTag& tag, CInputStream& in,

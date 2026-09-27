@@ -24,24 +24,24 @@ CTryclops::CTryclops(TUniqueId uid, const rstl::string& name, const CEntityInfo&
                      float suckRange, float launchSpeed)
 : CPatterned(kC_Tryclops, uid, name, kFT_Zero, info, xf, mData, pInfo, kMT_Ground, kCT_One,
              kBT_BiPedal, actParms, kCS_Small)
-, x568_pathFindSearch(nullptr, 1, pInfo.GetPathfindingIndex(), 1.f, 1.f)
-, x64c_playerRotation(CTransform4f::Identity())
-, x67c_suckForceMultiplier(suckForceMultiplier)
-, x680_minSuckAngleProj(cosf(CRelAngle::FromDegrees(suckAngle * 0.5f).AsRadians()))
-, x684_suckRange(suckRange)
-, x688_launchSpeed(launchSpeed)
-, x68c_ignoreMorphballTimer(0.f)
+, mPathFindSearch(nullptr, 1, pInfo.GetPathfindingIndex(), 1.f, 1.f)
+, mPlayerRotation(CTransform4f::Identity())
+, mSuckForceMultiplier(suckForceMultiplier)
+, mMinSuckAngleProj(cosf(CRelAngle::FromDegrees(suckAngle * 0.5f).AsRadians()))
+, mSuckRange(suckRange)
+, mLaunchSpeed(launchSpeed)
+, mIgnoreMorphballTimer(0.f)
 , x690_(0)
-, x694_bombId(kInvalidUniqueId)
+, mBombId(kInvalidUniqueId)
 , x696_(kInvalidUniqueId)
-, x698_24_shotTarget(false)
-, x698_25_targetingBomb(false)
-, x698_26_vulnerable(false)
-, x698_27_dizzy(false) {
+, mShotTarget(false)
+, mTargetingBomb(false)
+, mVulnerable(false)
+, mDizzy(false) {
   SetDrawShadow(false);
   MakeThermalColdAndHot();
   KnockBackCtrl().SetAutoResetImpulse(false);
-  x328_30_lookAtDeathDir = false;
+  mLookAtDeathDir = false;
 }
 
 CTryclops::~CTryclops() {}
@@ -56,18 +56,18 @@ void CTryclops::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateM
     const TAreaId areaId = GetCurrentAreaId();
     const CGameArea::CPostConstructed* constructed =
         mgr.GetWorld()->GetAreaAlways(areaId).GetPostConstructed();
-    x568_pathFindSearch.SetArea(constructed->x10bc_pathArea);
+    mPathFindSearch.SetArea(constructed->mPathArea);
   } break;
   }
 }
 
 bool CTryclops::InMaxRange(CStateManager& mgr, float arg) {
-  if (x694_bombId != kInvalidUniqueId) {
+  if (mBombId != kInvalidUniqueId) {
     return true;
   }
 
-  const float detectionRange = x3bc_detectionRange;
-  const float detectionHeight = x3c0_detectionHeightRange;
+  const float detectionRange = mDetectionRange;
+  const float detectionHeight = mDetectionHeightRange;
   float nearestDistSq = detectionRange * detectionRange;
   const float heightSq = detectionHeight * detectionHeight;
   const float negRange = -detectionRange;
@@ -76,7 +76,7 @@ bool CTryclops::InMaxRange(CStateManager& mgr, float arg) {
                           CVector3f(detectionRange, detectionRange, detectionHeight));
   TEntityList nearList;
   mgr.BuildNearList(nearList, bounds, CMaterialFilter::MakeInclude(CMaterialList(kMT_Bomb)), this);
-  x694_bombId = kInvalidUniqueId;
+  mBombId = kInvalidUniqueId;
   for (AUTO(it, nearList.begin()); it != nearList.end(); ++it) {
     if (const CBomb* const bomb = TCastToConstPtr< CBomb >(mgr.GetObjectById(*it))) {
       if (!bomb->IsBeingDragged()) {
@@ -88,8 +88,8 @@ bool CTryclops::InMaxRange(CStateManager& mgr, float arg) {
             inHeightRange = delta.GetZ() * delta.GetZ() < heightSq;
           }
           if (inHeightRange &&
-              x568_pathFindSearch.OnPath(bomb->GetTranslation()) == CPathFindSearch::kR_Success) {
-            x694_bombId = bomb->GetUniqueId();
+              mPathFindSearch.OnPath(bomb->GetTranslation()) == CPathFindSearch::kR_Success) {
+            mBombId = bomb->GetUniqueId();
             nearestDistSq = distSq;
           }
         }
@@ -97,8 +97,8 @@ bool CTryclops::InMaxRange(CStateManager& mgr, float arg) {
     }
   }
 
-  if (x694_bombId != kInvalidUniqueId) {
-    if (CBomb* bomb = TCastToPtr< CBomb >(mgr.ObjectById(x694_bombId))) {
+  if (mBombId != kInvalidUniqueId) {
+    if (CBomb* bomb = TCastToPtr< CBomb >(mgr.ObjectById(mBombId))) {
       bomb->SetFuseDisabled(true);
       bomb->SetIsBeingDragged(true);
 
@@ -112,21 +112,21 @@ bool CTryclops::InMaxRange(CStateManager& mgr, float arg) {
 bool CTryclops::InDetectionRange(CStateManager& mgr, float arg) {
   const CPlayer& player = *mgr.GetPlayer();
   const bool unattached = player.GetAttachedActor() == kInvalidUniqueId;
-  const bool ignore = x68c_ignoreMorphballTimer > 0.f;
+  const bool ignore = mIgnoreMorphballTimer > 0.f;
   if (player.GetMorphballTransitionState() == CPlayer::kMS_Morphed && unattached && !ignore &&
       CPatterned::InDetectionRange(mgr, arg)) {
-    return x568_pathFindSearch.OnPath(player.GetBallPosition()) == CPathFindSearch::kR_Success;
+    return mPathFindSearch.OnPath(player.GetBallPosition()) == CPathFindSearch::kR_Success;
   }
   return false;
 }
 
 void CTryclops::Think(float dt, CStateManager& mgr) {
   CPatterned::Think(dt, mgr);
-  if (x400_25_alive && x68c_ignoreMorphballTimer > 0.f) {
-    x68c_ignoreMorphballTimer -= dt;
+  if (mAlive && mIgnoreMorphballTimer > 0.f) {
+    mIgnoreMorphballTimer -= dt;
   }
-  if (mgr.GetPlayer()->GetAttachedActor() == GetUniqueId() && !x698_27_dizzy) {
-    x698_27_dizzy =
+  if (mgr.GetPlayer()->GetAttachedActor() == GetUniqueId() && !mDizzy) {
+    mDizzy =
         mgr.GetPlayer()->GetAttachedActorStruggle() == 1.f && !BallCloseToCollision(mgr);
   }
 }
@@ -135,11 +135,11 @@ void CTryclops::TargetCover(CStateManager& mgr, EStateMsg msg, float) {
   switch (msg) {
   case kStateMsg_Activate:
     BodyCtrl()->SetLocomotionType(pas::kLT_Relaxed);
-    if (x694_bombId != kInvalidUniqueId) {
-      if (const CBomb* bomb = TCastToConstPtr< CBomb >(mgr.GetObjectById(x694_bombId))) {
+    if (mBombId != kInvalidUniqueId) {
+      if (const CBomb* bomb = TCastToConstPtr< CBomb >(mgr.GetObjectById(mBombId))) {
         SetDestPos(bomb->GetTranslation());
       } else {
-        x694_bombId = kInvalidUniqueId;
+        mBombId = kInvalidUniqueId;
       }
     }
     break;
@@ -159,8 +159,8 @@ bool CTryclops::InAttackPosition(CStateManager& mgr, float) {
 }
 
 bool CTryclops::InRange(CStateManager& mgr, float) {
-  if (x694_bombId != kInvalidUniqueId) {
-    if (const CBomb* bomb = TCastToConstPtr< CBomb >(mgr.GetObjectById(x694_bombId))) {
+  if (mBombId != kInvalidUniqueId) {
+    if (const CBomb* bomb = TCastToConstPtr< CBomb >(mgr.GetObjectById(mBombId))) {
       const CVector3f pos = bomb->GetTranslation();
       return ObjectInVortexArea(pos, pos, *bomb->GetTouchBounds(), mgr);
     }
@@ -192,8 +192,8 @@ bool CTryclops::ObjectInVortexArea(const CVector3f& pos, const CVector3f& center
       return false;
     }
   }
-  if (distance < x684_suckRange) {
-    return projection > 0.f && angleProjection > x680_minSuckAngleProj;
+  if (distance < mSuckRange) {
+    return projection > 0.f && angleProjection > mMinSuckAngleProj;
   }
   return false;
 }
@@ -209,13 +209,13 @@ bool CTryclops::Inside(CStateManager& mgr, float arg) {
   const CTransform4f& xf = player.GetTransform();
   const CVector3f pos =
       xf.GetTranslation() + CVector3f(0.f, 0.f, player.GetMorphBall()->GetBallRadius());
-  x64c_playerRotation = xf.GetRotation();
+  mPlayerRotation = xf.GetRotation();
   return TargetCaught(pos, arg);
 }
 
 bool CTryclops::InPosition(CStateManager& mgr, float arg) {
-  if (x694_bombId != kInvalidUniqueId) {
-    if (const CBomb* bomb = TCastToConstPtr< CBomb >(mgr.GetObjectById(x694_bombId))) {
+  if (mBombId != kInvalidUniqueId) {
+    if (const CBomb* bomb = TCastToConstPtr< CBomb >(mgr.GetObjectById(mBombId))) {
       return TargetCaught(bomb->GetTranslation(), arg);
     }
   }
@@ -223,13 +223,13 @@ bool CTryclops::InPosition(CStateManager& mgr, float arg) {
 }
 
 bool CTryclops::HearShot(CStateManager& mgr, float) {
-  x698_26_vulnerable = false;
-  if (x694_bombId != kInvalidUniqueId) {
-    if (TCastToConstPtr< CBomb >(mgr.GetObjectById(x694_bombId))) {
-      x698_26_vulnerable = true;
+  mVulnerable = false;
+  if (mBombId != kInvalidUniqueId) {
+    if (TCastToConstPtr< CBomb >(mgr.GetObjectById(mBombId))) {
+      mVulnerable = true;
       return false;
     }
-    x694_bombId = kInvalidUniqueId;
+    mBombId = kInvalidUniqueId;
     return true;
   }
   return true;
@@ -261,7 +261,7 @@ void CTryclops::SelectTarget(CStateManager& mgr, EStateMsg msg, float dt) {
     CPlayer& player = *mgr.Player();
     player.EnableLeaveMorphBall(true);
     player.AddMaterial(kMT_Solid, mgr);
-    x698_25_targetingBomb = true;
+    mTargetingBomb = true;
     BodyCtrl()->SetLocomotionType(pas::kLT_Internal6);
     break;
   }
@@ -281,7 +281,7 @@ void CTryclops::AttractPlayer(CStateManager& mgr, float dt) {
       player.Stop();
       CenterPlayer(mgr, xf.GetTranslation(), dt);
     } else {
-      const float force = x67c_suckForceMultiplier * (x684_suckRange / (distance * distance));
+      const float force = mSuckForceMultiplier * (mSuckRange / (distance * distance));
       const CVector3f massDirection = player.GetMass() * -delta;
       const CVector3f forceVector = force * massDirection;
       player.ApplyForceWR(forceVector, CAxisAngle::Identity());
@@ -290,7 +290,7 @@ void CTryclops::AttractPlayer(CStateManager& mgr, float dt) {
 }
 
 void CTryclops::AttractBomb(CStateManager& mgr, float dt) {
-  if (CBomb* bomb = TCastToPtr< CBomb >(mgr.ObjectById(x694_bombId))) {
+  if (CBomb* bomb = TCastToPtr< CBomb >(mgr.ObjectById(mBombId))) {
     const CTransform4f xf = GetLctrTransform(rstl::string_l(kMouthLctr));
     const CVector3f target = xf.GetTranslation() + kBombPosOffset;
     const CVector3f position = bomb->GetTranslation();
@@ -352,11 +352,11 @@ void CTryclops::JumpBack(CStateManager& mgr, EStateMsg msg, float) {
     if (const CActor* waypoint = TCastToConstPtr< CActor >(mgr.GetObjectById(waypointId))) {
       SetDestPos(waypoint->GetTranslation());
     }
-    if (x694_bombId != kInvalidUniqueId) {
-      if (CBomb* bomb = TCastToPtr< CBomb >(mgr.ObjectById(x694_bombId))) {
+    if (mBombId != kInvalidUniqueId) {
+      if (CBomb* bomb = TCastToPtr< CBomb >(mgr.ObjectById(mBombId))) {
         bomb->SetFuseDisabled(false);
       } else {
-        x694_bombId = kInvalidUniqueId;
+        mBombId = kInvalidUniqueId;
       }
     }
     SendScriptMsgs(kSS_Inside, mgr, kSM_None);
@@ -422,13 +422,13 @@ void CTryclops::SetPlayerPosition(CStateManager& mgr, const CVector3f&) {
   CPlayer& player = *mgr.Player();
   player.Stop();
   player.RemoveMaterial(kMT_Solid, mgr);
-  CTransform4f xf = GetLctrTransform(rstl::string_l(kMouthLctr)) * x64c_playerRotation;
+  CTransform4f xf = GetLctrTransform(rstl::string_l(kMouthLctr)) * mPlayerRotation;
   xf.AddTranslation(CVector3f(0.f, 0.f, -0.5f));
   player.SetTransform(xf);
 }
 
 void CTryclops::SetBombPosition(CStateManager& mgr) {
-  if (CBomb* bomb = TCastToPtr< CBomb >(mgr.ObjectById(x694_bombId))) {
+  if (CBomb* bomb = TCastToPtr< CBomb >(mgr.ObjectById(mBombId))) {
     CTransform4f xf = GetLctrTransform(rstl::string_l(kMouthLctr));
     xf.AddTranslation(kBombPosOffset);
     bomb->SetTransform(xf);
@@ -442,18 +442,18 @@ void CTryclops::Attack(CStateManager& mgr, EStateMsg msg, float) {
     player.Stop();
     player.RemoveMaterial(kMT_Solid, mgr);
     mgr.Player()->EnableLeaveMorphBall(false);
-    x32c_animState = kAS_Ready;
-    x698_24_shotTarget = false;
+    mAnimState = kAS_Ready;
+    mShotTarget = false;
     break;
   case kStateMsg_Update:
     TryCommand(mgr, pas::kAS_MeleeAttack, &CPatterned::TryMeleeAttack, 1);
-    if (!x698_24_shotTarget) {
+    if (!mShotTarget) {
       const CTransform4f xf = GetLctrTransform(rstl::string_l(kMouthLctr));
       SetPlayerPosition(mgr, xf.GetTranslation());
     }
     break;
   case kStateMsg_Deactivate: {
-    x32c_animState = kAS_NotReady;
+    mAnimState = kAS_NotReady;
     if (mgr.GetPlayer()->GetAttachedActor() == GetUniqueId()) {
       player.DetachActorFromPlayer();
     }
@@ -468,17 +468,17 @@ void CTryclops::Attack(CStateManager& mgr, EStateMsg msg, float) {
 void CTryclops::GetUp(CStateManager& mgr, EStateMsg msg, float) {
   switch (msg) {
   case kStateMsg_Activate:
-    x32c_animState = kAS_Ready;
-    x698_24_shotTarget = false;
+    mAnimState = kAS_Ready;
+    mShotTarget = false;
     break;
   case kStateMsg_Update:
     TryCommand(mgr, pas::kAS_MeleeAttack, &CPatterned::TryMeleeAttack, 1);
-    if (!x698_24_shotTarget) {
+    if (!mShotTarget) {
       SetBombPosition(mgr);
     }
     break;
   case kStateMsg_Deactivate:
-    x32c_animState = kAS_NotReady;
+    mAnimState = kAS_NotReady;
     break;
   }
 }
@@ -488,10 +488,10 @@ void CTryclops::ShootPlayer(CStateManager& mgr, const CTransform4f& xf, float sp
   const CVector3f direction = xf.GetForward().AsNormalized();
   player.EnableLeaveMorphBall(true);
   if (player.GetMorphballTransitionState() == CPlayer::kMS_Morphed) {
-    x698_24_shotTarget = true;
-    x68c_ignoreMorphballTimer = 1.5f;
+    mShotTarget = true;
+    mIgnoreMorphballTimer = 1.5f;
     player.Stop();
-    CTransform4f playerXf = xf * x64c_playerRotation;
+    CTransform4f playerXf = xf * mPlayerRotation;
     playerXf.AddTranslation(CVector3f(0.f, 0.f, -0.5f));
     player.Teleport(playerXf, mgr, false);
     player.ApplyImpulseWR(speed * (player.GetMass() * direction), CAxisAngle::Identity());
@@ -505,22 +505,22 @@ void CTryclops::ShootPlayer(CStateManager& mgr, const CTransform4f& xf, float sp
 }
 
 void CTryclops::ShootBomb(CStateManager& mgr, const CTransform4f& xf) {
-  if (x694_bombId != kInvalidUniqueId) {
+  if (mBombId != kInvalidUniqueId) {
     const CVector3f direction = xf.GetForward().AsNormalized();
-    if (CBomb* bomb = TCastToPtr< CBomb >(mgr.ObjectById(x694_bombId))) {
+    if (CBomb* bomb = TCastToPtr< CBomb >(mgr.ObjectById(mBombId))) {
       bomb->SetVelocityWR((mgr.Random()->Float() * 5.f + 20.f) * direction);
       bomb->SetConstantAccelerationWR(CVector3f(0.f, 0.f, -CPhysicsActor::GravityConstant()));
     }
   }
-  x698_26_vulnerable = false;
-  x698_24_shotTarget = true;
-  x694_bombId = kInvalidUniqueId;
+  mVulnerable = false;
+  mShotTarget = true;
+  mBombId = kInvalidUniqueId;
 }
 
 bool CTryclops::SpotPlayer(CStateManager& mgr, float) {
   const CPlayer& player = *mgr.GetPlayer();
-  if (x694_bombId != kInvalidUniqueId) {
-    if (CBomb* bomb = TCastToPtr< CBomb >(mgr.ObjectById(x694_bombId))) {
+  if (mBombId != kInvalidUniqueId) {
+    if (CBomb* bomb = TCastToPtr< CBomb >(mgr.ObjectById(mBombId))) {
       if (player.GetMorphballTransitionState() == CPlayer::kMS_Morphed) {
         const CVector3f playerDelta = player.GetTranslation() - GetTranslation();
         const CVector3f bombDelta = bomb->GetTranslation() - GetTranslation();
@@ -528,7 +528,7 @@ bool CTryclops::SpotPlayer(CStateManager& mgr, float) {
         if (closer) {
           bomb->SetFuseDisabled(false);
           bomb->SetIsBeingDragged(false);
-          x694_bombId = kInvalidUniqueId;
+          mBombId = kInvalidUniqueId;
         }
         return closer;
       }
@@ -541,7 +541,7 @@ void CTryclops::TurnAround(CStateManager& mgr, EStateMsg msg, float) {
   CPlayer& player = *mgr.Player();
   switch (msg) {
   case kStateMsg_Activate: {
-    if (x694_bombId == kInvalidUniqueId) {
+    if (mBombId == kInvalidUniqueId) {
       CPlayer& activePlayer = *mgr.Player();
       activePlayer.Stop();
       activePlayer.RemoveMaterial(kMT_Solid, mgr);
@@ -562,14 +562,14 @@ void CTryclops::TurnAround(CStateManager& mgr, EStateMsg msg, float) {
       direction.SetZ(0.f);
       SetDestPos(GetTranslation() + direction);
       if (CMath::AbsF(CVector3f::Dot(forward, direction)) < 0.9998f) {
-        x32c_animState = kAS_Ready;
+        mAnimState = kAS_Ready;
       }
     }
     break;
   }
   case kStateMsg_Update:
     TryCommand(mgr, pas::kAS_Turn, &CPatterned::TryTurn, 0);
-    if (x694_bombId == kInvalidUniqueId) {
+    if (mBombId == kInvalidUniqueId) {
       const CTransform4f xf = GetLctrTransform(rstl::string_l(kMouthLctr));
       SetPlayerPosition(mgr, xf.GetTranslation());
     } else {
@@ -577,7 +577,7 @@ void CTryclops::TurnAround(CStateManager& mgr, EStateMsg msg, float) {
     }
     break;
   case kStateMsg_Deactivate: {
-    x32c_animState = kAS_NotReady;
+    mAnimState = kAS_NotReady;
     CPlayer& currentPlayer = *mgr.Player();
     currentPlayer.EnableLeaveMorphBall(true);
     currentPlayer.AddMaterial(kMT_Solid, mgr);
@@ -594,9 +594,9 @@ void CTryclops::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, E
   bool handled = false;
   switch (type) {
   case kUE_Projectile:
-    if (x694_bombId == kInvalidUniqueId) {
+    if (mBombId == kInvalidUniqueId) {
       ShootPlayer(mgr, GetLctrTransform(node.GetLocatorName()),
-                  x698_27_dizzy ? 5.f : x688_launchSpeed);
+                  mDizzy ? 5.f : mLaunchSpeed);
     } else {
       ShootBomb(mgr, GetLctrTransform(node.GetLocatorName()));
     }
@@ -609,7 +609,7 @@ void CTryclops::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, E
 }
 
 const CDamageVulnerability* CTryclops::GetDamageVulnerability() const {
-  if (x698_26_vulnerable) {
+  if (mVulnerable) {
     return CAi::GetDamageVulnerability();
   }
   return &skPowerBombVulnerability;
@@ -617,7 +617,7 @@ const CDamageVulnerability* CTryclops::GetDamageVulnerability() const {
 
 const CDamageVulnerability* CTryclops::GetDamageVulnerability(const CVector3f&, const CVector3f&,
                                                               const CDamageInfo&) const {
-  if (x698_26_vulnerable) {
+  if (mVulnerable) {
     return CAi::GetDamageVulnerability();
   }
   return &skPowerBombVulnerability;
@@ -625,17 +625,17 @@ const CDamageVulnerability* CTryclops::GetDamageVulnerability(const CVector3f&, 
 
 void CTryclops::Death(CStateManager& mgr, const CVector3f& direction, EScriptObjectState state) {
   CPlayer& player = *mgr.Player();
-  if (x400_25_alive) {
+  if (mAlive) {
     if (player.GetAttachedActor() == GetUniqueId()) {
       player.EnableLeaveMorphBall(true);
       player.AddMaterial(kMT_Solid, mgr);
       player.DetachActorFromPlayer();
-    } else if (x694_bombId != kInvalidUniqueId) {
-      if (CBomb* bomb = TCastToPtr< CBomb >(mgr.ObjectById(x694_bombId))) {
+    } else if (mBombId != kInvalidUniqueId) {
+      if (CBomb* bomb = TCastToPtr< CBomb >(mgr.ObjectById(mBombId))) {
         bomb->SetFuseDisabled(false);
         bomb->SetIsBeingDragged(false);
       }
-      x694_bombId = kInvalidUniqueId;
+      mBombId = kInvalidUniqueId;
     }
   }
   CPatterned::Death(mgr, direction, state);
@@ -656,8 +656,8 @@ void CTryclops::TargetPatrol(CStateManager& mgr, EStateMsg msg, float dt) {
 void CTryclops::Cover(CStateManager& mgr, EStateMsg msg, float) {
   switch (msg) {
   case kStateMsg_Activate:
-    if (!x698_25_targetingBomb) {
-      x68c_ignoreMorphballTimer = 1.5f;
+    if (!mTargetingBomb) {
+      mIgnoreMorphballTimer = 1.5f;
     }
     CPlayer& player = *mgr.Player();
     if (player.GetAttachedActor() == GetUniqueId()) {
@@ -670,7 +670,7 @@ void CTryclops::Cover(CStateManager& mgr, EStateMsg msg, float) {
 }
 
 bool CTryclops::CoverBlown(CStateManager&, float) {
-  switch (x568_pathFindSearch.OnPath(GetTranslation())) {
+  switch (mPathFindSearch.OnPath(GetTranslation())) {
   case CPathFindSearch::kR_InvalidArea:
     return false;
   default:
@@ -678,7 +678,7 @@ bool CTryclops::CoverBlown(CStateManager&, float) {
   }
 }
 
-bool CTryclops::IsDizzy(CStateManager&, float) { return x698_27_dizzy; }
+bool CTryclops::IsDizzy(CStateManager&, float) { return mDizzy; }
 
 bool CTryclops::ShouldRetreat(CStateManager& mgr, float) {
   const TUniqueId waypointId = GetConnectedObject(mgr, kSS_Modify, kSM_Next);
@@ -695,7 +695,7 @@ void CTryclops::ApplySeparationBehavior(CStateManager& mgr) {
     if (const CPatterned* ai = TCastToConstPtr< CPatterned >(list[i])) {
       if (ai != this && ai->GetCurrentAreaId() == GetCurrentAreaId()) {
         const CVector3f separation =
-            x45c_steeringBehaviors.Separation(*this, ai->GetTranslation(), 8.f);
+            mSteeringBehaviors.Separation(*this, ai->GetTranslation(), 8.f);
         if (separation.IsNonZero()) {
           BodyCtrl()->CommandMgr().DeliverCmd(CBCLocomotionCmd(separation, CVector3f::Zero(), 1.f));
         }
@@ -722,11 +722,11 @@ void CTryclops::TargetPlayer(CStateManager& mgr, EStateMsg msg, float dt) {
   CPatterned::TargetPlayer(mgr, msg, dt);
   switch (msg) {
   case kStateMsg_Activate:
-    if (x694_bombId != kInvalidUniqueId) {
-      if (CBomb* bomb = TCastToPtr< CBomb >(mgr.ObjectById(x694_bombId))) {
+    if (mBombId != kInvalidUniqueId) {
+      if (CBomb* bomb = TCastToPtr< CBomb >(mgr.ObjectById(mBombId))) {
         bomb->SetFuseDisabled(false);
         bomb->SetIsBeingDragged(false);
-        x694_bombId = kInvalidUniqueId;
+        mBombId = kInvalidUniqueId;
       }
     }
     break;
@@ -740,24 +740,24 @@ void CTryclops::Dizzy(CStateManager& mgr, EStateMsg msg, float) {
     player.Stop();
     player.RemoveMaterial(kMT_Solid, mgr);
     mgr.Player()->EnableLeaveMorphBall(false);
-    x32c_animState = kAS_Ready;
-    x698_24_shotTarget = false;
+    mAnimState = kAS_Ready;
+    mShotTarget = false;
     break;
   case kStateMsg_Update:
     TryCommand(mgr, pas::kAS_MeleeAttack, &CPatterned::TryMeleeAttack, 0);
-    if (!x698_24_shotTarget) {
+    if (!mShotTarget) {
       const CTransform4f xf = GetLctrTransform(rstl::string_l(kMouthLctr));
       SetPlayerPosition(mgr, xf.GetTranslation());
     }
     break;
   case kStateMsg_Deactivate: {
-    x32c_animState = kAS_NotReady;
+    mAnimState = kAS_NotReady;
     CPlayer& currentPlayer = *mgr.Player();
     if (currentPlayer.GetAttachedActor() == GetUniqueId()) {
       currentPlayer.EnableLeaveMorphBall(true);
       currentPlayer.AddMaterial(kMT_Solid, mgr);
       player.DetachActorFromPlayer();
-      x698_27_dizzy = false;
+      mDizzy = false;
     }
     break;
   }

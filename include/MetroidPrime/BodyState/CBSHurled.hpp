@@ -26,15 +26,15 @@ private:
   bool ShouldStartStrikeWall(CBodyController& bc) const;
   bool ShouldStartLand(float dt, CBodyController& bc) const;
 
-  pas::EHurledState x4_state;
-  float x8_knockAngle;
-  int xc_animSeries;
-  float x10_rotateSpeed;
-  float x14_remTime;
-  float x18_curTime;
-  mutable CVector3f x1c_lastTranslation;
-  mutable float x28_landedDur;
-  bool x2c_24_needsRecover : 1;
+  pas::EHurledState mState;
+  float mKnockAngle;
+  int mAnimSeries;
+  float mRotateSpeed;
+  float mRemTime;
+  float mCurTime;
+  mutable CVector3f mLastTranslation;
+  mutable float mLandedDur;
+  bool mNeedsRecover : 1;
 };
 
 CHECK_SIZEOF(CBSHurled, 0x30)

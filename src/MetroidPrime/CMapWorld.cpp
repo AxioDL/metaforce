@@ -32,25 +32,25 @@ struct CMapObjectSortInfoGreaterThan {
 };
 
 class Circle2 {
-  CVector2f x0_center;
-  float x8_radius;
+  CVector2f mCenter;
+  float mRadius;
 
 public:
-  Circle2() : x0_center(CVector2f::Zero()), x8_radius(0.f) {}
-  CVector2f& Center() { return x0_center; }
-  float& Radius() { return x8_radius; }
-  const CVector2f& GetCenter() const { return x0_center; }
-  float GetRadius() const { return x8_radius; }
+  Circle2() : mCenter(CVector2f::Zero()), mRadius(0.f) {}
+  CVector2f& Center() { return mCenter; }
+  float& Radius() { return mRadius; }
+  const CVector2f& GetCenter() const { return mCenter; }
+  float GetRadius() const { return mRadius; }
 };
 CHECK_SIZEOF(Circle2, 0xc)
 
 struct Support {
-  int x0_count;
-  int x4_indices[3];
+  int mCount;
+  int mIndices[3];
 
   bool Contains(int idx, CVector2f** points) {
-    for (int i = 0; i < x0_count; ++i) {
-      const CVector2f delta = *points[idx] - *points[x4_indices[i]];
+    for (int i = 0; i < mCount; ++i) {
+      const CVector2f delta = *points[idx] - *points[mIndices[i]];
       if (delta.MagSquared() < 0.01f) {
         return true;
       }
@@ -64,32 +64,32 @@ static Circle2 MinCircle(int count, const CVector2f* points);
 
 CMapWorld::CMapObjectSortInfo::CMapObjectSortInfo(float zDist, int areaIdx, EObjectCode type,
                                                   int idx, CColor surfColor, CColor outlineColor)
-: x0_zDist(zDist)
-, x4_areaIdx(areaIdx)
-, x8_typeAndIdx(static_cast< int >(type) | idx)
-, xc_surfColor(surfColor)
-, x10_outlineColor(outlineColor) {}
+: mZDist(zDist)
+, mAreaIdx(areaIdx)
+, mTypeAndIdx(static_cast< int >(type) | idx)
+, mSurfColor(surfColor)
+, mOutlineColor(outlineColor) {}
 
 CMapWorld::CMapAreaData::CMapAreaData(CAssetId areaRes, EMapAreaList list, CMapAreaData* next)
-: x0_areaRes(areaRes)
-, x4_area(gpSimplePool->GetObj(SObjectTag('MAPA', areaRes)))
-, x10_list(list)
-, x14_next(next) {}
+: mAreaRes(areaRes)
+, mArea(gpSimplePool->GetObj(SObjectTag('MAPA', areaRes)))
+, mList(list)
+, mNext(next) {}
 
-void CMapWorld::CMapAreaData::Lock() { x4_area.Lock(); }
+void CMapWorld::CMapAreaData::Lock() { mArea.Lock(); }
 
-void CMapWorld::CMapAreaData::Unlock() { x4_area.Unlock(); }
+void CMapWorld::CMapAreaData::Unlock() { mArea.Unlock(); }
 
 bool CMapWorld::CMapAreaData::IsLoaded() const {
-  if (!x4_area.GetToken().IsLocked()) {
+  if (!mArea.GetToken().IsLocked()) {
     return false;
   }
-  return x4_area.TryCache();
+  return mArea.TryCache();
 }
 
 CMapArea* CMapWorld::CMapAreaData::GetMapArea() const {
-  x4_area.TryCache();
-  return x4_area.GetObject();
+  mArea.TryCache();
+  return mArea.GetObject();
 }
 
 CMapWorld::CMapWorldDrawParms::CMapWorldDrawParms(
@@ -97,57 +97,57 @@ CMapWorld::CMapWorldDrawParms::CMapWorldDrawParms(
     float alpha, const CStateManager& mgr, const CTransform4f& modelXf, const CTransform4f& viewXf,
     const IWorld& wld, const CMapWorldInfo& mwInfo, float outlineWidthScale, bool sortDoorSurfs,
     float playerFlash, float hintFlash, float objectScale)
-: x0_alphaSurfVisited(alphaSurfVisited)
-, x4_alphaOlVisited(alphaOlVisited)
-, x8_alphaSurfUnvisited(alphaSurfUnvisited)
-, xc_alphaOlUnvisited(alphaOlUnvisited)
-, x10_alpha(alpha)
-, x14_outlineWidthScale(outlineWidthScale)
-, x18_mgr(mgr)
-, x1c_modelXf(modelXf)
-, x20_viewXf(viewXf)
-, x24_wld(wld)
-, x28_mwInfo(mwInfo)
-, x2c_playerFlashIntensity(playerFlash)
-, x30_hintFlashIntensity(hintFlash)
-, x34_objectScale(objectScale)
-, x38_sortDoorSurfs(sortDoorSurfs) {}
+: mAlphaSurfVisited(alphaSurfVisited)
+, mAlphaOlVisited(alphaOlVisited)
+, mAlphaSurfUnvisited(alphaSurfUnvisited)
+, mAlphaOlUnvisited(alphaOlUnvisited)
+, mAlpha(alpha)
+, mOutlineWidthScale(outlineWidthScale)
+, mMgr(mgr)
+, mModelXf(modelXf)
+, mViewXf(viewXf)
+, mWld(wld)
+, mMwInfo(mwInfo)
+, mPlayerFlashIntensity(playerFlash)
+, mHintFlashIntensity(hintFlash)
+, mObjectScale(objectScale)
+, mSortDoorSurfs(sortDoorSurfs) {}
 
 CMapWorld::CMapAreaBFSInfo::CMapAreaBFSInfo(int areaIdx, int depth, float surfDepth,
                                             float outlineDepth)
-: x0_areaIdx(areaIdx)
-, x4_depth(depth)
-, x8_surfDrawDepth(surfDepth)
-, xc_outlineDrawDepth(outlineDepth) {}
+: mAreaIdx(areaIdx)
+, mDepth(depth)
+, mSurfDrawDepth(surfDepth)
+, mOutlineDrawDepth(outlineDepth) {}
 
 CMapWorld::CMapWorld(CInputStream& in)
-: x10_listHeads(3, nullptr)
-, x30_worldSpherePoint(CVector3f::Zero())
-, x3c_worldSphereRadius(0.f)
-, x40_worldSphereHalfDepth(0.f) {
+: mListHeads(3, nullptr)
+, mWorldSpherePoint(CVector3f::Zero())
+, mWorldSphereRadius(0.f)
+, mWorldSphereHalfDepth(0.f) {
   in.ReadLong();
   in.ReadLong();
   int areaCount = in.Get< int >();
-  x0_areas.reserve(areaCount);
-  x20_traversed = rstl::vector< bool >(areaCount, false);
+  mAreas.reserve(areaCount);
+  mTraversed = rstl::vector< bool >(areaCount, false);
   for (int i = 0; i < areaCount; ++i) {
     CAssetId areaRes = in.ReadLong();
-    x0_areas.push_back(CMapAreaData(areaRes, kMAL_Unloaded, i == 0 ? nullptr : &x0_areas[i - 1]));
+    mAreas.push_back(CMapAreaData(areaRes, kMAL_Unloaded, i == 0 ? nullptr : &mAreas[i - 1]));
   }
-  x10_listHeads[kMAL_Unloaded] = &x0_areas.back();
-  CMemoryDrawEnum::AddWorldMemory(x0_areas.capacity() * sizeof(CMapAreaData) + sizeof(*this));
+  mListHeads[kMAL_Unloaded] = &mAreas.back();
+  CMemoryDrawEnum::AddWorldMemory(mAreas.capacity() * sizeof(CMapAreaData) + sizeof(*this));
 }
 
 CMapWorld::~CMapWorld() {
-  CMemoryDrawEnum::SubtractWorldMemory(x0_areas.capacity() * sizeof(CMapAreaData) + sizeof(*this));
+  CMemoryDrawEnum::SubtractWorldMemory(mAreas.capacity() * sizeof(CMapAreaData) + sizeof(*this));
 }
 
-CMapArea* CMapWorld::GetMapArea(int aid) const { return x0_areas[aid].GetMapArea(); }
+CMapArea* CMapWorld::GetMapArea(int aid) const { return mAreas[aid].GetMapArea(); }
 
 bool CMapWorld::IsMapAreaInBFSInfoVector(const CMapAreaData* area,
                                          const rstl::vector< CMapAreaBFSInfo >& vec) const {
   for (AUTO(it, vec.begin()); it != vec.end(); ++it) {
-    if (area == &x0_areas[it->GetAreaIndex()]) {
+    if (area == &mAreas[it->GetAreaIndex()]) {
       return true;
     }
   }
@@ -157,10 +157,10 @@ bool CMapWorld::IsMapAreaInBFSInfoVector(const CMapAreaData* area,
 void CMapWorld::SetWhichMapAreasLoaded(const IWorld& wld, int start, int count) {
   ClearTraversedFlags();
   rstl::vector< CMapAreaBFSInfo > bfsInfos;
-  bfsInfos.reserve(x0_areas.size());
+  bfsInfos.reserve(mAreas.size());
   DoBFS(wld, start, count, 9999.f, 9999.f, false, bfsInfos);
   for (int i = 0; i < 2; ++i) {
-    CMapAreaData* data = x10_listHeads[i == 0 ? kMAL_Loaded : kMAL_Loading];
+    CMapAreaData* data = mListHeads[i == 0 ? kMAL_Loaded : kMAL_Loading];
     while (data != nullptr) {
       CMapAreaData* next = data->NextMapAreaData();
       if (!IsMapAreaInBFSInfoVector(data, bfsInfos)) {
@@ -171,7 +171,7 @@ void CMapWorld::SetWhichMapAreasLoaded(const IWorld& wld, int start, int count) 
     }
   }
   for (AUTO(it, bfsInfos.begin()); it != bfsInfos.end(); ++it) {
-    CMapAreaData& data = x0_areas[it->GetAreaIndex()];
+    CMapAreaData& data = mAreas[it->GetAreaIndex()];
     data.Lock();
     if (data.GetContainingList() == kMAL_Unloaded) {
       MoveMapAreaToList(&data, kMAL_Loading);
@@ -181,7 +181,7 @@ void CMapWorld::SetWhichMapAreasLoaded(const IWorld& wld, int start, int count) 
 
 bool CMapWorld::IsMapAreasStreaming() const {
   bool streaming = false;
-  CMapAreaData* data = x10_listHeads[kMAL_Loading];
+  CMapAreaData* data = mListHeads[kMAL_Loading];
   while (data != nullptr) {
     CMapAreaData* next = data->NextMapAreaData();
     if (data->IsLoaded()) {
@@ -197,27 +197,27 @@ bool CMapWorld::IsMapAreasStreaming() const {
 
 void CMapWorld::MoveMapAreaToList(CMapAreaData* data, EMapAreaList list) {
   CMapAreaData* previous = nullptr;
-  for (CMapAreaData* current = x10_listHeads[data->GetContainingList()];;
+  for (CMapAreaData* current = mListHeads[data->GetContainingList()];;
        previous = current, current = current->NextMapAreaData()) {
     if (current == data) {
       CMapAreaData* next = current->NextMapAreaData();
       if (previous == nullptr) {
-        x10_listHeads[data->GetContainingList()] = next;
+        mListHeads[data->GetContainingList()] = next;
       } else {
         previous->SetNextMapArea(next);
       }
       break;
     }
   }
-  data->SetNextMapArea(x10_listHeads[list]);
+  data->SetNextMapArea(mListHeads[list]);
   data->SetContainingList(list);
-  x10_listHeads[list] = data;
+  mListHeads[list] = data;
 }
 
 int CMapWorld::GetCurrentMapAreaDepth(const IWorld& wld, int aid) const {
   ClearTraversedFlags();
   rstl::vector< CMapAreaBFSInfo > bfsInfos;
-  bfsInfos.reserve(x0_areas.size());
+  bfsInfos.reserve(mAreas.size());
   DoBFS(wld, aid, 9999, 9999.f, 9999.f, false, bfsInfos);
   if (bfsInfos.empty()) {
     return 0;
@@ -228,8 +228,8 @@ int CMapWorld::GetCurrentMapAreaDepth(const IWorld& wld, int aid) const {
 rstl::vector< int > CMapWorld::GetVisibleAreas(const IWorld& wld,
                                                const CMapWorldInfo& mwInfo) const {
   rstl::vector< int > areas;
-  areas.reserve(x0_areas.size());
-  for (int i = 0; i < x0_areas.size(); ++i) {
+  areas.reserve(mAreas.size());
+  for (int i = 0; i < mAreas.size(); ++i) {
     if (!IsMapAreaValid(wld, i, true)) {
       continue;
     }
@@ -250,9 +250,9 @@ void CMapWorld::Draw(const CMapWorldDrawParms& parms, int curArea, int otherArea
   const IWorld& wld = parms.GetWorld();
   int areaDepth = CMath::CeilingF(rstl::max_val(depth1, depth2));
   rstl::vector< CMapAreaBFSInfo > bfsInfos;
-  bfsInfos.reserve(x0_areas.size());
+  bfsInfos.reserve(mAreas.size());
   if (curArea != otherArea) {
-    x20_traversed[otherArea] = true;
+    mTraversed[otherArea] = true;
     DoBFS(wld, curArea, areaDepth, depth1, depth2, true, bfsInfos);
     float lowDepth1 = CMath::CeilingF(depth1 - 1.f);
     float newDepth1 =
@@ -264,7 +264,7 @@ void CMapWorld::Draw(const CMapWorldDrawParms& parms, int curArea, int otherArea
         (depth2 == CMath::FloorF(depth2) ? 0.f : 1.f - static_cast< float >(fmod(depth2, 1.0)));
     int otherDepth = CMath::CeilingF(rstl::max_val(newDepth1, newDepth2));
     if (wld.IGetAreaAlways(otherArea)->IIsActive()) {
-      x20_traversed[otherArea] = false;
+      mTraversed[otherArea] = false;
       DoBFS(wld, otherArea, otherDepth, newDepth1, newDepth2, true, bfsInfos);
     }
   } else {
@@ -279,7 +279,7 @@ void CMapWorld::DoBFS(const IWorld& wld, int startArea, int areaCount, float sur
   if (areaCount > 0 && IsMapAreaValid(wld, startArea, checkLoad)) {
     int idx = bfsInfos.size();
     bfsInfos.push_back(CMapAreaBFSInfo(startArea, 1, surfDepth, outlineDepth));
-    x20_traversed[startArea] = true;
+    mTraversed[startArea] = true;
     for (;; ++idx) {
       if (idx == bfsInfos.size()) {
         break;
@@ -294,9 +294,9 @@ void CMapWorld::DoBFS(const IWorld& wld, int startArea, int areaCount, float sur
       const IGameArea* area = wld.IGetAreaAlways(areaIdx);
       for (int i = 0; i < static_cast< int >(area->IGetNumAttachedAreas()); ++i) {
         int attached = area->IGetAttachedAreaId(i).Value();
-        if (IsMapAreaValid(wld, attached, checkLoad) && !x20_traversed[attached]) {
+        if (IsMapAreaValid(wld, attached, checkLoad) && !mTraversed[attached]) {
           bfsInfos.push_back(CMapAreaBFSInfo(attached, depth + 1, surfaceDepth, outlineDepth));
-          x20_traversed[attached] = true;
+          mTraversed[attached] = true;
         }
       }
     }
@@ -353,14 +353,14 @@ void CMapWorld::DrawAreas(const CMapWorldDrawParms& parms, int selArea,
     bool visited = mwInfo.IsAreaVisited(areaIdx);
     float alphaSurf = visited ? alphaSurfVisited : alphaSurfUnvisited;
     float alphaOutline = visited ? alphaOutlineVisited : alphaOutlineUnvisited;
-    CColor surfaceColor = visited ? gpTweakAutoMapper->x3c_surfColorVisited
-                                  : gpTweakAutoMapper->x44_surfColorUnvisited;
-    CColor outlineColor = visited ? gpTweakAutoMapper->x40_outlineColorVisited
-                                  : gpTweakAutoMapper->x48_outlineColorUnvisited;
-    CColor surfaceSelect = visited ? gpTweakAutoMapper->x4c_surfaceSelectColorVisited
-                                   : gpTweakAutoMapper->x7c_surfaceSelectColorUnvisited;
-    CColor outlineSelect = visited ? gpTweakAutoMapper->x50_outlineSelectColorVisited
-                                   : gpTweakAutoMapper->x80_outlineSelectColorUnvisited;
+    CColor surfaceColor = visited ? gpTweakAutoMapper->mSurfColorVisited
+                                  : gpTweakAutoMapper->mSurfColorUnvisited;
+    CColor outlineColor = visited ? gpTweakAutoMapper->mOutlineColorVisited
+                                  : gpTweakAutoMapper->mOutlineColorUnvisited;
+    CColor surfaceSelect = visited ? gpTweakAutoMapper->mSurfaceSelectColorVisited
+                                   : gpTweakAutoMapper->mSurfaceSelectColorUnvisited;
+    CColor outlineSelect = visited ? gpTweakAutoMapper->mOutlineSelectColorVisited
+                                   : gpTweakAutoMapper->mOutlineSelectColorUnvisited;
     CColor hintFlash =
         CColor::Lerp(CColor(0u), CColor(uchar(255), uchar(255), uchar(255), uchar(0)),
                      parms.GetHintAreaFlashIntensity());
@@ -373,7 +373,7 @@ void CMapWorld::DrawAreas(const CMapWorldDrawParms& parms, int selArea,
     if ((selArea != playerArea || parms.GetHintAreaFlashIntensity() == 0.f) &&
         playerArea == areaIdx && this == mgr.GetWorld()->GetMapWorld()) {
       float pulse = parms.GetPlayerAreaFlashIntensity();
-      const CColor& flashColor = gpTweakAutoMapper->xf4_areaFlashPulseColor;
+      const CColor& flashColor = gpTweakAutoMapper->mAreaFlashPulseColor;
       finalSurface = CColor::Lerp(finalSurface, flashColor, pulse);
       finalOutline = CColor::Lerp(finalOutline, flashColor, pulse);
     }
@@ -443,8 +443,8 @@ void CMapWorld::DrawAreas(const CMapWorldDrawParms& parms, int selArea,
       const CTransform4f& areaXf = area->GetAreaPostTransform(parms.GetWorld(), areaIdx);
       if (type == CMapObjectSortInfo::kOC_Surface) {
         const CMapArea::CMapAreaSurface& surface = area->GetSurface(idx);
-        float linear = gpTweakAutoMapper->x54_mapSurfaceNormColorLinear;
-        float constant = gpTweakAutoMapper->x58_mapSurfaceNormColorConstant;
+        float linear = gpTweakAutoMapper->mMapSurfaceNormColorLinear;
+        float constant = gpTweakAutoMapper->mMapSurfaceNormColorConstant;
         float shade =
             linear * rstl::max_val(0.f, CVector3f::Dot(-1.f * cameraXf.GetForward(),
                                                        areaXf.Rotate(surface.GetNormal())));
@@ -491,10 +491,10 @@ void CMapWorld::DrawAreas(const CMapWorldDrawParms& parms, int selArea,
 
 void CMapWorld::RecalculateWorldSphere(const CMapWorldInfo& mwInfo, const IWorld& wld) const {
   rstl::vector< CVector2f > coords;
-  coords.reserve(x0_areas.size() * 8);
+  coords.reserve(mAreas.size() * 8);
   float zMin = FLT_MAX;
   float zMax = -FLT_MAX;
-  for (int i = 0; i < x0_areas.size(); ++i) {
+  for (int i = 0; i < mAreas.size(); ++i) {
     if (IsMapAreaValid(wld, i, true)) {
       CMapArea* area = GetMapArea(i);
       if (area->GetIsVisibleToAutoMapper(mwInfo.IsWorldVisible(i), mwInfo.IsAreaVisible(i))) {
@@ -509,40 +509,40 @@ void CMapWorld::RecalculateWorldSphere(const CMapWorldInfo& mwInfo, const IWorld
     }
   }
   const Circle2 circle = MinCircle(coords.size(), coords.data());
-  x3c_worldSphereRadius = circle.GetRadius();
-  x30_worldSpherePoint =
+  mWorldSphereRadius = circle.GetRadius();
+  mWorldSpherePoint =
       CVector3f(circle.GetCenter().GetX(), circle.GetCenter().GetY(), 0.5f * (zMax + zMin));
-  x40_worldSphereHalfDepth = 0.5f * (zMax - zMin);
+  mWorldSphereHalfDepth = 0.5f * (zMax - zMin);
 }
 
 CVector3f CMapWorld::ConstrainToWorldVolume(const CVector3f& point,
                                             const CVector3f& lookVec) const {
   CVector3f result = point;
   if (CMath::AbsF(lookVec.GetZ()) > FLT_EPSILON) {
-    float above = point.GetZ() - (x40_worldSphereHalfDepth + x30_worldSpherePoint.GetZ());
-    float below = point.GetZ() - (x30_worldSpherePoint.GetZ() - x40_worldSphereHalfDepth);
+    float above = point.GetZ() - (mWorldSphereHalfDepth + mWorldSpherePoint.GetZ());
+    float below = point.GetZ() - (mWorldSpherePoint.GetZ() - mWorldSphereHalfDepth);
     if (above > 0.f) {
       result = point + (-above / lookVec.GetZ()) * lookVec;
     } else if (below < 0.f) {
       result = point + (-below / lookVec.GetZ()) * lookVec;
     }
   } else {
-    result.SetZ(CMath::Clamp(x30_worldSpherePoint.GetZ() - x40_worldSphereHalfDepth, result.GetZ(),
-                             x40_worldSphereHalfDepth + x30_worldSpherePoint.GetZ()));
+    result.SetZ(CMath::Clamp(mWorldSpherePoint.GetZ() - mWorldSphereHalfDepth, result.GetZ(),
+                             mWorldSphereHalfDepth + mWorldSpherePoint.GetZ()));
   }
   const CVector2f delta = CVector2f(point.GetX(), point.GetY()) -
-                          CVector2f(x30_worldSpherePoint.GetX(), x30_worldSpherePoint.GetY());
-  if (delta.Magnitude() > x3c_worldSphereRadius) {
-    const CVector2f offset = delta.AsNormalized() * x3c_worldSphereRadius;
-    result.SetX(x30_worldSpherePoint.GetX() + offset.GetX());
-    result.SetY(x30_worldSpherePoint.GetY() + offset.GetY());
+                          CVector2f(mWorldSpherePoint.GetX(), mWorldSpherePoint.GetY());
+  if (delta.Magnitude() > mWorldSphereRadius) {
+    const CVector2f offset = delta.AsNormalized() * mWorldSphereRadius;
+    result.SetX(mWorldSpherePoint.GetX() + offset.GetX());
+    result.SetY(mWorldSpherePoint.GetY() + offset.GetY());
   }
   return result;
 }
 
 void CMapWorld::ClearTraversedFlags() const {
-  for (int i = 0; i < x20_traversed.size(); ++i) {
-    x20_traversed[i] = false;
+  for (int i = 0; i < mTraversed.size(); ++i) {
+    mTraversed[i] = false;
   }
 }
 
@@ -599,15 +599,15 @@ static Circle2 ExactCircle3(const CVector2f& a, const CVector2f& b, const CVecto
 }
 
 static Circle2 UpdateSupport1(int idx, CVector2f** points, Support& support) {
-  Circle2 result = ExactCircle2(*points[support.x4_indices[0]], *points[idx]);
-  support.x0_count = 2;
-  support.x4_indices[1] = idx;
+  Circle2 result = ExactCircle2(*points[support.mIndices[0]], *points[idx]);
+  support.mCount = 2;
+  support.mIndices[1] = idx;
   return result;
 }
 
 static Circle2 UpdateSupport2(int idx, CVector2f** points, Support& support) {
-  const CVector2f& a = *points[support.x4_indices[0]];
-  const CVector2f& b = *points[support.x4_indices[1]];
+  const CVector2f& a = *points[support.mIndices[0]];
+  const CVector2f& b = *points[support.mIndices[1]];
   const CVector2f& point = *points[idx];
   Circle2 circles[3];
   float distance;
@@ -625,19 +625,19 @@ static Circle2 UpdateSupport2(int idx, CVector2f** points, Support& support) {
   Circle2 result;
   if (best != -1) {
     result = circles[best];
-    support.x4_indices[1 - best] = idx;
+    support.mIndices[1 - best] = idx;
   } else {
     result = ExactCircle3(a, b, point);
-    support.x0_count = 3;
-    support.x4_indices[2] = idx;
+    support.mCount = 3;
+    support.mIndices[2] = idx;
   }
   return result;
 }
 
 static Circle2 UpdateSupport3(int idx, CVector2f** points, Support& support) {
-  const CVector2f& a = *points[support.x4_indices[0]];
-  const CVector2f& b = *points[support.x4_indices[1]];
-  const CVector2f& c = *points[support.x4_indices[2]];
+  const CVector2f& a = *points[support.mIndices[0]];
+  const CVector2f& b = *points[support.mIndices[1]];
+  const CVector2f& c = *points[support.mIndices[2]];
   const CVector2f& point = *points[idx];
   Circle2 circles[6];
   float distance;
@@ -729,26 +729,26 @@ static Circle2 UpdateSupport3(int idx, CVector2f** points, Support& support) {
   Circle2 result = circles[best];
   switch (best) {
   case 0:
-    support.x0_count = 2;
-    support.x4_indices[1] = idx;
+    support.mCount = 2;
+    support.mIndices[1] = idx;
     break;
   case 1:
-    support.x0_count = 2;
-    support.x4_indices[0] = idx;
+    support.mCount = 2;
+    support.mIndices[0] = idx;
     break;
   case 2:
-    support.x0_count = 2;
-    support.x4_indices[0] = support.x4_indices[2];
-    support.x4_indices[1] = idx;
+    support.mCount = 2;
+    support.mIndices[0] = support.mIndices[2];
+    support.mIndices[1] = idx;
     break;
   case 3:
-    support.x4_indices[2] = idx;
+    support.mIndices[2] = idx;
     break;
   case 4:
-    support.x4_indices[1] = idx;
+    support.mIndices[1] = idx;
     break;
   case 5:
-    support.x4_indices[0] = idx;
+    support.mIndices[0] = idx;
     break;
   }
   return result;
@@ -773,14 +773,14 @@ static Circle2 MinCircle(int count, const CVector2f* points) {
     }
     result = ExactCircle1(*shuffled[0]);
     Support support;
-    support.x0_count = 1;
-    support.x4_indices[0] = 0;
+    support.mCount = 1;
+    support.mIndices[0] = 0;
     i = 1;
     while (i < count) {
       if (!support.Contains(i, shuffled)) {
         float distance;
         if (!PointInsideCircle(*shuffled[i], result, distance)) {
-          Circle2 next = gs_aoUpdate[support.x0_count](i, shuffled, support);
+          Circle2 next = gs_aoUpdate[support.mCount](i, shuffled, support);
           if (next.GetRadius() > result.GetRadius()) {
             result = next;
             i = 0;

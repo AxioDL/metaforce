@@ -24,16 +24,16 @@ CFlaahgraTentacle::CFlaahgraTentacle(TUniqueId uid, const rstl::string& name,
 : CPatterned(kC_FlaahgraTentacle, uid, name, kFT_Zero, info, xf, mData, pInfo, kMT_Flyer, kCT_One,
              kBT_Restricted, actParms, kCS_Large)
 , x568_(-1)
-, x56c_collisionManager(nullptr)
+, mCollisionManager(nullptr)
 , x570_(0.f)
 , x574_(0.f)
 , x578_(0.f)
-, x57c_tentacleTipAct(kInvalidUniqueId)
-, x580_forceVector(CVector3f::Zero())
-, x58c_triggerId(kInvalidUniqueId)
+, mTentacleTipAct(kInvalidUniqueId)
+, mForceVector(CVector3f::Zero())
+, mTriggerId(kInvalidUniqueId)
 , x58e_24_(false) {
   ActorLights()->SetCastShadows(false);
-  x460_knockBackController.SetAutoResetImpulse(false);
+  mKnockBackController.SetAutoResetImpulse(false);
   SetDrawShadow(false);
 }
 
@@ -42,7 +42,7 @@ CFlaahgraTentacle::~CFlaahgraTentacle() {}
 void CFlaahgraTentacle::Think(float dt, CStateManager& mgr) {
   if (GetActive()) {
     CPatterned::Think(dt, mgr);
-    x56c_collisionManager->Update(dt, mgr, CCollisionActorManager::kUO_ObjectSpace);
+    mCollisionManager->Update(dt, mgr, CCollisionActorManager::kUO_ObjectSpace);
     if (x574_ > 0.f) {
       x574_ -= dt;
     }
@@ -58,25 +58,25 @@ void CFlaahgraTentacle::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid,
                                         CStateManager& mgr) {
   switch (msg) {
   case kSM_Registered:
-    x450_bodyController->Activate(mgr);
+    mBodyController->Activate(mgr);
     SetupCollisionManager(mgr);
     break;
   case kSM_Deleted:
-    x56c_collisionManager->Destroy(mgr);
-    if (CScriptTrigger* trigger = TCastToPtr< CScriptTrigger >(mgr.ObjectById(x58c_triggerId))) {
-      trigger->SetForceField(x580_forceVector);
+    mCollisionManager->Destroy(mgr);
+    if (CScriptTrigger* trigger = TCastToPtr< CScriptTrigger >(mgr.ObjectById(mTriggerId))) {
+      trigger->SetForceField(mForceVector);
     }
     break;
   case kSM_Touched:
     if (const CCollisionActor* colActor =
             TCastToConstPtr< CCollisionActor >(mgr.GetObjectById(uid))) {
       TUniqueId touched = colActor->GetLastTouchedObject();
-      if (touched == mgr.GetPlayer()->GetUniqueId() && x420_curDamageRemTime <= 0.f) {
+      if (touched == mgr.GetPlayer()->GetUniqueId() && mCurDamageRemTime <= 0.f) {
         mgr.ApplyDamage(
             GetUniqueId(), mgr.GetPlayer()->GetUniqueId(), GetUniqueId(), GetContactDamage(),
             CMaterialFilter::MakeIncludeExclude(CMaterialList(kMT_Solid), CMaterialList()),
             CVector3f::Zero());
-        x420_curDamageRemTime = x424_damageWaitTime;
+        mCurDamageRemTime = mDamageWaitTime;
       }
     }
     break;
@@ -101,7 +101,7 @@ void CFlaahgraTentacle::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid,
 
 CVector3f CFlaahgraTentacle::GetAimPosition(const CStateManager& mgr, float dt) const {
   if (const CCollisionActor* colActor =
-          TCastToConstPtr< CCollisionActor >(mgr.GetObjectById(x57c_tentacleTipAct))) {
+          TCastToConstPtr< CCollisionActor >(mgr.GetObjectById(mTentacleTipAct))) {
     return colActor->GetTranslation();
   }
   return CPatterned::GetAimPosition(mgr, dt);
@@ -111,15 +111,15 @@ void CFlaahgraTentacle::Death(CStateManager& mgr, const CVector3f& direction,
                               EScriptObjectState state) {
   if (IsAlive()) {
     StateMachineState().SetState(mgr, *this, GetStateMachine(), rstl::string_l("Dead"));
-    if (x450_bodyController->GetPercentageFrozen() > 0.f) {
-      x450_bodyController->UnFreeze();
+    if (mBodyController->GetPercentageFrozen() > 0.f) {
+      mBodyController->UnFreeze();
     }
-    x400_25_alive = false;
+    mAlive = false;
   }
 }
 
 bool CFlaahgraTentacle::Inside(CStateManager& mgr, float arg) {
-  return x450_bodyController->GetLocomotionType() == pas::kLT_Crouch;
+  return mBodyController->GetLocomotionType() == pas::kLT_Crouch;
 }
 
 bool CFlaahgraTentacle::ShouldAttack(CStateManager& mgr, float arg) {
@@ -128,12 +128,12 @@ bool CFlaahgraTentacle::ShouldAttack(CStateManager& mgr, float arg) {
   }
   if (x574_ <= 0.f && !mgr.GetPlayer()->IsInsideFluid()) {
     if (const CCollisionActor* colActor =
-            TCastToConstPtr< CCollisionActor >(mgr.GetObjectById(x57c_tentacleTipAct))) {
+            TCastToConstPtr< CCollisionActor >(mgr.GetObjectById(mTentacleTipAct))) {
       CVector3f delta3 = mgr.GetPlayer()->GetTranslation() - colActor->GetTranslation();
       CVector2f delta = delta3.DropZ();
       float mag = delta.MagSquared();
-      float minRangeSq = x2fc_minAttackRange * x2fc_minAttackRange;
-      float maxRangeSq = x300_maxAttackRange * x300_maxAttackRange;
+      float minRangeSq = mMinAttackRange * mMinAttackRange;
+      float maxRangeSq = mMaxAttackRange * mMaxAttackRange;
       return mag >= minRangeSq && mag <= maxRangeSq;
     }
   }
@@ -149,7 +149,7 @@ void CFlaahgraTentacle::InActive(CStateManager& mgr, EStateMsg msg, float arg) {
     break;
   case kStateMsg_Update:
     if (!Inside(mgr, 0.f)) {
-      if (CScriptTrigger* trigger = TCastToPtr< CScriptTrigger >(mgr.ObjectById(x58c_triggerId))) {
+      if (CScriptTrigger* trigger = TCastToPtr< CScriptTrigger >(mgr.ObjectById(mTriggerId))) {
         if (trigger->GetPlayerInside()) {
           if (x570_ > 1.f) {
             RetractTentacle(mgr);
@@ -168,9 +168,9 @@ void CFlaahgraTentacle::Retreat(CStateManager& mgr, EStateMsg msg, float arg) {
   switch (msg) {
   case kStateMsg_Update:
     if (x58e_24_ && GetStateMachineTime() > 1.f) {
-      if (CScriptTrigger* trigger = TCastToPtr< CScriptTrigger >(mgr.ObjectById(x58c_triggerId))) {
+      if (CScriptTrigger* trigger = TCastToPtr< CScriptTrigger >(mgr.ObjectById(mTriggerId))) {
         if (!trigger->GetPlayerInside()) {
-          x450_bodyController->SetLocomotionType(pas::kLT_Relaxed);
+          mBodyController->SetLocomotionType(pas::kLT_Relaxed);
         }
       }
     }
@@ -189,39 +189,39 @@ void CFlaahgraTentacle::Attack(CStateManager& mgr, EStateMsg msg, float arg) {
   case kStateMsg_Update:
     switch (x568_) {
     case 0:
-      if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() == pas::kAS_MeleeAttack) {
+      if (mBodyController->GetBodyStateInfo().GetCurrentStateId() == pas::kAS_MeleeAttack) {
         x568_ = 2;
       } else {
-        x450_bodyController->CommandMgr().DeliverCmd(
+        mBodyController->CommandMgr().DeliverCmd(
             CBCMeleeAttackCmd(x578_ > 0.f ? pas::kS_Zero : pas::kS_One));
       }
       break;
     case 2:
-      if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() != pas::kAS_MeleeAttack) {
+      if (mBodyController->GetBodyStateInfo().GetCurrentStateId() != pas::kAS_MeleeAttack) {
         x568_ = 3;
       }
       break;
     }
     break;
   case kStateMsg_Deactivate:
-    x574_ = x308_attackTimeVariation * mgr.Random()->Float() + x304_averageAttackTime;
+    x574_ = mAttackTimeVariation * mgr.Random()->Float() + mAverageAttackTime;
     x578_ = 0.f;
     break;
   }
 }
 
 void CFlaahgraTentacle::Dead(CStateManager& mgr, EStateMsg msg, float arg) {
-  x450_bodyController->SetLocomotionType(pas::kLT_Crouch);
+  mBodyController->SetLocomotionType(pas::kLT_Crouch);
 }
 
 void CFlaahgraTentacle::SetupCollisionManager(CStateManager& mgr) {
   rstl::vector< CJointCollisionDescription > jointList;
   jointList.reserve(3);
   AddSphereCollisionList(skJointList, 3, jointList);
-  x56c_collisionManager =
+  mCollisionManager =
       rs_new CCollisionActorManager(mgr, GetUniqueId(), GetCurrentAreaId(), jointList, true);
-  for (uint i = 0; i < x56c_collisionManager->GetNumCollisionActors(); ++i) {
-    const CJointCollisionDescription& desc = x56c_collisionManager->GetCollisionDescFromIndex(i);
+  for (uint i = 0; i < mCollisionManager->GetNumCollisionActors(); ++i) {
+    const CJointCollisionDescription& desc = mCollisionManager->GetCollisionDescFromIndex(i);
     TUniqueId uid = desc.GetCollisionActorId();
     if (CCollisionActor* const colActor = TCastToPtr< CCollisionActor >(mgr.ObjectById(uid))) {
       colActor->SetMaterialFilter(CMaterialFilter::MakeIncludeExclude(
@@ -231,9 +231,9 @@ void CFlaahgraTentacle::SetupCollisionManager(CStateManager& mgr) {
       colActor->AddMaterial(kMT_ScanPassthrough, mgr);
       colActor->SetDamageVulnerability(
           *static_cast< const CFlaahgraTentacle* >(this)->GetDamageVulnerability());
-      if (x57c_tentacleTipAct == kInvalidUniqueId &&
+      if (mTentacleTipAct == kInvalidUniqueId &&
           desc.GetName() == rstl::string_l(skpTentacleTip)) {
-        x57c_tentacleTipAct = uid;
+        mTentacleTipAct = uid;
       }
     }
   }
@@ -258,15 +258,15 @@ void CFlaahgraTentacle::AddSphereCollisionList(
 void CFlaahgraTentacle::ExtractTentacle(CStateManager& mgr) {
   if (Inside(mgr, 0.f)) {
     x58e_24_ = true;
-    if (CScriptTrigger* trigger = TCastToPtr< CScriptTrigger >(mgr.ObjectById(x58c_triggerId))) {
-      trigger->SetForceField(x580_forceVector);
+    if (CScriptTrigger* trigger = TCastToPtr< CScriptTrigger >(mgr.ObjectById(mTriggerId))) {
+      trigger->SetForceField(mForceVector);
     }
   }
 }
 
 void CFlaahgraTentacle::RetractTentacle(CStateManager& mgr) {
-  x450_bodyController->SetLocomotionType(pas::kLT_Crouch);
-  if (CScriptTrigger* trigger = TCastToPtr< CScriptTrigger >(mgr.ObjectById(x58c_triggerId))) {
+  mBodyController->SetLocomotionType(pas::kLT_Crouch);
+  if (CScriptTrigger* trigger = TCastToPtr< CScriptTrigger >(mgr.ObjectById(mTriggerId))) {
     trigger->SetForceField(CVector3f::Zero());
   }
 }
@@ -274,12 +274,12 @@ void CFlaahgraTentacle::RetractTentacle(CStateManager& mgr) {
 void CFlaahgraTentacle::SaveBombSlotInfo(CStateManager& mgr) {
   const rstl::vector< SConnection >& connections = GetConnectionList();
   for (AUTO(it, connections.begin()); it != connections.end(); ++it) {
-    if (it->x0_state == kSS_Modify && it->x4_msg == kSM_ToggleActive) {
-      TUniqueId uid = mgr.GetIdForScript(it->x8_objId);
+    if (it->mState == kSS_Modify && it->mMsg == kSM_ToggleActive) {
+      TUniqueId uid = mgr.GetIdForScript(it->mObjId);
       if (const CScriptTrigger* trigger =
               TCastToConstPtr< CScriptTrigger >(mgr.GetObjectById(uid))) {
-        x58c_triggerId = uid;
-        x580_forceVector = trigger->GetForceField();
+        mTriggerId = uid;
+        mForceVector = trigger->GetForceField();
         return;
       }
     }

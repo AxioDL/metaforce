@@ -9,14 +9,14 @@ CScriptAreaAttributes::CScriptAreaAttributes(const TUniqueId uid, const CEntityI
                                              const float worldLightingLevel, const CAssetId skybox,
                                              EPhazonType phazonType)
 : CEntity(uid, info, true, rstl::string_l(""))
-, x34_24_showSkybox(showSkybox)
-, x38_envFx(fxType)
-, x3c_envFxDensity(envFxDensity)
-, x40_thermalHeat(thermalHeat)
-, x44_xrayFogDistance(xrayFogDistance)
-, x48_worldLightingLevel(worldLightingLevel)
-, x4c_skybox(skybox)
-, x50_phazon(phazonType) {}
+, mShowSkybox(showSkybox)
+, mEnvFx(fxType)
+, mEnvFxDensity(envFxDensity)
+, mThermalHeat(thermalHeat)
+, mXrayFogDistance(xrayFogDistance)
+, mWorldLightingLevel(worldLightingLevel)
+, mSkybox(skybox)
+, mPhazon(phazonType) {}
 
 void CScriptAreaAttributes::AcceptScriptMsg(const EScriptObjectMessage msg, const TUniqueId objId,
                                             CStateManager& stateMgr) {
@@ -29,7 +29,7 @@ void CScriptAreaAttributes::AcceptScriptMsg(const EScriptObjectMessage msg, cons
   switch (msg) {
   case kSM_InitializedInArea: {
     stateMgr.World()->SetAreaAttributes(GetCurrentAreaId(), this);
-    stateMgr.EnvFxManager()->SetFxDensity(500, x3c_envFxDensity);
+    stateMgr.EnvFxManager()->SetFxDensity(500, mEnvFxDensity);
     break;
   }
   case kSM_Deleted: {

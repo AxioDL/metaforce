@@ -19,24 +19,24 @@ class CRainSplashGenerator {
     static const float skInitialHeight;
     static const uchar skInitialWidth;
 
-    float x0_t;
-    float x4_xEnd;
-    float x8_yEnd;
-    float xc_speed;
-    float x10_zParabolaHeight;
-    uchar x14_lineWidth;
-    uchar x15_length;
-    bool x16_active : 1;
+    float mT;
+    float mXEnd;
+    float mYEnd;
+    float mSpeed;
+    float mZParabolaHeight;
+    uchar mLineWidth;
+    uchar mLength;
+    bool mActive : 1;
 
     SSplashLine()
-    : x0_t(0.0f)
-    , x4_xEnd(0.0f)
-    , x8_yEnd(0.0f)
-    , xc_speed(skInitialSpeed)
-    , x10_zParabolaHeight(skInitialHeight)
-    , x14_lineWidth(skInitialWidth)
-    , x15_length(1)
-    , x16_active(true) {}
+    : mT(0.0f)
+    , mXEnd(0.0f)
+    , mYEnd(0.0f)
+    , mSpeed(skInitialSpeed)
+    , mZParabolaHeight(skInitialHeight)
+    , mLineWidth(skInitialWidth)
+    , mLength(1)
+    , mActive(true) {}
 
     void Update(float dt, CStateManager& mgr);
     void Draw(float alpha, float dt, const CVector3f& pos) const;
@@ -44,8 +44,8 @@ class CRainSplashGenerator {
   };
 
   struct SRainSplash {
-    rstl::reserved_vector< SSplashLine, 4 > x0_lines;
-    CVector3f x64_pos;
+    rstl::reserved_vector< SSplashLine, 4 > mLines;
+    CVector3f mPos;
     float x70_;
 
     SRainSplash();
@@ -61,28 +61,28 @@ public:
                        float alpha);
   ~CRainSplashGenerator() {}
 
-  bool IsRaining() const { return x48_25_raining; }
+  bool IsRaining() const { return mRaining; }
 
   void Update(float dt, CStateManager& mgr);
   void Draw(const CTransform4f& xf) const;
   void GeneratePoints(const CVector3f* vertices, const CVector3f* normals, int count);
 
 private:
-  rstl::vector< SRainSplash > x0_rainSplashes;
-  CRandom16 x10_random;
-  CVector3f x14_scale;
-  float x20_generateTimer;
-  float x24_generateInterval;
-  float x28_dt;
-  float x2c_minZ;
-  float x30_alpha;
-  int x34_curPoint;
-  int x38_queueTail;
-  int x3c_queueHead;
-  int x40_queueSize;
-  int x44_genRate;
+  rstl::vector< SRainSplash > mRainSplashes;
+  CRandom16 mRandom;
+  CVector3f mScale;
+  float mGenerateTimer;
+  float mGenerateInterval;
+  float mDt;
+  float mMinZ;
+  float mAlpha;
+  int mCurPoint;
+  int mQueueTail;
+  int mQueueHead;
+  int mQueueSize;
+  int mGenRate;
   bool x48_24 : 1;
-  bool x48_25_raining : 1;
+  bool mRaining : 1;
 
   void UpdateRainSplashRange(CStateManager& mgr, int start, int end, float dt);
   void UpdateRainSplashes(CStateManager& mgr, float magnitude, float dt);

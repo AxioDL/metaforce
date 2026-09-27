@@ -20,20 +20,20 @@ class CModVectorElement;
 class CElementGen : public CParticleGen {
 public:
   struct CParticleListItem {
-    ushort x0_partIdx;
-    CVector3f x4_viewPoint;
+    ushort mPartIdx;
+    CVector3f mViewPoint;
 
     explicit CParticleListItem(short partIdx, const CVector3f& viewPoint)
-    : x0_partIdx(partIdx), x4_viewPoint(viewPoint) {}
+    : mPartIdx(partIdx), mViewPoint(viewPoint) {}
   };
 
   struct CTexturedParticleListItem {
-    ushort x0_texMapIdx;
-    ushort x2_partIdx;
-    CVector3f x4_viewPoint;
+    ushort mTexMapIdx;
+    ushort mPartIdx;
+    CVector3f mViewPoint;
 
     explicit CTexturedParticleListItem(short texMapIdx, short partIdx, const CVector3f& viewPoint)
-    : x0_texMapIdx(texMapIdx), x2_partIdx(partIdx), x4_viewPoint(viewPoint) {}
+    : mTexMapIdx(texMapIdx), mPartIdx(partIdx), mViewPoint(viewPoint) {}
   };
 
   enum EModelOrientationType {
@@ -52,20 +52,20 @@ public:
     kLT_Spot = 3,
   };
   struct CParticle {
-    int x0_endFrame;
-    CVector3f x4_pos;
-    CVector3f x10_prevPos;
-    CVector3f x1c_vel;
-    int x28_startFrame;
-    float x2c_lineLengthOrSize;
-    float x30_lineWidthOrRota;
-    CColor x34_color;
+    int mEndFrame;
+    CVector3f mPos;
+    CVector3f mPrevPos;
+    CVector3f mVel;
+    int mStartFrame;
+    float mLineLengthOrSize;
+    float mLineWidthOrRota;
+    CColor mColor;
 
     CParticle()
-    : x4_pos(CVector3f::Zero())
-    , x10_prevPos(x4_pos)
-    , x1c_vel(x10_prevPos)
-    , x34_color(static_cast< u8 >(0xFF), 0x00, 0xFF, 0xFF) {}
+    : mPos(CVector3f::Zero())
+    , mPrevPos(mPos)
+    , mVel(mPrevPos)
+    , mColor(static_cast< u8 >(0xFF), 0x00, 0xFF, 0xFF) {}
   };
   struct CAdvancedValues {
     float values[8];
@@ -87,25 +87,25 @@ public:
   virtual void SetParticleEmission(const bool emission) override;
   virtual void SetModulationColor(const CColor& col) override;
   virtual void SetGeneratorRate(float rate) override;
-  virtual const CTransform4f& GetOrientation() const override { return x1d8_orientation; }
-  virtual const CVector3f& GetTranslation() const override { return xdc_translation; }
+  virtual const CTransform4f& GetOrientation() const override { return mOrientation; }
+  virtual const CVector3f& GetTranslation() const override { return mTranslation; }
   virtual const CTransform4f& GetGlobalOrientation() const override;
   virtual const CVector3f& GetGlobalTranslation() const override;
-  virtual const CVector3f& GetGlobalScale() const override { return x100_globalScale; }
+  virtual const CVector3f& GetGlobalScale() const override { return mGlobalScale; }
   virtual float GetGeneratorRate() const override;
   virtual bool GetParticleEmission() const override;
   virtual const CColor& GetModulationColor() const override;
   virtual bool IsSystemDeletable() const override;
   virtual rstl::optional_object< CAABox > GetBounds() const override;
-  virtual int GetParticleCount() const override { return x25c_activeParticleCount; }
+  virtual int GetParticleCount() const override { return mActiveParticleCount; }
   virtual bool SystemHasLight() const override;
   virtual CLight GetLight() const override;
   virtual void DestroyParticles() override;
   virtual uint Get4CharId() const override;
-  int GetMaxParticles() const { return x90_MAXP; }
-  void SetZTest(bool enabled) { x26c_28_zTest = enabled; }
-  rstl::vector< CParticle >& Particles() { return x30_particles; }
-  const rstl::vector< CParticle >& GetParticles() const { return x30_particles; }
+  int GetMaxParticles() const { return mMAXP; }
+  void SetZTest(bool enabled) { mZTest = enabled; }
+  rstl::vector< CParticle >& Particles() { return mParticles; }
+  const rstl::vector< CParticle >& GetParticles() const { return mParticles; }
   int GetEmitterTime() const;
   int GetSystemCount();
   void EndLifetime();
@@ -136,7 +136,7 @@ public:
 
   int GetNumActiveChildParticles() const;
   CParticleGen* GetActiveChildParticle(int index) const;
-  int GetCumulativeParticleCount() const { return x260_cumulativeParticles; }
+  int GetCumulativeParticleCount() const { return mCumulativeParticles; }
   bool IsIndirectTextured()
       const; // { return x28_loadedGenDesc->x54_x40_TEXR && x28_loadedGenDesc->x58_x44_TIND; }
   void SetExternalVar(int index, float val);
@@ -146,7 +146,7 @@ public:
   static void ShutDown();
 
   void SetGlobalOrientAndTrans(const CTransform4f& xf);
-  void SetLeaveLightsEnabledForModelRender(bool b) { x26d_26_modelsUseLights = b; }
+  void SetLeaveLightsEnabledForModelRender(bool b) { mModelsUseLights = b; }
 
   static void SetSubtractBlend(bool subtract) { sSubtractBlend = subtract; }
   static void SetMoveRedToAlphaBuffer(const bool move) { sMoveRedToAlphaBuffer = move; }
@@ -154,87 +154,87 @@ public:
   static void SetGlobalSeed(const ushort seed) { sSeed = seed; }
 
 private:
-  TLockedToken< CGenDescription > x1c_genDesc;
-  CGenDescription* x28_loadedGenDesc;
-  EModelOrientationType x2c_orientType;
-  rstl::vector< CParticle > x30_particles;
+  TLockedToken< CGenDescription > mGenDesc;
+  CGenDescription* mLoadedGenDesc;
+  EModelOrientationType mOrientType;
+  rstl::vector< CParticle > mParticles;
   rstl::vector< CVector3f > x40;
-  rstl::vector< CMatrix3f > x50_parentMatrices;
-  rstl::vector< CAdvancedValues > x60_advValues;
-  int x70_internalStartFrame;
-  int x74_curFrame;
-  double x78_curSeconds;
-  float x80_timeDeltaScale;
-  int x84_prevFrame;
-  bool x88_particleEmission;
-  float x8c_generatorRemainder;
-  int x90_MAXP;
-  short x94_randomSeed;
-  float x98_generatorRate;
-  float x9c_externalVars[16];
-  CVector3f xdc_translation;
-  CVector3f xe8_globalTranslation;
-  CVector3f xf4_POFS;
-  CVector3f x100_globalScale;
-  CTransform4f x10c_globalScaleTransform;
-  CTransform4f x13c_globalScaleTransformInverse;
-  CVector3f x16c_localScale;
-  CTransform4f x178_localScaleTransform;
-  CTransform4f x1a8_localScaleTransformInverse;
-  CTransform4f x1d8_orientation;
-  CMatrix3f x208_orientationInverse;
-  CTransform4f x22c_globalOrientation;
-  uint x25c_activeParticleCount;
-  uint x260_cumulativeParticles;
-  uint x264_recursiveParticleCount;
-  int x268_PSLT;
-  bool x26c_24_translationDirty : 1;
-  bool x26c_25_LIT_ : 1;
-  bool x26c_26_AAPH : 1;
-  bool x26c_27_ZBUF : 1;
-  bool x26c_28_zTest : 1;
-  bool x26c_29_ORNT : 1;
-  bool x26c_30_MBLR : 1;
-  bool x26c_31_LINE : 1;
-  bool x26d_24_FXLL : 1;
-  bool x26d_25_warmedUp : 1;
-  bool x26d_26_modelsUseLights : 1;
-  bool x26d_27_enableOPTS : 1;
-  bool x26d_28_enableADV : 1;
-  int x270_MBSP;
-  uchar x274_backupLightActive;
+  rstl::vector< CMatrix3f > mParentMatrices;
+  rstl::vector< CAdvancedValues > mAdvValues;
+  int mInternalStartFrame;
+  int mCurFrame;
+  double mCurSeconds;
+  float mTimeDeltaScale;
+  int mPrevFrame;
+  bool mParticleEmission;
+  float mGeneratorRemainder;
+  int mMAXP;
+  short mRandomSeed;
+  float mGeneratorRate;
+  float mExternalVars[16];
+  CVector3f mTranslation;
+  CVector3f mGlobalTranslation;
+  CVector3f mPOFS;
+  CVector3f mGlobalScale;
+  CTransform4f mGlobalScaleTransform;
+  CTransform4f mGlobalScaleTransformInverse;
+  CVector3f mLocalScale;
+  CTransform4f mLocalScaleTransform;
+  CTransform4f mLocalScaleTransformInverse;
+  CTransform4f mOrientation;
+  CMatrix3f mOrientationInverse;
+  CTransform4f mGlobalOrientation;
+  uint mActiveParticleCount;
+  uint mCumulativeParticles;
+  uint mRecursiveParticleCount;
+  int mPSLT;
+  bool mTranslationDirty : 1;
+  bool mLIT_ : 1;
+  bool mAAPH : 1;
+  bool mZBUF : 1;
+  bool mZTest : 1;
+  bool mORNT : 1;
+  bool mMBLR : 1;
+  bool mLINE : 1;
+  bool mFXLL : 1;
+  bool mWarmedUp : 1;
+  bool mModelsUseLights : 1;
+  bool mEnableOPTS : 1;
+  bool mEnableADV : 1;
+  int mMBSP;
+  uchar mBackupLightActive;
   // uchar x275_pad[3];
   union {
     struct {
-      bool x278_hasVMD[4];
+      bool mHasVMD[4];
     };
-    uint x278_vmdStates;
+    uint mVmdStates;
   };
-  CRandom16 x27c_randState;
-  CModVectorElement* x280_VELSources[4];
-  rstl::vector< CParticleGen* > x290_activePartChildren;
-  int x2a0_CSSD;
-  int x2a4_SISY;
-  int x2a8_PISY;
-  int x2ac_SSSD;
-  CVector3f x2b0_SSPO;
-  int x2bc_SESD;
-  CVector3f x2c0_SEPO;
+  CRandom16 mRandState;
+  CModVectorElement* mVELSources[4];
+  rstl::vector< CParticleGen* > mActivePartChildren;
+  int mCSSD;
+  int mSISY;
+  int mPISY;
+  int mSSSD;
+  CVector3f mSSPO;
+  int mSESD;
+  CVector3f mSEPO;
   float x2cc;
   float x2d0;
-  CVector3f x2d4_aabbMin;
-  CVector3f x2e0_aabbMax;
-  float x2ec_maxSize;
-  CAABox x2f0_systemBounds;
-  LightType x308_lightType;
-  CColor x30c_LCLR;
-  float x310_LINT;
-  CVector3f x314_LOFF;
-  CVector3f x320_LDIR;
-  EFalloffType x32c_falloffType;
-  float x330_LFOR;
-  float x334_LSLA;
-  CColor x338_moduColor;
+  CVector3f mAabbMin;
+  CVector3f mAabbMax;
+  float mMaxSize;
+  CAABox mSystemBounds;
+  LightType mLightType;
+  CColor mLCLR;
+  float mLINT;
+  CVector3f mLOFF;
+  CVector3f mLDIR;
+  EFalloffType mFalloffType;
+  float mLFOR;
+  float mLSLA;
+  CColor mModuColor;
 
   static double kTickTime;
   static ushort sSeed;

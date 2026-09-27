@@ -11,8 +11,8 @@ public:
   bool GetValue(int frame, CVector3f& pPos, CVector3f& pVel) const;
 
 private:
-  CVectorElement* x4_pos;
-  CVectorElement* x8_vel;
+  CVectorElement* mPos;
+  CVectorElement* mVel;
 };
 
 class CVESphere : public CEmitterElement {
@@ -23,9 +23,9 @@ public:
   bool GetValue(int frame, CVector3f& pPos, CVector3f& pVel) const;
 
 private:
-  CVectorElement* x4_sphereOrigin;
-  CRealElement* x8_sphereRadius;
-  CRealElement* xc_velocityMag;
+  CVectorElement* mSphereOrigin;
+  CRealElement* mSphereRadius;
+  CRealElement* mVelocityMag;
 };
 
 class CVEAngleSphere : public CEmitterElement {
@@ -38,13 +38,13 @@ public:
   bool GetValue(int frame, CVector3f& pPos, CVector3f& pVel) const;
 
 private:
-  CVectorElement* x4_sphereOrigin;
-  CRealElement* x8_sphereRadius;
-  CRealElement* xc_velocityMag;
-  CRealElement* x10_angleXBias;
-  CRealElement* x14_angleYBias;
-  CRealElement* x18_angleXRange;
-  CRealElement* x1c_angleYRange;
+  CVectorElement* mSphereOrigin;
+  CRealElement* mSphereRadius;
+  CRealElement* mVelocityMag;
+  CRealElement* mAngleXBias;
+  CRealElement* mAngleYBias;
+  CRealElement* mAngleXRange;
+  CRealElement* mAngleYRange;
 };
 
 #endif // _CEMITTERELEMENT

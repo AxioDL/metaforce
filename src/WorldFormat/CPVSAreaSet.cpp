@@ -16,11 +16,11 @@ CPVSAreaSet::CPVSAreaSet(int numFeatures, int numLights, int num2ndLights, int n
 , x4_(numLights)
 , x8_(num2ndLights)
 , xc_(numActors)
-, x10_leafSize(leafSize)
+, mLeafSize(leafSize)
 , x14_(lightIndexCount)
 , x18_(w7)
-, x1c_lightLeaves(w8)
-, x20_octree(CPVSVisOctree::MakePVSVisOctree(w9, 68)) {}
+, mLightLeaves(w8)
+, mOctree(CPVSVisOctree::MakePVSVisOctree(w9, 68)) {}
 
 rstl::auto_ptr< CPVSAreaSet > CPVSAreaSet::MakeAreaSet(const char* data, int len) {
   CMemoryInStream in(data, len);
@@ -40,12 +40,12 @@ rstl::auto_ptr< CPVSAreaSet > CPVSAreaSet::MakeAreaSet(const char* data, int len
                                                           data, entityIndexEnd, octreeData));
 }
 
-CPVSVisOctree& CPVSAreaSet::GetVisOctree() const { return x20_octree; }
+CPVSVisOctree& CPVSAreaSet::GetVisOctree() const { return mOctree; }
 
 CPVSVisSet CPVSAreaSet::GetLightSet(int lightIdx) const {
-  rstl::auto_ptr< const char > leaf(x1c_lightLeaves + x10_leafSize * lightIdx);
+  rstl::auto_ptr< const char > leaf(mLightLeaves + mLeafSize * lightIdx);
   leaf.release();
-  return CPVSVisSet(x20_octree.GetNumObjects(), x20_octree.GetNumLights(),
+  return CPVSVisSet(mOctree.GetNumObjects(), mOctree.GetNumLights(),
                     rstl::auto_ptr< const char >(leaf));
 }
 

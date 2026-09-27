@@ -4,13 +4,13 @@
 #include "MetroidPrime/Weapons/CEnergyProjectile.hpp"
 
 struct CPoisonInfo {
-  uint x0_propertyCount;
-  TToken< CGenDescription > x4_particle;
-  CDamageInfo xc_dInfo;
+  uint mPropertyCount;
+  TToken< CGenDescription > mParticle;
+  CDamageInfo mDInfo;
   float x28_;
   float x2c_;
   float x30_;
-  CAssetId x34_texture;
+  CAssetId mTexture;
   bool x38_24_ : 1;
   bool x38_25_ : 1;
   bool x38_26_ : 1;
@@ -18,11 +18,11 @@ struct CPoisonInfo {
 
   explicit CPoisonInfo(CInputStream& in);
 
-  const CDamageInfo& GetDamageInfo() const { return xc_dInfo; }
+  const CDamageInfo& GetDamageInfo() const { return mDInfo; }
   float Get_0x28() const { return x28_; }
   float Get_0x2c() const { return x2c_; }
   float Get_0x30() const { return x30_; }
-  CAssetId GetTexture() const { return x34_texture; }
+  CAssetId GetTexture() const { return mTexture; }
   const bool GetFlag_24() const { return x38_24_; }
   const bool GetFlag_25() const { return x38_25_; }
   const bool GetFlag_26() const { return x38_26_; }
@@ -31,7 +31,7 @@ struct CPoisonInfo {
 CHECK_SIZEOF(CPoisonInfo, 0x3C);
 
 class CPoisonProjectile : public CEnergyProjectile {
-  CPoisonInfo x3d8_auxData;
+  CPoisonInfo mAuxData;
 
 public:
   CPoisonProjectile(const bool active, const TToken< CWeaponDescription >& desc,

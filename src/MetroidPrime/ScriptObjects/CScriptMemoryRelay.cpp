@@ -6,21 +6,21 @@ CScriptMemoryRelay::CScriptMemoryRelay(TUniqueId uid, const rstl::string& name,
                                        const CEntityInfo& info, bool defaultActive,
                                        bool skipSendActive, bool ignoreMessages)
 : CEntity(uid, info, true, name)
-, x34_24_defaultActive(defaultActive)
-, x34_25_skipSendActive(skipSendActive)
-, x34_26_ignoreMessages(ignoreMessages) {}
+, mDefaultActive(defaultActive)
+, mSkipSendActive(skipSendActive)
+, mIgnoreMessages(ignoreMessages) {}
 
 CScriptMemoryRelay::~CScriptMemoryRelay() {}
 
 void CScriptMemoryRelay::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) {
-  if (x34_26_ignoreMessages) {
+  if (mIgnoreMessages) {
     return;
   }
 
   switch (msg) {
     case kSM_Activate:
       stateMgr.Mailbox()->AddMsg(GetEditorId());
-      if (!x34_25_skipSendActive) {
+      if (!mSkipSendActive) {
         SendScriptMsgs(kSS_Active, stateMgr, kSM_None);
       }
       break;

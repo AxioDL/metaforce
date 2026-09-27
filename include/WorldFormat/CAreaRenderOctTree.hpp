@@ -10,10 +10,10 @@
 
 struct CAreaRenderOctTree {
   struct Node {
-    ushort x0_bitmapIdx;
-    uchar x2_reserved;
-    uchar x3_flags;
-    ushort x4_children[1];
+    ushort mBitmapIdx;
+    uchar mReserved;
+    uchar mFlags;
+    ushort mChildren[1];
 
     int GetChildCount() const;
     CAABox GetNodeBounds(const CAABox& curAABB, int idx) const;
@@ -21,20 +21,20 @@ struct CAreaRenderOctTree {
                                 const CAABox& testAABB) const;
   };
 
-  rstl::auto_ptr< const uchar > x0_buf;
-  uint x8_bitmapCount;
-  uint xc_meshCount;
-  uint x10_nodeCount;
-  uint x14_bitmapWordCount;
-  CAABox x18_aabb;
-  const uint* x30_bitmaps;
-  const uint* x34_indirectionTable;
-  const uchar* x38_entries;
+  rstl::auto_ptr< const uchar > mBuf;
+  uint mBitmapCount;
+  uint mMeshCount;
+  uint mNodeCount;
+  uint mBitmapWordCount;
+  CAABox mAabb;
+  const uint* mBitmaps;
+  const uint* mIndirectionTable;
+  const uchar* mEntries;
 
   explicit CAreaRenderOctTree(const rstl::auto_ptr< const uchar >& buf);
 
   const Node* GetNode(int idx) const {
-    return reinterpret_cast< const Node* >(x38_entries + CBasics::SwapBytes(x34_indirectionTable[idx]));
+    return reinterpret_cast< const Node* >(mEntries + CBasics::SwapBytes(mIndirectionTable[idx]));
   }
 
   void FindOverlappingModels(rstl::vector< uint >& out, const CAABox& testAABB) const;

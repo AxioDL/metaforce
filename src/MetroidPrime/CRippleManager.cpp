@@ -6,14 +6,14 @@
 #include "rstl/math.hpp"
 
 CRippleManager::CRippleManager(int maxRipples, float alpha)
-: x0_maxTimeFalloff(0.f)
-, x14_alpha(alpha) {
+: mMaxTimeFalloff(0.f)
+, mAlpha(alpha) {
   Init(maxRipples);
 }
 
 void CRippleManager::Init(int maxRipples) {
-  x4_ripples.resize(maxRipples);
-  for (AUTO(it, x4_ripples.begin()); it != x4_ripples.end(); ++it) {
+  mRipples.resize(maxRipples);
+  for (AUTO(it, mRipples.begin()); it != mRipples.end(); ++it) {
     it->SetTime(CFluidPlaneManager::kOldestTime);
   }
 }

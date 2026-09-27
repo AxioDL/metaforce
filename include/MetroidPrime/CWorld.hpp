@@ -45,16 +45,16 @@ public:
 class CRelay {
 public:
   explicit CRelay(CInputStream& in);
-  const TEditorId& GetRelayId() const { return x0_relay; }
-  const TEditorId& GetTargetId() const { return x4_target; }
-  const ushort& GetMessage() const { return x8_msg; }
-  bool GetActive() const { return xa_active; }
+  const TEditorId& GetRelayId() const { return mRelay; }
+  const TEditorId& GetTargetId() const { return mTarget; }
+  const ushort& GetMessage() const { return mMsg; }
+  bool GetActive() const { return mActive; }
 
 private:
-  TEditorId x0_relay;
-  TEditorId x4_target;
-  ushort x8_msg;
-  bool xa_active;
+  TEditorId mRelay;
+  TEditorId mTarget;
+  ushort mMsg;
+  bool mActive;
 };
 
 class CWorld final : public IWorld {
@@ -62,12 +62,12 @@ public:
   typedef rstl::vector< CRelay > CRelayList;
 
   struct CSoundGroupData {
-    int x0_groupId;
-    CAssetId x4_agscId;
-    bool x8_24_loadedIntoAram : 1;
-    bool x8_25_loaded : 1;
-    rstl::string xc_name;
-    rstl::optional_object< CToken > x1c_groupData;
+    int mGroupId;
+    CAssetId mAgscId;
+    bool mLoadedIntoAram : 1;
+    bool mLoaded : 1;
+    rstl::string mName;
+    rstl::optional_object< CToken > mGroupData;
 
   public:
     CSoundGroupData(int grpId, CAssetId agsc);
@@ -118,29 +118,29 @@ public:
   void LoadSoundGroups();
   void LoadSoundGroup(uchar groupId, CAssetId agscId, CSoundGroupData& data);
 
-  const CGameArea& GetAreaAlways(const TAreaId id) const { return *x18_areas[id.Value()]; }
-  CGameArea* Area(const TAreaId id) { return &*x18_areas[id.Value()]; }
-  const CGameArea* GetArea(const TAreaId id) const { return &*x18_areas[id.Value()]; }
-  bool IsAreaValid(const TAreaId id) const { return x18_areas[id.Value()]->IsLoaded(); }
+  const CGameArea& GetAreaAlways(const TAreaId id) const { return *mAreas[id.Value()]; }
+  CGameArea* Area(const TAreaId id) { return &*mAreas[id.Value()]; }
+  const CGameArea* GetArea(const TAreaId id) const { return &*mAreas[id.Value()]; }
+  bool IsAreaValid(const TAreaId id) const { return mAreas[id.Value()]->IsLoaded(); }
   bool DoesAreaExist(TAreaId id) const {
-    return id.Value() >= 0 && id.Value() < x18_areas.size();
+    return id.Value() >= 0 && id.Value() < mAreas.size();
   }
-  CAssetId GetWorldAssetId() const { return x8_mlvlId; }
-  TAreaId GetCurrentAreaId() const { return x68_curAreaId; }
+  CAssetId GetWorldAssetId() const { return mMlvlId; }
+  TAreaId GetCurrentAreaId() const { return mCurAreaId; }
   TAreaId GetAreaIdForSaveId(uint saveId) const;
   TAreaId GetAreaId(CAssetId assetId) const;
-  const CRelayList& GetRelays() const { return x2c_relays; }
-  EEnvFxType GetNeededEnvFx() const { return xc4_neededFx; }
+  const CRelayList& GetRelays() const { return mRelays; }
+  EEnvFxType GetNeededEnvFx() const { return mNeededFx; }
 
   static void PropogateAreaChain(CGameArea::EOcclusionState occlusionState, CGameArea* area,
                                  CWorld* world);
 
   CGameArea::CChainIterator ChainHead(EChain chain) const {
-    return CGameArea::CChainIterator(x48_chainHeads[size_t(chain)]);
+    return CGameArea::CChainIterator(mChainHeads[size_t(chain)]);
   }
 
   CGameArea::CConstChainIterator GetChainHead(EChain chain) const {
-    return CGameArea::CConstChainIterator(x48_chainHeads[size_t(chain)]);
+    return CGameArea::CConstChainIterator(mChainHeads[size_t(chain)]);
   }
   static CGameArea::CConstChainIterator GetAliveAreasEnd();
   static CGameArea::CChainIterator AliveAreasEnd();
@@ -149,7 +149,7 @@ public:
   void AddGlobalSound(ushort soundId, CSfxHandle handle);
   bool HasGlobalSound(ushort soundId) const;
 
-  int GetNumAreas() const { return x18_areas.size(); }
+  int GetNumAreas() const { return mAreas.size(); }
   bool AreSkyNeedsMet() const;
 
   void SetAreaAttributes(const TAreaId aid, CScriptAreaAttributes* attr) {
@@ -168,33 +168,33 @@ private:
     kP_Done,
   };
 
-  Phase x4_phase;
-  CAssetId x8_mlvlId;
-  CAssetId xc_strgId;
-  CAssetId x10_savwId;
-  rstl::vector< rstl::auto_ptr< CGameArea > > x18_areas;
-  CAssetId x24_mapwId;
-  rstl::single_ptr< TCachedToken< CMapWorld > > x28_mapWorld;
-  CRelayList x2c_relays;
-  rstl::single_ptr< CDvdRequest > x3c_loadToken;
-  rstl::single_ptr< char > x40_loadBuf;
-  uint x44_bufSz;
-  rstl::reserved_vector< CGameArea*, 5 > x48_chainHeads;
-  IObjectStore* x60_objectStore;
-  IFactory* x64_resFactory;
-  TAreaId x68_curAreaId;
-  uint x6c_loadedAudioGrpCount;
-  bool x70_24_currentAreaNeedsAllocation : 1;
-  bool x70_25_loadPaused : 1;
-  bool x70_26_skyboxActive : 1;
-  bool x70_27_skyboxVisible : 1;
-  CSoundGroupDataList x74_soundGroupData;
-  rstl::string x84_defAudioTrack;
-  rstl::optional_object< TCachedToken< CModel > > x94_skyboxWorld;
-  rstl::optional_object< TLockedToken< CModel > > xa4_skyboxWorldLoaded;
-  rstl::optional_object< TLockedToken< CModel > > xb4_skyboxOverride;
-  EEnvFxType xc4_neededFx;
-  rstl::reserved_vector< rstl::pair< ushort, CSfxHandle >, 10 > xc8_globalSfxHandles;
+  Phase mPhase;
+  CAssetId mMlvlId;
+  CAssetId mStrgId;
+  CAssetId mSavwId;
+  rstl::vector< rstl::auto_ptr< CGameArea > > mAreas;
+  CAssetId mMapwId;
+  rstl::single_ptr< TCachedToken< CMapWorld > > mMapWorld;
+  CRelayList mRelays;
+  rstl::single_ptr< CDvdRequest > mLoadToken;
+  rstl::single_ptr< char > mLoadBuf;
+  uint mBufSz;
+  rstl::reserved_vector< CGameArea*, 5 > mChainHeads;
+  IObjectStore* mObjectStore;
+  IFactory* mResFactory;
+  TAreaId mCurAreaId;
+  uint mLoadedAudioGrpCount;
+  bool mCurrentAreaNeedsAllocation : 1;
+  bool mLoadPaused : 1;
+  bool mSkyboxActive : 1;
+  bool mSkyboxVisible : 1;
+  CSoundGroupDataList mSoundGroupData;
+  rstl::string mDefAudioTrack;
+  rstl::optional_object< TCachedToken< CModel > > mSkyboxWorld;
+  rstl::optional_object< TLockedToken< CModel > > mSkyboxWorldLoaded;
+  rstl::optional_object< TLockedToken< CModel > > mSkyboxOverride;
+  EEnvFxType mNeededFx;
+  rstl::reserved_vector< rstl::pair< ushort, CSfxHandle >, 10 > mGlobalSfxHandles;
 };
 CHECK_SIZEOF(CWorld, 0x11c)
 NESTED_CHECK_SIZEOF(CWorld, CSoundGroupData, 0x28)
@@ -207,18 +207,18 @@ class CDummyWorld : public IWorld {
     kP_Done,
   };
 
-  bool x4_loadMap;
-  Phase x8_phase;
-  CAssetId xc_mlvlId;
-  CAssetId x10_strgId;
-  CAssetId x14_savwId;
-  rstl::vector< rstl::auto_ptr< CDummyGameArea > > x18_areas;
-  CAssetId x28_mapWorldId;
-  rstl::single_ptr< TCachedToken< CMapWorld > > x2c_mapWorld;
-  rstl::single_ptr< CDvdRequest > x30_loadToken;
-  rstl::single_ptr< char > x34_loadBuf;
-  uint x38_bufSz;
-  TAreaId x3c_curAreaId;
+  bool mLoadMap;
+  Phase mPhase;
+  CAssetId mMlvlId;
+  CAssetId mStrgId;
+  CAssetId mSavwId;
+  rstl::vector< rstl::auto_ptr< CDummyGameArea > > mAreas;
+  CAssetId mMapWorldId;
+  rstl::single_ptr< TCachedToken< CMapWorld > > mMapWorld;
+  rstl::single_ptr< CDvdRequest > mLoadToken;
+  rstl::single_ptr< char > mLoadBuf;
+  uint mBufSz;
+  TAreaId mCurAreaId;
 
 public:
   CDummyWorld(CAssetId mlvlId, const bool loadMap);

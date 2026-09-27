@@ -16,15 +16,15 @@ CScriptEMPulse::CScriptEMPulse(TUniqueId uid, const rstl::string& name, const CE
                                float interferenceMag, float f7, CAssetId partId)
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(kMT_Projectile),
          CActorParameters::None().HotInThermal(true), kInvalidUniqueId)
-, xe8_duration(duration)
-, xec_finalRadius(finalRadius)
-, xf0_currentRadius(initialRadius)
-, xf4_initialRadius(initialRadius)
-, xf8_interferenceDur(interferenceDur)
+, mDuration(duration)
+, mFinalRadius(finalRadius)
+, mCurrentRadius(initialRadius)
+, mInitialRadius(initialRadius)
+, mInterferenceDur(interferenceDur)
 , xfc_(f5)
-, x100_interferenceMag(interferenceMag)
+, mInterferenceMag(interferenceMag)
 , x104_(f7)
-, x108_particleDesc(gpSimplePool->GetObj(SObjectTag('PART', partId))) {}
+, mParticleDesc(gpSimplePool->GetObj(SObjectTag('PART', partId))) {}
 
 void CScriptEMPulse::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
   CActor::AcceptScriptMsg(msg, uid, mgr);
@@ -32,14 +32,14 @@ void CScriptEMPulse::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CS
   switch (msg) {
   case kSM_Activate:
 
-    x114_particleGen =
-        rs_new CElementGen(x108_particleDesc, CElementGen::kMOT_Normal, CElementGen::kOSF_One);
+    mParticleGen =
+        rs_new CElementGen(mParticleDesc, CElementGen::kMOT_Normal, CElementGen::kOSF_One);
 
-    x114_particleGen->SetOrientation(GetTransform().GetRotation());
-    x114_particleGen->SetGlobalTranslation(GetTranslation());
-    x114_particleGen->SetParticleEmission(true);
-    mgr.PlayerState()->StaticInterference().AddSource(GetUniqueId(), x100_interferenceMag,
-                                                      xf8_interferenceDur);
+    mParticleGen->SetOrientation(GetTransform().GetRotation());
+    mParticleGen->SetGlobalTranslation(GetTranslation());
+    mParticleGen->SetParticleEmission(true);
+    mgr.PlayerState()->StaticInterference().AddSource(GetUniqueId(), mInterferenceMag,
+                                                      mInterferenceDur);
     break;
   default:
     break;
@@ -53,17 +53,17 @@ void CScriptEMPulse::Think(float dt, CStateManager& mgr) {
     return;
   }
 
-  float step = (xec_finalRadius - xf4_initialRadius) / xe8_duration;
-  xf0_currentRadius = xf0_currentRadius + step * dt;
-  if (xf0_currentRadius >= xec_finalRadius) {
+  float step = (mFinalRadius - mInitialRadius) / mDuration;
+  mCurrentRadius = mCurrentRadius + step * dt;
+  if (mCurrentRadius >= mFinalRadius) {
     mgr.DeleteObjectRequest(GetUniqueId());
   }
 
-  x114_particleGen->Update(dt);
+  mParticleGen->Update(dt);
 }
 
 CAABox CScriptEMPulse::CalculateBoundingBox() const {
-  float radius = xf0_currentRadius;
+  float radius = mCurrentRadius;
   CVector3f position(GetTranslation());
   return CAABox(position - CVector3f(radius, radius, radius),
                 position + CVector3f(radius, radius, radius));
@@ -85,10 +85,10 @@ void CScriptEMPulse::Touch(CActor& act, CStateManager& mgr) {
     // CVector3f posDiff(thisPos - pl->GetTranslation());
     // float diffMagnitude = posDiff.Magnitude();
     float diffMagnitude = (GetTranslation() - pl->GetTranslation()).Magnitude();
-    if (diffMagnitude < xec_finalRadius) {
-      const float diffMagOp = 1.f - (diffMagnitude / xec_finalRadius);
-      const float dur = (diffMagOp * (xfc_ - xf8_interferenceDur)) + xf8_interferenceDur;
-      const float mag = (diffMagOp * (x104_ - x100_interferenceMag)) + x100_interferenceMag;
+    if (diffMagnitude < mFinalRadius) {
+      const float diffMagOp = 1.f - (diffMagnitude / mFinalRadius);
+      const float dur = (diffMagOp * (xfc_ - mInterferenceDur)) + mInterferenceDur;
+      const float mag = (diffMagOp * (x104_ - mInterferenceMag)) + mInterferenceMag;
 
       if (dur > pl->GetStaticTimer()) {
         pl->SetHudDisable(dur);
@@ -103,6 +103,6 @@ void CScriptEMPulse::Touch(CActor& act, CStateManager& mgr) {
 void CScriptEMPulse::AddToRenderer(const CFrustumPlanes& frustum, const CStateManager& mgr) const {
   CActor::AddToRenderer(frustum, mgr);
   if (GetActive()) {
-    gpRender->AddParticleGen(*x114_particleGen);
+    gpRender->AddParticleGen(*mParticleGen);
   }
 }

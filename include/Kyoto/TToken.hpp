@@ -25,8 +25,13 @@ public:
   T* operator*() { return GetT(); }
   T* operator->() { return GetT(); }
 
-  static rstl::auto_ptr< TObjOwnerDerivedFromIObj< T > >
-  GetIObjObjectFor(const rstl::auto_ptr< T >& obj) {
+#if VERSION >= VERSION_R3IJ_00
+  typedef rstl::auto_ptr< IObj > TOwnerPtr;
+#else
+  typedef rstl::auto_ptr< TObjOwnerDerivedFromIObj< T > > TOwnerPtr;
+#endif
+
+  static TOwnerPtr GetIObjObjectFor(const rstl::auto_ptr< T >& obj) {
     return TObjOwnerDerivedFromIObj< T >::GetNewDerivedObject(obj);
   }
 
@@ -37,19 +42,19 @@ template < typename T >
 class TCachedToken : public TToken< T > {
 public:
   TCachedToken() {}
-  TCachedToken(const CToken& token) : TToken< T >(token), x8_item(nullptr) {}
+  TCachedToken(const CToken& token) : TToken< T >(token), mItem(nullptr) {}
   // __ct__23TCachedToken<8CTexture>FRC23TCachedToken<8CTexture>
   // __as__21TCachedToken<6CModel>FRC21TCachedToken<6CModel>
 
   // T* operator*() { return x8_item; }
-  T* GetObject() const { return x8_item; }
+  T* GetObject() const { return mItem; }
 
   bool TryCache() {
-    if (x8_item != nullptr) {
+    if (mItem != nullptr) {
       return true;
     }
     if (CToken::IsLocked() && CToken::IsLoaded()) {
-      x8_item = TToken< T >::GetT();
+      mItem = TToken< T >::GetT();
       return true;
     }
     return false;
@@ -60,29 +65,29 @@ public:
   const CToken& GetToken() const { return *this; }
 
   void Unlock() {
-    x8_item = nullptr;
+    mItem = nullptr;
     TToken< T >::Unlock();
   }
 
-  bool IsLoaded() const { return x8_item != nullptr || CToken::IsLoaded(); }
+  bool IsLoaded() const { return mItem != nullptr || CToken::IsLoaded(); }
 
   void ForceCache() {
-    if (x8_item == nullptr) {
-      x8_item = TToken< T >::GetT();
+    if (mItem == nullptr) {
+      mItem = TToken< T >::GetT();
     }
   }
 
 private:
-  T* x8_item;
+  T* mItem;
 };
 
 template < typename T >
 class TLockedToken : public TToken< T > {
 public:
   TLockedToken() {}
-  TLockedToken(T* item) : TToken< T >(item), x8_item(item) { CToken::Lock(); }
-  TLockedToken(const CToken& token) : TToken< T >(token), x8_item(TToken< T >::GetT()) {}
-  TLockedToken(const TLockedToken< T >& token) : TToken< T >(token), x8_item(*token) {
+  TLockedToken(T* item) : TToken< T >(item), mItem(item) { CToken::Lock(); }
+  TLockedToken(const CToken& token) : TToken< T >(token), mItem(TToken< T >::GetT()) {}
+  TLockedToken(const TLockedToken< T >& token) : TToken< T >(token), mItem(*token) {
     CToken::Lock();
   }
 
@@ -92,11 +97,11 @@ public:
   //   return *this;
   // }
 
-  T* operator*() const { return x8_item; }
-  T* operator->() const { return x8_item; }
+  T* operator*() const { return mItem; }
+  T* operator->() const { return mItem; }
 
 private:
-  T* x8_item;
+  T* mItem;
 };
 
 #endif // _TTOKEN

@@ -5,11 +5,11 @@
 #include "types.h"
 
 struct SOnScreenTex {
-  CAssetId x0_id;
-  CVector2i x4_extent;
-  CVector2i xc_offset;
+  CAssetId mId;
+  CVector2i mExtent;
+  CVector2i mOffset;
 
-  SOnScreenTex() : x0_id(kInvalidAssetId), x4_extent(0, 0), xc_offset(0, 0) {}
+  SOnScreenTex() : mId(kInvalidAssetId), mExtent(0, 0), mOffset(0, 0) {}
 };
 CHECK_SIZEOF(SOnScreenTex, 0x14)
 

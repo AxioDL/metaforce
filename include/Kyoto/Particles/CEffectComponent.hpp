@@ -9,22 +9,22 @@ class CEffectComponent {
 public:
   explicit CEffectComponent(CInputStream& in);
 
-  const rstl::string& GetComponentName() const { return x0_name; }
-  const SObjectTag& GetParticleTag() const { return x10_tag; }
-  const rstl::string& GetSegmentName() const { return x18_boneName; }
-  float GetScale() const { return x28_scale; }
-  CParticleData::EParentedMode GetParentedMode() const { return x2c_parentedMode; }
-  uint GetFlags() const {return x30_flags; }
+  const rstl::string& GetComponentName() const { return mName; }
+  const SObjectTag& GetParticleTag() const { return mTag; }
+  const rstl::string& GetSegmentName() const { return mBoneName; }
+  float GetScale() const { return mScale; }
+  CParticleData::EParentedMode GetParentedMode() const { return mParentedMode; }
+  uint GetFlags() const {return mFlags; }
 
 private:
   SObjectTag GetSObjectTagFromStream(CInputStream& in);
 
-  rstl::string x0_name;
-  SObjectTag x10_tag;
-  rstl::string x18_boneName;
-  float x28_scale;
-  CParticleData::EParentedMode x2c_parentedMode;
-  uint x30_flags;
+  rstl::string mName;
+  SObjectTag mTag;
+  rstl::string mBoneName;
+  float mScale;
+  CParticleData::EParentedMode mParentedMode;
+  uint mFlags;
 };
 
 #endif // _CEFFECTCOMPONENT

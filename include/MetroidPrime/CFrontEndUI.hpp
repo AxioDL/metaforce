@@ -33,6 +33,7 @@ class CQuitGameScreen;
 class CGuiTextSupport;
 class CFinalInput;
 class CRumbleGenerator;
+class CStringTable;
 class SOptionsFrontEndFrame;
 
 class CFrontEndUI : public CIOWin {
@@ -72,16 +73,20 @@ public:
     kMM_FileSelectGBA,
     kMM_GBALoop,
     kMM_GBAFileSelectA,
+#if VERSION >= VERSION_GM8P_00
+    kMM_BackToTitle
+#else
     kMM_GBAFileSelectB
+#endif
   };
 
   struct SMenuMovieData {
-    rstl::auto_ptr< CMoviePlayer > x0_movie;
+    rstl::auto_ptr< CMoviePlayer > mMovie;
   };
 
   struct SGuiTextPair {
-    CGuiTextPane* x0_textPane;
-    CGuiTextPane* x4_textPaneB;
+    CGuiTextPane* mTextPane;
+    CGuiTextPane* mTextPaneB;
 
     SGuiTextPair();
     SGuiTextPair(const CGuiFrame* frame, const char* name);
@@ -90,10 +95,10 @@ public:
   };
 
   struct SFileSelectOption {
-    CGuiWidget* x0_base;
-    rstl::reserved_vector< SGuiTextPair, 4 > x4_textpanes;
-    int x28_curField;
-    float x2c_chRate;
+    CGuiWidget* mBase;
+    rstl::reserved_vector< SGuiTextPair, 4 > mTextpanes;
+    int mCurField;
+    float mChRate;
 
     SFileSelectOption(CGuiFrame* frame, int idx);
     static float ComputeRandom();
@@ -102,37 +107,55 @@ public:
   struct SNewFileSelectFrame {
     enum ESubMenu { kSM_Root = 0, kSM_EraseGame, kSM_EraseGamePopup, kSM_NewGamePopup };
 
-    enum EAction { kA_None = 0, kA_GameOptions, kA_FusionBonus, kA_SlideShow };
+    enum EAction {
+      kA_None = 0,
+      kA_GameOptions,
+      kA_FusionBonus,
+      kA_SlideShow,
+#if VERSION >= VERSION_GM8P_00
+      kA_Language,
+      kA_ReturnToTitle,
+#endif
+    };
 
-    uint x0_rnd;
-    CSaveGameScreen* x4_saveUI;
-    ESubMenu x8_subMenu;
-    EAction xc_action;
-    TCachedToken< CGuiFrame > x10_frme;
-    CGuiFrame* x1c_loadedFrame;
-    CGuiTableGroup* x20_tablegroup_fileselect;
-    CGuiModel* x24_model_erase;
-    SGuiTextPair x28_textpane_erase;
-    SGuiTextPair x30_textpane_cheats;
-    SGuiTextPair x38_textpane_gba;
-    CGuiTableGroup* x40_tablegroup_popup;
-    CGuiModel* x44_model_dash7;
-    SGuiTextPair x48_textpane_popupadvance;
-    SGuiTextPair x50_textpane_popupcancel;
-    SGuiTextPair x58_textpane_popupextra;
-    CGuiTextPane* x60_textpane_cancel;
-    rstl::reserved_vector< SFileSelectOption, 3 > x64_fileSelections;
-    CVector3f xf8_model_erase_position;
-    float x104_rowPitch;
-    float x108_curTime;
-    bool x10c_saveReady;
-    bool x10d_needsEraseToggle;
-    bool x10e_needsNewToggle;
+    uint mRnd;
+    CSaveGameScreen* mSaveUI;
+    ESubMenu mSubMenu;
+    EAction mAction;
+    TCachedToken< CGuiFrame > mFrme;
+    CGuiFrame* mLoadedFrame;
+    CGuiTableGroup* mTablegroup_fileselect;
+    CGuiModel* mModel_erase;
+    SGuiTextPair mTextpane_erase;
+#if VERSION >= VERSION_GM8P_00
+    SGuiTextPair mTextpane_language;
+#endif
+    SGuiTextPair mTextpane_cheats;
+    SGuiTextPair mTextpane_gba;
+    CGuiTableGroup* mTablegroup_popup;
+    CGuiModel* mModel_dash7;
+    SGuiTextPair mTextpane_popupadvance;
+    SGuiTextPair mTextpane_popupcancel;
+    SGuiTextPair mTextpane_popupextra;
+#if VERSION < VERSION_GM8P_00
+    CGuiTextPane* mTextpane_cancel;
+#endif
+    rstl::reserved_vector< SFileSelectOption, 3 > mFileSelections;
+    CVector3f mModel_erase_position;
+    float mRowPitch;
+    float mCurTime;
+    bool mSaveReady;
+    bool mNeedsEraseToggle;
+    bool mNeedsNewToggle;
 
     SNewFileSelectFrame(CSaveGameScreen* saveUI, uint rnd);
     ~SNewFileSelectFrame();
     bool PumpLoad();
     void FinishedLoading();
+#if VERSION >= VERSION_GM8P_00
+    void SetStrings();
+    void ReapplyStrings();
+#endif
     uint GetUserFileSelection() const;
     void Update(float dt);
     EAction ProcessUserInput(const CFinalInput& input);
@@ -174,22 +197,22 @@ public:
 
       enum EAction { kGA_None = 0, kGA_Complete = 1, kGA_Cancelled = 2 };
 
-      EUIType x0_uiType;
-      CGBASupport* x4_gbaSupport;
-      CGuiFrame* x8_frme;
-      SGuiTextPair xc_textpane_instructions;
-      CGuiTextPane* x14_textpane_yes;
-      CGuiTextPane* x18_textpane_no;
-      CGuiModel* x1c_model_gc;
-      CGuiModel* x20_model_gba;
-      CGuiModel* x24_model_cable;
-      CGuiModel* x28_model_circlegcport;
-      CGuiModel* x2c_model_circlegbaport;
-      CGuiModel* x30_model_circlestartselect;
-      CGuiModel* x34_model_pakout;
-      CGuiModel* x38_model_gbascreen;
-      CGuiModel* x3c_model_connect;
-      bool x40_linkInProgress;
+      EUIType mUiType;
+      CGBASupport* mGbaSupport;
+      CGuiFrame* mFrme;
+      SGuiTextPair mTextpane_instructions;
+      CGuiTextPane* mTextpane_yes;
+      CGuiTextPane* mTextpane_no;
+      CGuiModel* mModel_gc;
+      CGuiModel* mModel_gba;
+      CGuiModel* mModel_cable;
+      CGuiModel* mModel_circlegcport;
+      CGuiModel* mModel_circlegbaport;
+      CGuiModel* mModel_circlestartselect;
+      CGuiModel* mModel_pakout;
+      CGuiModel* mModel_gbascreen;
+      CGuiModel* mModel_connect;
+      bool mLinkInProgress;
 
       SGBALinkFrame(CGuiFrame* frme, CGBASupport* support, bool linkInProgress);
       ~SGBALinkFrame();
@@ -202,18 +225,18 @@ public:
 
     enum EAction { kFA_None = 0, kFA_GoBack = 1, kFA_PlayNESMetroid = 2 };
 
-    rstl::single_ptr< SGBALinkFrame > x0_gbaLinkFrame;
-    rstl::single_ptr< CGBASupport > x4_gbaSupport;
-    EAction x8_action;
-    TCachedToken< CGuiFrame > xc_gbaScreen;
-    TCachedToken< CGuiFrame > x18_gbaLink;
-    CGuiFrame* x24_loadedFrame;
-    CGuiTableGroup* x28_tablegroup_options;
-    CGuiTableGroup* x2c_tablegroup_fusionsuit;
-    SGuiTextPair x30_textpane_instructions;
-    bool x38_lastDoDraw;
-    bool x39_fusionNotComplete;
-    bool x3a_mpNotComplete;
+    rstl::single_ptr< SGBALinkFrame > mGbaLinkFrame;
+    rstl::single_ptr< CGBASupport > mGbaSupport;
+    EAction mAction;
+    TCachedToken< CGuiFrame > mGbaScreen;
+    TCachedToken< CGuiFrame > mGbaLink;
+    CGuiFrame* mLoadedFrame;
+    CGuiTableGroup* mTablegroup_options;
+    CGuiTableGroup* mTablegroup_fusionsuit;
+    SGuiTextPair mTextpane_instructions;
+    bool mLastDoDraw;
+    bool mFusionNotComplete;
+    bool mMpNotComplete;
 
     SFusionBonusFrame();
     ~SFusionBonusFrame();
@@ -222,6 +245,10 @@ public:
     EAction ProcessUserInput(const CFinalInput& input, CSaveGameScreen* saveUI);
     bool PumpLoad();
     void FinishedLoading();
+#if VERSION >= VERSION_GM8P_00
+    void SetStrings();
+    void ReapplyStrings();
+#endif
     void ResetCompletionFlags();
     void SetTableColors(CGuiTableGroup* tbgp);
     void DoOptionsAdvance(CGuiTableGroup* caller);
@@ -230,20 +257,38 @@ public:
   };
 
   struct SFrontEndFrame {
-    enum EAction { kEA_None = 0, kEA_StartGame, kEA_FusionBonus, kEA_GameOptions, kEA_SlideShow };
+    enum EAction {
+      kEA_None = 0,
+      kEA_StartGame,
+      kEA_FusionBonus,
+      kEA_GameOptions,
+      kEA_SlideShow
+#if VERSION >= VERSION_GM8P_00
+      ,
+      kEA_Language,
+      kEA_ReturnToTitle
+#endif
+    };
 
-    uint x0_rnd;
-    EAction x4_action;
-    TCachedToken< CGuiFrame > x8_frme;
-    CGuiFrame* x14_loadedFrme;
-    CGuiTableGroup* x18_tablegroup_mainmenu;
-    SGuiTextPair x1c_gbaPair;
-    SGuiTextPair x24_cheatPair;
+    uint mRnd;
+    EAction mAction;
+    TCachedToken< CGuiFrame > mFrme;
+    CGuiFrame* mLoadedFrme;
+    CGuiTableGroup* mTablegroup_mainmenu;
+#if VERSION >= VERSION_GM8P_00
+    SGuiTextPair mLanguagePair;
+#endif
+    SGuiTextPair mGbaPair;
+    SGuiTextPair mCheatPair;
 
     SFrontEndFrame(uint rnd);
     ~SFrontEndFrame();
     bool PumpLoad();
     void FinishedLoading();
+#if VERSION >= VERSION_GM8P_00
+    void SetStrings();
+    void ReapplyStrings();
+#endif
     void Update(float dt);
     EAction ProcessUserInput(const CFinalInput& input);
     void Draw();
@@ -258,13 +303,16 @@ public:
   struct SNesEmulatorFrame {
     enum EMode { kEM_Emulator = 0, kEM_SaveProgress, kEM_ContinuePlaying, kEM_QuitNESMetroid };
 
-    EMode x0_mode;
-    rstl::single_ptr< CNESEmulator > x4_nesEmu;
-    rstl::single_ptr< CQuitGameScreen > x8_quitScreen;
-    rstl::single_ptr< CGuiTextSupport > xc_textSupport;
-    float x10_remTime;
-    bool x14_emulationSuspended;
-    bool x15_enableFiltering;
+    EMode mMode;
+    rstl::single_ptr< CNESEmulator > mNesEmu;
+    rstl::single_ptr< CQuitGameScreen > mQuitScreen;
+    rstl::single_ptr< CGuiTextSupport > mTextSupport;
+    float mRemTime;
+#if VERSION >= VERSION_GM8P_00
+    float x14_;
+#endif
+    bool mEmulationSuspended;
+    bool mEnableFiltering;
 
     SNesEmulatorFrame();
     ~SNesEmulatorFrame();
@@ -274,10 +322,37 @@ public:
     void Draw(CSaveGameScreen* saveUi) const;
   };
 
+#if VERSION >= VERSION_GM8P_00
+  struct SLanguageSelectFrame {
+    TLockedToken< CGuiFrame > mFrame;
+    TLockedToken< CStringTable > mStrings;
+    int mInitialLanguage;
+    CGuiFrame* mLoadedFrame;
+    CGuiTableGroup* mTablegroup_menu;
+    bool mActive : 1;
+    bool mCanDraw : 1;
+
+    SLanguageSelectFrame();
+    ~SLanguageSelectFrame();
+    void Update(float dt, CSaveGameScreen* saveUI);
+    bool ProcessUserInput(const CFinalInput& input, CSaveGameScreen* saveUI);
+    void Draw() const;
+    void DoSelectionChange(CGuiTableGroup* caller, int oldSelection);
+    void DoCancel(CGuiTableGroup* caller);
+    void SetTableColors();
+  };
+
+#endif
   static void PlayAdvanceSfx();
+#if VERSION >= VERSION_GM8P_00
+  static void SetTitlePosition(CGuiFrame& frame);
+#endif
 
 private:
   void TransitionToFive();
+#if VERSION >= VERSION_GM8P_00
+  void ReapplyStrings();
+#endif
   void UpdateMusicVol();
   void FinishedLoadingDepsGroup();
   bool PumpLoad();
@@ -286,9 +361,9 @@ private:
   void UpdateMovies(float dt);
   void ProcessUserInput(const CFinalInput& input, CArchitectureQueue& queue);
   bool IsInScreenNotTransitioning(EScreen screen) const {
-    return x50_curScreen == screen && x54_nextScreen == screen;
+    return mCurScreen == screen && mNextScreen == screen;
   }
-  bool GetHasAttractMovies() const { return xc0_attractCount > 0; }
+  bool GetHasAttractMovies() const { return mAttractCount > 0; }
   bool CanShowSaveUI() const;
   void StartStateTransition(EScreen screen);
   void CompleteStateTransition();
@@ -301,48 +376,69 @@ private:
   void SetFadeBlackWithMovie();
   void StartSlideShow(CArchitectureQueue& queue);
 
-  EPhase x14_phase;
-  uint x18_rndA;
-  uint x1c_rndB;
-  TToken< CDependencyGroup > x20_depsGroup;
-  rstl::vector< CToken > x28_deps;
-  TCachedToken< CTexture > x38_pressStart;
-  TCachedToken< CAudioGrpSetLoc > x44_frontendAudioGrp;
-  EScreen x50_curScreen;
-  EScreen x54_nextScreen;
-  float x58_fadeBlackTimer;
-  bool x5c_fadeBlackWithMovie;
-  float x60_pressStartTime;
-  float x64_pressStartAlpha;
-  float x68_musicVol;
-  rstl::reserved_vector< SMenuMovieData, 9 > x6c_menuMovies;
-  EMenuMovie xb8_curMovie;
-  int xbc_nextAttract;
-  int xc0_attractCount;
-  rstl::auto_ptr< CMoviePlayer > xc4_attractMovie;
-  CMoviePlayer* xcc_curMoviePtr;
-  bool xd0_playerSkipToTitle;
-  bool xd1_moviesLoaded;
-  bool xd2_deferSlideShow;
-  rstl::single_ptr< CStaticAudioPlayer > xd4_audio1;
-  rstl::single_ptr< CStaticAudioPlayer > xd8_audio2;
-  rstl::single_ptr< CSaveGameScreen > xdc_saveUI;
-  rstl::single_ptr< SNewFileSelectFrame > xe0_frontendCardFrme;
-  rstl::single_ptr< SFusionBonusFrame > xe4_fusionBonusFrme;
-  rstl::single_ptr< SFrontEndFrame > xe8_frontendNoCardFrme;
-  rstl::single_ptr< SNesEmulatorFrame > xec_emuFrme;
-  rstl::single_ptr< SOptionsFrontEndFrame > xf0_optionsFrme;
-  CStaticAudioPlayer* xf4_curAudio;
+  EPhase mPhase;
+  uint mRndA;
+  uint mRndB;
+  TToken< CDependencyGroup > mDepsGroup;
+  rstl::vector< CToken > mDeps;
+  TCachedToken< CTexture > mPressStart;
+  TCachedToken< CAudioGrpSetLoc > mFrontendAudioGrp;
+  EScreen mCurScreen;
+  EScreen mNextScreen;
+  float mFadeBlackTimer;
+  bool mFadeBlackWithMovie;
+  float mPressStartTime;
+  float mPressStartAlpha;
+  float mMusicVol;
+  rstl::reserved_vector< SMenuMovieData, 9 > mMenuMovies;
+  EMenuMovie mCurMovie;
+  int mNextAttract;
+  int mAttractCount;
+  rstl::auto_ptr< CMoviePlayer > mAttractMovie;
+  CMoviePlayer* mCurMoviePtr;
+#if VERSION >= VERSION_GM8P_00
+  bool mPlayerSkipToTitle : 1;
+  bool mMoviesLoaded : 1;
+  bool mDeferSlideShow : 1;
+  bool mStringsReloading : 1;
+  bool mNoCardFrame : 1;
+  bool mNoSaveUI : 1;
+#else
+  bool mPlayerSkipToTitle;
+  bool mMoviesLoaded;
+  bool mDeferSlideShow;
+#endif
+  rstl::single_ptr< CStaticAudioPlayer > mAudio1;
+  rstl::single_ptr< CStaticAudioPlayer > mAudio2;
+  rstl::single_ptr< CSaveGameScreen > mSaveUI;
+  rstl::single_ptr< SNewFileSelectFrame > mFrontendCardFrme;
+  rstl::single_ptr< SFusionBonusFrame > mFusionBonusFrme;
+  rstl::single_ptr< SFrontEndFrame > mFrontendNoCardFrme;
+  rstl::single_ptr< SNesEmulatorFrame > mEmuFrme;
+  rstl::single_ptr< SOptionsFrontEndFrame > mOptionsFrme;
+#if VERSION >= VERSION_GM8P_00
+  rstl::single_ptr< SLanguageSelectFrame > mLanguageFrme;
+#endif
+  CStaticAudioPlayer* mCurAudio;
 };
 
 NESTED_CHECK_SIZEOF(CFrontEndUI, SMenuMovieData, 0x8)
 NESTED_CHECK_SIZEOF(CFrontEndUI, SGuiTextPair, 0x8)
 NESTED_CHECK_SIZEOF(CFrontEndUI, SFileSelectOption, 0x30)
-NESTED_CHECK_SIZEOF(CFrontEndUI, SNewFileSelectFrame, 0x110)
+NESTED_CHECK_SIZEOF(CFrontEndUI, SNewFileSelectFrame,
+                    (VERSION >= VERSION_GM8P_00 ? 0x114 : 0x110))
 NESTED_CHECK_SIZEOF(CFrontEndUI::SFusionBonusFrame, SGBALinkFrame, 0x44)
 NESTED_CHECK_SIZEOF(CFrontEndUI, SFusionBonusFrame, 0x3c)
-NESTED_CHECK_SIZEOF(CFrontEndUI, SFrontEndFrame, 0x2c)
+NESTED_CHECK_SIZEOF(CFrontEndUI, SFrontEndFrame,
+                    (VERSION >= VERSION_GM8P_00 ? 0x34 : 0x2c))
+#if VERSION >= VERSION_GM8P_00
+NESTED_CHECK_SIZEOF(CFrontEndUI, SNesEmulatorFrame, 0x1c)
+#else
 NESTED_CHECK_SIZEOF(CFrontEndUI, SNesEmulatorFrame, 0x18)
-CHECK_SIZEOF(CFrontEndUI, 0xf8)
+#endif
+CHECK_SIZEOF(CFrontEndUI, (VERSION >= VERSION_GM8P_00 ? 0xfc : 0xf8))
+#if VERSION >= VERSION_GM8P_00
+NESTED_CHECK_SIZEOF(CFrontEndUI, SLanguageSelectFrame, 0x28)
+#endif
 
 #endif // _CFRONTENDUI

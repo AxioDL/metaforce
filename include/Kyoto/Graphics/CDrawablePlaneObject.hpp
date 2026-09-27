@@ -12,24 +12,24 @@ public:
   CDrawablePlaneObject(EDrawableType dtype, float closeDist, float farDist, const CAABox& aabb,
                        bool invertTest, const CPlane& plane, bool zOnly, const void* data)
   : CDrawable(dtype, 0, closeDist, aabb, data)
-  , x24_targetBucket(0)
-  , x28_farDist(farDist)
-  , x2c_plane(plane)
-  , x3c_24_invertTest(invertTest)
-  , x3c_25_zOnly(zOnly) {}
+  , mTargetBucket(0)
+  , mFarDist(farDist)
+  , mPlane(plane)
+  , mInvertTest(invertTest)
+  , mZOnly(zOnly) {}
 
-  ushort GetBucketIndex() const { return x24_targetBucket; }
-  void SetBucketIndex(ushort idx) { x24_targetBucket = idx; }
-  const CPlane& GetPlane() const { return x2c_plane; }
-  bool IsViewInFront() const { return x3c_24_invertTest; }
-  bool IsOptimalPlane() const { return x3c_25_zOnly; }
+  ushort GetBucketIndex() const { return mTargetBucket; }
+  void SetBucketIndex(ushort idx) { mTargetBucket = idx; }
+  const CPlane& GetPlane() const { return mPlane; }
+  bool IsViewInFront() const { return mInvertTest; }
+  bool IsOptimalPlane() const { return mZOnly; }
 
 private:
-  ushort x24_targetBucket;
-  float x28_farDist;
-  CPlane x2c_plane;
-  bool x3c_24_invertTest : 1;
-  bool x3c_25_zOnly : 1;
+  ushort mTargetBucket;
+  float mFarDist;
+  CPlane mPlane;
+  bool mInvertTest : 1;
+  bool mZOnly : 1;
 };
 
 #endif // _CDRAWABLEPLANEOBJECT

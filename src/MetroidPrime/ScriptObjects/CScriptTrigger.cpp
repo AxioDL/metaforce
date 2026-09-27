@@ -9,37 +9,37 @@
 #include "MetroidPrime/Weapons/CWeapon.hpp"
 
 inline void CScriptTrigger::ActivatePlayer(CStateManager& mgr) {
-  if (x148_28_playerTriggerProc != true) {
-    x148_28_playerTriggerProc = true;
+  if (mPlayerTriggerProc != true) {
+    mPlayerTriggerProc = true;
 
     CPlayer* pl = mgr.Player();
-    if (x148_29_didPhazonDamage) {
+    if (mDidPhazonDamage) {
       pl->DecrementEnvironmentDamage();
-      x148_29_didPhazonDamage = false;
+      mDidPhazonDamage = false;
     }
-    if (!x100_damageInfo.HasNoDamage()) {
+    if (!mDamageInfo.HasNoDamage()) {
       const CDamageVulnerability* dVuln = pl->GetDamageVulnerability();
       bool phazonHurt =
-          dVuln->WeaponHurts(x100_damageInfo.GetWeaponMode(), CDamageVulnerability::kRD_No);
-      if (x100_damageInfo.GetWeaponMode().GetType() == kWT_Phazon) {
+          dVuln->WeaponHurts(mDamageInfo.GetWeaponMode(), CDamageVulnerability::kRD_No);
+      if (mDamageInfo.GetWeaponMode().GetType() == kWT_Phazon) {
         if (mgr.GetPlayerState()->HasPowerUp(CPlayerState::kIT_PhazonSuit)) {
           phazonHurt = false;
         }
       }
       if (phazonHurt) {
         pl->IncrementEnvironmentDamage();
-        x148_29_didPhazonDamage = true;
+        mDidPhazonDamage = true;
       }
     }
   }
 }
 
 inline void CScriptTrigger::DeactivatePlayer(CStateManager& mgr) {
-  x148_28_playerTriggerProc = false;
+  mPlayerTriggerProc = false;
   CPlayer* player = mgr.Player();
-  if (x148_29_didPhazonDamage) {
+  if (mDidPhazonDamage) {
     player->DecrementEnvironmentDamage();
-    x148_29_didPhazonDamage = false;
+    mDidPhazonDamage = false;
   }
   if (mgr.GetLastTriggerId() == GetUniqueId()) {
     mgr.SetLastTriggerId(kInvalidUniqueId);
@@ -52,32 +52,32 @@ CScriptTrigger::CScriptTrigger(const TUniqueId uid, const rstl::string& name, co
                                const bool deactivateOnEntered, const bool deactivateOnExited)
 : CActor(uid, active, name, info, CTransform4f::Translate(pos), CModelData::CModelDataNull(),
          CMaterialList(kMT_Trigger), CActorParameters::None(), kInvalidUniqueId)
-, x100_damageInfo(dInfo)
-, x11c_forceField(forceField)
-, x128_forceMagnitude(forceField.Magnitude())
-, x12c_flags(triggerFlags)
-, x130_bounds(bounds)
-, x148_24_detectCamera(false)
-, x148_25_camSubmerged(false)
-, x148_26_deactivateOnEntered(deactivateOnEntered)
-, x148_27_deactivateOnExited(deactivateOnExited)
-, x148_28_playerTriggerProc(false)
-, x148_29_didPhazonDamage(false) {
+, mDamageInfo(dInfo)
+, mForceField(forceField)
+, mForceMagnitude(forceField.Magnitude())
+, mFlags(triggerFlags)
+, mBounds(bounds)
+, mDetectCamera(false)
+, mCamSubmerged(false)
+, mDeactivateOnEntered(deactivateOnEntered)
+, mDeactivateOnExited(deactivateOnExited)
+, mPlayerTriggerProc(false)
+, mDidPhazonDamage(false) {
   SetCallTouch(false);
 }
 
 CScriptTrigger::~CScriptTrigger() {
-  AUTO(it, xe8_inhabitants.begin());
-  AUTO(end, xe8_inhabitants.end());
+  AUTO(it, mInhabitants.begin());
+  AUTO(end, mInhabitants.end());
   AUTO(old, it);
   while (it != end) {
     ++it;
-    xe8_inhabitants.erase(old);
+    mInhabitants.erase(old);
     old = it;
   }
-  if (x12c_flags & 0x11000) {
-    x12c_flags = x12c_flags & 0xfffeefff;
-    x12c_flags = x12c_flags | 1;
+  if (mFlags & 0x11000) {
+    mFlags = mFlags & 0xfffeefff;
+    mFlags = mFlags | 1;
   }
 }
 
@@ -87,7 +87,7 @@ void CScriptTrigger::Touch(CActor& act, CStateManager& mgr) {
       uint testFlags = kTFL_None;
       CPlayer* const pl = TCastToPtr< CPlayer >(act);
       if (pl) {
-        if (x128_forceMagnitude > 0.f && ((x12c_flags & kTFL_DetectPlayer) != 0)) {
+        if (mForceMagnitude > 0.f && ((mFlags & kTFL_DetectPlayer) != 0)) {
           if (mgr.GetLastTriggerId() != kInvalidUniqueId) {
             return;
           }
@@ -118,8 +118,8 @@ void CScriptTrigger::Touch(CActor& act, CStateManager& mgr) {
         }
       }
 
-      if (testFlags & x12c_flags) {
-        xe8_inhabitants.push_back(CObjectTracker(act.GetUniqueId()));
+      if (testFlags & mFlags) {
+        mInhabitants.push_back(CObjectTracker(act.GetUniqueId()));
         InhabitantAdded(act, mgr);
 
         if ((testFlags & kTFL_DetectPlayer) && pl) {
@@ -128,18 +128,18 @@ void CScriptTrigger::Touch(CActor& act, CStateManager& mgr) {
 
         SendScriptMsgs(kSS_Entered, mgr, kSM_None);
 
-        if (x148_26_deactivateOnEntered) {
+        if (mDeactivateOnEntered) {
           mgr.SendScriptMsg(GetUniqueId(), mgr.GetEditorIdForUniqueId(GetUniqueId()),
                             kSM_Deactivate, kSS_Entered);
-          if (act.HealthInfo(mgr) && x100_damageInfo.GetDamage() > 0.f) {
+          if (act.HealthInfo(mgr) && mDamageInfo.GetDamage() > 0.f) {
             mgr.ApplyDamage(
-                GetUniqueId(), act.GetUniqueId(), GetUniqueId(), x100_damageInfo,
+                GetUniqueId(), act.GetUniqueId(), GetUniqueId(), mDamageInfo,
                 CMaterialFilter::MakeIncludeExclude(CMaterialList(SolidMaterial), CMaterialList(0)),
                 CVector3f::Zero());
           }
         }
 
-        if (x12c_flags & kTFL_KillOnEnter) {
+        if (mFlags & kTFL_KillOnEnter) {
           CHealthInfo* hInfo = act.HealthInfo(mgr);
           if (hInfo) {
             static CWeaponMode sktonOHurtWeaponMode(kWT_Power, false, false, true);
@@ -159,8 +159,8 @@ void CScriptTrigger::Touch(CActor& act, CStateManager& mgr) {
 }
 
 CAABox CScriptTrigger::GetTriggerBoundsWR() const {
-  return CAABox(x130_bounds.GetMinPoint() + GetTranslation(),
-                x130_bounds.GetMaxPoint() + GetTranslation());
+  return CAABox(mBounds.GetMinPoint() + GetTranslation(),
+                mBounds.GetMaxPoint() + GetTranslation());
 }
 
 rstl::optional_object< CAABox > CScriptTrigger::GetTouchBounds() const {
@@ -173,15 +173,15 @@ rstl::optional_object< CAABox > CScriptTrigger::GetTouchBounds() const {
 void CScriptTrigger::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
   if (GetActive()) {
     if (msg == kSM_Deactivate) {
-      xe8_inhabitants.clear();
-      x148_25_camSubmerged = false;
+      mInhabitants.clear();
+      mCamSubmerged = false;
 
-      if (x148_28_playerTriggerProc) {
+      if (mPlayerTriggerProc) {
         DeactivatePlayer(mgr);
       }
 
     } else if (msg == kSM_Deleted) {
-      if (x148_28_playerTriggerProc) {
+      if (mPlayerTriggerProc) {
         DeactivatePlayer(mgr);
       }
     }
@@ -200,8 +200,8 @@ void CScriptTrigger::UpdateInhabitants(float dt, CStateManager& mgr) {
   bool sendInside = false;
   bool sendExited = false;
   rstl::optional_object< CDamageInfo > timedDamage;
-  for (rstl::list< CObjectTracker >::iterator it = xe8_inhabitants.begin();
-       it != xe8_inhabitants.end();) {
+  for (rstl::list< CObjectTracker >::iterator it = mInhabitants.begin();
+       it != mInhabitants.end();) {
     AUTO(nextIt, it);
     ++nextIt;
 #if NONMATCHING
@@ -210,22 +210,22 @@ void CScriptTrigger::UpdateInhabitants(float dt, CStateManager& mgr) {
     if (CActor* act = TCastToPtr< CActor >(mgr.ObjectById(it->GetObjectId()))) {
       bool playerValid = true;
       if (it->GetObjectId() == mgr.GetPlayer()->GetUniqueId()) {
-        if ((x12c_flags & kTFL_DetectPlayer) == 0) {
+        if ((mFlags & kTFL_DetectPlayer) == 0) {
           if (mgr.GetPlayer()->GetMorphballTransitionState() == CPlayer::kMS_Morphed) {
-            if (x12c_flags & kTFL_DetectUnmorphedPlayer) {
+            if (mFlags & kTFL_DetectUnmorphedPlayer) {
               playerValid = false;
             }
           }
           if (mgr.GetPlayer()->GetMorphballTransitionState() == CPlayer::kMS_Unmorphed) {
-            if (x12c_flags & kTFL_DetectMorphedPlayer) {
+            if (mFlags & kTFL_DetectMorphedPlayer) {
               playerValid = false;
             }
           }
         }
         if (!playerValid) {
-          xe8_inhabitants.erase(it);
+          mInhabitants.erase(it);
           sendExited = true;
-          if (x148_28_playerTriggerProc) {
+          if (mPlayerTriggerProc) {
             DeactivatePlayer(mgr);
           }
 
@@ -239,9 +239,9 @@ void CScriptTrigger::UpdateInhabitants(float dt, CStateManager& mgr) {
             touchBounds->DoBoundsOverlap(*actTouchBounds)) {
           sendInside = true;
           InhabitantIdle(*act, mgr);
-          if (act->HealthInfo(mgr) && x100_damageInfo.GetDamage() > 0.f) {
+          if (act->HealthInfo(mgr) && mDamageInfo.GetDamage() > 0.f) {
             if (!timedDamage) {
-              timedDamage = x100_damageInfo.MakeScaledForTime(dt);
+              timedDamage = mDamageInfo.MakeScaledForTime(dt);
             }
             mgr.ApplyDamage(
                 GetUniqueId(), act->GetUniqueId(), GetUniqueId(), *timedDamage,
@@ -249,16 +249,16 @@ void CScriptTrigger::UpdateInhabitants(float dt, CStateManager& mgr) {
                 CVector3f::Zero());
           }
 
-          if (x128_forceMagnitude > 0.f) {
+          if (mForceMagnitude > 0.f) {
             if (CPhysicsActor* pact = TCastToPtr< CPhysicsActor >(act)) {
               float forceMult = 1.f;
-              if ((x12c_flags & kTFL_UseBooleanIntersection)) {
+              if ((mFlags & kTFL_UseBooleanIntersection)) {
                 forceMult = touchBounds->GetBooleanIntersection(*actTouchBounds).GetVolume() /
                             actTouchBounds->GetVolume();
               }
 
-              const CVector3f force = forceMult * x11c_forceField;
-              if ((x12c_flags & kTFL_UseCollisionImpulses)) {
+              const CVector3f force = forceMult * mForceField;
+              if ((mFlags & kTFL_UseCollisionImpulses)) {
                 pact->ApplyImpulseWR(force, CAxisAngle::Identity());
                 pact->UseCollisionImpulses();
               } else {
@@ -267,12 +267,12 @@ void CScriptTrigger::UpdateInhabitants(float dt, CStateManager& mgr) {
             }
           }
         } else {
-          xe8_inhabitants.erase(it);
+          mInhabitants.erase(it);
           sendExited = true;
 #if NONMATCHING
-          if (objectId == mgr.GetPlayer()->GetUniqueId() && x148_28_playerTriggerProc) {
+          if (objectId == mgr.GetPlayer()->GetUniqueId() && mPlayerTriggerProc) {
 #else
-          if (it->GetObjectId() == mgr.GetPlayer()->GetUniqueId() && x148_28_playerTriggerProc) {
+          if (it->GetObjectId() == mgr.GetPlayer()->GetUniqueId() && mPlayerTriggerProc) {
 #endif
             DeactivatePlayer(mgr);
           }
@@ -281,11 +281,11 @@ void CScriptTrigger::UpdateInhabitants(float dt, CStateManager& mgr) {
         }
       }
     } else {
-      xe8_inhabitants.erase(it);
+      mInhabitants.erase(it);
 #if NONMATCHING
-      if (objectId == mgr.GetPlayer()->GetUniqueId() && x148_28_playerTriggerProc) {
+      if (objectId == mgr.GetPlayer()->GetUniqueId() && mPlayerTriggerProc) {
 #else
-      if (it->GetObjectId() == mgr.GetPlayer()->GetUniqueId() && x148_28_playerTriggerProc) {
+      if (it->GetObjectId() == mgr.GetPlayer()->GetUniqueId() && mPlayerTriggerProc) {
 #endif
         DeactivatePlayer(mgr);
       }
@@ -293,26 +293,26 @@ void CScriptTrigger::UpdateInhabitants(float dt, CStateManager& mgr) {
     it = nextIt;
   }
 
-  if ((x12c_flags & kTFL_DetectCamera) || x148_24_detectCamera) {
+  if ((mFlags & kTFL_DetectCamera) || mDetectCamera) {
     CGameCamera& cam = mgr.CameraManager()->CurrentCamera(mgr);
     const bool camInTrigger = GetTriggerBoundsWR().PointInside(cam.GetTranslation());
-    if (x148_25_camSubmerged) {
+    if (mCamSubmerged) {
       if (!camInTrigger) {
-        x148_25_camSubmerged = false;
-        if ((x12c_flags & kTFL_DetectCamera)) {
+        mCamSubmerged = false;
+        if ((mFlags & kTFL_DetectCamera)) {
           sendExited = true;
           InhabitantExited(cam, mgr);
         }
       } else {
-        if ((x12c_flags & kTFL_DetectCamera)) {
+        if ((mFlags & kTFL_DetectCamera)) {
           InhabitantIdle(cam, mgr);
           sendInside = true;
         }
       }
     } else {
       if (camInTrigger) {
-        x148_25_camSubmerged = true;
-        if ((x12c_flags & kTFL_DetectCamera)) {
+        mCamSubmerged = true;
+        if ((mFlags & kTFL_DetectCamera)) {
           InhabitantAdded(cam, mgr);
           SendScriptMsgs(kSS_Entered, mgr, kSM_None);
         }
@@ -326,7 +326,7 @@ void CScriptTrigger::UpdateInhabitants(float dt, CStateManager& mgr) {
 
   if (sendExited) {
     SendScriptMsgs(kSS_Exited, mgr, kSM_None);
-    if (x148_27_deactivateOnExited) {
+    if (mDeactivateOnExited) {
       mgr.SendScriptMsg(GetUniqueId(), mgr.GetEditorIdForUniqueId(GetUniqueId()), kSM_Deactivate,
                         kSS_Exited);
     }
@@ -334,7 +334,7 @@ void CScriptTrigger::UpdateInhabitants(float dt, CStateManager& mgr) {
 }
 
 const rstl::list< CScriptTrigger::CObjectTracker >& CScriptTrigger::GetInhabitants() const {
-  return xe8_inhabitants;
+  return mInhabitants;
 }
 
 const CScriptTrigger::CObjectTracker* CScriptTrigger::FindObject(TUniqueId id) {

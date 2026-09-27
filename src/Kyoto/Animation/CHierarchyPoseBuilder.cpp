@@ -5,7 +5,7 @@
 #include "rstl/reserved_vector.hpp"
 
 CHierarchyPoseBuilder::CHierarchyPoseBuilder(const CLayoutDescription& layout)
-: x0_layoutDesc(layout), x38_treeMap(layout.GetNumSegments()) {
+: mLayoutDesc(layout), mTreeMap(layout.GetNumSegments()) {
   TToken< CCharLayoutInfo > layoutToken = layout.ScaledLayout();
   const CCharLayoutInfo& layoutInfo = **layoutToken;
   const CSegIdList& segments = layoutInfo.GetBodyPartSegIds();
@@ -18,24 +18,24 @@ CHierarchyPoseBuilder::CHierarchyPoseBuilder(const CLayoutDescription& layout)
 void CHierarchyPoseBuilder::BuildIntoHeirarchy(const CCharLayoutInfo& layout, const CSegId& seg,
                                                const CSegId& root) {
   const CSegId id = seg;
-  if (!x38_treeMap.ContainsDataFor(id)) {
+  if (!mTreeMap.ContainsDataFor(id)) {
     CSegId parent = layout.GetOriginalParent(seg);
     if (parent == root) {
-      x30_rootId.build(seg);
-      x38_treeMap.insert(seg, CTreeNode(CSegId::Null(), CSegId::Null(),
+      mRootId.build(seg);
+      mTreeMap.insert(seg, CTreeNode(CSegId::Null(), CSegId::Null(),
                                      layout.GetFromParentUnrotated(seg)));
     } else {
       BuildIntoHeirarchy(layout, parent, root);
-      x38_treeMap.insert(seg, x38_treeMap[parent].NodeForNextChildInserted(
+      mTreeMap.insert(seg, mTreeMap[parent].NodeForNextChildInserted(
                                   seg, CSegId::Null(), layout.GetFromParentUnrotated(seg)));
     }
   }
 }
 
 void CHierarchyPoseBuilder::BuildNoScale(CPoseAsTransforms& pose) {
-  CSegId root = *x30_rootId;
+  CSegId root = *mRootId;
   pose.Clear();
-  RecursivelyBuildNoScale(root, x38_treeMap[root], pose, CQuaternion::NoRotation(),
+  RecursivelyBuildNoScale(root, mTreeMap[root], pose, CQuaternion::NoRotation(),
                           CMatrix3f::Identity(), CVector3f::Zero());
 }
 
@@ -45,7 +45,7 @@ void CHierarchyPoseBuilder::RecursivelyBuild(const CSegId& seg, const CTreeNode&
                                              const CVector3f& offset) const {
   const CQuaternion& nodeRotation = node.GetRotation();
   CQuaternion childRotation = rotation * nodeRotation;
-  float scale = x0_layoutDesc.GlobalScale();
+  float scale = mLayoutDesc.GlobalScale();
   CMatrix3f childMatrix = scale == 1.f
                               ? childRotation.BuildTransform()
                               : matrix * (nodeRotation.BuildTransform() * CMatrix3f::Scale(scale));
@@ -55,7 +55,7 @@ void CHierarchyPoseBuilder::RecursivelyBuild(const CSegId& seg, const CTreeNode&
   CSegId child = node.GetFirstChildSegment();
   while (child != CSegId::Null()) {
     const CSegId childId = child;
-    const CTreeNode& childNode = x38_treeMap[childId];
+    const CTreeNode& childNode = mTreeMap[childId];
     RecursivelyBuild(childId, childNode, pose, childRotation, childRotation.BuildTransform(),
                      childOffset);
     child = childNode.GetNextSiblingSegment();
@@ -75,7 +75,7 @@ void CHierarchyPoseBuilder::RecursivelyBuildNoScale(const CSegId& seg, const CTr
   CSegId child = node.GetFirstChildSegment();
   while (child != CSegId::Null()) {
     const CSegId childId = child;
-    const CTreeNode& childNode = x38_treeMap[childId];
+    const CTreeNode& childNode = mTreeMap[childId];
     RecursivelyBuild(childId, childNode, pose, childRotation, childMatrix, childOffset);
     child = childNode.GetNextSiblingSegment();
   }
@@ -85,7 +85,7 @@ void CHierarchyPoseBuilder::BuildTransform(const CSegId& seg, CTransform4f& tran
   rstl::reserved_vector< CSegId, 100 > segments;
   CSegId current = seg;
   const CCharLayoutInfo& layout = **CharLayoutInfo();
-  float scale = x0_layoutDesc.GlobalScale();
+  float scale = mLayoutDesc.GlobalScale();
   while (current != CSegId::Character()) {
     segments.push_back(current);
     current = layout.GetOriginalParent(current);
@@ -95,7 +95,7 @@ void CHierarchyPoseBuilder::BuildTransform(const CSegId& seg, CTransform4f& tran
   CVector3f offset(0.f, 0.f, 0.f);
   CMatrix3f matrix = CMatrix3f::Identity();
   for (AUTO(it, segments.end()); it != segments.begin(); --it) {
-    const CTreeNode& node = x38_treeMap[*(it - 1)];
+    const CTreeNode& node = mTreeMap[*(it - 1)];
     const CQuaternion& nodeRotation = node.GetRotation();
     rotation = rotation * nodeRotation;
     offset += matrix * node.GetOffset();
@@ -107,5 +107,5 @@ void CHierarchyPoseBuilder::BuildTransform(const CSegId& seg, CTransform4f& tran
 }
 
 uchar CLayoutDescription::GetNumSegments() const {
-  return x0_layoutToken->GetBodyPartSegIds().size();
+  return mLayoutToken->GetBodyPartSegIds().size();
 }

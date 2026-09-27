@@ -4,7 +4,7 @@
 #include "MetroidPrime/CActor.hpp"
 
 class CRepulsor : public CActor {
-  float xe8_affectRadius;
+  float mAffectRadius;
 
 public:
   CRepulsor(TUniqueId, bool, const rstl::string&, const CEntityInfo&, const CVector3f&, float);
@@ -12,7 +12,7 @@ public:
   DECLARE_TYPES_MATCH_OR_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
 
-  float GetAffectRadius() const { return xe8_affectRadius; }
+  float GetAffectRadius() const { return mAffectRadius; }
 };
 
 #endif // _CREPULSOR

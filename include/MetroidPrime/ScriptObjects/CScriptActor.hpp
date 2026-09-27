@@ -38,26 +38,26 @@ public:
                                                          int) const override;
   CAABox GetSortingBounds(const CStateManager&) const override;
 
-  bool IsPlayerActor() const { return x2e3_24_isPlayerActor; }
+  bool IsPlayerActor() const { return mIsPlayerActor; }
 
 protected:
-  CHealthInfo x258_initialHealth;
-  CHealthInfo x260_currentHealth;
-  CDamageVulnerability x268_damageVulnerability;
-  float x2d0_fadeInTime;
-  float x2d4_fadeOutTime;
-  int x2d8_shaderIdx;
-  float x2dc_xrayAlpha;
-  TUniqueId x2e0_triggerId;
-  bool x2e2_24_noThermalHotZ : 1;
-  bool x2e2_25_dead : 1;
-  bool x2e2_26_animating : 1;
-  bool x2e2_27_xrayAlphaEnabled : 1;
-  bool x2e2_28_inXrayAlpha : 1;
-  bool x2e2_29_processModelFlags : 1;
-  bool x2e2_30_scaleAdvancementDelta : 1;
-  bool x2e2_31_materialFlag54 : 1;
-  bool x2e3_24_isPlayerActor : 1;
+  CHealthInfo mInitialHealth;
+  CHealthInfo mCurrentHealth;
+  CDamageVulnerability mDamageVulnerability;
+  float mFadeInTime;
+  float mFadeOutTime;
+  int mShaderIdx;
+  float mXrayAlpha;
+  TUniqueId mTriggerId;
+  bool mNoThermalHotZ : 1;
+  bool mDead : 1;
+  bool mAnimating : 1;
+  bool mXrayAlphaEnabled : 1;
+  bool mInXrayAlpha : 1;
+  bool mProcessModelFlags : 1;
+  bool mScaleAdvancementDelta : 1;
+  bool mMaterialFlag54 : 1;
+  bool mIsPlayerActor : 1;
 };
 
 #endif // _CSCRIPTACTOR

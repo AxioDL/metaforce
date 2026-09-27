@@ -30,19 +30,19 @@ public:
   void SetMinVal(float min);
   void SetMaxVal(float max);
   void SetCurVal(float cur);
-  float GetCurVal() const { return xc0_roundedCurVal; }
-  EState GetState() const { return xf0_state; }
+  float GetCurVal() const { return mRoundedCurVal; }
+  EState GetState() const { return mState; }
 
 private:
-  float xb8_minVal;
-  float xbc_maxVal;
-  float xc0_roundedCurVal;
-  float xc4_curVal;
-  float xc8_increment;
-  rstl::reserved_vector< CGuiWidget*, 2 > xcc_sliderRangeWidgets;
-  TFunctor2< CGuiSliderGroup* const, const float > xd8_changeCallback;
-  EState xf0_state;
-  bool xf4_24_inputPending : 1;
+  float mMinVal;
+  float mMaxVal;
+  float mRoundedCurVal;
+  float mCurVal;
+  float mIncrement;
+  rstl::reserved_vector< CGuiWidget*, 2 > mSliderRangeWidgets;
+  TFunctor2< CGuiSliderGroup* const, const float > mChangeCallback;
+  EState mState;
+  bool mInputPending : 1;
 };
 
 CHECK_SIZEOF(CGuiSliderGroup, 0xf8)

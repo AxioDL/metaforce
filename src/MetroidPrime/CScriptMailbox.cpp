@@ -18,7 +18,7 @@ CScriptMailbox::CScriptMailbox(CInputStream& in, const CWorldSaveGameInfo& world
   for (int i = 0; i < relayStates.size(); ++i) {
     if (relayStates[i]) {
       TEditorId it = world.GetRelays()[i];
-      x0_relays.push_back(it);
+      mRelays.push_back(it);
     }
   }
 
@@ -32,8 +32,8 @@ CScriptMailbox::~CScriptMailbox() {
 void CScriptMailbox::PutTo(COutputStream& out, CWorldSaveGameInfo& world) const {
   rstl::vector< bool > relayStates(world.GetRelays().size(), false);
 
-  for (rstl::reserved_vector< TEditorId, 512 >::const_iterator it = x0_relays.begin();
-       it != x0_relays.end(); ++it) {
+  for (rstl::reserved_vector< TEditorId, 512 >::const_iterator it = mRelays.begin();
+       it != mRelays.end(); ++it) {
     TEditorId id = *it;
     relayStates[world.GetRelayIndex(id)] = true;
   }
@@ -84,29 +84,29 @@ void CScriptMailbox::SendMsgs(const TAreaId& areaId, CStateManager& mgr) {
 }
 
 void CScriptMailbox::AddMsg(TEditorId id) {
-  rstl::reserved_vector< TEditorId, 512 >::iterator iter = x0_relays.begin();
-  for (; iter != x0_relays.end(); ++iter) {
+  rstl::reserved_vector< TEditorId, 512 >::iterator iter = mRelays.begin();
+  for (; iter != mRelays.end(); ++iter) {
     if (*iter == id) {
       return;
     }
   }
 
-  x0_relays.push_back(id);
+  mRelays.push_back(id);
 }
 
 void CScriptMailbox::RemoveMsg(TEditorId id) {
-  rstl::reserved_vector< TEditorId, 512 >::iterator iter = x0_relays.begin();
-  for (; iter != x0_relays.end(); ++iter) {
+  rstl::reserved_vector< TEditorId, 512 >::iterator iter = mRelays.begin();
+  for (; iter != mRelays.end(); ++iter) {
     if (*iter == id) {
-      x0_relays.erase(iter);
+      mRelays.erase(iter);
       return;
     }
   }
 }
 
 bool CScriptMailbox::HasMsg(TEditorId id) const {
-  rstl::reserved_vector< TEditorId, 512 >::const_iterator iter = x0_relays.begin();
-  for (; iter != x0_relays.end(); ++iter) {
+  rstl::reserved_vector< TEditorId, 512 >::const_iterator iter = mRelays.begin();
+  for (; iter != mRelays.end(); ++iter) {
     if (*iter == id) {
       return true;
     }

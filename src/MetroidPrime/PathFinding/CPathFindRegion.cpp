@@ -8,48 +8,48 @@
 #include <float.h>
 
 CPFRegionData::CPFRegionData()
-: x0_bestPointDistSq(0.f)
-, x4_bestPoint(CVector3f::Zero())
-, x10_cookie(-1)
-, x14_cost(0.f)
-, x18_g(0.f)
-, x1c_h(0.f)
-, x20_parent(nullptr)
-, x24_openLess(nullptr)
-, x28_openMore(nullptr)
-, x2c_parentLink(0) {}
+: mBestPointDistSq(0.f)
+, mBestPoint(CVector3f::Zero())
+, mCookie(-1)
+, mCost(0.f)
+, mG(0.f)
+, mH(0.f)
+, mParent(nullptr)
+, mOpenLess(nullptr)
+, mOpenMore(nullptr)
+, mParentLink(0) {}
 
 #if !defined(TARGET_PC)
 void CPFRegion::Fixup(CPFArea& area, int& numNodes) {
-  x4_startNode = x0_numNodes ? &area.GetNode(reinterpret_cast< intptr_t >(x4_startNode)) : nullptr;
-  xc_startLink = x8_numLinks ? &area.GetLink(reinterpret_cast< intptr_t >(xc_startLink)) : nullptr;
-  x4c_data = &area.GetRegionData(x24_regionIdx);
-  if (x0_numNodes > numNodes) {
-    numNodes = x0_numNodes;
+  mStartNode = mNumNodes ? &area.GetNode(reinterpret_cast< intptr_t >(mStartNode)) : nullptr;
+  mStartLink = mNumLinks ? &area.GetLink(reinterpret_cast< intptr_t >(mStartLink)) : nullptr;
+  mData = &area.GetRegionData(mRegionIdx);
+  if (mNumNodes > numNodes) {
+    numNodes = mNumNodes;
   }
 }
 #endif
 
 CPFRegion::CPFRegion()
-: x0_numNodes(0)
-, x4_startNode(nullptr)
-, x8_numLinks(0)
-, xc_startLink(nullptr)
-, x10_flags(0)
-, x14_height(0.f)
-, x18_normal(CVector3f::Zero())
-, x24_regionIdx(0)
-, x28_centroid(CVector3f::Zero())
-, x34_bounds(CAABox::MakeMaxInvertedBox())
+: mNumNodes(0)
+, mStartNode(nullptr)
+, mNumLinks(0)
+, mStartLink(nullptr)
+, mFlags(0)
+, mHeight(0.f)
+, mNormal(CVector3f::Zero())
+, mRegionIdx(0)
+, mCentroid(CVector3f::Zero())
+, mBounds(CAABox::MakeMaxInvertedBox())
 #if defined(TARGET_PC)
-, x4c_data(nullptr)
+, mData(nullptr)
 #endif
 {
 }
 
 bool CPFRegion::IsPointInside(const CVector3f& point) const {
   bool inside = false;
-  if (x34_bounds.PointInside(point)) {
+  if (mBounds.PointInside(point)) {
     int i;
     for (i = 0; i < GetNumNodes(); ++i) {
       const CPFNode& node = GetNode(i);

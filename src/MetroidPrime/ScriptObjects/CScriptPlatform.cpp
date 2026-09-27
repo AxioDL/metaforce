@@ -37,10 +37,10 @@ static inline void write_bp_cmd(u32 cmd) {
 #endif
 
 void CGX::update_fog(uint flags) {
-  if (sGXState.x53_fogType == 0) {
+  if (sGXState.mFogType == 0) {
     return;
   }
-  if ((sGXState.x56_blendMode & 0xE0) == (flags & 0xE0)) {
+  if ((sGXState.mBlendMode & 0xE0) == (flags & 0xE0)) {
     return;
   }
   if ((flags & 0xE0) == 0x20) {
@@ -52,11 +52,11 @@ void CGX::update_fog(uint flags) {
 #endif
   } else {
 #ifdef TARGET_PC
-    GXSetFogColor(sGXState.x24c_fogParams.x10_fogColor);
+    GXSetFogColor(sGXState.mFogParams.mFogColor);
 #else
-    write_bp_cmd((sGXState.x24c_fogParams.x10_fogColor.b) |
-                 (sGXState.x24c_fogParams.x10_fogColor.g << 8) |
-                 (sGXState.x24c_fogParams.x10_fogColor.r << 16) | 0xf2000000);
+    write_bp_cmd((sGXState.mFogParams.mFogColor.b) |
+                 (sGXState.mFogParams.mFogColor.g << 8) |
+                 (sGXState.mFogParams.mFogColor.r << 16) | 0xf2000000);
 #endif
   }
 }
@@ -73,32 +73,32 @@ CScriptPlatform::CScriptPlatform(
                 SMoverData(15000.f, CVector3f::Zero(), CAxisAngle::Identity(), CVector3f::Zero(),
                            CAxisAngle::Identity()),
                 actParams, 0.3f, 0.1f)
-, x258_currentWaypoint(kInvalidUniqueId)
-, x25a_targetWaypoint(kInvalidUniqueId)
-, x25c_currentSpeed(speed)
-, x260_moveDelay(0.f)
-, x264_collisionRecoverDelay(0.f)
-, x268_fadeInTime(actParams.GetFadeInTime())
-, x26c_fadeOutTime(actParams.GetFadeOutTime())
-, x270_dragDelta(CVector3f::Zero())
-, x27c_rotDelta(CQuaternion::NoRotation())
-, x28c_initialHealth(hInfo)
-, x294_health(hInfo)
-, x29c_damageVuln(dVuln)
-, x304_treeGroupContainer(dcln)
-, x314_treeGroup(nullptr)
-, x348_xrayAlpha(xrayAlpha)
-, x34c_maxRainSplashes(maxRainSplashes)
-, x350_rainGenRate(rainGenRate)
-, x354_boundsTrigger(kInvalidUniqueId)
-, x356_24_dead(false)
-, x356_25_controlledAnimation(false)
-, x356_26_detectCollision(detectCollision)
-, x356_27_squishedRider(false)
-, x356_28_rainSplashes(rainSplashes)
-, x356_29_setXrayDrawFlags(false)
-, x356_30_disableXrayAlpha(false)
-, x356_31_xrayFog(true) {
+, mCurrentWaypoint(kInvalidUniqueId)
+, mTargetWaypoint(kInvalidUniqueId)
+, mCurrentSpeed(speed)
+, mMoveDelay(0.f)
+, mCollisionRecoverDelay(0.f)
+, mFadeInTime(actParams.GetFadeInTime())
+, mFadeOutTime(actParams.GetFadeOutTime())
+, mDragDelta(CVector3f::Zero())
+, mRotDelta(CQuaternion::NoRotation())
+, mInitialHealth(hInfo)
+, mHealth(hInfo)
+, mDamageVuln(dVuln)
+, mTreeGroupContainer(dcln)
+, mTreeGroup(nullptr)
+, mXrayAlpha(xrayAlpha)
+, mMaxRainSplashes(maxRainSplashes)
+, mRainGenRate(rainGenRate)
+, mBoundsTrigger(kInvalidUniqueId)
+, mDead(false)
+, mControlledAnimation(false)
+, mDetectCollision(detectCollision)
+, mSquishedRider(false)
+, mRainSplashes(rainSplashes)
+, mSetXrayDrawFlags(false)
+, mDisableXrayAlpha(false)
+, mXrayFog(true) {
   SetMaterialFilter(CMaterialFilter::MakeIncludeExclude(
       CMaterialList(kMT_Solid),
       CMaterialList(kMT_NoStaticCollision, kMT_NoPlatformCollision, kMT_Platform)));
@@ -107,8 +107,8 @@ CScriptPlatform::CScriptPlatform(
     AnimationData()->EnableLooping(true);
     AnimationData()->SetIsAnimating(true);
   }
-  if (x304_treeGroupContainer) {
-    x314_treeGroup = rs_new CCollidableOBBTreeGroup(**x304_treeGroupContainer, GetMaterialList());
+  if (mTreeGroupContainer) {
+    mTreeGroup = rs_new CCollidableOBBTreeGroup(**mTreeGroupContainer, GetMaterialList());
   }
 }
 
@@ -116,8 +116,8 @@ CScriptPlatform::~CScriptPlatform() {}
 
 rstl::optional_object< CAABox > CScriptPlatform::GetTouchBounds() const {
   if (GetActive()) {
-    if (!x314_treeGroup.null()) {
-      return x314_treeGroup->CalculateAABox(GetTransform());
+    if (!mTreeGroup.null()) {
+      return mTreeGroup->CalculateAABox(GetTransform());
     } else {
       return GetBoundingBox();
     }
@@ -129,8 +129,8 @@ rstl::optional_object< CAABox > CScriptPlatform::GetTouchBounds() const {
 TUniqueId CScriptPlatform::GetWaypoint(CStateManager& mgr) {
   rstl::vector< SConnection >::const_iterator conn = GetConnectionList().begin();
   for (; conn != GetConnectionList().end(); ++conn) {
-    if (conn->x4_msg == kSM_Follow) {
-      return mgr.GetIdForScript(conn->x8_objId);
+    if (conn->mMsg == kSM_Follow) {
+      return mgr.GetIdForScript(conn->mObjId);
     }
   }
   return kInvalidUniqueId;
@@ -143,7 +143,7 @@ TUniqueId CScriptPlatform::GetNext(TUniqueId uid, CStateManager& mgr) {
   }
   TUniqueId next = nextWp->NextWaypoint(mgr);
   if (const CScriptWaypoint* wp = TCastToConstPtr< CScriptWaypoint >(mgr.GetObjectById(next))) {
-    x25c_currentSpeed = wp->GetSpeed();
+    mCurrentSpeed = wp->GetSpeed();
   }
   return next;
 }
@@ -155,14 +155,14 @@ void CScriptPlatform::AddRider(rstl::vector< SRiders >& riders, TUniqueId riderI
     SRiders rider(riderId);
     if (CPhysicsActor* act = TCastToPtr< CPhysicsActor >(mgr.ObjectById(riderId))) {
       CVector3f rideePos = ridee->GetTranslation();
-      rider.x8_transform.SetTranslation(
+      rider.mTransform.SetTranslation(
           ridee->GetTransform().TransposeRotate(act->GetTranslation() - rideePos));
       mgr.DeliverScriptMsg(act, ridee->GetUniqueId(), kSM_AddPlatformRider);
     }
     riders.reserve(riders.size() + 1);
     riders.push_back(rider);
   } else {
-    (*it).x4_decayTimer = 1.f / 6.f;
+    (*it).mDecayTimer = 1.f / 6.f;
   }
 }
 
@@ -171,7 +171,7 @@ TEntityList CScriptPlatform::BuildNearListFromRiders(CStateManager& mgr,
   TEntityList result;
   rstl::vector< SRiders >::const_iterator it = riders.begin();
   for (; it != riders.end(); ++it) {
-    if (CActor* actor = TCastToPtr< CActor >(mgr.ObjectById(it->x0_uid))) {
+    if (CActor* actor = TCastToPtr< CActor >(mgr.ObjectById(it->mUid))) {
       result.push_back(actor->GetUniqueId());
     }
   }
@@ -181,9 +181,9 @@ TEntityList CScriptPlatform::BuildNearListFromRiders(CStateManager& mgr,
 void CScriptPlatform::DecayRiders(rstl::vector< SRiders >& riders, float dt, CStateManager& mgr) {
   rstl::vector< SRiders >::iterator it = riders.begin();
   while (it != riders.end()) {
-    (*it).x4_decayTimer -= dt;
-    if ((*it).x4_decayTimer <= 0.f) {
-      mgr.SendScriptMsgAlways((*it).x0_uid, kInvalidUniqueId, kSM_AddPlatformRider);
+    (*it).mDecayTimer -= dt;
+    if ((*it).mDecayTimer <= 0.f) {
+      mgr.SendScriptMsgAlways((*it).mUid, kInvalidUniqueId, kSM_AddPlatformRider);
 #if NONMATCHING
       it = riders.erase(it);
 #else
@@ -204,7 +204,7 @@ void CScriptPlatform::MoveRiders(CStateManager& mgr, float dt, bool active,
   rstl::vector< SRiders >::iterator it = riders.begin();
   while (it != riders.end()) {
     if (active) {
-      CPhysicsActor* act = TCastToPtr< CPhysicsActor >(mgr.ObjectById(it->x0_uid));
+      CPhysicsActor* act = TCastToPtr< CPhysicsActor >(mgr.ObjectById(it->mUid));
       if (act == nullptr || !act->GetActive()) {
         ++it;
         continue;
@@ -214,7 +214,7 @@ void CScriptPlatform::MoveRiders(CStateManager& mgr, float dt, bool active,
         CPhysicsState state = act->GetPhysicsState();
       }
 
-      const CTransform4f& xf = it->x8_transform;
+      const CTransform4f& xf = it->mTransform;
       CVector3f diff = newXf.Rotate(xf.GetTranslation()) - oldXf.Rotate(xf.GetTranslation());
       diff.SetZ(0.f);
       CVector3f delta = dragDelta + diff;
@@ -245,75 +245,75 @@ void CScriptPlatform::MoveRiders(CStateManager& mgr, float dt, bool active,
 }
 
 void CScriptPlatform::PreThink(float dt, CStateManager& mgr) {
-  DecayRiders(x318_riders, dt, mgr);
-  x264_collisionRecoverDelay -= dt;
-  x260_moveDelay -= dt;
-  if (!(x260_moveDelay > 0.f)) {
-    x270_dragDelta = CVector3f::Zero();
+  DecayRiders(mRiders, dt, mgr);
+  mCollisionRecoverDelay -= dt;
+  mMoveDelay -= dt;
+  if (!(mMoveDelay > 0.f)) {
+    mDragDelta = CVector3f::Zero();
     CTransform4f oldXf = GetTransform();
     CMotionState mState = GetMotionState();
     if (GetActive()) {
-      rstl::vector< SRiders >::iterator it = x318_riders.begin();
-      for (; it != x318_riders.end(); ++it) {
+      rstl::vector< SRiders >::iterator it = mRiders.begin();
+      for (; it != mRiders.end(); ++it) {
         if (const CPhysicsActor* act =
-                TCastToConstPtr< CPhysicsActor >(mgr.ObjectById(it->x0_uid))) {
+                TCastToConstPtr< CPhysicsActor >(mgr.ObjectById(it->mUid))) {
           CVector3f actPos = act->GetTranslation();
           CVector3f pos = GetTranslation();
-          it->x8_transform.SetTranslation(GetTransform().TransposeRotate(actPos - pos));
+          it->mTransform.SetTranslation(GetTransform().TransposeRotate(actPos - pos));
         }
       }
-      x27c_rotDelta = Move(dt, mgr);
+      mRotDelta = Move(dt, mgr);
     }
 
     CTransform4f newXf = GetTransform();
-    x270_dragDelta = newXf.GetTranslation() - oldXf.GetTranslation();
+    mDragDelta = newXf.GetTranslation() - oldXf.GetTranslation();
 
     rstl::vector< SRiders > collidedRiders;
-    MoveRiders(mgr, dt, GetActive(), x318_riders, collidedRiders, oldXf, newXf, x270_dragDelta,
-               x27c_rotDelta);
-    x356_27_squishedRider = false;
+    MoveRiders(mgr, dt, GetActive(), mRiders, collidedRiders, oldXf, newXf, mDragDelta,
+               mRotDelta);
+    mSquishedRider = false;
     if (!collidedRiders.empty()) {
       TEntityList nearList = BuildNearListFromRiders(mgr, collidedRiders);
       if (CGameCollision::DetectDynamicCollisionBoolean(*GetCollisionPrimitive(),
                                                         GetPrimitiveTransform(), nearList, mgr)) {
         SetMotionState(mState);
         Stop();
-        x260_moveDelay = 0.035f;
+        mMoveDelay = 0.035f;
         MoveRiders(
-            mgr, dt, GetActive(), x318_riders, collidedRiders, newXf, oldXf, -x270_dragDelta,
-#if VERSION >= VERSION_GM8P_00
-            x27c_rotDelta.BuildInverted());
+            mgr, dt, GetActive(), mRiders, collidedRiders, newXf, oldXf, -mDragDelta,
+#if VERSION >= VERSION_GM8E_02
+            mRotDelta.BuildInverted());
 #else
-            CQuaternion::ScalarVector(x27c_rotDelta.GetScalar(),
-                                      static_cast< const CVector3f& >(-x27c_rotDelta.GetVector())));
+            CQuaternion::ScalarVector(mRotDelta.GetScalar(),
+                                      static_cast< const CVector3f& >(-mRotDelta.GetVector())));
 #endif
-        x270_dragDelta = CVector3f::Zero();
+        mDragDelta = CVector3f::Zero();
         SendScriptMsgs(kSS_Modify, mgr, kSM_None);
-        x356_27_squishedRider = true;
+        mSquishedRider = true;
       }
     }
   }
 }
 
 void CScriptPlatform::BuildSlaveList(CStateManager& mgr) {
-  x328_slavesStatic.reserve(GetConnectionList().size());
+  mSlavesStatic.reserve(GetConnectionList().size());
   rstl::vector< SConnection >::const_iterator conn = GetConnectionList().begin();
   for (; conn != GetConnectionList().end(); ++conn) {
-    if (conn->x0_state == kSS_Play && conn->x4_msg == kSM_Activate) {
+    if (conn->mState == kSS_Play && conn->mMsg == kSM_Activate) {
       if (CActor* const act =
-              TCastToPtr< CActor >(mgr.ObjectById(mgr.GetIdForScript(conn->x8_objId)))) {
+              TCastToPtr< CActor >(mgr.ObjectById(mgr.GetIdForScript(conn->mObjId)))) {
         act->AddMaterial(kMT_PlatformSlave, mgr);
         CTransform4f xf = act->GetTransform();
         xf.SetTranslation(act->GetTranslation() - GetTranslation());
-        x328_slavesStatic.push_back(SRiders(act->GetUniqueId(), 1.f / 6.f, xf));
+        mSlavesStatic.push_back(SRiders(act->GetUniqueId(), 1.f / 6.f, xf));
       }
-    } else if (conn->x0_state == kSS_InheritBounds && conn->x4_msg == kSM_Activate) {
-      CStateManager::TIdListResult search = mgr.GetIdListForScript(conn->x8_objId);
+    } else if (conn->mState == kSS_InheritBounds && conn->mMsg == kSM_Activate) {
+      CStateManager::TIdListResult search = mgr.GetIdListForScript(conn->mObjId);
       CStateManager::TIdList::const_iterator current = search.first;
       CStateManager::TIdList::const_iterator end = search.second;
       while (current != end) {
         if (TCastToConstPtr< CScriptTrigger >(mgr.GetObjectById(current->second))) {
-          x354_boundsTrigger = current->second;
+          mBoundsTrigger = current->second;
         }
         ++current;
       }
@@ -336,18 +336,18 @@ void CScriptPlatform::DragSlave(CStateManager& mgr, TMovedList& moved, CActor* a
 }
 
 void CScriptPlatform::DragSlaves(CStateManager& mgr, TMovedList& moved, const CVector3f& delta) {
-  for (AUTO(it, x328_slavesStatic.begin()); it != x328_slavesStatic.end(); ++it) {
-    if (CActor* actor = TCastToPtr< CActor >(mgr.ObjectById(it->x0_uid))) {
+  for (AUTO(it, mSlavesStatic.begin()); it != mSlavesStatic.end(); ++it) {
+    if (CActor* actor = TCastToPtr< CActor >(mgr.ObjectById(it->mUid))) {
       DragSlave(mgr, moved, actor, delta);
     }
   }
-  AUTO(it, x338_slavesDynamic.begin());
-  while (it != x338_slavesDynamic.end()) {
-    if (CActor* actor = TCastToPtr< CActor >(mgr.ObjectById(it->x0_uid))) {
+  AUTO(it, mSlavesDynamic.begin());
+  while (it != mSlavesDynamic.end()) {
+    if (CActor* actor = TCastToPtr< CActor >(mgr.ObjectById(it->mUid))) {
       DragSlave(mgr, moved, actor, delta);
       ++it;
     } else {
-      it = x338_slavesDynamic.erase(it);
+      it = mSlavesDynamic.erase(it);
     }
   }
 }
@@ -357,26 +357,26 @@ void CScriptPlatform::Think(float dt, CStateManager& mgr) {
     return;
   }
   if (HasAnimation()) {
-    if (!x356_25_controlledAnimation) {
+    if (!mControlledAnimation) {
       UpdateAnimation(dt, mgr, true);
     }
-    if (x356_28_rainSplashes) {
+    if (mRainSplashes) {
       const CWorld* world = mgr.GetWorld();
       const CEnvFxManager* envFx = mgr.GetEnvFxManager();
       if (world->GetNeededEnvFx() == kEFX_Rain && HasModelData()) {
         if (envFx->GetRainMagnitude()) {
-          mgr.ActorModelParticles()->AddRainSplashGenerator(*this, mgr, x34c_maxRainSplashes,
-                                                            x350_rainGenRate, 0.f);
+          mgr.ActorModelParticles()->AddRainSplashGenerator(*this, mgr, mMaxRainSplashes,
+                                                            mRainGenRate, 0.f);
         }
       }
     }
   }
-  if (!x328_slavesStatic.empty() || !x338_slavesDynamic.empty()) {
+  if (!mSlavesStatic.empty() || !mSlavesDynamic.empty()) {
     TMovedList moved;
-    DragSlaves(mgr, moved, x270_dragDelta);
+    DragSlaves(mgr, moved, mDragDelta);
   }
-  if (!x356_24_dead && HealthInfo(mgr)->GetHP() <= 0.f) {
-    x356_24_dead = true;
+  if (!mDead && HealthInfo(mgr)->GetHP() <= 0.f) {
+    mDead = true;
     SendScriptMsgs(kSS_Dead, mgr, kSM_None);
   }
 }
@@ -391,10 +391,10 @@ bool CScriptPlatform::IsInMovedList(TUniqueId id, const TMovedList& moved) {
   return false;
 }
 
-CHealthInfo* CScriptPlatform::HealthInfo(CStateManager&) { return &x294_health; }
+CHealthInfo* CScriptPlatform::HealthInfo(CStateManager&) { return &mHealth; }
 
 const CDamageVulnerability* CScriptPlatform::GetDamageVulnerability() const {
-  return &x29c_damageVuln;
+  return &mDamageVuln;
 }
 
 void CScriptPlatform::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
@@ -403,56 +403,56 @@ void CScriptPlatform::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, C
     BuildSlaveList(mgr);
     break;
   case kSM_AddPlatformRider:
-    AddRider(x318_riders, uid, this, mgr);
+    AddRider(mRiders, uid, this, mgr);
     break;
   case kSM_Stop:
-    x25c_currentSpeed = 0.f;
+    mCurrentSpeed = 0.f;
     Stop();
     break;
   case kSM_Next:
-    x25a_targetWaypoint = GetNext(x258_currentWaypoint, mgr);
-    if (x25a_targetWaypoint == kInvalidUniqueId) {
+    mTargetWaypoint = GetNext(mCurrentWaypoint, mgr);
+    if (mTargetWaypoint == kInvalidUniqueId) {
       mgr.DeliverScriptMsg(this, GetUniqueId(), kSM_Stop);
     } else if (CScriptWaypoint* wp =
-                   TCastToPtr< CScriptWaypoint >(mgr.ObjectById(x25a_targetWaypoint))) {
-      x25c_currentSpeed = 0.f;
+                   TCastToPtr< CScriptWaypoint >(mgr.ObjectById(mTargetWaypoint))) {
+      mCurrentSpeed = 0.f;
       Stop();
-      x270_dragDelta = wp->GetTranslation() - GetTranslation();
+      mDragDelta = wp->GetTranslation() - GetTranslation();
       SetTranslation(wp->GetTranslation());
-      x258_currentWaypoint = x25a_targetWaypoint;
-      x25a_targetWaypoint = GetNext(x258_currentWaypoint, mgr);
+      mCurrentWaypoint = mTargetWaypoint;
+      mTargetWaypoint = GetNext(mCurrentWaypoint, mgr);
       mgr.DeliverScriptMsg(wp, GetUniqueId(), kSM_Arrived);
-      if (!x328_slavesStatic.empty() || !x338_slavesDynamic.empty()) {
+      if (!mSlavesStatic.empty() || !mSlavesDynamic.empty()) {
         TMovedList moved;
-        DragSlaves(mgr, moved, x270_dragDelta);
+        DragSlaves(mgr, moved, mDragDelta);
       }
-      x270_dragDelta = CVector3f::Zero();
+      mDragDelta = CVector3f::Zero();
     }
     break;
   case kSM_Start:
-    x25a_targetWaypoint = GetNext(x258_currentWaypoint, mgr);
-    if (x25a_targetWaypoint == kInvalidUniqueId) {
+    mTargetWaypoint = GetNext(mCurrentWaypoint, mgr);
+    if (mTargetWaypoint == kInvalidUniqueId) {
       mgr.DeliverScriptMsg(this, GetUniqueId(), kSM_Stop);
     } else if (const CScriptWaypoint* wp =
-                   TCastToConstPtr< CScriptWaypoint >(mgr.GetObjectById(x25a_targetWaypoint))) {
-      x25c_currentSpeed = wp->GetSpeed();
+                   TCastToConstPtr< CScriptWaypoint >(mgr.GetObjectById(mTargetWaypoint))) {
+      mCurrentSpeed = wp->GetSpeed();
     }
     break;
   case kSM_Reset:
-    x356_24_dead = false;
-    x294_health = x28c_initialHealth;
+    mDead = false;
+    mHealth = mInitialHealth;
     break;
   case kSM_Increment:
     if (!GetActive()) {
       mgr.DeliverScriptMsg(this, GetUniqueId(), kSM_Activate);
     }
-    CScriptColorModulate::FadeInHelper(mgr, GetUniqueId(), x268_fadeInTime);
+    CScriptColorModulate::FadeInHelper(mgr, GetUniqueId(), mFadeInTime);
     break;
   case kSM_Decrement:
-    CScriptColorModulate::FadeOutHelper(mgr, GetUniqueId(), x26c_fadeOutTime);
+    CScriptColorModulate::FadeOutHelper(mgr, GetUniqueId(), mFadeOutTime);
     break;
   case kSM_Deleted:
-    DecayRiders(x318_riders, 1.66666675f, mgr);
+    DecayRiders(mRiders, 1.66666675f, mgr);
     break;
   default:
     break;
@@ -463,10 +463,10 @@ void CScriptPlatform::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, C
 ENTITY_ACCEPT_IMPL(CScriptPlatform)
 
 const CCollisionPrimitive* CScriptPlatform::GetCollisionPrimitive() const {
-  if (x314_treeGroup.null()) {
+  if (mTreeGroup.null()) {
     return CPhysicsActor::GetCollisionPrimitive();
   }
-  return x314_treeGroup.get();
+  return mTreeGroup.get();
 }
 
 CTransform4f CScriptPlatform::GetPrimitiveTransform() const {
@@ -478,13 +478,13 @@ CTransform4f CScriptPlatform::GetPrimitiveTransform() const {
 void CScriptPlatform::SplashThink(const CAABox&, const CFluidPlane&, float, CStateManager&) const {}
 
 void CScriptPlatform::AddSlave(TUniqueId id, CStateManager& mgr) {
-  if (rstl::find(x338_slavesDynamic.begin(), x338_slavesDynamic.end(), SRiders(id)) ==
-      x338_slavesDynamic.end()) {
+  if (rstl::find(mSlavesDynamic.begin(), mSlavesDynamic.end(), SRiders(id)) ==
+      mSlavesDynamic.end()) {
     if (CActor* const act = TCastToPtr< CActor >(mgr.ObjectById(id))) {
       act->AddMaterial(kMT_PlatformSlave, mgr);
       CTransform4f xf = GetTransform().GetQuickInverse() * act->GetTransform();
-      x338_slavesDynamic.reserve(x338_slavesDynamic.size() + 1);
-      x338_slavesDynamic.push_back(SRiders(id, 1.f / 6.f, xf));
+      mSlavesDynamic.reserve(mSlavesDynamic.size() + 1);
+      mSlavesDynamic.push_back(SRiders(id, 1.f / 6.f, xf));
     }
   }
 }
@@ -492,33 +492,33 @@ void CScriptPlatform::AddSlave(TUniqueId id, CStateManager& mgr) {
 bool CScriptPlatform::IsRider(TUniqueId id) const {
   // Retain both vector erase instantiations in retail order.
   if (false) {
-    rstl::vector< SRiders >& riders = const_cast< rstl::vector< SRiders >& >(x318_riders);
+    rstl::vector< SRiders >& riders = const_cast< rstl::vector< SRiders >& >(mRiders);
     riders.erase(riders.begin());
   }
 
-  return rstl::find(x318_riders.begin(), x318_riders.end(), SRiders(id)) != x318_riders.end();
+  return rstl::find(mRiders.begin(), mRiders.end(), SRiders(id)) != mRiders.end();
 }
 
 bool CScriptPlatform::IsSlave(TUniqueId id) const {
-  return rstl::find(x328_slavesStatic.begin(), x328_slavesStatic.end(), SRiders(id)) !=
-             x328_slavesStatic.end() ||
-         rstl::find(x338_slavesDynamic.begin(), x338_slavesDynamic.end(), SRiders(id)) !=
-             x338_slavesDynamic.end();
+  return rstl::find(mSlavesStatic.begin(), mSlavesStatic.end(), SRiders(id)) !=
+             mSlavesStatic.end() ||
+         rstl::find(mSlavesDynamic.begin(), mSlavesDynamic.end(), SRiders(id)) !=
+             mSlavesDynamic.end();
 }
 
 CQuaternion CScriptPlatform::Move(float dt, CStateManager& mgr) {
-  TUniqueId nextWaypoint = x25a_targetWaypoint;
+  TUniqueId nextWaypoint = mTargetWaypoint;
   if (nextWaypoint == kInvalidUniqueId) {
-    nextWaypoint = GetNext(x258_currentWaypoint, mgr);
+    nextWaypoint = GetNext(mCurrentWaypoint, mgr);
   }
   const CScriptWaypoint* wp = TCastToPtr< CScriptWaypoint >(mgr.ObjectById(nextWaypoint));
-  if (x258_currentWaypoint != kInvalidUniqueId && wp && !wp->GetActive()) {
-    nextWaypoint = GetNext(x258_currentWaypoint, mgr);
+  if (mCurrentWaypoint != kInvalidUniqueId && wp && !wp->GetActive()) {
+    nextWaypoint = GetNext(mCurrentWaypoint, mgr);
     if (nextWaypoint == kInvalidUniqueId) {
       if (const CScriptWaypoint* current =
-              TCastToPtr< CScriptWaypoint >(mgr.ObjectById(x258_currentWaypoint))) {
+              TCastToPtr< CScriptWaypoint >(mgr.ObjectById(mCurrentWaypoint))) {
         if (current->GetActive()) {
-          nextWaypoint = x258_currentWaypoint;
+          nextWaypoint = mCurrentWaypoint;
         }
       }
     }
@@ -535,14 +535,14 @@ CQuaternion CScriptPlatform::Move(float dt, CStateManager& mgr) {
     }
     const CVector3f delta = waypoint->GetTranslation() - GetTranslation();
     if (close_enough(delta, CVector3f::Zero(), 0.02f)) {
-      x258_currentWaypoint = nextWaypoint;
+      mCurrentWaypoint = nextWaypoint;
       mgr.DeliverScriptMsg(waypoint, GetUniqueId(), kSM_Arrived);
-      if (close_enough(x25c_currentSpeed, 0.f, 0.02f)) {
-        nextWaypoint = GetNext(x258_currentWaypoint, mgr);
-        x25c_currentSpeed = 0.f;
+      if (close_enough(mCurrentSpeed, 0.f, 0.02f)) {
+        nextWaypoint = GetNext(mCurrentWaypoint, mgr);
+        mCurrentSpeed = 0.f;
         Stop();
       } else {
-        nextWaypoint = GetNext(x258_currentWaypoint, mgr);
+        nextWaypoint = GetNext(mCurrentWaypoint, mgr);
       }
       if (kInvalidUniqueId != nextWaypoint) {
         continue;
@@ -551,15 +551,15 @@ CQuaternion CScriptPlatform::Move(float dt, CStateManager& mgr) {
     }
 
     if (close_enough(delta, CVector3f::Zero(), 0.02f)) {
-      x270_dragDelta = waypoint->GetTranslation() - GetTranslation();
+      mDragDelta = waypoint->GetTranslation() - GetTranslation();
       MoveToWR(GetTranslation(), dt);
     } else {
-      const CVector3f moveDelta = dt * (x25c_currentSpeed * delta.AsNormalized());
+      const CVector3f moveDelta = dt * (mCurrentSpeed * delta.AsNormalized());
       if (moveDelta.MagSquared() > delta.MagSquared()) {
-        x270_dragDelta = waypoint->GetTranslation() - GetTranslation();
+        mDragDelta = waypoint->GetTranslation() - GetTranslation();
         MoveToWR(waypoint->GetTranslation(), dt);
       } else {
-        x270_dragDelta = moveDelta;
+        mDragDelta = moveDelta;
         MoveToWR(GetTranslation() + moveDelta, dt);
       }
     }
@@ -574,23 +574,23 @@ CQuaternion CScriptPlatform::Move(float dt, CStateManager& mgr) {
       }
     }
 
-    if (x356_26_detectCollision) {
+    if (mDetectCollision) {
       const CMotionState state = PredictMotion(dt);
       MoveCollisionPrimitive(state.GetTranslation());
       const bool collision = CGameCollision::DetectDynamicCollisionBoolean(
           *GetCollisionPrimitive(), GetPrimitiveTransform(), nonRiders, mgr);
       MoveCollisionPrimitive(CVector3f::Zero());
-      if (collision || x356_27_squishedRider) {
-        if (x356_26_detectCollision) {
-          if (x264_collisionRecoverDelay <= 0.f && !x356_27_squishedRider) {
-            x264_collisionRecoverDelay = 0.035f;
+      if (collision || mSquishedRider) {
+        if (mDetectCollision) {
+          if (mCollisionRecoverDelay <= 0.f && !mSquishedRider) {
+            mCollisionRecoverDelay = 0.035f;
             break;
           } else {
-            x356_27_squishedRider = false;
+            mSquishedRider = false;
             const TUniqueId previousWaypoint = nextWaypoint;
             nextWaypoint = GetNext(nextWaypoint, mgr);
-            if (nextWaypoint == x25a_targetWaypoint || previousWaypoint == x25a_targetWaypoint) {
-              x260_moveDelay = 0.035f;
+            if (nextWaypoint == mTargetWaypoint || previousWaypoint == mTargetWaypoint) {
+              mMoveDelay = 0.035f;
               break;
             }
           }
@@ -608,32 +608,32 @@ CQuaternion CScriptPlatform::Move(float dt, CStateManager& mgr) {
       break;
     }
   }
-  x25a_targetWaypoint = nextWaypoint;
+  mTargetWaypoint = nextWaypoint;
   return CQuaternion::NoRotation();
 }
 
 void CScriptPlatform::PreRender(CStateManager& mgr, const CFrustumPlanes& frustum) {
   CActor::PreRender(mgr, frustum);
-  if (!GetPreRenderClipped() && !close_enough(x348_xrayAlpha, 1.f)) {
-    const CModelFlags flags = CModelFlags::AlphaBlended(x348_xrayAlpha);
+  if (!GetPreRenderClipped() && !close_enough(mXrayAlpha, 1.f)) {
+    const CModelFlags flags = CModelFlags::AlphaBlended(mXrayAlpha);
     if (mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::kPV_XRay &&
-        !x356_30_disableXrayAlpha) {
+        !mDisableXrayAlpha) {
       SetModelFlags(flags);
-      x356_29_setXrayDrawFlags = true;
-    } else if (x356_29_setXrayDrawFlags) {
-      x356_29_setXrayDrawFlags = false;
-      if (GetModelFlags() == flags && !x356_30_disableXrayAlpha) {
+      mSetXrayDrawFlags = true;
+    } else if (mSetXrayDrawFlags) {
+      mSetXrayDrawFlags = false;
+      if (GetModelFlags() == flags && !mDisableXrayAlpha) {
         SetModelFlags(CModelFlags::Normal());
       }
     }
   }
-  if (!mgr.GetObjectById(x354_boundsTrigger)) {
-    x354_boundsTrigger = kInvalidUniqueId;
+  if (!mgr.GetObjectById(mBoundsTrigger)) {
+    mBoundsTrigger = kInvalidUniqueId;
   }
 }
 
 void CScriptPlatform::SetDamageVulnerability(const CDamageVulnerability& vuln) {
-  x29c_damageVuln = vuln;
+  mDamageVuln = vuln;
 }
 
 CVector3f CScriptPlatform::GetOrbitPosition(const CStateManager& mgr) const {
@@ -648,9 +648,9 @@ CVector3f CScriptPlatform::GetAimPosition(const CStateManager& mgr, float dt) co
 }
 
 CAABox CScriptPlatform::GetSortingBounds(const CStateManager& mgr) const {
-  if (x354_boundsTrigger != kInvalidUniqueId) {
+  if (mBoundsTrigger != kInvalidUniqueId) {
     if (const CScriptTrigger* trigger =
-            static_cast< const CScriptTrigger* >(mgr.GetObjectById(x354_boundsTrigger))) {
+            static_cast< const CScriptTrigger* >(mgr.GetObjectById(mBoundsTrigger))) {
       return trigger->GetTriggerBoundsWR();
     }
   }
@@ -659,11 +659,11 @@ CAABox CScriptPlatform::GetSortingBounds(const CStateManager& mgr) const {
 
 void CScriptPlatform::Render(const CStateManager& mgr) const {
   const bool xray = mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::kPV_XRay;
-  if (xray && !x356_31_xrayFog) {
+  if (xray && !mXrayFog) {
     gpRender->SetWorldFog(kRFM_None, 0.f, 1.f, CColor::Black());
   }
   CPhysicsActor::Render(mgr);
-  if (xray && !x356_31_xrayFog) {
+  if (xray && !mXrayFog) {
     mgr.SetupFogForArea(GetCurrentAreaId());
   }
 }

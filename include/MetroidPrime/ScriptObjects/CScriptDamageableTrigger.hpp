@@ -40,29 +40,29 @@ public:
   rstl::optional_object< CAABox > GetTouchBounds() const override;
 
 private:
-  CFrustumPlanes xe8_frustum;
-  CAABox x14c_bounds;
-  CHealthInfo x164_origHInfo;
-  CHealthInfo x16c_hInfo;
-  CDamageVulnerability x174_dVuln;
-  uint x1dc_faceFlag;
-  float x1e0_alpha;
-  CTransform4f x1e4_faceDir;
-  CTransform4f x214_faceDirInv;
-  CVector3f x244_faceTranslate;
-  float x250_alphaTimer;
-  CFluidPlaneDoor x254_fluidPlane;
-  bool x300_24_notOccluded : 1;
-  bool x300_25_alphaOut : 1;
-  bool x300_26_outOfFrustum : 1;
-  bool x300_27_invulnerable : 1;
-  bool x300_28_canOrbit : 1;
+  CFrustumPlanes mFrustum;
+  CAABox mBounds;
+  CHealthInfo mOrigHInfo;
+  CHealthInfo mHInfo;
+  CDamageVulnerability mDVuln;
+  uint mFaceFlag;
+  float mAlpha;
+  CTransform4f mFaceDir;
+  CTransform4f mFaceDirInv;
+  CVector3f mFaceTranslate;
+  float mAlphaTimer;
+  CFluidPlaneDoor mFluidPlane;
+  bool mNotOccluded : 1;
+  bool mAlphaOut : 1;
+  bool mOutOfFrustum : 1;
+  bool mInvulnerable : 1;
+  bool mCanOrbit : 1;
 
   void SetLinkedObjectAlpha(float a, CStateManager& mgr);
   float GetPuddleAlphaScale() const;
-  const CFluidPlane& GetFluidPlane() const { return x254_fluidPlane; }
-  const CFrustumPlanes& GetFrustumPlanes() const { return xe8_frustum; }
+  const CFluidPlane& GetFluidPlane() const { return mFluidPlane; }
+  const CFrustumPlanes& GetFrustumPlanes() const { return mFrustum; }
 };
-CHECK_SIZEOF(CScriptDamageableTrigger, (VERSION >= VERSION_GM8P_00 ? 0x318 : 0x308))
+CHECK_SIZEOF(CScriptDamageableTrigger, (VERSION >= VERSION_GM8E_02 ? 0x318 : 0x308))
 
 #endif // _CSCRIPTDAMAGEABLETRIGGER

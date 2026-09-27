@@ -130,61 +130,61 @@ bool CNESEmulator::CheckForGameOver(const uchar* vram, uchar* passwordOut) {
 }
 
 CNESEmulator::CNESEmulator()
-: x0_dvdRequest(nullptr)
-, x4_resultBuffer(static_cast< uchar* >(
+: mDvdRequest(nullptr)
+, mResultBuffer(static_cast< uchar* >(
       CMemory::Alloc(KS_NES_DRAW_RESULT_BUF_SIZE, IAllocator::kHI_RoundUpLen)))
-, x8_work(nullptr)
-, xc_state(nullptr)
-, x10_module(nullptr)
-, x14_bss(nullptr)
-, x18_chrRam(nullptr)
-, x1c_bbRam(nullptr)
-, x20_gameOver(false)
-, x34_passwordEntryState(kPES_NotPasswordScreen)
-, x38_passwordPending(false) {
+, mWork(nullptr)
+, mState(nullptr)
+, mModule(nullptr)
+, mBss(nullptr)
+, mChrRam(nullptr)
+, mBbRam(nullptr)
+, mGameOver(false)
+, mPasswordEntryState(kPES_NotPasswordScreen)
+, mPasswordPending(false) {
   sNesModule =
       static_cast< ksNesModule* >(CMemory::Alloc(sizeof(ksNesModule), IAllocator::kHI_RoundUpLen));
-  x8_work = static_cast< ksNesCommonWorkObj* >(
+  mWork = static_cast< ksNesCommonWorkObj* >(
       CMemory::Alloc(sizeof(ksNesCommonWorkObj), IAllocator::kHI_RoundUpLen));
-  x8_work->prg_size = 0x20000;
-  x8_work->nesromp =
-      static_cast< uchar* >(CMemory::Alloc(x8_work->prg_size, IAllocator::kHI_RoundUpLen));
-  x8_work->chr_to_i8_buf_size = 0x8000;
-  x8_work->chr_to_u8_bufp = static_cast< uchar* >(
-      CMemory::Alloc(x8_work->chr_to_i8_buf_size, IAllocator::kHI_RoundUpLen));
-  x8_work->result_bufp = x4_resultBuffer.get();
-  xc_state = static_cast< ksNesStateObj* >(
+  mWork->prg_size = 0x20000;
+  mWork->nesromp =
+      static_cast< uchar* >(CMemory::Alloc(mWork->prg_size, IAllocator::kHI_RoundUpLen));
+  mWork->chr_to_i8_buf_size = 0x8000;
+  mWork->chr_to_u8_bufp = static_cast< uchar* >(
+      CMemory::Alloc(mWork->chr_to_i8_buf_size, IAllocator::kHI_RoundUpLen));
+  mWork->result_bufp = mResultBuffer.get();
+  mState = static_cast< ksNesStateObj* >(
       CMemory::Alloc(sizeof(ksNesStateObj), IAllocator::kHI_RoundUpLen));
-  x18_chrRam = static_cast< uchar* >(CMemory::Alloc(0x2000, IAllocator::kHI_RoundUpLen));
-  x1c_bbRam = static_cast< uchar* >(CMemory::Alloc(0x8000, IAllocator::kHI_RoundUpLen));
+  mChrRam = static_cast< uchar* >(CMemory::Alloc(0x2000, IAllocator::kHI_RoundUpLen));
+  mBbRam = static_cast< uchar* >(CMemory::Alloc(0x8000, IAllocator::kHI_RoundUpLen));
 
   char filename[] = "NESemuP.rel";
   CDvdFile file(filename);
   uint size = (file.Length() + 31) & ~31;
-  x10_module = static_cast< OSModuleHeader* >(CMemory::Alloc(size, IAllocator::kHI_RoundUpLen));
-  x0_dvdRequest = file.SyncRead(x10_module, size);
+  mModule = static_cast< OSModuleHeader* >(CMemory::Alloc(size, IAllocator::kHI_RoundUpLen));
+  mDvdRequest = file.SyncRead(mModule, size);
 }
 
 CNESEmulator::~CNESEmulator() {
-  if (x0_dvdRequest.null()) {
+  if (mDvdRequest.null()) {
     uint stream = sNesModule->getAudioStream();
     sndStreamMixParameter(stream, 0, 64, 64, 0);
     sndStreamDeactivate(stream);
     sndStreamFree(stream);
-    reinterpret_cast< void (*)() >(x10_module->epilog)();
-    OSUnlink(&x10_module->info);
+    reinterpret_cast< void (*)() >(mModule->epilog)();
+    OSUnlink(&mModule->info);
   }
 
-  CMemory::Free(x8_work->nesromp);
-  CMemory::Free(x8_work->chr_to_u8_bufp);
-  CMemory::Free(x8_work);
-  CMemory::Free(xc_state);
-  CMemory::Free(x18_chrRam);
-  CMemory::Free(x1c_bbRam);
+  CMemory::Free(mWork->nesromp);
+  CMemory::Free(mWork->chr_to_u8_bufp);
+  CMemory::Free(mWork);
+  CMemory::Free(mState);
+  CMemory::Free(mChrRam);
+  CMemory::Free(mBbRam);
   CMemory::Free(sNesModule);
-  CMemory::Free(x10_module);
-  if (x14_bss != nullptr) {
-    CMemory::Free(x14_bss);
+  CMemory::Free(mModule);
+  if (mBss != nullptr) {
+    CMemory::Free(mBss);
   }
 }
 
@@ -198,7 +198,7 @@ void CNESEmulator::ProcessUserInput(const CFinalInput& input, int controller) {
   static const uint skButtonSelect = 0x20000000;
   static const uint skButtonStart = 0x10000000;
 
-  if (!x0_dvdRequest.null()) {
+  if (!mDvdRequest.null()) {
     return;
   }
 
@@ -238,45 +238,45 @@ void CNESEmulator::ProcessUserInput(const CFinalInput& input, int controller) {
 
   switch (controller == 4 ? input.ControllerNumber() : controller) {
   case 0:
-    x8_work->pads[0] = buttons;
+    mWork->pads[0] = buttons;
     break;
   case 1:
-    x8_work->pads[2] = buttons;
+    mWork->pads[2] = buttons;
     break;
   case 2:
-    x8_work->pads[1] = buttons;
+    mWork->pads[1] = buttons;
     break;
   case 3:
-    x8_work->pads[3] = buttons;
+    mWork->pads[3] = buttons;
     break;
   }
 }
 
 void CNESEmulator::Update() {
-  if (!x0_dvdRequest.null()) {
-    if (x0_dvdRequest->IsComplete()) {
-      x14_bss = CMemory::Alloc(x10_module->bssSize, IAllocator::kHI_RoundUpLen);
-      OSLink(&x10_module->info, x14_bss);
-      reinterpret_cast< void (*)() >(x10_module->prolog)();
+  if (!mDvdRequest.null()) {
+    if (mDvdRequest->IsComplete()) {
+      mBss = CMemory::Alloc(mModule->bssSize, IAllocator::kHI_RoundUpLen);
+      OSLink(&mModule->info, mBss);
+      reinterpret_cast< void (*)() >(mModule->prolog)();
       sNesModule->initAudio();
-      sNesModule->reset(x8_work, xc_state, 0, x18_chrRam, x1c_bbRam);
-      x8_work->pads[0] = 0;
-      x8_work->pads[2] = 0;
-      x8_work->pads[1] = 0;
-      x8_work->pads[3] = 0;
-      x0_dvdRequest = nullptr;
+      sNesModule->reset(mWork, mState, 0, mChrRam, mBbRam);
+      mWork->pads[0] = 0;
+      mWork->pads[2] = 0;
+      mWork->pads[1] = 0;
+      mWork->pads[3] = 0;
+      mDvdRequest = nullptr;
     } else {
       return;
     }
   }
 
-  x20_gameOver = CheckForGameOver(xc_state->ppu_nametable_ram, x21_password);
-  x34_passwordEntryState = CheckForPasswordEntryScreen(xc_state->ppu_nametable_ram);
-  if (x34_passwordEntryState == kPES_NotEntered && x38_passwordPending) {
-    SetPasswordIntoEntryScreen(xc_state->ppu_nametable_ram, x1c_bbRam, x39_passwordToLoad);
-    x38_passwordPending = false;
+  mGameOver = CheckForGameOver(mState->ppu_nametable_ram, mPassword);
+  mPasswordEntryState = CheckForPasswordEntryScreen(mState->ppu_nametable_ram);
+  if (mPasswordEntryState == kPES_NotEntered && mPasswordPending) {
+    SetPasswordIntoEntryScreen(mState->ppu_nametable_ram, mBbRam, mPasswordToLoad);
+    mPasswordPending = false;
   }
-  sNesModule->emuFrame(x8_work, xc_state, 0);
+  sNesModule->emuFrame(mWork, mState, 0);
 }
 
 static void DrawNesTexture(int left, int top, int width, int height, const CColor& color) {
@@ -323,7 +323,7 @@ static void DrawNesTexture(int left, int top, int width, int height, const CColo
 }
 
 void CNESEmulator::Draw(const CColor& color, bool enableFiltering) {
-  if (!x0_dvdRequest.null()) {
+  if (!mDvdRequest.null()) {
     return;
   }
 
@@ -332,12 +332,12 @@ void CNESEmulator::Draw(const CColor& color, bool enableFiltering) {
   GXCreateFrameBuffer(640, 480);
 #endif
   GXSetViewport(0.f, 0.f, 640.f, 480.f, 0.1f, 100.f);
-  sNesModule->draw(x8_work, xc_state);
+  sNesModule->draw(mWork, mState);
 #if defined(TARGET_PC)
   GXRestoreFrameBuffer();
   CGraphics::SetDepthRange(CGraphics::GetDepthNear(), CGraphics::GetDepthFar());
 #endif
-  sNesModule->drawInit(x8_work);
+  sNesModule->drawInit(mWork);
   GXSetClipMode(GX_CLIP_ENABLE);
   GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
   GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_NRM, GX_NRM_XYZ, GX_F32, 0);
@@ -363,7 +363,7 @@ void CNESEmulator::Draw(const CColor& color, bool enableFiltering) {
 
   GXTexObj texture;
   GXTexFilter filter = enableFiltering ? GX_LINEAR : GX_NEAR;
-  GXInitTexObj(&texture, x4_resultBuffer.get(), 256, 228, GX_TF_RGB565, GX_CLAMP, GX_CLAMP, false);
+  GXInitTexObj(&texture, mResultBuffer.get(), 256, 228, GX_TF_RGB565, GX_CLAMP, GX_CLAMP, false);
   GXInitTexObjLOD(&texture, filter, filter, 0.f, 0.f, 0.f, false, false, GX_ANISO_1);
   CTexture::InvalidateTexmap(GX_TEXMAP0);
   GXInvalidateTexAll();
@@ -378,14 +378,14 @@ void CNESEmulator::Draw(const CColor& color, bool enableFiltering) {
 }
 
 CNESEmulator::EPasswordEntryState CNESEmulator::GetPasswordEntryState() const {
-  return x34_passwordEntryState;
+  return mPasswordEntryState;
 }
 
 void CNESEmulator::LoadPassword(const uchar* password) {
-  memcpy(x39_passwordToLoad, password, 18);
-  x38_passwordPending = true;
+  memcpy(mPasswordToLoad, password, 18);
+  mPasswordPending = true;
 }
 
-bool CNESEmulator::IsGameOver() const { return x20_gameOver; }
+bool CNESEmulator::IsGameOver() const { return mGameOver; }
 
-const uchar* CNESEmulator::GetPassword() const { return x21_password; }
+const uchar* CNESEmulator::GetPassword() const { return mPassword; }

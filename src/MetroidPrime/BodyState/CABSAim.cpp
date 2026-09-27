@@ -11,11 +11,11 @@
 #include "Kyoto/Math/CMath.hpp"
 
 CABSAim::CABSAim()
-: x4_needsIdle(false)
-, x28_hWeight(0.f)
-, x2c_hWeightVel(0.f)
-, x30_vWeight(0.f)
-, x34_vWeightVel(0.f) {}
+: mNeedsIdle(false)
+, mHWeight(0.f)
+, mHWeightVel(0.f)
+, mVWeight(0.f)
+, mVWeightVel(0.f) {}
 
 void CABSAim::Start(CBodyController& bc, CStateManager& mgr) {
   const CBCAdditiveAimCmd* cmd =
@@ -29,21 +29,21 @@ void CABSAim::Start(CBodyController& bc, CStateManager& mgr) {
     const CPASAnimParmData parms(pas::kAS_AdditiveAim, CPASAnimParm::FromEnum(i));
     const rstl::pair< float, int > best =
         bc.GetPASDatabase().FindBestAnimation(parms, *mgr.Random(), -1);
-    x8_anims[i] = best.second;
+    mAnims[i] = best.second;
 
-    CPASAnimParm animParm(aimState->GetAnimParmData(x8_anims[i], 1));
-    x18_angles[i] = (M_PIF / 180.f) * animParm.GetReal32Value();
+    CPASAnimParm animParm(aimState->GetAnimParmData(mAnims[i], 1));
+    mAngles[i] = (M_PIF / 180.f) * animParm.GetReal32Value();
   }
 
   CAnimData& animData = *bc.GetOwner().AnimationData();
-  x28_hWeight = -animData.GetAdditiveAnimationWeight(x8_anims[0]);
-  x28_hWeight += animData.GetAdditiveAnimationWeight(x8_anims[1]);
-  x30_vWeight = -animData.GetAdditiveAnimationWeight(x8_anims[3]);
-  x30_vWeight += animData.GetAdditiveAnimationWeight(x8_anims[2]);
+  mHWeight = -animData.GetAdditiveAnimationWeight(mAnims[0]);
+  mHWeight += animData.GetAdditiveAnimationWeight(mAnims[1]);
+  mVWeight = -animData.GetAdditiveAnimationWeight(mAnims[3]);
+  mVWeight += animData.GetAdditiveAnimationWeight(mAnims[2]);
 
-  x4_needsIdle = false;
+  mNeedsIdle = false;
   if (bc.CommandMgr().GetCmd(kBSC_AdditiveIdle))
-    x4_needsIdle = true;
+    mNeedsIdle = true;
 }
 
 inline float GetVecAngle(const CVector3f& target) {
@@ -60,45 +60,45 @@ pas::EAnimationState CABSAim::UpdateBody(float dt, CBodyController& bc, CStateMa
     CVector3f target = bc.CommandMgr().GetAdditiveTargetVector();
     if (target.CanBeNormalized()) {
       float hAngle = atan2f(target.GetX(), target.GetY());
-      hAngle = CMath::Clamp(-x18_angles[0], hAngle, x18_angles[1]);
+      hAngle = CMath::Clamp(-mAngles[0], hAngle, mAngles[1]);
       hAngle = hAngle * 0.63661975f;
-      float velocity = (hAngle - x28_hWeight) * 0.25f / dt;
+      float velocity = (hAngle - mHWeight) * 0.25f / dt;
       velocity = CMath::Clamp(-maximumVelocity, velocity, maximumVelocity);
-      float acceleration = (velocity - x2c_hWeightVel) / dt;
-      x2c_hWeightVel += dt * CMath::Clamp(-maximumAcceleration, acceleration, maximumAcceleration);
+      float acceleration = (velocity - mHWeightVel) / dt;
+      mHWeightVel += dt * CMath::Clamp(-maximumAcceleration, acceleration, maximumAcceleration);
 
       float vAngle = GetVecAngle(target);
-      vAngle = CMath::Clamp(-x18_angles[3], vAngle, x18_angles[2]);
+      vAngle = CMath::Clamp(-mAngles[3], vAngle, mAngles[2]);
       vAngle = vAngle * 0.63661975f;
-      velocity = (vAngle - x30_vWeight) * 0.25f / dt;
+      velocity = (vAngle - mVWeight) * 0.25f / dt;
       velocity = CMath::Clamp(-maximumVelocity, velocity, maximumVelocity);
-      acceleration = (velocity - x34_vWeightVel) / dt;
-      x34_vWeightVel += dt * CMath::Clamp(-maximumAcceleration, acceleration, maximumAcceleration);
+      acceleration = (velocity - mVWeightVel) / dt;
+      mVWeightVel += dt * CMath::Clamp(-maximumAcceleration, acceleration, maximumAcceleration);
 
-      float newHWeight = dt * x2c_hWeightVel + x28_hWeight;
-      float newVWeight = dt * x34_vWeightVel + x30_vWeight;
+      float newHWeight = dt * mHWeightVel + mHWeight;
+      float newVWeight = dt * mVWeightVel + mVWeight;
       CAnimData& animData = *bc.GetOwner().AnimationData();
 
-      if (newHWeight != x28_hWeight) {
+      if (newHWeight != mHWeight) {
         float absWeight = fabsf(newHWeight);
-        if (fabsf(x28_hWeight) > 0.f && (x28_hWeight * newHWeight) <= 0.f)
-          animData.DelAdditiveAnimation(x8_anims[x28_hWeight < 0.f ? 0 : 1]);
+        if (fabsf(mHWeight) > 0.f && (mHWeight * newHWeight) <= 0.f)
+          animData.DelAdditiveAnimation(mAnims[mHWeight < 0.f ? 0 : 1]);
         if (absWeight > 0.f)
-          animData.AddAdditiveAnimation(x8_anims[newHWeight < 0.f ? 0 : 1], absWeight, false,
+          animData.AddAdditiveAnimation(mAnims[newHWeight < 0.f ? 0 : 1], absWeight, false,
                                         false);
       }
 
-      if (newVWeight != x30_vWeight) {
+      if (newVWeight != mVWeight) {
         float absWeight = fabsf(newVWeight);
-        if (fabsf(x30_vWeight) > 0.f && x30_vWeight * newVWeight <= 0.f)
-          animData.DelAdditiveAnimation(x8_anims[x30_vWeight > 0.f ? 2 : 3]);
+        if (fabsf(mVWeight) > 0.f && mVWeight * newVWeight <= 0.f)
+          animData.DelAdditiveAnimation(mAnims[mVWeight > 0.f ? 2 : 3]);
         if (absWeight > 0.f)
-          animData.AddAdditiveAnimation(x8_anims[newVWeight > 0.f ? 2 : 3], absWeight, false,
+          animData.AddAdditiveAnimation(mAnims[newVWeight > 0.f ? 2 : 3], absWeight, false,
                                         false);
       }
 
-      x28_hWeight = newHWeight;
-      x30_vWeight = newVWeight;
+      mHWeight = newHWeight;
+      mVWeight = newVWeight;
     }
   }
   return st;
@@ -107,10 +107,10 @@ pas::EAnimationState CABSAim::UpdateBody(float dt, CBodyController& bc, CStateMa
 void CABSAim::Shutdown(CBodyController& bc) {
   CAnimData& animData = *bc.GetOwner().AnimationData();
 
-  if (x28_hWeight != 0.f)
-    animData.DelAdditiveAnimation(x8_anims[x28_hWeight < 0.f ? 0 : 1]);
-  if (x30_vWeight != 0.f)
-    animData.DelAdditiveAnimation(x8_anims[x30_vWeight > 0.f ? 2 : 3]);
+  if (mHWeight != 0.f)
+    animData.DelAdditiveAnimation(mAnims[mHWeight < 0.f ? 0 : 1]);
+  if (mVWeight != 0.f)
+    animData.DelAdditiveAnimation(mAnims[mVWeight > 0.f ? 2 : 3]);
 }
 
 pas::EAnimationState CABSAim::GetBodyStateTransition(float dt, CBodyController& bc) {
@@ -119,7 +119,7 @@ pas::EAnimationState CABSAim::GetBodyStateTransition(float dt, CBodyController& 
     return pas::kAS_AdditiveReaction;
   if (cmdMgr.GetCmd(kBSC_AdditiveFlinch))
     return pas::kAS_AdditiveFlinch;
-  if (cmdMgr.GetCmd(kBSC_AdditiveIdle) || x4_needsIdle)
+  if (cmdMgr.GetCmd(kBSC_AdditiveIdle) || mNeedsIdle)
     return pas::kAS_AdditiveIdle;
   return pas::kAS_Invalid;
 }

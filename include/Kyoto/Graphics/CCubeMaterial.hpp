@@ -25,13 +25,13 @@ class CCubeSurface;
 class CCubeModel;
 class CCubeMaterial {
 public:
-  explicit CCubeMaterial(const void* data) : x0_data(data) {}
+  explicit CCubeMaterial(const void* data) : mData(data) {}
   static void ResetCachedMaterials();
   static void EnsureViewDepStateCached(const CCubeSurface* surface);
   static void EnsureTevsDirect();
   static void KillCachedViewDepState();
 
-  inline const uchar* GetData() const { return static_cast< const uchar* >(x0_data); }
+  inline const uchar* GetData() const { return static_cast< const uchar* >(mData); }
   uint GetFlags() const { return CBasics::SwapBytes(*reinterpret_cast< const uint* >(GetData())); }
   bool IsFlagSet(const EStateFlags flag) const { return (GetFlags() & flag) != 0; }
   void SetCurrent(const CModelFlags& flags, const CCubeSurface& surface,
@@ -52,7 +52,7 @@ public:
 
   // TODO: Figure out wtf is going on here
   uint GetVertexDescLwzx() const {
-    return CBasics::SwapBytes(static_cast< const uint* >(x0_data)[GetTextureCount() + 2]);
+    return CBasics::SwapBytes(static_cast< const uint* >(mData)[GetTextureCount() + 2]);
   }
 
   uint GetCompressedBlend() const;
@@ -68,7 +68,7 @@ private:
   static const CCubeModel* sLastModelCached;
   static const CCubeModel* sRenderingModel;
   static CVector3f sViewingFrom;
-  const void* x0_data;
+  const void* mData;
 };
 
 #endif // _CCUBEMATERIAL

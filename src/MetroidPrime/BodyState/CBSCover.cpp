@@ -11,18 +11,18 @@
 #include "Kyoto/Math/CRelAngle.hpp"
 #include "Kyoto/Math/CUnitVector3f.hpp"
 
-bool CBSCover::CanShoot() const { return x4_state == pas::kCS_Lean; }
+bool CBSCover::CanShoot() const { return mState == pas::kCS_Lean; }
 
 CBSCover::CBSCover()
-: x4_state(pas::kCS_Invalid)
-, x8_coverDirection(pas::kCD_Invalid)
-, xc_needsExit(false) {}
+: mState(pas::kCS_Invalid)
+, mCoverDirection(pas::kCD_Invalid)
+, mNeedsExit(false) {}
 
 void CBSCover::Start(CBodyController& bc, CStateManager& mgr) {
   const CBCCoverCmd* cmd = static_cast< const CBCCoverCmd* >(bc.CommandMgr().GetCmd(kBSC_Cover));
-  x8_coverDirection = cmd->GetDirection();
-  x4_state = pas::kCS_IntoCover;
-  const CPASAnimParmData parms(pas::kAS_Cover, CPASAnimParm::FromEnum(x4_state),
+  mCoverDirection = cmd->GetDirection();
+  mState = pas::kCS_IntoCover;
+  const CPASAnimParmData parms(pas::kAS_Cover, CPASAnimParm::FromEnum(mState),
                               CPASAnimParm::FromEnum(GetCoverDirection()));
 
   const rstl::pair< float, int > best =
@@ -42,26 +42,26 @@ void CBSCover::Start(CBodyController& bc, CStateManager& mgr) {
   const CAnimPlaybackParms playParms(best.second, &orientDelta, &cmd->GetTarget(),
                                     &bc.GetOwner().GetTransform(), &scale, false);
   bc.SetCurrentAnimation(playParms, false, false);
-  xc_needsExit = false;
+  mNeedsExit = false;
   if (bc.CommandMgr().GetCmd(kBSC_ExitState)) {
-    xc_needsExit = true;
+    mNeedsExit = true;
   }
 }
 
 pas::EAnimationState CBSCover::UpdateBody(float dt, CBodyController& bc, CStateManager& mgr) {
   pas::EAnimationState st = GetBodyStateTransition(dt, bc);
   if (st == pas::kAS_Invalid) {
-    switch (x4_state) {
+    switch (mState) {
     case pas::kCS_Lean:
     case pas::kCS_IntoCover:
       if (bc.IsAnimationOver()) {
-        x4_state = pas::kCS_Cover;
-        const CPASAnimParmData parms(pas::kAS_Cover, CPASAnimParm::FromEnum(x4_state),
+        mState = pas::kCS_Cover;
+        const CPASAnimParmData parms(pas::kAS_Cover, CPASAnimParm::FromEnum(mState),
                                      CPASAnimParm::FromEnum(GetCoverDirection()));
         bc.LoopBestAnimation(parms, *mgr.Random());
       }
       if (bc.CommandMgr().GetCmd(kBSC_ExitState)) {
-        xc_needsExit = true;
+        mNeedsExit = true;
       }
       break;
     case pas::kCS_Cover: {
@@ -70,15 +70,15 @@ pas::EAnimationState CBSCover::UpdateBody(float dt, CBodyController& bc, CStateM
         bc.FaceDirection(commandMgr.GetTargetVector(), dt);
       }
       if (commandMgr.GetCmd(kBSC_ExitState) || GetNeedsExit()) {
-        xc_needsExit = false;
-        x4_state = pas::kCS_OutOfCover;
-        const CPASAnimParmData parms(pas::kAS_Cover, CPASAnimParm::FromEnum(x4_state),
+        mNeedsExit = false;
+        mState = pas::kCS_OutOfCover;
+        const CPASAnimParmData parms(pas::kAS_Cover, CPASAnimParm::FromEnum(mState),
                                      CPASAnimParm::FromEnum(GetCoverDirection()));
         bc.PlayBestAnimation(parms, *mgr.Random());
 
       } else if (commandMgr.GetCmd(kBSC_LeanFromCover)) {
-        x4_state = pas::kCS_Lean;
-        const CPASAnimParmData parms(pas::kAS_Cover, CPASAnimParm::FromEnum(x4_state),
+        mState = pas::kCS_Lean;
+        const CPASAnimParmData parms(pas::kAS_Cover, CPASAnimParm::FromEnum(mState),
                                      CPASAnimParm::FromEnum(GetCoverDirection()));
         bc.PlayBestAnimation(parms, *mgr.Random());
       }
@@ -86,7 +86,7 @@ pas::EAnimationState CBSCover::UpdateBody(float dt, CBodyController& bc, CStateM
     }
     case pas::kCS_OutOfCover:
       if (bc.IsAnimationOver()) {
-        x4_state = pas::kCS_Invalid;
+        mState = pas::kCS_Invalid;
         st = pas::kAS_Locomotion;
       }
       break;

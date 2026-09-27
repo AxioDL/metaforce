@@ -19,10 +19,10 @@ public:
   bool IsAnimLoaded() const;
 
 private:
-  rstl::vector< CToken > x0_anims;
+  rstl::vector< CToken > mAnims;
   int x10_;
-  int x14_gunId;
-  int x18_animSet;
+  int mGunId;
+  int mAnimSet;
 };
 
 #endif // _CGSFIDGET

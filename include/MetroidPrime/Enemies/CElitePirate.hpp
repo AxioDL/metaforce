@@ -30,72 +30,72 @@ public:
 
   static int GetMinProperties() { return skMinProperties; }
 
-  float GetTauntInterval() const { return x0_tauntInterval; }
-  float GetTauntVariance() const { return x4_tauntVariance; }
-  float GetAttackChance() const { return x10_attackChance; }
-  float GetShotAtTime() const { return x14_shotAtTime; }
-  float GetShotAtTimeVariance() const { return x18_shotAtTimeVariance; }
-  float GetProjectileAttractionRadius() const { return x1c_projectileAttractionRadius; }
-  CAssetId GetEnergyAbsorbParticleDescId() const { return x20_energyAbsorbParticleDescId; }
-  ushort GetEnergyAbsorbSfxId() const { return x24_energyAbsorbSfxId; }
-  const CActorParameters& GetLauncherActParams() const { return x28_launcherActParams; }
-  const CAnimationParameters& GetLauncherAnimParams() const { return x90_launcherAnimParams; }
-  CAssetId GetLauncherParticleGenDescId() const { return x9c_launcherParticleGenDescId; }
-  ushort GetLauncherSfxId() const { return xa0_launcherSfxId; }
-  CAssetId GetGrenadeModelId() const { return xa4_grenadeModelId; }
-  const CDamageInfo& GetGrenadeDamageInfo() const { return xa8_grenadeDamageInfo; }
-  float GetLauncherHP() const { return xc4_launcherHp; }
-  CAssetId GetGrenadeElementGenDescId1() const { return xc8_grenadeElementGenDescId1; }
-  CAssetId GetGrenadeElementGenDescId2() const { return xcc_grenadeElementGenDescId2; }
-  CAssetId GetGrenadeElementGenDescId3() const { return xd0_grenadeElementGenDescId3; }
-  CAssetId GetGrenadeElementGenDescId4() const { return xd4_grenadeElementGenDescId4; }
-  const SGrenadeVelocityInfo& GetGrenadeVelocityInfo() const { return xd8_grenadeVelocityInfo; }
+  float GetTauntInterval() const { return mTauntInterval; }
+  float GetTauntVariance() const { return mTauntVariance; }
+  float GetAttackChance() const { return mAttackChance; }
+  float GetShotAtTime() const { return mShotAtTime; }
+  float GetShotAtTimeVariance() const { return mShotAtTimeVariance; }
+  float GetProjectileAttractionRadius() const { return mProjectileAttractionRadius; }
+  CAssetId GetEnergyAbsorbParticleDescId() const { return mEnergyAbsorbParticleDescId; }
+  ushort GetEnergyAbsorbSfxId() const { return mEnergyAbsorbSfxId; }
+  const CActorParameters& GetLauncherActParams() const { return mLauncherActParams; }
+  const CAnimationParameters& GetLauncherAnimParams() const { return mLauncherAnimParams; }
+  CAssetId GetLauncherParticleGenDescId() const { return mLauncherParticleGenDescId; }
+  ushort GetLauncherSfxId() const { return mLauncherSfxId; }
+  CAssetId GetGrenadeModelId() const { return mGrenadeModelId; }
+  const CDamageInfo& GetGrenadeDamageInfo() const { return mGrenadeDamageInfo; }
+  float GetLauncherHP() const { return mLauncherHp; }
+  CAssetId GetGrenadeElementGenDescId1() const { return mGrenadeElementGenDescId1; }
+  CAssetId GetGrenadeElementGenDescId2() const { return mGrenadeElementGenDescId2; }
+  CAssetId GetGrenadeElementGenDescId3() const { return mGrenadeElementGenDescId3; }
+  CAssetId GetGrenadeElementGenDescId4() const { return mGrenadeElementGenDescId4; }
+  const SGrenadeVelocityInfo& GetGrenadeVelocityInfo() const { return mGrenadeVelocityInfo; }
   const CEPGrenadeLaunchParms& GetGrenadeTrajectoryInfo() const {
-    return xe0_grenadeTrajectoryInfo;
+    return mGrenadeTrajectoryInfo;
   }
-  uint GetGrenadeNumBounces() const { return xf0_grenadeNumBounces; }
-  ushort GetGrenadeBounceSfxId() const { return xf4_grenadeBounceSfxId; }
-  ushort GetGrenadeExplodeSfxId() const { return xf6_grenadeExplodeSfxId; }
-  CAssetId GetShockwaveParticleDescId() const { return xf8_shockwaveParticleDescId; }
-  const CDamageInfo& GetShockwaveDamageInfo() const { return xfc_shockwaveDamageInfo; }
-  CAssetId GetShockwaveWeaponDescId() const { return x118_shockwaveWeaponDescId; }
-  ushort GetShockwaveElectrocuteSfxId() const { return x11c_shockwaveElectrocuteSfxId; }
-  bool CanCallForBackup() const { return x11e_canCallForBackup; }
-  bool IsFastWhenAttractingEnergy() const { return x11f_fastWhenAttractingEnergy; }
+  uint GetGrenadeNumBounces() const { return mGrenadeNumBounces; }
+  ushort GetGrenadeBounceSfxId() const { return mGrenadeBounceSfxId; }
+  ushort GetGrenadeExplodeSfxId() const { return mGrenadeExplodeSfxId; }
+  CAssetId GetShockwaveParticleDescId() const { return mShockwaveParticleDescId; }
+  const CDamageInfo& GetShockwaveDamageInfo() const { return mShockwaveDamageInfo; }
+  CAssetId GetShockwaveWeaponDescId() const { return mShockwaveWeaponDescId; }
+  ushort GetShockwaveElectrocuteSfxId() const { return mShockwaveElectrocuteSfxId; }
+  bool CanCallForBackup() const { return mCanCallForBackup; }
+  bool IsFastWhenAttractingEnergy() const { return mFastWhenAttractingEnergy; }
 
 private:
-  float x0_tauntInterval;
-  float x4_tauntVariance;
+  float mTauntInterval;
+  float mTauntVariance;
   float x8_;
   float xc_;
-  float x10_attackChance;
-  float x14_shotAtTime;
-  float x18_shotAtTimeVariance;
-  float x1c_projectileAttractionRadius;
-  CAssetId x20_energyAbsorbParticleDescId;
-  ushort x24_energyAbsorbSfxId;
-  CActorParameters x28_launcherActParams;
-  CAnimationParameters x90_launcherAnimParams;
-  CAssetId x9c_launcherParticleGenDescId;
-  ushort xa0_launcherSfxId;
-  CAssetId xa4_grenadeModelId;
-  CDamageInfo xa8_grenadeDamageInfo;
-  float xc4_launcherHp;
-  CAssetId xc8_grenadeElementGenDescId1;
-  CAssetId xcc_grenadeElementGenDescId2;
-  CAssetId xd0_grenadeElementGenDescId3;
-  CAssetId xd4_grenadeElementGenDescId4;
-  SGrenadeVelocityInfo xd8_grenadeVelocityInfo;
-  CEPGrenadeLaunchParms xe0_grenadeTrajectoryInfo;
-  uint xf0_grenadeNumBounces;
-  ushort xf4_grenadeBounceSfxId;
-  ushort xf6_grenadeExplodeSfxId;
-  CAssetId xf8_shockwaveParticleDescId;
-  CDamageInfo xfc_shockwaveDamageInfo;
-  CAssetId x118_shockwaveWeaponDescId;
-  ushort x11c_shockwaveElectrocuteSfxId;
-  bool x11e_canCallForBackup;
-  bool x11f_fastWhenAttractingEnergy;
+  float mAttackChance;
+  float mShotAtTime;
+  float mShotAtTimeVariance;
+  float mProjectileAttractionRadius;
+  CAssetId mEnergyAbsorbParticleDescId;
+  ushort mEnergyAbsorbSfxId;
+  CActorParameters mLauncherActParams;
+  CAnimationParameters mLauncherAnimParams;
+  CAssetId mLauncherParticleGenDescId;
+  ushort mLauncherSfxId;
+  CAssetId mGrenadeModelId;
+  CDamageInfo mGrenadeDamageInfo;
+  float mLauncherHp;
+  CAssetId mGrenadeElementGenDescId1;
+  CAssetId mGrenadeElementGenDescId2;
+  CAssetId mGrenadeElementGenDescId3;
+  CAssetId mGrenadeElementGenDescId4;
+  SGrenadeVelocityInfo mGrenadeVelocityInfo;
+  CEPGrenadeLaunchParms mGrenadeTrajectoryInfo;
+  uint mGrenadeNumBounces;
+  ushort mGrenadeBounceSfxId;
+  ushort mGrenadeExplodeSfxId;
+  CAssetId mShockwaveParticleDescId;
+  CDamageInfo mShockwaveDamageInfo;
+  CAssetId mShockwaveWeaponDescId;
+  ushort mShockwaveElectrocuteSfxId;
+  bool mCanCallForBackup;
+  bool mFastWhenAttractingEnergy;
 
   static const int skMinProperties;
 };
@@ -147,32 +147,32 @@ public:
   bool ShotAt(CStateManager& mgr, float arg) override;
   bool ShouldSpecialAttack(CStateManager& mgr, float arg) override;
   bool ShouldCallForBackup(CStateManager& mgr, float arg) override;
-  CPathFindSearch* GetSearchPath() override { return &x7d0_pathFindSearch; }
-  const CCollisionPrimitive* GetCollisionPrimitive() const override { return &x738_collisionAabb; }
+  CPathFindSearch* GetSearchPath() override { return &mPathFindSearch; }
+  const CCollisionPrimitive* GetCollisionPrimitive() const override { return &mCollisionAabb; }
   virtual bool IsUsingBaseCollisionActors() const { return true; }
   virtual bool IsElitePirate() const { return true; }
   virtual void SetupHealthInfo(CStateManager& mgr);
   virtual void ActivateGrenadeLauncher(CStateManager& mgr, bool val);
   virtual CShockWaveInfo GetShockWaveInfo() const {
     return CShockWaveInfo(
-        x5d8_data.GetShockwaveParticleDescId(), x5d8_data.GetShockwaveDamageInfo(), 16.5217f,
-        x5d8_data.GetShockwaveWeaponDescId(), x5d8_data.GetShockwaveElectrocuteSfxId());
+        mData.GetShockwaveParticleDescId(), mData.GetShockwaveDamageInfo(), 16.5217f,
+        mData.GetShockwaveWeaponDescId(), mData.GetShockwaveElectrocuteSfxId());
   }
 
 protected:
-  const CElitePirateData& GetData() const { return x5d8_data; }
-  TUniqueId GetLauncherId() const { return x772_launcherId; }
+  const CElitePirateData& GetData() const { return mData; }
+  TUniqueId GetLauncherId() const { return mLauncherId; }
 
 protected:
   struct SJointInfo {
-    const char* x0_from;
-    const char* x4_to;
-    float x8_radius;
-    float xc_separation;
+    const char* mFrom;
+    const char* mTo;
+    float mRadius;
+    float mSeparation;
   };
   struct SSphereJointInfo {
-    const char* x0_name;
-    float x4_radius;
+    const char* mName;
+    float mRadius;
   };
 
   static const SJointInfo skLeftArmJointList[3];
@@ -230,44 +230,44 @@ protected:
     kState_Over = 3,
   };
 
-  EState x568_state;
-  CDamageVulnerability x56c_vulnerability;
-  rstl::single_ptr< CCollisionActorManager > x5d4_collisionActorMgr;
-  CElitePirateData x5d8_data;
-  CBoneTracking x6f8_boneTracking;
-  rstl::single_ptr< CCollisionActorManager > x730_collisionActorMgrHead;
-  CCollidableAABox x738_collisionAabb;
-  rstl::optional_object< TLockedToken< CGenDescription > > x760_energyAbsorbDesc;
-  TUniqueId x770_collisionHeadId;
-  TUniqueId x772_launcherId;
-  rstl::reserved_vector< TUniqueId, 7 > x774_collisionRJointIds;
-  rstl::reserved_vector< TUniqueId, 7 > x788_collisionLJointIds;
-  TUniqueId x79c_energyAttractorId;
-  float x7a0_initialSpeed;
-  float x7a4_steeringSpeed;
-  float x7a8_pathShaggedTime;
-  float x7ac_energyAbsorbCooldown;
+  EState mState;
+  CDamageVulnerability mVulnerability;
+  rstl::single_ptr< CCollisionActorManager > mCollisionActorMgr;
+  CElitePirateData mData;
+  CBoneTracking mBoneTracking;
+  rstl::single_ptr< CCollisionActorManager > mCollisionActorMgrHead;
+  CCollidableAABox mCollisionAabb;
+  rstl::optional_object< TLockedToken< CGenDescription > > mEnergyAbsorbDesc;
+  TUniqueId mCollisionHeadId;
+  TUniqueId mLauncherId;
+  rstl::reserved_vector< TUniqueId, 7 > mCollisionRJointIds;
+  rstl::reserved_vector< TUniqueId, 7 > mCollisionLJointIds;
+  TUniqueId mEnergyAttractorId;
+  float mInitialSpeed;
+  float mSteeringSpeed;
+  float mPathShaggedTime;
+  float mEnergyAbsorbCooldown;
   float x7b0_;
-  float x7b4_hp;
-  float x7b8_attackTimer;
-  float x7bc_tauntTimer;
-  float x7c0_shotAtTimer;
-  float x7c4_absorbUpdateTimer;
-  int x7c8_currAnimId;
-  uint x7cc_activeMaterialSet;
-  CPathFindSearch x7d0_pathFindSearch;
-  CVector3f x8b4_targetDestPos;
-  SPositionHistory x8c0_positionHistory;
-  bool x988_24_damageOn : 1;
-  bool x988_25_attackingRightClaw : 1;
-  bool x988_26_attackingLeftClaw : 1;
-  bool x988_27_shotAt : 1;
-  bool x988_28_alert : 1;
-  bool x988_29_shockWaveAnim : 1;
-  bool x988_30_calledForBackup : 1;
-  bool x988_31_running : 1;
-  bool x989_24_onPath : 1;
+  float mHp;
+  float mAttackTimer;
+  float mTauntTimer;
+  float mShotAtTimer;
+  float mAbsorbUpdateTimer;
+  int mCurrAnimId;
+  uint mActiveMaterialSet;
+  CPathFindSearch mPathFindSearch;
+  CVector3f mTargetDestPos;
+  SPositionHistory mPositionHistory;
+  bool mDamageOn : 1;
+  bool mAttackingRightClaw : 1;
+  bool mAttackingLeftClaw : 1;
+  bool mShotAt : 1;
+  bool mAlert : 1;
+  bool mShockWaveAnim : 1;
+  bool mCalledForBackup : 1;
+  bool mRunning : 1;
+  bool mOnPath : 1;
 };
-CHECK_SIZEOF(CElitePirate, (VERSION >= VERSION_GM8P_00 ? 0x9a0 : 0x990))
+CHECK_SIZEOF(CElitePirate, (VERSION >= VERSION_GM8E_02 ? 0x9a0 : 0x990))
 
 #endif // _CELITEPIRATE

@@ -9,7 +9,7 @@ class CCollidableAABox : public CCollisionPrimitive {
 public:
   CCollidableAABox();
   CCollidableAABox(const CAABox& box, const CMaterialList& matList)
-  : CCollisionPrimitive(matList), x10_aabb(box) {}
+  : CCollisionPrimitive(matList), mAabb(box) {}
 
   static bool CollideMovingAABox(const CInternalCollisionStructure& collision, const CVector3f& dir,
                                  double& dOut, CCollisionInfo& infoOut);
@@ -23,8 +23,8 @@ public:
   FourCC GetPrimType() const;
   CRayCastResult CastRayInternal(const CInternalRayCastStructure&) const;
 
-  const CAABox& GetBox() const { return x10_aabb; }
-  CAABox& Box() { return x10_aabb; }
+  const CAABox& GetBox() const { return mAabb; }
+  CAABox& Box() { return mAabb; }
 
   static void SetStaticTableIndex(uint idx) { sTableIndex = idx; }
   static CCollisionPrimitive::Type GetType();
@@ -32,7 +32,7 @@ public:
 private:
   static uint sTableIndex;
 
-  CAABox x10_aabb;
+  CAABox mAabb;
 };
 CHECK_SIZEOF(CCollidableAABox, 0x28)
 

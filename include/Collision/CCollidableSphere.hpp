@@ -10,9 +10,9 @@
 class CCollidableSphere : public CCollisionPrimitive {
 public:
   CCollidableSphere(const CSphere& sphere, const CMaterialList& material)
-  : CCollisionPrimitive(material), x10_sphere(sphere) {}
+  : CCollisionPrimitive(material), mSphere(sphere) {}
   CCollidableSphere(const CCollidableSphere& other)
-  : CCollisionPrimitive(other), x10_sphere(other.x10_sphere) {}
+  : CCollisionPrimitive(other), mSphere(other.mSphere) {}
 
   static bool CollideMovingAABox(const CInternalCollisionStructure& collision, const CVector3f& dir,
                                  double& dOut, CCollisionInfo& infoOut);
@@ -24,9 +24,9 @@ public:
   CAABox CalculateLocalAABox() const override;
   FourCC GetPrimType() const override;
   CSphere Transform(const CTransform4f& xf) const;
-  const CSphere& GetSphere() const { return x10_sphere; }
-  void SetSphere(const CSphere& sphere) { x10_sphere = sphere; }
-  void SetSphereCenter(const CVector3f& center) { x10_sphere = CSphere(center, x10_sphere.GetRadius()); }
+  const CSphere& GetSphere() const { return mSphere; }
+  void SetSphere(const CSphere& sphere) { mSphere = sphere; }
+  void SetSphereCenter(const CVector3f& center) { mSphere = CSphere(center, mSphere.GetRadius()); }
   ~CCollidableSphere() override {}
   CRayCastResult CastRayInternal(const CInternalRayCastStructure& internalRayCast) const override;
 
@@ -37,7 +37,7 @@ public:
 
 private:
   static uint sTableIndex;
-  CSphere x10_sphere;
+  CSphere mSphere;
 };
 CHECK_SIZEOF(CCollidableSphere, 0x20)
 

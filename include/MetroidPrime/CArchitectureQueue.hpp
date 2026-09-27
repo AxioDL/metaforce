@@ -9,17 +9,17 @@
 
 class CArchitectureQueue {
 public:
-  void Push(const CArchitectureMessage& msg) { x0_queue.push_back(msg); }
+  void Push(const CArchitectureMessage& msg) { mQueue.push_back(msg); }
   CArchitectureMessage Pop() {
-    CArchitectureMessage result = *x0_queue.begin();
-    x0_queue.pop_front();
+    CArchitectureMessage result = *mQueue.begin();
+    mQueue.pop_front();
     return result;
   }
-  void Clear() { x0_queue.clear(); }
-  bool IsEmpty() const { return x0_queue.empty(); }
+  void Clear() { mQueue.clear(); }
+  bool IsEmpty() const { return mQueue.empty(); }
 
 private:
-  rstl::list< CArchitectureMessage > x0_queue;
+  rstl::list< CArchitectureMessage > mQueue;
 };
 
 #endif // _CARCHITECTUREQUEUE

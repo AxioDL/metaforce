@@ -33,18 +33,18 @@ public:
   void Render(const CStateManager&) const override;
   void CalculateRenderBounds() override;
 
-  TUniqueId GetExplosionLightId() const { return xec_explosionLight; }
-  CAssetId GetSourceId() const { return xf0_sourceId; }
+  TUniqueId GetExplosionLightId() const { return mExplosionLight; }
+  CAssetId GetSourceId() const { return mSourceId; }
 
 public:
-  rstl::single_ptr< CParticleGen > xe8_particleGen;
-  TUniqueId xec_explosionLight;
-  CAssetId xf0_sourceId;
-  bool xf4_24_renderThermalHot : 1;
-  bool xf4_25_hasRenderBounds : 1;
-  bool xf4_26_renderXray : 1;
-  float xf8_time;
+  rstl::single_ptr< CParticleGen > mParticleGen;
+  TUniqueId mExplosionLight;
+  CAssetId mSourceId;
+  bool mRenderThermalHot : 1;
+  bool mHasRenderBounds : 1;
+  bool mRenderXray : 1;
+  float mTime;
 };
-CHECK_SIZEOF(CExplosion, (VERSION >= VERSION_GM8P_00 ? 0x110 : 0x100))
+CHECK_SIZEOF(CExplosion, (VERSION >= VERSION_GM8E_02 ? 0x110 : 0x100))
 
 #endif // _CEXPLOSION

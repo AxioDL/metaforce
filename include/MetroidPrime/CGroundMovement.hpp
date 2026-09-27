@@ -17,32 +17,32 @@ typedef rstl::reserved_vector< TUniqueId, 1024 > TEntityList;
 class CGroundMovement {
 public:
   struct SMovementOptions {
-    bool x0_setWaterLandingForce;
-    float x4_waterLandingForceCoefficient;
-    float x8_minimumWaterLandingForce;
-    float xc_anyZThreshold;
-    float x10_downwardZThreshold;
-    float x14_waterLandingVelocityReduction;
-    bool x18_dampForceAndMomentum;
-    bool x19_alwaysClip;
-    bool x1a_disableClipForFloorOnly;
-    uint x1c_maxCollisionCycles;
-    float x20_minimumTranslationDelta;
-    float x24_dampedNormalCoefficient;
-    float x28_dampedDeltaCoefficient;
-    float x2c_floorElasticForce;
-    float x30_wallElasticConstant;
-    float x34_wallElasticLinear;
-    float x38_maxPositiveVerticalVelocity;
-    rstl::optional_object< CVector3f > x3c_floorPlaneNormal;
+    bool mSetWaterLandingForce;
+    float mWaterLandingForceCoefficient;
+    float mMinimumWaterLandingForce;
+    float mAnyZThreshold;
+    float mDownwardZThreshold;
+    float mWaterLandingVelocityReduction;
+    bool mDampForceAndMomentum;
+    bool mAlwaysClip;
+    bool mDisableClipForFloorOnly;
+    uint mMaxCollisionCycles;
+    float mMinimumTranslationDelta;
+    float mDampedNormalCoefficient;
+    float mDampedDeltaCoefficient;
+    float mFloorElasticForce;
+    float mWallElasticConstant;
+    float mWallElasticLinear;
+    float mMaxPositiveVerticalVelocity;
+    rstl::optional_object< CVector3f > mFloorPlaneNormal;
 
     SMovementOptions() {}
   };
   struct SMoveObjectResult {
-    rstl::optional_object< TUniqueId > x0_id;
-    rstl::optional_object< CCollisionInfo > x8_collision;
-    uint x6c_processedCollisions;
-    float x70_processedDt;
+    rstl::optional_object< TUniqueId > mId;
+    rstl::optional_object< CCollisionInfo > mCollision;
+    uint mProcessedCollisions;
+    float mProcessedDt;
   };
 
   static void CheckFalling(CPhysicsActor& actor, CStateManager& mgr, float dt);

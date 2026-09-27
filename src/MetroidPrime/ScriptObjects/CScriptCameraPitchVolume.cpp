@@ -16,18 +16,18 @@ CScriptCameraPitchVolume::CScriptCameraPitchVolume(TUniqueId uid, const bool act
                                                    float maxInterpDistance)
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(kMT_Trigger),
          CActorParameters::None(), kInvalidUniqueId)
-, xe8_obbox(xf, CVector3f::ByElementMultiply(scale, skScaleFactor))
-, x124_upPitch(upPitch)
-, x128_downPitch(downPitch)
-, x12c_scale(CVector3f::ByElementMultiply(scale, skScaleFactor))
-, x138_maxInterpDistance(maxInterpDistance)
-, x13c_24_entered(false)
-, x13c_25_occupied(false) {}
+, mObbox(xf, CVector3f::ByElementMultiply(scale, skScaleFactor))
+, mUpPitch(upPitch)
+, mDownPitch(downPitch)
+, mScale(CVector3f::ByElementMultiply(scale, skScaleFactor))
+, mMaxInterpDistance(maxInterpDistance)
+, mEntered(false)
+, mOccupied(false) {}
 
 ENTITY_ACCEPT_IMPL(CScriptCameraPitchVolume)
 
 rstl::optional_object< CAABox > CScriptCameraPitchVolume::GetTouchBounds() const {
-  return xe8_obbox.CalculateAABox(CTransform4f::Identity());
+  return mObbox.CalculateAABox(CTransform4f::Identity());
 }
 
 void CScriptCameraPitchVolume::Touch(CActor& act, CStateManager& mgr) {
@@ -35,7 +35,7 @@ void CScriptCameraPitchVolume::Touch(CActor& act, CStateManager& mgr) {
     rstl::optional_object< CAABox > box = act.GetTouchBounds();
     if (box) {
       COBBox box2(COBBox::FromAABox(*box, CTransform4f::Identity()));
-      x13c_24_entered = xe8_obbox.OBBIntersectsBox(box2);
+      mEntered = mObbox.OBBIntersectsBox(box2);
     }
   }
 }
@@ -45,22 +45,22 @@ void CScriptCameraPitchVolume::Think(float, CStateManager& mgr) {
     return;
   }
 
-  if (x13c_24_entered && !x13c_25_occupied) {
+  if (mEntered && !mOccupied) {
     Entered(mgr);
   }
-  if (!x13c_24_entered && x13c_25_occupied) {
+  if (!mEntered && mOccupied) {
     Exited(mgr);
   }
 
-  x13c_24_entered = false;
+  mEntered = false;
 }
 
 void CScriptCameraPitchVolume::Entered(CStateManager& mgr) {
-  x13c_25_occupied = true;
+  mOccupied = true;
   mgr.CameraManager()->FirstPersonCamera()->SetScriptPitchId(GetUniqueId());
 }
 
 void CScriptCameraPitchVolume::Exited(CStateManager& mgr) {
-  x13c_25_occupied = false;
+  mOccupied = false;
   mgr.CameraManager()->FirstPersonCamera()->SetScriptPitchId(kInvalidUniqueId);
 }

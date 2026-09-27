@@ -10,31 +10,31 @@ class CLayoutScaleInfo;
 
 class CLayoutDescription {
 public:
-  CLayoutDescription(const TLockedToken< CCharLayoutInfo >& layout) : x0_layoutToken(layout) {}
+  CLayoutDescription(const TLockedToken< CCharLayoutInfo >& layout) : mLayoutToken(layout) {}
 
   class CScaledLayoutDescription {
   public:
-    const TLockedToken< CCharLayoutInfo >& ScaledLayout() const { return x0_layoutToken; }
-    float GlobalScale() const { return xc_scale; }
+    const TLockedToken< CCharLayoutInfo >& ScaledLayout() const { return mLayoutToken; }
+    float GlobalScale() const { return mScale; }
 
   private:
-    TLockedToken< CCharLayoutInfo > x0_layoutToken;
-    float xc_scale;
+    TLockedToken< CCharLayoutInfo > mLayoutToken;
+    float mScale;
     rstl::optional_object<
         rstl::pair< rstl::pair< const CLayoutScaleInfo*, const CLayoutScaleInfo* >, float > >
-        x10_scaleInfo;
+        mScaleInfo;
   };
 
   uchar GetNumSegments() const;
-  bool UsesScale() const { return xc_scaled.valid(); }
-  float GlobalScale() const { return UsesScale() ? xc_scaled->GlobalScale() : 1.f; }
+  bool UsesScale() const { return mScaled.valid(); }
+  float GlobalScale() const { return UsesScale() ? mScaled->GlobalScale() : 1.f; }
   const TLockedToken< CCharLayoutInfo >& ScaledLayout() const {
-    return UsesScale() ? xc_scaled->ScaledLayout() : x0_layoutToken;
+    return UsesScale() ? mScaled->ScaledLayout() : mLayoutToken;
   }
 
 private:
-  TLockedToken< CCharLayoutInfo > x0_layoutToken;
-  rstl::optional_object< CScaledLayoutDescription > xc_scaled;
+  TLockedToken< CCharLayoutInfo > mLayoutToken;
+  rstl::optional_object< CScaledLayoutDescription > mScaled;
 };
 CHECK_SIZEOF(CLayoutDescription, 0x30)
 NESTED_CHECK_SIZEOF(CLayoutDescription, CScaledLayoutDescription, 0x20)

@@ -21,102 +21,102 @@ void CPFArea::ReadData(std::span< const uchar > data) {
   const uint version = in.Read< uint >();
   REQUIRE(version == 4, "Unsupported PATH version {}", version);
 
-  x140_nodes.resize(in.ReadCount(24), CPFNode());
-  for (auto& node : x140_nodes) {
-    node.x0_position = in.ReadVector3f();
-    node.xc_normal = in.ReadVector3f();
+  mNodes.resize(in.ReadCount(24), CPFNode());
+  for (auto& node : mNodes) {
+    node.mPosition = in.ReadVector3f();
+    node.mNormal = in.ReadVector3f();
   }
-  x148_links.resize(in.ReadCount(16), CPFLink());
-  for (auto& link : x148_links) {
-    link.x0_node = in.Read< int >();
-    link.x4_region = in.Read< int >();
+  mLinks.resize(in.ReadCount(16), CPFLink());
+  for (auto& link : mLinks) {
+    link.mNode = in.Read< int >();
+    link.mRegion = in.Read< int >();
     link.x8_2dWidth = in.Read< float >();
-    link.xc_oo2dWidth = in.Read< float >();
+    link.mOo2dWidth = in.Read< float >();
   }
 
   const uint regionCount = in.ReadCount(80);
   REQUIRE(regionCount <= 512, "PATH has {} regions; search bitsets hold 512", regionCount);
-  x150_regions.resize(regionCount, CPFRegion());
-  x178_regionData.resize(regionCount, CPFRegionData());
+  mRegions.resize(regionCount, CPFRegion());
+  mRegionData.resize(regionCount, CPFRegionData());
   std::array< bool, 512 > regionIndices{};
   int maxRegionNodes = 4;
-  for (auto& region : x150_regions) {
+  for (auto& region : mRegions) {
     const uint nodeCount = in.Read< uint >();
     const uint firstNode = in.Read< uint >();
     const uint linkCount = in.Read< uint >();
     const uint firstLink = in.Read< uint >();
     REQUIRE(nodeCount != 0, "PATH region has no polygon nodes");
-    CheckRange(firstNode, nodeCount, x140_nodes.size());
+    CheckRange(firstNode, nodeCount, mNodes.size());
     if (linkCount != 0) {
-      CheckRange(firstLink, linkCount, x148_links.size());
+      CheckRange(firstLink, linkCount, mLinks.size());
     }
-    region.x0_numNodes = nodeCount;
-    region.x4_startNode = x140_nodes.data() + firstNode;
-    region.x8_numLinks = linkCount;
-    region.xc_startLink = linkCount ? x148_links.data() + firstLink : nullptr;
-    region.x10_flags = in.Read< uint >();
-    region.x14_height = in.Read< float >();
-    region.x18_normal = in.ReadVector3f();
+    region.mNumNodes = nodeCount;
+    region.mStartNode = mNodes.data() + firstNode;
+    region.mNumLinks = linkCount;
+    region.mStartLink = linkCount ? mLinks.data() + firstLink : nullptr;
+    region.mFlags = in.Read< uint >();
+    region.mHeight = in.Read< float >();
+    region.mNormal = in.ReadVector3f();
     const uint index = in.Read< uint >();
     REQUIRE(index < regionCount && !regionIndices[index], "Invalid PATH region index {}", index);
     regionIndices[index] = true;
-    region.x24_regionIdx = index;
-    region.x28_centroid = in.ReadVector3f();
-    region.x34_bounds = in.ReadAABox();
+    region.mRegionIdx = index;
+    region.mCentroid = in.ReadVector3f();
+    region.mBounds = in.ReadAABox();
     in.Read< uint >(); // The serialized scratch-data pointer is not persistent data.
-    region.x4c_data = &x178_regionData[index];
-    maxRegionNodes = std::max(maxRegionNodes, region.x0_numNodes);
+    region.mData = &mRegionData[index];
+    maxRegionNodes = std::max(maxRegionNodes, region.mNumNodes);
     for (uint i = 0; i < linkCount; ++i) {
-      const auto& link = region.xc_startLink[i];
+      const auto& link = region.mStartLink[i];
       REQUIRE(link.GetNode() >= 0 && static_cast< uint >(link.GetNode()) < nodeCount &&
                   link.GetRegion() >= 0 && static_cast< uint >(link.GetRegion()) < regionCount,
               "Invalid PATH link in region {}", index);
     }
   }
-  x10_polyPoints.reserve(maxRegionNodes);
+  mPolyPoints.reserve(maxRegionNodes);
 
   const uint connectionWords = regionCount ? (regionCount * (regionCount - 1) / 2 + 31) / 32 : 0;
-  x168_connectionsGround.reserve(connectionWords);
-  x170_connectionsFlyers.reserve(connectionWords);
+  mConnectionsGround.reserve(connectionWords);
+  mConnectionsFlyers.reserve(connectionWords);
   for (uint i = 0; i < connectionWords; ++i) {
-    x168_connectionsGround.push_back(in.Read< uint >());
+    mConnectionsGround.push_back(in.Read< uint >());
   }
   for (uint i = 0; i < connectionWords; ++i) {
-    x170_connectionsFlyers.push_back(in.Read< uint >());
+    mConnectionsFlyers.push_back(in.Read< uint >());
   }
   // The file reserves two square bit matrices; the game uses triangular tables.
   in.Take(((regionCount * regionCount + 31) / 32 - connectionWords) * 2 * sizeof(uint));
 
   const uint lookupCount = in.ReadCount(4);
-  x160_octreeRegions.reserve(lookupCount);
+  mOctreeRegions.reserve(lookupCount);
   for (uint i = 0; i < lookupCount; ++i) {
     const uint index = in.Read< uint >();
     REQUIRE(index < regionCount, "Invalid PATH octree region index {}", index);
-    x160_octreeRegions.push_back(&x150_regions[index]);
+    mOctreeRegions.push_back(&mRegions[index]);
   }
   const uint octreeCount = in.ReadCount(80);
   REQUIRE(octreeCount != 0, "PATH has no octree root");
-  x158_octree.resize(octreeCount, CPFAreaOctree());
-  for (auto& node : x158_octree) {
-    node.x0_isLeaf = in.Read< uint >() != 0;
-    node.x4_bounds = in.ReadAABox();
-    node.x1c_center = in.ReadVector3f();
-    for (auto& child : node.x28_children) {
+  mOctree.resize(octreeCount, CPFAreaOctree());
+  for (auto& node : mOctree) {
+    node.mIsLeaf = in.Read< uint >() != 0;
+    node.mBounds = in.ReadAABox();
+    node.mCenter = in.ReadVector3f();
+    for (auto& child : node.mChildren) {
       const uint index = in.Read< uint >();
-      if (!node.x0_isLeaf) {
+      if (!node.mIsLeaf) {
         // Traversal visits all eight children without testing for null.
         REQUIRE(index < octreeCount, "Invalid PATH octree child {}", index);
-        child = &x158_octree[index];
+        child = &mOctree[index];
       } else {
         child = nullptr;
       }
     }
     const uint count = in.Read< uint >();
     const uint firstRegion = in.Read< uint >();
-    if (node.x0_isLeaf && count != 0) {
+    if (node.mIsLeaf && count != 0) {
       CheckRange(firstRegion, count, lookupCount);
-      node.x48_regions.set_size(count);
-      node.x48_regions.set_data(x160_octreeRegions.data() + firstRegion);
+      node.mRegions.set_size(count);
+      node.mRegions.set_data(mOctreeRegions.data() + firstRegion);
     }
   }
 
@@ -130,13 +130,13 @@ void CPFArea::ReadData(std::span< const uchar > data) {
     stack.emplace_back(root, 0);
     while (!stack.empty()) {
       auto& [index, next] = stack.back();
-      const auto& node = x158_octree[index];
-      if (node.x0_isLeaf || next == 8) {
+      const auto& node = mOctree[index];
+      if (node.mIsLeaf || next == 8) {
         state[index] = 2;
         stack.pop_back();
         continue;
       }
-      const uint child = node.x28_children[next++] - x158_octree.data();
+      const uint child = node.mChildren[next++] - mOctree.data();
       REQUIRE(state[child] != 1, "Cycle in PATH octree at node {}", child);
       if (state[child] == 0) {
         state[child] = 1;

@@ -16,14 +16,14 @@ class IObjectStore;
 class CCubeSurface;
 class CModel {
   struct SShader {
-    rstl::vector< TCachedToken< CTexture > > x0_textures;
+    rstl::vector< TCachedToken< CTexture > > mTextures;
 #if defined(TARGET_PC)
-    TModelData x10_data;
-    SShader(TModelData data) : x10_data(data) {}
+    TModelData mData;
+    SShader(TModelData data) : mData(data) {}
 #else
-    uchar* x10_data;
+    uchar* mData;
 
-    SShader(uchar* data) : x10_data(data) {};
+    SShader(uchar* data) : mData(data) {};
 #endif
 
     void UnlockTextures();
@@ -53,11 +53,11 @@ public:
   void RemapData(uchar* data);
 #endif
 
-  const CCubeModel* GetCubeModel() const { return x28_modelInstance.get(); }
-  const CAABox& GetBoundingBox() const { return x28_modelInstance->GetBoundingBox(); }
-  int GetNumMaterialSets() const { return x18_matSets.size(); }
+  const CCubeModel* GetCubeModel() const { return mModelInstance.get(); }
+  const CAABox& GetBoundingBox() const { return mModelInstance->GetBoundingBox(); }
+  int GetNumMaterialSets() const { return mMatSets.size(); }
   bool IsDefinitelyOpaque() const {
-    return x28_modelInstance.get() != nullptr && !x28_modelInstance->GetAlphaSurfaces().IsValid();
+    return mModelInstance.get() != nullptr && !mModelInstance->GetAlphaSurfaces().IsValid();
   }
 
   static void DisableTextureTimeout();
@@ -73,25 +73,25 @@ public:
 
   void UnlockTextures() {
     rstl::vector< SShader >::iterator matIter;
-    for (matIter = x18_matSets.begin() + 1; matIter != x18_matSets.end(); ++matIter) {
+    for (matIter = mMatSets.begin() + 1; matIter != mMatSets.end(); ++matIter) {
       matIter->UnlockTextures();
     }
-    x28_modelInstance->UnlockTextures();
+    mModelInstance->UnlockTextures();
   }
 
 private:
-  rstl::single_ptr< uchar > x0_data;
-  uint x4_dataLen;
+  rstl::single_ptr< uchar > mData;
+  uint mDataLen;
 #if !defined(TARGET_PC)
-  rstl::vector< void* > x8_surfaces;
+  rstl::vector< void* > mSurfaces;
 #endif
-  mutable rstl::vector< SShader > x18_matSets;
-  rstl::single_ptr< CCubeModel > x28_modelInstance;
-  mutable short x2c_currentMatxIdx;
-  mutable short x2e_lastMaterialFrame;
-  mutable CModel* x30_prev;
-  mutable CModel* x34_next;
-  mutable uint x38_lastFrame;
+  mutable rstl::vector< SShader > mMatSets;
+  rstl::single_ptr< CCubeModel > mModelInstance;
+  mutable short mCurrentMatxIdx;
+  mutable short mLastMaterialFrame;
+  mutable CModel* mPrev;
+  mutable CModel* mNext;
+  mutable uint mLastFrame;
 #if defined(TARGET_PC)
   uint mResourceSize;
 #endif

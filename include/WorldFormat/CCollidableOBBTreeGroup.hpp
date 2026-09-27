@@ -17,13 +17,13 @@ public:
   CCollidableOBBTreeGroupContainer(CInputStream& in);
   CCollidableOBBTreeGroupContainer(const CVector3f& extent, const CVector3f& center);
 
-  int NumTrees() const { return x0_trees.size(); }
+  int NumTrees() const { return mTrees.size(); }
 
 private:
   friend class CCollidableOBBTreeGroup;
-  rstl::vector< rstl::auto_ptr< COBBTree > > x0_trees;
-  rstl::vector< CAABox > x10_aabbs;
-  CAABox x20_aabox;
+  rstl::vector< rstl::auto_ptr< COBBTree > > mTrees;
+  rstl::vector< CAABox > mAabbs;
+  CAABox mAabox;
 };
 CHECK_SIZEOF(CCollidableOBBTreeGroupContainer, 0x38)
 
@@ -39,7 +39,7 @@ public:
   CCollidableOBBTreeGroup(CCollidableOBBTreeGroupContainer* container,
                           const CMaterialList& matList);
 
-  const CCollidableOBBTreeGroupContainer* GetContainer() const { return x10_container; }
+  const CCollidableOBBTreeGroupContainer* GetContainer() const { return mContainer; }
   COBBTree* GetOBBTreeAABox(int idx) const;
 
   static Type GetType();
@@ -57,7 +57,7 @@ public:
                                  CCollisionInfo&);
 
 private:
-  CCollidableOBBTreeGroupContainer* x10_container;
+  CCollidableOBBTreeGroupContainer* mContainer;
   static uint sTableIndex;
 };
 CHECK_SIZEOF(CCollidableOBBTreeGroup, 0x18)

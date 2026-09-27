@@ -26,26 +26,26 @@ public:
   void Death(CStateManager&, const CVector3f&, EScriptObjectState) override;
 
   void SetParticleEnabled(const int idx, const bool enabled) {
-    x5d0_enabledParticles =
-        enabled ? x5d0_enabledParticles | (1 << idx) : x5d0_enabledParticles & ~(1 << idx);
+    mEnabledParticles =
+        enabled ? mEnabledParticles | (1 << idx) : mEnabledParticles & ~(1 << idx);
   }
-  bool IsParticleEnabled(const int idx) const { return (x5d0_enabledParticles & (1 << idx)) != 0; }
+  bool IsParticleEnabled(const int idx) const { return (mEnabledParticles & (1 << idx)) != 0; }
 
 private:
-  CVector3f x568_face;
-  TToken< CGenDescription > x574_cloudEffect;
-  CDamageInfo x57c_cloudDamage;
+  CVector3f mFace;
+  TToken< CGenDescription > mCloudEffect;
+  CDamageInfo mCloudDamage;
   bool x598_24_ : 1;
   bool x598_25_ : 1;
   bool x598_26_ : 1;
   ushort x59a_;
-  CDamageInfo x59c_explosionDamage;
+  CDamageInfo mExplosionDamage;
   float x5b8_;
-  CAssetId x5bc_cloudSteam;
-  CVector3f x5c0_move;
+  CAssetId mCloudSteam;
+  CVector3f mMove;
   TUniqueId x5cc_;
-  int x5d0_enabledParticles;
-  rstl::reserved_vector< CVector3f, 14 > x5d4_gasLocators;
+  int mEnabledParticles;
+  rstl::reserved_vector< CVector3f, 14 > mGasLocators;
 
   void UpdateJets(CStateManager&);
 };

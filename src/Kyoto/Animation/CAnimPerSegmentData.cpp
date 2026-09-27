@@ -11,7 +11,7 @@ rstl::vector< CQuaternion >::vector(CInputStream& in, const rmemory_allocator& a
 
 template <>
 rstl::vector< CQuaternion >::vector(CInputStream& in, const rmemory_allocator& allocator)
-: x4_count(0), x8_capacity(0), xc_items(nullptr) {
+: mCount(0), mCapacity(0), mItems(nullptr) {
   int count = in.Get(TGetType(0));
   reserve(count);
   for (int i = 0; i < count; i++) {

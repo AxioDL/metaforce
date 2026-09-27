@@ -12,15 +12,15 @@ public:
   pas::EAnimationState UpdateBody(float dt, CBodyController& bc, CStateManager& mgr) override;
   void Shutdown(CBodyController&) override;
 
-  pas::ELoopState GetState() const { return x4_state; }
-  pas::ELoopAttackType GetAttackType() const { return x8_loopAttackType; }
-  bool GetAdvance() const { return xc_25_advance; }
+  pas::ELoopState GetState() const { return mState; }
+  pas::ELoopAttackType GetAttackType() const { return mLoopAttackType; }
+  bool GetAdvance() const { return mAdvance; }
 
 private:
-  pas::ELoopState x4_state;
-  pas::ELoopAttackType x8_loopAttackType;
-  bool xc_24_waitForAnimOver : 1;
-  bool xc_25_advance : 1;
+  pas::ELoopState mState;
+  pas::ELoopAttackType mLoopAttackType;
+  bool mWaitForAnimOver : 1;
+  bool mAdvance : 1;
 
   pas::EAnimationState GetBodyStateTransition(float dt, CBodyController& bc);
 };

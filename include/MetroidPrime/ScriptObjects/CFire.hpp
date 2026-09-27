@@ -30,9 +30,9 @@ public:
 
 private:
   rstl::single_ptr< CElementGen > xe8_;
-  TUniqueId xec_owner;
-  CDamageInfo xf0_damageInfo1;
-  CDamageInfo x10c_damageInfo2;
+  TUniqueId mOwner;
+  CDamageInfo mDamageInfo1;
+  CDamageInfo mDamageInfo2;
   rstl::optional_object< CAABox > x128_;
   float x144_;
   bool x148_24_ : 1;

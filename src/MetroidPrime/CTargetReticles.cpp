@@ -83,70 +83,70 @@ static float calculate_premultiplied_overshoot_offset(float f) {
 }
 
 CCompoundTargetReticle::SOuterItemInfo::SOuterItemInfo(const char* modelName)
-: x0_model(gpSimplePool->GetObj(modelName))
-, xc_offshootBaseAngle(0.f)
-, x10_rotAng(0.f)
-, x14_baseAngle(0.f)
-, x18_offshootAngleDelta(0.f) {}
+: mModel(gpSimplePool->GetObj(modelName))
+, mOffshootBaseAngle(0.f)
+, mRotAng(0.f)
+, mBaseAngle(0.f)
+, mOffshootAngleDelta(0.f) {}
 
 CCompoundTargetReticle::CCompoundTargetReticle(const CStateManager& mgr)
-: x0_leadingOrientation(
+: mLeadingOrientation(
       CQuaternion::FromMatrix(mgr.GetCameraManager()->GetCurrentCamera(mgr).GetTransform()))
-, x10_laggingOrientation(
+, mLaggingOrientation(
       CQuaternion::FromMatrix(mgr.GetCameraManager()->GetCurrentCamera(mgr).GetTransform()))
-, x20_prevState(kRS_Unspecified)
-, x24_nextState(kRS_Unspecified)
-, x28_noDrawTicks(0)
-, x2c_overshootOffsetHalf(0.5f * gpTweakTargeting->xe8_chargeGaugeOvershootOffset)
-, x30_premultOvershootOffset(
-      calculate_premultiplied_overshoot_offset(gpTweakTargeting->xe8_chargeGaugeOvershootOffset))
-, x34_crosshairs(gpSimplePool->GetObj(skCrosshairsReticleAssetName))
-, x40_seeker(gpSimplePool->GetObj(skSeekerAssetName))
-, x4c_lockConfirm(gpSimplePool->GetObj(skLockConfirmAssetName))
-, x58_targetFlower(gpSimplePool->GetObj(skTargetFlowerAssetName))
-, x64_missileBracket(gpSimplePool->GetObj(skMissileBracketAssetName))
-, x70_innerBeamIcon(gpSimplePool->GetObj(skInnerBeamIconName))
-, x7c_lockFire(gpSimplePool->GetObj(skLockFireAssetName))
-, x88_lockDagger(gpSimplePool->GetObj(skLockDaggerAssetName))
-, x94_grapple(gpSimplePool->GetObj(skGrappleReticleAssetName))
-, xa0_chargeTickFirst(gpSimplePool->GetObj(skChargeBeamTickAssetName))
-, xac_xrayRetRing(gpSimplePool->GetObj(skXRayRingModelName))
-, xb8_thermalReticle(gpSimplePool->GetObj(skThermalReticleAssetName))
-, xc4_chargeGauge(skChargeGaugeAssetName)
-, xf0_targetId(kInvalidUniqueId)
-, xf2_nextTargetId(kInvalidUniqueId)
-, xf4_targetPos(CalculateOrbitZoneReticlePosition(mgr, false))
-, x100_laggingTargetPos(CalculateOrbitZoneReticlePosition(mgr, true))
-, x10c_currGroupInterp(skZeroRenderState)
-, x12c_currGroupA(skZeroRenderState)
-, x14c_currGroupB(skZeroRenderState)
-, x16c_currGroupDur(0.f)
-, x170_currGroupTimer(0.f)
-, x174_nextGroupInterp(skZeroRenderState)
-, x194_nextGroupA(skZeroRenderState)
-, x1b4_nextGroupB(skZeroRenderState)
-, x1d4_nextGroupDur(0.f)
-, x1d8_nextGroupTimer(0.f)
-, x1dc_grapplePoint0(kInvalidUniqueId)
-, x1de_grapplePoint1(kInvalidUniqueId)
-, x1e0_grapplePoint0T(0.f)
-, x1e4_grapplePoint1T(0.f)
-, x1e8_crosshairsScale(0.f)
-, x1ec_seekerAngle(0.f)
-, x1f0_xrayRetAngle(0.f)
-, x1f4_missileActive(false)
-, x1f8_missileBracketTimer(0.f)
-, x1fc_missileBracketScaleTimer(0.f)
-, x200_beam(CPlayerState::kBI_Power)
-, x204_chargeGaugeOvershootTimer(0.f)
-, x208_lockonTimer(gpTweakTargeting->xd0_lockonDuration)
-, x20c_unk(0.f)
-, x210_lockFireTimer(0.f)
-, x214_fullChargeFadeTimer(0.f)
-, x218_beamShot(false)
-, x219_missileShot(false)
-, x21a_fullyCharged(false) {
-  xe0_outerBeamIconSquares.reserve(9);
+, mPrevState(kRS_Unspecified)
+, mNextState(kRS_Unspecified)
+, mNoDrawTicks(0)
+, mOvershootOffsetHalf(0.5f * gpTweakTargeting->mChargeGaugeOvershootOffset)
+, mPremultOvershootOffset(
+      calculate_premultiplied_overshoot_offset(gpTweakTargeting->mChargeGaugeOvershootOffset))
+, mCrosshairs(gpSimplePool->GetObj(skCrosshairsReticleAssetName))
+, mSeeker(gpSimplePool->GetObj(skSeekerAssetName))
+, mLockConfirm(gpSimplePool->GetObj(skLockConfirmAssetName))
+, mTargetFlower(gpSimplePool->GetObj(skTargetFlowerAssetName))
+, mMissileBracket(gpSimplePool->GetObj(skMissileBracketAssetName))
+, mInnerBeamIcon(gpSimplePool->GetObj(skInnerBeamIconName))
+, mLockFire(gpSimplePool->GetObj(skLockFireAssetName))
+, mLockDagger(gpSimplePool->GetObj(skLockDaggerAssetName))
+, mGrapple(gpSimplePool->GetObj(skGrappleReticleAssetName))
+, mChargeTickFirst(gpSimplePool->GetObj(skChargeBeamTickAssetName))
+, mXrayRetRing(gpSimplePool->GetObj(skXRayRingModelName))
+, mThermalReticle(gpSimplePool->GetObj(skThermalReticleAssetName))
+, mChargeGauge(skChargeGaugeAssetName)
+, mTargetId(kInvalidUniqueId)
+, mNextTargetId(kInvalidUniqueId)
+, mTargetPos(CalculateOrbitZoneReticlePosition(mgr, false))
+, mLaggingTargetPos(CalculateOrbitZoneReticlePosition(mgr, true))
+, mCurrGroupInterp(skZeroRenderState)
+, mCurrGroupA(skZeroRenderState)
+, mCurrGroupB(skZeroRenderState)
+, mCurrGroupDur(0.f)
+, mCurrGroupTimer(0.f)
+, mNextGroupInterp(skZeroRenderState)
+, mNextGroupA(skZeroRenderState)
+, mNextGroupB(skZeroRenderState)
+, mNextGroupDur(0.f)
+, mNextGroupTimer(0.f)
+, mGrapplePoint0(kInvalidUniqueId)
+, mGrapplePoint1(kInvalidUniqueId)
+, mGrapplePoint0T(0.f)
+, mGrapplePoint1T(0.f)
+, mCrosshairsScale(0.f)
+, mSeekerAngle(0.f)
+, mXrayRetAngle(0.f)
+, mMissileActive(false)
+, mMissileBracketTimer(0.f)
+, mMissileBracketScaleTimer(0.f)
+, mBeam(CPlayerState::kBI_Power)
+, mChargeGaugeOvershootTimer(0.f)
+, mLockonTimer(gpTweakTargeting->mLockonDuration)
+, mUnk(0.f)
+, mLockFireTimer(0.f)
+, mFullChargeFadeTimer(0.f)
+, mBeamShot(false)
+, mMissileShot(false)
+, mFullyCharged(false) {
+  mOuterBeamIconSquares.reserve(9);
   for (int i = 0; i < 9; ++i) {
     char buf[64];
 #if NONMATCHING
@@ -154,9 +154,9 @@ CCompoundTargetReticle::CCompoundTargetReticle(const CStateManager& mgr)
 #else
     sprintf(buf, "%s%d", skOuterBeamIconSquareNameBase, i);
 #endif
-    xe0_outerBeamIconSquares.push_back(SOuterItemInfo(buf));
+    mOuterBeamIconSquares.push_back(SOuterItemInfo(buf));
   }
-  x34_crosshairs.Lock();
+  mCrosshairs.Lock();
 }
 
 bool CCompoundTargetReticle::CheckLoadComplete() { return true; }
@@ -178,7 +178,7 @@ EReticleState CCompoundTargetReticle::GetDesiredReticleState(const CStateManager
 
 void CCompoundTargetReticle::Update(float dt, const CStateManager& mgr) {
   // 1. Orientation slerp
-  CRelAngle angle = x10_laggingOrientation.AngleFrom(x0_leadingOrientation);
+  CRelAngle angle = mLaggingOrientation.AngleFrom(mLeadingOrientation);
   float angleDeg = angle.AsDegrees();
   bool extreme = false;
   if (angleDeg < 0.1f || angleDeg > 45.f) {
@@ -188,16 +188,16 @@ void CCompoundTargetReticle::Update(float dt, const CStateManager& mgr) {
   if (extreme) {
     t = 1.f;
   } else {
-    float lagSpeed = gpTweakTargeting->x224_angularLagSpeed;
+    float lagSpeed = gpTweakTargeting->mAngularLagSpeed;
     t = rstl::min_val(1.f, lagSpeed * dt / angleDeg);
   }
-  x10_laggingOrientation =
-      t == 1.f ? x0_leadingOrientation
-               : CQuaternion::Slerp(x10_laggingOrientation, x0_leadingOrientation, t);
+  mLaggingOrientation =
+      t == 1.f ? mLeadingOrientation
+               : CQuaternion::Slerp(mLaggingOrientation, mLeadingOrientation, t);
 
   // 2. Target positions
-  xf4_targetPos = CalculateOrbitZoneReticlePosition(mgr, false);
-  x100_laggingTargetPos = CalculateOrbitZoneReticlePosition(mgr, true);
+  mTargetPos = CalculateOrbitZoneReticlePosition(mgr, false);
+  mLaggingTargetPos = CalculateOrbitZoneReticlePosition(mgr, true);
 
   // 3. Sub-updates
   UpdateCurrLockOnGroup(dt, mgr);
@@ -206,18 +206,18 @@ void CCompoundTargetReticle::Update(float dt, const CStateManager& mgr) {
 
   // 4. Reticle state transitions
   EReticleState desiredState = GetDesiredReticleState(mgr);
-  if (desiredState != x20_prevState && x20_prevState == x24_nextState) {
-    x24_nextState = desiredState;
-    x28_noDrawTicks = 2;
+  if (desiredState != mPrevState && mPrevState == mNextState) {
+    mNextState = desiredState;
+    mNoDrawTicks = 2;
   }
 
-  if (x20_prevState != x24_nextState && x28_noDrawTicks <= 0) {
-    x20_prevState = x24_nextState;
+  if (mPrevState != mNextState && mNoDrawTicks <= 0) {
+    mPrevState = mNextState;
     bool combat = false;
     bool scan = false;
     bool xray = false;
     bool thermal = false;
-    switch (x24_nextState) {
+    switch (mNextState) {
     case kRS_Combat:
       combat = true;
       break;
@@ -235,210 +235,210 @@ void CCompoundTargetReticle::Update(float dt, const CStateManager& mgr) {
     }
 
     if (combat) {
-      x40_seeker.Lock();
+      mSeeker.Lock();
     } else {
-      x40_seeker.Unlock();
+      mSeeker.Unlock();
     }
     if (combat) {
-      x4c_lockConfirm.Lock();
+      mLockConfirm.Lock();
     } else {
-      x4c_lockConfirm.Unlock();
+      mLockConfirm.Unlock();
     }
     if (combat) {
-      x58_targetFlower.Lock();
+      mTargetFlower.Lock();
     } else {
-      x58_targetFlower.Unlock();
+      mTargetFlower.Unlock();
     }
     if (combat) {
-      x64_missileBracket.Lock();
+      mMissileBracket.Lock();
     } else {
-      x64_missileBracket.Unlock();
+      mMissileBracket.Unlock();
     }
     if (combat) {
-      x70_innerBeamIcon.Lock();
+      mInnerBeamIcon.Lock();
     } else {
-      x70_innerBeamIcon.Unlock();
+      mInnerBeamIcon.Unlock();
     }
     if (combat) {
-      x7c_lockFire.Lock();
+      mLockFire.Lock();
     } else {
-      x7c_lockFire.Unlock();
+      mLockFire.Unlock();
     }
     if (combat) {
-      x88_lockDagger.Lock();
+      mLockDagger.Lock();
     } else {
-      x88_lockDagger.Unlock();
+      mLockDagger.Unlock();
     }
     if (combat) {
-      xa0_chargeTickFirst.Lock();
+      mChargeTickFirst.Lock();
     } else {
-      xa0_chargeTickFirst.Unlock();
+      mChargeTickFirst.Unlock();
     }
     if (xray) {
-      xac_xrayRetRing.Lock();
+      mXrayRetRing.Lock();
     } else {
-      xac_xrayRetRing.Unlock();
+      mXrayRetRing.Unlock();
     }
     if (thermal) {
-      xb8_thermalReticle.Lock();
+      mThermalReticle.Lock();
     } else {
-      xb8_thermalReticle.Unlock();
+      mThermalReticle.Unlock();
     }
     if (combat) {
-      xc4_chargeGauge.x0_model.Lock();
+      mChargeGauge.mModel.Lock();
     } else {
-      xc4_chargeGauge.x0_model.Unlock();
+      mChargeGauge.mModel.Unlock();
     }
     if (scan) {
-      x94_grapple.Unlock();
+      mGrapple.Unlock();
     } else {
-      x94_grapple.Lock();
+      mGrapple.Lock();
     }
-    for (AUTO(it, xe0_outerBeamIconSquares.begin()); it != xe0_outerBeamIconSquares.end(); ++it) {
+    for (AUTO(it, mOuterBeamIconSquares.begin()); it != mOuterBeamIconSquares.end(); ++it) {
       if (combat) {
-        it->x0_model.Lock();
+        it->mModel.Lock();
       } else {
-        it->x0_model.Unlock();
+        it->mModel.Unlock();
       }
     }
   }
 
   // 5. Charge gauge / fully charged
   bool fullyCharged = mgr.GetPlayer()->GetPlayerGun()->GetChargePercentage() >= 1.f;
-  if (fullyCharged != x21a_fullyCharged) {
-    x21a_fullyCharged = fullyCharged;
+  if (fullyCharged != mFullyCharged) {
+    mFullyCharged = fullyCharged;
   }
-  if (x21a_fullyCharged) {
-    x214_fullChargeFadeTimer = rstl::min_val(
-        gpTweakTargeting->x1b8_fullChargeFadeDuration,
-        x214_fullChargeFadeTimer + dt / gpTweakTargeting->x1b8_fullChargeFadeDuration);
+  if (mFullyCharged) {
+    mFullChargeFadeTimer = rstl::min_val(
+        gpTweakTargeting->mFullChargeFadeDuration,
+        mFullChargeFadeTimer + dt / gpTweakTargeting->mFullChargeFadeDuration);
   } else {
-    x214_fullChargeFadeTimer = rstl::max_val(
-        0.f, x214_fullChargeFadeTimer - dt / gpTweakTargeting->x1b8_fullChargeFadeDuration);
+    mFullChargeFadeTimer = rstl::max_val(
+        0.f, mFullChargeFadeTimer - dt / gpTweakTargeting->mFullChargeFadeDuration);
   }
 
   // 6. Missile active state
   bool missileActive = mgr.GetPlayer()->GetPlayerGun()->GetMissileMode() == CPlayerGun::kMM_Active;
-  if (missileActive != x1f4_missileActive) {
-    if (x1f8_missileBracketTimer != 0.f) {
-      x1f8_missileBracketTimer = FLT_EPSILON - x1f8_missileBracketTimer;
+  if (missileActive != mMissileActive) {
+    if (mMissileBracketTimer != 0.f) {
+      mMissileBracketTimer = FLT_EPSILON - mMissileBracketTimer;
     } else {
-      x1f8_missileBracketTimer = FLT_EPSILON;
+      mMissileBracketTimer = FLT_EPSILON;
     }
-    x1f4_missileActive = missileActive;
+    mMissileActive = missileActive;
   }
 
   // 7. Beam change
   CPlayerState::EBeamId beam = mgr.GetPlayer()->GetPlayerGun()->GetPrimaryWeaponId();
-  if (beam != x200_beam) {
-    x204_chargeGaugeOvershootTimer = gpTweakTargeting->xec_chargeGaugeOvershootDuration;
+  if (beam != mBeam) {
+    mChargeGaugeOvershootTimer = gpTweakTargeting->mChargeGaugeOvershootDuration;
     for (int i = 0; i < 9; ++i) {
-      SOuterItemInfo& icon = xe0_outerBeamIconSquares[i];
-      float baseAngle = CMath::ClampRadians(gpTweakTargeting->xf8_outerBeamSquareAngles[beam][i]);
-      CRelAngle offshootAngleDelta(baseAngle - icon.x10_rotAng);
+      SOuterItemInfo& icon = mOuterBeamIconSquares[i];
+      float baseAngle = CMath::ClampRadians(gpTweakTargeting->mOuterBeamSquareAngles[beam][i]);
+      CRelAngle offshootAngleDelta(baseAngle - icon.mRotAng);
       if (i % 2 == 1) {
         offshootAngleDelta = offshootAngleDelta.AsRadians() > 0.f
                                  ? CRelAngle(-1.f * (M_2PIF - offshootAngleDelta.AsRadians()))
                                  : CRelAngle(M_2PIF + offshootAngleDelta.AsRadians());
       }
-      icon.xc_offshootBaseAngle = icon.x10_rotAng;
-      icon.x18_offshootAngleDelta = offshootAngleDelta.AsRadians();
-      icon.x14_baseAngle = baseAngle;
+      icon.mOffshootBaseAngle = icon.mRotAng;
+      icon.mOffshootAngleDelta = offshootAngleDelta.AsRadians();
+      icon.mBaseAngle = baseAngle;
     }
 
-    float chargeBaseAngle = CMath::ClampRadians(gpTweakTargeting->x108_chargeGaugeAngles[beam]);
+    float chargeBaseAngle = CMath::ClampRadians(gpTweakTargeting->mChargeGaugeAngles[beam]);
     bool odd = rand() % 2 == 1;
-    CRelAngle chargeOffshootAngleDelta(chargeBaseAngle - xc4_chargeGauge.x10_rotAng);
+    CRelAngle chargeOffshootAngleDelta(chargeBaseAngle - mChargeGauge.mRotAng);
     if (odd) {
       chargeOffshootAngleDelta =
           chargeOffshootAngleDelta.AsRadians() > 0.f
               ? CRelAngle(-1.f * (M_2PIF - chargeOffshootAngleDelta.AsRadians()))
               : CRelAngle(M_2PIF + chargeOffshootAngleDelta.AsRadians());
     }
-    xc4_chargeGauge.xc_offshootBaseAngle = xc4_chargeGauge.x10_rotAng;
-    xc4_chargeGauge.x18_offshootAngleDelta = chargeOffshootAngleDelta.AsRadians();
-    xc4_chargeGauge.x14_baseAngle = chargeBaseAngle;
-    x200_beam = beam;
-    x208_lockonTimer = 0.f;
+    mChargeGauge.mOffshootBaseAngle = mChargeGauge.mRotAng;
+    mChargeGauge.mOffshootAngleDelta = chargeOffshootAngleDelta.AsRadians();
+    mChargeGauge.mBaseAngle = chargeBaseAngle;
+    mBeam = beam;
+    mLockonTimer = 0.f;
   }
 
   // 8. Beam shot / lock fire
   const CPlayerGun* gun = mgr.GetPlayer()->GetPlayerGun();
   if (gun->GetFiring() & 0x1) {
-    if (!x218_beamShot) {
-      x210_lockFireTimer = gpTweakTargeting->x12c_lockFireDuration;
+    if (!mBeamShot) {
+      mLockFireTimer = gpTweakTargeting->mLockFireDuration;
     }
-    x218_beamShot = true;
+    mBeamShot = true;
   } else {
-    x218_beamShot = false;
+    mBeamShot = false;
   }
 
   // 9. Missile shot / missile bracket scale
   if (gun->GetFiring() & 0x2) {
-    if (!x219_missileShot) {
-      x1fc_missileBracketScaleTimer = gpTweakTargeting->xc8_missileBracketScaleDuration;
+    if (!mMissileShot) {
+      mMissileBracketScaleTimer = gpTweakTargeting->mMissileBracketScaleDuration;
     }
-    x219_missileShot = true;
+    mMissileShot = true;
   } else {
-    x219_missileShot = false;
+    mMissileShot = false;
   }
 
   // 10. Grapple point tracking
   const CScriptGrapplePoint* castResult = TCastToConstPtr< CScriptGrapplePoint >(
-      mgr.GetObjectListById(kOL_All).GetObjectById(xf2_nextTargetId));
+      mgr.GetObjectListById(kOL_All).GetObjectById(mNextTargetId));
   const CScriptGrapplePoint* grapplePoint = nullptr;
-  if (xf2_nextTargetId != kInvalidUniqueId) {
+  if (mNextTargetId != kInvalidUniqueId) {
     grapplePoint = castResult;
   }
   if (grapplePoint != nullptr) {
     TUniqueId gpId = grapplePoint->GetUniqueId();
-    if (gpId != x1dc_grapplePoint0) {
+    if (gpId != mGrapplePoint0) {
       float tmp;
-      if (gpId == x1de_grapplePoint1) {
-        tmp = rstl::max_val(gkEpsilon, x1e4_grapplePoint1T);
+      if (gpId == mGrapplePoint1) {
+        tmp = rstl::max_val(gkEpsilon, mGrapplePoint1T);
       } else {
         tmp = FLT_EPSILON;
       }
-      x1de_grapplePoint1 = x1dc_grapplePoint0;
-      x1e4_grapplePoint1T = x1e0_grapplePoint0T;
-      x1e0_grapplePoint0T = tmp;
-      x1dc_grapplePoint0 = gpId;
+      mGrapplePoint1 = mGrapplePoint0;
+      mGrapplePoint1T = mGrapplePoint0T;
+      mGrapplePoint0T = tmp;
+      mGrapplePoint0 = gpId;
     }
   } else {
-    if (x1dc_grapplePoint0 != kInvalidUniqueId) {
-      x1de_grapplePoint1 = x1dc_grapplePoint0;
-      x1e4_grapplePoint1T = x1e0_grapplePoint0T;
-      x1e0_grapplePoint0T = 0.f;
-      x1dc_grapplePoint0 = kInvalidUniqueId;
+    if (mGrapplePoint0 != kInvalidUniqueId) {
+      mGrapplePoint1 = mGrapplePoint0;
+      mGrapplePoint1T = mGrapplePoint0T;
+      mGrapplePoint0T = 0.f;
+      mGrapplePoint0 = kInvalidUniqueId;
     }
   }
 
   // 11. Grapple point interpolation timers
-  if (x1e0_grapplePoint0T > 0.f) {
-    x1e0_grapplePoint0T = rstl::min_val(1.f, x1e0_grapplePoint0T + dt / 0.5f);
+  if (mGrapplePoint0T > 0.f) {
+    mGrapplePoint0T = rstl::min_val(1.f, mGrapplePoint0T + dt / 0.5f);
   }
-  if (x1e4_grapplePoint1T > 0.f) {
-    x1e4_grapplePoint1T = rstl::max_val(0.f, x1e4_grapplePoint1T - dt / 0.5f);
-    if (x1e4_grapplePoint1T == 0.f) {
-      x1de_grapplePoint1 = kInvalidUniqueId;
+  if (mGrapplePoint1T > 0.f) {
+    mGrapplePoint1T = rstl::max_val(0.f, mGrapplePoint1T - dt / 0.5f);
+    if (mGrapplePoint1T == 0.f) {
+      mGrapplePoint1 = kInvalidUniqueId;
     }
   }
 
   // 12. Xray/seeker angle updates
-  x1f0_xrayRetAngle = CMath::ClampRadians(
-      x1f0_xrayRetAngle +
-      CRelAngle::FromDegrees(dt * gpTweakTargeting->x2c_xrayRetAngleSpeed).AsRadians());
-  x1ec_seekerAngle = CMath::ClampRadians(
-      x1ec_seekerAngle +
-      CRelAngle::FromDegrees(dt * gpTweakTargeting->x28_seekerAngleSpeed).AsRadians());
+  mXrayRetAngle = CMath::ClampRadians(
+      mXrayRetAngle +
+      CRelAngle::FromDegrees(dt * gpTweakTargeting->mXrayRetAngleSpeed).AsRadians());
+  mSeekerAngle = CMath::ClampRadians(
+      mSeekerAngle +
+      CRelAngle::FromDegrees(dt * gpTweakTargeting->mSeekerAngleSpeed).AsRadians());
 }
 
 void CCompoundTargetReticle::UpdateCurrLockOnGroup(float dt, const CStateManager& mgr) {
   const CPlayer* player = mgr.GetPlayer();
   const TUniqueId targetId = player->GetOrbitTargetId();
 
-  if (targetId != xf0_targetId) {
-    if (xf0_targetId != targetId && targetId != kInvalidUniqueId) {
+  if (targetId != mTargetId) {
+    if (mTargetId != targetId && targetId != kInvalidUniqueId) {
       if (TCastToConstPtr< CScriptGrapplePoint >(mgr.GetObjectById(targetId))) {
         CSfxManager::SfxStart(SFXui_x_graplock_00);
       } else {
@@ -448,83 +448,83 @@ void CCompoundTargetReticle::UpdateCurrLockOnGroup(float dt, const CStateManager
 
     if (kInvalidUniqueId == targetId) {
       CPlayer::EOrbitBrokenType orbitBrokenType = player->GetOrbitBrokenType();
-      x12c_currGroupA = x10c_currGroupInterp;
-      x12c_currGroupA.SetIsOrbitZoneIdlePosition(false);
-      x14c_currGroupB.SetFactor(0.f);
-      x16c_currGroupDur =
-          IsDamageOrbit(orbitBrokenType) ? 0.65f : gpTweakTargeting->xc_currLockOnEnterDuration;
+      mCurrGroupA = mCurrGroupInterp;
+      mCurrGroupA.SetIsOrbitZoneIdlePosition(false);
+      mCurrGroupB.SetFactor(0.f);
+      mCurrGroupDur =
+          IsDamageOrbit(orbitBrokenType) ? 0.65f : gpTweakTargeting->mCurrLockOnEnterDuration;
     } else {
-      x12c_currGroupA = x10c_currGroupInterp;
-      x12c_currGroupA.SetIsOrbitZoneIdlePosition(false);
-      if (xf0_targetId == kInvalidUniqueId) {
-        x12c_currGroupA.SetTargetId(targetId);
+      mCurrGroupA = mCurrGroupInterp;
+      mCurrGroupA.SetIsOrbitZoneIdlePosition(false);
+      if (mTargetId == kInvalidUniqueId) {
+        mCurrGroupA.SetTargetId(targetId);
       }
       float scale =
-          IsGrappleTarget(targetId, mgr) ? gpTweakTargeting->x1b0_grappleMinClampScale : 1.f;
-      x14c_currGroupB =
+          IsGrappleTarget(targetId, mgr) ? gpTweakTargeting->mGrappleMinClampScale : 1.f;
+      mCurrGroupB =
           CTargetReticleRenderState(targetId, 1.f, CVector3f::Zero(), 1.f, scale, false);
-      x16c_currGroupDur = (kInvalidUniqueId == xf0_targetId)
-                              ? gpTweakTargeting->x8_currLockOnExitDuration
-                              : gpTweakTargeting->x10_currLockOnSwitchDuration;
+      mCurrGroupDur = (kInvalidUniqueId == mTargetId)
+                              ? gpTweakTargeting->mCurrLockOnExitDuration
+                              : gpTweakTargeting->mCurrLockOnSwitchDuration;
     }
 
-    x170_currGroupTimer = x16c_currGroupDur;
-    xf0_targetId = targetId;
+    mCurrGroupTimer = mCurrGroupDur;
+    mTargetId = targetId;
   }
 
-  if (x170_currGroupTimer > 0.f) {
-    UpdateTargetParameters(x12c_currGroupA, mgr);
-    UpdateTargetParameters(x14c_currGroupB, mgr);
-    x170_currGroupTimer = rstl::max_val(0.f, x170_currGroupTimer - dt);
-    CTargetReticleRenderState::InterpolateWithClamp(x12c_currGroupA, x10c_currGroupInterp,
-                                                    x14c_currGroupB,
-                                                    1.f - x170_currGroupTimer / x16c_currGroupDur);
+  if (mCurrGroupTimer > 0.f) {
+    UpdateTargetParameters(mCurrGroupA, mgr);
+    UpdateTargetParameters(mCurrGroupB, mgr);
+    mCurrGroupTimer = rstl::max_val(0.f, mCurrGroupTimer - dt);
+    CTargetReticleRenderState::InterpolateWithClamp(mCurrGroupA, mCurrGroupInterp,
+                                                    mCurrGroupB,
+                                                    1.f - mCurrGroupTimer / mCurrGroupDur);
   } else {
-    UpdateTargetParameters(x10c_currGroupInterp, mgr);
+    UpdateTargetParameters(mCurrGroupInterp, mgr);
   }
 
-  if (x1f8_missileBracketTimer != 0.f &&
-      x1f8_missileBracketTimer < gpTweakTargeting->xbc_missileBracketDuration) {
-    if (x1f8_missileBracketTimer < 0.f) {
-      x1f8_missileBracketTimer = rstl::min_val(x1f8_missileBracketTimer + dt, 0.f);
+  if (mMissileBracketTimer != 0.f &&
+      mMissileBracketTimer < gpTweakTargeting->mMissileBracketDuration) {
+    if (mMissileBracketTimer < 0.f) {
+      mMissileBracketTimer = rstl::min_val(mMissileBracketTimer + dt, 0.f);
     } else {
-      x1f8_missileBracketTimer = rstl::min_val(x1f8_missileBracketTimer + dt,
-                                               gpTweakTargeting->xbc_missileBracketDuration);
+      mMissileBracketTimer = rstl::min_val(mMissileBracketTimer + dt,
+                                               gpTweakTargeting->mMissileBracketDuration);
     }
   }
 
-  if (x204_chargeGaugeOvershootTimer > 0.f) {
-    x204_chargeGaugeOvershootTimer = rstl::max_val(x204_chargeGaugeOvershootTimer - dt, 0.f);
-    if (x204_chargeGaugeOvershootTimer == 0.f) {
+  if (mChargeGaugeOvershootTimer > 0.f) {
+    mChargeGaugeOvershootTimer = rstl::max_val(mChargeGaugeOvershootTimer - dt, 0.f);
+    if (mChargeGaugeOvershootTimer == 0.f) {
       for (int i = 0; i < 9; ++i) {
-        xe0_outerBeamIconSquares[i].x10_rotAng = xe0_outerBeamIconSquares[i].x14_baseAngle;
+        mOuterBeamIconSquares[i].mRotAng = mOuterBeamIconSquares[i].mBaseAngle;
       }
-      xc4_chargeGauge.x10_rotAng = xc4_chargeGauge.x14_baseAngle;
-      x208_lockonTimer = FLT_EPSILON;
+      mChargeGauge.mRotAng = mChargeGauge.mBaseAngle;
+      mLockonTimer = FLT_EPSILON;
     } else {
-      float offshoot = offshoot_func(x2c_overshootOffsetHalf, x30_premultOvershootOffset,
-                                     1.f - x204_chargeGaugeOvershootTimer /
-                                               gpTweakTargeting->xec_chargeGaugeOvershootDuration);
+      float offshoot = offshoot_func(mOvershootOffsetHalf, mPremultOvershootOffset,
+                                     1.f - mChargeGaugeOvershootTimer /
+                                               gpTweakTargeting->mChargeGaugeOvershootDuration);
       for (int i = 0; i < 9; ++i) {
-        SOuterItemInfo& item = xe0_outerBeamIconSquares[i];
-        float angleDelta = offshoot * item.x18_offshootAngleDelta;
-        item.x10_rotAng = CMath::ClampRadians(angleDelta + item.xc_offshootBaseAngle);
+        SOuterItemInfo& item = mOuterBeamIconSquares[i];
+        float angleDelta = offshoot * item.mOffshootAngleDelta;
+        item.mRotAng = CMath::ClampRadians(angleDelta + item.mOffshootBaseAngle);
       }
-      xc4_chargeGauge.x10_rotAng = CMath::ClampRadians(
-          xc4_chargeGauge.xc_offshootBaseAngle + offshoot * xc4_chargeGauge.x18_offshootAngleDelta);
+      mChargeGauge.mRotAng = CMath::ClampRadians(
+          mChargeGauge.mOffshootBaseAngle + offshoot * mChargeGauge.mOffshootAngleDelta);
     }
   }
 
-  if (x208_lockonTimer > 0.f && x208_lockonTimer < gpTweakTargeting->xd0_lockonDuration) {
-    x208_lockonTimer = rstl::min_val(x208_lockonTimer + dt, gpTweakTargeting->xd0_lockonDuration);
+  if (mLockonTimer > 0.f && mLockonTimer < gpTweakTargeting->mLockonDuration) {
+    mLockonTimer = rstl::min_val(mLockonTimer + dt, gpTweakTargeting->mLockonDuration);
   }
 
-  if (x210_lockFireTimer > 0.f) {
-    x210_lockFireTimer = rstl::max_val(0.f, x210_lockFireTimer - dt);
+  if (mLockFireTimer > 0.f) {
+    mLockFireTimer = rstl::max_val(0.f, mLockFireTimer - dt);
   }
 
-  if (x1fc_missileBracketScaleTimer > 0.f) {
-    x1fc_missileBracketScaleTimer = rstl::max_val(0.f, x1fc_missileBracketScaleTimer - dt);
+  if (mMissileBracketScaleTimer > 0.f) {
+    mMissileBracketScaleTimer = rstl::max_val(0.f, mMissileBracketScaleTimer - dt);
   }
 }
 
@@ -536,57 +536,57 @@ void CCompoundTargetReticle::UpdateNextLockOnGroup(float dt, const CStateManager
     nextTargetId = player->GetOrbitTargetId();
   }
 
-  if (nextTargetId != xf2_nextTargetId) {
+  if (nextTargetId != mNextTargetId) {
     if (kInvalidUniqueId == nextTargetId) {
-      x194_nextGroupA = x174_nextGroupInterp;
-      x194_nextGroupA.SetIsOrbitZoneIdlePosition(false);
-      bool lag = (x20_prevState == kRS_XRay || x20_prevState == kRS_Thermal);
-      x1b4_nextGroupB = CTargetReticleRenderState(
-          kInvalidUniqueId, 1.f, lag ? x100_laggingTargetPos : xf4_targetPos, 0.f, 1.f, true);
-      x1d4_nextGroupDur = gpTweakTargeting->x1c_nextLockOnExitDuration;
-      x1d8_nextGroupTimer = x1d4_nextGroupDur;
-      xf2_nextTargetId = nextTargetId;
+      mNextGroupA = mNextGroupInterp;
+      mNextGroupA.SetIsOrbitZoneIdlePosition(false);
+      bool lag = (mPrevState == kRS_XRay || mPrevState == kRS_Thermal);
+      mNextGroupB = CTargetReticleRenderState(
+          kInvalidUniqueId, 1.f, lag ? mLaggingTargetPos : mTargetPos, 0.f, 1.f, true);
+      mNextGroupDur = gpTweakTargeting->mNextLockOnExitDuration;
+      mNextGroupTimer = mNextGroupDur;
+      mNextTargetId = nextTargetId;
     } else {
-      x194_nextGroupA = x174_nextGroupInterp;
-      x194_nextGroupA.SetIsOrbitZoneIdlePosition(false);
+      mNextGroupA = mNextGroupInterp;
+      mNextGroupA.SetIsOrbitZoneIdlePosition(false);
       float scale =
-          IsGrappleTarget(nextTargetId, mgr) ? gpTweakTargeting->x1b0_grappleMinClampScale : 1.f;
-      x1b4_nextGroupB =
+          IsGrappleTarget(nextTargetId, mgr) ? gpTweakTargeting->mGrappleMinClampScale : 1.f;
+      mNextGroupB =
           CTargetReticleRenderState(nextTargetId, 1.f, CVector3f::Zero(), 1.f, scale, true);
-      x1d4_nextGroupDur = (kInvalidUniqueId == xf2_nextTargetId)
-                              ? gpTweakTargeting->x18_nextLockOnEnterDuration
-                              : gpTweakTargeting->x20_nextLockOnSwitchDuration;
-      x1d8_nextGroupTimer = x1d4_nextGroupDur;
-      xf2_nextTargetId = nextTargetId;
+      mNextGroupDur = (kInvalidUniqueId == mNextTargetId)
+                              ? gpTweakTargeting->mNextLockOnEnterDuration
+                              : gpTweakTargeting->mNextLockOnSwitchDuration;
+      mNextGroupTimer = mNextGroupDur;
+      mNextTargetId = nextTargetId;
     }
   }
 
-  if (x1d8_nextGroupTimer > 0.f) {
-    UpdateTargetParameters(x194_nextGroupA, mgr);
-    UpdateTargetParameters(x1b4_nextGroupB, mgr);
-    x1d8_nextGroupTimer = rstl::max_val(0.f, x1d8_nextGroupTimer - dt);
-    CTargetReticleRenderState::InterpolateWithClamp(x194_nextGroupA, x174_nextGroupInterp,
-                                                    x1b4_nextGroupB,
-                                                    1.f - x1d8_nextGroupTimer / x1d4_nextGroupDur);
+  if (mNextGroupTimer > 0.f) {
+    UpdateTargetParameters(mNextGroupA, mgr);
+    UpdateTargetParameters(mNextGroupB, mgr);
+    mNextGroupTimer = rstl::max_val(0.f, mNextGroupTimer - dt);
+    CTargetReticleRenderState::InterpolateWithClamp(mNextGroupA, mNextGroupInterp,
+                                                    mNextGroupB,
+                                                    1.f - mNextGroupTimer / mNextGroupDur);
   } else {
-    UpdateTargetParameters(x174_nextGroupInterp, mgr);
+    UpdateTargetParameters(mNextGroupInterp, mgr);
   }
 }
 
 void CCompoundTargetReticle::UpdateOrbitZoneGroup(float dt, const CStateManager& mgr) {
-  if (xf0_targetId == kInvalidUniqueId && xf2_nextTargetId != kInvalidUniqueId) {
-    x20c_unk = rstl::min_val(2.f * dt + x20c_unk, 1.f);
+  if (mTargetId == kInvalidUniqueId && mNextTargetId != kInvalidUniqueId) {
+    mUnk = rstl::min_val(2.f * dt + mUnk, 1.f);
   } else {
-    x20c_unk = rstl::max_val(x20c_unk - 2.f * dt, 0.f);
+    mUnk = rstl::max_val(mUnk - 2.f * dt, 0.f);
   }
 
   if (mgr.GetPlayer()->IsCrosshairsOpen() &&
       mgr.GetPlayerState()->GetCurrentVisor() != CPlayerState::kPV_Scan) {
-    x1e8_crosshairsScale =
-        rstl::min_val(x1e8_crosshairsScale + dt / gpTweakTargeting->x1c4_crosshairsScaleDur, 1.f);
+    mCrosshairsScale =
+        rstl::min_val(mCrosshairsScale + dt / gpTweakTargeting->mCrosshairsScaleDur, 1.f);
   } else {
-    x1e8_crosshairsScale =
-        rstl::max_val(x1e8_crosshairsScale - dt / gpTweakTargeting->x1c4_crosshairsScaleDur, 0.f);
+    mCrosshairsScale =
+        rstl::max_val(mCrosshairsScale - dt / gpTweakTargeting->mCrosshairsScaleDur, 0.f);
   }
 }
 
@@ -610,24 +610,24 @@ void CCompoundTargetReticle::Draw(const CStateManager& mgr, bool hideLockon) con
     CGraphics::SetCullMode(kCM_Front);
   }
 
-  if (x28_noDrawTicks > 0) {
-    --x28_noDrawTicks;
+  if (mNoDrawTicks > 0) {
+    --mNoDrawTicks;
   }
 }
 
 void CCompoundTargetReticle::DrawGrappleGroup(const CMatrix3f& rot, const CStateManager& mgr,
                                               bool hideLockon) const {
-  if (x28_noDrawTicks > 0)
+  if (mNoDrawTicks > 0)
     return;
 
   if (!mgr.GetPlayerState()->HasPowerUp(CPlayerState::kIT_GrappleBeam))
     return;
 
-  const_cast< TCachedToken< CModel >& >(x94_grapple).TryCache();
-  if (x94_grapple.GetObject() == nullptr)
+  const_cast< TCachedToken< CModel >& >(mGrapple).TryCache();
+  if (mGrapple.GetObject() == nullptr)
     return;
 
-  if (x20_prevState == kRS_Scan)
+  if (mPrevState == kRS_Scan)
     return;
 
   const CObjectList& list = mgr.GetObjectListById(kOL_All);
@@ -647,22 +647,22 @@ void CCompoundTargetReticle::DrawGrappleGroup(const CMatrix3f& rot, const CState
       }
       float t = 0.f;
       TUniqueId uid = gp->GetUniqueId();
-      if (uid == x1dc_grapplePoint0)
-        t = x1e0_grapplePoint0T;
-      else if (uid == x1de_grapplePoint1)
-        t = x1e4_grapplePoint1T;
+      if (uid == mGrapplePoint0)
+        t = mGrapplePoint0T;
+      else if (uid == mGrapplePoint1)
+        t = mGrapplePoint1T;
       if (close_enough(t, 0.f, 0.00001f)) {
         DrawGrapplePoint(*gp, t, mgr, rot, true);
       }
     }
   } else {
     const CScriptGrapplePoint* gp0 =
-        TCastToConstPtr< CScriptGrapplePoint >(mgr.GetObjectById(x1dc_grapplePoint0));
+        TCastToConstPtr< CScriptGrapplePoint >(mgr.GetObjectById(mGrapplePoint0));
     const CScriptGrapplePoint* gp1 =
-        TCastToConstPtr< CScriptGrapplePoint >(mgr.GetObjectById(x1de_grapplePoint1));
+        TCastToConstPtr< CScriptGrapplePoint >(mgr.GetObjectById(mGrapplePoint1));
     for (int i = 0; i < 2; ++i) {
       const CScriptGrapplePoint* gp = (i == 0) ? gp0 : gp1;
-      float t = (i == 0) ? x1e0_grapplePoint0T : x1e4_grapplePoint1T;
+      float t = (i == 0) ? mGrapplePoint0T : mGrapplePoint1T;
       if (gp != nullptr) {
         DrawGrapplePoint(*gp, t, mgr, rot, false);
       }
@@ -676,46 +676,46 @@ void CCompoundTargetReticle::DrawGrapplePoint(const CScriptGrapplePoint& point, 
   CVector3f orbitPos = point.GetOrbitPosition(mgr);
 
   const CColor& selectColor = point.GetGrappleParameters().GetLockSwingTurn()
-                                  ? gpTweakTargeting->x1ac_lockedGrapplePointSelectColor
-                                  : gpTweakTargeting->x1a4_grapplePointSelectColor;
-  CColor color = CColor::Lerp(gpTweakTargeting->x1a8_grapplePointColor, selectColor, t);
+                                  ? gpTweakTargeting->mLockedGrapplePointSelectColor
+                                  : gpTweakTargeting->mGrapplePointSelectColor;
+  CColor color = CColor::Lerp(gpTweakTargeting->mGrapplePointColor, selectColor, t);
 
-  t = (1.f - t) * gpTweakTargeting->x198_grappleScale +
-      t * gpTweakTargeting->x194_grappleSelectScale;
-  float scale = CalculateClampedScale(orbitPos, 1.f, gpTweakTargeting->x19c_grappleClampMin,
-                                      gpTweakTargeting->x1a0_grappleClampMax, mgr);
+  t = (1.f - t) * gpTweakTargeting->mGrappleScale +
+      t * gpTweakTargeting->mGrappleSelectScale;
+  float scale = CalculateClampedScale(orbitPos, 1.f, gpTweakTargeting->mGrappleClampMin,
+                                      gpTweakTargeting->mGrappleClampMax, mgr);
   scale *= t;
 
   CMatrix3f scaledRot = rot * CMatrix3f::Scale(scale);
   gpRender->SetModelMatrix(CTransform4f(scaledRot, orbitPos));
 
-  const CModel* model = x94_grapple.GetObject();
+  const CModel* model = mGrapple.GetObject();
   model->Draw(CModelFlags::Additive(color).DepthCompareUpdate(zEqual, false));
 }
 
 void CCompoundTargetReticle::DrawCurrLockOnGroup(const CMatrix3f& rot,
                                                  const CStateManager& mgr) const {
-  if (x28_noDrawTicks > 0)
+  if (mNoDrawTicks > 0)
     return;
 
-  CVector3f position = x10c_currGroupInterp.GetTargetPositionWorld();
-  float radius = x10c_currGroupInterp.GetRadiusWorld();
+  CVector3f position = mCurrGroupInterp.GetTargetPositionWorld();
+  float radius = mCurrGroupInterp.GetRadiusWorld();
 
-  if (x1e0_grapplePoint0T + x1e4_grapplePoint1T > 0.f)
+  if (mGrapplePoint0T + mGrapplePoint1T > 0.f)
     return;
 
-  float factor = x10c_currGroupInterp.GetFactor();
+  float factor = mCurrGroupInterp.GetFactor();
   float lockBreakAlpha = factor;
   if (0.f == factor)
     return;
 
   float visorFactor = mgr.GetPlayerState()->GetVisorTransitionFactor();
-  float minVpClampScale = x10c_currGroupInterp.GetMinViewportClampScale();
+  float minVpClampScale = mCurrGroupInterp.GetMinViewportClampScale();
 
   bool lockConfirm = false;
   bool lockReticule = false;
 
-  switch (x20_prevState) {
+  switch (mPrevState) {
   case kRS_Combat:
     lockConfirm = true;
     lockReticule = true;
@@ -733,7 +733,7 @@ void CCompoundTargetReticle::DrawCurrLockOnGroup(const CMatrix3f& rot,
   CMatrix3f lockBreakXf(CMatrix3f::Identity());
   CColor lockBreakColor(0);
 
-  if (IsDamageOrbit(mgr.GetPlayer()->GetOrbitBrokenType()) && x14c_currGroupB.GetFactor() == 0.f) {
+  if (IsDamageOrbit(mgr.GetPlayer()->GetOrbitBrokenType()) && mCurrGroupB.GetFactor() == 0.f) {
     CVector3f columns[3] = {CVector3f::Right(), CVector3f::Forward(), CVector3f::Up()};
 
     for (int i = 0; i < 4; ++i) {
@@ -758,23 +758,23 @@ void CCompoundTargetReticle::DrawCurrLockOnGroup(const CMatrix3f& rot,
   }
 
   if (lockConfirm) {
-    const_cast< TCachedToken< CModel >& >(x4c_lockConfirm).TryCache();
-    if (CModel* const model = x4c_lockConfirm.GetObject()) {
+    const_cast< TCachedToken< CModel >& >(mLockConfirm).TryCache();
+    if (CModel* const model = mLockConfirm.GetObject()) {
       CTweakTargeting* tweak = gpTweakTargeting;
       float scale =
-          CalculateClampedScale(position, radius, minVpClampScale * tweak->x154_lockConfirmClampMin,
-                                tweak->x158_lockConfirmClampMax, mgr);
-      scale *= gpTweakTargeting->x14_lockConfirmScale;
+          CalculateClampedScale(position, radius, minVpClampScale * tweak->mLockConfirmClampMin,
+                                tweak->mLockConfirmClampMax, mgr);
+      scale *= gpTweakTargeting->mLockConfirmScale;
       scale /= factor;
 
       CMatrix3f combined =
-          rot * CMatrix3f::RotateY(CRelAngle(x1ec_seekerAngle)) * CMatrix3f::Scale(scale);
+          rot * CMatrix3f::RotateY(CRelAngle(mSeekerAngle)) * CMatrix3f::Scale(scale);
 
       gpRender->SetModelMatrix(
-          CTransform4f(lockBreakXf * combined, x10c_currGroupInterp.GetTargetPositionWorld()));
+          CTransform4f(lockBreakXf * combined, mCurrGroupInterp.GetTargetPositionWorld()));
 
       model->Draw(CModelFlags::Additive(
-                      CColor::Add(lockBreakColor, tweak->x14c_lockConfirmColor.WithAlphaModulatedBy(
+                      CColor::Add(lockBreakColor, tweak->mLockConfirmColor.WithAlphaModulatedBy(
                                                       lockBreakAlpha)))
                       .DepthCompareUpdate(false, false));
     }
@@ -782,41 +782,41 @@ void CCompoundTargetReticle::DrawCurrLockOnGroup(const CMatrix3f& rot,
 
   if (lockReticule) {
     // Target flower
-    const_cast< TCachedToken< CModel >& >(x58_targetFlower).TryCache();
-    if (CModel* const model = x58_targetFlower.GetObject()) {
+    const_cast< TCachedToken< CModel >& >(mTargetFlower).TryCache();
+    if (CModel* const model = mTargetFlower.GetObject()) {
       float scale = CalculateClampedScale(
-          position, radius, minVpClampScale * gpTweakTargeting->x15c_targetFlowerClampMin,
-          gpTweakTargeting->x160_targetFlowerClampMax, mgr);
+          position, radius, minVpClampScale * gpTweakTargeting->mTargetFlowerClampMin,
+          gpTweakTargeting->mTargetFlowerClampMax, mgr);
       CTweakTargeting* tweak = gpTweakTargeting;
-      scale *= tweak->xb4_targetFlowerScale;
+      scale *= tweak->mTargetFlowerScale;
       scale /= lockBreakAlpha;
 
       CMatrix3f combined =
-          rot * CMatrix3f::RotateY(CRelAngle(x1f0_xrayRetAngle)) * CMatrix3f::Scale(scale);
+          rot * CMatrix3f::RotateY(CRelAngle(mXrayRetAngle)) * CMatrix3f::Scale(scale);
 
       gpRender->SetModelMatrix(
-          CTransform4f(lockBreakXf * combined, x10c_currGroupInterp.GetTargetPositionWorld()));
+          CTransform4f(lockBreakXf * combined, mCurrGroupInterp.GetTargetPositionWorld()));
 
       model->Draw(CModelFlags::Additive(
-                      CColor::Add(lockBreakColor, tweak->xb8_targetFlowerColor.WithAlphaModulatedBy(
+                      CColor::Add(lockBreakColor, tweak->mTargetFlowerColor.WithAlphaModulatedBy(
                                                       lockBreakAlpha * visorFactor)))
                       .DepthCompareUpdate(true, false));
     }
 
     // Missile bracket
-    if (x1f8_missileBracketTimer != 0.f) {
-      const_cast< TCachedToken< CModel >& >(x64_missileBracket).TryCache();
-      if (CModel* const bracketModel = x64_missileBracket.GetObject()) {
+    if (mMissileBracketTimer != 0.f) {
+      const_cast< TCachedToken< CModel >& >(mMissileBracket).TryCache();
+      if (CModel* const bracketModel = mMissileBracket.GetObject()) {
         float bracketScale = CalculateClampedScale(
-            position, radius, minVpClampScale * gpTweakTargeting->x16c_missileBracketClampMin,
-            gpTweakTargeting->x170_missileBracketClampMax, mgr);
+            position, radius, minVpClampScale * gpTweakTargeting->mMissileBracketClampMin,
+            gpTweakTargeting->mMissileBracketClampMax, mgr);
         CTweakTargeting* tweak = gpTweakTargeting;
-        float halfDur = 0.5f * tweak->xc8_missileBracketScaleDuration;
-        float t = CMath::AbsF((x1fc_missileBracketScaleTimer - halfDur) / halfDur);
+        float halfDur = 0.5f * tweak->mMissileBracketScaleDuration;
+        float t = CMath::AbsF((mMissileBracketScaleTimer - halfDur) / halfDur);
         float tscale =
-            (1.f - t) * tweak->xc4_missileBracketScaleEnd + t * tweak->xc0_missileBracketScaleStart;
+            (1.f - t) * tweak->mMissileBracketScaleEnd + t * tweak->mMissileBracketScaleStart;
         float bracketFactor =
-            CMath::AbsF(x1f8_missileBracketTimer) / tweak->xbc_missileBracketDuration;
+            CMath::AbsF(mMissileBracketTimer) / tweak->mMissileBracketDuration;
         float s = bracketFactor * bracketScale * tscale / factor;
 
         CMatrix3f scaleMtx = CMatrix3f::Scale(s);
@@ -829,11 +829,11 @@ void CCompoundTargetReticle::DrawCurrLockOnGroup(const CMatrix3f& rot,
                                scaleMtx;
 
           gpRender->SetModelMatrix(
-              CTransform4f(combined, x10c_currGroupInterp.GetTargetPositionWorld()));
+              CTransform4f(combined, mCurrGroupInterp.GetTargetPositionWorld()));
 
           bracketModel->Draw(
               CModelFlags::Additive(
-                  CColor::Add(lockBreakColor, tweak->xcc_missileBracketColor.WithAlphaModulatedBy(
+                  CColor::Add(lockBreakColor, tweak->mMissileBracketColor.WithAlphaModulatedBy(
                                                   lockBreakAlpha * visorFactor)))
                   .DepthCompareUpdate(false, false));
         }
@@ -843,28 +843,28 @@ void CCompoundTargetReticle::DrawCurrLockOnGroup(const CMatrix3f& rot,
     // Outer beam icon squares
     {
       float outerScale = CalculateClampedScale(
-          position, radius, minVpClampScale * gpTweakTargeting->x17c_chargeGaugeClampMin,
-          gpTweakTargeting->x180_chargeGaugeClampMax, mgr);
-      outerScale = gpTweakTargeting->xf0_outerBeamSquaresScale * (1.f / factor * outerScale);
+          position, radius, minVpClampScale * gpTweakTargeting->mChargeGaugeClampMin,
+          gpTweakTargeting->mChargeGaugeClampMax, mgr);
+      outerScale = gpTweakTargeting->mOuterBeamSquaresScale * (1.f / factor * outerScale);
 
       CMatrix3f outerBeamXf = rot * CMatrix3f::Scale(outerScale);
       int i;
       CTweakTargeting* tweak = gpTweakTargeting;
 
       for (i = 0; i < 9; ++i) {
-        const SOuterItemInfo& info = xe0_outerBeamIconSquares[i];
-        const_cast< TCachedToken< CModel >& >(info.x0_model).TryCache();
-        CModel* const outerModel = info.x0_model.GetObject();
+        const SOuterItemInfo& info = mOuterBeamIconSquares[i];
+        const_cast< TCachedToken< CModel >& >(info.mModel).TryCache();
+        CModel* const outerModel = info.mModel.GetObject();
         if (outerModel != nullptr) {
-          CRelAngle outerAngle(info.x10_rotAng);
+          CRelAngle outerAngle(info.mRotAng);
           CMatrix3f combined = outerBeamXf * CMatrix3f::RotateY(outerAngle);
 
           gpRender->SetModelMatrix(
-              CTransform4f(lockBreakXf * combined, x10c_currGroupInterp.GetTargetPositionWorld()));
+              CTransform4f(lockBreakXf * combined, mCurrGroupInterp.GetTargetPositionWorld()));
 
           outerModel->Draw(
               CModelFlags::Additive(
-                  CColor::Add(lockBreakColor, tweak->xf4_outerBeamSquareColor.WithAlphaModulatedBy(
+                  CColor::Add(lockBreakColor, tweak->mOuterBeamSquareColor.WithAlphaModulatedBy(
                                                   lockBreakAlpha * visorFactor)))
                   .DepthCompareUpdate(false, false));
         }
@@ -873,20 +873,20 @@ void CCompoundTargetReticle::DrawCurrLockOnGroup(const CMatrix3f& rot,
 
     // Charge gauge
     {
-      const_cast< SOuterItemInfo& >(xc4_chargeGauge).x0_model.TryCache();
-      if (CModel* const gaugeModel = xc4_chargeGauge.x0_model.GetObject()) {
+      const_cast< SOuterItemInfo& >(mChargeGauge).mModel.TryCache();
+      if (CModel* const gaugeModel = mChargeGauge.mModel.GetObject()) {
         float gaugeScale = CalculateClampedScale(
-            position, radius, minVpClampScale * gpTweakTargeting->x17c_chargeGaugeClampMin,
-            gpTweakTargeting->x180_chargeGaugeClampMax, mgr);
-        gaugeScale = gaugeScale * gpTweakTargeting->x118_chargeGaugeScale / factor;
+            position, radius, minVpClampScale * gpTweakTargeting->mChargeGaugeClampMin,
+            gpTweakTargeting->mChargeGaugeClampMax, mgr);
+        gaugeScale = gaugeScale * gpTweakTargeting->mChargeGaugeScale / factor;
 
         CMatrix3f gaugeMtx = rot * CMatrix3f::Scale(gaugeScale);
-        CRelAngle gaugeAngle(xc4_chargeGauge.x10_rotAng);
+        CRelAngle gaugeAngle(mChargeGauge.mRotAng);
         CMatrix3f chargeGaugeXf = gaugeMtx * CMatrix3f::RotateY(gaugeAngle);
 
         float chargeFadeFactor =
-            x214_fullChargeFadeTimer / gpTweakTargeting->x1b8_fullChargeFadeDuration;
-        float pulsePeriod = gpTweakTargeting->x1d0_chargeGaugePulsePeriod;
+            mFullChargeFadeTimer / gpTweakTargeting->mFullChargeFadeDuration;
+        float pulsePeriod = gpTweakTargeting->mChargeGaugePulsePeriod;
         float secondsMod = CGraphics::GetSecondsMod900();
         float pulseT = CMath::AbsF(static_cast< float >(
             fmod(static_cast< double >(secondsMod), static_cast< double >(pulsePeriod))));
@@ -899,13 +899,13 @@ void CCompoundTargetReticle::DrawCurrLockOnGroup(const CMatrix3f& rot,
         }
 
         CColor pulseColor =
-            CColor::Lerp(gpTweakTargeting->x1b4_chargeGaugePulseColorHigh,
-                         gpTweakTargeting->x1cc_chargeGaugePulseColorLow, pulseRatio);
-        CColor gaugeColor = CColor::Lerp(gpTweakTargeting->x11c_chargeGaugeNonFullColor, pulseColor,
+            CColor::Lerp(gpTweakTargeting->mChargeGaugePulseColorHigh,
+                         gpTweakTargeting->mChargeGaugePulseColorLow, pulseRatio);
+        CColor gaugeColor = CColor::Lerp(gpTweakTargeting->mChargeGaugeNonFullColor, pulseColor,
                                          chargeFadeFactor);
 
         CTransform4f modelXf = CTransform4f(lockBreakXf * chargeGaugeXf,
-                                            x10c_currGroupInterp.GetTargetPositionWorld());
+                                            mCurrGroupInterp.GetTargetPositionWorld());
         gpRender->SetModelMatrix(modelXf);
 
         gaugeModel->Draw(
@@ -914,19 +914,19 @@ void CCompoundTargetReticle::DrawCurrLockOnGroup(const CMatrix3f& rot,
                 .DepthCompareUpdate(false, false));
 
         // Charge ticks
-        const_cast< TCachedToken< CModel >& >(xa0_chargeTickFirst).TryCache();
-        CModel* const tickModel = xa0_chargeTickFirst.GetObject();
+        const_cast< TCachedToken< CModel >& >(mChargeTickFirst).TryCache();
+        CModel* const tickModel = mChargeTickFirst.GetObject();
         if (tickModel != nullptr) {
           const CPlayerGun* gun = mgr.GetPlayer()->GetPlayerGun();
           int numTicks =
-              static_cast< int >(static_cast< float >(gpTweakTargeting->x120_chargeTickCount) *
+              static_cast< int >(static_cast< float >(gpTweakTargeting->mChargeTickCount) *
                                  gun->GetChargePercentage());
           for (int i = 0; i < numTicks; ++i) {
             tickModel->Draw(CModelFlags::Additive(
                                 CColor::Add(lockBreakColor, gaugeColor.WithAlphaModulatedBy(
                                                                 lockBreakAlpha * visorFactor)))
                                 .DepthCompareUpdate(false, false));
-            modelXf.RotateLocalY(CRelAngle(gpTweakTargeting->x124_chargeTickAnglePitch));
+            modelXf.RotateLocalY(CRelAngle(gpTweakTargeting->mChargeTickAnglePitch));
             gpRender->SetModelMatrix(modelXf);
           }
         }
@@ -934,30 +934,30 @@ void CCompoundTargetReticle::DrawCurrLockOnGroup(const CMatrix3f& rot,
     }
 
     // Inner beam icon
-    if (x208_lockonTimer > 0.f) {
-      const_cast< TCachedToken< CModel >& >(x70_innerBeamIcon).TryCache();
-      if (CModel* const beamModel = x70_innerBeamIcon.GetObject()) {
+    if (mLockonTimer > 0.f) {
+      const_cast< TCachedToken< CModel >& >(mInnerBeamIcon).TryCache();
+      if (CModel* const beamModel = mInnerBeamIcon.GetObject()) {
         const CColor* iconColor;
-        if (x200_beam == CPlayerState::kBI_Power) {
-          iconColor = &gpTweakTargeting->xd8_innerBeamColorPower;
-        } else if (x200_beam == CPlayerState::kBI_Ice) {
-          iconColor = &gpTweakTargeting->xdc_innerBeamColorIce;
-        } else if (x200_beam == CPlayerState::kBI_Wave) {
-          iconColor = &gpTweakTargeting->xe0_innerBeamColorWave;
+        if (mBeam == CPlayerState::kBI_Power) {
+          iconColor = &gpTweakTargeting->mInnerBeamColorPower;
+        } else if (mBeam == CPlayerState::kBI_Ice) {
+          iconColor = &gpTweakTargeting->mInnerBeamColorIce;
+        } else if (mBeam == CPlayerState::kBI_Wave) {
+          iconColor = &gpTweakTargeting->mInnerBeamColorWave;
         } else {
-          iconColor = &gpTweakTargeting->xe4_innerBeamColorPlasma;
+          iconColor = &gpTweakTargeting->mInnerBeamColorPlasma;
         }
 
         float beamScale = CalculateClampedScale(
-            position, radius, minVpClampScale * gpTweakTargeting->x174_innerBeamClampMin,
-            gpTweakTargeting->x178_innerBeamClampMax, mgr);
-        beamScale = beamScale * gpTweakTargeting->xd4_innerBeamScale *
-                    (x208_lockonTimer / gpTweakTargeting->xd0_lockonDuration) / factor;
+            position, radius, minVpClampScale * gpTweakTargeting->mInnerBeamClampMin,
+            gpTweakTargeting->mInnerBeamClampMax, mgr);
+        beamScale = beamScale * gpTweakTargeting->mInnerBeamScale *
+                    (mLockonTimer / gpTweakTargeting->mLockonDuration) / factor;
 
         CMatrix3f beamMtx = rot * CMatrix3f::Scale(beamScale);
 
         gpRender->SetModelMatrix(
-            CTransform4f(lockBreakXf * beamMtx, x10c_currGroupInterp.GetTargetPositionWorld()));
+            CTransform4f(lockBreakXf * beamMtx, mCurrGroupInterp.GetTargetPositionWorld()));
 
         beamModel->Draw(
             CModelFlags::Additive(CColor::Add(lockBreakColor, iconColor->WithAlphaModulatedBy(
@@ -967,66 +967,66 @@ void CCompoundTargetReticle::DrawCurrLockOnGroup(const CMatrix3f& rot,
     }
 
     // Lock fire
-    if (x210_lockFireTimer > 0.f) {
-      const_cast< TCachedToken< CModel >& >(x7c_lockFire).TryCache();
-      if (CModel* const fireModel = x7c_lockFire.GetObject()) {
+    if (mLockFireTimer > 0.f) {
+      const_cast< TCachedToken< CModel >& >(mLockFire).TryCache();
+      if (CModel* const fireModel = mLockFire.GetObject()) {
         CTweakTargeting* tweak = gpTweakTargeting;
-        float lockFireFactor = x210_lockFireTimer / tweak->x12c_lockFireDuration;
+        float lockFireFactor = mLockFireTimer / tweak->mLockFireDuration;
 
         float fireScale =
-            CalculateClampedScale(position, radius, minVpClampScale * tweak->x184_lockFireClampMin,
-                                  tweak->x188_lockFireClampMax, mgr);
-        fireScale = fireScale * gpTweakTargeting->x128_lockFireScale / factor;
+            CalculateClampedScale(position, radius, minVpClampScale * tweak->mLockFireClampMin,
+                                  tweak->mLockFireClampMax, mgr);
+        fireScale = fireScale * gpTweakTargeting->mLockFireScale / factor;
 
         CMatrix3f combined =
-            rot * CMatrix3f::Scale(fireScale) * CMatrix3f::RotateY(CRelAngle(x1f0_xrayRetAngle));
+            rot * CMatrix3f::Scale(fireScale) * CMatrix3f::RotateY(CRelAngle(mXrayRetAngle));
 
         gpRender->SetModelMatrix(
-            CTransform4f(lockBreakXf * combined, x10c_currGroupInterp.GetTargetPositionWorld()));
+            CTransform4f(lockBreakXf * combined, mCurrGroupInterp.GetTargetPositionWorld()));
 
         fireModel->Draw(
             CModelFlags::Additive(
-                CColor::Add(lockBreakColor, tweak->x130_lockFireColor.WithAlphaModulatedBy(
+                CColor::Add(lockBreakColor, tweak->mLockFireColor.WithAlphaModulatedBy(
                                                 lockBreakAlpha * lockFireFactor * visorFactor)))
                 .DepthCompareUpdate(false, false));
       }
     }
 
     // Lock dagger
-    if (x208_lockonTimer > 0.f) {
-      const_cast< TCachedToken< CModel >& >(x88_lockDagger).TryCache();
-      if (CModel* const daggerModel = x88_lockDagger.GetObject()) {
+    if (mLockonTimer > 0.f) {
+      const_cast< TCachedToken< CModel >& >(mLockDagger).TryCache();
+      if (CModel* const daggerModel = mLockDagger.GetObject()) {
         float daggerScale = CalculateClampedScale(
-            position, radius, minVpClampScale * gpTweakTargeting->x18c_lockDaggerClampMin,
-            gpTweakTargeting->x190_lockDaggerClampMax, mgr);
+            position, radius, minVpClampScale * gpTweakTargeting->mLockDaggerClampMin,
+            gpTweakTargeting->mLockDaggerClampMax, mgr);
         CTweakTargeting* tweak = gpTweakTargeting;
-        float halfDur = 0.5f * tweak->x12c_lockFireDuration;
-        float t = CMath::AbsF((x210_lockFireTimer - halfDur) / halfDur);
+        float halfDur = 0.5f * tweak->mLockFireDuration;
+        float t = CMath::AbsF((mLockFireTimer - halfDur) / halfDur);
         float tscale =
-            (1.f - t) * tweak->x138_lockDaggerScaleEnd + t * tweak->x134_lockDaggerScaleStart;
+            (1.f - t) * tweak->mLockDaggerScaleEnd + t * tweak->mLockDaggerScaleStart;
         daggerScale =
-            daggerScale * tscale * (x208_lockonTimer / tweak->xd0_lockonDuration) / factor;
+            daggerScale * tscale * (mLockonTimer / tweak->mLockonDuration) / factor;
 
         CMatrix3f daggerMtx = rot * CMatrix3f::Scale(daggerScale);
 
         for (int i = 0; i < 3; ++i) {
           float ang;
           if (i == 0) {
-            ang = gpTweakTargeting->x140_lockDaggerAngle0;
+            ang = gpTweakTargeting->mLockDaggerAngle0;
           } else if (i == 1) {
-            ang = gpTweakTargeting->x144_lockDaggerAngle1;
+            ang = gpTweakTargeting->mLockDaggerAngle1;
           } else {
-            ang = gpTweakTargeting->x148_lockDaggerAngle2;
+            ang = gpTweakTargeting->mLockDaggerAngle2;
           }
 
           CMatrix3f combined = daggerMtx * CMatrix3f::RotateY(CRelAngle(ang));
 
           gpRender->SetModelMatrix(
-              CTransform4f(lockBreakXf * combined, x10c_currGroupInterp.GetTargetPositionWorld()));
+              CTransform4f(lockBreakXf * combined, mCurrGroupInterp.GetTargetPositionWorld()));
 
           daggerModel->Draw(
               CModelFlags::Additive(
-                  CColor::Add(lockBreakColor, tweak->x13c_lockDaggerColor.WithAlphaModulatedBy(
+                  CColor::Add(lockBreakColor, tweak->mLockDaggerColor.WithAlphaModulatedBy(
                                                   lockBreakAlpha * visorFactor)))
                   .DepthCompareUpdate(false, false));
         }
@@ -1037,19 +1037,19 @@ void CCompoundTargetReticle::DrawCurrLockOnGroup(const CMatrix3f& rot,
 
 void CCompoundTargetReticle::DrawNextLockOnGroup(const CMatrix3f& rot,
                                                  const CStateManager& mgr) const {
-  if (x28_noDrawTicks > 0)
+  if (mNoDrawTicks > 0)
     return;
 
-  CVector3f position = x174_nextGroupInterp.GetTargetPositionWorld();
-  float radius = x174_nextGroupInterp.GetRadiusWorld();
-  float factor = x174_nextGroupInterp.GetFactor();
+  CVector3f position = mNextGroupInterp.GetTargetPositionWorld();
+  float radius = mNextGroupInterp.GetRadiusWorld();
+  float factor = mNextGroupInterp.GetFactor();
   float visorFactor = mgr.GetPlayerState()->GetVisorTransitionFactor();
 
   bool scanRet = false;
   bool xrayRet = false;
   bool thermalRet = false;
 
-  switch (x20_prevState) {
+  switch (mPrevState) {
   case kRS_Combat:
     break;
   case kRS_Scan:
@@ -1065,74 +1065,74 @@ void CCompoundTargetReticle::DrawNextLockOnGroup(const CMatrix3f& rot,
     break;
   }
 
-  float minVpClampScale = x174_nextGroupInterp.GetMinViewportClampScale();
+  float minVpClampScale = mNextGroupInterp.GetMinViewportClampScale();
 
   if (!xrayRet && factor > 0.f) {
-    const_cast< TCachedToken< CModel >& >(x40_seeker).TryCache();
-    if (CModel* const model = x40_seeker.GetObject()) {
+    const_cast< TCachedToken< CModel >& >(mSeeker).TryCache();
+    if (CModel* const model = mSeeker.GetObject()) {
       float scale = CalculateClampedScale(position, radius,
-                                          minVpClampScale * gpTweakTargeting->x164_seekerClampMin,
-                                          gpTweakTargeting->x168_seekerClampMax, mgr);
+                                          minVpClampScale * gpTweakTargeting->mSeekerClampMin,
+                                          gpTweakTargeting->mSeekerClampMax, mgr);
       CTweakTargeting* tweak = gpTweakTargeting;
-      scale *= tweak->x24_seekerScale;
+      scale *= tweak->mSeekerScale;
 
-      CMatrix3f seekerMatrix(rot * CMatrix3f::RotateY(CRelAngle(x1ec_seekerAngle)) *
+      CMatrix3f seekerMatrix(rot * CMatrix3f::RotateY(CRelAngle(mSeekerAngle)) *
                              CMatrix3f::Scale(scale));
 
       gpRender->SetModelMatrix(
-          CTransform4f(seekerMatrix, x174_nextGroupInterp.GetTargetPositionWorld()));
+          CTransform4f(seekerMatrix, mNextGroupInterp.GetTargetPositionWorld()));
 
-      model->Draw(CModelFlags::Additive(tweak->x150_seekerColor.WithAlphaModulatedBy(factor))
+      model->Draw(CModelFlags::Additive(tweak->mSeekerColor.WithAlphaModulatedBy(factor))
                       .DepthCompareUpdate(false, false));
     }
   }
 
   if (xrayRet) {
-    const_cast< TCachedToken< CModel >& >(xac_xrayRetRing).TryCache();
-    if (CModel* const model = xac_xrayRetRing.GetObject()) {
+    const_cast< TCachedToken< CModel >& >(mXrayRetRing).TryCache();
+    if (CModel* const model = mXrayRetRing.GetObject()) {
       float scale = CalculateClampedScale(position, radius,
-                                          minVpClampScale * gpTweakTargeting->x20c_reticuleClampMin,
-                                          gpTweakTargeting->x210_reticuleClampMax, mgr);
+                                          minVpClampScale * gpTweakTargeting->mReticuleClampMin,
+                                          gpTweakTargeting->mReticuleClampMax, mgr);
       CTweakTargeting* tweak = gpTweakTargeting;
-      scale *= tweak->x218_reticuleScale;
+      scale *= tweak->mReticuleScale;
 
       CMatrix3f xrayMatrix(rot * CMatrix3f::Scale(scale) *
-                           CMatrix3f::RotateY(CRelAngle(x1f0_xrayRetAngle)));
+                           CMatrix3f::RotateY(CRelAngle(mXrayRetAngle)));
 
       gpRender->SetModelMatrix(
-          CTransform4f(xrayMatrix, x174_nextGroupInterp.GetTargetPositionWorld()));
+          CTransform4f(xrayMatrix, mNextGroupInterp.GetTargetPositionWorld()));
 
       model->Draw(
-          CModelFlags::Additive(tweak->x214_xrayRetRingColor.WithAlphaModulatedBy(visorFactor))
+          CModelFlags::Additive(tweak->mXrayRetRingColor.WithAlphaModulatedBy(visorFactor))
               .DepthCompareUpdate(false, false));
     }
   }
 
   if (thermalRet) {
-    const_cast< TCachedToken< CModel >& >(xb8_thermalReticle).TryCache();
-    if (CModel* const model = xb8_thermalReticle.GetObject()) {
+    const_cast< TCachedToken< CModel >& >(mThermalReticle).TryCache();
+    if (CModel* const model = mThermalReticle.GetObject()) {
       float scale = CalculateClampedScale(position, radius,
-                                          minVpClampScale * gpTweakTargeting->x20c_reticuleClampMin,
-                                          gpTweakTargeting->x210_reticuleClampMax, mgr);
+                                          minVpClampScale * gpTweakTargeting->mReticuleClampMin,
+                                          gpTweakTargeting->mReticuleClampMax, mgr);
       CTweakTargeting* tweak = gpTweakTargeting;
-      scale *= tweak->x218_reticuleScale;
+      scale *= tweak->mReticuleScale;
 
       CMatrix3f thermalMatrix(rot * CMatrix3f::Scale(scale));
 
       gpRender->SetModelMatrix(
-          CTransform4f(thermalMatrix, x174_nextGroupInterp.GetTargetPositionWorld()));
+          CTransform4f(thermalMatrix, mNextGroupInterp.GetTargetPositionWorld()));
 
       model->Draw(
-          CModelFlags::Additive(tweak->xb0_thermalReticuleColor.WithAlphaModulatedBy(visorFactor))
+          CModelFlags::Additive(tweak->mThermalReticuleColor.WithAlphaModulatedBy(visorFactor))
               .DepthCompareUpdate(false, false));
     }
   }
 
   if (scanRet && visorFactor > 0.f) {
-    float nextFactor = x174_nextGroupInterp.GetFactor();
+    float nextFactor = mNextGroupInterp.GetFactor();
     float scale = CalculateClampedScale(position, radius,
-                                        minVpClampScale * gpTweakTargeting->x21c_scanTargetClampMin,
-                                        gpTweakTargeting->x220_scanTargetClampMax, mgr);
+                                        minVpClampScale * gpTweakTargeting->mScanTargetClampMin,
+                                        gpTweakTargeting->mScanTargetClampMax, mgr);
     int i;
     CTweakGuiColors* guiColors = gpTweakGuiColors;
     scale *= 1.f / (visorFactor * nextFactor);
@@ -1140,7 +1140,7 @@ void CCompoundTargetReticle::DrawNextLockOnGroup(const CMatrix3f& rot,
     CMatrix3f scanMatrix(rot * CMatrix3f::Scale(scale));
 
     gpRender->SetModelMatrix(
-        CTransform4f(scanMatrix, x174_nextGroupInterp.GetTargetPositionWorld()));
+        CTransform4f(scanMatrix, mNextGroupInterp.GetTargetPositionWorld()));
 
     CGraphics::SetDepthWriteMode(true, kE_Less, false);
 
@@ -1182,20 +1182,20 @@ void CCompoundTargetReticle::DrawNextLockOnGroup(const CMatrix3f& rot,
 
 void CCompoundTargetReticle::DrawOrbitZoneGroup(const CMatrix3f& rot,
                                                 const CStateManager& mgr) const {
-  if (x28_noDrawTicks <= 0 && x1e8_crosshairsScale > 0.f) {
-    const_cast< TCachedToken< CModel >& >(x34_crosshairs).TryCache();
+  if (mNoDrawTicks <= 0 && mCrosshairsScale > 0.f) {
+    const_cast< TCachedToken< CModel >& >(mCrosshairs).TryCache();
     CTweakTargeting* tweak;
-    CModel* const model = x34_crosshairs.GetObject();
+    CModel* const model = mCrosshairs.GetObject();
     if (model == nullptr)
       return;
 
     tweak = gpTweakTargeting;
 
-    gpRender->SetModelMatrix(CTransform4f(rot, xf4_targetPos) *
-                             CTransform4f::Scale(x1e8_crosshairsScale));
+    gpRender->SetModelMatrix(CTransform4f(rot, mTargetPos) *
+                             CTransform4f::Scale(mCrosshairsScale));
 
     model->Draw(CModelFlags::Additive(
-                    tweak->x1c0_crosshairsColor.WithAlphaModulatedBy(x1e8_crosshairsScale))
+                    tweak->mCrosshairsColor.WithAlphaModulatedBy(mCrosshairsScale))
                     .DepthCompareUpdate(false, false));
   }
 }
@@ -1209,9 +1209,9 @@ void CCompoundTargetReticle::UpdateTargetParameters(CTargetReticleRenderState& s
     state.SetTargetPositionWorld(pos);
   } else if (state.GetIsOrbitZoneIdlePosition()) {
     state.SetRadiusWorld(1.f);
-    state.SetTargetPositionWorld((x20_prevState == kRS_XRay || x20_prevState == kRS_Thermal)
-                                     ? x100_laggingTargetPos
-                                     : xf4_targetPos);
+    state.SetTargetPositionWorld((mPrevState == kRS_XRay || mPrevState == kRS_Thermal)
+                                     ? mLaggingTargetPos
+                                     : mTargetPos);
   }
 }
 
@@ -1226,7 +1226,7 @@ float CCompoundTargetReticle::CalculateRadiusWorld(const CActor& actor,
   const CVector3f max = aabb.GetMaxPoint();
 
   float radius;
-  switch (gpTweakTargeting->x4_targetRadiusMode) {
+  switch (gpTweakTargeting->mTargetRadiusMode) {
   case 0: {
     radius = rstl::min_val(max[0] - min[0], rstl::min_val(max[2] - min[2], max[1] - min[1])) * 0.5f;
     break;
@@ -1249,7 +1249,7 @@ float CCompoundTargetReticle::CalculateRadiusWorld(const CActor& actor,
 
 CVector3f CCompoundTargetReticle::CalculatePositionWorld(const CActor& actor,
                                                          const CStateManager& mgr) const {
-  return x20_prevState == kRS_Scan ? actor.GetOrbitPosition(mgr) : actor.GetAimPosition(mgr, 0.f);
+  return mPrevState == kRS_Scan ? actor.GetOrbitPosition(mgr) : actor.GetAimPosition(mgr, 0.f);
 }
 
 CVector3f CCompoundTargetReticle::CalculateOrbitZoneReticlePosition(const CStateManager& mgr,
@@ -1263,7 +1263,7 @@ CVector3f CCompoundTargetReticle::CalculateOrbitZoneReticlePosition(const CState
   CVector3f fwd = camXf.GetForward();
 
   if (lag) {
-    fwd = x10_laggingOrientation.Transform(fwd);
+    fwd = mLaggingOrientation.Transform(fwd);
   }
 
   return camXf.GetTranslation() + dist * fwd;
@@ -1291,22 +1291,22 @@ CTargetReticleRenderState::CTargetReticleRenderState(TUniqueId target, float rad
                                                      CVector3f positionWorld, float factor,
                                                      float minVpClampScale,
                                                      bool orbitZoneIdlePosition)
-: x0_target(target)
-, x4_radiusWorld(radiusWorld)
-, x8_positionWorld(positionWorld)
-, x14_factor(factor)
-, x18_minVpClampScale(minVpClampScale)
-, x1c_orbitZoneIdlePosition(orbitZoneIdlePosition) {}
+: mTarget(target)
+, mRadiusWorld(radiusWorld)
+, mPositionWorld(positionWorld)
+, mFactor(factor)
+, mMinVpClampScale(minVpClampScale)
+, mOrbitZoneIdlePosition(orbitZoneIdlePosition) {}
 
 void CTargetReticleRenderState::InterpolateWithClamp(const CTargetReticleRenderState& a,
                                                      CTargetReticleRenderState& out,
                                                      const CTargetReticleRenderState& b, float t) {
   float t2 = CMath::Clamp(0.f, t, 1.f);
   float omt = 1.f - t2;
-  out.x4_radiusWorld = omt * a.x4_radiusWorld + t2 * b.x4_radiusWorld;
-  out.x14_factor = omt * a.x14_factor + t2 * b.x14_factor;
-  out.x18_minVpClampScale = omt * a.x18_minVpClampScale + t2 * b.x18_minVpClampScale;
-  out.x8_positionWorld = CVector3f::Lerp(a.x8_positionWorld, b.x8_positionWorld, t2);
+  out.mRadiusWorld = omt * a.mRadiusWorld + t2 * b.mRadiusWorld;
+  out.mFactor = omt * a.mFactor + t2 * b.mFactor;
+  out.mMinVpClampScale = omt * a.mMinVpClampScale + t2 * b.mMinVpClampScale;
+  out.mPositionWorld = CVector3f::Lerp(a.mPositionWorld, b.mPositionWorld, t2);
   if (t2 == 1.f)
     out.SetTargetId(b.GetTargetId());
   else if (t2 == 0.f)
@@ -1315,21 +1315,21 @@ void CTargetReticleRenderState::InterpolateWithClamp(const CTargetReticleRenderS
     out.SetTargetId(kInvalidUniqueId);
 }
 
-CTargetingManager::CTargetingManager(const CStateManager& mgr) : x0_targetReticle(mgr) {}
+CTargetingManager::CTargetingManager(const CStateManager& mgr) : mTargetReticle(mgr) {}
 
 bool CTargetingManager::CheckLoadComplete() {
-  return x0_targetReticle.CheckLoadComplete() && x21c_orbitPointMarker.CheckLoadComplete();
+  return mTargetReticle.CheckLoadComplete() && mOrbitPointMarker.CheckLoadComplete();
 }
 
 void CTargetingManager::Update(float dt, const CStateManager& mgr) {
-  x0_targetReticle.Update(dt, mgr);
-  x21c_orbitPointMarker.Update(dt, mgr);
+  mTargetReticle.Update(dt, mgr);
+  mOrbitPointMarker.Update(dt, mgr);
 }
 
 void CTargetingManager::Draw(const CStateManager& mgr, bool hideLockon) const {
   CGraphics::SetAmbientColor(CColor::White());
   CGraphics::DisableAllLights();
-  x21c_orbitPointMarker.Draw(mgr);
+  mOrbitPointMarker.Draw(mgr);
   const CGameCamera& curCam = mgr.GetCameraManager()->GetCurrentCamera(mgr);
   CTransform4f camXf = mgr.GetCameraManager()->GetCurrentCameraTransform(mgr);
   CGraphics::SetViewPointMatrix(camXf);
@@ -1344,75 +1344,75 @@ void CTargetingManager::Draw(const CStateManager& mgr, bool hideLockon) const {
                            static_cast< float >(CGraphics::GetViewport().mHeight),
                            curCam.GetNearClipDistance(), curCam.GetFarClipDistance());
 #endif
-  x0_targetReticle.Draw(mgr, hideLockon);
+  mTargetReticle.Draw(mgr, hideLockon);
 }
 
 void CCompoundTargetReticle::Touch() const {
-  if (x34_crosshairs.GetObject()) {
-    x34_crosshairs.GetObject()->Touch(0);
+  if (mCrosshairs.GetObject()) {
+    mCrosshairs.GetObject()->Touch(0);
   }
-  if (x40_seeker.GetObject()) {
-    x40_seeker.GetObject()->Touch(0);
+  if (mSeeker.GetObject()) {
+    mSeeker.GetObject()->Touch(0);
   }
-  if (x4c_lockConfirm.GetObject()) {
-    x4c_lockConfirm.GetObject()->Touch(0);
+  if (mLockConfirm.GetObject()) {
+    mLockConfirm.GetObject()->Touch(0);
   }
-  if (x58_targetFlower.GetObject()) {
-    x58_targetFlower.GetObject()->Touch(0);
+  if (mTargetFlower.GetObject()) {
+    mTargetFlower.GetObject()->Touch(0);
   }
-  if (x64_missileBracket.GetObject()) {
-    x64_missileBracket.GetObject()->Touch(0);
+  if (mMissileBracket.GetObject()) {
+    mMissileBracket.GetObject()->Touch(0);
   }
-  if (x70_innerBeamIcon.GetObject()) {
-    x70_innerBeamIcon.GetObject()->Touch(0);
+  if (mInnerBeamIcon.GetObject()) {
+    mInnerBeamIcon.GetObject()->Touch(0);
   }
-  if (x7c_lockFire.GetObject()) {
-    x7c_lockFire.GetObject()->Touch(0);
+  if (mLockFire.GetObject()) {
+    mLockFire.GetObject()->Touch(0);
   }
-  if (x88_lockDagger.GetObject()) {
-    x88_lockDagger.GetObject()->Touch(0);
+  if (mLockDagger.GetObject()) {
+    mLockDagger.GetObject()->Touch(0);
   }
-  if (x94_grapple.GetObject()) {
-    x94_grapple.GetObject()->Touch(0);
+  if (mGrapple.GetObject()) {
+    mGrapple.GetObject()->Touch(0);
   }
-  if (xa0_chargeTickFirst.GetObject()) {
-    xa0_chargeTickFirst.GetObject()->Touch(0);
+  if (mChargeTickFirst.GetObject()) {
+    mChargeTickFirst.GetObject()->Touch(0);
   }
-  if (xac_xrayRetRing.GetObject()) {
-    xac_xrayRetRing.GetObject()->Touch(0);
+  if (mXrayRetRing.GetObject()) {
+    mXrayRetRing.GetObject()->Touch(0);
   }
-  if (xb8_thermalReticle.GetObject()) {
-    xb8_thermalReticle.GetObject()->Touch(0);
+  if (mThermalReticle.GetObject()) {
+    mThermalReticle.GetObject()->Touch(0);
   }
-  if (xc4_chargeGauge.x0_model.GetObject()) {
-    xc4_chargeGauge.x0_model.GetObject()->Touch(0);
+  if (mChargeGauge.mModel.GetObject()) {
+    mChargeGauge.mModel.GetObject()->Touch(0);
   }
-  for (AUTO(it, xe0_outerBeamIconSquares.begin()); it != xe0_outerBeamIconSquares.end(); ++it) {
-    if (it->x0_model.GetObject()) {
-      it->x0_model.GetObject()->Touch(0);
+  for (AUTO(it, mOuterBeamIconSquares.begin()); it != mOuterBeamIconSquares.end(); ++it) {
+    if (it->mModel.GetObject()) {
+      it->mModel.GetObject()->Touch(0);
     }
   }
 }
 
-void CTargetingManager::Touch() const { x0_targetReticle.Touch(); }
+void CTargetingManager::Touch() const { mTargetReticle.Touch(); }
 
 COrbitPointMarker::COrbitPointMarker()
-: x0_zOffset(gpTweakTargeting->x50_orbitPointZOffset)
-, x4_camRelZPos(true)
-, x8_lagAzimuth(0.f)
-, xc_azimuth(0.f)
-, x10_lagTargetPos(CVector3f::Zero())
-, x1c_lastFreeOrbit(false)
-, x20_interpTimer(0.f)
-, x24_curTime(0.f)
-, x28_orbitPointModel(gpSimplePool->GetObj(skOrbitPointAssetName)) {
-  x28_orbitPointModel.Lock();
+: mZOffset(gpTweakTargeting->mOrbitPointZOffset)
+, mCamRelZPos(true)
+, mLagAzimuth(0.f)
+, mAzimuth(0.f)
+, mLagTargetPos(CVector3f::Zero())
+, mLastFreeOrbit(false)
+, mInterpTimer(0.f)
+, mCurTime(0.f)
+, mOrbitPointModel(gpSimplePool->GetObj(skOrbitPointAssetName)) {
+  mOrbitPointModel.Lock();
 }
 
-bool COrbitPointMarker::CheckLoadComplete() { return x28_orbitPointModel.TryCache(); }
+bool COrbitPointMarker::CheckLoadComplete() { return mOrbitPointModel.TryCache(); }
 
 void COrbitPointMarker::Update(float dt, const CStateManager& mgr) {
-  x24_curTime += dt;
+  mCurTime += dt;
   const CPlayer* player = mgr.GetPlayer();
   CPlayer::EPlayerOrbitState orbitState = player->GetOrbitState();
   const CGameCamera& curCam = mgr.GetCameraManager()->GetCurrentCamera(mgr);
@@ -1420,62 +1420,62 @@ void COrbitPointMarker::Update(float dt, const CStateManager& mgr) {
   bool freeOrbit =
       (orbitState == CPlayer::kOS_OrbitPoint || orbitState == CPlayer::kOS_OrbitCarcass);
 
-  if (x1c_lastFreeOrbit != freeOrbit) {
+  if (mLastFreeOrbit != freeOrbit) {
     if (orbitState == CPlayer::kOS_OrbitPoint || orbitState == CPlayer::kOS_OrbitCarcass) {
-      ResetInterpolationTimer(gpTweakTargeting->x54_orbitPointInTime);
-      x10_lagTargetPos = !x4_camRelZPos
-                             ? player->GetHUDOrbitTargetPosition() + CVector3f(0.f, 0.f, x0_zOffset)
+      ResetInterpolationTimer(gpTweakTargeting->mOrbitPointInTime);
+      mLagTargetPos = !mCamRelZPos
+                             ? player->GetHUDOrbitTargetPosition() + CVector3f(0.f, 0.f, mZOffset)
                              : CVector3f(player->GetHUDOrbitTargetPosition().GetX(),
                                          player->GetHUDOrbitTargetPosition().GetY(),
-                                         x0_zOffset + curCam.GetTranslation().GetZ());
+                                         mZOffset + curCam.GetTranslation().GetZ());
       CEulerAngles euler =
           CEulerAngles::FromQuaternion(CQuaternion::FromMatrix(curCam.GetTransform()));
-      x8_lagAzimuth = CMath::Deg2Rad(45.f) + euler.GetZ();
+      mLagAzimuth = CMath::Deg2Rad(45.f) + euler.GetZ();
     } else {
-      ResetInterpolationTimer(gpTweakTargeting->x58_orbitPointOutTime);
+      ResetInterpolationTimer(gpTweakTargeting->mOrbitPointOutTime);
     }
-    x1c_lastFreeOrbit = !x1c_lastFreeOrbit;
+    mLastFreeOrbit = !mLastFreeOrbit;
   }
 
-  if (x20_interpTimer > 0.f) {
-    x20_interpTimer = rstl::max_val(0.f, x20_interpTimer - dt);
+  if (mInterpTimer > 0.f) {
+    mInterpTimer = rstl::max_val(0.f, mInterpTimer - dt);
   }
 
-  if (!x4_camRelZPos) {
+  if (!mCamRelZPos) {
     CVector3f orbitPos = player->GetHUDOrbitTargetPosition();
-    float targetZ = x0_zOffset + orbitPos.GetZ();
-    float delta = targetZ - x10_lagTargetPos.GetZ();
+    float targetZ = mZOffset + orbitPos.GetZ();
+    float delta = targetZ - mLagTargetPos.GetZ();
     if (delta < 0.1f) {
-      x10_lagTargetPos = orbitPos + CVector3f(0.f, 0.f, x0_zOffset);
+      mLagTargetPos = orbitPos + CVector3f(0.f, 0.f, mZOffset);
     } else if (delta < 0.f) {
-      x10_lagTargetPos =
-          CVector3f(orbitPos.GetX(), orbitPos.GetY(), x10_lagTargetPos.GetZ() - 0.1f);
+      mLagTargetPos =
+          CVector3f(orbitPos.GetX(), orbitPos.GetY(), mLagTargetPos.GetZ() - 0.1f);
     } else {
-      x10_lagTargetPos =
-          CVector3f(orbitPos.GetX(), orbitPos.GetY(), x10_lagTargetPos.GetZ() + 0.1f);
+      mLagTargetPos =
+          CVector3f(orbitPos.GetX(), orbitPos.GetY(), mLagTargetPos.GetZ() + 0.1f);
     }
   } else {
-    x10_lagTargetPos = CVector3f(player->GetHUDOrbitTargetPosition().GetX(),
+    mLagTargetPos = CVector3f(player->GetHUDOrbitTargetPosition().GetX(),
                                  player->GetHUDOrbitTargetPosition().GetY(),
-                                 x0_zOffset + player->GetHUDOrbitTargetPosition().GetZ());
+                                 mZOffset + player->GetHUDOrbitTargetPosition().GetZ());
   }
 
-  if (x1c_lastFreeOrbit) {
+  if (mLastFreeOrbit) {
     CEulerAngles euler =
         CEulerAngles::FromQuaternion(CQuaternion::FromMatrix(curCam.GetTransform()));
     float newAzimuth = CMath::Deg2Rad(45.f) + euler.GetZ();
-    float aziDelta = newAzimuth - xc_azimuth;
+    float aziDelta = newAzimuth - mAzimuth;
     if (mgr.GetPlayer()->IsInFreeLook()) {
-      x8_lagAzimuth += aziDelta;
+      mLagAzimuth += aziDelta;
     }
-    xc_azimuth = newAzimuth;
+    mAzimuth = newAzimuth;
   }
 }
 
 void COrbitPointMarker::Draw(const CStateManager& mgr) const {
-  if ((x1c_lastFreeOrbit || x20_interpTimer > 0.f) && gpTweakTargeting->x1c8_drawOrbitPoint) {
-    const_cast< TCachedToken< CModel >& >(x28_orbitPointModel).TryCache();
-    if (x28_orbitPointModel.GetObject() != NULL) {
+  if ((mLastFreeOrbit || mInterpTimer > 0.f) && gpTweakTargeting->mDrawOrbitPoint) {
+    const_cast< TCachedToken< CModel >& >(mOrbitPointModel).TryCache();
+    if (mOrbitPointModel.GetObject() != NULL) {
       const CGameCamera& curCam = mgr.GetCameraManager()->GetCurrentCamera(mgr);
       CTransform4f camXf = mgr.GetCameraManager()->GetCurrentCameraTransform(mgr);
       CGraphics::SetViewPointMatrix(camXf);
@@ -1495,24 +1495,24 @@ void COrbitPointMarker::Draw(const CStateManager& mgr) const {
       }
 
       float scale;
-      if (x1c_lastFreeOrbit) {
-        scale = 1.f - x20_interpTimer / gpTweakTargeting->x54_orbitPointInTime;
+      if (mLastFreeOrbit) {
+        scale = 1.f - mInterpTimer / gpTweakTargeting->mOrbitPointInTime;
       } else {
-        scale = x20_interpTimer / gpTweakTargeting->x58_orbitPointOutTime;
+        scale = mInterpTimer / gpTweakTargeting->mOrbitPointOutTime;
       }
 
       const CTweakTargeting* pTweaks = gpTweakTargeting;
-      CTransform4f modelXf = CTransform4f::RotateZ(CRelAngle(x8_lagAzimuth));
+      CTransform4f modelXf = CTransform4f::RotateZ(CRelAngle(mLagAzimuth));
       modelXf.ScaleBy(scale);
-      modelXf.AddTranslation(x10_lagTargetPos);
+      modelXf.AddTranslation(mLagTargetPos);
       gpRender->SetModelMatrix(modelXf);
 
-      CModel* model = x28_orbitPointModel.GetObject();
-      CColor color = pTweaks->x1bc_orbitPointColor.WithAlphaModulatedBy(scale);
+      CModel* model = mOrbitPointModel.GetObject();
+      CColor color = pTweaks->mOrbitPointColor.WithAlphaModulatedBy(scale);
       CModelFlags flags = CModelFlags::Additive(color).DepthCompareUpdate(false, false);
       model->Draw(flags);
     }
   }
 }
 
-void COrbitPointMarker::ResetInterpolationTimer(float time) { x20_interpTimer = time; }
+void COrbitPointMarker::ResetInterpolationTimer(float time) { mInterpTimer = time; }

@@ -10,26 +10,26 @@ int CFontImageDef::CalculateHeight() const {
 }
 
 void CImageInstruction::Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const {
-  if (x4_image.IsLoaded() && !x4_image.GetImages().empty()) {
+  if (mImage.IsLoaded() && !mImage.GetImages().empty()) {
     if (state.GetBlock()->GetTextDirection() == kTD_Horizontal) {
       if (buf) {
         buf->AddImage(CVector2i(state.GetX(), state.GetY() + state.GetLine()->GetBaseline() -
-                                                  x4_image.CalculateBaseline()),
-                      x4_image);
+                                                  mImage.CalculateBaseline()),
+                      mImage);
       }
-      state.SetX(state.GetX() + x4_image.GetWidth());
+      state.SetX(state.GetX() + mImage.GetWidth());
     } else {
-      int offset = (state.GetLine()->GetWidth() - x4_image.GetWidth()) / 2;
+      int offset = (state.GetLine()->GetWidth() - mImage.GetWidth()) / 2;
       if (buf) {
-        buf->AddImage(CVector2i(offset + state.GetX(), state.GetY()), x4_image);
+        buf->AddImage(CVector2i(offset + state.GetX(), state.GetY()), mImage);
       }
-      state.SetY(state.GetY() + x4_image.CalculateHeight());
+      state.SetY(state.GetY() + mImage.CalculateHeight());
     }
   }
 }
 
 void CImageInstruction::GetAssets(rstl::vector< CToken >& assetsOut) const {
-  for (int i = 0; i < x4_image.GetImages().size(); ++i) {
-    assetsOut.push_back(x4_image.GetImages()[i]);
+  for (int i = 0; i < mImage.GetImages().size(); ++i) {
+    assetsOut.push_back(mImage.GetImages()[i]);
   }
 }

@@ -5,16 +5,16 @@
 
 float CConstantAnimationTimeScale::VTimeScaleIntegral(const float& lowerLimit,
                                                       const float& upperLimit) const {
-  return x4_scale * (upperLimit - lowerLimit);
+  return mScale * (upperLimit - lowerLimit);
 }
 
 float CConstantAnimationTimeScale::VFindUpperLimit(const float& lowerLimit,
                                                    const float& root) const {
-  return lowerLimit + root / x4_scale;
+  return lowerLimit + root / mScale;
 }
 
 rstl::ownership_transfer< IVaryingAnimationTimeScale > CConstantAnimationTimeScale::VClone() const {
-  return rs_new CConstantAnimationTimeScale(x4_scale);
+  return rs_new CConstantAnimationTimeScale(mScale);
 }
 
 rstl::ownership_transfer< IVaryingAnimationTimeScale >
@@ -32,17 +32,17 @@ float CLinearAnimationTimeScale::TimeScaleIntegralWithSortedLimits(const CFuncti
 float CLinearAnimationTimeScale::VTimeScaleIntegral(const float& lowerLimit,
                                                     const float& upperLimit) const {
   if (lowerLimit <= upperLimit) {
-    return TimeScaleIntegralWithSortedLimits(x4_desc, lowerLimit, upperLimit);
+    return TimeScaleIntegralWithSortedLimits(mDesc, lowerLimit, upperLimit);
   } else {
-    return -TimeScaleIntegralWithSortedLimits(x4_desc, upperLimit, lowerLimit);
+    return -TimeScaleIntegralWithSortedLimits(mDesc, upperLimit, lowerLimit);
   }
 }
 
 float CLinearAnimationTimeScale::FindUpperLimitFromRoot(const CFunctionDescription& desc,
                                                         const float& lowerLimit,
                                                         const float& root) {
-  float halfSlope = 0.5f * desc.x0_slope;
-  float yIntercept = desc.x4_yIntercept;
+  float halfSlope = 0.5f * desc.mSlope;
+  float yIntercept = desc.mYIntercept;
   float upperLimit = lowerLimit;
   float lowerIntegral = halfSlope * lowerLimit * lowerLimit + yIntercept * lowerLimit;
   for (int i = 0; i < 20; ++i) {
@@ -58,19 +58,19 @@ float CLinearAnimationTimeScale::FindUpperLimitFromRoot(const CFunctionDescripti
 }
 
 float CLinearAnimationTimeScale::VFindUpperLimit(const float& lowerLimit, const float& root) const {
-  return FindUpperLimitFromRoot(x4_desc, lowerLimit, root);
+  return FindUpperLimitFromRoot(mDesc, lowerLimit, root);
 }
 
 rstl::ownership_transfer< IVaryingAnimationTimeScale > CLinearAnimationTimeScale::VClone() const {
   return rs_new CLinearAnimationTimeScale(
-      CCharAnimTime(x4_desc.x8_t1), GetScale(x4_desc, x4_desc.x8_t1), CCharAnimTime(x4_desc.xc_t2),
-      GetScale(x4_desc, x4_desc.xc_t2));
+      CCharAnimTime(mDesc.mT1), GetScale(mDesc, mDesc.mT1), CCharAnimTime(mDesc.mT2),
+      GetScale(mDesc, mDesc.mT2));
 }
 
 rstl::ownership_transfer< IVaryingAnimationTimeScale >
 CLinearAnimationTimeScale::VGetFunctionMirrored(const float& value) const {
-  const CFunctionDescription mirrored = x4_desc.FunctionMirroredAround(value);
+  const CFunctionDescription mirrored = mDesc.FunctionMirroredAround(value);
   return rs_new CLinearAnimationTimeScale(
-      CCharAnimTime(mirrored.x8_t1), GetScale(mirrored, mirrored.x8_t1),
-      CCharAnimTime(mirrored.xc_t2), GetScale(mirrored, mirrored.xc_t2));
+      CCharAnimTime(mirrored.mT1), GetScale(mirrored, mirrored.mT1),
+      CCharAnimTime(mirrored.mT2), GetScale(mirrored, mirrored.mT2));
 }

@@ -15,8 +15,8 @@ public:
   CSequenceFundamentals ComputeSequenceFundamentals() const;
 
 private:
-  CAnimSysContext x0_context;
-  rstl::vector< rstl::ncrc_ptr< CAnimTreeNode > > x10_nodes;
+  CAnimSysContext mContext;
+  rstl::vector< rstl::ncrc_ptr< CAnimTreeNode > > mNodes;
   rstl::vector< bool > x20_;
 };
 CHECK_SIZEOF(CSequenceHelper, 0x30)

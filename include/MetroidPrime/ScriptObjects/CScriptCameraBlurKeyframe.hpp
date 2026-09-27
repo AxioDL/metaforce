@@ -6,11 +6,11 @@
 #include "MetroidPrime/Cameras/CCameraBlurPass.hpp"
 
 class CScriptCameraBlurKeyframe : public CEntity {
-  CCameraBlurPass::EBlurType x34_type;
-  float x38_amount;
+  CCameraBlurPass::EBlurType mType;
+  float mAmount;
   u32 x3c_;
-  float x40_timeIn;
-  float x44_timeOut;
+  float mTimeIn;
+  float mTimeOut;
 
 public:
   CScriptCameraBlurKeyframe(TUniqueId uid, const rstl::string& name, const CEntityInfo& info,

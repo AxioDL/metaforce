@@ -25,47 +25,47 @@ class CMetroidBetaData {
 public:
   CMetroidBetaData(CInputStream& in, int propCount);
 
-  const CDamageVulnerability& GetFrozenVulnerability() const { return x0_frozenVulnerability; }
+  const CDamageVulnerability& GetFrozenVulnerability() const { return mFrozenVulnerability; }
   const CDamageVulnerability& GetEnergyDrainVulnerability() const {
-    return x68_energyDrainVulnerability;
+    return mEnergyDrainVulnerability;
   }
-  float GetEnergyDrainPerSec() const { return xd0_energyDrainPerSec; }
-  float GetMaxEnergyDrainAllowed() const { return xd4_maxEnergyDrainAllowed; }
-  float GetSpecialAttackTime() const { return xe0_specialAttackTime; }
-  float GetTelegraphAttackTime() const { return xdc_telegraphAttackTime; }
-  float GetStage2GrowthEnergy() const { return xec_stage2GrowthEnergy; }
-  float GetStage3GrowthEnergy() const { return xf0_stage3GrowthEnergy; }
-  float GetMaxGrowthScale() const { return xe8_maxGrowthScale; }
-  float GetGrowthEnergy() const { return xec_stage2GrowthEnergy; }
-  float GetBreakLeashEnergyDrain() const { return xd8_breakLeashEnergyDrain; }
-  CAssetId GetElectricParticleId() const { return xf4_electricParticleId; }
-  CAssetId GetElectricSwooshEffectId() const { return xf8_electricSwooshEffectId; }
-  CAssetId GetElectricMorphBallHitEffectId() const { return xfc_electricMorphBallHitEffectId; }
-  CAssetId GetElectricGunHitEffectId() const { return x100_electricGunHitEffectId; }
-  CAssetId GetElectricGunFeedbackId() const { return x104_electricGunFeedbackId; }
+  float GetEnergyDrainPerSec() const { return mEnergyDrainPerSec; }
+  float GetMaxEnergyDrainAllowed() const { return mMaxEnergyDrainAllowed; }
+  float GetSpecialAttackTime() const { return mSpecialAttackTime; }
+  float GetTelegraphAttackTime() const { return mTelegraphAttackTime; }
+  float GetStage2GrowthEnergy() const { return mStage2GrowthEnergy; }
+  float GetStage3GrowthEnergy() const { return mStage3GrowthEnergy; }
+  float GetMaxGrowthScale() const { return mMaxGrowthScale; }
+  float GetGrowthEnergy() const { return mStage2GrowthEnergy; }
+  float GetBreakLeashEnergyDrain() const { return mBreakLeashEnergyDrain; }
+  CAssetId GetElectricParticleId() const { return mElectricParticleId; }
+  CAssetId GetElectricSwooshEffectId() const { return mElectricSwooshEffectId; }
+  CAssetId GetElectricMorphBallHitEffectId() const { return mElectricMorphBallHitEffectId; }
+  CAssetId GetElectricGunHitEffectId() const { return mElectricGunHitEffectId; }
+  CAssetId GetElectricGunFeedbackId() const { return mElectricGunFeedbackId; }
 
-  bool StartsInWall() const { return x108_24_startsInWall; }
+  bool StartsInWall() const { return mStartsInWall; }
 
   static int GetNumProperties() { return skNumProperties; }
 
 private:
-  CDamageVulnerability x0_frozenVulnerability;
-  CDamageVulnerability x68_energyDrainVulnerability;
-  float xd0_energyDrainPerSec;
-  float xd4_maxEnergyDrainAllowed;
-  float xd8_breakLeashEnergyDrain;
-  float xdc_telegraphAttackTime;
-  float xe0_specialAttackTime;
+  CDamageVulnerability mFrozenVulnerability;
+  CDamageVulnerability mEnergyDrainVulnerability;
+  float mEnergyDrainPerSec;
+  float mMaxEnergyDrainAllowed;
+  float mBreakLeashEnergyDrain;
+  float mTelegraphAttackTime;
+  float mSpecialAttackTime;
   float xe4_;
-  float xe8_maxGrowthScale;
-  float xec_stage2GrowthEnergy;
-  float xf0_stage3GrowthEnergy;
-  CAssetId xf4_electricParticleId;
-  CAssetId xf8_electricSwooshEffectId;
-  CAssetId xfc_electricMorphBallHitEffectId;
-  CAssetId x100_electricGunHitEffectId;
-  CAssetId x104_electricGunFeedbackId;
-  bool x108_24_startsInWall : 1;
+  float mMaxGrowthScale;
+  float mStage2GrowthEnergy;
+  float mStage3GrowthEnergy;
+  CAssetId mElectricParticleId;
+  CAssetId mElectricSwooshEffectId;
+  CAssetId mElectricMorphBallHitEffectId;
+  CAssetId mElectricGunHitEffectId;
+  CAssetId mElectricGunFeedbackId;
+  bool mStartsInWall : 1;
 
   static const uint skNumProperties;
 };
@@ -93,8 +93,8 @@ public:
   void DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type,
                        float dt) override;
   bool IsListening() const override { return true; }
-  const CCollisionPrimitive* GetCollisionPrimitive() const override { return &x768_colPrim; }
-  CPathFindSearch* GetSearchPath() override { return &x67c_pathFind; }
+  const CCollisionPrimitive* GetCollisionPrimitive() const override { return &mColPrim; }
+  CPathFindSearch* GetSearchPath() override { return &mPathFind; }
   void CollidedWith(const TUniqueId& id, const CCollisionInfoList& list,
                     CStateManager& mgr) override;
   CVector3f GetOrigin(const CStateManager& mgr, const CTeamAiRole& role,
@@ -158,27 +158,27 @@ private:
   void ExtendTouchBounds(CStateManager& mgr, const CVector3f& bounds);
   bool IsSuckingEnergy() const;
 
-  int x568_progState;
-  CMetroidBetaData x56c_data;
-  TUniqueId x678_teamMgr;
-  CPathFindSearch x67c_pathFind;
-  CSegId x760_leftClaw;
-  CSegId x761_rightClaw;
-  rstl::single_ptr< CCollisionActorManager > x764_collisionManager;
-  CCollidableAABox x768_colPrim;
-  TUniqueId x790_pelvisCollisionId;
-  float x794_attackCooldown;
-  float x798_telegraphTimer;
-  float x79c_drainedEnergy;
-  float x7a0_interferenceTime;
-  float x7a4_specialAttackTime;
-  CVector3f x7a8_targetPos;
-  CVector3f x7b4_growthScale;
-  CVector3f x7c0_generateStartScale;
-  CVector3f x7cc_initialScale;
-  float x7d8_generateDuration;
-  float x7dc_growthEnergy;
-  float x7e0_previousGrowthEnergy;
+  int mProgState;
+  CMetroidBetaData mData;
+  TUniqueId mTeamMgr;
+  CPathFindSearch mPathFind;
+  CSegId mLeftClaw;
+  CSegId mRightClaw;
+  rstl::single_ptr< CCollisionActorManager > mCollisionManager;
+  CCollidableAABox mColPrim;
+  TUniqueId mPelvisCollisionId;
+  float mAttackCooldown;
+  float mTelegraphTimer;
+  float mDrainedEnergy;
+  float mInterferenceTime;
+  float mSpecialAttackTime;
+  CVector3f mTargetPos;
+  CVector3f mGrowthScale;
+  CVector3f mGenerateStartScale;
+  CVector3f mInitialScale;
+  float mGenerateDuration;
+  float mGrowthEnergy;
+  float mPreviousGrowthEnergy;
   TLockedToken< CGenDescription > x7e4_;
   TLockedToken< CSwooshDescription > x7f0_;
   TLockedToken< CGenDescription > x7fc_;
@@ -189,9 +189,9 @@ private:
   rstl::single_ptr< CElementGen > x828_;
   rstl::single_ptr< CElementGen > x82c_;
   rstl::single_ptr< CElementGen > x830_;
-  float x834_particlePhase;
-  CRandom16 x838_random;
-  float x83c_shotSeverity;
+  float mParticlePhase;
+  CRandom16 mRandom;
+  float mShotSeverity;
   bool x840_24_ : 1;
   bool x840_25_ : 1;
   bool x840_26_ : 1;
@@ -201,6 +201,6 @@ private:
   bool x840_30_ : 1;
   bool x840_31_ : 1;
 };
-CHECK_SIZEOF(CMetroidBeta, (VERSION >= VERSION_GM8P_00 ? 0x858 : 0x848))
+CHECK_SIZEOF(CMetroidBeta, (VERSION >= VERSION_GM8E_02 ? 0x858 : 0x848))
 
 #endif // _CMETROIDBETA

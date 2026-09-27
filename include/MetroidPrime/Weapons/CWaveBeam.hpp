@@ -30,15 +30,15 @@ public:
   bool IsLoaded() const override;
 
 private:
-  TCachedToken< CWeaponDescription > x21c_waveBeam;
-  TCachedToken< CElectricDescription > x228_wave2nd1;
-  TCachedToken< CElectricDescription > x234_wave2nd2;
-  TCachedToken< CGenDescription > x240_wave2nd3;
-  float x24c_effectTimer;
-  rstl::single_ptr< CParticleElectric > x250_chargeElec;
-  rstl::single_ptr< CElementGen > x254_chargeFx;
-  bool x258_24_loaded : 1;
-  bool x258_25_effectTimerActive : 1;
+  TCachedToken< CWeaponDescription > mWaveBeam;
+  TCachedToken< CElectricDescription > mWave2nd1;
+  TCachedToken< CElectricDescription > mWave2nd2;
+  TCachedToken< CGenDescription > mWave2nd3;
+  float mEffectTimer;
+  rstl::single_ptr< CParticleElectric > mChargeElec;
+  rstl::single_ptr< CElementGen > mChargeFx;
+  bool mLoaded : 1;
+  bool mEffectTimerActive : 1;
 
   void ReInitVariables();
 };

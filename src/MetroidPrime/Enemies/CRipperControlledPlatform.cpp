@@ -12,17 +12,17 @@ CRipperControlledPlatform::CRipperControlledPlatform(
 : CScriptPlatform(uid, name, info, xf, CModelData::CModelDataNull(), CActorParameters::None(),
                   bounds, 0.f, false, 1.f, active, CHealthInfo(FLT_MAX, 10.f),
                   CDamageVulnerability::ImmuneVulnerability(), colTree, false, 1, 1)
-, x358_owner(owner)
-, x35c_yaw(GetYaw()) {}
+, mOwner(owner)
+, mYaw(GetYaw()) {}
 
 float RCP_2PI = 0.15915494f;
 
 CQuaternion CRipperControlledPlatform::Move(float arg, CStateManager& mgr) {
-  if (const CActor* actor = static_cast< CActor* >(mgr.ObjectById(x358_owner))) {
+  if (const CActor* actor = static_cast< CActor* >(mgr.ObjectById(mOwner))) {
     CVector3f delta = actor->GetTranslation() - GetTranslation();
     MoveToWR(GetTranslation() + delta, arg);
     
-    float zRot = CMath::ClampRadians(actor->GetYaw() - x35c_yaw);
+    float zRot = CMath::ClampRadians(actor->GetYaw() - mYaw);
     if (zRot > M_PIF) {
       zRot -= M_2PIF;
     }
@@ -43,7 +43,7 @@ CQuaternion CRipperControlledPlatform::Move(float arg, CStateManager& mgr) {
     SetMovable(true);
     CGameCollision::Move(mgr, *this, arg, &filteredNearList);
     SetMovable(false);
-    x35c_yaw = GetYaw();
+    mYaw = GetYaw();
     return quat;
   }
   return CQuaternion::NoRotation();

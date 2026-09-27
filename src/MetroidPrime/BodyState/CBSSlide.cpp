@@ -12,7 +12,7 @@
 
 #include "math.h"
 
-CBSSlide::CBSSlide() : x4_rotateSpeed(0.f) {}
+CBSSlide::CBSSlide() : mRotateSpeed(0.f) {}
 
 void CBSSlide::Start(CBodyController& bc, CStateManager& mgr) {
   const CBCSlideCmd* cmd = static_cast< const CBCSlideCmd* >(bc.CommandMgr().GetCmd(kBSC_Slide));
@@ -37,16 +37,16 @@ void CBSSlide::Start(CBodyController& bc, CStateManager& mgr) {
     if (delta1 > M_PIF) {
       flippedAngle = delta1 - M_2PIF;
     }
-    x4_rotateSpeed = flippedAngle / timeRem;
+    mRotateSpeed = flippedAngle / timeRem;
   } else {
-    x4_rotateSpeed = 0.f;
+    mRotateSpeed = 0.f;
   }
 }
 
 pas::EAnimationState CBSSlide::UpdateBody(float dt, CBodyController& bc, CStateManager& mgr) {
   const pas::EAnimationState st = GetBodyStateTransition(dt, bc);
-  if (st == pas::kAS_Invalid && x4_rotateSpeed != 0.f) {
-    bc.SetDeltaRotation(CQuaternion::ZRotation(CRelAngle::FromRadians(dt * x4_rotateSpeed)));
+  if (st == pas::kAS_Invalid && mRotateSpeed != 0.f) {
+    bc.SetDeltaRotation(CQuaternion::ZRotation(CRelAngle::FromRadians(dt * mRotateSpeed)));
   }
   return st;
 }

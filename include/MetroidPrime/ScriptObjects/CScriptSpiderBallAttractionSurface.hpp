@@ -4,8 +4,8 @@
 #include "MetroidPrime/CActor.hpp"
 
 class CScriptSpiderBallAttractionSurface : public CActor {
-  CVector3f xe8_scale;
-  CAABox xf4_aabb;
+  CVector3f mScale;
+  CAABox mAabb;
 
 public:
   CScriptSpiderBallAttractionSurface(TUniqueId uid, const rstl::string& name,
@@ -18,7 +18,7 @@ public:
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) override;
   rstl::optional_object< CAABox > GetTouchBounds() const override;
   void Touch(CActor& actor, CStateManager& mgr) override;
-  const CVector3f& GetScale() const { return xe8_scale; }
+  const CVector3f& GetScale() const { return mScale; }
 };
 
 #endif // _CSCRIPTSPIDERBALLATTRACTIONSURFACE

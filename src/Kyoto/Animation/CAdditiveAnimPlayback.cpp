@@ -9,64 +9,64 @@
 CAdditiveAnimPlayback::CAdditiveAnimPlayback(const rstl::ncrc_ptr< CAnimTreeNode >& anim,
                                              float weight, bool loop,
                                              const CAdditiveAnimationInfo& info, bool fadeOut)
-: x0_info(info)
-, x8_anim(anim)
-, xc_targetWeight(rstl::max_val(0.f, rstl::min_val(weight, 1.f)))
-, x10_curWeight(0.f)
-, x14_active(loop)
-, x18_weightTimer(0.f)
-, x1c_phase(kPP_FadingIn)
-, x20_needsFadeOut(!loop && fadeOut) {}
+: mInfo(info)
+, mAnim(anim)
+, mTargetWeight(rstl::max_val(0.f, rstl::min_val(weight, 1.f)))
+, mCurWeight(0.f)
+, mActive(loop)
+, mWeightTimer(0.f)
+, mPhase(kPP_FadingIn)
+, mNeedsFadeOut(!loop && fadeOut) {}
 
 void CAdditiveAnimPlayback::SetWeight(float weight) {
-  xc_targetWeight = rstl::max_val(0.f, rstl::min_val(weight, 1.f));
+  mTargetWeight = rstl::max_val(0.f, rstl::min_val(weight, 1.f));
 
-  if (x1c_phase == kPP_FadingIn) {
-    x10_curWeight = x0_info.GetFadeInTime() > 0.f
-                        ? xc_targetWeight * (x18_weightTimer / x0_info.GetFadeInTime())
-                        : xc_targetWeight;
+  if (mPhase == kPP_FadingIn) {
+    mCurWeight = mInfo.GetFadeInTime() > 0.f
+                        ? mTargetWeight * (mWeightTimer / mInfo.GetFadeInTime())
+                        : mTargetWeight;
     return;
   }
-  if (x1c_phase == kPP_FadingOut) {
-    x10_curWeight = x0_info.GetFadeOutTime() > 0.f
-                        ? xc_targetWeight * (x18_weightTimer / x0_info.GetFadeOutTime())
-                        : xc_targetWeight;
+  if (mPhase == kPP_FadingOut) {
+    mCurWeight = mInfo.GetFadeOutTime() > 0.f
+                        ? mTargetWeight * (mWeightTimer / mInfo.GetFadeOutTime())
+                        : mTargetWeight;
     return;
   }
-  x10_curWeight = xc_targetWeight;
+  mCurWeight = mTargetWeight;
 }
 
 void CAdditiveAnimPlayback::FadeOut() {
-  if (x1c_phase == kPP_FadedOut || x1c_phase == kPP_FadedIn) {
-    x18_weightTimer = x0_info.GetFadeOutTime();
-  } else if (x1c_phase == kPP_FadingIn) {
-    x18_weightTimer = (x18_weightTimer / x0_info.GetFadeInTime()) * x0_info.GetFadeOutTime();
+  if (mPhase == kPP_FadedOut || mPhase == kPP_FadedIn) {
+    mWeightTimer = mInfo.GetFadeOutTime();
+  } else if (mPhase == kPP_FadingIn) {
+    mWeightTimer = (mWeightTimer / mInfo.GetFadeInTime()) * mInfo.GetFadeOutTime();
   }
 
-  if (x0_info.GetFadeOutTime() > 0.f) {
-    x1c_phase = kPP_FadingOut;
+  if (mInfo.GetFadeOutTime() > 0.f) {
+    mPhase = kPP_FadingOut;
     return;
   }
 
-  x1c_phase = kPP_FadedOut;
-  x10_curWeight = 0.f;
+  mPhase = kPP_FadedOut;
+  mCurWeight = 0.f;
 }
 
 void CAdditiveAnimPlayback::Update(float dt) {
-  if (x1c_phase == kPP_FadingIn) {
-    const float time = x0_info.GetFadeInTime();
-    x18_weightTimer = rstl::min_val(time, x18_weightTimer + dt);
-    x10_curWeight = time > 0.f ? xc_targetWeight * (x18_weightTimer / time) : xc_targetWeight;
+  if (mPhase == kPP_FadingIn) {
+    const float time = mInfo.GetFadeInTime();
+    mWeightTimer = rstl::min_val(time, mWeightTimer + dt);
+    mCurWeight = time > 0.f ? mTargetWeight * (mWeightTimer / time) : mTargetWeight;
 
-    if (close_enough(x10_curWeight, xc_targetWeight)) {
-      x1c_phase = kPP_FadedIn;
+    if (close_enough(mCurWeight, mTargetWeight)) {
+      mPhase = kPP_FadedIn;
     }
-  } else if (x1c_phase == kPP_FadingOut) {
-    const float time = x0_info.GetFadeOutTime();
-    x18_weightTimer = rstl::max_val(0.f, x18_weightTimer - dt);
-    x10_curWeight = time > 0.f ? xc_targetWeight * (x18_weightTimer / time) : 0.f;
-    if (close_enough(x10_curWeight, 0.f)) {
-      x1c_phase = kPP_FadedOut;
+  } else if (mPhase == kPP_FadingOut) {
+    const float time = mInfo.GetFadeOutTime();
+    mWeightTimer = rstl::max_val(0.f, mWeightTimer - dt);
+    mCurWeight = time > 0.f ? mTargetWeight * (mWeightTimer / time) : 0.f;
+    if (close_enough(mCurWeight, 0.f)) {
+      mPhase = kPP_FadedOut;
     }
   }
 }
@@ -76,7 +76,7 @@ void CAdditiveAnimPlayback::AddToSegStatementSet(const CSegIdList& list,
                                                  CSegStatementSet& set) const {
   CStackSegStatementSet stackSegSet;
 
-  x8_anim->VGetSegStatementSet(list, stackSegSet);
+  mAnim->VGetSegStatementSet(list, stackSegSet);
 
   const size_t count = list.Size();
   for (size_t i = 0; i < count; ++i) {
@@ -84,5 +84,5 @@ void CAdditiveAnimPlayback::AddToSegStatementSet(const CSegIdList& list,
     stackSegSet.Set(list[i], charInfo.GetFromParentUnrotated(seg));
   }
 
-  set.Add(list, charInfo, stackSegSet, x10_curWeight);
+  set.Add(list, charInfo, stackSegSet, mCurWeight);
 }

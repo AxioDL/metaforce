@@ -6,7 +6,7 @@
 #include "MetroidPrime/Cameras/CCameraShakeData.hpp"
 
 class CScriptCameraShaker : public CEntity {
-  CCameraShakeData x34_shakeData;
+  CCameraShakeData mShakeData;
 
 public:
   CScriptCameraShaker(TUniqueId uid, const rstl::string& name, const CEntityInfo& info, bool active,

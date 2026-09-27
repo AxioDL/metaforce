@@ -25,26 +25,26 @@ public:
   TUniqueId NextWaypoint(const CStateManager& mgr) const;
   TUniqueId FollowWaypoint(CStateManager& mgr) const;
 
-  float GetSpeed() const { return xe8_speed; }
-  uint GetAnimation() const { return xec_animation; }
-  float GetPause() const { return xf0_pause; }
-  uchar GetPatternTranslate() const { return xf4_patternTranslate; }
-  uchar GetPatternOrient() const { return xf5_patternOrient; }
-  uchar GetPatternFit() const { return xf6_patternFit; }
-  uchar GetBehaviour() const { return xf7_behaviour; }
-  uchar GetBehaviourOrient() const { return xf8_behaviourOrient; }
-  ushort GetBehaviourModifiers() const { return xfa_behaviourModifiers; }
+  float GetSpeed() const { return mSpeed; }
+  uint GetAnimation() const { return mAnimation; }
+  float GetPause() const { return mPause; }
+  uchar GetPatternTranslate() const { return mPatternTranslate; }
+  uchar GetPatternOrient() const { return mPatternOrient; }
+  uchar GetPatternFit() const { return mPatternFit; }
+  uchar GetBehaviour() const { return mBehaviour; }
+  uchar GetBehaviourOrient() const { return mBehaviourOrient; }
+  ushort GetBehaviourModifiers() const { return mBehaviourModifiers; }
 
 private:
-  float xe8_speed;
-  uint xec_animation;
-  float xf0_pause;
-  uchar xf4_patternTranslate;
-  uchar xf5_patternOrient;
-  uchar xf6_patternFit;
-  uchar xf7_behaviour;
-  uchar xf8_behaviourOrient;
-  ushort xfa_behaviourModifiers;
+  float mSpeed;
+  uint mAnimation;
+  float mPause;
+  uchar mPatternTranslate;
+  uchar mPatternOrient;
+  uchar mPatternFit;
+  uchar mBehaviour;
+  uchar mBehaviourOrient;
+  ushort mBehaviourModifiers;
 };
 
 #endif // _CSCRIPTWAYPOINT

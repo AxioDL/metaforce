@@ -9,57 +9,57 @@ class CVector3f;
 
 class CAnimPlaybackParms {
 private:
-  int x0_animA;
-  int x4_animB;
-  float x8_blendWeight;
-  bool xc_animating;
+  int mAnimA;
+  int mAnimB;
+  float mBlendWeight;
+  bool mAnimating;
   int x10_;
-  const CVector3f* x14_targetPos;
-  bool x18_useLocator;
-  const CQuaternion* x1c_deltaOrient;
-  const CTransform4f* x20_objectXf;
-  const CVector3f* x24_objectScale;
+  const CVector3f* mTargetPos;
+  bool mUseLocator;
+  const CQuaternion* mDeltaOrient;
+  const CTransform4f* mObjectXf;
+  const CVector3f* mObjectScale;
 
 public:
   CAnimPlaybackParms(const int animA, const int animB, const float blendWeight,
                      const bool animating)
-  : x0_animA(animA)
-  , x4_animB(animB)
-  , x8_blendWeight(blendWeight)
-  , xc_animating(animating)
+  : mAnimA(animA)
+  , mAnimB(animB)
+  , mBlendWeight(blendWeight)
+  , mAnimating(animating)
   , x10_(0)
-  , x14_targetPos(nullptr)
-  , x18_useLocator(false)
-  , x1c_deltaOrient(nullptr)
-  , x20_objectXf(nullptr)
-  , x24_objectScale(nullptr) {}
+  , mTargetPos(nullptr)
+  , mUseLocator(false)
+  , mDeltaOrient(nullptr)
+  , mObjectXf(nullptr)
+  , mObjectScale(nullptr) {}
 
   CAnimPlaybackParms(int anim, const CQuaternion* deltaOrient, const CVector3f* targetPos,
                      const CTransform4f* xf, const CVector3f* scale, bool useLocator)
-  : x0_animA(anim)
-  , x4_animB(-1)
-  , x8_blendWeight(1.f)
-  , xc_animating(true)
+  : mAnimA(anim)
+  , mAnimB(-1)
+  , mBlendWeight(1.f)
+  , mAnimating(true)
   , x10_(0)
-  , x14_targetPos(targetPos)
-  , x18_useLocator(useLocator)
-  , x1c_deltaOrient(deltaOrient)
-  , x20_objectXf(xf)
-  , x24_objectScale(scale) {}
+  , mTargetPos(targetPos)
+  , mUseLocator(useLocator)
+  , mDeltaOrient(deltaOrient)
+  , mObjectXf(xf)
+  , mObjectScale(scale) {}
 
-  int GetAnimationId() const { return x0_animA; }
-  int GetSecondAnimationId() const { return x4_animB; }
-  float GetBlendFactor() const { return x8_blendWeight; }
-  bool GetIsPlayAnimation() const { return xc_animating; }
-  const CVector3f* GetTargetPos() const { return x14_targetPos; }
-  bool GetIsUseLocator() const { return x18_useLocator; }
-  const CQuaternion* GetDeltaOrient() const { return x1c_deltaOrient; }
-  const CTransform4f* GetObjectXform() const { return x20_objectXf; }
-  const CVector3f* GetObjectScale() const { return x24_objectScale; }
+  int GetAnimationId() const { return mAnimA; }
+  int GetSecondAnimationId() const { return mAnimB; }
+  float GetBlendFactor() const { return mBlendWeight; }
+  bool GetIsPlayAnimation() const { return mAnimating; }
+  const CVector3f* GetTargetPos() const { return mTargetPos; }
+  bool GetIsUseLocator() const { return mUseLocator; }
+  const CQuaternion* GetDeltaOrient() const { return mDeltaOrient; }
+  const CTransform4f* GetObjectXform() const { return mObjectXf; }
+  const CVector3f* GetObjectScale() const { return mObjectScale; }
 
-  void SetAnimationId(int id) { x0_animA = id; }
-  void SetSecondAnimationId(int id) { x4_animB = id; }
-  void SetBlendFactor(float f) { x8_blendWeight = f; }
+  void SetAnimationId(int id) { mAnimA = id; }
+  void SetSecondAnimationId(int id) { mAnimB = id; }
+  void SetBlendFactor(float f) { mBlendWeight = f; }
 };
 CHECK_SIZEOF(CAnimPlaybackParms, 0x28)
 

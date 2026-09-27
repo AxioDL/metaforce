@@ -88,11 +88,11 @@ public:
   };
 
   CCollisionPrimitive(const CMaterialList& list);
-  CCollisionPrimitive(const CCollisionPrimitive& other) : x8_material(other.x8_material) {}
+  CCollisionPrimitive(const CCollisionPrimitive& other) : mMaterial(other.mMaterial) {}
 
   virtual uint GetTableIndex() const = 0;
-  virtual void SetMaterial(const CMaterialList& other) { x8_material = other; }
-  virtual const CMaterialList& GetMaterial() const { return x8_material; }
+  virtual void SetMaterial(const CMaterialList& other) { mMaterial = other; }
+  virtual const CMaterialList& GetMaterial() const { return mMaterial; }
   virtual CAABox CalculateAABox(const CTransform4f&) const = 0;
   virtual CAABox CalculateLocalAABox() const = 0;
   virtual FourCC GetPrimType() const = 0;
@@ -158,7 +158,7 @@ private:
                                     CCollisionInfo&);
   static bool InternalCollideBoolean(const CInternalCollisionStructure&);
 
-  CMaterialList x8_material;
+  CMaterialList mMaterial;
 };
 CHECK_SIZEOF(CCollisionPrimitive, 0x10)
 

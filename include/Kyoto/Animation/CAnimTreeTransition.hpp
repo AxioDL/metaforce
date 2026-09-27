@@ -31,11 +31,11 @@ private:
   rstl::pair< CCharAnimTime, CAdvancementDeltas >
   AdvanceViewForTransitionalPeriod(const CCharAnimTime& time);
 
-  CCharAnimTime x24_transDur;
-  CCharAnimTime x2c_timeInTrans;
-  const bool x34_runA;
-  bool x35_loopA;
-  bool x36_initialized;
+  CCharAnimTime mTransDur;
+  CCharAnimTime mTimeInTrans;
+  const bool mRunA;
+  bool mLoopA;
+  bool mInitialized;
 };
 CHECK_SIZEOF(CAnimTreeTransition, 0x38)
 

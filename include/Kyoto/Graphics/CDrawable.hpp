@@ -19,11 +19,11 @@ class CDrawable {
 public:
   CDrawable(EDrawableType dtype, ushort extraSort, float planeDot, const CAABox& aabb,
             const void* data)
-  : x0_type(dtype)
-  , x2_extraSort(extraSort)
-  , x4_data(const_cast< void* >(data))
-  , x8_aabb(aabb)
-  , x20_viewDist(planeDot) {}
+  : mType(dtype)
+  , mExtraSort(extraSort)
+  , mData(const_cast< void* >(data))
+  , mAabb(aabb)
+  , mViewDist(planeDot) {}
   // CDrawable(const CDrawable& other)
   // : x0_type(other.x0_type)
   // , x2_extraSort(other.x2_extraSort)
@@ -31,19 +31,19 @@ public:
   // , x8_aabb(other.x8_aabb)
   // , x20_viewDist(other.x20_viewDist) {}
 
-  EDrawableType GetType() const { return EDrawableType(x0_type); }
-  const CAABox& GetBounds() const { return x8_aabb; }
-  float GetDistance() const { return x20_viewDist; }
-  void* GetData() { return x4_data; }
-  const void* GetData() const { return x4_data; }
-  u16 GetExtraSort() const { return x2_extraSort; }
+  EDrawableType GetType() const { return EDrawableType(mType); }
+  const CAABox& GetBounds() const { return mAabb; }
+  float GetDistance() const { return mViewDist; }
+  void* GetData() { return mData; }
+  const void* GetData() const { return mData; }
+  u16 GetExtraSort() const { return mExtraSort; }
 
 private:
-  ushort x0_type;
-  ushort x2_extraSort;
-  void* x4_data;
-  CAABox x8_aabb;
-  float x20_viewDist;
+  ushort mType;
+  ushort mExtraSort;
+  void* mData;
+  CAABox mAabb;
+  float mViewDist;
 };
 
 #endif // _CDRAWABLE

@@ -5,11 +5,11 @@
 CTweakSlideShow::~CTweakSlideShow() {}
 
 CTweakSlideShow::CTweakSlideShow(CInputStream& in)
-  : x4_pakName()
-  , x14_fontAssetName()
-  , x24_fontColor(CColor::White())
-  , x28_outlineColor(CColor::White())
-  , x2c_scanPercentInterval(0.0f)
+  : mPakName()
+  , mFontAssetName()
+  , mFontColor(CColor::White())
+  , mOutlineColor(CColor::White())
+  , mScanPercentInterval(0.0f)
   , x30_(0.0f)
   , x34_(0.0f)
   , x38_(0.0f)
@@ -22,11 +22,11 @@ CTweakSlideShow::CTweakSlideShow(CInputStream& in)
   , x54_(0.001f)
   , x58_(0.001f)
 {
-  x4_pakName.assign(rstl::string(in));
-  x14_fontAssetName.assign(rstl::string(in));
-  x24_fontColor = CColor(in);
-  x28_outlineColor = CColor(in);
-  x2c_scanPercentInterval = in.ReadFloat();
+  mPakName.assign(rstl::string(in));
+  mFontAssetName.assign(rstl::string(in));
+  mFontColor = CColor(in);
+  mOutlineColor = CColor(in);
+  mScanPercentInterval = in.ReadFloat();
   x30_ = in.ReadFloat();
   x34_ = in.ReadFloat();
   x38_ = in.ReadFloat();
@@ -38,4 +38,7 @@ CTweakSlideShow::CTweakSlideShow(CInputStream& in)
   x50_ = in.ReadFloat();
   x54_ = in.ReadFloat();
   x58_ = in.ReadFloat();
+#if VERSION >= VERSION_GM8P_00
+  mGalleryNames.assign(rstl::string(in));
+#endif
 }

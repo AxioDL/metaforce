@@ -26,13 +26,13 @@ public:
   bool InitializePump();
 
 private:
-  CAssetId x0_mlvlId;
-  CAssetId x4_worldNameId;
-  CAssetId x8_saveWorldId;
-  rstl::vector< uint > xc_areaIds;
-  rstl::vector< CWorldLayers::Area > x1c_defaultLayerStates;
-  rstl::auto_ptr< CDummyWorld > x2c_dummyWorld;
-  rstl::auto_ptr< TCachedToken< CWorldSaveGameInfo > > x34_saveWorld;
+  CAssetId mMlvlId;
+  CAssetId mWorldNameId;
+  CAssetId mSaveWorldId;
+  rstl::vector< uint > mAreaIds;
+  rstl::vector< CWorldLayers::Area > mDefaultLayerStates;
+  rstl::auto_ptr< CDummyWorld > mDummyWorld;
+  rstl::auto_ptr< TCachedToken< CWorldSaveGameInfo > > mSaveWorld;
 };
 CHECK_SIZEOF(CSaveWorldIntermediate, 0x3c)
 
@@ -46,24 +46,24 @@ public:
   rstl::pair< CAssetId, int > GetAreaAndWorldIdForSaveId(int saveId) const;
 
   const rstl::vector< CGameHintInfo::CGameHint >& GetHints() const {
-    return x0_hints.GetObject()->GetHints();
+    return mHints.GetObject()->GetHints();
   }
 
   typedef rstl::pair< CAssetId, CSaveWorldMemory > MemoryWorld;
-  const rstl::vector< MemoryWorld >& GetMemoryWorlds() const { return xc_memoryWorlds; }
+  const rstl::vector< MemoryWorld >& GetMemoryWorlds() const { return mMemoryWorlds; }
 
   typedef rstl::pair< CAssetId, uint > ScanState;
-  const rstl::vector< ScanState >& GetScanStates() const { return x20_scanStates; }
+  const rstl::vector< ScanState >& GetScanStates() const { return mScanStates; }
   uint GetScanCategoryCount(CWorldSaveGameInfo::EScanCategory category) const {
-    return x30_scanCategoryCounts[category];
+    return mScanCategoryCounts[category];
   }
 
 private:
-  TCachedToken< CGameHintInfo > x0_hints;
-  rstl::vector< rstl::pair< CAssetId, CSaveWorldMemory > > xc_memoryWorlds;
-  rstl::single_ptr< rstl::vector< CSaveWorldIntermediate > > x1c_worldInter;
-  rstl::vector< ScanState > x20_scanStates;
-  rstl::reserved_vector< uint, 6 > x30_scanCategoryCounts;
+  TCachedToken< CGameHintInfo > mHints;
+  rstl::vector< rstl::pair< CAssetId, CSaveWorldMemory > > mMemoryWorlds;
+  rstl::single_ptr< rstl::vector< CSaveWorldIntermediate > > mWorldInter;
+  rstl::vector< ScanState > mScanStates;
+  rstl::reserved_vector< uint, 6 > mScanCategoryCounts;
 };
 CHECK_SIZEOF(CMemoryCard, 0x4c)
 

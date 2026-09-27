@@ -12,12 +12,12 @@
 #include "Kyoto/Animation/CPASDatabase.hpp"
 
 CBSAttack::CBSAttack()
-: x4_nextState(pas::kAS_Invalid)
-, x8_slide(pas::kSlide_Invalid, CVector3f::Zero())
-, x20_targetPos(CVector3f::Zero())
-, x2c_alignTargetPosStartTime(-1.f)
-, x30_alignTargetPosTime(-1.f)
-, x34_curTime(0.f) {}
+: mNextState(pas::kAS_Invalid)
+, mSlide(pas::kSlide_Invalid, CVector3f::Zero())
+, mTargetPos(CVector3f::Zero())
+, mAlignTargetPosStartTime(-1.f)
+, mAlignTargetPosTime(-1.f)
+, mCurTime(0.f) {}
 
 void CBSAttack::Start(CBodyController& bc, CStateManager& mgr) {
   const CBCMeleeAttackCmd* cmd =
@@ -30,27 +30,27 @@ void CBSAttack::Start(CBodyController& bc, CStateManager& mgr) {
   const rstl::pair< float, int > best = pasDatabase.FindBestAnimation(parms, *mgr.Random(), -1);
   bc.SetCurrentAnimation(CAnimPlaybackParms(best.second, -1, 1.f, true), false, false);
   if (cmd->HasAttackTargetPos()) {
-    x20_targetPos = cmd->GetAttackTargetPos();
+    mTargetPos = cmd->GetAttackTargetPos();
 
     CCharAnimTime evTime =
         bc.GetOwner().GetAnimationData()->GetTimeOfUserEvent(kUE_AlignTargetPosStart);
-    x2c_alignTargetPosStartTime = (evTime != CCharAnimTime::Infinity()) ? evTime.GetSeconds() : 0.f;
+    mAlignTargetPosStartTime = (evTime != CCharAnimTime::Infinity()) ? evTime.GetSeconds() : 0.f;
 
     CCharAnimTime evTime2 = bc.GetOwner().GetAnimationData()->GetTimeOfUserEvent(kUE_AlignTargetPos);
-    x30_alignTargetPosTime =
+    mAlignTargetPosTime =
         (evTime2 != CCharAnimTime::Infinity()) ? evTime2.GetSeconds() : bc.GetAnimTimeRemaining();
   } else {
-    x20_targetPos = CVector3f::Zero();
-    x30_alignTargetPosTime = -1.f;
-    x2c_alignTargetPosStartTime = -1.f;
+    mTargetPos = CVector3f::Zero();
+    mAlignTargetPosTime = -1.f;
+    mAlignTargetPosStartTime = -1.f;
   }
 
-  x4_nextState = pas::kAS_Locomotion;
-  x34_curTime = 0.f;
+  mNextState = pas::kAS_Locomotion;
+  mCurTime = 0.f;
 }
 
 pas::EAnimationState CBSAttack::UpdateBody(float dt, CBodyController& bc, CStateManager& mgr) {
-  x34_curTime += dt;
+  mCurTime += dt;
   const pas::EAnimationState st = GetBodyStateTransition(dt, bc);
   CBodyStateCmdMgr& commandMgr = bc.CommandMgr();
   if (st == pas::kAS_Invalid) {
@@ -59,7 +59,7 @@ pas::EAnimationState CBSAttack::UpdateBody(float dt, CBodyController& bc, CState
     }
     UpdatePhysicsActor(bc, dt);
   } else if (st == pas::kAS_Slide) {
-    commandMgr.DeliverCmd(x8_slide);
+    commandMgr.DeliverCmd(mSlide);
   }
   return st;
 }
@@ -85,8 +85,8 @@ pas::EAnimationState CBSAttack::GetBodyStateTransition(float dt, CBodyController
     return pas::kAS_Locomotion;
   }
   if (const CBCSlideCmd* cmd = static_cast< const CBCSlideCmd* >(cmdMgr.GetCmd(kBSC_Slide))) {
-    x8_slide = *cmd;
-    x4_nextState = pas::kAS_Slide;
+    mSlide = *cmd;
+    mNextState = pas::kAS_Slide;
   }
   if (cmdMgr.GetCmd(kBSC_Generate)) {
     return pas::kAS_Generate;
@@ -101,24 +101,24 @@ pas::EAnimationState CBSAttack::GetBodyStateTransition(float dt, CBodyController
     if (cmdMgr.GetCmd(kBSC_LoopAttack)) {
       return pas::kAS_LoopAttack;
     }
-    return x4_nextState;
+    return mNextState;
   }
   if (cmdMgr.GetCmd(kBSC_NextState)) {
-    return x4_nextState;
+    return mNextState;
   }
   return pas::kAS_Invalid;
 }
 
 void CBSAttack::UpdatePhysicsActor(CBodyController& bc, float dt) {
-  if (!x20_targetPos.IsNonZero()) {
+  if (!mTargetPos.IsNonZero()) {
     return;
   }
 
-  if (x34_curTime >= x2c_alignTargetPosStartTime && x34_curTime <= x30_alignTargetPosTime) {
+  if (mCurTime >= mAlignTargetPosStartTime && mCurTime <= mAlignTargetPosTime) {
 
     if (CPhysicsActor* act = TCastToPtr< CPhysicsActor >(&bc.GetOwner())) {
-      CVector3f delta = x20_targetPos - act->GetTranslation();
-      const float dur = x30_alignTargetPosTime - x2c_alignTargetPosStartTime;
+      CVector3f delta = mTargetPos - act->GetTranslation();
+      const float dur = mAlignTargetPosTime - mAlignTargetPosStartTime;
       CVector3f deltaMod = (dur > 0.f) ? (delta * (dt / dur)) : delta;
 
       CVector3f impulse =

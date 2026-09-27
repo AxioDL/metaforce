@@ -10,8 +10,8 @@ class CPlayer;
 class CWeaponDescription;
 
 class CProjectileInfo {
-  TCachedToken< CWeaponDescription > x0_weaponDescription;
-  CDamageInfo xc_damageInfo;
+  TCachedToken< CWeaponDescription > mWeaponDescription;
+  CDamageInfo mDamageInfo;
 
 public:
   CProjectileInfo(CAssetId, const CDamageInfo&);
@@ -23,10 +23,10 @@ public:
   static CVector3f PredictInterceptPos(const CVector3f& gunPos, const CVector3f& aimPos,
                                        const CPlayer& player, bool gravity, float speed, float dt);
 
-  TCachedToken< CWeaponDescription >& Token() { return x0_weaponDescription; }
+  TCachedToken< CWeaponDescription >& Token() { return mWeaponDescription; }
 
-  const CDamageInfo& GetDamage() const { return xc_damageInfo; }
-  void SetDamage(const CDamageInfo& damage) { xc_damageInfo = damage; }
+  const CDamageInfo& GetDamage() const { return mDamageInfo; }
+  void SetDamage(const CDamageInfo& damage) { mDamageInfo = damage; }
 };
 
 #endif // _CPROJECTILEINFO

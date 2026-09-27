@@ -37,9 +37,9 @@ public:
   const CVector3f& GetTranslation() const override;
   const CTransform4f& GetGlobalOrientation() const override;
   const CVector3f& GetGlobalTranslation() const override;
-  const CVector3f& GetGlobalScale() const override { return xe0_globalScale; }
-  bool GetParticleEmission() const override { return x450_24_emitting; }
-  const CColor& GetModulationColor() const override { return x1b8_moduColor; }
+  const CVector3f& GetGlobalScale() const override { return mGlobalScale; }
+  bool GetParticleEmission() const override { return mEmitting; }
+  const CColor& GetModulationColor() const override { return mModuColor; }
   bool IsSystemDeletable() const override;
   rstl::optional_object< CAABox > GetBounds() const override;
   int GetParticleCount() const override;
@@ -50,50 +50,50 @@ public:
 
   class CLineManager {
     friend class CParticleElectric;
-    rstl::vector< CVector3f, rstl::aligned_allocator > x0_verts;
-    float x10_width1;
-    float x14_width2;
-    float x18_width3;
-    CColor x1c_color1;
-    CColor x20_color2;
-    CColor x24_color3;
-    CAABox x28_bounds;
+    rstl::vector< CVector3f, rstl::aligned_allocator > mVerts;
+    float mWidth1;
+    float mWidth2;
+    float mWidth3;
+    CColor mColor1;
+    CColor mColor2;
+    CColor mColor3;
+    CAABox mBounds;
 
   public:
     CLineManager()
-    : x10_width1(1.f)
-    , x14_width2(2.f)
-    , x18_width3(3.f)
-    , x1c_color1(CColor::White())
-    , x20_color2(CColor::White())
-    , x24_color3(CColor::White())
-    , x28_bounds(CAABox::MakeMaxInvertedBox()) {}
+    : mWidth1(1.f)
+    , mWidth2(2.f)
+    , mWidth3(3.f)
+    , mColor1(CColor::White())
+    , mColor2(CColor::White())
+    , mColor3(CColor::White())
+    , mBounds(CAABox::MakeMaxInvertedBox()) {}
   };
 
   class CParticleElectricManager {
     friend class CParticleElectric;
-    uint x0_idx;
-    uint x4_slif;
-    uint x8_startFrame;
-    uint xc_endFrame;
-    int x10_gpsmIdx;
-    int x14_epsmIdx;
+    uint mIdx;
+    uint mSlif;
+    uint mStartFrame;
+    uint mEndFrame;
+    int mGpsmIdx;
+    int mEpsmIdx;
 
   public:
     CParticleElectricManager(uint idx, uint slif, uint startFrame)
-    : x0_idx(idx)
-    , x4_slif(slif)
-    , x8_startFrame(startFrame)
-    , xc_endFrame(startFrame + slif)
-    , x10_gpsmIdx(-1)
-    , x14_epsmIdx(-1) {}
+    : mIdx(idx)
+    , mSlif(slif)
+    , mStartFrame(startFrame)
+    , mEndFrame(startFrame + slif)
+    , mGpsmIdx(-1)
+    , mEpsmIdx(-1) {}
   };
 
   void ForceParticleCreation(int count);
-  void SetOverrideIPos(const CVector3f& vec) { x178_overrideIPos = vec; }
-  void SetOverrideIVel(const CVector3f& vec) { x188_overrideIVel = vec; }
-  void SetOverrideFPos(const CVector3f& vec) { x198_overrideFPos = vec; }
-  void SetOverrideFVel(const CVector3f& vec) { x1a8_overrideFVel = vec; }
+  void SetOverrideIPos(const CVector3f& vec) { mOverrideIPos = vec; }
+  void SetOverrideIVel(const CVector3f& vec) { mOverrideIVel = vec; }
+  void SetOverrideFPos(const CVector3f& vec) { mOverrideFPos = vec; }
+  void SetOverrideFVel(const CVector3f& vec) { mOverrideFVel = vec; }
   static void SetGlobalSeed(ushort seed) { sSeed = seed; }
 
 private:
@@ -111,49 +111,49 @@ private:
   void AddElectricalEffects();
   void BuildBounds();
 
-  TLockedToken< CElectricDescription > x1c_elecDesc;
-  int x28_currentFrame;
-  int x2c_LIFE;
-  double x30_curTime;
-  CVector3f x38_translation;
-  CTransform4f x44_orientation;
-  CTransform4f x74_invOrientation;
-  CVector3f xa4_globalTranslation;
-  CTransform4f xb0_globalOrientation;
-  CVector3f xe0_globalScale;
-  CVector3f xec_localScale;
-  CTransform4f xf8_cachedXf;
+  TLockedToken< CElectricDescription > mElecDesc;
+  int mCurrentFrame;
+  int mLIFE;
+  double mCurTime;
+  CVector3f mTranslation;
+  CTransform4f mOrientation;
+  CTransform4f mInvOrientation;
+  CVector3f mGlobalTranslation;
+  CTransform4f mGlobalOrientation;
+  CVector3f mGlobalScale;
+  CVector3f mLocalScale;
+  CTransform4f mCachedXf;
   float x128_;
-  float x12c_renderTime;
-  CVector3f x130_minBounds;
-  CVector3f x13c_maxBounds;
+  float mRenderTime;
+  CVector3f mMinBounds;
+  CVector3f mMaxBounds;
   float x148_;
-  CRandom16 x14c_randState;
-  int x150_SSEG;
-  int x154_SCNT;
+  CRandom16 mRandState;
+  int mSSEG;
+  int mSCNT;
   int x158_;
-  float x15c_genRem;
-  CAABox x160_systemBounds;
-  rstl::optional_object< CVector3f > x178_overrideIPos;
-  rstl::optional_object< CVector3f > x188_overrideIVel;
-  rstl::optional_object< CVector3f > x198_overrideFPos;
-  rstl::optional_object< CVector3f > x1a8_overrideFVel;
-  CColor x1b8_moduColor;
-  rstl::reserved_vector< bool, 32 > x1bc_allocated;
-  rstl::reserved_vector< rstl::auto_ptr< CParticleSwoosh >, 32 > x1e0_swooshGenerators;
-  rstl::reserved_vector< rstl::auto_ptr< CLineManager >, 32 > x2e4_lineManagers;
-  rstl::list< CParticleElectricManager > x3e8_electricManagers;
-  rstl::vector< rstl::auto_ptr< CElementGen > > x400_gpsmGenerators;
-  rstl::vector< rstl::auto_ptr< CElementGen > > x410_epsmGenerators;
-  rstl::vector< CVector3f, rstl::aligned_allocator > x420_calculatedVerts;
-  rstl::vector< float > x430_fractalMags;
-  rstl::vector< CVector3f > x440_fractalOffsets;
-  bool x450_24_emitting : 1;
-  bool x450_25_haveGPSM : 1;
-  bool x450_26_haveEPSM : 1;
-  bool x450_27_haveSSWH : 1;
-  bool x450_28_haveLWD : 1;
-  bool x450_29_transformDirty : 1;
+  float mGenRem;
+  CAABox mSystemBounds;
+  rstl::optional_object< CVector3f > mOverrideIPos;
+  rstl::optional_object< CVector3f > mOverrideIVel;
+  rstl::optional_object< CVector3f > mOverrideFPos;
+  rstl::optional_object< CVector3f > mOverrideFVel;
+  CColor mModuColor;
+  rstl::reserved_vector< bool, 32 > mAllocated;
+  rstl::reserved_vector< rstl::auto_ptr< CParticleSwoosh >, 32 > mSwooshGenerators;
+  rstl::reserved_vector< rstl::auto_ptr< CLineManager >, 32 > mLineManagers;
+  rstl::list< CParticleElectricManager > mElectricManagers;
+  rstl::vector< rstl::auto_ptr< CElementGen > > mGpsmGenerators;
+  rstl::vector< rstl::auto_ptr< CElementGen > > mEpsmGenerators;
+  rstl::vector< CVector3f, rstl::aligned_allocator > mCalculatedVerts;
+  rstl::vector< float > mFractalMags;
+  rstl::vector< CVector3f > mFractalOffsets;
+  bool mEmitting : 1;
+  bool mHaveGPSM : 1;
+  bool mHaveEPSM : 1;
+  bool mHaveSSWH : 1;
+  bool mHaveLWD : 1;
+  bool mTransformDirty : 1;
 
   static ushort sSeed;
 };

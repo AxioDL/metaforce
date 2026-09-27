@@ -7,25 +7,25 @@
 #include "Kyoto/Animation/CPASAnimParmData.hpp"
 
 CGSFreeLook::CGSFreeLook()
-: x0_delay(0.f), x4_cueAnimId(-1), x8_loopState(-1), xc_gunId(0), x10_setId(-1), x14_idle(false) {}
+: mDelay(0.f), mCueAnimId(-1), mLoopState(-1), mGunId(0), mSetId(-1), mIdle(false) {}
 
 bool CGSFreeLook::Update(CAnimData& data, float dt, CStateManager& mgr) {
-  if (x4_cueAnimId != -1) {
-    x0_delay -= dt;
-    if (x0_delay <= 0.f) {
-      data.EnableLooping(x8_loopState == 1);
-      CAnimPlaybackParms aparms(x4_cueAnimId, -1, 1.f, true);
+  if (mCueAnimId != -1) {
+    mDelay -= dt;
+    if (mDelay <= 0.f) {
+      data.EnableLooping(mLoopState == 1);
+      CAnimPlaybackParms aparms(mCueAnimId, -1, 1.f, true);
       data.SetAnimation(aparms, false);
-      x0_delay = 0.f;
-      x4_cueAnimId = -1;
+      mDelay = 0.f;
+      mCueAnimId = -1;
     }
   } else if (!data.IsAnimTimeRemaining(0.001f, rstl::string_l("Whole Body"))) {
-    switch (x8_loopState) {
+    switch (mLoopState) {
     case 0:
-      SetAnim(data, xc_gunId, x10_setId, 1, mgr, 0.f);
+      SetAnim(data, mGunId, mSetId, 1, mgr, 0.f);
       break;
     case 2:
-      x8_loopState = -1;
+      mLoopState = -1;
       return true;
     default:
       break;
@@ -37,10 +37,10 @@ bool CGSFreeLook::Update(CAnimData& data, float dt, CStateManager& mgr) {
 int CGSFreeLook::SetAnim(CAnimData& data, const int gunId, const int setId, const int loopState,
                          CStateManager& mgr, const float delay) {
   int useLoopState = 1;
-  if (!x14_idle) {
+  if (!mIdle) {
     useLoopState = loopState;
   }
-  x14_idle = false;
+  mIdle = false;
 
   const CPASDatabase& pas = data.GetCharacterInfo().GetPASDatabase();
   const rstl::pair< float, int > anim = pas.FindBestAnimation(
@@ -49,12 +49,12 @@ int CGSFreeLook::SetAnim(CAnimData& data, const int gunId, const int setId, cons
       *mgr.Random(), -1);
 
   const CPASAnimParm animParm = pas.GetAnimState(pas::kAS_Step)->GetAnimParmData(anim.second, 1);
-  xc_gunId = gunId;
-  x10_setId = animParm.GetInt32Value();
-  x8_loopState = useLoopState;
+  mGunId = gunId;
+  mSetId = animParm.GetInt32Value();
+  mLoopState = useLoopState;
   if (delay != 0.f) {
-    x0_delay = delay;
-    x4_cueAnimId = anim.second;
+    mDelay = delay;
+    mCueAnimId = anim.second;
   } else {
     data.EnableLooping(loopState == 1);
     data.SetAnimation(CAnimPlaybackParms(anim.second, -1, 1.f, true), false);

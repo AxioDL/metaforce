@@ -16,13 +16,13 @@ CPhazonHealingNodule::CPhazonHealingNodule(TUniqueId uid, const rstl::string& na
                                            const rstl::string& actorLctr)
 : CPatterned(kC_PhazonHealingNodule, uid, name, kFT_Zero, info, xf, mData, pInfo, kMT_Flyer,
              kCT_One, kBT_Restricted, actParams, kCS_Medium)
-, x568_active(0)
-, x56c_emitting(false)
-, x56e_connId(kInvalidUniqueId)
-, x570_electricDesc(gpSimplePool->GetObj(SObjectTag('ELSC', particleDescId)))
-, x57c_particleElectric(nullptr)
-, x580_initialHealthInfo(pInfo.GetHealthInfo())
-, x58c_actorLctr(actorLctr) {
+, mActive(0)
+, mEmitting(false)
+, mConnId(kInvalidUniqueId)
+, mElectricDesc(gpSimplePool->GetObj(SObjectTag('ELSC', particleDescId)))
+, mParticleElectric(nullptr)
+, mInitialHealthInfo(pInfo.GetHealthInfo())
+, mActorLctr(actorLctr) {
   CMaterialList exclude = GetMaterialFilter().GetExcludeList();
   exclude.Add(skCharacterMaterial);
   SetMaterialFilter(
@@ -48,24 +48,24 @@ void CPhazonHealingNodule::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId u
     const uint count = GetConnectionList().size();
     for (uint i = 0; i < count; ++i) {
       const SConnection& conn = GetConnectionList()[i];
-      const TUniqueId connId = mgr.GetIdForScript(conn.x8_objId);
-      if (conn.x0_state == kSS_Patrol && connId != kInvalidUniqueId &&
-          conn.x4_msg == kSM_Activate) {
-        x56e_connId = connId;
+      const TUniqueId connId = mgr.GetIdForScript(conn.mObjId);
+      if (conn.mState == kSS_Patrol && connId != kInvalidUniqueId &&
+          conn.mMsg == kSM_Activate) {
+        mConnId = connId;
       }
     }
     break;
   }
   case kSM_Increment:
-    x568_active = 1;
+    mActive = 1;
     break;
   case kSM_Decrement:
-    x568_active = 0;
-    x57c_particleElectric.reset();
-    x56c_emitting = false;
+    mActive = 0;
+    mParticleElectric.reset();
+    mEmitting = false;
     break;
   case kSM_Reset:
-    *HealthInfo(mgr) = x580_initialHealthInfo;
+    *HealthInfo(mgr) = mInitialHealthInfo;
     break;
   default:
     CPatterned::AcceptScriptMsg(msg, uid, mgr);
@@ -77,14 +77,14 @@ void CPhazonHealingNodule::DoUserAnimEvent(CStateManager& mgr, const CInt32POINo
                                            EUserEventType type, float dt) {
   switch (type) {
   case kUE_BeginAction:
-    x56c_emitting = true;
-    x57c_particleElectric =
-        rstl::rc_ptr< CParticleElectric >(rs_new CParticleElectric(x570_electricDesc));
-    x57c_particleElectric->SetParticleEmission(true);
+    mEmitting = true;
+    mParticleElectric =
+        rstl::rc_ptr< CParticleElectric >(rs_new CParticleElectric(mElectricDesc));
+    mParticleElectric->SetParticleEmission(true);
     break;
   case kUE_EndAction:
-    x56c_emitting = false;
-    x57c_particleElectric.reset();
+    mEmitting = false;
+    mParticleElectric.reset();
     break;
   default:
     CPatterned::DoUserAnimEvent(mgr, node, type, dt);
@@ -99,14 +99,14 @@ void CPhazonHealingNodule::Think(float dt, CStateManager& mgr) {
 
   CPatterned::Think(dt, mgr);
   if (HealthInfo(mgr)->GetHP() <= 0.f) {
-    x57c_particleElectric.reset();
-    x56c_emitting = false;
+    mParticleElectric.reset();
+    mEmitting = false;
     StateMachineState().SetState(mgr, *this, GetStateMachine(), rstl::string_l("Patrol"));
-    x568_active = 0;
+    mActive = 0;
   }
-  if (x57c_particleElectric) {
+  if (mParticleElectric) {
     UpdateParticleElectric(mgr);
-    x57c_particleElectric->Update(dt);
+    mParticleElectric->Update(dt);
   }
 }
 
@@ -134,13 +134,13 @@ void CPhazonHealingNodule::Lurk(CStateManager& mgr, EStateMsg msg, float dt) {
   }
 }
 
-bool CPhazonHealingNodule::InDetectionRange(CStateManager&, float) { return x568_active == 1; }
+bool CPhazonHealingNodule::InDetectionRange(CStateManager&, float) { return mActive == 1; }
 
-bool CPhazonHealingNodule::InRange(CStateManager&, float) { return x568_active == 0; }
+bool CPhazonHealingNodule::InRange(CStateManager&, float) { return mActive == 0; }
 
 void CPhazonHealingNodule::Render(const CStateManager& mgr) const {
-  if (x57c_particleElectric) {
-    x57c_particleElectric->Render();
+  if (mParticleElectric) {
+    mParticleElectric->Render();
   }
   CPatterned::Render(mgr);
 }
@@ -148,21 +148,21 @@ void CPhazonHealingNodule::Render(const CStateManager& mgr) const {
 void CPhazonHealingNodule::Growth(CStateManager& mgr, EStateMsg msg, float dt) {
   switch (msg) {
   case kStateMsg_Activate:
-    x588_state = 0;
+    mState = 0;
     BodyCtrl()->SetLocomotionType(pas::kLT_Lurk);
     break;
   case kStateMsg_Update:
-    switch (x588_state) {
+    switch (mState) {
     case 0:
       if (BodyCtrl()->GetCurrentStateId() == pas::kAS_Step) {
-        x588_state = 2;
+        mState = 2;
       } else {
         BodyCtrl()->CommandMgr().DeliverCmd(CBCStepCmd(pas::kSD_Forward, pas::kStep_Normal));
       }
       break;
     case 2:
       if (BodyCtrl()->GetCurrentStateId() != pas::kAS_Step) {
-        x588_state = 3;
+        mState = 3;
       }
       break;
     }
@@ -176,13 +176,13 @@ void CPhazonHealingNodule::Growth(CStateManager& mgr, EStateMsg msg, float dt) {
 void CPhazonHealingNodule::Faint(CStateManager& mgr, EStateMsg msg, float dt) {
   switch (msg) {
   case kStateMsg_Activate:
-    x588_state = 0;
+    mState = 0;
     break;
   case kStateMsg_Update:
-    switch (x588_state) {
+    switch (mState) {
     case 0:
       if (BodyCtrl()->GetCurrentStateId() == pas::kAS_Step) {
-        x588_state = 2;
+        mState = 2;
         BodyCtrl()->SetLocomotionType(pas::kLT_Relaxed);
       } else {
         BodyCtrl()->CommandMgr().DeliverCmd(CBCStepCmd(pas::kSD_Backward, pas::kStep_Normal));
@@ -190,7 +190,7 @@ void CPhazonHealingNodule::Faint(CStateManager& mgr, EStateMsg msg, float dt) {
       break;
     case 2:
       if (BodyCtrl()->GetCurrentStateId() != pas::kAS_Step) {
-        x588_state = 3;
+        mState = 3;
       }
       break;
     }
@@ -201,16 +201,16 @@ void CPhazonHealingNodule::Faint(CStateManager& mgr, EStateMsg msg, float dt) {
   }
 }
 
-bool CPhazonHealingNodule::AnimOver(CStateManager&, float) { return x588_state == 3; }
+bool CPhazonHealingNodule::AnimOver(CStateManager&, float) { return mState == 3; }
 
 void CPhazonHealingNodule::UpdateParticleElectric(CStateManager& mgr) {
-  if (x57c_particleElectric) {
+  if (mParticleElectric) {
     if (const CPatterned* actor =
-            static_cast< const CPatterned* >(mgr.GetObjectById(x56e_connId))) {
+            static_cast< const CPatterned* >(mgr.GetObjectById(mConnId))) {
       const CVector3f start = GetLctrTransform(rstl::string_l("Electricity_LCTR")).GetTranslation();
-      const CVector3f end = actor->GetLctrTransform(x58c_actorLctr).GetTranslation();
-      x57c_particleElectric->SetOverrideIPos(start);
-      x57c_particleElectric->SetOverrideFPos(end);
+      const CVector3f end = actor->GetLctrTransform(mActorLctr).GetTranslation();
+      mParticleElectric->SetOverrideIPos(start);
+      mParticleElectric->SetOverrideFPos(end);
     }
   }
 }

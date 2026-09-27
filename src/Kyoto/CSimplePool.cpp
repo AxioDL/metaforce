@@ -2,37 +2,37 @@
 #include "Kyoto/IFactory.hpp"
 
 CSimplePool::CSimplePool(IFactory& factory)
-: x18_factory(factory), x1c_paramXfr(CVParamTransfer::Null()) {
-  x1c_paramXfr = CVParamTransfer(rs_new TObjOwnerParam< IObjectStore* >(this));
+: mFactory(factory), mParamXfr(CVParamTransfer::Null()) {
+  mParamXfr = CVParamTransfer(rs_new TObjOwnerParam< IObjectStore* >(this));
 }
 
 CSimplePool::~CSimplePool() {
   Flush();
-  if (x4_resources.size() > 0) {
+  if (mResources.size() > 0) {
     DebugDumpPool();
   }
 }
 
 void CSimplePool::ObjectUnreferenced(const SObjectTag& tag) {
-  x4_resources.erase(x4_resources.find(tag));
+  mResources.erase(mResources.find(tag));
 }
 
 CToken CSimplePool::GetObj(const SObjectTag& tag, const CVParamTransfer& xfer) {
-  AUTO(it, x4_resources.find(tag));
-  if (it != x4_resources.end()) {
+  AUTO(it, mResources.find(tag));
+  if (it != mResources.end()) {
     return CToken(it->second);
   }
 
   CObjectReference* ref =
       rs_new CObjectReference(*this, rstl::auto_ptr< IObj >(nullptr), tag, xfer);
   const ResourceMap::value_type item(tag, ref);
-  x4_resources.insert(item);
+  mResources.insert(item);
   return CToken(ref);
 }
 
-CToken CSimplePool::GetObj(const SObjectTag& tag) { return CSimplePool::GetObj(tag, x1c_paramXfr); }
+CToken CSimplePool::GetObj(const SObjectTag& tag) { return CSimplePool::GetObj(tag, mParamXfr); }
 
-CToken CSimplePool::GetObj(const char* name) { return CSimplePool::GetObj(name, x1c_paramXfr); }
+CToken CSimplePool::GetObj(const char* name) { return CSimplePool::GetObj(name, mParamXfr); }
 
 CToken CSimplePool::GetObj(const char* name, const CVParamTransfer& xfer) {
   const SObjectTag* tag = CSimplePool::GetFactory().GetResourceIdByName(name);
@@ -40,13 +40,13 @@ CToken CSimplePool::GetObj(const char* name, const CVParamTransfer& xfer) {
 }
 
 bool CSimplePool::HasObject(const SObjectTag& tag) const {
-  AUTO(it, x4_resources.find(tag));
+  AUTO(it, mResources.find(tag));
   bool result = true;
-  if (!(it != x4_resources.end())) {
+  if (!(it != mResources.end())) {
 #if NONMATCHING
-    const bool canBuild = x18_factory.CanBuild(tag);
+    const bool canBuild = mFactory.CanBuild(tag);
 #else
-    const bool canBuild = &x18_factory != nullptr && x18_factory.CanBuild(tag);
+    const bool canBuild = &mFactory != nullptr && mFactory.CanBuild(tag);
 #endif
     if (!canBuild) {
       result = false;
@@ -56,8 +56,8 @@ bool CSimplePool::HasObject(const SObjectTag& tag) const {
 }
 
 bool CSimplePool::ObjectIsLive(const SObjectTag& tag) const {
-  AUTO(it, x4_resources.find(tag));
-  if (it == x4_resources.end()) {
+  AUTO(it, mResources.find(tag));
+  if (it == mResources.end()) {
     return false;
   }
   return it->second->IsLoaded();
@@ -66,17 +66,17 @@ bool CSimplePool::ObjectIsLive(const SObjectTag& tag) const {
 void CSimplePool::Flush() {}
 
 void CSimplePool::DebugDumpPool() const {
-  AUTO(it, x4_resources.begin());
-  for (; it != x4_resources.end(); ++it) {
+  AUTO(it, mResources.begin());
+  for (; it != mResources.end(); ++it) {
     SObjectTag::Type2Text(it->first.GetType());
   }
 }
 
 rstl::vector< SObjectTag > CSimplePool::GetReferencedTags() {
   rstl::vector< SObjectTag > tags;
-  tags.reserve(x4_resources.size());
-  AUTO(it, x4_resources.begin());
-  AUTO(end, x4_resources.end());
+  tags.reserve(mResources.size());
+  AUTO(it, mResources.begin());
+  AUTO(end, mResources.end());
   for (; it != end; ++it) {
     tags.push_back(it->first);
   }

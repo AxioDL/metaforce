@@ -25,13 +25,13 @@ public:
   enum EBoidPlacement { kBP_None, kBP_Ready, kBP_Invalid, kBP_Placed };
 
   class CBoid {
-    CVector3f x0_pos;
-    ESnakeWeedBoidState xc_state;
-    float x10_timeOut;
-    float x14_depth;
-    float x18_speed;
+    CVector3f mPos;
+    ESnakeWeedBoidState mState;
+    float mTimeOut;
+    float mDepth;
+    float mSpeed;
     float x1c_;
-    float x20_scale;
+    float mScale;
 
   public:
     CBoid(const CVector3f& pos, float depth, float speed, float scale);
@@ -57,7 +57,7 @@ public:
                   uint particle1, uint particleCount, uint particle2, float f16);
   void ApplyRadiusDamage(CVector3f pos, const CDamageInfo& info, CStateManager& mgr);
   void ScareSnakeWeeds(CStateManager& mgr, const CVector3f& pos, float radius);
-  float GetWeaponDamageRadius() const { return x100_weaponDamageRadius; }
+  float GetWeaponDamageRadius() const { return mWeaponDamageRadius; }
 
 private:
   void InitAnimBoids(CStateManager& mgr, CModelData::EWhichModel which);
@@ -76,47 +76,47 @@ private:
   void AddContinuousParticles(const CVector3f& pos);
   void AddRetreatParticles(const CVector3f& pos);
 
-  CVector3f xe8_scale;
-  float xf4_boidSpacing;
-  float xf8_height;
-  float xfc_variance;
-  float x100_weaponDamageRadius;
-  float x104_maxPlayerDistance;
-  float x108_loweredTime;
-  float x10c_loweredTimeVariation;
-  float x110_maxDepth;
-  float x114_speed;
-  float x118_speedVariation;
-  float x11c_cosSlopeAngle;
-  float x120_scaleMin;
-  float x124_scaleMax;
-  float x128_distanceBelowGround;
+  CVector3f mScale;
+  float mBoidSpacing;
+  float mHeight;
+  float mVariance;
+  float mWeaponDamageRadius;
+  float mMaxPlayerDistance;
+  float mLoweredTime;
+  float mLoweredTimeVariation;
+  float mMaxDepth;
+  float mSpeed;
+  float mSpeedVariation;
+  float mCosSlopeAngle;
+  float mScaleMin;
+  float mScaleMax;
+  float mDistanceBelowGround;
   uint x12c_;
-  rstl::vector< CBoid > x130_boids;
-  bool x140_24_hasGround : 1;
-  bool x140_25_modelAssetDirty : 1;
-  bool x140_26_playerTouching : 1;
-  CAABox x144_touchBounds;
-  CDamageInfo x15c_damageInfo;
-  rstl::reserved_vector< rstl::auto_ptr< float >, 4 > x178_posWorkspaces;
-  rstl::reserved_vector< float*, 4 > x19c_nrmWorkspaces;
-  rstl::reserved_vector< rstl::ncrc_ptr< CModelData >, 4 > x1b0_modelData;
-  CModelData::EWhichModel x1c4_which;
-  rstl::single_ptr< rstl::vector< CVector3f > > x1c8_boidPositions;
-  rstl::single_ptr< rstl::vector< EBoidPlacement > > x1cc_boidPlacement;
-  ushort x1d0_sfx1;
-  ushort x1d2_sfx2;
-  ushort x1d4_sfx3;
-  CSfxHandle x1d8_sfxHandle;
-  rstl::auto_ptr< TLockedToken< CGenDescription > > x1dc_particleGenDesc;
-  rstl::auto_ptr< TLockedToken< CGenDescription > > x1e4_particleGenDesc;
-  rstl::auto_ptr< CElementGen > x1ec_particleGen1;
-  rstl::auto_ptr< CElementGen > x1f4_particleGen2;
-  uint x1fc_particleCount;
+  rstl::vector< CBoid > mBoids;
+  bool mHasGround : 1;
+  bool mModelAssetDirty : 1;
+  bool mPlayerTouching : 1;
+  CAABox mTouchBounds;
+  CDamageInfo mDamageInfo;
+  rstl::reserved_vector< rstl::auto_ptr< float >, 4 > mPosWorkspaces;
+  rstl::reserved_vector< float*, 4 > mNrmWorkspaces;
+  rstl::reserved_vector< rstl::ncrc_ptr< CModelData >, 4 > mModelData;
+  CModelData::EWhichModel mWhich;
+  rstl::single_ptr< rstl::vector< CVector3f > > mBoidPositions;
+  rstl::single_ptr< rstl::vector< EBoidPlacement > > mBoidPlacement;
+  ushort mSfx1;
+  ushort mSfx2;
+  ushort mSfx3;
+  CSfxHandle mSfxHandle;
+  rstl::auto_ptr< TLockedToken< CGenDescription > > mParticleGenDescA;
+  rstl::auto_ptr< TLockedToken< CGenDescription > > mParticleGenDescB;
+  rstl::auto_ptr< CElementGen > mParticleGen1;
+  rstl::auto_ptr< CElementGen > mParticleGen2;
+  uint mParticleCount;
   float x200_;
-  float x204_particleTimer;
+  float mParticleTimer;
 };
-CHECK_SIZEOF(CSnakeWeedSwarm, (VERSION >= VERSION_GM8P_00 ? 0x218 : 0x208))
+CHECK_SIZEOF(CSnakeWeedSwarm, (VERSION >= VERSION_GM8E_02 ? 0x218 : 0x208))
 NESTED_CHECK_SIZEOF(CSnakeWeedSwarm, CBoid, 0x24)
 
 #endif // _CSNAKEWEEDSWARM

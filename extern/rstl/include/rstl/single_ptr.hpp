@@ -8,17 +8,17 @@
 namespace rstl {
 template < typename T >
 class single_ptr {
-  mutable T* x0_ptr;
+  T* mPtr;
 
 public:
-  single_ptr() : x0_ptr(nullptr) {}
-  single_ptr(T* ptr) : x0_ptr(ptr) {}
-  single_ptr(const single_ptr& other) : x0_ptr(other.x0_ptr) { other.x0_ptr = nullptr; }
+  single_ptr() : mPtr(nullptr) {}
+  single_ptr(T* ptr) : mPtr(ptr) {}
+  single_ptr(single_ptr& other) : mPtr(other.mPtr) { other.mPtr = nullptr; }
   ~single_ptr() {
 #if defined(TARGET_PC)
-    pointer_deleter< T >::destroy(x0_ptr);
+    pointer_deleter< T >::destroy(mPtr);
 #else
-    delete x0_ptr;
+    delete mPtr;
 #endif
   }
   single_ptr& operator=(single_ptr& other) {
@@ -26,35 +26,35 @@ public:
       return *this;
     }
 #if defined(TARGET_PC)
-    pointer_deleter< T >::destroy(x0_ptr);
+    pointer_deleter< T >::destroy(mPtr);
 #else
-    delete x0_ptr;
+    delete mPtr;
 #endif
-    x0_ptr = other.x0_ptr;
-    other.x0_ptr = nullptr;
+    mPtr = other.mPtr;
+    other.mPtr = nullptr;
     return *this;
   }
 
   single_ptr& operator=(T* const ptr) {
 #if defined(TARGET_PC)
-    pointer_deleter< T >::destroy(x0_ptr);
+    pointer_deleter< T >::destroy(mPtr);
 #else
-    delete x0_ptr;
+    delete mPtr;
 #endif
-    x0_ptr = ptr;
+    mPtr = ptr;
     return *this;
   }
 
-  T* get() const { return x0_ptr; }
+  T* get() const { return mPtr; }
   // const T* get() const { return x0_ptr; }
-  T* operator->() const { return x0_ptr; }
-  T& operator*() { return *x0_ptr; }
-  const T& operator*() const { return *x0_ptr; }
+  T* const operator->() const { return mPtr; }
+  T& operator*() { return *mPtr; }
+  T& operator*() const { return *mPtr; }
 
-  bool null() const { return x0_ptr == nullptr; }
+  bool null() const { return mPtr == nullptr; }
   T* release() {
-    T* ptr = x0_ptr;
-    x0_ptr = nullptr;
+    T* ptr = mPtr;
+    mPtr = nullptr;
     return ptr;
   }
 

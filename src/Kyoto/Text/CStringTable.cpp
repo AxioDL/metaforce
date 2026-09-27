@@ -13,7 +13,7 @@
 #include <rstl/vector.hpp>
 
 static const wchar_t skInvalidString[] = L"Invalid";
-#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+#if VERSION >= VERSION_GM8P_00
 static const FourCC skLanguages[] = {'ENGL', 'GERM', 'FREN', 'SPAN', 'ITAL', 'DUTC', 'JAPN'};
 static FourCC mCurrentLanguage = skLanguages[0];
 
@@ -23,10 +23,10 @@ static FourCC mCurrentLanguage = 'ENGL';
 #endif
 
 CStringTable::CStringTable(CInputStream& in)
-: x0_stringCount(0)
-, x4_data(NULL)
-#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
-, x8_reloadData(nullptr)
+: mStringCount(0)
+, mData(NULL)
+#if VERSION >= VERSION_GM8P_00
+, mReloadData(nullptr)
 {
   Load(in);
 }
@@ -39,7 +39,7 @@ void CStringTable::Load(CInputStream& in)
   in.ReadLong();
   in.ReadLong();
   int langCount = in.Get(TType< int >());
-  x0_stringCount = in.Get(TType< uint >());
+  mStringCount = in.Get(TType< uint >());
   rstl::vector< rstl::pair< FourCC, uint > > langOffsets(langCount);
   for (int i = 0; i < langCount; ++i) {
     langOffsets.push_back(in.Get(TType< rstl::pair< FourCC, uint > >()));
@@ -61,14 +61,14 @@ void CStringTable::Load(CInputStream& in)
   mNativeStrings.clear();
   rstl::vector< uchar > data(dataLen, uchar(0));
   in.ReadBytes(data.data(), dataLen);
-  if (x0_stringCount < 0 || static_cast< uint >(x0_stringCount) > dataLen / sizeof(uint)) {
-    x0_stringCount = 0;
+  if (mStringCount < 0 || static_cast< uint >(mStringCount) > dataLen / sizeof(uint)) {
+    mStringCount = 0;
     return;
   }
 
-  CMemoryInStream offsets(data.data(), x0_stringCount * sizeof(uint));
-  mNativeStrings.reserve(x0_stringCount);
-  for (int i = 0; i < x0_stringCount; ++i) {
+  CMemoryInStream offsets(data.data(), mStringCount * sizeof(uint));
+  mNativeStrings.reserve(mStringCount);
+  for (int i = 0; i < mStringCount; ++i) {
     uint pos = offsets.ReadLong();
     rstl::vector< wchar_t > text;
     bool terminated = false;
@@ -105,46 +105,46 @@ void CStringTable::Load(CInputStream& in)
     mNativeStrings.push_back(text);
   }
 #else
-  x4_data = rs_new uchar[dataLen];
-  in.ReadBytes(x4_data.get(), dataLen);
+  mData = rs_new uchar[dataLen];
+  in.ReadBytes(mData.get(), dataLen);
 #endif
 }
 
 const wchar_t* CStringTable::GetString(int idx) const {
-  if (idx < 0 || idx >= x0_stringCount) {
+  if (idx < 0 || idx >= mStringCount) {
     return skInvalidString;
   }
 #if TARGET_LITTLE_ENDIAN || WCHAR_MAX > 0xffff
   return mNativeStrings[idx].data();
 #else
-  int offset = *(reinterpret_cast< const int* >(x4_data.get()) + idx);
-  return reinterpret_cast< const wchar_t* >(x4_data.get() + offset);
+  int offset = *(reinterpret_cast< const int* >(mData.get()) + idx);
+  return reinterpret_cast< const wchar_t* >(mData.get() + offset);
 #endif
 }
 
-#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+#if VERSION >= VERSION_GM8P_00
 void CStringTable::Reload(CAssetId id, CResFactory& factory) {
-  x8_reloadData = nullptr;
-  x8_reloadData = rs_new SReloadData(id, factory);
+  mReloadData = nullptr;
+  mReloadData = rs_new SReloadData(id, factory);
 }
 
 void CStringTable::TryFinishReload() {
-  SReloadData* data = x8_reloadData.get();
-  if (data != nullptr && data->x4_request->IsComplete()) {
-    CMemoryInStream in(data->x8_buffer.get(), data->x0_size);
+  SReloadData* data = mReloadData.get();
+  if (data != nullptr && data->mRequest->IsComplete()) {
+    CMemoryInStream in(data->mBuffer.get(), data->mSize);
     Load(in);
-    x8_reloadData = nullptr;
+    mReloadData = nullptr;
   }
 }
 
-bool CStringTable::IsReloading() const { return !x8_reloadData.null(); }
+bool CStringTable::IsReloading() const { return !mReloadData.null(); }
 
 CStringTable::SReloadData::SReloadData(CAssetId id, CResFactory& factory)
-: x4_request(nullptr) {
+: mRequest(nullptr) {
   const SObjectTag tag('STRG', id);
-  x0_size = factory.ResourceSize(tag);
-  x8_buffer = static_cast< uchar* >(CMemory::Alloc(x0_size, IAllocator::kHI_RoundUpLen));
-  x4_request = factory.LoadResourceAsync(tag, x8_buffer.get());
+  mSize = factory.ResourceSize(tag);
+  mBuffer = static_cast< uchar* >(CMemory::Alloc(mSize, IAllocator::kHI_RoundUpLen));
+  mRequest = factory.LoadResourceAsync(tag, mBuffer.get());
 }
 
 CStringTable::SReloadData::~SReloadData() {}

@@ -174,6 +174,6 @@ private:
   bool mIsEnergyDrainVulnerable : 1;
 };
 
-CHECK_SIZEOF(CMetroid, (VERSION >= VERSION_GM8P_00 ? 0x9d8 : 0x9C8))
+CHECK_SIZEOF(CMetroid, (VERSION >= VERSION_GM8E_02 ? 0x9d8 : 0x9C8))
 
 #endif // _CMETROID

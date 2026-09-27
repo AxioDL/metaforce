@@ -29,16 +29,16 @@ private:
                                      const CVector3f& lookPos, float positionSpeed,
                                      float rotationSpeed, float dt, float maxTime, float curTime);
 
-  TUniqueId x188_targetId;
-  float x18c_time;
-  float x190_maxTime;
-  CTransform4f x194_startTransform;
-  CVector3f x1c4_lookPos;
-  float x1d0_positionSpeed;
-  float x1d4_rotationSpeed;
-  bool x1d8_24_sinusoidal : 1;
-  float x1dc_closeInAngle;
+  TUniqueId mTargetId;
+  float mTime;
+  float mMaxTime;
+  CTransform4f mStartTransform;
+  CVector3f mLookPos;
+  float mPositionSpeed;
+  float mRotationSpeed;
+  bool mSinusoidal : 1;
+  float mCloseInAngle;
 };
-CHECK_SIZEOF(CInterpolationCamera, (VERSION >= VERSION_GM8P_00 ? 0x1f0 : 0x1e0))
+CHECK_SIZEOF(CInterpolationCamera, (VERSION >= VERSION_GM8E_02 ? 0x1f0 : 0x1e0))
 
 #endif // _CINTERPOLATIONCAMERA

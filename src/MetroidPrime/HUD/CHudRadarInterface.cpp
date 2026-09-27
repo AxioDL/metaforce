@@ -23,20 +23,20 @@ static const char skRadarGroupWidgetName[] = "BaseWidget_RadarStuff";
 static const char skReticlePaintTextureName[] = "TXTR_RadarPaint";
 
 CHudRadarInterface::CHudRadarInterface(CGuiFrame& frame, const CStateManager& mgr)
-: x0_txtrRadarPaint(gpSimplePool->GetObj(skReticlePaintTextureName))
-, xc_radarStuffXf(CTransform4f::Identity())
-, x3c_24_visibleGame(true)
-, x3c_25_visibleDebug(true) {
-  x40_BaseWidget_RadarStuff = frame.FindWidget(rstl::string_l(skRadarGroupWidgetName));
-  x44_camera = frame.GetFrameCamera();
-  xc_radarStuffXf = x40_BaseWidget_RadarStuff->GetO2PTransform();
-  x40_BaseWidget_RadarStuff->SetColor(gpTweakGuiColors->GetRadarStuffColor());
-  x0_txtrRadarPaint.Lock();
+: mTxtrRadarPaint(gpSimplePool->GetObj(skReticlePaintTextureName))
+, mRadarStuffXf(CTransform4f::Identity())
+, mVisibleGame(true)
+, mVisibleDebug(true) {
+  mBaseWidget_RadarStuff = frame.FindWidget(rstl::string_l(skRadarGroupWidgetName));
+  mCamera = frame.GetFrameCamera();
+  mRadarStuffXf = mBaseWidget_RadarStuff->GetO2PTransform();
+  mBaseWidget_RadarStuff->SetColor(gpTweakGuiColors->GetRadarStuffColor());
+  mTxtrRadarPaint.Lock();
 }
 
 void CHudRadarInterface::SetIsVisibleGame(const bool visible) {
-  x3c_24_visibleGame = visible;
-  x40_BaseWidget_RadarStuff->SetVisibility(x3c_25_visibleDebug && x3c_24_visibleGame, kTM_Children);
+  mVisibleGame = visible;
+  mBaseWidget_RadarStuff->SetVisibility(mVisibleDebug && mVisibleGame, kTM_Children);
 }
 
 void CHudRadarInterface::Update(float dt, const CStateManager& mgr) {
@@ -44,23 +44,23 @@ void CHudRadarInterface::Update(float dt, const CStateManager& mgr) {
   const float visorAlpha = playerState.GetCurrentVisor() == CPlayerState::kPV_Combat
                                ? playerState.GetVisorTransitionFactor()
                                : 0.f;
-  x40_BaseWidget_RadarStuff->SetColor(gpTweakGuiColors->GetRadarStuffColor().WithAlphaModulatedBy(
+  mBaseWidget_RadarStuff->SetColor(gpTweakGuiColors->GetRadarStuffColor().WithAlphaModulatedBy(
       visorAlpha * gpGameState->GameOptions().GetHudAlpha()));
   const bool visible = IsWidgetVisibleMode(static_cast< ERadarMode >(gpTweakGui->GetHudVisMode()));
-  if (x3c_25_visibleDebug != visible) {
-    x3c_25_visibleDebug = !x3c_25_visibleDebug;
-    x40_BaseWidget_RadarStuff->SetVisibility(x3c_25_visibleDebug && x3c_24_visibleGame,
+  if (mVisibleDebug != visible) {
+    mVisibleDebug = !mVisibleDebug;
+    mBaseWidget_RadarStuff->SetVisibility(mVisibleDebug && mVisibleGame,
                                              kTM_Children);
   }
-  x0_txtrRadarPaint.TryCache();
+  mTxtrRadarPaint.TryCache();
 }
 
 void CHudRadarInterface::Draw(const CStateManager& mgr, float alpha) const {
   const float radarAlpha = alpha * gpGameState->GameOptions().GetHudAlpha();
-  if (gpTweakGui->GetHudVisMode() == CTweakGui::kHud_Zero || !x3c_24_visibleGame) {
+  if (gpTweakGui->GetHudVisMode() == CTweakGui::kHud_Zero || !mVisibleGame) {
     return;
   }
-  const CTexture* const texture = x0_txtrRadarPaint.GetObject();
+  const CTexture* const texture = mTxtrRadarPaint.GetObject();
   if (!texture) {
     return;
   }
@@ -84,8 +84,8 @@ void CHudRadarInterface::Draw(const CStateManager& mgr, float alpha) const {
       CTransform4f::RotateY(CAbsAngle::FromRadians(angles.GetYaw()) - CAbsAngle::FromRadians(0.f));
   const CVector3f playerPos = mgr.GetPlayer()->GetTranslation();
   CTransform4f postTranslate(CTransform4f::Identity());
-  x44_camera->Draw(CGuiWidgetDrawParms(0.f, CVector3f::Zero()));
-  postTranslate = x40_BaseWidget_RadarStuff->GetWorldTransform();
+  mCamera->Draw(CGuiWidgetDrawParms(0.f, CVector3f::Zero()));
+  postTranslate = mBaseWidget_RadarStuff->GetWorldTransform();
   gpRender->SetModelMatrix(postTranslate);
   gpRender->SetBlendMode_AdditiveAlpha();
   texture->Load(GX_TEXMAP0, CTexture::kCM_Repeat);
@@ -132,22 +132,22 @@ void CHudRadarInterface::Draw(const CStateManager& mgr, float alpha) const {
 
 void CHudRadarInterface::DrawRadarPaint(const CVector3f& enemyPos, float radius, float alpha,
                                         const SRadarPaintDrawParms& parms) const {
-  const CVector2f playerPos(parms.x0_playerPos.GetX(), parms.x0_playerPos.GetY());
-  const CVector2f delta(enemyPos.GetX() - parms.x0_playerPos.GetX(),
-                        enemyPos.GetY() - parms.x0_playerPos.GetY());
-  const float zDelta = CMath::AbsF(enemyPos.GetZ() - parms.x0_playerPos.GetZ());
-  if (delta.Magnitude() <= parms.x78_xyRadius && zDelta <= parms.x7c_zRadius) {
-    const float zCloseRadius = parms.x80_zCloseRadius;
+  const CVector2f playerPos(parms.mPlayerPos.GetX(), parms.mPlayerPos.GetY());
+  const CVector2f delta(enemyPos.GetX() - parms.mPlayerPos.GetX(),
+                        enemyPos.GetY() - parms.mPlayerPos.GetY());
+  const float zDelta = CMath::AbsF(enemyPos.GetZ() - parms.mPlayerPos.GetZ());
+  if (delta.Magnitude() <= parms.mXyRadius && zDelta <= parms.mZRadius) {
+    const float zCloseRadius = parms.mZCloseRadius;
     if (zDelta > zCloseRadius) {
-      alpha *= 1.f - (zDelta - zCloseRadius) / (parms.x7c_zRadius - zCloseRadius);
+      alpha *= 1.f - (zDelta - zCloseRadius) / (parms.mZRadius - zCloseRadius);
     }
     const CVector2f enemyXY(enemyPos.GetX(), enemyPos.GetY());
-    const CVector2f scopeScaled = (enemyXY - playerPos) * parms.x70_scopeScalar;
+    const CVector2f scopeScaled = (enemyXY - playerPos) * parms.mScopeScalar;
     const CVector3f position =
-        parms.xc_preTranslate * CVector3f(scopeScaled.GetX(), 0.f, scopeScaled.GetY());
-    gpRender->SetModelMatrix(parms.x3c_postTranslate * CTransform4f::Translate(position));
+        parms.mPreTranslate * CVector3f(scopeScaled.GetX(), 0.f, scopeScaled.GetY());
+    gpRender->SetModelMatrix(parms.mPostTranslate * CTransform4f::Translate(position));
     CGraphics::StreamColor(
-        gpTweakGuiColors->GetRadarEnemyPaintColor().WithAlphaModulatedBy(alpha * parms.x74_alpha));
+        gpTweakGuiColors->GetRadarEnemyPaintColor().WithAlphaModulatedBy(alpha * parms.mAlpha));
     DoDrawRadarPaint(radius);
   }
 }

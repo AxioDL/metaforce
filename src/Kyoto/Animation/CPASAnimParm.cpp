@@ -1,6 +1,6 @@
 #include "Kyoto/Animation/CPASAnimParm.hpp"
 
-CPASAnimParm::CPASAnimParm(UParmValue value, EParmType type) : x0_value(value), x4_type(type) {}
+CPASAnimParm::CPASAnimParm(UParmValue value, EParmType type) : mValue(value), mType(type) {}
 
 CPASAnimParm CPASAnimParm::NoParameter() {
   UParmValue valin;
@@ -38,12 +38,12 @@ CPASAnimParm CPASAnimParm::FromEnum(int value) {
   return CPASAnimParm(valin, kPT_Enum);
 }
 
-int CPASAnimParm::GetInt32Value() const { return x0_value.m_int; }
+int CPASAnimParm::GetInt32Value() const { return mValue.m_int; }
 
-uint CPASAnimParm::GetUint32Value() const { return x0_value.m_uint; }
+uint CPASAnimParm::GetUint32Value() const { return mValue.m_uint; }
 
-float CPASAnimParm::GetReal32Value() const { return x0_value.m_float; }
+float CPASAnimParm::GetReal32Value() const { return mValue.m_float; }
 
-bool CPASAnimParm::GetBoolValue() const { return x0_value.m_bool; }
+bool CPASAnimParm::GetBoolValue() const { return mValue.m_bool; }
 
-int CPASAnimParm::GetEnumValue() const { return x0_value.m_int; }
+int CPASAnimParm::GetEnumValue() const { return mValue.m_int; }

@@ -6,24 +6,24 @@
 #include <string.h>
 
 CPVSVisSet::CPVSVisSet(int numBits, int numLights, const rstl::auto_ptr< const char >& leafPtr)
-: x0_state(kVSS_NodeFound), x4_numBits(numBits), x8_numLights(numLights), xc_ptr(leafPtr) {}
+: mState(kVSS_NodeFound), mNumBits(numBits), mNumLights(numLights), mPtr(leafPtr) {}
 
-CPVSVisSet::CPVSVisSet(EPVSVisSetState state) : x0_state(state), x4_numBits(0), x8_numLights(0) {}
+CPVSVisSet::CPVSVisSet(EPVSVisSetState state) : mState(state), mNumBits(0), mNumLights(0) {}
 
 EPVSVisSetState CPVSVisSet::GetVisible(int idx) const {
-  if (x0_state != kVSS_NodeFound)
-    return x0_state;
+  if (mState != kVSS_NodeFound)
+    return mState;
 
-  int numFeatures = x4_numBits - x8_numLights;
+  int numFeatures = mNumBits - mNumLights;
   if (idx < numFeatures) {
     /* This is a feature lookup */
-    u8 flag = xc_ptr.get()[idx / 8];
+    u8 flag = mPtr.get()[idx / 8];
     return flag & (1 << (idx & 7)) ? kVSS_OutOfBounds : kVSS_EndOfTree;
   }
 
   /* This is a light lookup */
   int lightTest = idx - numFeatures + idx;
-  const char* ptr = &xc_ptr.get()[lightTest / 8];
+  const char* ptr = &mPtr.get()[lightTest / 8];
   lightTest &= 0x7;
   if (lightTest < 0x7) {
     return static_cast< EPVSVisSetState >(((uchar)ptr[0] & (0x3 << lightTest)) >> lightTest);

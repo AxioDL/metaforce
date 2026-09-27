@@ -27,13 +27,13 @@ public:
   void Touch(CActor& actor, CStateManager& mgr) override;
 
 private:
-  rstl::auto_ptr< CElementGen > xe8_elementGen;
-  TUniqueId xf0_ownerId;
-  CDamageInfo xf4_damageInfo;
-  rstl::optional_object< CAABox > x110_aabox;
-  float x12c_lastDt;
-  COBBox x130_obbox;
-  TUniqueId x16c_colAct;
+  rstl::auto_ptr< CElementGen > mElementGen;
+  TUniqueId mOwnerId;
+  CDamageInfo mDamageInfo;
+  rstl::optional_object< CAABox > mAabox;
+  float mLastDt;
+  COBBox mObbox;
+  TUniqueId mColAct;
 };
 
 #endif // _CFLAAHGRAPLANTS

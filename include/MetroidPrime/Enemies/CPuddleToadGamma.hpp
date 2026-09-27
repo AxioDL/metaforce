@@ -63,24 +63,24 @@ private:
   static const char* mBellyLocatorName;
   static const CVector3f skBellyOffset;
 
-  int x568_stateProg;
-  float x56c_waitTimer;
-  CDamageInfo x570_playerShootDamage;
-  CDamageInfo x58c_dInfo2;
-  float x5a8_suckForceMultiplier;
-  float x5ac_minSuckAngleProj;
-  float x5b0_playerSuckRange;
-  CVector3f x5b4_localShootDir;
-  float x5c0_playerShootSpeed;
-  float x5c4_shouldAttackWaitTime;
-  float x5c8_spotPlayerWaitTime;
-  CVector3f x5cc_suckPoint;
-  CVector3f x5d8_damageablePoint;
-  rstl::single_ptr< CCollidableOBBTreeGroup > x5e4_collisionTreePrim;
-  bool x5e8_24_playerInside : 1;
-  bool x5e8_25_waitTimerActive : 1;
-  bool x5e8_26_shotPlayer : 1;
+  int mStateProg;
+  float mWaitTimer;
+  CDamageInfo mPlayerShootDamage;
+  CDamageInfo mDInfo2;
+  float mSuckForceMultiplier;
+  float mMinSuckAngleProj;
+  float mPlayerSuckRange;
+  CVector3f mLocalShootDir;
+  float mPlayerShootSpeed;
+  float mShouldAttackWaitTime;
+  float mSpotPlayerWaitTime;
+  CVector3f mSuckPoint;
+  CVector3f mDamageablePoint;
+  rstl::single_ptr< CCollidableOBBTreeGroup > mCollisionTreePrim;
+  bool mPlayerInside : 1;
+  bool mWaitTimerActive : 1;
+  bool mShotPlayer : 1;
 };
-CHECK_SIZEOF(CPuddleToadGamma, (VERSION >= VERSION_GM8P_00 ? 0x600 : 0x5F0))
+CHECK_SIZEOF(CPuddleToadGamma, (VERSION >= VERSION_GM8E_02 ? 0x600 : 0x5F0))
 
 #endif // _CPUDDLETOADGAMMA

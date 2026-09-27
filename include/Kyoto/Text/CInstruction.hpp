@@ -17,7 +17,7 @@ public:
   virtual void PageInvoke(CFontRenderState& state, CTextRenderBuffer* buf) const {}
   virtual void GetAssets(rstl::vector< CToken >& assetsOut) const {}
   virtual uint GetAssetCount() const { return 0; }
-#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+#if VERSION >= VERSION_GM8P_00
   virtual bool IsLineInstruction() const { return false; }
 #endif
 };

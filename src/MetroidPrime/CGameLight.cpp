@@ -8,39 +8,39 @@ CGameLight::CGameLight(TUniqueId uid, TAreaId aid, const bool active, const rstl
 : CActor(uid, active, name, CEntityInfo(aid, CEntity::NullConnectionList), xf,
          CModelData::CModelDataNull(), CMaterialList(kMT_NoStepLogic), CActorParameters::None(),
          kInvalidUniqueId)
-, xe8_parentId(parentId)
-, xec_light(light)
-, x13c_lightId(sourceId)
-, x140_priority(priority)
-, x144_lifeTime(lifeTime) {
-  xec_light.GetRadius();
-  xec_light.GetIntensity();
+, mParentId(parentId)
+, mLight(light)
+, mLightId(sourceId)
+, mPriority(priority)
+, mLifeTime(lifeTime) {
+  mLight.GetRadius();
+  mLight.GetIntensity();
   SetLightPriorityAndId();
 }
 
 void CGameLight::SetLight(const CLight& light) {
-  xec_light = light;
-  xec_light.GetRadius();
-  xec_light.GetIntensity();
+  mLight = light;
+  mLight.GetRadius();
+  mLight.GetIntensity();
   SetLightPriorityAndId();
 }
 
 CLight CGameLight::GetLight() const {
-  CLight ret = xec_light;
+  CLight ret = mLight;
 
-  ret.SetPosition(GetTransform() * xec_light.GetPosition());
+  ret.SetPosition(GetTransform() * mLight.GetPosition());
 
   if (ret.GetType() != kLT_Point)
-    ret.SetDirection(GetTransform().Rotate(xec_light.GetDirection()).AsNormalized());
+    ret.SetDirection(GetTransform().Rotate(mLight.GetDirection()).AsNormalized());
 
   return ret;
 }
 
 void CGameLight::Think(float dt, CStateManager& mgr) {
-  if (x144_lifeTime > 0.f) {
-    x144_lifeTime -= dt;
+  if (mLifeTime > 0.f) {
+    mLifeTime -= dt;
 
-    if (x144_lifeTime <= 0.f)
+    if (mLifeTime <= 0.f)
       mgr.DeleteObjectRequest(GetUniqueId());
   }
 }
@@ -48,8 +48,8 @@ void CGameLight::Think(float dt, CStateManager& mgr) {
 ENTITY_ACCEPT_IMPL(CGameLight)
 
 void CGameLight::SetLightPriorityAndId() {
-  xec_light.SetPriority(x140_priority);
-  xec_light.SetId(x13c_lightId);
+  mLight.SetPriority(mPriority);
+  mLight.SetId(mLightId);
 }
 
 CGameLight::~CGameLight() {}

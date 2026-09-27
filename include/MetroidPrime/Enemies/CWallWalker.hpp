@@ -34,7 +34,7 @@ public:
 
   // CActor
   void Render(const CStateManager& mgr) const override;
-  const CCollisionPrimitive* GetCollisionPrimitive() const override { return &x590_colSphere; }
+  const CCollisionPrimitive* GetCollisionPrimitive() const override { return &mColSphere; }
 
   static bool PointOnSurface(const CCollisionSurface& surface, const CVector3f& point);
   static CVector3f ProjectPointToPlane(const CVector3f& point, const CVector3f& planePoint,
@@ -46,25 +46,25 @@ protected:
   void AlignToFloor(CStateManager& mgr, float radius, const CVector3f& newPos, float dt);
   void GotoNextWaypoint(CStateManager& mgr);
 
-  CCollisionSurface x568_alignNormal;
-  CCollidableSphere x590_colSphere;
-  float x5b0_collisionCloseMargin;
-  float x5b4_alignAngVel;
-  float x5b8_tumbleAngle;
-  float x5bc_patrolPauseRemTime;
-  float x5c0_advanceWpRadius;
-  float x5c4_playerObstructionMinDist;
-  float x5c8_bendingHackWeight;
-  int x5cc_bendingHackAnim;
-  EType x5d0_walkerType;
-  short x5d4_thinkCounter;
-  bool x5d6_24_alignToFloor : 1;
-  bool x5d6_25_hasAlignSurface : 1;
-  bool x5d6_26_playerObstructed : 1;
-  bool x5d6_27_disableMove : 1;
-  bool x5d6_28_addBendingWeight : 1;
-  bool x5d6_29_applyBendingHack : 1;
+  CCollisionSurface mAlignNormal;
+  CCollidableSphere mColSphere;
+  float mCollisionCloseMargin;
+  float mAlignAngVel;
+  float mTumbleAngle;
+  float mPatrolPauseRemTime;
+  float mAdvanceWpRadius;
+  float mPlayerObstructionMinDist;
+  float mBendingHackWeight;
+  int mBendingHackAnim;
+  EType mWalkerType;
+  short mThinkCounter;
+  bool mAlignToFloor : 1;
+  bool mHasAlignSurface : 1;
+  bool mPlayerObstructed : 1;
+  bool mDisableMove : 1;
+  bool mAddBendingWeight : 1;
+  bool mApplyBendingHack : 1;
 };
-CHECK_SIZEOF(CWallWalker, (VERSION >= VERSION_GM8P_00 ? 0x5e8 : 0x5D8))
+CHECK_SIZEOF(CWallWalker, (VERSION >= VERSION_GM8E_02 ? 0x5e8 : 0x5D8))
 
 #endif // _CWALLWALKER

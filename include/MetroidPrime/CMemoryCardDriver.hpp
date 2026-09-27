@@ -14,19 +14,19 @@
 class CMemoryInStream;
 
 struct SSaveHeader {
-  uint x0_version;
-  bool x4_savePresent[3];
+  uint mVersion;
+  bool mSavePresent[3];
 
   explicit SSaveHeader(int);
   explicit SSaveHeader(CMemoryInStream& in);
 
-  void SetSavePresent(int idx, const bool present) { x4_savePresent[idx] = present; }
+  void SetSavePresent(int idx, const bool present) { mSavePresent[idx] = present; }
   void PutTo(COutputStream& out) const;
 };
 
 struct SGameFileSlot {
-  rstl::reserved_vector< u8, 940 > x0_saveBuffer;
-  CGameState::GameFileStateInfo x944_fileInfo;
+  rstl::reserved_vector< u8, 940 > mSaveBuffer;
+  CGameState::GameFileStateInfo mFileInfo;
 
   SGameFileSlot();
   explicit SGameFileSlot(CMemoryInStream& in);
@@ -107,30 +107,30 @@ public:
   };
 
 private:
-  CMemoryCardSys::EMemoryCardPort x0_cardPort;
-  CAssetId x4_saveBanner;
-  CAssetId x8_saveIcon0;
-  CAssetId xc_saveIcon1;
-  EState x10_state;
-  EError x14_error;
-  uint x18_cardFreeBytes;
-  uint x1c_cardFreeFiles;
-  uint x20_fileTime;
-  long long x28_cardSerial;
-  rstl::reserved_vector< u8, 174 > x30_systemData;
-  rstl::reserved_vector< rstl::auto_ptr< SGameFileSlot >, 3 > xe4_fileSlots;
-  rstl::reserved_vector< SFileInfo, 2 > x100_mcFileInfos;
-  int x194_fileIdx;
-  rstl::single_ptr< CMemoryCardSys::CCardFileInfo > x198_fileInfo;
+  CMemoryCardSys::EMemoryCardPort mCardPort;
+  CAssetId mSaveBanner;
+  CAssetId mSaveIcon0;
+  CAssetId mSaveIcon1;
+  EState mState;
+  EError mError;
+  uint mCardFreeBytes;
+  uint mCardFreeFiles;
+  uint mFileTime;
+  long long mCardSerial;
+  rstl::reserved_vector< u8, 174 > mSystemData;
+  rstl::reserved_vector< rstl::auto_ptr< SGameFileSlot >, 3 > mFileSlots;
+  rstl::reserved_vector< SFileInfo, 2 > mMcFileInfos;
+  int mFileIdx;
+  rstl::single_ptr< CMemoryCardSys::CCardFileInfo > mFileInfo;
   bool x19c_;
-  bool x19d_importPersistent;
+  bool mImportPersistent;
 
 public:
   static bool IsCardBusy(EState);
   static bool IsCardReading(EState);
-  EState GetState() const { return x10_state; }
-  EError GetError() const { return x14_error; }
-  u64 GetCardSerial() const { return x28_cardSerial; }
+  EState GetState() const { return mState; }
+  EError GetError() const { return mError; }
+  u64 GetCardSerial() const { return mCardSerial; }
   CMemoryCardDriver(CMemoryCardSys::EMemoryCardPort cardPort, CAssetId saveBanner,
                     CAssetId saveIcon0, CAssetId saveIcon1, bool importPersistent);
   void ClearFileInfo();

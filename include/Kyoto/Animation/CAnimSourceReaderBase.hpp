@@ -24,7 +24,7 @@ public:
   CParticleData::EParentedMode VGetParticlePOIState(const char* name) const override;
 
   CAnimSourceReaderBase(const rstl::ownership_transfer< IAnimSourceInfo >& sourceInfo)
-  : x4_sourceInfo(sourceInfo), xc_curTime(0.f) {}
+  : mSourceInfo(sourceInfo), mCurTime(0.f) {}
 
   CAnimSourceReaderBase(
       const rstl::ownership_transfer< IAnimSourceInfo >& sourceInfo, const CCharAnimTime& time,
@@ -33,35 +33,35 @@ public:
       const rstl::vector< rstl::pair< rstl::string, int > >& intStates,
       const rstl::vector< rstl::pair< rstl::string, CParticleData::EParentedMode > >&
           particleStates)
-  : x4_sourceInfo(sourceInfo)
-  , xc_curTime(time)
-  , x14_passedBoolCount(passedBoolCount)
-  , x18_passedIntCount(passedIntCount)
-  , x1c_passedParticleCount(passedParticleCount)
-  , x20_passedSoundCount(passedSoundCount)
-  , x24_boolStates(boolStates)
-  , x34_int32States(intStates)
-  , x44_particleStates(particleStates) {}
+  : mSourceInfo(sourceInfo)
+  , mCurTime(time)
+  , mPassedBoolCount(passedBoolCount)
+  , mPassedIntCount(passedIntCount)
+  , mPassedParticleCount(passedParticleCount)
+  , mPassedSoundCount(passedSoundCount)
+  , mBoolStates(boolStates)
+  , mInt32States(intStates)
+  , mParticleStates(particleStates) {}
 
   void PostConstruct(const CCharAnimTime& time);
   void UpdatePOIStates();
-  const IAnimSourceInfo& AnimSource() const { return *x4_sourceInfo; }
-  const CCharAnimTime& GetCurTime() const { return xc_curTime; }
+  const IAnimSourceInfo& AnimSource() const { return *mSourceInfo; }
+  const CCharAnimTime& GetCurTime() const { return mCurTime; }
 
 protected:
   rstl::set< rstl::pair< rstl::string, int > > GetUniqueBoolPOIs() const;
   rstl::set< rstl::pair< rstl::string, int > > GetUniqueInt32POIs() const;
   rstl::set< rstl::pair< rstl::string, int > > GetUniqueParticlePOIs() const;
 
-  rstl::object_owner< IAnimSourceInfo > x4_sourceInfo;
-  CCharAnimTime xc_curTime;
-  int x14_passedBoolCount;
-  int x18_passedIntCount;
-  int x1c_passedParticleCount;
-  int x20_passedSoundCount;
-  rstl::vector< rstl::pair< rstl::string, bool > > x24_boolStates;
-  rstl::vector< rstl::pair< rstl::string, int > > x34_int32States;
-  rstl::vector< rstl::pair< rstl::string, CParticleData::EParentedMode > > x44_particleStates;
+  rstl::object_owner< IAnimSourceInfo > mSourceInfo;
+  CCharAnimTime mCurTime;
+  int mPassedBoolCount;
+  int mPassedIntCount;
+  int mPassedParticleCount;
+  int mPassedSoundCount;
+  rstl::vector< rstl::pair< rstl::string, bool > > mBoolStates;
+  rstl::vector< rstl::pair< rstl::string, int > > mInt32States;
+  rstl::vector< rstl::pair< rstl::string, CParticleData::EParentedMode > > mParticleStates;
 };
 CHECK_SIZEOF(CAnimSourceReaderBase, 0x54)
 

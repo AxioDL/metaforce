@@ -5,7 +5,7 @@
 
 CGuiLight* CGuiLight::Create(CGuiFrame* parent, CInputStream& in, IObjectStore* sp) {
   CGuiWidgetParms parms = ReadWidgetHeader(parent, in);
-  CColor color = parms.x10_color;
+  CColor color = parms.mColor;
   ELightType type = (ELightType)in.ReadInt32();
   float distC = in.ReadFloat();
   float distL = in.ReadFloat();
@@ -52,16 +52,16 @@ CGuiLight* CGuiLight::Create(CGuiFrame* parent, CInputStream& in, IObjectStore* 
 
 CGuiLight::CGuiLight(const CGuiWidgetParms& parms, const CLight& light)
 : CGuiWidget(parms)
-, xb8_type(light.GetType())
-, xbc_spotCutoff(light.GetSpotCutoff())
-, xc0_distC(light.GetAttenuationConstant())
-, xc4_distL(light.GetAttenuationLinear())
-, xc8_distQ(light.GetAttenuationQuadratic())
-, xcc_angleC(light.GetAngleAttenuationConstant())
-, xd0_angleL(light.GetAngleAttenuationLinear())
-, xd4_angleQ(light.GetAngleAttenuationQuadratic())
-, xd8_lightId(light.GetId())
-, xdc_ambColor(CColor::Black()) {}
+, mType(light.GetType())
+, mSpotCutoff(light.GetSpotCutoff())
+, mDistC(light.GetAttenuationConstant())
+, mDistL(light.GetAttenuationLinear())
+, mDistQ(light.GetAttenuationQuadratic())
+, mAngleC(light.GetAngleAttenuationConstant())
+, mAngleL(light.GetAngleAttenuationLinear())
+, mAngleQ(light.GetAngleAttenuationQuadratic())
+, mLightId(light.GetId())
+, mAmbColor(CColor::Black()) {}
 
 CGuiLight::~CGuiLight() { GetParentFrame()->RemoveLight(this); }
 
@@ -80,9 +80,9 @@ CLight CGuiLight::BuildLight() const {
   CVector3f pos = GetWorldPosition();
   CVector3f dir = GetWorldTransform().GetColumn(kDY);
   CColor color = GetColor();
-  switch (xb8_type) {
+  switch (mType) {
   case kLT_Spot:
-    ret = CLight::BuildSpot(pos, dir, color, xbc_spotCutoff);
+    ret = CLight::BuildSpot(pos, dir, color, mSpotCutoff);
     break;
   case kLT_Point:
     ret = CLight::BuildPoint(pos, color);
@@ -91,15 +91,15 @@ CLight CGuiLight::BuildLight() const {
     ret = CLight::BuildDirectional(dir, color);
     break;
   case kLT_Custom:
-    ret = CLight::BuildCustom(pos, dir, color, xc0_distC, xc4_distL, xc8_distQ, xcc_angleC,
-                              xd0_angleL, xd4_angleQ);
+    ret = CLight::BuildCustom(pos, dir, color, mDistC, mDistL, mDistQ, mAngleC,
+                              mAngleL, mAngleQ);
   default:
     break;
   }
 
-  ret.SetAttenuation(xc0_distC, xc4_distL, xc8_distQ);
-  ret.SetAngleAttenuation(xcc_angleC, xd0_angleL, xd4_angleQ);
-  ret.SetId(xd8_lightId);
+  ret.SetAttenuation(mDistC, mDistL, mDistQ);
+  ret.SetAngleAttenuation(mAngleC, mAngleL, mAngleQ);
+  ret.SetId(mLightId);
   return ret;
 }
 

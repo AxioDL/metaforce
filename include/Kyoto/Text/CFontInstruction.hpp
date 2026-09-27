@@ -7,7 +7,7 @@
 
 class CFontInstruction : public CInstruction {
 public:
-  CFontInstruction(const TToken< CRasterFont >& font) : x4_font(font) { x4_font.Lock(); }
+  CFontInstruction(const TToken< CRasterFont >& font) : mFont(font) { mFont.Lock(); }
 
   void Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const override;
   void PageInvoke(CFontRenderState& state, CTextRenderBuffer* buf) const override;
@@ -15,7 +15,7 @@ public:
   uint GetAssetCount() const override;
 
 private:
-  TToken< CRasterFont > x4_font;
+  TToken< CRasterFont > mFont;
 };
 
 #endif // _CFONTINSTRUCTION

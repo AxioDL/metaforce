@@ -20,37 +20,37 @@
 #define NUM_MAZE_CELLS (skMazeRows * skMazeCols)
 
 struct SMazeCell {
-  bool x0_24_openTop : 1;
-  bool x0_25_openRight : 1;
-  bool x0_26_openBottom : 1;
-  bool x0_27_openLeft : 1;
-  bool x0_28_gateTop : 1;
-  bool x0_29_gateRight : 1;
-  bool x0_30_gateBottom : 1;
-  bool x0_31_gateLeft : 1;
-  bool x1_24_puddle : 1;
-  bool x1_25_onPath : 1;
-  bool x1_26_checked : 1;
+  bool mOpenTop : 1;
+  bool mOpenRight : 1;
+  bool mOpenBottom : 1;
+  bool mOpenLeft : 1;
+  bool mGateTop : 1;
+  bool mGateRight : 1;
+  bool mGateBottom : 1;
+  bool mGateLeft : 1;
+  bool mPuddle : 1;
+  bool mOnPath : 1;
+  bool mChecked : 1;
 
   SMazeCell() {
-    x0_24_openTop = x0_25_openRight = x0_26_openBottom = x0_27_openLeft = x0_28_gateTop =
-        x0_29_gateRight = x0_30_gateBottom = x0_31_gateLeft = x1_24_puddle = x1_25_onPath =
-            x1_26_checked = false;
+    mOpenTop = mOpenRight = mOpenBottom = mOpenLeft = mGateTop =
+        mGateRight = mGateBottom = mGateLeft = mPuddle = mOnPath =
+            mChecked = false;
   }
 
   inline bool IsClosed() const {
-    return !x0_24_openTop && !x0_25_openRight && !x0_26_openBottom && !x0_27_openLeft;
+    return !mOpenTop && !mOpenRight && !mOpenBottom && !mOpenLeft;
   }
 };
 
 class CSinglePathMaze {
-  CRandom16 x0_rand;
-  SMazeCell x4_cells[skMazeRows * skMazeCols];
-  int x84_enterCol;
-  int x88_enterRow;
-  int x8c_targetCol;
-  int x90_targetRow;
-  bool x94_24_initialized : 1;
+  CRandom16 mRand;
+  SMazeCell mCells[skMazeRows * skMazeCols];
+  int mEnterCol;
+  int mEnterRow;
+  int mTargetCol;
+  int mTargetRow;
+  bool mInitialized : 1;
 
 public:
   enum ESide {
@@ -68,8 +68,8 @@ public:
 
   SMazeCell& MazePoint(uint col, uint row);
   const SMazeCell& GetMazePoint(uint col, uint row) const;
-  SMazeCell& MazePointInline(uint col, uint row) { return x4_cells[col + row * skMazeCols]; } // ????
-  inline SMazeCell& MazePoint(uint idx) { return x4_cells[idx]; }
+  SMazeCell& MazePointInline(uint col, uint row) { return mCells[col + row * skMazeCols]; } // ????
+  inline SMazeCell& MazePoint(uint idx) { return mCells[idx]; }
 };
 
 class CScriptMazeNode : public CActor {
@@ -95,21 +95,21 @@ private:
     Left = 3,
   };
 
-  int xe8_col;
-  int xec_row;
-  ESide xf0_side;
-  TUniqueId xf4_gateEffectId;
-  float xf8_msgTimer;
-  TUniqueId xfc_actorId;
-  CVector3f x100_actorPos;
-  TUniqueId x10c_triggerId;
-  CVector3f x110_triggerPos;
-  TUniqueId x11c_effectId;
-  CVector3f x120_effectPos;
-  rstl::vector< TUniqueId > x12c_puddleObjectIds;
-  bool x13c_24_hasPuddle : 1;
-  bool x13c_25_hasGate : 1;
-  bool x13c_26_gateActive : 1;
+  int mCol;
+  int mRow;
+  ESide mSide;
+  TUniqueId mGateEffectId;
+  float mMsgTimer;
+  TUniqueId mActorId;
+  CVector3f mActorPos;
+  TUniqueId mTriggerId;
+  CVector3f mTriggerPos;
+  TUniqueId mEffectId;
+  CVector3f mEffectPos;
+  rstl::vector< TUniqueId > mPuddleObjectIds;
+  bool mHasPuddle : 1;
+  bool mHasGate : 1;
+  bool mGateActive : 1;
 
   void GenerateBarrier(CStateManager& mgr);
   void DeleteBarrier(CStateManager& mgr);

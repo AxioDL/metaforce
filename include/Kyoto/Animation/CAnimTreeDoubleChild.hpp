@@ -5,17 +5,17 @@
 class CAnimTreeDoubleChild : public CAnimTreeNode {
 public:
   class CDoubleChildAdvancementResult {
-    CCharAnimTime x0_trueAdvancement;
-    CAdvancementDeltas x8_leftDeltas;
-    CAdvancementDeltas x24_rightDeltas;
+    CCharAnimTime mTrueAdvancement;
+    CAdvancementDeltas mLeftDeltas;
+    CAdvancementDeltas mRightDeltas;
 
   public:
     CDoubleChildAdvancementResult(const CCharAnimTime& trueAdvancement,
                                   const CAdvancementDeltas& leftDeltas,
                                   const CAdvancementDeltas& rightDeltas);
-    const CAdvancementDeltas& GetLeftAdvancementDeltas() const { return x8_leftDeltas; }
-    const CAdvancementDeltas& GetRightAdvancementDeltas() const { return x24_rightDeltas; }
-    const CCharAnimTime& GetTrueAdvancement() const { return x0_trueAdvancement; }
+    const CAdvancementDeltas& GetLeftAdvancementDeltas() const { return mLeftDeltas; }
+    const CAdvancementDeltas& GetRightAdvancementDeltas() const { return mRightDeltas; }
+    const CCharAnimTime& GetTrueAdvancement() const { return mTrueAdvancement; }
   };
 
 protected:
@@ -41,7 +41,7 @@ public:
   void VSetPhase(float) override;
   CAdvancementResults VGetAdvancementResults(const CCharAnimTime& a,
                                              const CCharAnimTime& b) const override;
-  uint Depth() const override { return rstl::max_val(x14_a->Depth(), x18_b->Depth()) + 1; }
+  uint Depth() const override { return rstl::max_val(mA->Depth(), mB->Depth()) + 1; }
   CAnimTreeEffectiveContribution VGetContributionOfHighestInfluence() const override;
   uint VGetNumChildren() const override;
   rstl::rc_ptr< CAnimTreeNode > VGetBestUnblendedChild() const override;
@@ -49,18 +49,18 @@ public:
       float w, rstl::reserved_vector< rstl::pair< float, IAnimReader* >, 16 >& out) const override;
 
   virtual float VGetRightChildWeight() const = 0;
-  void ReplaceLeftChild(const rstl::ncrc_ptr< CAnimTreeNode >& child) { x14_a = child; }
-  void ReplaceRightChild(const rstl::ncrc_ptr< CAnimTreeNode >& child) { x18_b = child; }
+  void ReplaceLeftChild(const rstl::ncrc_ptr< CAnimTreeNode >& child) { mA = child; }
+  void ReplaceRightChild(const rstl::ncrc_ptr< CAnimTreeNode >& child) { mB = child; }
 
   float GetLeftChildWeight() const { return 1.f - VGetRightChildWeight(); }
   float GetRightChildWeight() const { return VGetRightChildWeight(); }
 
-  const rstl::rc_ptr< CAnimTreeNode >& GetLeftChild() const { return x14_a; }
-  const rstl::rc_ptr< CAnimTreeNode >& GetRightChild() const { return x18_b; }
+  const rstl::rc_ptr< CAnimTreeNode >& GetLeftChild() const { return mA; }
+  const rstl::rc_ptr< CAnimTreeNode >& GetRightChild() const { return mB; }
 
 protected:
-  rstl::ncrc_ptr< CAnimTreeNode > x14_a;
-  rstl::ncrc_ptr< CAnimTreeNode > x18_b;
+  rstl::ncrc_ptr< CAnimTreeNode > mA;
+  rstl::ncrc_ptr< CAnimTreeNode > mB;
 };
 
 CHECK_SIZEOF(CAnimTreeDoubleChild, 0x1c)

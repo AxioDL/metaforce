@@ -67,18 +67,18 @@ public:
   void SetHudAlpha(const int);
 
   const rstl::vector< rstl::pair< CAssetId, CAssetId > >& GetControlTXTRMap() const {
-    return x6c_controlTxtrMap;
+    return mControlTxtrMap;
   }
-  int GetMusicVolume() const { return x5c_musicVol; }
+  int GetMusicVolume() const { return mMusicVol; }
 
   int GetHudAlphaRaw() const;
   const float GetHudAlpha() const;
-  int GetHUDAlpha() const { return x60_hudAlpha; }
+  int GetHUDAlpha() const { return mHudAlpha; }
   int GetHelmetAlphaRaw() const;
   const float GetHelmetAlpha() const;
   void SetHelmetAlpha(const int);
   void SetHUDLag(const bool);
-  bool GetHUDLag() const { return x68_24_hudLag; }
+  bool GetHUDLag() const { return mHudLag; }
   void SetIsHintSystemEnabled(bool);
   void ToggleControls(const bool);
   void fn_80200564(const bool);
@@ -86,30 +86,30 @@ public:
   void SetControls(const int);
 
   void SetInvertYAxis(const bool invert);
-  const bool GetInvertYAxis() const { return x68_25_invertY; }
+  const bool GetInvertYAxis() const { return mInvertY; }
   void SetIsRumbleEnabled(const bool rumble);
-  const bool GetIsRumbleEnabled() const { return x68_26_rumble; }
-  bool GetIsHintSystemEnabled() const { return x68_28_hintSystem; }
-  bool GetSwapBeamControls() const { return x68_27_swapBeamsControls; }
+  const bool GetIsRumbleEnabled() const { return mRumble; }
+  bool GetIsHintSystemEnabled() const { return mHintSystem; }
+  bool GetSwapBeamControls() const { return mSwapBeamsControls; }
 
 public:
   rstl::reserved_vector< uchar, 64 > x0_;
-  int x44_soundMode;
-  int x48_screenBrightness;
-  int x4c_screenXOffset;
-  int x50_screenYOffset;
-  int x54_screenStretch;
-  uint x58_sfxVol;
-  uint x5c_musicVol;
-  int x60_hudAlpha;
-  int x64_helmetAlpha;
-  bool x68_24_hudLag : 1;
-  bool x68_25_invertY : 1;
-  bool x68_26_rumble : 1;
-  bool x68_27_swapBeamsControls : 1;
-  bool x68_28_hintSystem : 1;
-  bool x68_29_palExclusive : 1; // seems unused
-  rstl::vector< rstl::pair< CAssetId, CAssetId > > x6c_controlTxtrMap;
+  int mSoundMode;
+  int mScreenBrightness;
+  int mScreenXOffset;
+  int mScreenYOffset;
+  int mScreenStretch;
+  uint mSfxVol;
+  uint mMusicVol;
+  int mHudAlpha;
+  int mHelmetAlpha;
+  bool mHudLag : 1;
+  bool mInvertY : 1;
+  bool mRumble : 1;
+  bool mSwapBeamsControls : 1;
+  bool mHintSystem : 1;
+  bool mPalExclusive : 1; // seems unused
+  rstl::vector< rstl::pair< CAssetId, CAssetId > > mControlTxtrMap;
 };
 
 CHECK_SIZEOF(CGameOptions, 0x7c)

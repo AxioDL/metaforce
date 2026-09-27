@@ -24,31 +24,31 @@ class CStandardMultiFormatHeader {
 public:
   CStandardMultiFormatHeader(CInputStream& in)
   : x0_(in.Get< uint >())
-  , x4_maxTime(in.Get< float >())
-  , x8_standardInterval(in.Get< float >())
-  , xc_rootBoneId(in.Get< uint >())
-  , x10_looping(in.Get< uint >())
-  , x14_rotationValueForOne(in.Get< uint >())
-  , x18_offsetResolution(in.Get< float >())
-  , x1c_boneChannelCount(in.Get< uint >())
+  , mMaxTime(in.Get< float >())
+  , mStandardInterval(in.Get< float >())
+  , mRootBoneId(in.Get< uint >())
+  , mLooping(in.Get< uint >())
+  , mRotationValueForOne(in.Get< uint >())
+  , mOffsetResolution(in.Get< float >())
+  , mBoneChannelCount(in.Get< uint >())
   , x20_(in.Get< uint >()) {}
 
   const void* AfterEnd() const { return this + 1; }
-  CCharAnimTime GetMaxTime() const { return CCharAnimTime(x4_maxTime); }
-  CCharAnimTime GetStandardInterval() const { return CCharAnimTime(x8_standardInterval); }
-  bool IsLooping() const { return x10_looping != 0; }
-  uint GetRotationValueForOne() const { return x14_rotationValueForOne; }
-  float GetOffsetResolution() const { return x18_offsetResolution; }
+  CCharAnimTime GetMaxTime() const { return CCharAnimTime(mMaxTime); }
+  CCharAnimTime GetStandardInterval() const { return CCharAnimTime(mStandardInterval); }
+  bool IsLooping() const { return mLooping != 0; }
+  uint GetRotationValueForOne() const { return mRotationValueForOne; }
+  float GetOffsetResolution() const { return mOffsetResolution; }
 
 private:
   uint x0_;
-  float x4_maxTime;
-  float x8_standardInterval;
-  uint xc_rootBoneId;
-  uint x10_looping;
-  uint x14_rotationValueForOne;
-  float x18_offsetResolution;
-  uint x1c_boneChannelCount;
+  float mMaxTime;
+  float mStandardInterval;
+  uint mRootBoneId;
+  uint mLooping;
+  uint mRotationValueForOne;
+  float mOffsetResolution;
+  uint mBoneChannelCount;
   uint x20_;
 };
 CHECK_SIZEOF(CStandardMultiFormatHeader, 0x24)
@@ -58,12 +58,12 @@ template < typename T >
 class TLoadedVal {
 public:
   TLoadedVal() {}
-  TLoadedVal(T value) { Write(x0_value, value); }
+  TLoadedVal(T value) { Write(mValue, value); }
 
 #ifdef __MWERKS__
-  const T& operator*() const { return *reinterpret_cast< const T* >(x0_value); }
+  const T& operator*() const { return *reinterpret_cast< const T* >(mValue); }
 #else
-  T operator*() const { return Read(x0_value); }
+  T operator*() const { return Read(mValue); }
 #endif
 
   static T Read(const void* data) {
@@ -85,7 +85,7 @@ public:
   }
 
 private:
-  uchar x0_value[sizeof(T)];
+  uchar mValue[sizeof(T)];
 };
 
 // These headers are constructed directly in a buffer. Their variable-length
@@ -96,7 +96,7 @@ public:
   CFBBitCompressedDataChannelHeader(CInputStream& in);
 
   static void Write(uchar* out, short value) { TLoadedVal< short >::Write(out, value); }
-  const TLoadedVal< ushort >& Width() const { return x0_width; }
+  const TLoadedVal< ushort >& Width() const { return mWidth; }
   uint GetWidth() const { return *Width(); }
   static uint Height() { return Components; }
   short GetInitialValue(uint component) const;
@@ -105,7 +105,7 @@ public:
   uint GetSumOfBitCounts() const;
 
 private:
-  TLoadedVal< ushort > x0_width;
+  TLoadedVal< ushort > mWidth;
 };
 
 template < uint Components, uint ConstantComponent, uint SignComponent >
@@ -180,11 +180,11 @@ public:
   typedef CFBBitCompressedDataChannelHeader< 4, 100000, 0 > RotationHeader;
   typedef CFBBitCompressedDataChannelHeader< 3, 100000, 100000 > OffsetHeader;
 
-  CFBStreamedPerChannelHeader(CInputStream& in) : x0_segId(in.Get< uint >()) {
+  CFBStreamedPerChannelHeader(CInputStream& in) : mSegId(in.Get< uint >()) {
     new (const_cast< RotationHeader* >(&GetRotationBitStorage())) RotationHeader(in);
     new (const_cast< OffsetHeader* >(&GetOffsetBitStorage())) OffsetHeader(in);
   }
-  CSegId GetSegId() const { return CSegId(*x0_segId); }
+  CSegId GetSegId() const { return CSegId(*mSegId); }
   const RotationHeader& GetRotationBitStorage() const {
     return *reinterpret_cast< const RotationHeader* >(this + 1);
   }
@@ -199,7 +199,7 @@ public:
   }
 
 private:
-  TLoadedVal< uint > x0_segId;
+  TLoadedVal< uint > mSegId;
 };
 CHECK_SIZEOF(CFBStreamedPerChannelHeader, 0x4)
 
@@ -211,11 +211,11 @@ protected:
 template < typename Size, typename T >
 class TArrayInPlaceBase : public TLoadedContainerBase {
 public:
-  int size() const { return x0_size; }
-  const uchar* GetFirstAddress() const { return reinterpret_cast< const uchar* >(&x0_size + 1); }
+  int size() const { return mSize; }
+  const uchar* GetFirstAddress() const { return reinterpret_cast< const uchar* >(&mSize + 1); }
 
 protected:
-  Size x0_size;
+  Size mSize;
 };
 
 template < typename Size, typename T >
@@ -223,32 +223,32 @@ class TVectorOfVaryingLengthItems : public TArrayInPlaceBase< Size, T > {
 public:
   class const_iterator {
   public:
-    const_iterator(const T* ptr, int count) : x0_ptr(ptr), x4_count(count) {}
-    const_iterator(const const_iterator& other) : x0_ptr(other.x0_ptr), x4_count(other.x4_count) {}
+    const_iterator(const T* ptr, int count) : mPtr(ptr), mCount(count) {}
+    const_iterator(const const_iterator& other) : mPtr(other.mPtr), mCount(other.mCount) {}
     const_iterator& operator++() {
-      --x4_count;
-      x0_ptr = reinterpret_cast< const T* >(x0_ptr->AfterEnd());
+      --mCount;
+      mPtr = reinterpret_cast< const T* >(mPtr->AfterEnd());
       return *this;
     }
-    const T& operator*() const { return *x0_ptr; }
+    const T& operator*() const { return *mPtr; }
     const T* operator->() const {
-#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+#if VERSION >= VERSION_GM8P_00
       return &**this;
 #else
-      return x0_ptr;
+      return mPtr;
 #endif
     }
-    bool operator==(const const_iterator& other) const { return x4_count == other.x4_count; }
+    bool operator==(const const_iterator& other) const { return mCount == other.mCount; }
     bool operator!=(const const_iterator& other) const { return !(*this == other); }
 
   private:
-    const T* x0_ptr;
-    int x4_count;
+    const T* mPtr;
+    int mCount;
   };
 
   template < typename Stream >
   TVectorOfVaryingLengthItems(Stream& in) {
-    this->LoadSize(this->x0_size, in);
+    this->LoadSize(this->mSize, in);
     int count = this->size();
     const T* ptr = reinterpret_cast< const T* >(this->GetFirstAddress());
     for (int i = 0; i < count; ++i) {
@@ -294,9 +294,9 @@ public:
   typedef rstl::pair< const uint*, uint > FrameIterator;
 
   template < typename Stream >
-  CFBKeyFrameReductionPerChannel_HeaderForAll(Stream& in) : x0_bitCount(in.template Get< uint >()) {
-    uint words = Uint32sForBitCount(x0_bitCount);
-    uint* data = &x0_bitCount + 1;
+  CFBKeyFrameReductionPerChannel_HeaderForAll(Stream& in) : mBitCount(in.template Get< uint >()) {
+    uint words = Uint32sForBitCount(mBitCount);
+    uint* data = &mBitCount + 1;
     for (uint i = 0; i < words; ++i) {
       data[i] = LoadUint32(in);
     }
@@ -322,11 +322,11 @@ public:
     }
   }
   const void* AfterEnd() const {
-    return reinterpret_cast< const uint* >(this + 1) + Uint32sForBitCount(x0_bitCount);
+    return reinterpret_cast< const uint* >(this + 1) + Uint32sForBitCount(mBitCount);
   }
 
 private:
-  uint x0_bitCount;
+  uint mBitCount;
 };
 CHECK_SIZEOF(CFBKeyFrameReductionPerChannel_HeaderForAll, 0x4)
 
@@ -343,26 +343,26 @@ public:
   ~CFBStreamedCompression();
 
   CCharAnimTime GetAnimationDuration() const;
-  float GetAverageVelocity() const { return x10_averageVelocity; }
-  bool HasPOIData() const { return !x8_evntToken.null(); }
+  float GetAverageVelocity() const { return mAverageVelocity; }
+  bool HasPOIData() const { return !mEvntToken.null(); }
   const rstl::vector< CBoolPOINode >& GetBoolPOIStream() const {
-    return (*x8_evntToken)->GetBoolPOIStream();
+    return (*mEvntToken)->GetBoolPOIStream();
   }
   const rstl::vector< CInt32POINode >& GetInt32POIStream() const {
-    return (*x8_evntToken)->GetInt32POIStream();
+    return (*mEvntToken)->GetInt32POIStream();
   }
   const rstl::vector< CParticlePOINode >& GetParticlePOIStream() const {
-    return (*x8_evntToken)->GetParticlePOIStream();
+    return (*mEvntToken)->GetParticlePOIStream();
   }
   const rstl::vector< CSoundPOINode >& GetSoundPOIStream() const {
-    return (*x8_evntToken)->GetSoundPOIStream();
+    return (*mEvntToken)->GetSoundPOIStream();
   }
   CSteadyStateAnimInfo GetSteadyStateAnimInfo() const {
-    return CSteadyStateAnimInfo(MainHeader().IsLooping(), GetAnimationDuration(), x14_rootOffset);
+    return CSteadyStateAnimInfo(MainHeader().IsLooping(), GetAnimationDuration(), mRootOffset);
   }
   CCharAnimTime FinestSample() const { return MainHeader().GetStandardInterval(); }
   const CStandardMultiFormatHeader& MainHeader() const {
-    return *reinterpret_cast< const CStandardMultiFormatHeader* >(xc_rotsAndOffs.get());
+    return *reinterpret_cast< const CStandardMultiFormatHeader* >(mRotsAndOffs.get());
   }
   const CFBStreamedCompressionTimeHeader&
   TimeHeader(const CStandardMultiFormatHeader& header) const {
@@ -386,12 +386,12 @@ public:
 private:
   static rstl::auto_ptr< uint > GetRotationsAndOffsets(uint words, CInputStream& in);
 
-  uint x0_scratchSize;
-  uint x4_evnt;
-  rstl::single_ptr< TLockedToken< CAnimPOIData > > x8_evntToken;
-  rstl::single_ptr< uint > xc_rotsAndOffs;
-  float x10_averageVelocity;
-  CVector3f x14_rootOffset;
+  uint mScratchSize;
+  uint mEvnt;
+  rstl::single_ptr< TLockedToken< CAnimPOIData > > mEvntToken;
+  rstl::single_ptr< uint > mRotsAndOffs;
+  float mAverageVelocity;
+  CVector3f mRootOffset;
 };
 CHECK_SIZEOF(CFBStreamedCompression, 0x20)
 

@@ -101,7 +101,7 @@ CRayCastResult CCollidableAABox::CastRayInternal(const CInternalRayCastStructure
   float tMax;
   bool sign;
   int axis;
-  if (!CollisionUtil::BoxLineTest(x10_aabb, localRayStart, localRayDir, tMin, tMax, axis, sign) ||
+  if (!CollisionUtil::BoxLineTest(mAabb, localRayStart, localRayDir, tMin, tMax, axis, sign) ||
       tMin < 0.f || (rayMaxTime > 0.f && tMin > rayMaxTime)) {
     return CRayCastResult::MakeInvalid();
   }
@@ -116,13 +116,13 @@ CRayCastResult CCollidableAABox::CastRayInternal(const CInternalRayCastStructure
   return result;
 }
 
-CAABox CCollidableAABox::CalculateLocalAABox() const { return x10_aabb; }
+CAABox CCollidableAABox::CalculateLocalAABox() const { return mAabb; }
 
 CAABox CCollidableAABox::CalculateAABox(const CTransform4f& xf) const { return Transform(xf); }
 
 CAABox CCollidableAABox::Transform(const CTransform4f& xf) const {
   const CVector3f xfPos = xf.GetTranslation();
-  return CAABox(x10_aabb.GetMinPoint() + xfPos, x10_aabb.GetMaxPoint() + xfPos);
+  return CAABox(mAabb.GetMinPoint() + xfPos, mAabb.GetMaxPoint() + xfPos);
 }
 
 FourCC CCollidableAABox::GetPrimType() const { return 'AABX'; }

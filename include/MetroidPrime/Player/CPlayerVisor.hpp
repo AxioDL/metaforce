@@ -22,12 +22,12 @@ class CTexture;
 class CPlayerVisor {
   struct SScanObjectIndicatorInfo {
     SScanObjectIndicatorInfo(TUniqueId id, float timer, float inRangeTimer)
-    : x0_objId(id), x4_timer(timer), x8_inRangeTimer(inRangeTimer), xc_inBox(false) {}
+    : mObjId(id), mTimer(timer), mInRangeTimer(inRangeTimer), mInBox(false) {}
 
-    TUniqueId x0_objId;
-    float x4_timer;
-    float x8_inRangeTimer;
-    bool xc_inBox;
+    TUniqueId mObjId;
+    float mTimer;
+    float mInRangeTimer;
+    bool mInBox;
   };
 
   enum EScanWindowState {
@@ -63,42 +63,42 @@ private:
   int FindCachedInactiveScanTarget(TUniqueId uid) const;
   int FindEmptyInactiveScanTarget() const;
 
-  rstl::reserved_vector< CVector2f, 3 > x0_scanWindowSizes;
-  CPlayerState::EPlayerVisor x1c_curVisor;
-  CPlayerState::EPlayerVisor x20_nextVisor;
-  uchar x24_visorSfxVol;
-  bool x25_24_visorTransitioning : 1;
+  rstl::reserved_vector< CVector2f, 3 > mScanWindowSizes;
+  CPlayerState::EPlayerVisor mCurVisor;
+  CPlayerState::EPlayerVisor mNextVisor;
+  uchar mVisorSfxVol;
+  bool mVisorTransitioning : 1;
   bool x25_25_ : 1;
-  float x28_scanTimer;
-  float x2c_scanDimInterp;
-  EScanWindowState x30_prevState;
-  EScanWindowState x34_nextState;
-  float x38_windowInterpDuration;
-  float x3c_windowInterpTimer;
-  CVector2f x40_prevWindowDims;
-  CVector2f x48_interpWindowDims;
-  CVector2f x50_nextWindowDims;
-  float x58_scanMagInterp;
-  CSfxHandle x5c_visorLoopSfx;
-  CSfxHandle x60_scanningLoopSfx;
-  CCameraFilterPass x64_scanDim;
-  CCameraBlurPass x90_xrayBlur;
-  float xc4_vpScaleX;
-  float xc8_vpScaleY;
-  TCachedToken< CModel > xcc_scanFrameCorner;
-  TCachedToken< CModel > xd8_scanFrameCenterSide;
-  TCachedToken< CModel > xe4_scanFrameCenterTop;
-  TCachedToken< CModel > xf0_scanFrameStretchSide;
-  TCachedToken< CModel > xfc_scanFrameStretchTop;
-  TCachedToken< CModel > x108_newScanPane;
-  TCachedToken< CModel > x114_scanShield;
-  int x120_assetLockCountdown;
-  mutable TCachedToken< CModel > x124_scanIconNoncritical;
-  mutable TCachedToken< CModel > x130_scanIconCritical;
-  rstl::reserved_vector< SScanObjectIndicatorInfo, 64 > x13c_scanTargets;
-  TCachedToken< CTexture > x540_xrayPalette;
-  float x54c_scanFrameColorInterp;
-  float x550_scanFrameColorImpulseInterp;
+  float mScanTimer;
+  float mScanDimInterp;
+  EScanWindowState mPrevState;
+  EScanWindowState mNextState;
+  float mWindowInterpDuration;
+  float mWindowInterpTimer;
+  CVector2f mPrevWindowDims;
+  CVector2f mInterpWindowDims;
+  CVector2f mNextWindowDims;
+  float mScanMagInterp;
+  CSfxHandle mVisorLoopSfx;
+  CSfxHandle mScanningLoopSfx;
+  CCameraFilterPass mScanDim;
+  CCameraBlurPass mXrayBlur;
+  float mVpScaleX;
+  float mVpScaleY;
+  TCachedToken< CModel > mScanFrameCorner;
+  TCachedToken< CModel > mScanFrameCenterSide;
+  TCachedToken< CModel > mScanFrameCenterTop;
+  TCachedToken< CModel > mScanFrameStretchSide;
+  TCachedToken< CModel > mScanFrameStretchTop;
+  TCachedToken< CModel > mNewScanPane;
+  TCachedToken< CModel > mScanShield;
+  int mAssetLockCountdown;
+  mutable TCachedToken< CModel > mScanIconNoncritical;
+  mutable TCachedToken< CModel > mScanIconCritical;
+  rstl::reserved_vector< SScanObjectIndicatorInfo, 64 > mScanTargets;
+  TCachedToken< CTexture > mXrayPalette;
+  float mScanFrameColorInterp;
+  float mScanFrameColorImpulseInterp;
 };
 CHECK_SIZEOF(CPlayerVisor, 0x554)
 

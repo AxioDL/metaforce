@@ -10,20 +10,20 @@ class CInternalRayCastStructure {
 public:
   CInternalRayCastStructure(const CVector3f& start, const CVector3f& dir, float length,
                             const CTransform4f& xf, const CMaterialFilter& filter)
-  : x0_ray(start, dir, length), x38_maxTime(length), x3c_xf(xf), x6c_filter(filter) {}
+  : mRay(start, dir, length), mMaxTime(length), mXf(xf), mFilter(filter) {}
 
-  const CMRay& GetRay() const { return x0_ray; }
-  const CVector3f& GetStart() const { return x0_ray.GetStart(); }
-  const CVector3f& GetNormal() const { return x0_ray.GetDirection(); }
-  float GetMaxTime() const { return x38_maxTime; }
-  const CTransform4f& GetTransform() const { return x3c_xf; }
-  const CMaterialFilter& GetFilter() const { return x6c_filter; }
+  const CMRay& GetRay() const { return mRay; }
+  const CVector3f& GetStart() const { return mRay.GetStart(); }
+  const CVector3f& GetNormal() const { return mRay.GetDirection(); }
+  float GetMaxTime() const { return mMaxTime; }
+  const CTransform4f& GetTransform() const { return mXf; }
+  const CMaterialFilter& GetFilter() const { return mFilter; }
 
 private:
-  CMRay x0_ray;
-  float x38_maxTime;
-  CTransform4f x3c_xf;
-  const CMaterialFilter& x6c_filter;
+  CMRay mRay;
+  float mMaxTime;
+  CTransform4f mXf;
+  const CMaterialFilter& mFilter;
 };
 
 #endif // _CINTERNALRAYCASTSTRUCTURE

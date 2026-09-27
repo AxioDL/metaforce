@@ -7,9 +7,9 @@
 #include "Kyoto/Particles/IElement.hpp"
 
 class CMVEConstant : public CModVectorElement {
-  CRealElement* x4_x;
-  CRealElement* x8_y;
-  CRealElement* xc_z;
+  CRealElement* mX;
+  CRealElement* mY;
+  CRealElement* mZ;
 
 public:
   CMVEConstant(CRealElement* a, CRealElement* b, CRealElement* c);
@@ -18,7 +18,7 @@ public:
 };
 
 class CMVEFastConstant : public CModVectorElement {
-  CVector3f x4_val;
+  CVector3f mVal;
 
 public:
   CMVEFastConstant(float a, float b, float c);
@@ -27,7 +27,7 @@ public:
 };
 
 class CMVEGravity : public CModVectorElement {
-  CVectorElement* x4_a;
+  CVectorElement* mA;
 
 public:
   CMVEGravity(CVectorElement* a);
@@ -36,8 +36,8 @@ public:
 };
 
 class CMVEWind : public CModVectorElement {
-  CVectorElement* x4_velocity;
-  CRealElement* x8_factor;
+  CVectorElement* mVelocity;
+  CRealElement* mFactor;
 
 public:
   CMVEWind(CVectorElement* velocity, CRealElement* factor);
@@ -46,8 +46,8 @@ public:
 };
 
 class CMVEExplode : public CModVectorElement {
-  CRealElement* x4_a;
-  CRealElement* x8_b;
+  CRealElement* mA;
+  CRealElement* mB;
 
 public:
   CMVEExplode(CRealElement* a, CRealElement* b);
@@ -56,9 +56,9 @@ public:
 };
 
 class CMVETimeChain : public CModVectorElement {
-  CModVectorElement* x4_a;
-  CModVectorElement* x8_b;
-  CIntElement* xc_swFrame;
+  CModVectorElement* mA;
+  CModVectorElement* mB;
+  CIntElement* mSwFrame;
 
 public:
   CMVETimeChain(CModVectorElement* a, CModVectorElement* b, CIntElement* c);
@@ -67,10 +67,10 @@ public:
 };
 
 class CMVEPulse : public CModVectorElement {
-  CIntElement* x4_aDuration;
-  CIntElement* x8_bDuration;
-  CModVectorElement* xc_aVal;
-  CModVectorElement* x10_bVal;
+  CIntElement* mADuration;
+  CIntElement* mBDuration;
+  CModVectorElement* mAVal;
+  CModVectorElement* mBVal;
 
 public:
   CMVEPulse(CIntElement* a, CIntElement* b, CModVectorElement* c, CModVectorElement* d);
@@ -79,11 +79,11 @@ public:
 };
 
 class CMVEImplosion : public CModVectorElement {
-  CVectorElement* x4_implPoint;
-  CRealElement* x8_magScale;
-  CRealElement* xc_maxMag;
-  CRealElement* x10_minMag;
-  bool x14_enableMinMag;
+  CVectorElement* mImplPoint;
+  CRealElement* mMagScale;
+  CRealElement* mMaxMag;
+  CRealElement* mMinMag;
+  bool mEnableMinMag;
 
 public:
   CMVEImplosion(CVectorElement* a, CRealElement* b, CRealElement* c, CRealElement* d, bool e);
@@ -92,11 +92,11 @@ public:
 };
 
 class CMVELinearImplosion : public CModVectorElement {
-  CVectorElement* x4_implPoint;
-  CRealElement* x8_magScale;
-  CRealElement* xc_maxMag;
-  CRealElement* x10_minMag;
-  bool x14_enableMinMag;
+  CVectorElement* mImplPoint;
+  CRealElement* mMagScale;
+  CRealElement* mMaxMag;
+  CRealElement* mMinMag;
+  bool mEnableMinMag;
 
 public:
   CMVELinearImplosion(CVectorElement* a, CRealElement* b, CRealElement* c, CRealElement* d, bool e);
@@ -105,11 +105,11 @@ public:
 };
 
 class CMVEExponentialImplosion : public CModVectorElement {
-  CVectorElement* x4_implPoint;
-  CRealElement* x8_magScale;
-  CRealElement* xc_maxMag;
-  CRealElement* x10_minMag;
-  bool x14_enableMinMag;
+  CVectorElement* mImplPoint;
+  CRealElement* mMagScale;
+  CRealElement* mMaxMag;
+  CRealElement* mMinMag;
+  bool mEnableMinMag;
 
 public:
   CMVEExponentialImplosion(CVectorElement* a, CRealElement* b, CRealElement* c, CRealElement* d,
@@ -119,10 +119,10 @@ public:
 };
 
 class CMVESwirl : public CModVectorElement {
-  CVectorElement* x4_helixPoint;
-  CVectorElement* x8_curveBinormal;
-  CRealElement* xc_filterGain;
-  CRealElement* x10_tangentialVelocity;
+  CVectorElement* mHelixPoint;
+  CVectorElement* mCurveBinormal;
+  CRealElement* mFilterGain;
+  CRealElement* mTangentialVelocity;
 
 public:
   CMVESwirl(CVectorElement* a, CVectorElement* b, CRealElement* c, CRealElement* d);
@@ -131,14 +131,14 @@ public:
 };
 
 class CMVEBounce : public CModVectorElement {
-  CVectorElement* x4_planePoint;
-  CVectorElement* x8_planeNormal;
-  CRealElement* xc_friction;
-  CRealElement* x10_restitution;
-  bool x14_planePrecomputed;
-  bool x15_dieOnPenetrate;
-  mutable CVector3f x18_planeValidatedNormal;
-  mutable float x24_planeD;
+  CVectorElement* mPlanePoint;
+  CVectorElement* mPlaneNormal;
+  CRealElement* mFriction;
+  CRealElement* mRestitution;
+  bool mPlanePrecomputed;
+  bool mDieOnPenetrate;
+  mutable CVector3f mPlaneValidatedNormal;
+  mutable float mPlaneD;
 
 public:
   CMVEBounce(CVectorElement* planePoint, CVectorElement* planeNormal, CRealElement* friction,
@@ -148,7 +148,7 @@ public:
 };
 
 class CMVESetPosition : public CModVectorElement {
-  CVectorElement* x4_a;
+  CVectorElement* mA;
 
 public:
   CMVESetPosition(CVectorElement* a);

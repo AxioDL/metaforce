@@ -4,8 +4,8 @@
 #include "MetroidPrime/BodyState/CAdditiveBodyState.hpp"
 
 class CABSFlinch : public CAdditiveBodyState {
-  float x4_weight; 
-  uint x8_anim;
+  float mWeight;
+  uint mAnim;
   pas::EAnimationState GetBodyStateTransition(float dt, CBodyController& bc) const;
 
 public:

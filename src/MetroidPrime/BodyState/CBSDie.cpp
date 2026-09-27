@@ -7,7 +7,7 @@
 #include "Kyoto/Animation/CPASAnimParmData.hpp"
 #include "Kyoto/Animation/CPASDatabase.hpp"
 
-CBSDie::CBSDie() : x4_remTime(0.0f), x8_isDead(false) {}
+CBSDie::CBSDie() : mRemTime(0.0f), mIsDead(false) {}
 
 void CBSDie::Start(CBodyController& bc, CStateManager& mgr) {
   const CPASDatabase& db = bc.GetPASDatabase();
@@ -21,25 +21,25 @@ void CBSDie::Start(CBodyController& bc, CStateManager& mgr) {
     if (best.first > 0.f) {
       const CAnimPlaybackParms playParms(best.second, -1, 1.f, true);
       bc.SetCurrentAnimation(playParms, false, false);
-      x4_remTime = bc.GetAnimTimeRemaining();
+      mRemTime = bc.GetAnimTimeRemaining();
       shouldReset = false;
     }
   }
 
   if (shouldReset) {
     bc.EnableAnimation(false);
-    x4_remTime = bc.ShouldPlayDeathAnims() ? 3.f : 4.f;
+    mRemTime = bc.ShouldPlayDeathAnims() ? 3.f : 4.f;
   }
 
-  x8_isDead = false;
+  mIsDead = false;
 }
 
 pas::EAnimationState CBSDie::UpdateBody(float dt, CBodyController& bc,
                                         CStateManager& mgr) {
-  x4_remTime -= dt;
-  if (x4_remTime <= 0.f) {
+  mRemTime -= dt;
+  if (mRemTime <= 0.f) {
     bc.EnableAnimation(false);
-    x8_isDead = true;
+    mIsDead = true;
   }
   return pas::kAS_Invalid;
 }
@@ -48,6 +48,6 @@ void CBSDie::Shutdown(CBodyController&) {}
 
 bool CBSDie::IsDying() const { return true; }
 
-bool CBSDie::IsDead() const { return x8_isDead; }
+bool CBSDie::IsDead() const { return mIsDead; }
 
 CBSDie::~CBSDie() {}

@@ -123,36 +123,42 @@ static void DrawTexture(const rstl::auto_ptr< TToken< CTexture > >& token,
 
 CSlideShow::CSlideShow()
 : CIOWin(rstl::string_l("SlideShow"))
-, x14_phase(0)
-, x38_galleryBorder(nullptr)
+, mPhase(0)
+, mGalleryBorder(nullptr)
 , x3c_(0)
-, x40_totalSlides(0)
-, x44_gallery(0)
-, x48_slide(-1)
-, x4c_crossfadeTimer(0.f)
-, x50_repeatTimer(0.f)
-, x54_idleTimer(0.f)
-, x58_slideNumberTimer(0.f)
-, xc4_controlsText(nullptr)
-, xc8_slideNumberText(nullptr)
-, xcc_audio(nullptr)
-, xe8_lStick(0)
-, xec_cStick(0)
-, xf0_lTrigger(0)
-, xf4_rTrigger(0)
-, x128_controlsOffset(32.f)
-, x12c_slideNumberOffset(32.f)
-, x130_fadeTimer(gpTweakSlideShow->GetFadeTime())
-, x134_24_showControls(true)
-, x134_25_controlsFadeIn(false)
-, x134_26_controlsFadeOut(false)
-, x134_28_disableInput(false)
-, x134_29_exit(false)
-, x134_30_introFade(true)
-, x134_31_outroFade(false)
-, x135_24_galleryChanged(true) {
-  x5c_slideA.x0_parent = this;
-  x90_slideB.x0_parent = this;
+, mTotalSlides(0)
+, mGallery(0)
+, mSlide(-1)
+, mCrossfadeTimer(0.f)
+, mRepeatTimer(0.f)
+, mIdleTimer(0.f)
+, mSlideNumberTimer(0.f)
+, mControlsText(nullptr)
+#if VERSION >= VERSION_GM8P_00
+, mGalleryNameText(nullptr)
+#endif
+, mSlideNumberText(nullptr)
+, mAudio(nullptr)
+#if VERSION >= VERSION_GM8P_00
+, mGalleryNames(gpSimplePool->GetObj(gpTweakSlideShow->GetGalleryNames().data()))
+#endif
+, mLStick(0)
+, mCStick(0)
+, mLTrigger(0)
+, mRTrigger(0)
+, mControlsOffset(32.f)
+, mSlideNumberOffset(32.f)
+, mFadeTimer(gpTweakSlideShow->GetFadeTime())
+, mShowControls(true)
+, mControlsFadeIn(false)
+, mControlsFadeOut(false)
+, mDisableInput(false)
+, mExit(false)
+, mIntroFade(true)
+, mOutroFade(false)
+, mGalleryChanged(true) {
+  mSlideA.mParent = this;
+  mSlideB.mParent = this;
   gpResourceFactory->GetResLoader().AddPakFileAsync(gpTweakSlideShow->GetPakName(), false, false);
   const int width = CGraphics::GetViewportWidth();
   const int height = CGraphics::GetViewportHeight();
@@ -160,33 +166,51 @@ CSlideShow::CSlideShow()
   const CColor& outlineColor = gpTweakSlideShow->GetOutlineColor();
   const SObjectTag* font =
       gpResourceFactory->GetResourceIdByName(gpTweakSlideShow->GetFont().data());
-  xc4_controlsText = rs_new CGuiTextSupport(
+#if VERSION >= VERSION_GM8P_00
+  mControlsText = rs_new CGuiTextSupport(
+      font->GetId(), width, height,
+      CGuiTextProperties(false, true, kJustification_Center, kVerticalJustification_Bottom),
+      fontColor, outlineColor, CColor::White(), gpSimplePool);
+  mGalleryNameText = rs_new CGuiTextSupport(
+      font->GetId(), width, height,
+      CGuiTextProperties(false, true, kJustification_Left, kVerticalJustification_Bottom),
+      fontColor, outlineColor, CColor::White(), gpSimplePool);
+  mSlideNumberText = rs_new CGuiTextSupport(
+      font->GetId(), width, height,
+      CGuiTextProperties(false, true, kJustification_Right, kVerticalJustification_Bottom),
+      fontColor, outlineColor, CColor::White(), gpSimplePool);
+#else
+  mControlsText = rs_new CGuiTextSupport(
       font->GetId(),
       CGuiTextProperties(false, true, kJustification_Center, kVerticalJustification_Bottom),
       fontColor, outlineColor, CColor::White(), width, height, gpSimplePool);
-  xc8_slideNumberText = rs_new CGuiTextSupport(
+  mSlideNumberText = rs_new CGuiTextSupport(
       font->GetId(),
       CGuiTextProperties(false, true, kJustification_Right, kVerticalJustification_Bottom),
       fontColor, outlineColor, CColor::White(), width, height, gpSimplePool);
-  const rstl::reserved_vector< CAssetId, 9 >* sticks[] = {&gpTweakPlayerRes->x20_lStick,
-                                                          &gpTweakPlayerRes->x48_cStick};
-  xf8_stickTextures.reserve(18);
+#endif
+  const rstl::reserved_vector< CAssetId, 9 >* sticks[] = {&gpTweakPlayerRes->mLStick,
+                                                          &gpTweakPlayerRes->mCStick};
+  mStickTextures.reserve(18);
   for (int i = 0; i < 2; ++i) {
     for (int j = 0; j < 9; ++j) {
-      xf8_stickTextures.push_back(gpSimplePool->GetObj(SObjectTag('TXTR', (*sticks[i])[j])));
+      mStickTextures.push_back(gpSimplePool->GetObj(SObjectTag('TXTR', (*sticks[i])[j])));
     }
   }
-  SetTexturesLocked(xf8_stickTextures, true);
+  SetTexturesLocked(mStickTextures, true);
   const rstl::reserved_vector< CAssetId, 2 >* buttons[] = {
-      &gpTweakPlayerRes->x70_lTrigger, &gpTweakPlayerRes->x7c_rTrigger,
-      &gpTweakPlayerRes->xa0_bButton, &gpTweakPlayerRes->xb8_yButton};
-  x108_buttonTextures.reserve(8);
+      &gpTweakPlayerRes->mLTrigger, &gpTweakPlayerRes->mRTrigger,
+      &gpTweakPlayerRes->mBButton, &gpTweakPlayerRes->mYButton};
+  mButtonTextures.reserve(8);
   for (int i = 0; i < 4; ++i) {
     for (int j = 0; j < 2; ++j) {
-      x108_buttonTextures.push_back(gpSimplePool->GetObj(SObjectTag('TXTR', (*buttons[i])[j])));
+      mButtonTextures.push_back(gpSimplePool->GetObj(SObjectTag('TXTR', (*buttons[i])[j])));
     }
   }
-  SetTexturesLocked(x108_buttonTextures, true);
+  SetTexturesLocked(mButtonTextures, true);
+#if VERSION >= VERSION_GM8P_00
+  mGalleryNames.Lock();
+#endif
 }
 
 CSlideShow::~CSlideShow() {
@@ -214,16 +238,80 @@ uint CSlideShow::SlideShowGalleryFlags() {
 }
 
 void CSlideShow::BuildGalleryLists(uint flags) {
-  const int count = x18_galleryTXTRDeps.size() - 1;
-  x28_galleries.reserve(count);
-  AUTO(it, x18_galleryTXTRDeps.begin());
-  for (int i = 0; it != x18_galleryTXTRDeps.end() && i < count; ++i) {
+#if VERSION >= VERSION_GM8P_00
+  const int count = mGalleryTXTRDeps.size() - 1;
+  mGalleries.reserve(count);
+  AUTO(it, mGalleryTXTRDeps.begin());
+  AUTO(label, mGalleryLabels.begin());
+  for (int i = 0; it != mGalleryTXTRDeps.end() && i < count; ++i) {
     if ((flags & (1 << i)) == 0) {
-      it = x18_galleryTXTRDeps.erase(it);
+      it = mGalleryTXTRDeps.erase(it);
+      label = mGalleryLabels.erase(label);
+    } else {
+      const int textureCount = it->GetT()->GetObjectTagVector().size();
+      mGalleries.push_back(SGalleryData(i));
+      SGalleryData& gallery = mGalleries.back();
+      gallery.mTextures.reserve(textureCount);
+      gallery.mSlides.reserve(textureCount);
+      int slide = 0;
+      int row = 0;
+      int column = 0;
+      int tiles = 0;
+      int columns = 0;
+      int missingRows = 0;
+      while (slide < textureCount) {
+        rstl::string name = CBasics::Stringize("%s_%02d_%03d", "slideshow", i, slide);
+        const SObjectTag* tag = gpResourceFactory->GetResourceIdByName(name.data());
+        if (tag != nullptr) {
+          gallery.mTextures.push_back(tag);
+          column = 1;
+          ++tiles;
+          columns = 1;
+          ++missingRows;
+          tag = nullptr;
+        } else {
+          name.append(CBasics::Stringize("_%02d%02d", column, row), -1);
+          tag = gpResourceFactory->GetResourceIdByName(name.data());
+          if (tag != nullptr) {
+            gallery.mTextures.push_back(tag);
+            ++column;
+            ++tiles;
+            columns = column;
+            missingRows = 0;
+          }
+        }
+        if (tag == nullptr) {
+          if (missingRows == 1 && tiles > 0) {
+            gallery.mSlides.push_back(rstl::pair< int, int >(gallery.mTextures.size(), columns));
+            ++slide;
+            row = 0;
+            missingRows = 0;
+            tiles = 0;
+          } else {
+            if (missingRows > 1) {
+              break;
+            }
+            ++missingRows;
+            ++row;
+          }
+          column = 0;
+        }
+      }
+      ++it;
+      ++label;
+    }
+  }
+#else
+  const int count = mGalleryTXTRDeps.size() - 1;
+  mGalleries.reserve(count);
+  AUTO(it, mGalleryTXTRDeps.begin());
+  for (int i = 0; it != mGalleryTXTRDeps.end() && i < count; ++i) {
+    if ((flags & (1 << i)) == 0) {
+      it = mGalleryTXTRDeps.erase(it);
     } else {
       const int slides = it->GetT()->GetObjectTagVector().size();
-      x28_galleries.push_back(SGalleryData(i, rstl::vector< const SObjectTag* >()));
-      SGalleryData& gallery = x28_galleries.back();
+      mGalleries.push_back(SGalleryData(i, rstl::vector< const SObjectTag* >()));
+      SGalleryData& gallery = mGalleries.back();
       gallery.second.reserve(slides);
       for (int j = 0; j < slides; ++j) {
         const char* name = CBasics::Stringize("%s_%02d_%03d", "slideshow", i, j);
@@ -233,15 +321,16 @@ void CSlideShow::BuildGalleryLists(uint flags) {
       ++it;
     }
   }
+#endif
 }
 
 bool CSlideShow::LoadTXTRDep(const char* name) {
   const SObjectTag* tag = gpResourceFactory->GetResourceIdByName(name);
   if (tag != nullptr && tag->GetType() == 'DGRP') {
-    if (x18_galleryTXTRDeps.size() + 1 > x18_galleryTXTRDeps.capacity()) {
-      x18_galleryTXTRDeps.reserve(x18_galleryTXTRDeps.size() + 1);
+    if (mGalleryTXTRDeps.size() + 1 > mGalleryTXTRDeps.capacity()) {
+      mGalleryTXTRDeps.reserve(mGalleryTXTRDeps.size() + 1);
     }
-    x18_galleryTXTRDeps.push_back(TToken< CDependencyGroup >(gpSimplePool->GetObj(*tag)));
+    mGalleryTXTRDeps.push_back(TToken< CDependencyGroup >(gpSimplePool->GetObj(*tag)));
   } else {
     return false;
   }
@@ -252,20 +341,20 @@ CIOWin::EMessageReturn CSlideShow::OnMessage(const CArchitectureMessage& msg,
                                              CArchitectureQueue& queue) {
   switch (msg.GetType()) {
   case kAM_TimerTick: {
-    if (x134_29_exit) {
+    if (mExit) {
       return kMR_RemoveIOWinAndExit;
     }
     const float dt = MakeMsg::GetParmTimerTick(msg).GetReal();
-    switch (x14_phase) {
+    switch (mPhase) {
     case 0:
       if (!gpResourceFactory->GetResLoader().AreAllPaksLoaded()) {
         gpResourceFactory->GetResLoader().AsyncIdlePakLoading();
         break;
       }
-      x14_phase = 1;
+      mPhase = 1;
     case 1:
-      if (x18_galleryTXTRDeps.empty()) {
-        x18_galleryTXTRDeps.reserve(5);
+      if (mGalleryTXTRDeps.empty()) {
+        mGalleryTXTRDeps.reserve(5);
         for (int i = 1;; ++i) {
           const rstl::string name = CBasics::Stringize("%s%02d_DGRP", skGalleryName, i);
           if (!LoadTXTRDep(name.data())) {
@@ -273,105 +362,133 @@ CIOWin::EMessageReturn CSlideShow::OnMessage(const CArchitectureMessage& msg,
           }
         }
         LoadTXTRDep(skGalleryAssets);
-        SetDependenciesLocked(x18_galleryTXTRDeps, true);
+        SetDependenciesLocked(mGalleryTXTRDeps, true);
       }
-      if (!AreAllDepsLoaded(x18_galleryTXTRDeps)) {
+      if (!AreAllDepsLoaded(mGalleryTXTRDeps)) {
         break;
       }
-      x14_phase = 3;
+#if VERSION >= VERSION_GM8P_00
+      mPhase = 2;
+    case 2: {
+      if (mGalleryBorder.null()) {
+        const SObjectTag* tag = gpResourceFactory->GetResourceIdByName(skGalleryBorder);
+        mGalleryBorder = rs_new TToken< CModel >(gpSimplePool->GetObj(*tag));
+        mGalleryBorder->Lock();
+      }
+      if (!mGalleryNames.IsLoaded() || !mGalleryBorder->IsLoaded()) {
+        break;
+      }
+      const CStringTable& strings = **mGalleryNames;
+      const int count = mGalleryTXTRDeps.size() - 1;
+      mGalleryLabels.reserve(count);
+      for (int i = 0; i < count; ++i) {
+        mGalleryLabels.push_back(rstl::wstring(mGalleryNames->GetString(i)));
+      }
+      mPhase = 4;
+    }
     case 3:
       BuildGalleryLists(SlideShowGalleryFlags());
-      for (int i = 0; i < x28_galleries.size(); ++i) {
-        x40_totalSlides += x28_galleries[i].second.size();
+      for (int i = 0; i < mGalleries.size(); ++i) {
+        mTotalSlides += mGalleries[i].mSlides.size();
       }
       AdvanceSlide(true);
-      x14_phase = 2;
+      mPhase = 4;
+#else
+      mPhase = 3;
+    case 3:
+      BuildGalleryLists(SlideShowGalleryFlags());
+      for (int i = 0; i < mGalleries.size(); ++i) {
+        mTotalSlides += mGalleries[i].second.size();
+      }
+      AdvanceSlide(true);
+      mPhase = 2;
     case 2:
-      if (xd0_galleryTags.size() != x28_galleries.size()) {
-        xd0_galleryTags.reserve(x28_galleries.size());
-        for (int i = 0; i < x28_galleries.size(); ++i) {
-          const char* name = CBasics::Stringize("%s%02d", skGalleryTag, x28_galleries[i].first + 1);
+      if (mGalleryTags.size() != mGalleries.size()) {
+        mGalleryTags.reserve(mGalleries.size());
+        for (int i = 0; i < mGalleries.size(); ++i) {
+          const char* name = CBasics::Stringize("%s%02d", skGalleryTag, mGalleries[i].first + 1);
           const SObjectTag* tag = gpResourceFactory->GetResourceIdByName(name);
           if (tag == nullptr) {
-            xd0_galleryTags.push_back(rstl::auto_ptr< TToken< CTexture > >());
+            mGalleryTags.push_back(rstl::auto_ptr< TToken< CTexture > >());
           } else {
-            xd0_galleryTags.push_back(rs_new TToken< CTexture >(gpSimplePool->GetObj(*tag)));
-            xd0_galleryTags.back()->Lock();
+            mGalleryTags.push_back(rs_new TToken< CTexture >(gpSimplePool->GetObj(*tag)));
+            mGalleryTags.back()->Lock();
           }
         }
-        if (x38_galleryBorder.null()) {
+        if (mGalleryBorder.null()) {
           const SObjectTag* tag = gpResourceFactory->GetResourceIdByName(skGalleryBorder);
-          x38_galleryBorder = rs_new TToken< CModel >(gpSimplePool->GetObj(*tag));
-          x38_galleryBorder->Lock();
+          mGalleryBorder = rs_new TToken< CModel >(gpSimplePool->GetObj(*tag));
+          mGalleryBorder->Lock();
         }
       }
-      if (!x38_galleryBorder->IsLoaded()) {
+      if (!mGalleryBorder->IsLoaded()) {
         break;
       }
-      for (int i = 0; i < xd0_galleryTags.size(); ++i) {
-        if (!xd0_galleryTags[i].null() && !xd0_galleryTags[i]->IsLoaded()) {
+      for (int i = 0; i < mGalleryTags.size(); ++i) {
+        if (!mGalleryTags[i].null() && !mGalleryTags[i]->IsLoaded()) {
           break;
         }
       }
-      x14_phase = 4;
+      mPhase = 4;
+#endif
     case 4:
-      if (xcc_audio.null()) {
-        xcc_audio = rs_new CStaticAudioPlayer(rstl::string_l(skAudioFile), 0x65af0, 0x1e1db0);
+      if (mAudio.null()) {
+        mAudio = rs_new CStaticAudioPlayer(rstl::string_l(skAudioFile), 0x65af0, 0x1e1db0);
       }
-      if (!xcc_audio->IsReady()) {
+      if (!mAudio->IsReady()) {
         break;
       }
       UpdateMusicVolume(gpTweakSlideShow->GetMusicFadeTime());
-      xcc_audio->StartMixOut();
-      x14_phase = 5;
+      mAudio->StartMixOut();
+      mPhase = 5;
     case 5: {
-      if (x134_30_introFade || x134_31_outroFade) {
-        x130_fadeTimer = rstl::max_val(0.f, x130_fadeTimer - dt);
-        if (x130_fadeTimer <= 0.f) {
-          if (x134_28_disableInput) {
-            x134_29_exit = true;
+      if (mIntroFade || mOutroFade) {
+        mFadeTimer = rstl::max_val(0.f, mFadeTimer - dt);
+        if (mFadeTimer <= 0.f) {
+          if (mDisableInput) {
+            mExit = true;
           } else {
-            x134_30_introFade = false;
-            x134_31_outroFade = false;
-            x130_fadeTimer = gpTweakSlideShow->GetMusicFadeTime();
+            mIntroFade = false;
+            mOutroFade = false;
+            mFadeTimer = gpTweakSlideShow->GetMusicFadeTime();
           }
         }
       }
-      x38_galleryBorder->GetT()->Touch(0);
+      mGalleryBorder->GetT()->Touch(0);
       LoadSlide();
-      if (x90_slideB.IsReady()) {
+      if (mSlideB.IsReady()) {
         const float crossfadeTime = gpTweakSlideShow->GetCrossfadeTime();
-        if (x4c_crossfadeTimer > crossfadeTime) {
-          x5c_slideA = x90_slideB;
+        if (mCrossfadeTimer > crossfadeTime) {
+          mSlideA = mSlideB;
           SetPanSfx(false);
           SetZoomSfx(false);
-          x5c_slideA.x30_mulColor.SetAlpha(1.f);
-          x90_slideB.Reset();
-          x4c_crossfadeTimer = 0.f;
+          mSlideA.mMulColor.SetAlpha(1.f);
+          mSlideB.Reset();
+          mCrossfadeTimer = 0.f;
         } else {
-          const float alpha = CMath::Clamp(0.f, x4c_crossfadeTimer / crossfadeTime, 1.f);
-          x5c_slideA.x30_mulColor.SetAlpha(1.f - alpha);
-          x90_slideB.x30_mulColor.SetAlpha(alpha);
-          x4c_crossfadeTimer += dt;
+          const float alpha = CMath::Clamp(0.f, mCrossfadeTimer / crossfadeTime, 1.f);
+          mSlideA.mMulColor.SetAlpha(1.f - alpha);
+          mSlideB.mMulColor.SetAlpha(alpha);
+          mCrossfadeTimer += dt;
         }
-      } else if (CMath::AbsF(x50_repeatTimer) > gpTweakSlideShow->GetSlideRepeatTime()) {
-        AdvanceSlide(x50_repeatTimer > 0.f);
-        x50_repeatTimer = 0.f;
+      } else if (CMath::AbsF(mRepeatTimer) > gpTweakSlideShow->GetSlideRepeatTime()) {
+        AdvanceSlide(mRepeatTimer > 0.f);
+        mRepeatTimer = 0.f;
       }
       const float idleTime =
           IsControlsAnimating() ? 0.f : gpTweakSlideShow->GetSlideNumberIdleTime();
-      x54_idleTimer = CMath::Clamp(0.f, x54_idleTimer + dt, idleTime);
-      if (x54_idleTimer >= gpTweakSlideShow->GetSlideNumberIdleTime()) {
-        x58_slideNumberTimer += dt;
+      mIdleTimer = CMath::Clamp(0.f, mIdleTimer + dt, idleTime);
+      if (mIdleTimer >= gpTweakSlideShow->GetSlideNumberIdleTime()) {
+        mSlideNumberTimer += dt;
       } else {
-        x58_slideNumberTimer -= dt;
+        mSlideNumberTimer -= dt;
       }
-      x58_slideNumberTimer =
-          CMath::Clamp(0.f, x58_slideNumberTimer, gpTweakSlideShow->GetSlideNumberFadeTime());
+      mSlideNumberTimer =
+          CMath::Clamp(0.f, mSlideNumberTimer, gpTweakSlideShow->GetSlideNumberFadeTime());
       UpdateControls(dt);
       UpdateSlideNumber(dt);
-      if (x134_31_outroFade) {
-        UpdateMusicVolume(x130_fadeTimer);
+      if (mOutroFade) {
+        UpdateMusicVolume(mFadeTimer);
       }
       break;
     }
@@ -391,24 +508,24 @@ CIOWin::EMessageReturn CSlideShow::OnMessage(const CArchitectureMessage& msg,
 }
 
 void CSlideShow::Draw() const {
-  if (x14_phase == 5) {
-    if (x5c_slideA.IsReady()) {
-      x5c_slideA.Draw();
+  if (mPhase == 5) {
+    if (mSlideA.IsReady()) {
+      mSlideA.Draw();
     }
-    if (x90_slideB.IsReady()) {
-      x90_slideB.Draw();
+    if (mSlideB.IsReady()) {
+      mSlideB.Draw();
     }
-    if (!xc8_slideNumberText.null() &&
-        x58_slideNumberTimer != gpTweakSlideShow->GetSlideNumberFadeTime()) {
+    if (!mSlideNumberText.null() &&
+        mSlideNumberTimer != gpTweakSlideShow->GetSlideNumberFadeTime()) {
       DrawSlideNumber();
     }
     if (IsControlsAnimating()) {
       DrawControls();
     }
-    if (x134_30_introFade || x134_31_outroFade) {
-      float alpha = x130_fadeTimer / (x134_30_introFade ? gpTweakSlideShow->GetFadeTime()
+    if (mIntroFade || mOutroFade) {
+      float alpha = mFadeTimer / (mIntroFade ? gpTweakSlideShow->GetFadeTime()
                                                         : gpTweakSlideShow->GetMusicFadeTime());
-      if (x134_31_outroFade) {
+      if (mOutroFade) {
         alpha = 1.f - alpha;
       }
       CCameraFilterPass::DrawFilter(CCameraFilterPass::kFT_Blend, CCameraFilterPass::kFS_Fullscreen,
@@ -487,7 +604,7 @@ CAssetId UpdatePersistentScanPercent(int previous, int current, int total) {
 }
 
 CIOWin::EMessageReturn CSlideShow::ProcessUserInput(const CFinalInput& input) {
-  if (!x134_28_disableInput) {
+  if (!mDisableInput) {
     if (IsControlsAnimating()) {
       UpdateControlsText(input);
     }
@@ -496,14 +613,14 @@ CIOWin::EMessageReturn CSlideShow::ProcessUserInput(const CFinalInput& input) {
       SetZoomSfx(false);
       CSfxManager::SfxStart(0x446, 127, 64, false, CSfxManager::kMedPriority, false,
                             CSfxManager::kAllAreas);
-      x134_28_disableInput = true;
-      x134_31_outroFade = true;
+      mDisableInput = true;
+      mOutroFade = true;
       return kMR_Exit;
     }
     if (input.PY()) {
-      SetShowControls(!x134_24_showControls);
-      if (x134_24_showControls) {
-        x135_24_galleryChanged = true;
+      SetShowControls(!mShowControls);
+      if (mShowControls) {
+        mGalleryChanged = true;
         CSfxManager::SfxStart(0x5b1, 127, 64, false, CSfxManager::kMedPriority, false,
                               CSfxManager::kAllAreas);
       } else {
@@ -513,19 +630,19 @@ CIOWin::EMessageReturn CSlideShow::ProcessUserInput(const CFinalInput& input) {
     }
     bool changed = false;
     if (input.PDPRight()) {
-      x44_gallery = (x44_gallery + 1) % x28_galleries.size();
-      x48_slide = -1;
+      mGallery = (mGallery + 1) % mGalleries.size();
+      mSlide = -1;
       changed = true;
-      x135_24_galleryChanged = true;
+      mGalleryChanged = true;
       AdvanceSlide(true);
     } else if (input.PDPLeft()) {
-      --x44_gallery;
-      if (x44_gallery < 0) {
-        x44_gallery = x28_galleries.size() - 1;
+      --mGallery;
+      if (mGallery < 0) {
+        mGallery = mGalleries.size() - 1;
       }
-      x48_slide = -1;
+      mSlide = -1;
       changed = true;
-      x135_24_galleryChanged = true;
+      mGalleryChanged = true;
       AdvanceSlide(true);
     } else if (ControlMapper::GetPressInput(ControlMapper::kC_MapCircleRight, input) ||
                input.PA()) {
@@ -537,201 +654,249 @@ CIOWin::EMessageReturn CSlideShow::ProcessUserInput(const CFinalInput& input) {
     } else {
       float right = ControlMapper::GetAnalogInput(ControlMapper::kC_MapCircleRight, input);
       if (right || input.DA()) {
-        x50_repeatTimer = rstl::max_val(0.f, x50_repeatTimer);
-        x50_repeatTimer += input.Time();
+        mRepeatTimer = rstl::max_val(0.f, mRepeatTimer);
+        mRepeatTimer += input.Time();
       } else {
         float left = ControlMapper::GetAnalogInput(ControlMapper::kC_MapCircleLeft, input);
         if (left) {
-          x50_repeatTimer = rstl::min_val(0.f, x50_repeatTimer);
-          x50_repeatTimer -= input.Time();
+          mRepeatTimer = rstl::min_val(0.f, mRepeatTimer);
+          mRepeatTimer -= input.Time();
         } else {
-          x50_repeatTimer = 0.f;
+          mRepeatTimer = 0.f;
         }
       }
     }
     if (changed) {
-      x50_repeatTimer = 0.f;
-      x54_idleTimer = 0.f;
+      mRepeatTimer = 0.f;
+      mIdleTimer = 0.f;
     }
-    if (x5c_slideA.IsReady()) {
-      return x5c_slideA.ProcessUserInput(input);
+    if (mSlideA.IsReady()) {
+      return mSlideA.ProcessUserInput(input);
     }
   }
   return kMR_Exit;
 }
+
 CIOWin::EMessageReturn CSlideShow::AdvanceSlide(bool forward) {
-  if (!x28_galleries.empty()) {
+  if (!mGalleries.empty()) {
     CSfxManager::SfxStart(0x445, 127, 64, false, CSfxManager::kMedPriority, false,
                           CSfxManager::kAllAreas);
     if (forward) {
-      ++x48_slide;
+      ++mSlide;
     } else {
-      --x48_slide;
+      --mSlide;
     }
-    const int gallery = x44_gallery;
-    if (x48_slide < 0) {
-      --x44_gallery;
-      x135_24_galleryChanged = true;
-    } else if (x48_slide >= x28_galleries[x44_gallery].second.size()) {
-      ++x44_gallery;
-      x135_24_galleryChanged = true;
+    const int gallery = mGallery;
+    if (mSlide < 0) {
+      --mGallery;
+      mGalleryChanged = true;
+#if VERSION >= VERSION_GM8P_00
+    } else if (mSlide >= mGalleries[mGallery].mSlides.size()) {
+#else
+    } else if (mSlide >= mGalleries[mGallery].second.size()) {
+#endif
+      ++mGallery;
+      mGalleryChanged = true;
     }
-    if (x44_gallery < 0) {
-      x44_gallery = x28_galleries.size() - 1;
-      x48_slide = x28_galleries[x44_gallery].second.size() - 1;
-    } else if (x44_gallery >= x28_galleries.size()) {
-      x48_slide = 0;
-      x44_gallery = 0;
-    } else if (x44_gallery > gallery) {
-      x48_slide = 0;
-    } else if (x44_gallery < gallery) {
-      x48_slide = x28_galleries[x44_gallery].second.size() - 1;
+    if (mGallery < 0) {
+      mGallery = mGalleries.size() - 1;
+#if VERSION >= VERSION_GM8P_00
+      mSlide = mGalleries[mGallery].mSlides.size() - 1;
+#else
+      mSlide = mGalleries[mGallery].second.size() - 1;
+#endif
+    } else if (mGallery >= mGalleries.size()) {
+      mSlide = 0;
+      mGallery = 0;
+    } else if (mGallery > gallery) {
+      mSlide = 0;
+    } else if (mGallery < gallery) {
+#if VERSION >= VERSION_GM8P_00
+      mSlide = mGalleries[mGallery].mSlides.size() - 1;
+#else
+      mSlide = mGalleries[mGallery].second.size() - 1;
+#endif
     }
   }
   return kMR_Exit;
 }
+
 void CSlideShow::LoadSlide() {
-  if (x90_slideB.xc_texture.null() &&
-      (x5c_slideA.x4_gallery != x44_gallery || x5c_slideA.x8_slide != x48_slide)) {
-    const SObjectTag* tag = x28_galleries[x44_gallery].second[x48_slide];
+#if VERSION >= VERSION_GM8P_00
+  if (mSlideB.mTextures.empty() &&
+      (mSlideA.mGallery != mGallery || mSlideA.mSlide != mSlide)) {
+    const SGalleryData& gallery = mGalleries[mGallery];
+    mSlideA.mStopLoading = true;
+    const int first = mSlide == 0 ? 0 : gallery.mSlides[mSlide - 1].first;
+    const int end = gallery.mSlides[mSlide].first;
+    mSlideB.mTextures.reserve(end - first);
+    for (int i = first; i < end; ++i) {
+      const SObjectTag* tag = gallery.mTextures[i];
+      if (tag != nullptr && gpResourceFactory->GetResourceTypeById(tag->GetId()) == 'TXTR') {
+        mSlideB.mTextures.push_back(STexture());
+        mSlideB.mTextures.back().mToken = rs_new TToken< CTexture >(gpSimplePool->GetObj(*tag));
+      }
+    }
+    mSlideB.mGallery = mGallery;
+    mSlideB.mSlide = mSlide;
+    mSlideB.mColumns = gallery.mSlides[mSlide].second;
+    mSlideB.InitializeViewport();
+  }
+  if (mSlideB.IsLoaded() && !mSlideB.mReady) {
+    mSlideB.InitializeViewport();
+  }
+#else
+  if (mSlideB.mTexture.null() &&
+      (mSlideA.mGallery != mGallery || mSlideA.mSlide != mSlide)) {
+    const SObjectTag* tag = mGalleries[mGallery].second[mSlide];
     if (tag != nullptr && gpResourceFactory->GetResourceTypeById(tag->GetId()) == 'TXTR') {
-      x90_slideB.x4_gallery = x44_gallery;
-      x90_slideB.x8_slide = x48_slide;
-      x90_slideB.xc_texture = rs_new TToken< CTexture >(gpSimplePool->GetObj(*tag));
-      x90_slideB.xc_texture->Lock();
-      x90_slideB.InitializeViewport();
+      mSlideB.mGallery = mGallery;
+      mSlideB.mSlide = mSlide;
+      mSlideB.mTexture = rs_new TToken< CTexture >(gpSimplePool->GetObj(*tag));
+      mSlideB.mTexture->Lock();
+      mSlideB.InitializeViewport();
     }
   }
-  if (x90_slideB.IsLoaded() && !x90_slideB.x14_ready) {
-    x90_slideB.InitializeViewport();
+  if (mSlideB.IsLoaded() && !mSlideB.mReady) {
+    mSlideB.InitializeViewport();
   }
+#endif
 }
 
 void CSlideShow::SetShowControls(const bool show) {
-  x134_25_controlsFadeIn = show;
-  x134_26_controlsFadeOut = !show;
-  x134_24_showControls = show;
+  mControlsFadeIn = show;
+  mControlsFadeOut = !show;
+  mShowControls = show;
 }
 
 bool CSlideShow::IsControlsAnimating() const {
-  return x134_24_showControls || x134_25_controlsFadeIn || x134_26_controlsFadeOut;
+  return mShowControls || mControlsFadeIn || mControlsFadeOut;
 }
 
 float CSlideShow::GetControlsTextHeight() const {
-  const rstl::pair< CVector2i, CVector2i >& bounds = xc4_controlsText->GetBounds();
+  const rstl::pair< CVector2i, CVector2i >& bounds = mControlsText->GetBounds();
   return bounds.first.GetY() - bounds.second.GetY();
 }
 
 float CSlideShow::GetControlsHeight() const {
   const int width = CGraphics::GetViewportWidth();
-  const CAABox& bounds = x38_galleryBorder->GetT()->GetCubeModel()->GetBoundingBox();
+  const CAABox& bounds = mGalleryBorder->GetT()->GetCubeModel()->GetBoundingBox();
   return ((width - 32.f) / (bounds.GetMaxPoint().GetX() - bounds.GetMinPoint().GetX())) *
          (bounds.GetMaxPoint().GetZ() - bounds.GetMinPoint().GetZ());
 }
 
 void CSlideShow::UpdateControls(float dt) {
-  if (!xc4_controlsText.null()) {
+  if (!mControlsText.null()) {
     if (!IsControlsAnimating()) {
-      x128_controlsOffset = -GetControlsHeight();
+      mControlsOffset = -GetControlsHeight();
     } else {
-      if (x134_25_controlsFadeIn) {
+      if (mControlsFadeIn) {
         const float height = GetControlsHeight();
         const float end = 32.f;
-        x128_controlsOffset += (dt / gpTweakSlideShow->GetControlsFadeTime()) * (end + height);
-        if (x128_controlsOffset >= end) {
-          x134_25_controlsFadeIn = false;
-          x128_controlsOffset = end;
+        mControlsOffset += (dt / gpTweakSlideShow->GetControlsFadeTime()) * (end + height);
+        if (mControlsOffset >= end) {
+          mControlsFadeIn = false;
+          mControlsOffset = end;
         }
-      } else if (x134_26_controlsFadeOut) {
+      } else if (mControlsFadeOut) {
         const float end = -GetControlsHeight();
         const float height = 32.f + GetControlsHeight();
         const float step = dt / gpTweakSlideShow->GetControlsFadeTime();
-        x128_controlsOffset -= step * height;
-        if (x128_controlsOffset <= end) {
-          x134_26_controlsFadeOut = false;
-          x134_24_showControls = false;
-          x128_controlsOffset = end;
+        mControlsOffset -= step * height;
+        if (mControlsOffset <= end) {
+          mControlsFadeOut = false;
+          mShowControls = false;
+          mControlsOffset = end;
         }
       }
     }
-    x12c_slideNumberOffset = x128_controlsOffset + GetControlsHeight();
-    if (x12c_slideNumberOffset < 32.f) {
-      x12c_slideNumberOffset = 32.f;
+    mSlideNumberOffset = mControlsOffset + GetControlsHeight();
+    if (mSlideNumberOffset < 32.f) {
+      mSlideNumberOffset = 32.f;
     }
-    xc4_controlsText->Update(dt);
+    mControlsText->Update(dt);
   }
 }
+
 void CSlideShow::UpdateControlsText(const CFinalInput& input) {
-  if (!xc4_controlsText.null()) {
-    xec_cStick =
+  if (!mControlsText.null()) {
+    mCStick =
         GetStickDirection(ControlMapper::GetAnalogInput(ControlMapper::kC_MapMoveForward, input),
                           ControlMapper::GetAnalogInput(ControlMapper::kC_MapMoveBack, input),
                           ControlMapper::GetAnalogInput(ControlMapper::kC_MapMoveLeft, input),
                           ControlMapper::GetAnalogInput(ControlMapper::kC_MapMoveRight, input));
-    xe8_lStick =
+    mLStick =
         GetStickDirection(ControlMapper::GetAnalogInput(ControlMapper::kC_MapCircleDown, input),
                           ControlMapper::GetAnalogInput(ControlMapper::kC_MapCircleUp, input),
                           ControlMapper::GetAnalogInput(ControlMapper::kC_MapCircleLeft, input),
                           ControlMapper::GetAnalogInput(ControlMapper::kC_MapCircleRight, input));
     const float zoomIn = ControlMapper::GetAnalogInput(ControlMapper::kC_MapZoomIn, input);
     const float zoomOut = ControlMapper::GetAnalogInput(ControlMapper::kC_MapZoomOut, input);
-    xf4_rTrigger = zoomIn > 0.f ? 1 : 0;
-    xf0_lTrigger = zoomOut > 0.f ? 1 : 0;
+    mRTrigger = zoomIn > 0.f ? 1 : 0;
+    mLTrigger = zoomOut > 0.f ? 1 : 0;
+#if VERSION >= VERSION_GM8P_00
+    enum { kFirstControlString = 4 };
+#else
+    enum { kFirstControlString = 0x37 };
     const CStringTable& strings = *gpStringTable;
+#endif
     rstl::wstring text;
     text.reserve(256);
+#if VERSION >= VERSION_GM8P_00
+    const CStringTable& strings = **mGalleryNames;
+#endif
     text.append(CStringExtras::ConvertToUNICODE(
         CBasics::Stringize("%sSI,0.6,1.0,%8.8X%s", skImagePrefix,
-                           gpTweakPlayerRes->x20_lStick[xe8_lStick], skImageSuffix)));
-    text.append(strings.GetString(0x38), -1);
+                           gpTweakPlayerRes->mLStick[mLStick], skImageSuffix)));
+    text.append(strings.GetString(kFirstControlString + 1), -1);
     text.append(CStringExtras::ConvertToUNICODE(rstl::string_l("   ")));
     text.append(CStringExtras::ConvertToUNICODE(CBasics::Stringize(
-        "%s%8.8X%s", skImagePrefix, gpTweakPlayerRes->x70_lTrigger[xf0_lTrigger], skImageSuffix)));
+        "%s%8.8X%s", skImagePrefix, gpTweakPlayerRes->mLTrigger[mLTrigger], skImageSuffix)));
     text.append(CStringExtras::ConvertToUNICODE(rstl::string_l(" ")));
-    text.append(strings.GetString(0x3a), -1);
+    text.append(strings.GetString(kFirstControlString + 3), -1);
     text.append(CStringExtras::ConvertToUNICODE(rstl::string_l(" ")));
     text.append(CStringExtras::ConvertToUNICODE(CBasics::Stringize(
-        "%s%8.8X%s", skImagePrefix, gpTweakPlayerRes->x7c_rTrigger[xf4_rTrigger], skImageSuffix)));
+        "%s%8.8X%s", skImagePrefix, gpTweakPlayerRes->mRTrigger[mRTrigger], skImageSuffix)));
     text.append(CStringExtras::ConvertToUNICODE(rstl::string_l("  ")));
     text.append(CStringExtras::ConvertToUNICODE(
         CBasics::Stringize("%sSI,0.6,1.0,%8.8X%s", skImagePrefix,
-                           gpTweakPlayerRes->x48_cStick[xec_cStick], skImageSuffix)));
-    text.append(strings.GetString(0x39), -1);
+                           gpTweakPlayerRes->mCStick[mCStick], skImageSuffix)));
+    text.append(strings.GetString(kFirstControlString + 2), -1);
     text.append(CStringExtras::ConvertToUNICODE(rstl::string_l("   ")));
     text.append(CStringExtras::ConvertToUNICODE(CBasics::Stringize(
-        "%sSI,1.0,1.0,%8.8X%s", skImagePrefix, gpTweakPlayerRes->xb8_yButton[0], skImageSuffix)));
+        "%sSI,1.0,1.0,%8.8X%s", skImagePrefix, gpTweakPlayerRes->mYButton[0], skImageSuffix)));
     text.append(CStringExtras::ConvertToUNICODE(rstl::string_l(" ")));
-    text.append(strings.GetString(0x37), -1);
+    text.append(strings.GetString(kFirstControlString), -1);
     text.append(CStringExtras::ConvertToUNICODE(rstl::string_l("   ")));
     text.append(CStringExtras::ConvertToUNICODE(CBasics::Stringize(
-        "%sSI,0.6,1.0,%8.8X%s", skImagePrefix, gpTweakPlayerRes->xa0_bButton[0], skImageSuffix)));
+        "%sSI,0.6,1.0,%8.8X%s", skImagePrefix, gpTweakPlayerRes->mBButton[0], skImageSuffix)));
     text.append(CStringExtras::ConvertToUNICODE(rstl::string_l(" ")));
-    text.append(strings.GetString(0x3d), -1);
-    xc4_controlsText->SetText(text);
+    text.append(strings.GetString(kFirstControlString + 6), -1);
+    mControlsText->SetText(text);
   }
 }
 
 void CSlideShow::SetPanSfx(bool active) {
   if (active) {
-    if (!xe0_panSfx) {
-      xe0_panSfx = CSfxManager::SfxStart(0x5ae, 127, 64, false, CSfxManager::kMedPriority, true,
+    if (!mPanSfx) {
+      mPanSfx = CSfxManager::SfxStart(0x5ae, 127, 64, false, CSfxManager::kMedPriority, true,
                                          CSfxManager::kAllAreas);
     }
   } else {
-    CSfxManager::SfxStop(xe0_panSfx);
-    xe0_panSfx.Clear();
+    CSfxManager::SfxStop(mPanSfx);
+    mPanSfx.Clear();
   }
 }
 
 void CSlideShow::SetZoomSfx(bool active) {
   if (active) {
-    if (!xe4_zoomSfx) {
-      xe4_zoomSfx = CSfxManager::SfxStart(0x5af, 127, 64, false, CSfxManager::kMedPriority, true,
+    if (!mZoomSfx) {
+      mZoomSfx = CSfxManager::SfxStart(0x5af, 127, 64, false, CSfxManager::kMedPriority, true,
                                           CSfxManager::kAllAreas);
     }
   } else {
-    CSfxManager::SfxStop(xe4_zoomSfx);
-    xe4_zoomSfx.Clear();
+    CSfxManager::SfxStop(mZoomSfx);
+    mZoomSfx.Clear();
   }
 }
 
@@ -739,8 +904,8 @@ void CSlideShow::UpdateMusicVolume(float time) {
   const float volume = CMath::Clamp(0.f, time / gpTweakSlideShow->GetMusicFadeTime(), 1.f);
   const uchar outputVolume =
       CCast::ToUint8(0.7421875f * volume * gpGameState->GameOptions().GetMusicVolume());
-  xcc_audio->SetVolume(outputVolume);
-  xcc_audio->StartMixOut();
+  mAudio->SetVolume(outputVolume);
+  mAudio->StartMixOut();
 }
 
 void CSlideShow::SetTexturesLocked(rstl::vector< CToken >& textures, bool locked) {
@@ -774,56 +939,84 @@ bool CSlideShow::AreAllDepsLoaded(const rstl::vector< TToken< CDependencyGroup >
 }
 
 void CSlideShow::DrawSlideNumber() const {
-  if (!xc8_slideNumberText.null()) {
+#if VERSION >= VERSION_GM8P_00
+  if (!mSlideNumberText.null()) {
     const int height = CGraphics::GetViewportHeight();
     const float fadeTime = gpTweakSlideShow->GetSlideNumberFadeTime();
-    const float alpha = CMath::Clamp(0.f, (fadeTime - x58_slideNumberTimer) / fadeTime, 1.f);
+    const float alpha = CMath::Clamp(0.f, (fadeTime - mSlideNumberTimer) / fadeTime, 1.f);
+    const float y = height + mSlideNumberOffset;
+    CGraphics::SetCullMode(kCM_None);
+    gpRender->SetViewportOrtho(false, -4096.f, 4096.f);
+    gpRender->SetDepthReadWrite(false, false);
+    gpRender->SetModelMatrix(CTransform4f::Translate(-32.f, 0.f, y));
+    mSlideNumberText->SetGeometryColor(CColor::White().WithAlphaModulatedBy(alpha));
+    mSlideNumberText->Render();
+    if (!mGalleryNameText.null() && mGalleryChanged) {
+      gpRender->SetModelMatrix(CTransform4f::Translate(32.f, 0.f, y));
+      mGalleryNameText->SetGeometryColor(CColor::White().WithAlphaModulatedBy(alpha));
+      mGalleryNameText->SetText(mGalleryLabels[mGallery]);
+      mGalleryNameText->Render();
+    }
+  }
+#else
+  if (!mSlideNumberText.null()) {
+    const int height = CGraphics::GetViewportHeight();
+    const float fadeTime = gpTweakSlideShow->GetSlideNumberFadeTime();
+    const float alpha = CMath::Clamp(0.f, (fadeTime - mSlideNumberTimer) / fadeTime, 1.f);
     gpRender->SetViewportOrtho(false, -4096.f, 4096.f);
 #if defined(TARGET_PC)
     metaforce::AdjustUiProjection();
 #endif
-    gpRender->SetModelMatrix(CTransform4f::Translate(-32.f, 0.f, height + x12c_slideNumberOffset));
+    gpRender->SetModelMatrix(CTransform4f::Translate(-32.f, 0.f, height + mSlideNumberOffset));
     CGraphics::SetCullMode(kCM_None);
     gpRender->SetDepthReadWrite(false, false);
-    xc8_slideNumberText->SetGeometryColor(CColor::White().WithAlphaModulatedBy(alpha));
-    xc8_slideNumberText->Render();
-    const rstl::auto_ptr< TToken< CTexture > >& tag = xd0_galleryTags[x44_gallery];
-    if (!tag.null() && x135_24_galleryChanged) {
-      DrawTexture(tag, CVector3f(32.f, 0.f, x12c_slideNumberOffset),
+    mSlideNumberText->SetGeometryColor(CColor::White().WithAlphaModulatedBy(alpha));
+    mSlideNumberText->Render();
+    const rstl::auto_ptr< TToken< CTexture > >& tag = mGalleryTags[mGallery];
+    if (!tag.null() && mGalleryChanged) {
+      DrawTexture(tag, CVector3f(32.f, 0.f, mSlideNumberOffset),
                   gpTweakSlideShow->GetFontColor().WithAlphaModulatedBy(alpha));
     }
   }
+#endif
 }
+
 void CSlideShow::UpdateSlideNumber(float dt) {
-  if (!xc8_slideNumberText.null() && !x28_galleries.empty()) {
-    int slide = x48_slide;
-    for (int i = 0; i < x44_gallery; ++i) {
-      slide += x28_galleries[i].second.size();
+  if (!mSlideNumberText.null() && !mGalleries.empty()) {
+    int slide = mSlide;
+    for (int i = 0; i < mGallery; ++i) {
+#if VERSION >= VERSION_GM8P_00
+      slide += mGalleries[i].mSlides.size();
+#else
+      slide += mGalleries[i].second.size();
+#endif
     }
-    const rstl::string text = CBasics::Stringize("%d/%d", slide + 1, x40_totalSlides);
-    xc8_slideNumberText->SetText(text);
-    xc8_slideNumberText->Update(dt);
+    const rstl::string text = CBasics::Stringize("%d/%d", slide + 1, mTotalSlides);
+    mSlideNumberText->SetText(text);
+    mSlideNumberText->Update(dt);
   }
-  if (x58_slideNumberTimer == gpTweakSlideShow->GetSlideNumberFadeTime()) {
-    x135_24_galleryChanged = false;
+  if (mSlideNumberTimer == gpTweakSlideShow->GetSlideNumberFadeTime()) {
+    mGalleryChanged = false;
   }
 }
+
 void CSlideShow::DrawControls() const {
-  if (!xc4_controlsText.null()) {
+  if (!mControlsText.null()) {
     const int height = CGraphics::GetViewportHeight();
     gpRender->SetViewportOrtho(false, -4096.f, 4096.f);
 #if defined(TARGET_PC)
     metaforce::AdjustUiProjection();
 #endif
-    gpRender->SetModelMatrix(CTransform4f::Translate(0.f, 0.f, height + x128_controlsOffset));
+    gpRender->SetModelMatrix(CTransform4f::Translate(0.f, 0.f, height + mControlsOffset));
     CGraphics::SetCullMode(kCM_None);
     gpRender->SetDepthReadWrite(false, false);
-    xc4_controlsText->Render();
+    mControlsText->Render();
     DrawControlsBorder();
   }
 }
+
 void CSlideShow::DrawControlsBorder() const {
-  if (!x38_galleryBorder.null()) {
+  if (!mGalleryBorder.null()) {
     const int width = CGraphics::GetViewportWidth();
     const int height = CGraphics::GetViewportHeight();
     gpRender->SetViewportOrtho(true, -4096.f, 4096.f);
@@ -831,7 +1024,7 @@ void CSlideShow::DrawControlsBorder() const {
     metaforce::AdjustUiProjection();
 #endif
     CGraphics::SetViewPointMatrix(CTransform4f::Identity());
-    const CAABox bounds = x38_galleryBorder->GetT()->GetCubeModel()->GetBoundingBox();
+    const CAABox bounds = mGalleryBorder->GetT()->GetCubeModel()->GetBoundingBox();
     const float scale =
         (width - 32.f) / (bounds.GetMaxPoint().GetX() - bounds.GetMinPoint().GetX());
     CTransform4f xf = CTransform4f::Translate(bounds.GetCenterPoint() * -1.f * scale);
@@ -840,10 +1033,10 @@ void CSlideShow::DrawControlsBorder() const {
         0.f, 0.f,
         scale * (bounds.GetMaxPoint().GetZ() - bounds.GetMinPoint().GetZ()) / 2.f - height / 2.f));
     xf.AddTranslation(
-        CVector3f(0.f, 0.f, GetControlsTextHeight() / 2.f + (5.f + x128_controlsOffset)));
+        CVector3f(0.f, 0.f, GetControlsTextHeight() / 2.f + (5.f + mControlsOffset)));
     CGraphics::SetModelMatrix(xf);
     const CModelFlags flags(CModelFlags::kT_One, gpTweakSlideShow->GetBorderColor());
-    gpRender->DrawModelFlat(*x38_galleryBorder->GetT(), flags, false, TModelPositions(),
+    gpRender->DrawModelFlat(*mGalleryBorder->GetT(), flags, false, TModelPositions(),
                             TModelNormals());
     gpRender->SetBlendMode_AlphaBlended();
   }
@@ -851,104 +1044,214 @@ void CSlideShow::DrawControlsBorder() const {
 
 CIOWin::EMessageReturn CSlideShow::SSlideData::ProcessUserInput(const CFinalInput& input) {
   if (IsReady()) {
-    const CTexture* texture = **xc_texture;
+#if VERSION < VERSION_GM8P_00
+    const CTexture* texture = **mTexture;
+#endif
     const int width = CGraphics::GetViewportWidth();
     const int height = CGraphics::GetViewportHeight();
+#if VERSION >= VERSION_GM8P_00
+    const float texWidth = mTextureWidth;
+    const float texHeight = mTextureHeight;
+#else
     const float texWidth = texture->GetWidth();
     const float texHeight = texture->GetHeight();
+#endif
     const float aspect = float(width) / height;
+#if VERSION >= VERSION_GM8P_00
+    const float& textureSize = rstl::max_val(mTextureWidth, mTextureHeight);
+#endif
     const float zoomIn = ControlMapper::GetAnalogInput(ControlMapper::kC_MapZoomIn, input);
     const float zoomOut = ControlMapper::GetAnalogInput(ControlMapper::kC_MapZoomOut, input);
-    const CVector2f oldSize = x20_vpSize;
+#if VERSION >= VERSION_GM8P_00
+    const float zoom = textureSize * (zoomOut - zoomIn) / 1024.f;
+#endif
+    const CVector2f oldSize = mVpSize;
+#if VERSION >= VERSION_GM8P_00
+    if (zoom != 0.f) {
+#else
     if (zoomOut - zoomIn != 0.f) {
-      CVector2f offset = x20_vpSize;
+#endif
+      CVector2f offset = mVpSize;
+#if VERSION >= VERSION_GM8P_00
+      const float delta = gpTweakSlideShow->GetZoomSpeed() * zoom;
+#else
       const float delta = gpTweakSlideShow->GetZoomSpeed() * (zoomOut - zoomIn);
-      x20_vpSize[0] += aspect * delta;
-      x20_vpSize[1] += delta;
-      x20_vpSize[0] = CMath::Clamp(float(width), x20_vpSize.GetX(), x28_canvasSize.GetX());
-      x20_vpSize[1] = CMath::Clamp(float(height), x20_vpSize.GetY(), x28_canvasSize.GetY());
-      offset -= x20_vpSize;
+#endif
+      mVpSize[0] += aspect * delta;
+      mVpSize[1] += delta;
+      mVpSize[0] = CMath::Clamp(float(width), mVpSize.GetX(), mCanvasSize.GetX());
+      mVpSize[1] = CMath::Clamp(float(height), mVpSize.GetY(), mCanvasSize.GetY());
+      offset -= mVpSize;
       offset /= 2.f;
-      x18_vpOffset += offset;
+      mVpOffset += offset;
     }
-    x0_parent->SetZoomSfx(!(oldSize == x20_vpSize));
-    const CVector2f oldOffset = x18_vpOffset;
+    mParent->SetZoomSfx(!(oldSize == mVpSize));
+    const CVector2f oldOffset = mVpOffset;
     const float forward = ControlMapper::GetAnalogInput(ControlMapper::kC_MapMoveForward, input);
     const float back = ControlMapper::GetAnalogInput(ControlMapper::kC_MapMoveBack, input);
     const float left = ControlMapper::GetAnalogInput(ControlMapper::kC_MapMoveLeft, input);
     const float right = ControlMapper::GetAnalogInput(ControlMapper::kC_MapMoveRight, input);
+#if VERSION >= VERSION_GM8P_00
+    const float speed = gpTweakSlideShow->GetPanSpeed() *
+                        rstl::max_val(mTextureWidth, mTextureHeight) / 1024.f;
+#else
     const float speed = gpTweakSlideShow->GetPanSpeed();
-    x18_vpOffset[0] -= speed * left;
-    x18_vpOffset[0] += speed * right;
-    x18_vpOffset[1] += speed * forward;
-    x18_vpOffset[1] -= speed * back;
-    x18_vpOffset[0] =
-        CMath::Clamp(0.f, x18_vpOffset.GetX(), x28_canvasSize.GetX() - x20_vpSize.GetX());
-    x18_vpOffset[1] =
-        CMath::Clamp(0.f, x18_vpOffset.GetY(), x28_canvasSize.GetY() - x20_vpSize.GetY());
+#endif
+    mVpOffset[0] -= speed * left;
+    mVpOffset[0] += speed * right;
+    mVpOffset[1] += speed * forward;
+    mVpOffset[1] -= speed * back;
+    mVpOffset[0] =
+        CMath::Clamp(0.f, mVpOffset.GetX(), mCanvasSize.GetX() - mVpSize.GetX());
+    mVpOffset[1] =
+        CMath::Clamp(0.f, mVpOffset.GetY(), mCanvasSize.GetY() - mVpSize.GetY());
     float halfX = 0.f;
-    const float availableX = texWidth / 2.f - x20_vpSize.GetX() / 2.f;
+    const float availableX = texWidth / 2.f - mVpSize.GetX() / 2.f;
     if (availableX > halfX) {
       halfX = availableX;
     }
     float halfY = 0.f;
-    const float availableY = texHeight / 2.f - x20_vpSize.GetY() / 2.f;
+    const float availableY = texHeight / 2.f - mVpSize.GetY() / 2.f;
     if (availableY > halfY) {
       halfY = availableY;
     }
-    x18_vpOffset[0] = CMath::Clamp(x28_canvasSize.GetX() / 2.f - halfX,
-                                   x20_vpSize.GetX() / 2.f + x18_vpOffset.GetX(),
-                                   x28_canvasSize.GetX() / 2.f + halfX) -
-                      x20_vpSize.GetX() / 2.f;
-    x18_vpOffset[1] = CMath::Clamp(x28_canvasSize.GetY() / 2.f - halfY,
-                                   x20_vpSize.GetY() / 2.f + x18_vpOffset.GetY(),
-                                   x28_canvasSize.GetY() / 2.f + halfY) -
-                      x20_vpSize.GetY() / 2.f;
-    x0_parent->SetPanSfx(!(oldOffset == x18_vpOffset));
+    mVpOffset[0] = CMath::Clamp(mCanvasSize.GetX() / 2.f - halfX,
+                                   mVpSize.GetX() / 2.f + mVpOffset.GetX(),
+                                   mCanvasSize.GetX() / 2.f + halfX) -
+                      mVpSize.GetX() / 2.f;
+    mVpOffset[1] = CMath::Clamp(mCanvasSize.GetY() / 2.f - halfY,
+                                   mVpSize.GetY() / 2.f + mVpOffset.GetY(),
+                                   mCanvasSize.GetY() / 2.f + halfY) -
+                      mVpSize.GetY() / 2.f;
+    mParent->SetPanSfx(!(oldOffset == mVpOffset));
   }
   return kMR_Exit;
 }
 
 void CSlideShow::SSlideData::InitializeViewport() {
   if (IsLoaded()) {
-    const CTexture* texture = **xc_texture;
+#if VERSION >= VERSION_GM8P_00
+    const float width = (**mTextures.front().mToken)->GetWidth();
+    const float height = (**mTextures.front().mToken)->GetHeight();
+    mTextureWidth = width * mColumns;
+    mTextureHeight = height * (mTextures.size() / mColumns);
+    const float texAspect = mTextureWidth / mTextureHeight;
+#else
+    const CTexture* texture = **mTexture;
     const float width = texture->GetWidth();
     const float height = texture->GetHeight();
     const float texAspect = width / height;
+#endif
     const float aspect = float(CGraphics::GetViewportWidth()) / CGraphics::GetViewportHeight();
-    x18_vpOffset = sZeroVector;
+    mVpOffset = sZeroVector;
     if (texAspect != aspect) {
       if (texAspect > aspect) {
-        x20_vpSize = CVector2f(width, width / aspect);
+#if VERSION >= VERSION_GM8P_00
+        mVpSize = CVector2f(mTextureWidth, mTextureWidth / aspect);
+#else
+        mVpSize = CVector2f(width, width / aspect);
+#endif
       } else {
-        x20_vpSize = CVector2f(height * aspect, height);
+#if VERSION >= VERSION_GM8P_00
+        mVpSize = CVector2f(mTextureHeight * aspect, mTextureHeight);
+#else
+        mVpSize = CVector2f(height * aspect, height);
+#endif
       }
     }
-    x28_canvasSize = x20_vpSize;
-    x14_ready = true;
+#if VERSION >= VERSION_GM8P_00
+    for (int i = 0; i < mTextures.size(); ++i) {
+      const float x = width * (i % mColumns);
+      const float y = height * (i / mColumns);
+      mTextures[i].mRightTop = CVector2f(x + width, y);
+      mTextures[i].mLeftBottom = CVector2f(x, y + height);
+    }
+#endif
+    mCanvasSize = mVpSize;
+    mReady = true;
   }
 }
 
-void CSlideShow::SSlideData::Draw() const {
-  if (IsReady()) {
-    const int width = (**xc_texture)->GetWidth();
-    const int height = (**xc_texture)->GetHeight();
-    const CVector3f offset((x28_canvasSize.GetX() - width) / 2.f, 0.f,
-                           (x28_canvasSize.GetY() - height) / 2.f);
-    DrawTexture(xc_texture, offset, x30_mulColor, &x18_vpOffset, &x20_vpSize);
+#if VERSION >= VERSION_GM8P_00
+const bool CSlideShow::SSlideData::IsLoaded() const {
+  if (mTextures.empty()) {
+    return false;
   }
+
+  bool loaded = true;
+  if (mTextures.front().mToken.null() || !mTextures.front().mToken->IsLoaded()) {
+    loaded = false;
+  }
+
+  if (!mStopLoading) {
+    for (int i = 0; i < mTextures.size(); ++i) {
+      if (!mTextures[i].mToken.null()) {
+        mTextures[i].mToken->Lock();
+        if (!mTextures[i].mToken->IsLoaded()) {
+          break;
+        }
+        mTextures[i].mAlpha = rstl::min_val(mTextures[i].mAlpha + 0.01f, 1.f);
+      }
+    }
+  } else {
+    for (int i = 0; i < mTextures.size(); ++i) {
+      if (!mTextures[i].mToken.null() && mTextures[i].mToken->IsLocked() &&
+          !mTextures[i].mToken->IsLoaded()) {
+        mTextures[i].mToken->Unlock();
+        break;
+      }
+    }
+  }
+
+  return loaded;
+}
+#endif
+
+void CSlideShow::SSlideData::Draw() const {
+#if VERSION >= VERSION_GM8P_00
+  if (IsReady()) {
+    const CVector2f leftBottom(mVpOffset.GetX(), mVpOffset.GetY() + mVpSize.GetY());
+    const CVector2f rightTop(mVpOffset.GetX() + mVpSize.GetX(), mVpOffset.GetY());
+    const float x = (mCanvasSize.GetX() - mTextureWidth) / 2.f;
+    const float y = (mCanvasSize.GetY() - mTextureHeight) / 2.f;
+    for (int i = 0; i < mTextures.size(); ++i) {
+      const STexture& texture = mTextures[i];
+      if (texture.mAlpha > 0.f && !(leftBottom.GetX() > x + texture.mRightTop.GetX()) &&
+          !(leftBottom.GetY() < y + texture.mRightTop.GetY()) &&
+          !(rightTop.GetX() < x + texture.mLeftBottom.GetX()) &&
+          !(rightTop.GetY() > y + texture.mLeftBottom.GetY())) {
+        DrawTexture(texture.mToken, CVector3f(x + texture.mLeftBottom.GetX(), 0.f,
+                                               y + texture.mRightTop.GetY()),
+                    mMulColor.WithAlphaModulatedBy(texture.mAlpha), &mVpOffset, &mVpSize);
+      }
+    }
+  }
+#else
+  if (IsReady()) {
+    const int width = (**mTexture)->GetWidth();
+    const int height = (**mTexture)->GetHeight();
+    const CVector3f offset((mCanvasSize.GetX() - width) / 2.f, 0.f,
+                           (mCanvasSize.GetY() - height) / 2.f);
+    DrawTexture(mTexture, offset, mMulColor, &mVpOffset, &mVpSize);
+  }
+#endif
 }
 
 void CSlideShow::SSlideData::Reset() {
-  x4_gallery = -1;
-  x8_slide = -1;
-  xc_texture = rstl::auto_ptr< TToken< CTexture > >();
-  x14_ready = false;
-  x18_vpOffset = sZeroVector;
-  x20_vpSize = sZeroVector;
-  x28_canvasSize = sZeroVector;
-  x30_mulColor = CColor::White();
-  x30_mulColor.SetAlpha(0.f);
+  mGallery = -1;
+  mSlide = -1;
+#if VERSION >= VERSION_GM8P_00
+  mTextures = rstl::vector< STexture >();
+  mColumns = 0;
+#else
+  mTexture = rstl::auto_ptr< TToken< CTexture > >();
+#endif
+  mReady = false;
+  mVpOffset = sZeroVector;
+  mVpSize = sZeroVector;
+  mCanvasSize = sZeroVector;
+  mMulColor = CColor::White();
+  mMulColor.SetAlpha(0.f);
 }
 
 bool CSlideShow::GetIsContinueDraw() const { return false; }

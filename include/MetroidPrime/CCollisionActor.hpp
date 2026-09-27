@@ -53,35 +53,35 @@ public:
 
   void SetDamageVulnerability(const CDamageVulnerability& vulnerability);
 
-  void SetExtendedTouchBounds(const CVector3f& bounds) { x304_extendedTouchBounds = bounds; }
+  void SetExtendedTouchBounds(const CVector3f& bounds) { mExtendedTouchBounds = bounds; }
 
   void SetWeaponCollisionResponseType(EWeaponCollisionResponseTypes type) {
-    x300_responseType = type;
+    mResponseType = type;
   }
 
   TUniqueId GetLastTouchedObject() const;
   const CVector3f& GetBoxSize() const;
   float GetSphereRadius() const;
   void SetSphereRadius(float radius);
-  TUniqueId GetOwnerId() const { return x25c_owner; }
+  TUniqueId GetOwnerId() const { return mOwner; }
 
 private:
-  EPrimitiveType x258_primitiveType;
-  TUniqueId x25c_owner;
-  CVector3f x260_boxSize;
-  CVector3f x26c_center;
-  rstl::single_ptr< CCollidableOBBTreeGroupContainer > x278_obbContainer;
-  rstl::single_ptr< CCollidableOBBTreeGroup > x27c_obbTreeGroupPrimitive;
-  rstl::single_ptr< CCollidableAABox > x280_aaboxPrimitive;
-  rstl::single_ptr< CCollidableSphere > x284_spherePrimitive;
-  float x288_sphereRadius;
-  CHealthInfo x28c_healthInfo;
-  CDamageVulnerability x294_damageVuln;
-  TUniqueId x2fc_lastTouched;
-  EWeaponCollisionResponseTypes x300_responseType;
-  CVector3f x304_extendedTouchBounds;
+  EPrimitiveType mPrimitiveType;
+  TUniqueId mOwner;
+  CVector3f mBoxSize;
+  CVector3f mCenter;
+  rstl::single_ptr< CCollidableOBBTreeGroupContainer > mObbContainer;
+  rstl::single_ptr< CCollidableOBBTreeGroup > mObbTreeGroupPrimitive;
+  rstl::single_ptr< CCollidableAABox > mAaboxPrimitive;
+  rstl::single_ptr< CCollidableSphere > mSpherePrimitive;
+  float mSphereRadius;
+  CHealthInfo mHealthInfo;
+  CDamageVulnerability mDamageVuln;
+  TUniqueId mLastTouched;
+  EWeaponCollisionResponseTypes mResponseType;
+  CVector3f mExtendedTouchBounds;
 };
 
-CHECK_SIZEOF(CCollisionActor, (VERSION >= VERSION_GM8P_00 ? 0x320 : 0x310))
+CHECK_SIZEOF(CCollisionActor, (VERSION >= VERSION_GM8E_02 ? 0x320 : 0x310))
 
 #endif // _CCOLLISIONACTOR

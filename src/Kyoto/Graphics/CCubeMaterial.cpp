@@ -412,7 +412,7 @@ void CCubeMaterial::EnsureTevsDirect() {
 }
 
 void CCubeMaterial::SetCurrentBlack() const {
-  const uint* data = reinterpret_cast< const uint* >(x0_data);
+  const uint* data = reinterpret_cast< const uint* >(mData);
   const uint texCount = CBasics::SwapBytes(data[1]);
   const uint flags = CBasics::SwapBytes(data[0]);
   const uint vertexDesc = CBasics::SwapBytes(data[texCount + 2]);
@@ -526,7 +526,7 @@ union scanner_t {
 
 void CCubeMaterial::SetCurrent(const CModelFlags& flags, const CCubeSurface& surface,
                                const CCubeModel& model) const {
-  if (x0_data == sLastMaterialCached) {
+  if (mData == sLastMaterialCached) {
     switch (sMaterialCachedState) {
     case 1:
       if (sLastModelCached == sRenderingModel) {
@@ -880,7 +880,7 @@ void CCubeModel::EnableShadowMaps(const CTexture* shadowTex, const CTransform4f&
 void CCubeModel::DisableShadowMaps() { sbRenderModelShadow = false; }
 
 uint CCubeMaterial::GetCompressedBlend() const {
-  const uint* ptr = reinterpret_cast< const uint* >(x0_data);
+  const uint* ptr = reinterpret_cast< const uint* >(mData);
   const uint flags = CBasics::SwapBytes(ptr[0]);
   const uint texCount = CBasics::SwapBytes(ptr[1]);
   const uint* blend = ptr + texCount + 4;

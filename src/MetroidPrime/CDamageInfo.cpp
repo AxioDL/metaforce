@@ -4,45 +4,45 @@
 #include "MetroidPrime/CDamageVulnerability.hpp"
 
 CDamageInfo::CDamageInfo(CInputStream& in)
-: x0_weaponMode(CWeaponMode::Invalid()), x18_24_noImmunity(false) {
+: mWeaponMode(CWeaponMode::Invalid()), mNoImmunity(false) {
   in.ReadLong();
-  x0_weaponMode = CWeaponMode(EWeaponType(in.ReadLong()));
-  x8_damage = in.ReadFloat();
-  xc_radiusDamage = x8_damage;
-  x10_radius = in.ReadFloat();
-  x14_knockback = in.ReadFloat();
+  mWeaponMode = CWeaponMode(EWeaponType(in.ReadLong()));
+  mDamage = in.ReadFloat();
+  mRadiusDamage = mDamage;
+  mRadius = in.ReadFloat();
+  mKnockback = in.ReadFloat();
 }
 
 float CDamageInfo::GetDamage(const CDamageVulnerability& dVuln) const {
-  EVulnerability vuln = dVuln.GetVulnerability(x0_weaponMode, CDamageVulnerability::kRD_No);
+  EVulnerability vuln = dVuln.GetVulnerability(mWeaponMode, CDamageVulnerability::kRD_No);
   if (vuln == kVN_Deflect)
     return 0.f;
   else if (vuln == kVN_Weak)
-    return 2.f * x8_damage;
+    return 2.f * mDamage;
 
-  return x8_damage;
+  return mDamage;
 }
 
 float CDamageInfo::GetRadiusDamage(const CDamageVulnerability& dVuln) const {
-  EVulnerability vuln = dVuln.GetVulnerability(x0_weaponMode, CDamageVulnerability::kRD_No);
+  EVulnerability vuln = dVuln.GetVulnerability(mWeaponMode, CDamageVulnerability::kRD_No);
   if (vuln == kVN_Deflect) {
     return 0.f;
   }
   if (vuln == kVN_Weak) {
-    return 2.f * xc_radiusDamage;
+    return 2.f * mRadiusDamage;
   }
 
-  return xc_radiusDamage;
+  return mRadiusDamage;
 }
 
 CDamageInfo::CDamageInfo(const CDamageInfo& other, float dt)
-: x0_weaponMode(other.x0_weaponMode)
-, x8_damage(other.x8_damage * (60 * dt))
-, xc_radiusDamage(x8_damage)
-, x10_radius(other.x10_radius)
-, x14_knockback(other.x14_knockback)
-, x18_24_noImmunity(true) {}
+: mWeaponMode(other.mWeaponMode)
+, mDamage(other.mDamage * (60 * dt))
+, mRadiusDamage(mDamage)
+, mRadius(other.mRadius)
+, mKnockback(other.mKnockback)
+, mNoImmunity(true) {}
 
 CDamageInfo CDamageInfo::MakeScaledForTime(const float dt) const {
-  return CDamageInfo(x0_weaponMode, x8_damage * (60.f * dt), x10_radius, x14_knockback, true);
+  return CDamageInfo(mWeaponMode, mDamage * (60.f * dt), mRadius, mKnockback, true);
 }

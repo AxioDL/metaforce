@@ -21,36 +21,36 @@ public:
   void PopState();
   void SetColor(EColorType type, const CTextColor& color);
   void RefreshPalette();
-  TToken< CRasterFont >& GetFont() { return *x0_state.GetFont(); }
-  bool IsFinishedLoading() { return x0_state.IsFinishedLoading(); }
-  CDrawStringOptions& GetOptions() { return x0_state.GetOptions(); }
-  void SetFont(const TToken< CRasterFont >& font) { x0_state.SetFont(font); }
-  rstl::vector< CTextColor >& GetColors() { return x0_state.GetColors(); }
-  rstl::vector< bool >& GetOverride() { return x0_state.GetOverride(); }
-  float GetLineSpacing() const { return x0_state.GetLineSpacing(); }
-  void SetLineSpacing(float spacing) { x0_state.SetLineSpacing(spacing); }
-  int GetLineExtraSpacing() const { return x0_state.GetLineExtraSpacing(); }
-  void SetExtraLineSpace(int spacing) { x0_state.SetLineExtraSpace(spacing); }
-  const CBlockInstruction* GetBlock() const { return x88_curBlock; }
+  TToken< CRasterFont >& GetFont() { return *mState.GetFont(); }
+  bool IsFinishedLoading() { return mState.IsFinishedLoading(); }
+  CDrawStringOptions& GetOptions() { return mState.GetOptions(); }
+  void SetFont(const TToken< CRasterFont >& font) { mState.SetFont(font); }
+  rstl::vector< CTextColor >& GetColors() { return mState.GetColors(); }
+  rstl::vector< bool >& GetOverride() { return mState.GetOverride(); }
+  float GetLineSpacing() const { return mState.GetLineSpacing(); }
+  void SetLineSpacing(float spacing) { mState.SetLineSpacing(spacing); }
+  int GetLineExtraSpacing() const { return mState.GetLineExtraSpacing(); }
+  void SetExtraLineSpace(int spacing) { mState.SetLineExtraSpace(spacing); }
+  const CBlockInstruction* GetBlock() const { return mCurBlock; }
   void SetBlock(const CBlockInstruction* block) {
-    x88_curBlock = const_cast< CBlockInstruction* >(block);
+    mCurBlock = const_cast< CBlockInstruction* >(block);
   }
-  void SetX(int x) { xd4_curX = x; }
-  int GetX() const { return xd4_curX; }
-  void SetY(int y) { xd8_curY = y; }
-  int GetY() const { return xd8_curY; }
-  const CLineInstruction* GetLine() const { return xdc_currentLineInst; }
-  bool IsFirstWordOnLine() const { return x108_lineInitialized; }
-  void SetFirstWordOnLine(bool v) { x108_lineInitialized = v; }
+  void SetX(int x) { mCurX = x; }
+  int GetX() const { return mCurX; }
+  void SetY(int y) { mCurY = y; }
+  int GetY() const { return mCurY; }
+  const CLineInstruction* GetLine() const { return mCurrentLineInst; }
+  bool IsFirstWordOnLine() const { return mLineInitialized; }
+  void SetFirstWordOnLine(bool v) { mLineInitialized = v; }
 
-  void SetLine(const CLineInstruction* line) { xdc_currentLineInst = line; }
+  void SetLine(const CLineInstruction* line) { mCurrentLineInst = line; }
 
-  void SubX(const int x) { xd4_curX -= x; }
+  void SubX(const int x) { mCurX -= x; }
 
-  void AddX(const int x) { xd4_curX += x; }
+  void AddX(const int x) { mCurX += x; }
 
-  void SubY(const int y) { xd8_curY -= y; }
-  void AddY(const int y) { xd8_curY += y; }
+  void SubY(const int y) { mCurY -= y; }
+  void AddY(const int y) { mCurY += y; }
 
   int GetSpacing(const int v) const {
     if (GetBlock()->GetVerticalJustification() == kVerticalJustification_Full) {
@@ -61,21 +61,21 @@ public:
   }
 
 private:
-  CSaveableState x0_state;
-  CBlockInstruction* x88_curBlock;
-  CDrawStringOptions x8c_drawOpts;
-  int xd4_curX;
-  int xd8_curY;
-  const CLineInstruction* xdc_currentLineInst;
+  CSaveableState mState;
+  CBlockInstruction* mCurBlock;
+  CDrawStringOptions mDrawOpts;
+  int mCurX;
+  int mCurY;
+  const CLineInstruction* mCurrentLineInst;
   uint xe0_;
   uint xe4_;
   rstl::vector< uint > xe8_;
   rstl::vector< uchar > xf8_;
-  bool x108_lineInitialized;
-  rstl::list< CSaveableState > x10c_pushedStates;
+  bool mLineInitialized;
+  rstl::list< CSaveableState > mPushedStates;
 };
 
 CHECK_SIZEOF(CFontRenderState,
-             (VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02 ? 0x12c : 0x124))
+             (VERSION >= VERSION_GM8P_00 ? 0x12c : 0x124))
 
 #endif // _CFONTRENDERSTATE

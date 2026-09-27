@@ -16,18 +16,18 @@ public:
   CFlyingPirateRagDoll(CStateManager& mgr, CFlyingPirate* actor, ushort impactSfx, ushort spinSfx);
 
 private:
-  CFlyingPirate* x6c_actor;
+  CFlyingPirate* mActor;
   float x70_;
   CVector3f x74_;
   float x80_;
   float x84_;
-  ushort x88_impactSfx;
-  float x8c_impactTimer;
-  CVector3f x90_lastImpactPos;
-  ushort x9c_spinSfx;
-  CSfxHandle xa0_spinEmitter;
+  ushort mImpactSfx;
+  float mImpactTimer;
+  CVector3f mLastImpactPos;
+  ushort mSpinSfx;
+  CSfxHandle mSpinEmitter;
   CVector3f xa4_;
-  bool xb0_24_firstImpact : 1;
+  bool mFirstImpact : 1;
 };
 CHECK_SIZEOF(CFlyingPirateRagDoll, 0xB4)
 

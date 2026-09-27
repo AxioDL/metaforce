@@ -29,11 +29,11 @@ private:
   bool CheckForWall(CBodyController& bc, CStateManager& mgr);
   void SetLaunchVelocity(CBodyController& bc);
 
-  pas::EWallHangState x4_state;
-  TUniqueId x8_wpId;
-  CVector3f xc_launchVel;
-  bool x18_24_launched : 1;
-  bool x18_25_needsExit : 1;
+  pas::EWallHangState mState;
+  TUniqueId mWpId;
+  CVector3f mLaunchVel;
+  bool mLaunched : 1;
+  bool mNeedsExit : 1;
 };
 CHECK_SIZEOF(CBSWallHang, 0x1c)
 

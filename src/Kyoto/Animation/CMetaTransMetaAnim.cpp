@@ -6,16 +6,16 @@
 #include "Kyoto/Streams/COutputStream.hpp"
 
 CMetaTransMetaAnim::CMetaTransMetaAnim(CInputStream& in)
-: x4_metaAnim(CMetaAnimFactory::CreateMetaAnim(in)) {}
+: mMetaAnim(CMetaAnimFactory::CreateMetaAnim(in)) {}
 
 rstl::ncrc_ptr< CAnimTreeNode >
 CMetaTransMetaAnim::VGetTransitionTree(const rstl::ncrc_ptr< CAnimTreeNode >& a,
                                        const rstl::ncrc_ptr< CAnimTreeNode >& b,
                                        const CAnimSysContext& animSys) const {
   rstl::ncrc_ptr< CAnimTreeNode > animNode =
-      x4_metaAnim->GetAnimationTree(animSys, CMetaAnimTreeBuildOrders::NoSpecialOrders());
+      mMetaAnim->GetAnimationTree(animSys, CMetaAnimTreeBuildOrders::NoSpecialOrders());
   return rs_new CAnimTreeLoopIn(a, b, animNode, animSys,
                                 CAnimTreeLoopIn::CreatePrimitiveName(a, b, animNode));
 }
 
-void CMetaTransMetaAnim::WriteTransData(COutputStream& out) const { x4_metaAnim->PutTo(out); }
+void CMetaTransMetaAnim::WriteTransData(COutputStream& out) const { mMetaAnim->PutTo(out); }

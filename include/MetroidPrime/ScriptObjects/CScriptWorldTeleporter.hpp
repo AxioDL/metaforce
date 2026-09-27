@@ -27,32 +27,32 @@ public:
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
   void StartTransition(CStateManager&);
 
-  bool GetFadeWhite() const { return x40_27_fadeWhite; }
+  bool GetFadeWhite() const { return mFadeWhite; }
 
 private:
   enum ETeleporterType { kTT_NoTransition, kTT_Elevator, kTT_Text };
 
-  CAssetId x34_worldId;
-  CAssetId x38_areaId;
-  ETeleporterType x3c_type;     // = ETeleporterType::NoTransition;
-  bool x40_24_upElevator : 1;   // = false;
-  bool x40_25_inTransition : 1; // = false;
+  CAssetId mWorldId;
+  CAssetId mAreaId;
+  ETeleporterType mType;     // = ETeleporterType::NoTransition;
+  bool mUpElevator : 1;   // = false;
+  bool mInTransition : 1; // = false;
   bool x40_26_ : 1;
-  bool x40_27_fadeWhite : 1; // = false;
-  float x44_charFadeIn;      // = 0.1f;
-  float x48_charsPerSecond;  // = 8.0f;
-  float x4c_showDelay;       // = 0.0f;
-  CAnimationParameters x50_playerAnim;
-  CVector3f x5c_playerScale;
-  CAssetId x68_platformModel;
-  CVector3f x6c_platformScale;
-  CAssetId x78_backgroundModel;
-  CVector3f x7c_backgroundScale;
-  ushort x88_soundId; // = -1;
-  uchar x8a_volume;   // = 0;
-  uchar x8b_panning;  // = 0;
-  CAssetId x8c_fontId;
-  CAssetId x90_stringId;
+  bool mFadeWhite : 1; // = false;
+  float mCharFadeIn;      // = 0.1f;
+  float mCharsPerSecond;  // = 8.0f;
+  float mShowDelay;       // = 0.0f;
+  CAnimationParameters mPlayerAnim;
+  CVector3f mPlayerScale;
+  CAssetId mPlatformModel;
+  CVector3f mPlatformScale;
+  CAssetId mBackgroundModel;
+  CVector3f mBackgroundScale;
+  ushort mSoundId; // = -1;
+  uchar mVolume;   // = 0;
+  uchar mPanning;  // = 0;
+  CAssetId mFontId;
+  CAssetId mStringId;
 };
 
 #endif // _CSCRIPTWORLDTELEPORTER

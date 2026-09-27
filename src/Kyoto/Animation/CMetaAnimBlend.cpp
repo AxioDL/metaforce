@@ -5,33 +5,33 @@
 #include "Kyoto/Streams/COutputStream.hpp"
 
 CMetaAnimBlend::CMetaAnimBlend(CInputStream& in)
-: x4_animA(CMetaAnimFactory::CreateMetaAnim(in))
-, x8_animB(CMetaAnimFactory::CreateMetaAnim(in))
-, xc_blend(in.ReadFloat())
-, x10_characterSpaceBlend(in.ReadBool()) {}
+: mAnimA(CMetaAnimFactory::CreateMetaAnim(in))
+, mAnimB(CMetaAnimFactory::CreateMetaAnim(in))
+, mBlend(in.ReadFloat())
+, mCharacterSpaceBlend(in.ReadBool()) {}
 
 rstl::ncrc_ptr< CAnimTreeNode >
 CMetaAnimBlend::VGetAnimationTree(const CAnimSysContext& animSys,
                                   const CMetaAnimTreeBuildOrders& orders) const {
   CMetaAnimTreeBuildOrders oa = CMetaAnimTreeBuildOrders::NoSpecialOrders();
   CMetaAnimTreeBuildOrders ob =
-      orders.x0_recursiveAdvance
-          ? CMetaAnimTreeBuildOrders::PreAdvanceForAll(*orders.x0_recursiveAdvance)
+      orders.mRecursiveAdvance
+          ? CMetaAnimTreeBuildOrders::PreAdvanceForAll(*orders.mRecursiveAdvance)
           : CMetaAnimTreeBuildOrders::NoSpecialOrders();
-  rstl::ncrc_ptr< CAnimTreeNode > a = x4_animA->GetAnimationTree(animSys, oa);
-  rstl::ncrc_ptr< CAnimTreeNode > b = x8_animB->GetAnimationTree(animSys, ob);
-  return rs_new CAnimTreeBlend(x10_characterSpaceBlend, a, b, xc_blend,
-                               CAnimTreeBlend::CreatePrimitiveName(a, b, xc_blend));
+  rstl::ncrc_ptr< CAnimTreeNode > a = mAnimA->GetAnimationTree(animSys, oa);
+  rstl::ncrc_ptr< CAnimTreeNode > b = mAnimB->GetAnimationTree(animSys, ob);
+  return rs_new CAnimTreeBlend(mCharacterSpaceBlend, a, b, mBlend,
+                               CAnimTreeBlend::CreatePrimitiveName(a, b, mBlend));
 }
 
 void CMetaAnimBlend::GetUniquePrimitives(rstl::set< CPrimitive >& primsOut) const {
-  x4_animA->GetUniquePrimitives(primsOut);
-  x8_animB->GetUniquePrimitives(primsOut);
+  mAnimA->GetUniquePrimitives(primsOut);
+  mAnimB->GetUniquePrimitives(primsOut);
 }
 
 void CMetaAnimBlend::WriteAnimData(COutputStream& out) const {
-  x4_animA->PutTo(out);
-  x8_animB->PutTo(out);
-  out.WriteReal32(xc_blend);
-  out.WriteChar(x10_characterSpaceBlend ? 1 : 0);
+  mAnimA->PutTo(out);
+  mAnimB->PutTo(out);
+  out.WriteReal32(mBlend);
+  out.WriteChar(mCharacterSpaceBlend ? 1 : 0);
 }

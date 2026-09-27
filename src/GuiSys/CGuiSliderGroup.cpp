@@ -18,7 +18,7 @@ CGuiWidget* CGuiSliderGroup::Create(CGuiFrame* frame, CInputStream& in, CSimpleP
 
 CGuiWidget* CGuiSliderGroup::GetWorkerWidget(int id) {
   if (id >= 0 && id <= 1) {
-    return xcc_sliderRangeWidgets[id];
+    return mSliderRangeWidgets[id];
   }
   return nullptr;
 }
@@ -26,20 +26,20 @@ CGuiWidget* CGuiSliderGroup::GetWorkerWidget(int id) {
 CGuiSliderGroup::CGuiSliderGroup(const CGuiWidgetParms& parms, float min, float max, float cur,
                                  float increment)
 : CGuiCompoundWidget(parms)
-, xb8_minVal(min)
-, xbc_maxVal(max)
-, xc0_roundedCurVal(cur)
-, xc4_curVal(cur)
-, xc8_increment(increment)
-, xcc_sliderRangeWidgets(2, nullptr)
-, xd8_changeCallback()
-, xf0_state(kS_None)
-, xf4_24_inputPending(false) {}
+, mMinVal(min)
+, mMaxVal(max)
+, mRoundedCurVal(cur)
+, mCurVal(cur)
+, mIncrement(increment)
+, mSliderRangeWidgets(2, nullptr)
+, mChangeCallback()
+, mState(kS_None)
+, mInputPending(false) {}
 
 bool CGuiSliderGroup::AddWorkerWidget(CGuiWidget* worker) {
   const int id = worker->GetWorkerId();
   if (id >= 0 && id <= 1) {
-    xcc_sliderRangeWidgets[id] = worker;
+    mSliderRangeWidgets[id] = worker;
   }
   return true;
 }
@@ -64,75 +64,75 @@ void CGuiSliderGroup::ProcessUserInput(const CFinalInput& input) {
 }
 
 void CGuiSliderGroup::Update(float dt) {
-  float delta = dt * (xbc_maxVal - xb8_minVal);
+  float delta = dt * (mMaxVal - mMinVal);
   float upper;
-  for (upper = xb8_minVal; upper <= xc4_curVal; upper += xc8_increment) {
+  for (upper = mMinVal; upper <= mCurVal; upper += mIncrement) {
   }
-  upper = rstl::min_val(xbc_maxVal, upper);
-  float lower = upper - xc8_increment;
-  float oldCur = xc4_curVal;
-  if (xf0_state == kS_Decreasing) {
-    if (xf4_24_inputPending) {
-      xc4_curVal = rstl::max_val(xb8_minVal, oldCur - delta);
+  upper = rstl::min_val(mMaxVal, upper);
+  float lower = upper - mIncrement;
+  float oldCur = mCurVal;
+  if (mState == kS_Decreasing) {
+    if (mInputPending) {
+      mCurVal = rstl::max_val(mMinVal, oldCur - delta);
     } else {
-      xc4_curVal = rstl::max_val(lower, oldCur - delta);
+      mCurVal = rstl::max_val(lower, oldCur - delta);
     }
-  } else if (xf0_state == kS_Increasing) {
-    if (xf4_24_inputPending) {
-      xc4_curVal = rstl::min_val(xbc_maxVal, oldCur + delta);
-    } else if (xc4_curVal != lower) {
-      xc4_curVal = rstl::min_val(upper, oldCur + delta);
+  } else if (mState == kS_Increasing) {
+    if (mInputPending) {
+      mCurVal = rstl::min_val(mMaxVal, oldCur + delta);
+    } else if (mCurVal != lower) {
+      mCurVal = rstl::min_val(upper, oldCur + delta);
     }
   }
-  if (oldCur == xc4_curVal) {
-    xf0_state = kS_None;
+  if (oldCur == mCurVal) {
+    mState = kS_None;
   }
-  float oldRounded = xc0_roundedCurVal;
-  xc0_roundedCurVal = upper - xc4_curVal > xc4_curVal - lower ? lower : upper;
-  if (oldRounded != xc0_roundedCurVal && xd8_changeCallback) {
-    xd8_changeCallback(this, oldRounded);
+  float oldRounded = mRoundedCurVal;
+  mRoundedCurVal = upper - mCurVal > mCurVal - lower ? lower : upper;
+  if (oldRounded != mRoundedCurVal && mChangeCallback) {
+    mChangeCallback(this, oldRounded);
   }
   const float factor =
-      xbc_maxVal == xb8_minVal ? 0.f : (xc4_curVal - xb8_minVal) / (xbc_maxVal - xb8_minVal);
-  CGuiWidget* first = xcc_sliderRangeWidgets[0];
-  CGuiWidget* second = xcc_sliderRangeWidgets[1];
+      mMaxVal == mMinVal ? 0.f : (mCurVal - mMinVal) / (mMaxVal - mMinVal);
+  CGuiWidget* first = mSliderRangeWidgets[0];
+  CGuiWidget* second = mSliderRangeWidgets[1];
   CVector3f a = first->GetIdlePosition();
   CVector3f b = second->GetIdlePosition();
   CVector3f position = CVector3f::Lerp(a, b, factor);
   first->SetLocalPosition(position);
-  xf4_24_inputPending = false;
+  mInputPending = false;
 }
 
 void CGuiSliderGroup::SetCurVal(float cur) {
-  xc0_roundedCurVal = CMath::Clamp(xb8_minVal, cur, xbc_maxVal);
-  xc4_curVal = xc0_roundedCurVal;
+  mRoundedCurVal = CMath::Clamp(mMinVal, cur, mMaxVal);
+  mCurVal = mRoundedCurVal;
 }
 
 void CGuiSliderGroup::SetMaxVal(float max) {
-  xbc_maxVal = max;
-  SetCurVal(xc0_roundedCurVal);
+  mMaxVal = max;
+  SetCurVal(mRoundedCurVal);
 }
 
 void CGuiSliderGroup::SetMinVal(float min) {
-  xb8_minVal = min;
-  SetCurVal(xc0_roundedCurVal);
+  mMinVal = min;
+  SetCurVal(mRoundedCurVal);
 }
 
-void CGuiSliderGroup::SetIncrement(float increment) { xc8_increment = increment; }
+void CGuiSliderGroup::SetIncrement(float increment) { mIncrement = increment; }
 
 int CGuiSliderGroup::MAF_Increment(CGuiFunctionDef* func, CGuiControllerInfo* info) {
-  xf0_state = kS_Increasing;
-  xf4_24_inputPending = true;
+  mState = kS_Increasing;
+  mInputPending = true;
   return 1;
 }
 
 int CGuiSliderGroup::MAF_Decrement(CGuiFunctionDef* func, CGuiControllerInfo* info) {
-  xf0_state = kS_Decreasing;
-  xf4_24_inputPending = true;
+  mState = kS_Decreasing;
+  mInputPending = true;
   return 1;
 }
 
 void CGuiSliderGroup::SetSelectionChangedCallback(
     const TFunctor2< CGuiSliderGroup* const, const float >& callback) {
-  xd8_changeCallback = callback;
+  mChangeCallback = callback;
 }

@@ -19,19 +19,19 @@ inline bool GetFontEncoding() { return OSGetFontEncode() == 1; }
 
 CGBASupport::CGBASupport()
 #if VERSION >= VERSION_GM8E_48
-: x0_file(GetFontEncoding() ? "client_jap.bin" : "client_pad.bin")
+: mFile(GetFontEncoding() ? "client_jap.bin" : "client_pad.bin")
 #else
-: x0_file("client_pad.bin")
+: mFile("client_pad.bin")
 #endif
-, x28_fileSize(OSRoundUp32B(x0_file.Length()))
-, x2c_buffer((uchar*)CMemory::Alloc(x28_fileSize, IAllocator::kHI_RoundUpLen))
-, x30_dvdReq(x0_file.SyncRead(x2c_buffer.get(), x28_fileSize))
-, x34_phase(kP_LoadClientPad)
-, x38_timeout(0.f)
-, x3c_status(0)
-, x40_siChan(-1)
-, x44_fusionLinked(false)
-, x45_fusionBeat(false) {
+, mFileSize(OSRoundUp32B(mFile.Length()))
+, mBuffer((uchar*)CMemory::Alloc(mFileSize, IAllocator::kHI_RoundUpLen))
+, mDvdReq(mFile.SyncRead(mBuffer.get(), mFileSize))
+, mPhase(kP_LoadClientPad)
+, mTimeout(0.f)
+, mStatus(0)
+, mSiChan(-1)
+, mFusionLinked(false)
+, mFusionBeat(false) {
   GBAInit();
   g_GBA = this;
 #if VERSION >= VERSION_GM8E_48
@@ -42,26 +42,26 @@ CGBASupport::CGBASupport()
 CGBASupport::~CGBASupport() { g_GBA = nullptr; }
 
 void CGBASupport::InitializeSupport() {
-  x34_phase = kP_Standby;
-  x38_timeout = 0.f;
-  x3c_status = 0;
-  x40_siChan = -1;
-  x44_fusionLinked = false;
-  x45_fusionBeat = false;
+  mPhase = kP_Standby;
+  mTimeout = 0.f;
+  mStatus = 0;
+  mSiChan = -1;
+  mFusionLinked = false;
+  mFusionBeat = false;
 }
 
 void CGBASupport::StartLink() {
-  x34_phase = kP_StartProbeTimeout;
-  x40_siChan = -1;
+  mPhase = kP_StartProbeTimeout;
+  mSiChan = -1;
 }
 
 inline bool CGBASupport::CheckReadyStatus() {
-  if (x34_phase != kP_LoadClientPad)
+  if (mPhase != kP_LoadClientPad)
     return true;
-  if (x30_dvdReq->IsComplete()) {
-    x30_dvdReq = nullptr;
-    x34_phase = kP_Standby;
-    uchar* buff = x2c_buffer.get();
+  if (mDvdReq->IsComplete()) {
+    mDvdReq = nullptr;
+    mPhase = kP_Standby;
+    uchar* buff = mBuffer.get();
     u32 tick = OSGetTick();
     buff[0xc8] = (tick >> 0);
     buff[0xc9] = (tick >> 8);
@@ -87,14 +87,14 @@ inline bool CGBASupport::CheckReadyStatus() {
 bool CGBASupport::IsReady() { return CheckReadyStatus(); }
 
 void CGBASupport::Update(float dt) {
-  switch (x34_phase) {
+  switch (mPhase) {
   case kP_LoadClientPad: {
     CheckReadyStatus();
     break;
   }
   case kP_StartProbeTimeout: {
-    x38_timeout = 4.f;
-    x34_phase = kP_PollProbe;
+    mTimeout = 4.f;
+    mPhase = kP_PollProbe;
     // [[fallthrough]];
   }
   case kP_PollProbe: {
@@ -102,46 +102,46 @@ void CGBASupport::Update(float dt) {
     do {
       uint result = SIProbe(channel);
       if (result == 0x40000) {
-        x40_siChan = channel;
-        x34_phase = kP_StartJoyBusBoot;
-        x38_timeout = 4.f;
+        mSiChan = channel;
+        mPhase = kP_StartJoyBusBoot;
+        mTimeout = 4.f;
         goto end_switch;
       }
       channel++;
     } while (channel < 4);
-    float newT = rstl::max_val(0.f, x38_timeout - dt);
-    x38_timeout = newT;
-    if (x38_timeout == 0.f) {
-      x34_phase = kP_Failed;
+    float newT = rstl::max_val(0.f, mTimeout - dt);
+    mTimeout = newT;
+    if (mTimeout == 0.f) {
+      mPhase = kP_Failed;
     }
     break;
   }
   case kP_StartJoyBusBoot: {
-    x34_phase = kP_PollJoyBusBoot;
-    GBAJoyBootAsync(x40_siChan, x40_siChan << 1, 2, x2c_buffer.get(), x0_file.Length(), &x3c_status,
+    mPhase = kP_PollJoyBusBoot;
+    GBAJoyBootAsync(mSiChan, mSiChan << 1, 2, mBuffer.get(), mFile.Length(), &mStatus,
                     &joyboot_callback);
     break;
   }
   case kP_PollJoyBusBoot: {
-    int status = GBAGetProcessStatus(x40_siChan, &x3c_status);
+    int status = GBAGetProcessStatus(mSiChan, &mStatus);
     if (status != GBA_BUSY) {
-      if (GBAGetStatus(x40_siChan, &x3c_status) == GBA_NOT_READY) {
-        x34_phase = kP_Failed;
+      if (GBAGetStatus(mSiChan, &mStatus) == GBA_NOT_READY) {
+        mPhase = kP_Failed;
       } else {
-        x38_timeout = 4.f;
-        x34_phase = kP_DataTransfer;
+        mTimeout = 4.f;
+        mPhase = kP_DataTransfer;
       }
     }
     break;
   }
   case kP_DataTransfer: {
     if (PollResponse()) {
-      x34_phase = kP_Complete;
+      mPhase = kP_Complete;
       break;
     }
-    x38_timeout = rstl::max_val(0.f, x38_timeout - dt);
-    if (x38_timeout == 0.f)
-      x34_phase = kP_Failed;
+    mTimeout = rstl::max_val(0.f, mTimeout - dt);
+    if (mTimeout == 0.f)
+      mPhase = kP_Failed;
     break;
   }
   case kP_Standby:
@@ -175,11 +175,11 @@ bool CGBASupport::PollResponse() {
   uint unk;
 
   // Not sure why this is called twice
-  if (GBAReset(x40_siChan, &gbaStatus) == GBA_NOT_READY &&
-      GBAReset(x40_siChan, &gbaStatus) == GBA_NOT_READY) {
+  if (GBAReset(mSiChan, &gbaStatus) == GBA_NOT_READY &&
+      GBAReset(mSiChan, &gbaStatus) == GBA_NOT_READY) {
     return false;
   }
-  if (GBAGetStatus(x40_siChan, &gbaStatus) == GBA_NOT_READY) {
+  if (GBAGetStatus(mSiChan, &gbaStatus) == GBA_NOT_READY) {
     return false;
   }
   if (gbaStatus != 0x28) {
@@ -191,7 +191,7 @@ bool CGBASupport::PollResponse() {
 #endif
 
   uint magic;
-  if (GBARead(x40_siChan, (u8*)(&magic), &gbaStatus) == GBA_NOT_READY) {
+  if (GBARead(mSiChan, (u8*)(&magic), &gbaStatus) == GBA_NOT_READY) {
     return false;
   }
 #if VERSION < VERSION_GM8E_48
@@ -203,22 +203,22 @@ bool CGBASupport::PollResponse() {
     return false;
   }
 #endif
-  if (GBAGetStatus(x40_siChan, &gbaStatus) == GBA_NOT_READY) {
+  if (GBAGetStatus(mSiChan, &gbaStatus) == GBA_NOT_READY) {
     return false;
   }
   if (gbaStatus != 0x20) {
     return false;
   }
 #if VERSION < VERSION_GM8E_48
-  if (GBAWrite(x40_siChan, (u8*)(&MAGIC), &gbaStatus) == GBA_NOT_READY) {
+  if (GBAWrite(mSiChan, (u8*)(&MAGIC), &gbaStatus) == GBA_NOT_READY) {
     return false;
   }
 #else
-  if (GBAWrite(x40_siChan, (u8*)(&targetMagic), &gbaStatus) == GBA_NOT_READY) {
+  if (GBAWrite(mSiChan, (u8*)(&targetMagic), &gbaStatus) == GBA_NOT_READY) {
     return false;
   }
 #endif
-  if (GBAGetStatus(x40_siChan, &gbaStatus) == GBA_NOT_READY) {
+  if (GBAGetStatus(mSiChan, &gbaStatus) == GBA_NOT_READY) {
     return false;
   }
   if ((gbaStatus & 0x30) != 0x30) {
@@ -230,13 +230,13 @@ bool CGBASupport::PollResponse() {
     if (OSTicksToMicroseconds(current - start) > 500) {
       goto end;
     }
-  } while ((GBAGetStatus(x40_siChan, &gbaStatus) == GBA_NOT_READY || (gbaStatus & 0x8) == 0) ||
-           (GBAGetStatus(x40_siChan, &gbaStatus) != GBA_READY || gbaStatus != 0x38));
+  } while ((GBAGetStatus(mSiChan, &gbaStatus) == GBA_NOT_READY || (gbaStatus & 0x8) == 0) ||
+           (GBAGetStatus(mSiChan, &gbaStatus) != GBA_READY || gbaStatus != 0x38));
 
   {
     uint read;
     uchar fusionStatus[4];
-    if (GBARead(x40_siChan, reinterpret_cast< uchar* >(&read), &gbaStatus) != GBA_READY) {
+    if (GBARead(mSiChan, reinterpret_cast< uchar* >(&read), &gbaStatus) != GBA_READY) {
       return false;
     }
     fusionStatus[0] = read >> 24;
@@ -247,12 +247,12 @@ bool CGBASupport::PollResponse() {
       return false;
     }
 
-    x44_fusionLinked = (fusionStatus[2] & 0x2) == 0;
+    mFusionLinked = (fusionStatus[2] & 0x2) == 0;
     bool fusionBeat = false;
-    if (x44_fusionLinked != false && (fusionStatus[2] & 0x1) > 0) {
+    if (mFusionLinked != false && (fusionStatus[2] & 0x1) > 0) {
       fusionBeat = true;
     }
-    x45_fusionBeat = fusionBeat;
+    mFusionBeat = fusionBeat;
   }
 
 end:

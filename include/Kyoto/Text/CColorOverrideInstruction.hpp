@@ -7,13 +7,13 @@
 class CColorOverrideInstruction : public CInstruction {
 public:
   explicit CColorOverrideInstruction(int idx, const CTextColor& color)
-  : x4_idx(idx), x8_color(color) {}
+  : mIdx(idx), mColor(color) {}
   void Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const;
   void PageInvoke(CFontRenderState& state, CTextRenderBuffer* buf) const;
 
 private:
-  int x4_idx;
-  CTextColor x8_color;
+  int mIdx;
+  CTextColor mColor;
 };
 
 #endif // _CCOLOROVERRIDEINSTRUCTION

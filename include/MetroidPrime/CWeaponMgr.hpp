@@ -22,20 +22,20 @@ public:
   void Add(TUniqueId uid, EWeaponType type) {
     rstl::pair< TUniqueId, Vec > newIndex(uid, Vec(0));
     newIndex.second[type] += 1;
-    x0_weapons.insert(newIndex);
+    mWeapons.insert(newIndex);
   }
 
   Vec* GetIndex(TUniqueId uid) const {
-    rstl::map< TUniqueId, Vec >::const_iterator iter = x0_weapons.find(uid);
+    rstl::map< TUniqueId, Vec >::const_iterator iter = mWeapons.find(uid);
 
-    if (iter != x0_weapons.end()) {
+    if (iter != mWeapons.end()) {
       return const_cast<Vec*>(&iter->second);
     }
     return nullptr;
   }
 
 private:
-  rstl::map< TUniqueId, Vec > x0_weapons;
+  rstl::map< TUniqueId, Vec > mWeapons;
 };
 CHECK_SIZEOF(CWeaponMgr, 0x14);
 

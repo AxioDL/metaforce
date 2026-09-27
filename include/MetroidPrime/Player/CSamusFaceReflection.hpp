@@ -21,12 +21,12 @@ public:
   void Update(float dt, const CStateManager& mgr, CRandom16& rand);
 
 private:
-  CModelData x0_modelData;
-  rstl::single_ptr< CActorLights > x4c_lights;
-  CQuaternion x50_lookRot;
-  CVector3f x60_lookDir;
+  CModelData mModelData;
+  rstl::single_ptr< CActorLights > mLights;
+  CQuaternion mLookRot;
+  CVector3f mLookDir;
   int x6c_;
-  bool x70_hidden;
+  bool mHidden;
 };
 
 #endif // _CSAMUSFACEREFLECTION

@@ -21,22 +21,22 @@ public:
   void PreRender(CStateManager& mgr, const CFrustumPlanes& frustum) override;
   void AddToRenderer(const CFrustumPlanes& frustum, const CStateManager& mgr) const override;
   void Render(const CStateManager& mgr) const override;
-  bool IsElementGen() const { return x104_26_isElementGen; }
-  void SetRunIndefinitely(bool b) { x104_27_runIndefinitely = b; }
-  CParticleGen* GetParticleGen() const { return xe8_generator.get(); }
+  bool IsElementGen() const { return mIsElementGen; }
+  void SetRunIndefinitely(bool b) { mRunIndefinitely = b; }
+  CParticleGen* GetParticleGen() const { return mGenerator.get(); }
 
   static float GetNearClipDistance(const CStateManager& mgr);
   static const CVector3f& GetScaleForPOV(const CStateManager& mgr);
 
 private:
-  rstl::single_ptr< CParticleGen > xe8_generator;
-  CVector3f xec_translation;
-  CVector3f xf8_localScale;
-  bool x104_24_renderAsParticleGen : 1l; // = true;
-  bool x104_25_enableRender : 1l; // = false;
-  bool x104_26_isElementGen : 1l; // = false;
-  bool x104_27_runIndefinitely : 1l; // = false;
-  float x108_timeoutTimer; // = 0.f;
+  rstl::single_ptr< CParticleGen > mGenerator;
+  CVector3f mTranslation;
+  CVector3f mLocalScale;
+  bool mRenderAsParticleGen : 1l; // = true;
+  bool mEnableRender : 1l; // = false;
+  bool mIsElementGen : 1l; // = false;
+  bool mRunIndefinitely : 1l; // = false;
+  float mTimeoutTimer; // = 0.f;
 
   static int g_IndirectTexturedBillboardCount;
   static int g_BillboardCount;

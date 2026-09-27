@@ -42,16 +42,16 @@ private:
   bool ClosestToPlayer(CStateManager& mgr) const;
   bool HitShell(const CVector3f&) const;
   uint x568_;
-  CDamageInfo x56c_attackDamage;
-  float x588_attackRadius;
+  CDamageInfo mAttackDamage;
+  float mAttackRadius;
   float x58c_;
   float x590_;
   float x594_;
   float x598_;
-  float x59c_priority;
-  float x5a0_repulseRadius;
-  float x5a4_attractRadius;
-  float x5a8_attackDelay;
+  float mPriority;
+  float mRepulseRadius;
+  float mAttractRadius;
+  float mAttackDelay;
   float x5ac_;
   float x5b0_;
   float x5b4_;
@@ -59,6 +59,6 @@ private:
   bool x5b8_25_ : 1;
   bool x5b8_26_ : 1;
 };
-CHECK_SIZEOF(CJellyZap, (VERSION >= VERSION_GM8P_00 ? 0x5d0 : 0x5c0))
+CHECK_SIZEOF(CJellyZap, (VERSION >= VERSION_GM8E_02 ? 0x5d0 : 0x5c0))
 
 #endif // _CJELLYZAP

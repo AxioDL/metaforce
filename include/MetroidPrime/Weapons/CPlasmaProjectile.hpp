@@ -26,9 +26,9 @@ public:
   bool CanRenderUnsorted(const CStateManager& mgr) const override;
   void AddToRenderer(const CFrustumPlanes& frustum, const CStateManager& mgr) const override;
   void Render(const CStateManager& mgr) const override;
-  CColor GetInnerColor() const { return x490_innerColor; }
-  CColor GetOuterColor() const { return x494_outerColor; }
-  bool IsFiring() const { return x548_26_firing; }
+  CColor GetInnerColor() const { return mInnerColor; }
+  CColor GetOuterColor() const { return mOuterColor; }
+  bool IsFiring() const { return mFiring; }
   void SetPlayerSustainedDamage(float duration, const CDamageInfo& damage);
 
 private:
@@ -48,51 +48,51 @@ private:
   void DeletePlasmaLights(CStateManager& mgr);
   void UpdateLights(float expansion, float dt, CStateManager& mgr);
 
-  rstl::vector< TUniqueId > x468_lights;
-  int x478_beamAttributes;
-  float x47c_lifeTime;
-  float x480_pulseSpeed;
-  float x484_shutdownTime;
-  float x488_expansionSpeed;
-  float x48c_maxLength;
-  CColor x490_innerColor;
-  CColor x494_outerColor;
-  CDamageInfo x498_phazonDamage;
-  EExpansionState x4b4_expansionState;
-  float x4b8_beamWidth;
-  float x4bc_lifeTimer;
-  float x4c0_expansionT;
-  float x4c4_expansion;
-  float x4c8_beamAngle;
-  float x4cc_energyPulseStartY;
-  float x4d0_shutdownTimer;
-  float x4d4_contactPulseTimer;
-  float x4d8_energyPulseTimer;
-  float x4dc_playerEffectPulseTimer;
-  float x4e0_playerDamageDuration;
-  float x4e4_playerDamageTimer;
-  TCachedToken< CTexture > x4e8_texture;
-  TCachedToken< CTexture > x4f4_glowTexture;
-  TLockedToken< CGenDescription > x500_contactFxDesc;
-  TLockedToken< CGenDescription > x50c_pulseFxDesc;
-  rstl::single_ptr< CElementGen > x518_contactGen;
-  rstl::single_ptr< CElementGen > x51c_pulseGen;
-  rstl::single_ptr< CElementGen > x520_weaponGen;
-  CAssetId x524_freezeSteamTxtr;
-  CAssetId x528_freezeIceTxtr;
-  rstl::optional_object< TToken< CElectricDescription > > x52c_visorElectric;
-  rstl::optional_object< TToken< CGenDescription > > x538_visorParticle;
-  u16 x544_freezeSfx;
-  u16 x546_electricSfx;
+  rstl::vector< TUniqueId > mLights;
+  int mBeamAttributes;
+  float mLifeTime;
+  float mPulseSpeed;
+  float mShutdownTime;
+  float mExpansionSpeed;
+  float mMaxLength;
+  CColor mInnerColor;
+  CColor mOuterColor;
+  CDamageInfo mPhazonDamage;
+  EExpansionState mExpansionState;
+  float mBeamWidth;
+  float mLifeTimer;
+  float mExpansionT;
+  float mExpansion;
+  float mBeamAngle;
+  float mEnergyPulseStartY;
+  float mShutdownTimer;
+  float mContactPulseTimer;
+  float mEnergyPulseTimer;
+  float mPlayerEffectPulseTimer;
+  float mPlayerDamageDuration;
+  float mPlayerDamageTimer;
+  TCachedToken< CTexture > mTexture;
+  TCachedToken< CTexture > mGlowTexture;
+  TLockedToken< CGenDescription > mContactFxDesc;
+  TLockedToken< CGenDescription > mPulseFxDesc;
+  rstl::single_ptr< CElementGen > mContactGen;
+  rstl::single_ptr< CElementGen > mPulseGen;
+  rstl::single_ptr< CElementGen > mWeaponGen;
+  CAssetId mFreezeSteamTxtr;
+  CAssetId mFreezeIceTxtr;
+  rstl::optional_object< TToken< CElectricDescription > > mVisorElectric;
+  rstl::optional_object< TToken< CGenDescription > > mVisorParticle;
+  u16 mFreezeSfx;
+  u16 mElectricSfx;
   bool x548_24_ : 1;
-  bool x548_25_enableEnergyPulse : 1;
-  bool x548_26_firing : 1;
-  bool x548_27_texturesLoaded : 1;
-  bool x548_28_drawOwnerFirst : 1;
-  bool x548_29_activePlayerPhazon : 1;
+  bool mEnableEnergyPulse : 1;
+  bool mFiring : 1;
+  bool mTexturesLoaded : 1;
+  bool mDrawOwnerFirst : 1;
+  bool mActivePlayerPhazon : 1;
 };
-CHECK_SIZEOF(CPlasmaProjectile, (VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02 ? 0x578
-                                 : VERSION >= VERSION_GM8P_00                             ? 0x560
+CHECK_SIZEOF(CPlasmaProjectile, (VERSION >= VERSION_GM8P_00 ? 0x578
+                                 : VERSION >= VERSION_GM8E_02                             ? 0x560
                                                                                           : 0x550))
 
 #endif // _CPLASMAPROJECTILE

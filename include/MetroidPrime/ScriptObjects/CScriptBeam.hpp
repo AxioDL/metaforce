@@ -8,10 +8,10 @@
 
 class CWeaponDescription;
 class CScriptBeam : public CActor {
-  TLockedToken< CWeaponDescription > xe8_weaponDescription;
-  CBeamInfo xf4_beamInfo;
-  CDamageInfo x138_damageInfo;
-  TUniqueId x154_projectileId;
+  TLockedToken< CWeaponDescription > mWeaponDescription;
+  CBeamInfo mBeamInfo;
+  CDamageInfo mDamageInfo;
+  TUniqueId mProjectileId;
 
 public:
   CScriptBeam(TUniqueId, const rstl::string&, const CEntityInfo&, const CTransform4f&, bool,

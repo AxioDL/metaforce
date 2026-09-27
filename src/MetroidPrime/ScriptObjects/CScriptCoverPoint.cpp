@@ -10,16 +10,16 @@ CScriptCoverPoint::CScriptCoverPoint(TUniqueId uid, const rstl::string& name,
                                      float horizontalAngle, float verticalAngle, float coverTime)
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(kMT_NoStepLogic),
          CActorParameters::None(), kInvalidUniqueId)
-, xe8_flags(flags)
-, xec_cosHorizontalAngle(cosf(horizontalAngle * 0.008726646f))
-, xf0_sinVerticalAngle(sinf(verticalAngle * 0.008726646f))
-, xf4_coverTime(coverTime)
-, xf8_24_crouch(crouch)
-, xf8_25_inUse(false)
-, xfa_occupant(kInvalidUniqueId)
-, xfc_retreating(kInvalidUniqueId)
-, x100_touchBounds(CAABox(xf.GetTranslation(), xf.GetTranslation()))
-, x11c_timeLeft(0.f) {}
+, mFlags(flags)
+, mCosHorizontalAngle(cosf(horizontalAngle * 0.008726646f))
+, mSinVerticalAngle(sinf(verticalAngle * 0.008726646f))
+, mCoverTime(coverTime)
+, mCrouch(crouch)
+, mInUse(false)
+, mOccupant(kInvalidUniqueId)
+, mRetreating(kInvalidUniqueId)
+, mTouchBounds(CAABox(xf.GetTranslation(), xf.GetTranslation()))
+, mTimeLeft(0.f) {}
 
 ENTITY_ACCEPT_IMPL(CScriptCoverPoint)
 
@@ -31,8 +31,8 @@ void CScriptCoverPoint::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid,
   case kSM_InitializedInArea:
     for (rstl::vector< SConnection >::const_iterator conn = GetConnectionList().begin();
          conn != GetConnectionList().end(); ++conn) {
-      if (conn->x0_state == kSS_Retreat) {
-        xfc_retreating = mgr.GetIdForScript(conn->x8_objId);
+      if (conn->mState == kSS_Retreat) {
+        mRetreating = mgr.GetIdForScript(conn->mObjId);
         break;
       }
     }
@@ -42,21 +42,21 @@ void CScriptCoverPoint::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid,
 }
 
 pas::ECoverDirection CScriptCoverPoint::GetAttackDirection() const {
-  return pas::ECoverDirection(xe8_flags);
+  return pas::ECoverDirection(mFlags);
 }
 
-bool CScriptCoverPoint::ShouldCrouch() const { return xf8_24_crouch; }
+bool CScriptCoverPoint::ShouldCrouch() const { return mCrouch; }
 
-bool CScriptCoverPoint::ShouldStay() const { return xe8_flags >> 3 & 1; }
+bool CScriptCoverPoint::ShouldStay() const { return mFlags >> 3 & 1; }
 
-bool CScriptCoverPoint::ShouldWallHang() const { return xe8_flags >> 4 & 1; }
+bool CScriptCoverPoint::ShouldWallHang() const { return mFlags >> 4 & 1; }
 
-bool CScriptCoverPoint::ShouldLandHere() const { return xe8_flags >> 5 & 1; }
+bool CScriptCoverPoint::ShouldLandHere() const { return mFlags >> 5 & 1; }
 
-float CScriptCoverPoint::GetCosHorizontalAngle() const { return xec_cosHorizontalAngle; }
+float CScriptCoverPoint::GetCosHorizontalAngle() const { return mCosHorizontalAngle; }
 
 float CScriptCoverPoint::GetSinSqVerticalAngle() const {
-  return xf0_sinVerticalAngle * xf0_sinVerticalAngle;
+  return mSinVerticalAngle * mSinVerticalAngle;
 }
 
 const bool CScriptCoverPoint::Blown(const CVector3f& point) const {
@@ -83,19 +83,19 @@ const bool CScriptCoverPoint::Blown(const CVector3f& point) const {
 }
 
 bool CScriptCoverPoint::GetInUse(TUniqueId uid) const {
-  return xf8_25_inUse || x11c_timeLeft > 0.f ||
-         (xfa_occupant != kInvalidUniqueId && uid != kInvalidUniqueId && uid != xfa_occupant);
+  return mInUse || mTimeLeft > 0.f ||
+         (mOccupant != kInvalidUniqueId && uid != kInvalidUniqueId && uid != mOccupant);
 }
 
 void CScriptCoverPoint::SetInUse(bool inUse) {
-  xf8_25_inUse = inUse;
-  if (!xf8_25_inUse)
-    x11c_timeLeft = xf4_coverTime;
+  mInUse = inUse;
+  if (!mInUse)
+    mTimeLeft = mCoverTime;
 }
 
 void CScriptCoverPoint::Think(float delta, CStateManager&) {
-  if (x11c_timeLeft > 0.f)
-    x11c_timeLeft -= delta;
+  if (mTimeLeft > 0.f)
+    mTimeLeft -= delta;
 }
 
 void CScriptCoverPoint::AddToRenderer(const CFrustumPlanes&, const CStateManager&) const {}
@@ -103,5 +103,5 @@ void CScriptCoverPoint::AddToRenderer(const CFrustumPlanes&, const CStateManager
 void CScriptCoverPoint::Render(const CStateManager&) const {}
 
 rstl::optional_object< CAABox > CScriptCoverPoint::GetTouchBounds() const {
-  return x100_touchBounds;
+  return mTouchBounds;
 }

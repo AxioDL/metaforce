@@ -18,6 +18,6 @@ public:
   void AddToRenderer(const CFrustumPlanes&, const CStateManager&) const override;
   void Render(const CStateManager&) const override;
 };
-CHECK_SIZEOF(CEffect, (VERSION >= VERSION_GM8P_00 ? 0xf8 : 0xe8))
+CHECK_SIZEOF(CEffect, (VERSION >= VERSION_GM8E_02 ? 0xf8 : 0xe8))
 
 #endif // _CEFFECT

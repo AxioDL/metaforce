@@ -18,8 +18,8 @@ public:
 
 private:
   void ForceOrdering();
-  TToken< CAnimationDatabase > x0_animDB;
-  CAnimSysContext x8_sysCtx;
+  TToken< CAnimationDatabase > mAnimDB;
+  CAnimSysContext mSysCtx;
 };
 
 CHECK_SIZEOF(CAnimationManager, 0x18)

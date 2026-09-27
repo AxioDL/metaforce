@@ -16,7 +16,7 @@ public:
   CAutoSave();
 
 private:
-  rstl::single_ptr< CSaveGameScreen > x14_saveGameScreen;
+  rstl::single_ptr< CSaveGameScreen > mSaveGameScreen;
 };
 CHECK_SIZEOF(CAutoSave, 0x18)
 

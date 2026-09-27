@@ -4,7 +4,7 @@
 #include "Kyoto/Animation/CMetaAnimFactory.hpp"
 
 CAnimation::CAnimation(CInputStream& in)
-: x0_name(in)
-, x10_anim(CMetaAnimFactory::CreateMetaAnim(in)) {
+: mName(in)
+, mAnim(CMetaAnimFactory::CreateMetaAnim(in)) {
   
 }

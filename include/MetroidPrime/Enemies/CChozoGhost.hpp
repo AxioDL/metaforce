@@ -29,23 +29,23 @@ public:
     explicit CBehaveChance(CInputStream& in);
 
     EBehaveType GetBehave(EBehaveType type, CStateManager& mgr) const;
-    float GetLurk() const { return x4_lurk; }
-    float GetTaunt() const { return x8_taunt; }
-    float GetAttack() const { return xc_attack; }
-    float GetMove() const { return x10_move; }
-    float GetLurkTime() const { return x14_lurkTime; }
-    float GetChargeAttack() const { return x18_chargeAttack; }
-    uint GetNumBolts() const { return x1c_numBolts; }
+    float GetLurk() const { return mLurk; }
+    float GetTaunt() const { return mTaunt; }
+    float GetAttack() const { return mAttack; }
+    float GetMove() const { return mMove; }
+    float GetLurkTime() const { return mLurkTime; }
+    float GetChargeAttack() const { return mChargeAttack; }
+    uint GetNumBolts() const { return mNumBolts; }
 
   private:
-    int x0_propertyCount;
-    float x4_lurk;
-    float x8_taunt;
-    float xc_attack;
-    float x10_move;
-    float x14_lurkTime;
-    float x18_chargeAttack;
-    uint x1c_numBolts;
+    int mPropertyCount;
+    float mLurk;
+    float mTaunt;
+    float mAttack;
+    float mMove;
+    float mLurkTime;
+    float mChargeAttack;
+    uint mNumBolts;
   };
 
   CChozoGhost(TUniqueId uid, const rstl::string& name, const CEntityInfo& info,
@@ -123,59 +123,59 @@ private:
   void SetWarpPosition(CStateManager& mgr, const CVector3f& dir);
   void FindBestAnchor(CStateManager& mgr);
 
-  float x568_hearingRadius;
-  float x56c_fadeOutDelay;
-  float x570_attackDelay;
-  float x574_freezeTime;
-  CProjectileInfo x578_projectileInfo1;
-  CProjectileInfo x5a0_projectileInfo2;
-  CBehaveChance x5c8_behaveChance1;
-  CBehaveChance x5e8_behaveChance2;
-  CBehaveChance x608_behaveChance3;
-  ushort x628_soundImpact;
+  float mHearingRadius;
+  float mFadeOutDelay;
+  float mAttackDelay;
+  float mFreezeTime;
+  CProjectileInfo mProjectileInfo1;
+  CProjectileInfo mProjectileInfo2;
+  CBehaveChance mBehaveChance1;
+  CBehaveChance mBehaveChance2;
+  CBehaveChance mBehaveChance3;
+  ushort mSoundImpact;
   float x62c_;
-  ushort x630_sfxFadeIn;
-  ushort x632_sfxFadeOut;
+  ushort mSfxFadeIn;
+  ushort mSfxFadeOut;
   float x634_;
-  float x638_hurlRecoverTime;
+  float mHurlRecoverTime;
   int x63c_;
-  rstl::optional_object< TLockedToken< CGenDescription > > x640_projectileVisor;
-  ushort x650_soundProjectileVisor;
+  rstl::optional_object< TLockedToken< CGenDescription > > mProjectileVisor;
+  ushort mSoundProjectileVisor;
   float x654_;
   float x658_;
-  int x65c_nearChance;
-  int x660_midChance;
-  bool x664_24_behaviorEnabled : 1;
-  bool x664_25_flinch : 1;
-  bool x664_26_alert : 1;
-  bool x664_27_onGround : 1;
+  int mNearChance;
+  int mMidChance;
+  bool mBehaviorEnabled : 1;
+  bool mFlinch : 1;
+  bool mAlert : 1;
+  bool mOnGround : 1;
   bool x664_28_ : 1;
-  bool x664_29_fadedIn : 1;
-  bool x664_30_fadedOut : 1;
+  bool mFadedIn : 1;
+  bool mFadedOut : 1;
   bool x664_31_ : 1;
   bool x665_24_ : 1;
   bool x665_25_ : 1;
-  bool x665_26_shouldSwoosh : 1;
-  bool x665_27_playerInLeashRange : 1;
-  bool x665_28_inRange : 1;
-  bool x665_29_aggressive : 1;
+  bool mShouldSwoosh : 1;
+  bool mPlayerInLeashRange : 1;
+  bool mInRange : 1;
+  bool mAggressive : 1;
   float x668_;
   float x66c_;
   float x670_;
-  TUniqueId x674_coverPoint;
-  float x678_floorLevel;
-  int x67c_attackType;
-  EBehaveType x680_behaveType;
-  float x684_lurkDelay;
-  CSteeringBehaviors x688_steeringBehaviors;
-  CBoneTracking x68c_boneTracking;
-  TUniqueId x6c4_teamMgr;
-  float x6c8_spaceWarpTime;
-  CVector3f x6cc_spaceWarpPosition;
+  TUniqueId mCoverPoint;
+  float mFloorLevel;
+  int mAttackType;
+  EBehaveType mBehaveType;
+  float mLurkDelay;
+  CSteeringBehaviors mSteeringBehaviors;
+  CBoneTracking mBoneTracking;
+  TUniqueId mTeamMgr;
+  float mSpaceWarpTime;
+  CVector3f mSpaceWarpPosition;
   int x6d8_;
 
   static const rstl::string skSpeedSwooshName;
 };
-CHECK_SIZEOF(CChozoGhost, (VERSION >= VERSION_GM8P_00 ? 0x6f0 : 0x6E0))
+CHECK_SIZEOF(CChozoGhost, (VERSION >= VERSION_GM8E_02 ? 0x6f0 : 0x6E0))
 
 #endif // _CCHOZOGHOST

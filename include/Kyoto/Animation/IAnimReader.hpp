@@ -16,14 +16,14 @@
 #include "rstl/string.hpp"
 
 struct CAdvancementResults {
-  CCharAnimTime x0_remTime;
-  CAdvancementDeltas x8_deltas;
-  const CCharAnimTime& GetRemainder() const { return x0_remTime; }
-  const CAdvancementDeltas& GetAdvancementDeltas() const { return x8_deltas; }
+  CCharAnimTime mRemTime;
+  CAdvancementDeltas mDeltas;
+  const CCharAnimTime& GetRemainder() const { return mRemTime; }
+  const CAdvancementDeltas& GetAdvancementDeltas() const { return mDeltas; }
   CAdvancementResults() {}
-  CAdvancementResults(const CCharAnimTime& time) : x0_remTime(time) {}
+  CAdvancementResults(const CCharAnimTime& time) : mRemTime(time) {}
   CAdvancementResults(const CCharAnimTime& time, const CAdvancementDeltas& deltas)
-  : x0_remTime(time), x8_deltas(deltas) {}
+  : mRemTime(time), mDeltas(deltas) {}
 
   static CAdvancementResults RemainderOnly(const CCharAnimTime& time) {
     return CAdvancementResults(time);
@@ -33,28 +33,28 @@ struct CAdvancementResults {
 CHECK_SIZEOF(CAdvancementResults, 0x24)
 
 struct CAnimTreeEffectiveContribution {
-  float x0_contributionWeight;
-  rstl::string x4_name;
-  CSteadyStateAnimInfo x14_ssInfo;
-  CCharAnimTime x2c_remTime;
-  u32 x34_dbIdx;
+  float mContributionWeight;
+  rstl::string mName;
+  CSteadyStateAnimInfo mSsInfo;
+  CCharAnimTime mRemTime;
+  u32 mDbIdx;
 
 public:
   CAnimTreeEffectiveContribution(float cweight, const rstl::string& name,
                                  const CSteadyStateAnimInfo& ssInfo, const CCharAnimTime& remTime,
                                  u32 dbIdx)
-  : x0_contributionWeight(cweight)
-  , x4_name(name)
-  , x14_ssInfo(ssInfo)
-  , x2c_remTime(remTime)
-  , x34_dbIdx(dbIdx) {}
-  float GetContributionWeight() const { return x0_contributionWeight; }
-  const rstl::string& GetPrimitiveName() const { return x4_name; }
-  const CSteadyStateAnimInfo& GetSteadyStateAnimInfo() const { return x14_ssInfo; }
-  const CCharAnimTime& GetTimeRemaining() const { return x2c_remTime; }
-  u32 GetAnimDatabaseIndex() const { return x34_dbIdx; }
+  : mContributionWeight(cweight)
+  , mName(name)
+  , mSsInfo(ssInfo)
+  , mRemTime(remTime)
+  , mDbIdx(dbIdx) {}
+  float GetContributionWeight() const { return mContributionWeight; }
+  const rstl::string& GetPrimitiveName() const { return mName; }
+  const CSteadyStateAnimInfo& GetSteadyStateAnimInfo() const { return mSsInfo; }
+  const CCharAnimTime& GetTimeRemaining() const { return mRemTime; }
+  u32 GetAnimDatabaseIndex() const { return mDbIdx; }
   float GetPhase() const {
-    return rstl::min_val(rstl::max_val(1.f - x2c_remTime / x14_ssInfo.GetDuration(), 0.f), 1.f);
+    return rstl::min_val(rstl::max_val(1.f - mRemTime / mSsInfo.GetDuration(), 0.f), 1.f);
   }
 };
 

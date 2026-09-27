@@ -46,17 +46,17 @@ public:
   void EnterFidget(CStateManager&, SamusGun::EFidgetType, int);
   void LoadAnimations();
 
-  CModelData& GetModelData() { return x0_modelData; }
-  const CModelData& GetModelData() const { return x0_modelData; }
-  CGunController& GunController() { return x4c_gunController; }
-  const CGunController& GunController() const { return x4c_gunController; }
-  bool IsAnimPlaying() const { return xb8_24_animPlaying; }
+  CModelData& GetModelData() { return mModelData; }
+  const CModelData& GetModelData() const { return mModelData; }
+  CGunController& GunController() { return mGunController; }
+  const CGunController& GunController() const { return mGunController; }
+  bool IsAnimPlaying() const { return mAnimPlaying; }
 
 private:
-  CModelData x0_modelData;
-  CGunController x4c_gunController;
-  rstl::vector< CToken > xa8_anims;
-  bool xb8_24_animPlaying : 1;
+  CModelData mModelData;
+  CGunController mGunController;
+  rstl::vector< CToken > mAnims;
+  bool mAnimPlaying : 1;
 };
 CHECK_SIZEOF(CGunMotion, 0xbc)
 

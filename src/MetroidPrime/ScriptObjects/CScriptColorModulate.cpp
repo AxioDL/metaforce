@@ -79,11 +79,11 @@ TUniqueId CScriptColorModulate::FadeOutHelper(CStateManager& mgr, const TUniqueI
 
 void CScriptColorModulate::SetTargetFlags(CStateManager& mgr, const CModelFlags& flags) {
   for (AUTO(conn, GetConnectionList().begin()); conn != GetConnectionList().end(); ++conn) {
-    if (conn->x0_state != kSS_Play || conn->x4_msg != kSM_Activate) {
+    if (conn->mState != kSS_Play || conn->mMsg != kSM_Activate) {
       continue;
     }
 
-    AUTO(search, mgr.GetIdListForScript(conn->x8_objId));
+    AUTO(search, mgr.GetIdListForScript(conn->mObjId));
 
     for (AUTO(it, search.first); it != search.second; ++it) {
       if (CActor* act = TCastToPtr< CActor >(mgr.ObjectById(it->second))) {

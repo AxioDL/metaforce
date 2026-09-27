@@ -15,7 +15,7 @@ public:
                                        const rstl::string& name) const override;
 
 private:
-  rstl::vector< rstl::rc_ptr< IMetaAnim > > x10_anims;
+  rstl::vector< rstl::rc_ptr< IMetaAnim > > mAnims;
 };
 CHECK_SIZEOF(CAnimationDatabaseGame, 0x20)
 

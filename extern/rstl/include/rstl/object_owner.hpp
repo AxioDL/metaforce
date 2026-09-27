@@ -13,24 +13,24 @@ class call_deep_clone {};
 
 template < typename T, typename Clone = deep_clone_disabled< T > >
 class object_owner {
-  T* x0_ptr;
-  Clone x4_clone;
+  T* mPtr;
+  Clone mClone;
 
   object_owner(const object_owner&);
   object_owner& operator=(const object_owner&);
 
 public:
   template < typename U >
-  explicit object_owner(U* ptr) : x0_ptr(ptr) {}
+  explicit object_owner(U* ptr) : mPtr(ptr) {}
 
-  explicit object_owner(const auto_ptr< T >& ptr) : x0_ptr(ptr.release()) {}
-  explicit object_owner(const ownership_transfer< T >& ptr) : x0_ptr(ptr.take_ownership()) {}
-  ~object_owner() { delete x0_ptr; }
+  explicit object_owner(const auto_ptr< T >& ptr) : mPtr(ptr.release()) {}
+  explicit object_owner(const ownership_transfer< T >& ptr) : mPtr(ptr.take_ownership()) {}
+  ~object_owner() { delete mPtr; }
 
-  T& operator*() { return *x0_ptr; }
-  const T& operator*() const { return *x0_ptr; }
-  T* operator->() { return x0_ptr; }
-  const T* operator->() const { return x0_ptr; }
+  T& operator*() { return *mPtr; }
+  const T& operator*() const { return *mPtr; }
+  T* operator->() { return mPtr; }
+  const T* operator->() const { return mPtr; }
 };
 } // namespace rstl
 

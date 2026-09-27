@@ -50,45 +50,45 @@ public:
   void SetDamageFalloffSpeed(float d);
 
   void SetDamageDuration(float duration) {
-    xe8_projectileAttribs |= kPA_BigStrike;
-    x150_damageDuration = duration;
+    mProjectileAttribs |= kPA_BigStrike;
+    mDamageDuration = duration;
   }
   void SetInterferenceDuration(float duration) {
-    xe8_projectileAttribs |= kPA_StaticInterference;
-    x154_interferenceDuration = duration;
+    mProjectileAttribs |= kPA_StaticInterference;
+    mInterferenceDuration = duration;
   }
 
-  int GetAttribField() const { return xe8_projectileAttribs; }
+  int GetAttribField() const { return mProjectileAttribs; }
   bool HasAttrib(EProjectileAttrib attrib) const {
-    return (xe8_projectileAttribs & attrib) == attrib; // maybe wrong
+    return (mProjectileAttribs & attrib) == attrib; // maybe wrong
   }
-  TUniqueId GetOwnerId() const { return xec_ownerId; }
-  EWeaponType GetType() const { return xf0_weaponType; }
-  CMaterialFilter GetFilter() const { return xf8_filter; }
+  TUniqueId GetOwnerId() const { return mOwnerId; }
+  EWeaponType GetType() const { return mWeaponType; }
+  CMaterialFilter GetFilter() const { return mFilter; }
 
   // TODO: names?
-  CDamageInfo& OrigDamageInfo() { return x110_origDamageInfo; }
-  CDamageInfo& CurrentDamageInfo() { return x12c_curDamageInfo; }
-  const CDamageInfo& GetCurrentDamageInfo() const { return x12c_curDamageInfo; }
-  float GetDamageDuration() const { return x150_damageDuration; }
-  float GetInterferenceDuration() const { return x154_interferenceDuration; }
+  CDamageInfo& OrigDamageInfo() { return mOrigDamageInfo; }
+  CDamageInfo& CurrentDamageInfo() { return mCurDamageInfo; }
+  const CDamageInfo& GetCurrentDamageInfo() const { return mCurDamageInfo; }
+  float GetDamageDuration() const { return mDamageDuration; }
+  float GetInterferenceDuration() const { return mInterferenceDuration; }
 
-  void SetOwnerId(TUniqueId id) { xec_ownerId = id; }
-  void SetDamageInfo(const CDamageInfo& dInfo) { x12c_curDamageInfo = dInfo; }
-  void SetFilter(const CMaterialFilter& filter) { xf8_filter = filter; }
+  void SetOwnerId(TUniqueId id) { mOwnerId = id; }
+  void SetDamageInfo(const CDamageInfo& dInfo) { mCurDamageInfo = dInfo; }
+  void SetFilter(const CMaterialFilter& filter) { mFilter = filter; }
 
 protected:
-  int xe8_projectileAttribs;
-  TUniqueId xec_ownerId;
-  EWeaponType xf0_weaponType;
-  CMaterialFilter xf8_filter;
-  CDamageInfo x110_origDamageInfo;
-  CDamageInfo x12c_curDamageInfo;
-  float x148_curTime;
-  float x14c_damageFalloffSpeed;
-  float x150_damageDuration;
-  float x154_interferenceDuration;
+  int mProjectileAttribs;
+  TUniqueId mOwnerId;
+  EWeaponType mWeaponType;
+  CMaterialFilter mFilter;
+  CDamageInfo mOrigDamageInfo;
+  CDamageInfo mCurDamageInfo;
+  float mCurTime;
+  float mDamageFalloffSpeed;
+  float mDamageDuration;
+  float mInterferenceDuration;
 };
-CHECK_SIZEOF(CWeapon, (VERSION >= VERSION_GM8P_00 ? 0x168 : 0x158))
+CHECK_SIZEOF(CWeapon, (VERSION >= VERSION_GM8E_02 ? 0x168 : 0x158))
 
 #endif // _CWEAPON

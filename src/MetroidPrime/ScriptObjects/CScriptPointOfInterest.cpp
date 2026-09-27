@@ -11,7 +11,7 @@ CScriptPointOfInterest::CScriptPointOfInterest(TUniqueId uid, const rstl::string
                                                float f1)
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(kMT_Orbit),
          CActorParameters::None().Scannable(parms), kInvalidUniqueId)
-, xe8_pointSize(f1) {}
+, mPointSize(f1) {}
 
 CScriptPointOfInterest::~CScriptPointOfInterest() {}
 
@@ -36,11 +36,11 @@ void CScriptPointOfInterest::Think(float dt, CStateManager& mgr) {
 }
 
 void CScriptPointOfInterest::CalculateRenderBounds() {
-  if (xe8_pointSize == 0.f) {
+  if (mPointSize == 0.f) {
     CActor::CalculateRenderBounds();
   } else {
     CVector3f origin = GetTranslation();
-    SetRenderBounds(CAABox(origin - CVector3f(xe8_pointSize, xe8_pointSize, xe8_pointSize),
-                           origin + CVector3f(xe8_pointSize, xe8_pointSize, xe8_pointSize)));
+    SetRenderBounds(CAABox(origin - CVector3f(mPointSize, mPointSize, mPointSize),
+                           origin + CVector3f(mPointSize, mPointSize, mPointSize)));
   }
 }

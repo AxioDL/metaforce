@@ -28,7 +28,7 @@ public:
   void Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const override;
   void InvokeTTB(CFontRenderState& state) const;
   void PageInvoke(CFontRenderState& state, CTextRenderBuffer* buf) const override;
-#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+#if VERSION >= VERSION_GM8P_00
   bool IsLineInstruction() const override { return true; }
 #endif
 

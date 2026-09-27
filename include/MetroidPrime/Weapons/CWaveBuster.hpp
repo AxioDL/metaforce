@@ -29,7 +29,7 @@ public:
   void SetNewTarget(TUniqueId uid, CStateManager& mgr);
   void UpdateFx(const CTransform4f& xf, float dt, CStateManager& mgr);
   void ResetBeam(bool deactivate);
-  bool IsFiring() const { return x3d0_24_firing; }
+  bool IsFiring() const { return mFiring; }
 
 private:
   float GetViewAngleToTarget(CVector3f& direction, const CActor& actor) const;
@@ -48,43 +48,43 @@ private:
                  const CRayCastResult& otherResult, const CRayCastResult& staticResult, float dt,
                  CStateManager& mgr);
 
-  CTransform4f x2e8_originalXf;
-  CVector3f x318_bezierB;
-  CVector3f x324_bezierC;
-  CVector3f x330_previousBezierC;
-  CVector3f x33c_homingTargetPoint;
-  CVector3f x348_targetPoint;
-  TLockedToken< CSwooshDescription > x354_busterSwoosh1;
-  TLockedToken< CSwooshDescription > x360_busterSwoosh2;
-  TLockedToken< CGenDescription > x36c_busterSparks;
-  TLockedToken< CGenDescription > x378_busterLight;
-  rstl::single_ptr< CParticleSwoosh > x384_busterSwoosh1Gen;
-  rstl::single_ptr< CParticleSwoosh > x388_busterSwoosh2Gen;
-  rstl::single_ptr< CElementGen > x38c_busterSparksGen;
-  rstl::single_ptr< CElementGen > x390_busterLightGen;
-  mutable CRandom16 x394_rand;
-  float x398_spiralOffset;
+  CTransform4f mOriginalXf;
+  CVector3f mBezierB;
+  CVector3f mBezierC;
+  CVector3f mPreviousBezierC;
+  CVector3f mHomingTargetPoint;
+  CVector3f mTargetPoint;
+  TLockedToken< CSwooshDescription > mBusterSwoosh1;
+  TLockedToken< CSwooshDescription > mBusterSwoosh2;
+  TLockedToken< CGenDescription > mBusterSparks;
+  TLockedToken< CGenDescription > mBusterLight;
+  rstl::single_ptr< CParticleSwoosh > mBusterSwoosh1Gen;
+  rstl::single_ptr< CParticleSwoosh > mBusterSwoosh2Gen;
+  rstl::single_ptr< CElementGen > mBusterSparksGen;
+  rstl::single_ptr< CElementGen > mBusterLightGen;
+  mutable CRandom16 mRand;
+  float mSpiralOffset;
   float x39c_;
-  float x3a0_bezierBlend;
-  float x3a4_sourceAngleRate;
-  float x3a8_sourceAngleTimer;
-  float x3ac_sourceAngle;
-  float x3b0_sourceRadius;
-  float x3b4_sourceRadiusRate;
-  float x3b8_sourceRadiusTimer;
-  float x3bc_targetAngleRate;
-  float x3c0_targetAngleTimer;
-  float x3c4_targetAngle;
-  float x3c8_innerSwooshColorT;
-  uint x3cc_innerSwooshColorIdx;
-  bool x3d0_24_firing : 1;
-  bool x3d0_25_seeking : 1;
-  bool x3d0_26_trackingTarget : 1;
-  bool x3d0_27_collided : 1;
-  bool x3d0_28_collidedWithWorld : 1;
+  float mBezierBlend;
+  float mSourceAngleRate;
+  float mSourceAngleTimer;
+  float mSourceAngle;
+  float mSourceRadius;
+  float mSourceRadiusRate;
+  float mSourceRadiusTimer;
+  float mTargetAngleRate;
+  float mTargetAngleTimer;
+  float mTargetAngle;
+  float mInnerSwooshColorT;
+  uint mInnerSwooshColorIdx;
+  bool mFiring : 1;
+  bool mSeeking : 1;
+  bool mTrackingTarget : 1;
+  bool mCollided : 1;
+  bool mCollidedWithWorld : 1;
 };
-CHECK_SIZEOF(CWaveBuster, (VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02 ? 0x400
-                           : VERSION >= VERSION_GM8P_00                             ? 0x3e8
+CHECK_SIZEOF(CWaveBuster, (VERSION >= VERSION_GM8P_00 ? 0x400
+                           : VERSION >= VERSION_GM8E_02                             ? 0x3e8
                                                                                     : 0x3d8))
 
 #endif // _CWAVEBUSTER

@@ -25,9 +25,9 @@ CFluidPlaneDoor::CFluidPlaneDoor(const CAssetId texPattern1, const CAssetId texP
                                  const uint tileSubdivisions, const EFluidType fluidType,
                                  const float alpha, const CFluidUVMotion& uvMotion)
 : CFluidPlane(texPattern1, texPattern2, texColor, alpha, fluidType, 0.5f, uvMotion)
-, xa0_tileSize(tileSize)
-, xa4_tileSubdivisions(tileSubdivisions & ~1)
-, xa8_rippleResolution(tileSize / xa4_tileSubdivisions) {}
+, mTileSize(tileSize)
+, mTileSubdivisions(tileSubdivisions & ~1)
+, mRippleResolution(tileSize / mTileSubdivisions) {}
 
 CFluidPlaneDoor::~CFluidPlaneDoor() {}
 
@@ -62,42 +62,42 @@ void CFluidPlaneDoor::RenderSetup(const CStateManager& mgr, float alpha, const C
       layers = GetUVMotion().GetFluidLayers();
   float scale1[2][4] = {
       {
-          layers[1].x14_uvScale,
+          layers[1].mUvScale,
           0.f,
           0.f,
           uvs[1][0],
       },
       {
           0.f,
-          layers[1].x14_uvScale,
+          layers[1].mUvScale,
           0.f,
           uvs[1][1],
       },
   };
   float scale2[2][4] = {
       {
-          layers[2].x14_uvScale,
+          layers[2].mUvScale,
           0.f,
           0.f,
           uvs[2][0],
       },
       {
           0.f,
-          layers[2].x14_uvScale,
+          layers[2].mUvScale,
           0.f,
           uvs[2][1],
       },
   };
   float scale0[2][4] = {
       {
-          layers[0].x14_uvScale,
+          layers[0].mUvScale,
           0.f,
           0.f,
           uvs[0][0],
       },
       {
           0.f,
-          layers[0].x14_uvScale,
+          layers[0].mUvScale,
           0.f,
           uvs[0][1],
       },
@@ -150,9 +150,9 @@ void CFluidPlaneDoor::Render(const CStateManager& mgr, float alpha, const CAABox
   CGX::ResetVtxDescv();
   CGX::SetVtxDesc(GX_VA_POS, GX_DIRECT);
 
-  CFluidPlaneCPURender::numSubdivisionsInTile = xa4_tileSubdivisions;
-  float rippleResolution = xa8_rippleResolution;
-  CFluidPlaneCPURender::numTilesInHField = 42 / xa4_tileSubdivisions;
+  CFluidPlaneCPURender::numSubdivisionsInTile = mTileSubdivisions;
+  float rippleResolution = mRippleResolution;
+  CFluidPlaneCPURender::numTilesInHField = 42 / mTileSubdivisions;
   float ooSubdivSize = 1.f / rippleResolution;
   CFluidPlaneCPURender::numSubdivisionsInHField =
       CFluidPlaneCPURender::numTilesInHField * CFluidPlaneCPURender::numSubdivisionsInTile;
@@ -192,7 +192,7 @@ void CFluidPlaneDoor::Render(const CStateManager& mgr, float alpha, const CAABox
 
       if (frustum.BoxInFrustumPlanes(patchAABB.GetTransformedAABox(xf))) {
         CFluidPlaneCPURender::SPatchInfo info(CVector3f(curX, curY, aabbMin.GetZ()), localMax,
-                                              xf.GetTranslation(), rippleResolution, xa0_tileSize,
+                                              xf.GetTranslation(), rippleResolution, mTileSize,
                                               0.f, CFluidPlaneCPURender::numSubdivisionsInHField, 0,
                                               0, 0, 0, 0, 0, 0, 0, NULL);
 

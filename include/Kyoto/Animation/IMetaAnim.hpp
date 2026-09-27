@@ -23,12 +23,12 @@ class IAnimReader;
 class CAnimSysContext;
 
 class CPreAdvanceIndicator {
-  bool x0_isTime;
-  CCharAnimTime x4_time;
-  char xc_string[50];
+  bool mIsTime;
+  CCharAnimTime mTime;
+  char mString[50];
 
 public:
-  explicit CPreAdvanceIndicator(const CCharAnimTime& time) : x0_isTime(true), x4_time(time) {}
+  explicit CPreAdvanceIndicator(const CCharAnimTime& time) : mIsTime(true), mTime(time) {}
   explicit CPreAdvanceIndicator(const char* string);
   bool IsTime() const;
   const CCharAnimTime& GetTime() const;
@@ -43,8 +43,8 @@ public:
   static CMetaAnimTreeBuildOrders NoSpecialOrders();
   static CMetaAnimTreeBuildOrders PreAdvanceForAll(const CPreAdvanceIndicator& ind);
 
-  rstl::optional_object< CPreAdvanceIndicator > x0_recursiveAdvance;
-  rstl::optional_object< CPreAdvanceIndicator > x44_singleAdvance;
+  rstl::optional_object< CPreAdvanceIndicator > mRecursiveAdvance;
+  rstl::optional_object< CPreAdvanceIndicator > mSingleAdvance;
 };
 
 class IMetaAnim {

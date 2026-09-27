@@ -19,10 +19,10 @@ public:
   explicit CMetaAnimBlend(CInputStream& in);
 
 private:
-  rstl::rc_ptr< IMetaAnim > x4_animA;
-  rstl::rc_ptr< IMetaAnim > x8_animB;
-  float xc_blend;
-  bool x10_characterSpaceBlend;
+  rstl::rc_ptr< IMetaAnim > mAnimA;
+  rstl::rc_ptr< IMetaAnim > mAnimB;
+  float mBlend;
+  bool mCharacterSpaceBlend;
 };
 CHECK_SIZEOF(CMetaAnimBlend, 0x14)
 

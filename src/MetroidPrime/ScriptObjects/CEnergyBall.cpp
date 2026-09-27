@@ -22,7 +22,7 @@ CEnergyBall::CEnergyBall(const TUniqueId uid, const rstl::string& name, const CE
 : CPatterned(kC_EnergyBall, uid, name, kFT_Zero, info, xf, mData, pInfo, kMT_Flyer, kCT_One,
              kBT_NewFlyer, actParms, kCS_Medium)
 , x56c(0.f)
-, x570_ballType(w1)
+, mBallType(w1)
 , x574(f1)
 , x578(dInfo1)
 , mInitialTurnSpeed(pInfo.GetTurnSpeed())
@@ -64,7 +64,7 @@ void CEnergyBall::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStat
 void CEnergyBall::Generate(CStateManager& mgr, EStateMsg msg, float arg) {
   switch (msg) {
   case kStateMsg_Activate:
-    x32c_animState = kAS_Ready;
+    mAnimState = kAS_Ready;
     // Fall through.
   case kStateMsg_Update:
     TryGenerateDeactivate(mgr, 0);
@@ -73,7 +73,7 @@ void CEnergyBall::Generate(CStateManager& mgr, EStateMsg msg, float arg) {
     }
     break;
   case kStateMsg_Deactivate:
-    x32c_animState = kAS_NotReady;
+    mAnimState = kAS_NotReady;
     break;
   }
 }
@@ -96,10 +96,10 @@ void CEnergyBall::Attack(CStateManager& mgr, EStateMsg msg, float arg) {
 void CEnergyBall::Think(float dt, CStateManager& mgr) {
   const float turnRatio = (x56c - 2.5f) / 8.f;
   const float turnSpeed = mInitialTurnSpeed * rstl::max_val(0.f, rstl::min_val(1.f, turnRatio));
-  x3b8_turnSpeed = turnSpeed;
+  mTurnSpeed = turnSpeed;
   BodyCtrl()->SetTurnSpeed(turnSpeed);
   CPatterned::Think(dt, mgr);
-  const float damageRatio = x428_damageCooldownTimer / skDamageHitTime;
+  const float damageRatio = mDamageCooldownTimer / skDamageHitTime;
   ModelData()->AnimationData()->GetParticleDB().SetModulationColorAllActiveEffects(CColor::Lerp(
       CColor::White(), CColor::Red(), rstl::max_val(0.f, rstl::min_val(1.f, damageRatio))));
 
@@ -122,11 +122,11 @@ void CEnergyBall::Detonate(CStateManager& mgr) {
   const CVector3f& delta = mgr.GetPlayer()->GetTranslation() - GetTranslation();
   if (delta.MagSquared() <= x578.GetRadius() * x578.GetRadius()) {
     bool breakFrozen = true;
-    switch (x570_ballType) {
+    switch (mBallType) {
     case 0: {
       const float duration = x598;
-      x402_28_isMakingBigStrike = duration > 0.f;
-      x504_damageDur = duration;
+      mIsMakingBigStrike = duration > 0.f;
+      mDamageDur = duration;
       break;
     }
     case 1: {

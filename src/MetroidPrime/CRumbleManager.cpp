@@ -10,12 +10,12 @@
 
 CRumbleManager::CRumbleManager() {}
 
-CRumbleManager::~CRumbleManager() { x0_rumbleGenerator.HardStopAll(); }
+CRumbleManager::~CRumbleManager() { mRumbleGenerator.HardStopAll(); }
 
 short CRumbleManager::Rumble(CStateManager& mgr, ERumbleFxId fx, float gain,
                              ERumblePriority priority) {
   if (gpGameState->GameOptions().GetIsRumbleEnabled())
-    return x0_rumbleGenerator.Rumble(skRumbleFxTable[size_t(fx)], gain, priority, kIOP_Player1);
+    return mRumbleGenerator.Rumble(skRumbleFxTable[size_t(fx)], gain, priority, kIOP_Player1);
   return -1;
 }
 
@@ -34,7 +34,7 @@ short CRumbleManager::Rumble(CStateManager& mgr, const CVector3f& pos, ERumbleFx
 void CRumbleManager::StopRumble(short id) {
   if (id == -1)
     return;
-  x0_rumbleGenerator.Stop(id, kIOP_Player1);
+  mRumbleGenerator.Stop(id, kIOP_Player1);
 }
 
-void CRumbleManager::Update(float dt) { x0_rumbleGenerator.Update(dt); }
+void CRumbleManager::Update(float dt) { mRumbleGenerator.Update(dt); }

@@ -6,8 +6,8 @@
 #include "MetroidPrime/CVisorFlare.hpp"
 
 class CScriptVisorFlare : public CActor {
-  CVisorFlare xe8_flare;
-  bool x11c_notInRenderLast;
+  CVisorFlare mFlare;
+  bool mNotInRenderLast;
 
 public:
   CScriptVisorFlare(TUniqueId uid, const rstl::string& name, const CEntityInfo& info, bool active,

@@ -13,7 +13,7 @@
 #include "math.h"
 #include "rstl/math.hpp"
 
-CBSKnockBack::CBSKnockBack() : x4_curTime(0.f), x8_rotateSpeed(0.f), xc_remTime(0.f) {}
+CBSKnockBack::CBSKnockBack() : mCurTime(0.f), mRotateSpeed(0.f), mRemTime(0.f) {}
 
 void CBSKnockBack::Start(CBodyController& bc, CStateManager& mgr) {
   const CBCKnockBackCmd* cmd =
@@ -42,22 +42,22 @@ void CBSKnockBack::Start(CBodyController& bc, CStateManager& mgr) {
         CMath::ClampRadians(CRelAngle::FromDegrees(knockdownAngle).AsRadians() - angle.AsRadians());
     float minAngle = rstl::min_val(delta1, delta2);
     const float flippedAngle = CMath::ClampRadians(angleDiff) > M_PIF ? -minAngle : minAngle;
-    xc_remTime = 0.15f * bc.GetAnimTimeRemaining();
-    x8_rotateSpeed = (xc_remTime > FLT_EPSILON) ? flippedAngle / xc_remTime : flippedAngle;
+    mRemTime = 0.15f * bc.GetAnimTimeRemaining();
+    mRotateSpeed = (mRemTime > FLT_EPSILON) ? flippedAngle / mRemTime : flippedAngle;
   } else {
-    xc_remTime = 0.f;
-    x8_rotateSpeed = 0.f;
+    mRemTime = 0.f;
+    mRotateSpeed = 0.f;
   }
-  x4_curTime = 0.f;
+  mCurTime = 0.f;
 }
 
 pas::EAnimationState CBSKnockBack::UpdateBody(float dt, CBodyController& bc, CStateManager& mgr) {
   const pas::EAnimationState st = GetBodyStateTransition(dt, bc);
   if (st == pas::kAS_Invalid) {
-    x4_curTime += dt;
-    if (xc_remTime > 0.f) {
-      bc.SetDeltaRotation(CQuaternion::ZRotation(CRelAngle::FromRadians(x8_rotateSpeed * dt)));
-      xc_remTime -= dt;
+    mCurTime += dt;
+    if (mRemTime > 0.f) {
+      bc.SetDeltaRotation(CQuaternion::ZRotation(CRelAngle::FromRadians(mRotateSpeed * dt)));
+      mRemTime -= dt;
     }
   }
   return st;
@@ -77,7 +77,7 @@ pas::EAnimationState CBSKnockBack::GetBodyStateTransition(float dt, CBodyControl
   if (commandMgr.GetCmd(kBSC_LoopHitReaction)) {
     return pas::kAS_LoopReaction;
   }
-  if (commandMgr.GetCmd(kBSC_KnockBack) && x4_curTime > 0.2f) {
+  if (commandMgr.GetCmd(kBSC_KnockBack) && mCurTime > 0.2f) {
     return pas::kAS_KnockBack;
   }
   if (bc.IsAnimationOver()) {

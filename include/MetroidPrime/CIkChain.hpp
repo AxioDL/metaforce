@@ -11,19 +11,19 @@ class CTransform4f;
 class CIkChain {
 public:
   CIkChain()
-  : x0_bone(CSegId::Invalid())
-  , x1_p1(CSegId::Invalid())
-  , x2_p2(CSegId::Invalid())
-  , x4_p2p1Dir(CVector3f::Forward())
-  , x10_p1BoneDir(CVector3f::Forward())
-  , x1c_p2p1Length(1.f)
-  , x20_p1BoneLength(1.f)
-  , x24_holdRot(CQuaternion::NoRotation())
-  , x34_holdPos(CVector3f::Zero())
-  , x40_time(0.f)
-  , x44_24_activated(false) {}
+  : mBone(CSegId::Invalid())
+  , mP1(CSegId::Invalid())
+  , mP2(CSegId::Invalid())
+  , mP2p1Dir(CVector3f::Forward())
+  , mP1BoneDir(CVector3f::Forward())
+  , mP2p1Length(1.f)
+  , mP1BoneLength(1.f)
+  , mHoldRot(CQuaternion::NoRotation())
+  , mHoldPos(CVector3f::Zero())
+  , mTime(0.f)
+  , mActivated(false) {}
 
-  bool GetActive() const { return x44_24_activated; }
+  bool GetActive() const { return mActivated; }
   void Update(float dt);
   void Deactivate();
   void Activate(const CAnimData& data, CSegId bone, const CTransform4f& xf);
@@ -31,17 +31,17 @@ public:
   void Solve(CQuaternion& q1, CQuaternion& q2, const CVector3f& pos);
 
 private:
-  CSegId x0_bone;
-  CSegId x1_p1;
-  CSegId x2_p2;
-  CVector3f x4_p2p1Dir;
-  CVector3f x10_p1BoneDir;
-  float x1c_p2p1Length;
-  float x20_p1BoneLength;
-  CQuaternion x24_holdRot;
-  CVector3f x34_holdPos;
-  float x40_time;
-  bool x44_24_activated : 1;
+  CSegId mBone;
+  CSegId mP1;
+  CSegId mP2;
+  CVector3f mP2p1Dir;
+  CVector3f mP1BoneDir;
+  float mP2p1Length;
+  float mP1BoneLength;
+  CQuaternion mHoldRot;
+  CVector3f mHoldPos;
+  float mTime;
+  bool mActivated : 1;
 };
 CHECK_SIZEOF(CIkChain, 0x48)
 

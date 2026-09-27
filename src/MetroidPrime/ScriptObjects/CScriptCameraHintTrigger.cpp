@@ -9,17 +9,17 @@ CScriptCameraHintTrigger::CScriptCameraHintTrigger(TUniqueId uid, const bool act
                                                    bool deactivateOnExit)
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(kMT_Trigger),
          CActorParameters::None(), kInvalidUniqueId)
-, xe8_obb(xf, scale)
-, x124_scale(scale)
-, x130_24_deactivateOnEnter(deactivateOnEnter)
-, x130_25_deactivateOnExit(deactivateOnExit)
-, x130_26_playerInside(false)
-, x130_27_playerWasInside(false) {}
+, mObb(xf, scale)
+, mScale(scale)
+, mDeactivateOnEnter(deactivateOnEnter)
+, mDeactivateOnExit(deactivateOnExit)
+, mPlayerInside(false)
+, mPlayerWasInside(false) {}
 
 ENTITY_ACCEPT_IMPL(CScriptCameraHintTrigger)
 
 rstl::optional_object< CAABox > CScriptCameraHintTrigger::GetTouchBounds() const {
-  return xe8_obb.CalculateAABox(CTransform4f::Identity());
+  return mObb.CalculateAABox(CTransform4f::Identity());
 }
 
 void CScriptCameraHintTrigger::Touch(CActor& other, CStateManager& mgr) {
@@ -27,7 +27,7 @@ void CScriptCameraHintTrigger::Touch(CActor& other, CStateManager& mgr) {
     rstl::optional_object< CAABox > bounds = other.GetTouchBounds();
     if (bounds.valid()) {
       COBBox otherObb = COBBox::FromAABox(*bounds, CTransform4f::Identity());
-      x130_26_playerInside = xe8_obb.OBBIntersectsBox(otherObb);
+      mPlayerInside = mObb.OBBIntersectsBox(otherObb);
     }
   }
 }
@@ -37,27 +37,27 @@ void CScriptCameraHintTrigger::Think(float dt, CStateManager& mgr) {
     return;
   }
 
-  if (x130_26_playerInside && !x130_27_playerWasInside) {
-    x130_27_playerWasInside = true;
+  if (mPlayerInside && !mPlayerWasInside) {
+    mPlayerWasInside = true;
     SendScriptMsgs(kSS_Entered, mgr, kSM_None);
-    if (x130_24_deactivateOnEnter) {
+    if (mDeactivateOnEnter) {
       mgr.DeliverScriptMsg(this, kInvalidUniqueId, kSM_Deactivate);
     }
   }
 
-  if (!x130_26_playerInside && x130_27_playerWasInside) {
-    x130_27_playerWasInside = false;
+  if (!mPlayerInside && mPlayerWasInside) {
+    mPlayerWasInside = false;
     SendScriptMsgs(kSS_Exited, mgr, kSM_None);
-    if (x130_25_deactivateOnExit) {
+    if (mDeactivateOnExit) {
       mgr.DeliverScriptMsg(this, kInvalidUniqueId, kSM_Deactivate);
     }
   }
 
-  if (x130_26_playerInside) {
+  if (mPlayerInside) {
     SendScriptMsgs(kSS_Inside, mgr, kSM_None);
   }
 
-  x130_26_playerInside = false;
+  mPlayerInside = false;
 }
 
 CScriptCameraHintTrigger::~CScriptCameraHintTrigger() {}

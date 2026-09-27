@@ -28,13 +28,13 @@ private:
   void ProcessButtons(int controller);
   void ProcessDigitalButton(int value, CControllerButton& button, ushort mapping);
   void ProcessAnalogButton(float value, CControllerAxis& axis);
-  PADStatus x4_status[4];
-  CControllerGamepadData x34_gamepadStates[4];
-  EMotorState x194_motorStates[4];
-  uint x1a4_controllerTypes[4];
-  uint x1b4_controllerTypePollTime[4];
-  uint x1c4_validControllers;
-  uint x1c8_invalidControllers;
+  PADStatus mStatus[4];
+  CControllerGamepadData mGamepadStates[4];
+  EMotorState mMotorStates[4];
+  uint mControllerTypes[4];
+  uint mControllerTypePollTime[4];
+  uint mValidControllers;
+  uint mInvalidControllers;
   uint x1cc_;
 };
 

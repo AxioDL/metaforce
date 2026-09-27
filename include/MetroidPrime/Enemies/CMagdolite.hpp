@@ -80,28 +80,28 @@ private:
   TUniqueId GetBestConnectedObject(CStateManager& mgr, EScriptObjectState state,
                                    EScriptObjectMessage msg);
 
-  float x568_initialDelay;
-  float x56c_minDelay;
-  float x570_maxDelay;
-  float x574_minHp;
-  float x578_losMaxDistance;
-  float x57c_headTrackAngle;
-  rstl::single_ptr< CCollisionActorManager > x580_collisionManager;
-  CBoneTracking x584_boneTracker;
-  CDamageVulnerability x5bc_instaKillVulnerability;
-  CDamageVulnerability x624_normalVulnerability;
+  float mInitialDelay;
+  float mMinDelay;
+  float mMaxDelay;
+  float mMinHp;
+  float mLosMaxDistance;
+  float mHeadTrackAngle;
+  rstl::single_ptr< CCollisionActorManager > mCollisionManager;
+  CBoneTracking mBoneTracker;
+  CDamageVulnerability mInstaKillVulnerability;
+  CDamageVulnerability mNormalVulnerability;
   rstl::ncrc_ptr< CModelData > x68c_;
-  TLockedToken< CSkinnedModel > x690_headlessModel;
-  rstl::reserved_vector< TUniqueId, 4 > x69c_headCollisionActors;
-  CFlameInfo x6a8_flameInfo;
-  TUniqueId x6c8_flameThrowerId;
-  TToken< CWeaponDescription > x6cc_flameThrowerDesc;
-  CDamageInfo x6d4_flameThrowerDamage;
-  CDamageInfo x6f0_headContactDamage;
-  float x70c_curHealth;
-  CVector3f x710_attackOffset;
-  CVector3f x71c_attackTarget;
-  CVector3f x728_cachedTarget;
+  TLockedToken< CSkinnedModel > mHeadlessModel;
+  rstl::reserved_vector< TUniqueId, 4 > mHeadCollisionActors;
+  CFlameInfo mFlameInfo;
+  TUniqueId mFlameThrowerId;
+  TToken< CWeaponDescription > mFlameThrowerDesc;
+  CDamageInfo mFlameThrowerDamage;
+  CDamageInfo mHeadContactDamage;
+  float mCurHealth;
+  CVector3f mAttackOffset;
+  CVector3f mAttackTarget;
+  CVector3f mCachedTarget;
   float x734_;
   float x738_;
   float x73c_;
@@ -109,16 +109,16 @@ private:
   float x744_;
   float x748_;
   float x74c_;
-  uint x750_aiStage;
-  bool x754_24_retreat : 1;
-  bool x754_25_up : 1;
-  bool x754_26_lostMyHead : 1;
-  bool x754_27_flameThrowerActive : 1;
-  bool x754_28_alert : 1;
-  bool x754_29_useDetectionRange : 1;
-  bool x754_30_inProjectileAttack : 1;
+  uint mAiStage;
+  bool mRetreat : 1;
+  bool mUp : 1;
+  bool mLostMyHead : 1;
+  bool mFlameThrowerActive : 1;
+  bool mAlert : 1;
+  bool mUseDetectionRange : 1;
+  bool mInProjectileAttack : 1;
   float x758_;
 };
-CHECK_SIZEOF(CMagdolite, (VERSION >= VERSION_GM8P_00 ? 0x770 : 0x760))
+CHECK_SIZEOF(CMagdolite, (VERSION >= VERSION_GM8E_02 ? 0x770 : 0x760))
 
 #endif // _CMAGDOLITE

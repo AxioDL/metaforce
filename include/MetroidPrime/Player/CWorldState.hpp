@@ -25,12 +25,12 @@ public:
   rstl::rc_ptr< CMapWorldInfo > GetMapWorldInfo() const;
 
 private:
-  CAssetId x0_worldId;
-  TAreaId x4_areaId;
-  rstl::ncrc_ptr< CScriptMailbox > x8_mailbox;
-  rstl::ncrc_ptr< CMapWorldInfo > xc_mapWorldInfo;
-  CAssetId x10_desiredAreaAssetId;
-  rstl::ncrc_ptr< CScriptLayerManager > x14_layerState;
+  CAssetId mWorldId;
+  TAreaId mAreaId;
+  rstl::ncrc_ptr< CScriptMailbox > mMailbox;
+  rstl::ncrc_ptr< CMapWorldInfo > mMapWorldInfo;
+  CAssetId mDesiredAreaAssetId;
+  rstl::ncrc_ptr< CScriptLayerManager > mLayerState;
 };
 CHECK_SIZEOF(CWorldState, 0x18)
 

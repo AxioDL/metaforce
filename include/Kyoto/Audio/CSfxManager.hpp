@@ -73,17 +73,17 @@ public:
     void SetTimeRemaining(float t);
 
   private:
-    float x4_timeRemaining;
-    short x8_rank;
-    short xa_prio;
-    CSfxHandle xc_handle;
-    int x10_area;
-    bool x14_24_isActive : 1;
-    bool x14_25_isPlaying : 1;
-    bool x14_26_looped : 1;
-    bool x14_27_inArea : 1;
-    bool x14_28_isReleased : 1;
-    bool x14_29_useAcoustics : 1;
+    float mTimeRemaining;
+    short mRank;
+    short mPrio;
+    CSfxHandle mHandle;
+    int mArea;
+    bool mIsActive : 1;
+    bool mIsPlaying : 1;
+    bool mLooped : 1;
+    bool mInArea : 1;
+    bool mIsReleased : 1;
+    bool mUseAcoustics : 1;
   };
 
   class CSfxEmitterWrapper : public CBaseSfxWrapper {
@@ -105,12 +105,12 @@ public:
     const SND_VOICEID GetHandle() const;
 
   private:
-    SND_PARAMETER x18_para;
-    SND_PARAMETER_INFO x1c_parameterInfo;
-    CAudioSys::C3DEmitterParmData x24_emitterData;
-    SND_VOICEID x50_emitterHandle;
-    bool x54_ready;
-    char x55_cachedMaxVol;
+    SND_PARAMETER mPara;
+    SND_PARAMETER_INFO mParameterInfo;
+    CAudioSys::C3DEmitterParmData mEmitterData;
+    SND_VOICEID mEmitterHandle;
+    bool mReady;
+    char mCachedMaxVol;
   };
 
   class CSfxWrapper : public CBaseSfxWrapper {
@@ -132,11 +132,11 @@ public:
     void SetVolume(short vol);
 
   private:
-    SND_FXID x18_sfxId;
-    SND_VOICEID x1c_voiceHandle;
-    short x20_vol;
-    short x22_pan;
-    bool x24_ready;
+    SND_FXID mSfxId;
+    SND_VOICEID mVoiceHandle;
+    short mVol;
+    short mPan;
+    bool mReady;
   };
   class CSfxListener {
   public:
@@ -145,7 +145,7 @@ public:
                           const CVector3f vec1 = CVector3f::Zero(),
                           const CVector3f vec2 = CVector3f::Zero(), const float f1 = 0.f,
                           const float f2 = 0.f, const float f3 = 0.f, const uint w1 = 0,
-#if VERSION >= VERSION_GM8P_00
+#if VERSION >= VERSION_GM8E_02
                           uchar maxVolume = 0)
 #else
                           const uchar maxVolume = 0)
@@ -174,7 +174,7 @@ public:
   class CSfxChannel {
   public:
     CSfxChannel() : x44_(false) {}
-    CSfxListener x0_listener;
+    CSfxListener mListener;
     bool x44_;
     rstl::reserved_vector< CBaseSfxWrapper*, 72 > x48_;
   };

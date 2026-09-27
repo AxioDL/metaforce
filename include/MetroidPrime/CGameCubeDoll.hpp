@@ -22,11 +22,11 @@ public:
   bool IsLoaded() const;
 
 private:
-  CToken x0_model;
-  rstl::vector< CLight > x8_lights;
-  rstl::single_ptr< CActorLights > x18_actorLights;
-  float x1c_fader;
-  bool x20_24_loaded : 1;
+  CToken mModel;
+  rstl::vector< CLight > mLights;
+  rstl::single_ptr< CActorLights > mActorLights;
+  float mFader;
+  bool mLoaded : 1;
   
   void UpdateActorLights();
 };

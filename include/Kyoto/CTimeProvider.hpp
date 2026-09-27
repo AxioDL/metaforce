@@ -9,12 +9,12 @@ class CTimeProvider {
 public:
   CTimeProvider(const float& time);
   ~CTimeProvider();
-  float GetSecondsMod900() const { return x0_currentTime; }
+  float GetSecondsMod900() const { return mCurrentTime; }
 
 private:
-  const float& x0_currentTime; // in seconds
-  bool x4_first;
-  CTimeProvider* x8_lastProvider;
+  const float& mCurrentTime; // in seconds
+  bool mFirst;
+  CTimeProvider* mLastProvider;
 };
 
 #endif // _CTIMEPROVIDER

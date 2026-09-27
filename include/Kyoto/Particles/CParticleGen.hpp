@@ -48,7 +48,7 @@ public:
   static FourCC ResType() { return 'PART'; }
 
 protected:
-  rstl::list< CWarp* > x4_modifiersList;
+  rstl::list< CWarp* > mModifiersList;
 };
 
 inline CParticleGen::~CParticleGen() {}

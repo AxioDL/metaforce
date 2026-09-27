@@ -7,12 +7,12 @@
 
 class CCollidableAABoxSphere : public CCollisionPrimitive {
 public:
-  const CCollidableAABox& GetCollidableAABox() const { return x10_aabox; }
-  const CCollidableSphere& GetCollidableSphere() const { return x38_sphere; }
+  const CCollidableAABox& GetCollidableAABox() const { return mAabox; }
+  const CCollidableSphere& GetCollidableSphere() const { return mSphere; }
 
 private:
-  CCollidableAABox x10_aabox;
-  CCollidableSphere x38_sphere;
+  CCollidableAABox mAabox;
+  CCollidableSphere mSphere;
 };
 CHECK_SIZEOF(CCollidableAABoxSphere, 0x58)
 

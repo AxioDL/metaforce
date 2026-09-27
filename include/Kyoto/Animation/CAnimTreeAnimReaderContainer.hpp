@@ -15,8 +15,8 @@ public:
   CAnimTreeAnimReaderContainer(const rstl::ownership_transfer< IAnimReader >& reader,
                                const rstl::string& name, uint animDbIdx)
   : CAnimTreeNode(name)
-  , x14_reader(reader)
-  , x1c_animDbIdx(animDbIdx) {
+  , mReader(reader)
+  , mAnimDbIdx(animDbIdx) {
     CCharAnimMemoryMetrics::AddToTotalSize(8, CCharAnimMemoryMetrics::kASS_Two);
   }
 
@@ -51,8 +51,8 @@ public:
       float w, rstl::reserved_vector< rstl::pair< float, IAnimReader* >, 16 >& out) const override;
 
 private:
-  rstl::object_owner< IAnimReader, rstl::call_deep_clone< IAnimReader > > x14_reader;
-  uint x1c_animDbIdx;
+  rstl::object_owner< IAnimReader, rstl::call_deep_clone< IAnimReader > > mReader;
+  uint mAnimDbIdx;
 };
 CHECK_SIZEOF(CAnimTreeAnimReaderContainer, 0x20)
 

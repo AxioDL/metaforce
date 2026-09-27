@@ -1,10 +1,10 @@
 #include "MetroidPrime/CIOWin.hpp"
 
-CIOWin::CIOWin(const rstl::string& name) : x4_name(name) {}
+CIOWin::CIOWin(const rstl::string& name) : mName(name) {}
 
 CIOWin::~CIOWin() {}
 
-const rstl::string& CIOWin::GetName() const { return x4_name; }
+const rstl::string& CIOWin::GetName() const { return mName; }
 
 bool CIOWin::GetIsContinueDraw() const { return true; }
 

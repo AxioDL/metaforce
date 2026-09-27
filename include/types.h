@@ -16,7 +16,7 @@
 #endif
 
 // TODO: using this macro is likely a hack and should instead be some inline configuration.
-#if VERSION < VERSION_GM8P_00 || VERSION == VERSION_GM8E_02
+#if VERSION < VERSION_GM8P_00
 #define NTSC_INLINE inline
 #else
 #define NTSC_INLINE

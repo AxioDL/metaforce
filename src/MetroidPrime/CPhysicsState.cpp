@@ -5,12 +5,12 @@ CPhysicsState::CPhysicsState(const CVector3f& translation, const CQuaternion& or
                              const CVector3f& momentum, const CVector3f& force,
                              const CVector3f& impulse, const CAxisAngle& torque,
                              const CAxisAngle& angularImpulse)
-: x0_translation(translation)
-, xc_orientation(orientation)
-, x1c_constantForce(constantForce)
-, x28_angularMomentum(angularMomentum)
-, x34_momentum(momentum)
-, x40_force(force)
-, x4c_impulse(impulse)
-, x58_torque(torque)
-, x64_angularImpulse(angularImpulse) {}
+: mTranslation(translation)
+, mOrientation(orientation)
+, mConstantForce(constantForce)
+, mAngularMomentum(angularMomentum)
+, mMomentum(momentum)
+, mForce(force)
+, mImpulse(impulse)
+, mTorque(torque)
+, mAngularImpulse(angularImpulse) {}

@@ -13,15 +13,15 @@ class CStateManager;
 class CAABox;
 
 class CWorldShadow {
-  rstl::single_ptr< CTexture > x0_texture;
-  CTransform4f x4_view;
-  CTransform4f x34_model;
-  float x64_objHalfExtent;
-  CVector3f x68_objPos;
-  CVector3f x74_lightPos;
-  TAreaId x80_aid;
-  int x84_lightIdx;
-  bool x88_blurReset;
+  rstl::single_ptr< CTexture > mTexture;
+  CTransform4f mView;
+  CTransform4f mModel;
+  float mObjHalfExtent;
+  CVector3f mObjPos;
+  CVector3f mLightPos;
+  TAreaId mAid;
+  int mLightIdx;
+  bool mBlurReset;
 
 public:
   CWorldShadow(uint w, uint h, bool rgba8);

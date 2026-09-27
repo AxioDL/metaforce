@@ -19,34 +19,34 @@ public:
   };
 
   struct SFluidLayerMotion {
-    EFluidMotion x0_motion;
-    float x4_ooTimeToWrap;
-    float x8_orientation;
-    float xc_magnitude;
-    float x10_uvMul;
-    float x14_uvScale;
+    EFluidMotion mMotion;
+    float mOoTimeToWrap;
+    float mOrientation;
+    float mMagnitude;
+    float mUvMul;
+    float mUvScale;
 
     SFluidLayerMotion(EFluidMotion motion = kFM_Linear, float timeToWrap = 6.f,
                       float orientation = 0.f, float magnitude = 1.f, float uvMul = 5.f)
-    : x0_motion(motion)
-    , x4_ooTimeToWrap(1.f / timeToWrap)
-    , x8_orientation(orientation)
-    , xc_magnitude(magnitude)
-    , x10_uvMul(uvMul)
-    , x14_uvScale(1.f / uvMul) {}
+    : mMotion(motion)
+    , mOoTimeToWrap(1.f / timeToWrap)
+    , mOrientation(orientation)
+    , mMagnitude(magnitude)
+    , mUvMul(uvMul)
+    , mUvScale(1.f / uvMul) {}
     SFluidLayerMotion(const SFluidLayerMotion& other)
-    : x0_motion(other.x0_motion)
-    , x4_ooTimeToWrap(other.x4_ooTimeToWrap)
-    , x8_orientation(other.x8_orientation)
-    , xc_magnitude(other.xc_magnitude)
-    , x10_uvMul(other.x10_uvMul)
-    , x14_uvScale(other.x14_uvScale) {}
+    : mMotion(other.mMotion)
+    , mOoTimeToWrap(other.mOoTimeToWrap)
+    , mOrientation(other.mOrientation)
+    , mMagnitude(other.mMagnitude)
+    , mUvMul(other.mUvMul)
+    , mUvScale(other.mUvScale) {}
   };
 
 private:
-  rstl::reserved_vector< SFluidLayerMotion, kFM_NumLayers > x0_fluidLayers;
-  float x4c_ooTimeToWrap;
-  float x50_orientation;
+  rstl::reserved_vector< SFluidLayerMotion, kFM_NumLayers > mFluidLayers;
+  float mOoTimeToWrap;
+  float mOrientation;
 
 public:
   CFluidUVMotion(float timeToWrap, float orientation);
@@ -56,13 +56,13 @@ public:
 
   void CalculateFluidTextureOffset(float t, float offsets[kFM_NumLayers][2]) const;
 
-  float GetOOTimeToWrapTexPage() const { return x4c_ooTimeToWrap; }
-  float GetOrientation() const { return x50_orientation; }
+  float GetOOTimeToWrapTexPage() const { return mOoTimeToWrap; }
+  float GetOrientation() const { return mOrientation; }
   const SFluidLayerMotion& GetFluidLayerMotion(EFluidLayer layer) const {
-    return x0_fluidLayers[layer];
+    return mFluidLayers[layer];
   }
   const rstl::reserved_vector< SFluidLayerMotion, kFM_NumLayers >& GetFluidLayers() const {
-    return x0_fluidLayers;
+    return mFluidLayers;
   }
 };
 CHECK_SIZEOF(CFluidUVMotion, 0x54)

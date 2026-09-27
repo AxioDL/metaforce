@@ -25,23 +25,23 @@ CPuddleToadGamma::CPuddleToadGamma(
     const CDamageInfo& playerShootDamage, const CDamageInfo& dInfo2, const CAssetId dcln)
 : CPatterned(kC_PuddleToad, uid, name, flavor, info, xf, mData, pInfo, kMT_Flyer, kCT_Zero,
              kBT_Restricted, aParms, kCS_Large)
-, x568_stateProg(0.f)
-, x56c_waitTimer(0.f)
-, x570_playerShootDamage(playerShootDamage)
-, x58c_dInfo2(dInfo2)
-, x5a8_suckForceMultiplier(suckForceMultiplier)
-, x5ac_minSuckAngleProj(cosine(CRelAngle::FromDegrees(suckAngle / 2.f)))
-, x5b0_playerSuckRange(playerSuckRange)
-, x5b4_localShootDir(localShootDir)
-, x5c0_playerShootSpeed(playerShootSpeed)
-, x5c4_shouldAttackWaitTime(shouldAttackWaitTime)
-, x5c8_spotPlayerWaitTime(spotPlayerWaitTime)
-, x5cc_suckPoint(CVector3f::Zero())
-, x5d8_damageablePoint(CVector3f::Zero())
-, x5e8_24_playerInside(false)
-, x5e8_25_waitTimerActive(false)
-, x5e8_26_shotPlayer(false) {
-  x401_26_disableMove = true;
+, mStateProg(0.f)
+, mWaitTimer(0.f)
+, mPlayerShootDamage(playerShootDamage)
+, mDInfo2(dInfo2)
+, mSuckForceMultiplier(suckForceMultiplier)
+, mMinSuckAngleProj(cosine(CRelAngle::FromDegrees(suckAngle / 2.f)))
+, mPlayerSuckRange(playerSuckRange)
+, mLocalShootDir(localShootDir)
+, mPlayerShootSpeed(playerShootSpeed)
+, mShouldAttackWaitTime(shouldAttackWaitTime)
+, mSpotPlayerWaitTime(spotPlayerWaitTime)
+, mSuckPoint(CVector3f::Zero())
+, mDamageablePoint(CVector3f::Zero())
+, mPlayerInside(false)
+, mWaitTimerActive(false)
+, mShotPlayer(false) {
+  mDisableMove = true;
   KnockBackCtrl().SetEnableBurn(false);
   KnockBackCtrl().SetEnableLaggedBurnDeath(false);
   KnockBackCtrl().SetEnableShock(false);
@@ -54,14 +54,14 @@ CPuddleToadGamma::CPuddleToadGamma(
         TLockedToken< CCollidableOBBTreeGroupContainer >(
             gpSimplePool->GetObj(SObjectTag('DCLN', dcln)));
 
-    x5e4_collisionTreePrim = rs_new CCollidableOBBTreeGroup(*container, GetMaterialList());
+    mCollisionTreePrim = rs_new CCollidableOBBTreeGroup(*container, GetMaterialList());
   }
 }
 
 void CPuddleToadGamma::Think(float dt, CStateManager& mgr) {
   CPatterned::Think(dt, mgr);
-  if (x5e8_25_waitTimerActive) {
-    x56c_waitTimer += dt;
+  if (mWaitTimerActive) {
+    mWaitTimer += dt;
   }
 }
 
@@ -87,8 +87,8 @@ bool CPuddleToadGamma::PlayerInVortexArea(const CStateManager& mgr) {
       return false;
     }
   }
-  if (distance < x5b0_playerSuckRange) {
-    return projection > 0.f && angleProjection > x5ac_minSuckAngleProj;
+  if (distance < mPlayerSuckRange) {
+    return projection > 0.f && angleProjection > mMinSuckAngleProj;
   }
   return false;
 }
@@ -96,14 +96,14 @@ bool CPuddleToadGamma::PlayerInVortexArea(const CStateManager& mgr) {
 void CPuddleToadGamma::SuckPlayer(CStateManager& mgr, float arg) {
   CPlayer* player = mgr.Player();
   const CVector3f playerPos = player->GetTranslation();
-  const CVector3f posDiff = playerPos - x5cc_suckPoint;
+  const CVector3f posDiff = playerPos - mSuckPoint;
   if (player->GetMorphballTransitionState() == CPlayer::kMS_Morphed) {
     const float mag = posDiff.Magnitude();
     if (mag < 3.f) {
       player->Stop();
-      CenterPlayer(mgr, x5cc_suckPoint, arg);
+      CenterPlayer(mgr, mSuckPoint, arg);
     } else {
-      float force = x5a8_suckForceMultiplier * (x5b0_playerSuckRange / (mag * mag));
+      float force = mSuckForceMultiplier * (mPlayerSuckRange / (mag * mag));
       CVector3f forceVec = -posDiff * player->GetMass() * force;
       player->ApplyForceWR(forceVec, CAxisAngle::Identity());
     }
@@ -117,7 +117,7 @@ const CDamageVulnerability* CPuddleToadGamma::GetDamageVulnerability() const {
 const CDamageVulnerability* CPuddleToadGamma::GetDamageVulnerability(const CVector3f& pos,
                                                                      const CVector3f&,
                                                                      const CDamageInfo&) const {
-  if (x5e8_24_playerInside && (x5d8_damageablePoint - pos).MagSquared() < 4.f) {
+  if (mPlayerInside && (mDamageablePoint - pos).MagSquared() < 4.f) {
     return CAi::GetDamageVulnerability();
   }
   return &CDamageVulnerability::ImmuneVulnerability();
@@ -125,16 +125,16 @@ const CDamageVulnerability* CPuddleToadGamma::GetDamageVulnerability(const CVect
 
 void CPuddleToadGamma::ShootPlayer(CStateManager& mgr, float speed) {
   CPlayer& player = *mgr.Player();
-  const CVector3f shootDir = GetTransform().Rotate(x5b4_localShootDir.AsNormalized());
+  const CVector3f shootDir = GetTransform().Rotate(mLocalShootDir.AsNormalized());
   player.EnableLeaveMorphBall(true);
   if (player.GetMorphballTransitionState() == CPlayer::kMS_Morphed) {
-    x5e8_26_shotPlayer = true;
+    mShotPlayer = true;
     player.Stop();
     player.SetVelocityWR(CVector3f::Zero());
     player.ApplyImpulseWR(speed * (player.GetMass() * shootDir), CAxisAngle::Identity());
     player.SetMoveState(NPlayer::kMS_ApplyJump, mgr);
     mgr.ApplyDamage(
-        GetUniqueId(), mgr.GetPlayer()->GetUniqueId(), GetUniqueId(), x570_playerShootDamage,
+        GetUniqueId(), mgr.GetPlayer()->GetUniqueId(), GetUniqueId(), mPlayerShootDamage,
         CMaterialFilter::MakeIncludeExclude(CMaterialList(SolidMaterial), CMaterialList()),
         CVector3f::Zero());
     player.MorphBall()->SetAsProjectile();
@@ -165,7 +165,7 @@ void CPuddleToadGamma::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& 
   bool handled = false;
   switch (type) {
   case kUE_Projectile:
-    ShootPlayer(mgr, x5c0_playerShootSpeed);
+    ShootPlayer(mgr, mPlayerShootSpeed);
     handled = true;
     break;
   }
@@ -192,8 +192,8 @@ void CPuddleToadGamma::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid,
   case kSM_Registered: {
     BodyCtrl()->Activate(mgr);
     const CTransform4f xf = GetLctrTransform(rstl::string_l(mBellyLocatorName));
-    x5cc_suckPoint = xf.GetTranslation() + GetTransform().Rotate(skBellyOffset);
-    x5d8_damageablePoint = x5cc_suckPoint;
+    mSuckPoint = xf.GetTranslation() + GetTransform().Rotate(skBellyOffset);
+    mDamageablePoint = mSuckPoint;
     RemoveMaterial(kMT_Target, kMT_Orbit, mgr);
     AddMaterial(kMT_Immovable, mgr);
     AddMaterial(kMT_SolidCharacter, mgr);
@@ -203,7 +203,7 @@ void CPuddleToadGamma::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid,
 }
 
 void CPuddleToadGamma::SetPlayerPosition(CStateManager& mgr, const CVector3f& pos) {
-  const float dt = x500_preThinkDt;
+  const float dt = mPreThinkDt;
   CPlayer& player = *mgr.Player();
   player.Stop();
   player.SetVelocityWR(CVector3f::Zero());
@@ -240,7 +240,7 @@ bool CPuddleToadGamma::InAttackPosition(CStateManager& mgr, float) {
 
 bool CPuddleToadGamma::Inside(CStateManager& mgr, float) {
   if (mgr.GetPlayer()->GetMorphballTransitionState() == CPlayer::kMS_Morphed) {
-    const CVector3f delta = mgr.GetPlayer()->GetTranslation() - x5cc_suckPoint;
+    const CVector3f delta = mgr.GetPlayer()->GetTranslation() - mSuckPoint;
     if (CVector3f::Dot(delta, GetTransform().GetForward()) <= 0.f && delta.MagSquared() < 2.f) {
       return true;
     }
@@ -249,11 +249,11 @@ bool CPuddleToadGamma::Inside(CStateManager& mgr, float) {
 }
 
 bool CPuddleToadGamma::ShouldAttack(CStateManager&, float) {
-  return x56c_waitTimer >= x5c4_shouldAttackWaitTime;
+  return mWaitTimer >= mShouldAttackWaitTime;
 }
 
 bool CPuddleToadGamma::SpotPlayer(CStateManager&, float) {
-  return x56c_waitTimer >= x5c8_spotPlayerWaitTime;
+  return mWaitTimer >= mSpotPlayerWaitTime;
 }
 
 void CPuddleToadGamma::InActive(CStateManager& mgr, EStateMsg msg, float) {
@@ -275,9 +275,9 @@ void CPuddleToadGamma::Active(CStateManager& mgr, EStateMsg msg, float) {
   case kStateMsg_Activate: {
     BodyCtrl()->SetLocomotionType(pas::kLT_Lurk);
     const CTransform4f xf = GetLctrTransform(rstl::string_l(mBellyLocatorName));
-    x5cc_suckPoint = xf.GetTranslation() + GetTransform().Rotate(skBellyOffset);
-    x56c_waitTimer = 0.f;
-    x5e8_25_waitTimerActive = true;
+    mSuckPoint = xf.GetTranslation() + GetTransform().Rotate(skBellyOffset);
+    mWaitTimer = 0.f;
+    mWaitTimerActive = true;
     SetSolid(mgr, true);
     mgr.Player()->EnableLeaveMorphBall(true);
     break;
@@ -285,7 +285,7 @@ void CPuddleToadGamma::Active(CStateManager& mgr, EStateMsg msg, float) {
   case kStateMsg_Update:
     break;
   case kStateMsg_Deactivate:
-    x5e8_25_waitTimerActive = false;
+    mWaitTimerActive = false;
     break;
   }
 }
@@ -293,16 +293,16 @@ void CPuddleToadGamma::Active(CStateManager& mgr, EStateMsg msg, float) {
 void CPuddleToadGamma::Suck(CStateManager& mgr, EStateMsg msg, float dt) {
   switch (msg) {
   case kStateMsg_Activate:
-    x568_stateProg = 0;
+    mStateProg = 0;
     SetSolid(mgr, false);
     mgr.Player()->EnableLeaveMorphBall(false);
     mgr.Player()->MorphBall()->DisableHalfPipeStatus();
     break;
   case kStateMsg_Update:
-    switch (x568_stateProg) {
+    switch (mStateProg) {
     case 0:
       if (GetBodyCtrl()->GetCurrentStateId() == pas::kAS_LoopReaction) {
-        x568_stateProg = 1;
+        mStateProg = 1;
       } else {
         BodyCtrl()->CommandMgr().DeliverCmd(CBCLoopReactionCmd(pas::kRT_Zero));
       }
@@ -325,15 +325,15 @@ bool CPuddleToadGamma::LostInterest(CStateManager& mgr, float) {
 void CPuddleToadGamma::Crouch(CStateManager& mgr, EStateMsg msg, float) {
   switch (msg) {
   case kStateMsg_Activate:
-    x568_stateProg = 0;
-    x56c_waitTimer = 0.f;
-    x5e8_25_waitTimerActive = true;
-    x5e8_24_playerInside = true;
+    mStateProg = 0;
+    mWaitTimer = 0.f;
+    mWaitTimerActive = true;
+    mPlayerInside = true;
     mgr.Player()->Stop();
     mgr.Player()->SetVelocityWR(CVector3f::Zero());
     SendScriptMsgs(kSS_Inside, mgr, kSM_None);
     if (!mgr.Player()->AttachActorToPlayer(GetUniqueId(), false)) {
-      x56c_waitTimer = 100.f;
+      mWaitTimer = 100.f;
     }
     SetSolid(mgr, false);
     mgr.Player()->EnableLeaveMorphBall(false);
@@ -342,12 +342,12 @@ void CPuddleToadGamma::Crouch(CStateManager& mgr, EStateMsg msg, float) {
     break;
   case kStateMsg_Update: {
     const CTransform4f xf = GetLctrTransform(rstl::string_l(mBellyLocatorName));
-    x5cc_suckPoint = xf.GetTranslation() + GetTransform().Rotate(skBellyOffset);
-    SetPlayerPosition(mgr, x5cc_suckPoint);
-    switch (x568_stateProg) {
+    mSuckPoint = xf.GetTranslation() + GetTransform().Rotate(skBellyOffset);
+    SetPlayerPosition(mgr, mSuckPoint);
+    switch (mStateProg) {
     case 0:
       if (GetBodyCtrl()->GetCurrentStateId() == pas::kAS_Locomotion) {
-        x568_stateProg = 1;
+        mStateProg = 1;
       } else {
         BodyCtrl()->SetLocomotionType(pas::kLT_Combat);
       }
@@ -362,7 +362,7 @@ void CPuddleToadGamma::Crouch(CStateManager& mgr, EStateMsg msg, float) {
       mgr.Player()->DetachActorFromPlayer();
     }
     mgr.Player()->EnableLeaveMorphBall(true);
-    x5e8_25_waitTimerActive = false;
+    mWaitTimerActive = false;
     break;
   }
 }
@@ -373,15 +373,15 @@ void CPuddleToadGamma::Attack(CStateManager& mgr, EStateMsg msg, float) {
     mgr.Player()->Stop();
     mgr.Player()->SetVelocityWR(CVector3f::Zero());
     BodyCtrl()->CommandMgr().DeliverCmd(CBCMeleeAttackCmd(pas::kS_One));
-    x5e8_26_shotPlayer = false;
+    mShotPlayer = false;
     mgr.Player()->EnableLeaveMorphBall(false);
     mgr.Player()->MorphBall()->SetBombJumpState(CMorphBall::kBJS_BombJumpDisabled);
     break;
   case kStateMsg_Update:
-    if (!x5e8_26_shotPlayer) {
+    if (!mShotPlayer) {
       const CTransform4f xf = GetLctrTransform(rstl::string_l(mBellyLocatorName));
-      x5cc_suckPoint = xf.GetTranslation() + GetTransform().Rotate(skBellyOffset);
-      SetPlayerPosition(mgr, x5cc_suckPoint);
+      mSuckPoint = xf.GetTranslation() + GetTransform().Rotate(skBellyOffset);
+      SetPlayerPosition(mgr, mSuckPoint);
     } else if (LostInterest(mgr, 0.f)) {
       SetSolid(mgr, true);
     }
@@ -390,15 +390,15 @@ void CPuddleToadGamma::Attack(CStateManager& mgr, EStateMsg msg, float) {
     SetSolid(mgr, true);
     mgr.Player()->EnableLeaveMorphBall(true);
     mgr.Player()->MorphBall()->SetBombJumpState(CMorphBall::kBJS_BombJumpAvailable);
-    x5e8_24_playerInside = false;
+    mPlayerInside = false;
     break;
   }
 }
 
 rstl::optional_object< CAABox > CPuddleToadGamma::GetTouchBounds() const {
   if (GetActive()) {
-    if (x5e4_collisionTreePrim.get() != nullptr) {
-      return x5e4_collisionTreePrim->CalculateAABox(GetTransform());
+    if (mCollisionTreePrim.get() != nullptr) {
+      return mCollisionTreePrim->CalculateAABox(GetTransform());
     }
     return GetBoundingBox();
   }
@@ -406,10 +406,10 @@ rstl::optional_object< CAABox > CPuddleToadGamma::GetTouchBounds() const {
 }
 
 const CCollisionPrimitive* CPuddleToadGamma::GetCollisionPrimitive() const {
-  if (x5e4_collisionTreePrim.get() == nullptr) {
+  if (mCollisionTreePrim.get() == nullptr) {
     return CPhysicsActor::GetCollisionPrimitive();
   }
-  return x5e4_collisionTreePrim.get();
+  return mCollisionTreePrim.get();
 }
 
 CTransform4f CPuddleToadGamma::GetPrimitiveTransform() const {

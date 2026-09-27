@@ -39,37 +39,37 @@ public:
 
   public:
     CBoid(const CTransform4f& xf, uint index);
-    bool GetActive() const { return x80_24_active; }
-    CVector3f GetTranslation() const { return x0_transform.GetTranslation(); }
-    const CTransform4f& GetTransform() const { return x0_transform; }
+    bool GetActive() const { return mActive; }
+    CVector3f GetTranslation() const { return mTransform.GetTranslation(); }
+    const CTransform4f& GetTransform() const { return mTransform; }
 
   private:
-    CTransform4f x0_transform;
-    CVector3f x30_velocity;
-    TUniqueId x3c_targetWaypoint;
-    CColor x40_ambientLighting;
-    CBoid* x44_next;
-    float x48_timeToDie;
-    float x4c_timeToExplode;
-    CCollisionSurface x50_surface;
-    float x78_health;
-    uint x7c_24_framesNotOnSurface : 8;
-    uint x7c_16_index : 10;
-    uint x7c_6_remainingLaunchNotOnSurfaceFrames : 8;
-    bool x80_24_active : 1;
-    bool x80_25_inFrustum : 1;
-    bool x80_26_launched : 1;
-    bool x80_27_scarabExplodeTimerEnabled : 1;
-    bool x80_28_nearPlayer : 1;
+    CTransform4f mTransform;
+    CVector3f mVelocity;
+    TUniqueId mTargetWaypoint;
+    CColor mAmbientLighting;
+    CBoid* mNext;
+    float mTimeToDie;
+    float mTimeToExplode;
+    CCollisionSurface mSurface;
+    float mHealth;
+    uint mFramesNotOnSurface : 8;
+    uint mIndex : 10;
+    uint mRemainingLaunchNotOnSurfaceFrames : 8;
+    bool mActive : 1;
+    bool mInFrustum : 1;
+    bool mLaunched : 1;
+    bool mScarabExplodeTimerEnabled : 1;
+    bool mNearPlayer : 1;
   };
 
   class CRepulsor {
     friend class CWallCrawlerSwarm;
-    CVector3f x0_center;
-    float xc_magnitude;
+    CVector3f mCenter;
+    float mMagnitude;
 
   public:
-    CRepulsor(CVector3f center, float magnitude) : x0_center(center), xc_magnitude(magnitude) {}
+    CRepulsor(CVector3f center, float magnitude) : mCenter(center), mMagnitude(magnitude) {}
   };
 
   CWallCrawlerSwarm(TUniqueId uid, bool active, const rstl::string& name, const CEntityInfo& info,
@@ -88,13 +88,13 @@ public:
 
   void FreezeCollision(const CMarkerGrid& grid, float duration);
   void ApplyRadiusDamage(CVector3f pos, const CDamageInfo& info, CStateManager& mgr);
-  CVector3f GetLastKilledOffset() const { return x130_lastKilledOffset; }
-  int GetCurrentLockOnId() const { return x42c_lockOnIdx; }
-  int GetBoidCount() const { return x108_boids.size(); }
+  CVector3f GetLastKilledOffset() const { return mLastKilledOffset; }
+  int GetCurrentLockOnId() const { return mLockOnIdx; }
+  int GetBoidCount() const { return mBoids.size(); }
   bool GetLockOnLocationValid(int id) const {
-    return id > -1 && id < x108_boids.size() && x108_boids[id].GetActive();
+    return id > -1 && id < mBoids.size() && mBoids[id].GetActive();
   }
-  CVector3f GetLockOnLocation(int id) const { return x108_boids[id].GetTranslation(); }
+  CVector3f GetLockOnLocation(int id) const { return mBoids[id].GetTranslation(); }
 
 private:
   void AllocateSkinnedModels(CStateManager& mgr, CModelData::EWhichModel which);
@@ -143,58 +143,58 @@ private:
   void HardwareLight(const CStateManager& mgr, const CAABox& bounds) const;
   void RenderBoid(CBoid* boid, uint& drawMask, bool thermalHot, const CModelFlags& flags) const;
 
-  CAABox xe8_aabox;
-  int x100_thinkCounter;
-  float x104_occludedTimer;
-  rstl::vector< CBoid > x108_boids;
-  CVector3f x118_boundingBoxExtent;
-  mutable CVector3f x124_lastOrbitPosition;
-  CVector3f x130_lastKilledOffset;
-  float x13c_separationRadius;
-  float x140_cohesionMagnitude;
-  float x144_alignmentWeight;
-  float x148_separationMagnitude;
-  float x14c_moveToWaypointWeight;
-  float x150_attractionMagnitude;
-  float x154_attractionRadius;
-  float x158_scarabScatterXYVelocity;
-  float x15c_scarabTimeToExplode;
-  float x160_animPlaybackSpeed;
-  float x164_waypointGoalRadius;
-  rstl::reserved_vector< CBoid*, 125 > x168_partitionedBoidLists;
-  CBoid* x360_outlierBoidList;
-  float x364_boidGenRate;
-  float x368_boidGenCooldownTimer;
-  float x36c_crabDamageCooldownTimer;
-  float x370_crabDamageCooldown;
-  float x374_boidRadius;
-  float x378_touchRadius;
-  float x37c_scarabBoxMargin;
-  float x380_playerTouchRadius;
-  CDamageInfo x384_crabDamage;
-  CDamageInfo x3a0_scarabExplodeDamage;
-  CHealthInfo x3bc_healthInfo;
-  CDamageVulnerability x3c4_damageVulnerability;
-  int x42c_lockOnIdx;
-  rstl::reserved_vector< rstl::auto_ptr< float >, 10 > x430_posWorkspaces;
-  rstl::reserved_vector< float*, 10 > x484_nrmWorkspaces;
-  rstl::reserved_vector< rstl::ncrc_ptr< CModelData >, 10 > x4b0_modelDatas;
-  CModelData::EWhichModel x4dc_whichModel;
-  rstl::vector< CRepulsor > x4e0_doorRepulsors;
-  rstl::reserved_vector< TLockedToken< CGenDescription >, 4 > x4f0_particleDescs;
-  rstl::reserved_vector< rstl::auto_ptr< CElementGen >, 4 > x524_particleGens;
-  int x548_numBoids;
-  int x54c_maxCreatedBoids;
-  int x550_createdBoids;
-  int x554_maxLaunches;
-  EFlavor x558_flavor;
-  ushort x55c_launchSfx;
-  ushort x55e_scatterSfx;
-  bool x560_24_enableLighting : 1;
-  bool x560_25_useSoftwareLight : 1;
-  bool x560_26_modelAssetDirty : 1;
+  CAABox mAabox;
+  int mThinkCounter;
+  float mOccludedTimer;
+  rstl::vector< CBoid > mBoids;
+  CVector3f mBoundingBoxExtent;
+  mutable CVector3f mLastOrbitPosition;
+  CVector3f mLastKilledOffset;
+  float mSeparationRadius;
+  float mCohesionMagnitude;
+  float mAlignmentWeight;
+  float mSeparationMagnitude;
+  float mMoveToWaypointWeight;
+  float mAttractionMagnitude;
+  float mAttractionRadius;
+  float mScarabScatterXYVelocity;
+  float mScarabTimeToExplode;
+  float mAnimPlaybackSpeed;
+  float mWaypointGoalRadius;
+  rstl::reserved_vector< CBoid*, 125 > mPartitionedBoidLists;
+  CBoid* mOutlierBoidList;
+  float mBoidGenRate;
+  float mBoidGenCooldownTimer;
+  float mCrabDamageCooldownTimer;
+  float mCrabDamageCooldown;
+  float mBoidRadius;
+  float mTouchRadius;
+  float mScarabBoxMargin;
+  float mPlayerTouchRadius;
+  CDamageInfo mCrabDamage;
+  CDamageInfo mScarabExplodeDamage;
+  CHealthInfo mHealthInfo;
+  CDamageVulnerability mDamageVulnerability;
+  int mLockOnIdx;
+  rstl::reserved_vector< rstl::auto_ptr< float >, 10 > mPosWorkspaces;
+  rstl::reserved_vector< float*, 10 > mNrmWorkspaces;
+  rstl::reserved_vector< rstl::ncrc_ptr< CModelData >, 10 > mModelDatas;
+  CModelData::EWhichModel mWhichModel;
+  rstl::vector< CRepulsor > mDoorRepulsors;
+  rstl::reserved_vector< TLockedToken< CGenDescription >, 4 > mParticleDescs;
+  rstl::reserved_vector< rstl::auto_ptr< CElementGen >, 4 > mParticleGens;
+  int mNumBoids;
+  int mMaxCreatedBoids;
+  int mCreatedBoids;
+  int mMaxLaunches;
+  EFlavor mFlavor;
+  ushort mLaunchSfx;
+  ushort mScatterSfx;
+  bool mEnableLighting : 1;
+  bool mUseSoftwareLight : 1;
+  bool mModelAssetDirty : 1;
 };
 NESTED_CHECK_SIZEOF(CWallCrawlerSwarm, CBoid, 0x84)
-CHECK_SIZEOF(CWallCrawlerSwarm, (VERSION >= VERSION_GM8P_00 ? 0x578 : 0x568))
+CHECK_SIZEOF(CWallCrawlerSwarm, (VERSION >= VERSION_GM8E_02 ? 0x578 : 0x568))
 
 #endif // _CWALLCRAWLERSWARM

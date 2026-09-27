@@ -11,29 +11,29 @@ struct SMediumAllocPuddle {
   void* FindFreeEntry(uint blockCount);
   void Free(const void* ptr);
 
-  const uint GetNumBlocks() const { return x14_numBlocks; }
-  const uint GetNumAllocs() const { return x18_numAllocs; }
-  const uint GetNumEntries() const { return x1c_numEntries; }
-  const bool CanErase() const { return x20_canErase; }
-  const uint GetPtrOffset(const void* ptr) const { return (uchar*)ptr - x0_mainData.get(); }
+  const uint GetNumBlocks() const { return mNumBlocks; }
+  const uint GetNumAllocs() const { return mNumAllocs; }
+  const uint GetNumEntries() const { return mNumEntries; }
+  const bool CanErase() const { return mCanErase; }
+  const uint GetPtrOffset(const void* ptr) const { return (uchar*)ptr - mMainData.get(); }
   static ushort GetBlockOffset(const void* ptrA, const void* ptrB);
   static void InitBookKeeping(uchar* bookKeepingPtr, const ushort blockCount);
 
 private:
-  rstl::auto_ptr< uchar > x0_mainData;
-  uchar* x8_bookKeeping;
-  uchar* xc_cachedBookKeepingAddr;
-  uint x10_unused;
-  uint x14_numBlocks;
-  uint x18_numAllocs;
-  uint x1c_numEntries;
-  bool x20_canErase : 1;
+  rstl::auto_ptr< uchar > mMainData;
+  uchar* mBookKeeping;
+  uchar* mCachedBookKeepingAddr;
+  uint mUnused;
+  uint mNumBlocks;
+  uint mNumAllocs;
+  uint mNumEntries;
+  bool mCanErase : 1;
 };
 
 class CMediumAllocPool {
 public:
-  rstl::list< SMediumAllocPuddle > x0_list;
-  rstl::list< SMediumAllocPuddle >::iterator x18_lastNodePrev;
+  rstl::list< SMediumAllocPuddle > mList;
+  rstl::list< SMediumAllocPuddle >::iterator mLastNodePrev;
   CMediumAllocPool();
   void* Alloc(uint size);
   bool HasPuddles() const;

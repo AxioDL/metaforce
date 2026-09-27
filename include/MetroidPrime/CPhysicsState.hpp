@@ -13,27 +13,27 @@ public:
                 const CVector3f& momentum, const CVector3f& force, const CVector3f& impulse,
                 const CAxisAngle& torque, const CAxisAngle& angularImpulse);
 
-  CVector3f GetTranslation() const { return x0_translation; }
-  void SetTranslation(const CVector3f& translation) { x0_translation = translation; }
-  CQuaternion GetOrientation() const { return xc_orientation; }
-  CVector3f GetConstantForceWR() const { return x1c_constantForce; }
-  CAxisAngle GetAngularMomentumWR() const { return x28_angularMomentum; }
-  CVector3f GetMomentumWR() const { return x34_momentum; }
-  CVector3f GetForceWR() const { return x40_force; }
-  CVector3f GetImpulseWR() const { return x4c_impulse; }
-  CAxisAngle GetTorque() const { return x58_torque; }
-  CAxisAngle GetAngularImpulseWR() const { return x64_angularImpulse; }
+  CVector3f GetTranslation() const { return mTranslation; }
+  void SetTranslation(const CVector3f& translation) { mTranslation = translation; }
+  CQuaternion GetOrientation() const { return mOrientation; }
+  CVector3f GetConstantForceWR() const { return mConstantForce; }
+  CAxisAngle GetAngularMomentumWR() const { return mAngularMomentum; }
+  CVector3f GetMomentumWR() const { return mMomentum; }
+  CVector3f GetForceWR() const { return mForce; }
+  CVector3f GetImpulseWR() const { return mImpulse; }
+  CAxisAngle GetTorque() const { return mTorque; }
+  CAxisAngle GetAngularImpulseWR() const { return mAngularImpulse; }
 
 private:
-  CVector3f x0_translation;
-  CQuaternion xc_orientation;
-  CVector3f x1c_constantForce;
-  CAxisAngle x28_angularMomentum;
-  CVector3f x34_momentum;
-  CVector3f x40_force;
-  CVector3f x4c_impulse;
-  CAxisAngle x58_torque;
-  CAxisAngle x64_angularImpulse;
+  CVector3f mTranslation;
+  CQuaternion mOrientation;
+  CVector3f mConstantForce;
+  CAxisAngle mAngularMomentum;
+  CVector3f mMomentum;
+  CVector3f mForce;
+  CVector3f mImpulse;
+  CAxisAngle mTorque;
+  CAxisAngle mAngularImpulse;
 };
 
 #endif // _CPHYSICSSTATE

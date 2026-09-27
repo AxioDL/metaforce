@@ -6,19 +6,19 @@
 #include "rstl/algorithm.hpp"
 #include "rstl/math.hpp"
 
-CPASAnimState::CPASAnimState(const int id) : x0_id(static_cast< pas::EAnimationState >(id)) {}
+CPASAnimState::CPASAnimState(const int id) : mId(static_cast< pas::EAnimationState >(id)) {}
 
-CPASAnimState::CPASAnimState(CInputStream& in) : x0_id(pas::kAS_Invalid) {
-  x0_id = static_cast< pas::EAnimationState >(in.Get< int >());
+CPASAnimState::CPASAnimState(CInputStream& in) : mId(pas::kAS_Invalid) {
+  mId = static_cast< pas::EAnimationState >(in.Get< int >());
   const uint parmCount = in.Get< uint >();
   const uint animCount = in.Get< uint >();
 
-  x4_parms.reserve(parmCount);
-  x14_anims.reserve(animCount);
-  x24_selectionCache.reserve(animCount);
+  mParms.reserve(parmCount);
+  mAnims.reserve(animCount);
+  mSelectionCache.reserve(animCount);
 
   for (uint i = 0; i < parmCount; i++) {
-    x4_parms.push_back(CPASParmInfo(in));
+    mParms.push_back(CPASParmInfo(in));
   }
 
   rstl::reserved_vector< CPASAnimParm::UParmValue, 8 > parms;
@@ -27,7 +27,7 @@ CPASAnimState::CPASAnimState(CInputStream& in) : x0_id(pas::kAS_Invalid) {
     parms.clear();
     for (uint j = 0; j < parmCount; j++) {
       CPASAnimParm::UParmValue val;
-      switch (x4_parms[j].GetParameterType()) {
+      switch (mParms[j].GetParameterType()) {
       case CPASAnimParm::kPT_Int32:
         val.m_int = in.Get< int >();
         break;
@@ -53,15 +53,15 @@ CPASAnimState::CPASAnimState(CInputStream& in) : x0_id(pas::kAS_Invalid) {
 
     CPASAnimInfo animInfo(id, parms);
     rstl::vector< CPASAnimInfo >::iterator iter =
-        rstl::lower_bound(x14_anims.begin(), x14_anims.end(), animInfo);
-    x14_anims.insert(iter, animInfo);
+        rstl::lower_bound(mAnims.begin(), mAnims.end(), animInfo);
+    mAnims.insert(iter, animInfo);
   }
 }
 
 CPASAnimParm CPASAnimState::GetAnimParmData(int animId, uint parmIdx) const {
-  AUTO(it, rstl::binary_find(x14_anims.begin(), x14_anims.end(), CPASAnimInfo(animId)));
-  if (it != x14_anims.end()) {
-    return it->GetAnimParmData(parmIdx, x4_parms[parmIdx].GetParameterType());
+  AUTO(it, rstl::binary_find(mAnims.begin(), mAnims.end(), CPASAnimInfo(animId)));
+  if (it != mAnims.end()) {
+    return it->GetAnimParmData(parmIdx, mParms[parmIdx].GetParameterType());
   }
   return CPASAnimParm::NoParameter();
 }
@@ -75,26 +75,26 @@ void CPASAnimState::AddAnimParmData(
   }
 
   CPASAnimInfo animInfo(animId, values);
-  AUTO(it, rstl::lower_bound(x14_anims.begin(), x14_anims.end(), animInfo));
-  x14_anims.insert(it, animInfo);
+  AUTO(it, rstl::lower_bound(mAnims.begin(), mAnims.end(), animInfo));
+  mAnims.insert(it, animInfo);
 }
 
 rstl::pair< float, int >
 CPASAnimState::FindBestAnimation(const rstl::reserved_vector< CPASAnimParm, 8 >& parms,
                                  CRandom16& random, int ignoreAnim) const {
   float weight = -1.f;
-  x24_selectionCache.clear();
+  mSelectionCache.clear();
   if (HasAnims()) {
-    for (AUTO(it, x14_anims.begin()); it != x14_anims.end(); ++it) {
+    for (AUTO(it, mAnims.begin()); it != mAnims.end(); ++it) {
       if (it->GetAnimId() == ignoreAnim) {
         continue;
       }
 
-      float animWeight = x4_parms.size() > 0 ? 0.f : 1.f;
+      float animWeight = mParms.size() > 0 ? 0.f : 1.f;
       int unweightedCount = 0;
-      for (uint i = 0; i < x4_parms.size(); ++i) {
+      for (uint i = 0; i < mParms.size(); ++i) {
         const CPASAnimParm::UParmValue& value = it->GetAnimParmValue(i);
-        const CPASParmInfo& info = x4_parms[i];
+        const CPASParmInfo& info = mParms[i];
         const float parmWeight = info.GetParameterWeight();
         float computedWeight = 0.f;
         switch (info.GetWeightFunction()) {
@@ -114,15 +114,15 @@ CPASAnimState::FindBestAnimation(const rstl::reserved_vector< CPASAnimParm, 8 >&
         animWeight += parmWeight * computedWeight;
       }
 
-      if (unweightedCount == x4_parms.size()) {
+      if (unweightedCount == mParms.size()) {
         animWeight = 1.f;
       }
       if (animWeight > weight) {
-        x24_selectionCache.clear();
-        x24_selectionCache.push_back(it->GetAnimId());
+        mSelectionCache.clear();
+        mSelectionCache.push_back(it->GetAnimId());
         weight = animWeight;
       } else if (animWeight == weight) {
-        x24_selectionCache.push_back(it->GetAnimId());
+        mSelectionCache.push_back(it->GetAnimId());
         weight = animWeight;
       }
     }
@@ -159,12 +159,12 @@ float CPASAnimState::ComputePercentErrorWeight(uint idx, const CPASAnimParm& par
   float error = 0.f;
   switch (parm.GetParameterType()) {
   case CPASAnimParm::kPT_Int32:
-    range = x4_parms[idx].GetParameterMaxValue().m_int - x4_parms[idx].GetParameterMinValue().m_int;
+    range = mParms[idx].GetParameterMaxValue().m_int - mParms[idx].GetParameterMinValue().m_int;
     error = CMath::AbsF(parm.GetInt32Value() - value.m_int);
     break;
   case CPASAnimParm::kPT_UInt32:
     range =
-        x4_parms[idx].GetParameterMaxValue().m_uint - x4_parms[idx].GetParameterMinValue().m_uint;
+        mParms[idx].GetParameterMaxValue().m_uint - mParms[idx].GetParameterMinValue().m_uint;
     if (parm.GetUint32Value() > value.m_uint) {
       error = parm.GetUint32Value() - value.m_uint;
     } else {
@@ -173,14 +173,14 @@ float CPASAnimState::ComputePercentErrorWeight(uint idx, const CPASAnimParm& par
     break;
   case CPASAnimParm::kPT_Float:
     range =
-        x4_parms[idx].GetParameterMaxValue().m_float - x4_parms[idx].GetParameterMinValue().m_float;
+        mParms[idx].GetParameterMaxValue().m_float - mParms[idx].GetParameterMinValue().m_float;
     error = CMath::AbsF(parm.GetReal32Value() - value.m_float);
     break;
   case CPASAnimParm::kPT_Bool:
     error = value.m_bool == parm.GetBoolValue() ? 0.f : 1.f;
     break;
   case CPASAnimParm::kPT_Enum:
-    range = x4_parms[idx].GetParameterMaxValue().m_int - x4_parms[idx].GetParameterMinValue().m_int;
+    range = mParms[idx].GetParameterMaxValue().m_int - mParms[idx].GetParameterMinValue().m_int;
     error = CMath::AbsF(parm.GetEnumValue() - value.m_int);
     break;
   }
@@ -196,19 +196,19 @@ float CPASAnimState::ComputeAngularPercentErrorWeight(uint idx, const CPASAnimPa
   float error = 0.f;
   switch (parm.GetParameterType()) {
   case CPASAnimParm::kPT_Int32:
-    range = x4_parms[idx].GetParameterMaxValue().m_int - x4_parms[idx].GetParameterMinValue().m_int;
+    range = mParms[idx].GetParameterMaxValue().m_int - mParms[idx].GetParameterMinValue().m_int;
     error = CMath::AbsF(parm.GetInt32Value() - value.m_int);
     break;
   case CPASAnimParm::kPT_UInt32: {
     range =
-        x4_parms[idx].GetParameterMaxValue().m_uint - x4_parms[idx].GetParameterMinValue().m_uint;
+        mParms[idx].GetParameterMaxValue().m_uint - mParms[idx].GetParameterMinValue().m_uint;
     const uint parmValue = parm.GetUint32Value();
     error = parmValue > value.m_uint ? parmValue - value.m_uint : value.m_uint - parmValue;
     break;
   }
   case CPASAnimParm::kPT_Float:
     range =
-        x4_parms[idx].GetParameterMaxValue().m_float - x4_parms[idx].GetParameterMinValue().m_float;
+        mParms[idx].GetParameterMaxValue().m_float - mParms[idx].GetParameterMinValue().m_float;
     error = CMath::AbsF(parm.GetReal32Value() - value.m_float);
     break;
   case CPASAnimParm::kPT_Bool:
@@ -216,7 +216,7 @@ float CPASAnimState::ComputeAngularPercentErrorWeight(uint idx, const CPASAnimPa
     break;
   case CPASAnimParm::kPT_Enum:
     range =
-        x4_parms[idx].GetParameterMaxValue().m_int - x4_parms[idx].GetParameterMinValue().m_int + 1;
+        mParms[idx].GetParameterMaxValue().m_int - mParms[idx].GetParameterMinValue().m_int + 1;
     error = CMath::AbsF(parm.GetEnumValue() - value.m_int);
     break;
   }
@@ -230,18 +230,18 @@ float CPASAnimState::ComputeAngularPercentErrorWeight(uint idx, const CPASAnimPa
 
 int CPASAnimState::PickRandomAnimation(CRandom16& random) const {
   int anim = -1;
-  switch (x24_selectionCache.size()) {
+  switch (mSelectionCache.size()) {
   case 0:
     break;
   case 1:
-    anim = x24_selectionCache[0];
+    anim = mSelectionCache[0];
     break;
   default: {
-    int idx = static_cast< int >(random.Float() * x24_selectionCache.size());
-    if (idx == x24_selectionCache.size()) {
+    int idx = static_cast< int >(random.Float() * mSelectionCache.size());
+    if (idx == mSelectionCache.size()) {
       --idx;
     }
-    anim = x24_selectionCache[idx];
+    anim = mSelectionCache[idx];
     break;
   }
   }

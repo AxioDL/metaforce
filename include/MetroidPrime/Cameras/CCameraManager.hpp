@@ -56,8 +56,8 @@ public:
   float GetWaterFarDistance(CStateManager& mgr, const CScriptWater* water);
   void SetWaterFogScale(float fogDensityTarget, float fogDensitySpeed);
 
-  CFirstPersonCamera* FirstPersonCamera() const /* map */ { return x7c_fpCamera; }
-  const CFirstPersonCamera* GetFirstPersonCamera() const { return x7c_fpCamera; }
+  CFirstPersonCamera* FirstPersonCamera() const /* map */ { return mFpCamera; }
+  const CFirstPersonCamera* GetFirstPersonCamera() const { return mFpCamera; }
 
   void SetPlayerCamera(CStateManager& mgr, TUniqueId newCamId);
   bool IsInCinematicCamera() const;
@@ -89,15 +89,15 @@ public:
   bool HasCameraHint(CStateManager& mgr) const;
   bool HasBallCameraInitialPositionHint(CStateManager& mgr) const;
 
-  void SetCurrentFov(float fov) { x3bc_curFov = fov; }
+  void SetCurrentFov(float fov) { mCurFov = fov; }
 
-  CGameArea::CAreaFog& Fog() { return x3c_fog; }
-  const CGameArea::CAreaFog& GetFog() const { return x3c_fog; }
+  CGameArea::CAreaFog& Fog() { return mFog; }
+  const CGameArea::CAreaFog& GetFog() const { return mFog; }
 
-  int GetFluidCounter() const { return x74_fluidCounter; }
-  TUniqueId GetFluidId() const { return x78_fluidId; }
-  bool GetInsideFluid() const { return x74_fluidCounter == 0; }
-  bool IsInsideFluid() const { return xa0_26_inWater; }
+  int GetFluidCounter() const { return mFluidCounter; }
+  TUniqueId GetFluidId() const { return mFluidId; }
+  bool GetInsideFluid() const { return mFluidCounter == 0; }
+  bool IsInsideFluid() const { return mInWater; }
   // WasInsideFluid__14CCameraManagerCFv
   // SetWasInsideFluid__14CCameraManagerFb
   void SetInsideFluid(bool isInside, TUniqueId fluidId);
@@ -109,8 +109,8 @@ public:
   void SetSpindleCamera(TUniqueId id, CStateManager& mgr);
   TUniqueId GetSpindleCameraId() const;
 
-  CBallCamera* BallCamera() const { return x80_ballCamera; }
-  const CBallCamera* GetBallCamera() const { return x80_ballCamera; }
+  CBallCamera* BallCamera() const { return mBallCamera; }
+  const CBallCamera* GetBallCamera() const { return mBallCamera; }
 
   static float GetDefaultThirdPersonVerticalFOV();
   static float GetDefaultFirstPersonVerticalFOV();
@@ -119,37 +119,37 @@ public:
   static float GetDefaultAspectRatio();
 
 private:
-  TUniqueId x0_curCameraId;
-  rstl::vector< TUniqueId > x4_cineCameras;
-  rstl::list< CCameraShakeData > x14_shakers;
-  uint x2c_lastShakeId;
-  CVector3f x30_shakeOffset;
-  CGameArea::CAreaFog x3c_fog;
-  int x74_fluidCounter;
-  TUniqueId x78_fluidId;
-  CFirstPersonCamera* x7c_fpCamera;
-  CBallCamera* x80_ballCamera;
-  int x84_rumbleId;
-  CInterpolationCamera* x88_interpCamera;
+  TUniqueId mCurCameraId;
+  rstl::vector< TUniqueId > mCineCameras;
+  rstl::list< CCameraShakeData > mShakers;
+  uint mLastShakeId;
+  CVector3f mShakeOffset;
+  CGameArea::CAreaFog mFog;
+  int mFluidCounter;
+  TUniqueId mFluidId;
+  CFirstPersonCamera* mFpCamera;
+  CBallCamera* mBallCamera;
+  int mRumbleId;
+  CInterpolationCamera* mInterpCamera;
   short x8c_;
-  float x90_rumbleCooldown;
-  float x94_fogDensityFactor;
-  float x98_fogDensitySpeed;
-  float x9c_fogDensityFactorTarget;
-  bool xa0_24_pendingRumble : 1;
-  bool xa0_25_rumbling : 1;
-  bool xa0_26_inWater : 1;
+  float mRumbleCooldown;
+  float mFogDensityFactor;
+  float mFogDensitySpeed;
+  float mFogDensityFactorTarget;
+  bool mPendingRumble : 1;
+  bool mRumbling : 1;
+  bool mInWater : 1;
 
-  TUniqueId xa2_spindleCamId;
-  TUniqueId xa4_pathCamId;
-  TUniqueId xa6_camHintId;
-  int xa8_hintPriority;
-  rstl::reserved_vector< rstl::pair< int, TUniqueId >, 64 > xac_cameraHints;
-  rstl::reserved_vector< TUniqueId, 64 > x2b0_inactiveCameraHints;
-  rstl::reserved_vector< TUniqueId, 64 > x334_activeCameraHints;
+  TUniqueId mSpindleCamId;
+  TUniqueId mPathCamId;
+  TUniqueId mCamHintId;
+  int mHintPriority;
+  rstl::reserved_vector< rstl::pair< int, TUniqueId >, 64 > mCameraHints;
+  rstl::reserved_vector< TUniqueId, 64 > mInactiveCameraHints;
+  rstl::reserved_vector< TUniqueId, 64 > mActiveCameraHints;
   bool x3b8_24_ : 1;
   bool x3b8_25_ : 1;
-  float x3bc_curFov;
+  float mCurFov;
 };
 CHECK_SIZEOF(CCameraManager, 0x3c0)
 

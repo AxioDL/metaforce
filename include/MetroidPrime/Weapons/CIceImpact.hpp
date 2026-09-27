@@ -55,19 +55,19 @@ public:
 
 private:
   struct SImpactSphere {
-    CVector3f x0_pos;
-    float xc_maxRadius;
-    float x10_radiusStep;
-    float x14_radius;
-    float x18_previousRadius;
+    CVector3f mPos;
+    float mMaxRadius;
+    float mRadiusStep;
+    float mRadius;
+    float mPreviousRadius;
 
     SImpactSphere(const CVector3f& pos, float maxRadius, float radiusStep, float radius,
                   float previousRadius)
-    : x0_pos(pos)
-    , xc_maxRadius(maxRadius)
-    , x10_radiusStep(radiusStep)
-    , x14_radius(radius)
-    , x18_previousRadius(previousRadius) {}
+    : mPos(pos)
+    , mMaxRadius(maxRadius)
+    , mRadiusStep(radiusStep)
+    , mRadius(radius)
+    , mPreviousRadius(previousRadius) {}
   };
 
   rstl::optional_object< SImpactSphere > GenerateNewSphere();
@@ -83,20 +83,20 @@ private:
   bool SubdivideAndGenerateParticles(CStateManager& mgr, const CVector3f& v1, const CVector3f& v2,
                                      const CVector3f& v3, const CSphere& a, const CSphere& b);
 
-  rstl::single_ptr< CElementGen > xe8_elementGen;
-  TUniqueId xec_lightId;
-  CAssetId xf0_genAssetId;
-  float xf4_lifeTimer;
-  float xf8_latestDamageTime;
-  uint xfc_searchDirection;
-  float x100_halfBounds;
-  float x104_particleRemainder;
-  CSphere x108_sphereGenRange;
-  CMarkerGrid x118_grid;
-  rstl::reserved_vector< SImpactSphere, 3 > x540_impactSpheres;
-  bool x598_24_followPlayerArea : 1;
-  bool x598_25_hasRenderBounds : 1;
+  rstl::single_ptr< CElementGen > mElementGen;
+  TUniqueId mLightId;
+  CAssetId mGenAssetId;
+  float mLifeTimer;
+  float mLatestDamageTime;
+  uint mSearchDirection;
+  float mHalfBounds;
+  float mParticleRemainder;
+  CSphere mSphereGenRange;
+  CMarkerGrid mGrid;
+  rstl::reserved_vector< SImpactSphere, 3 > mImpactSpheres;
+  bool mFollowPlayerArea : 1;
+  bool mHasRenderBounds : 1;
 };
-CHECK_SIZEOF(CIceImpact, (VERSION >= VERSION_GM8P_00 ? 0x5b0 : 0x5a0))
+CHECK_SIZEOF(CIceImpact, (VERSION >= VERSION_GM8E_02 ? 0x5b0 : 0x5a0))
 
 #endif // _CICEIMPACT

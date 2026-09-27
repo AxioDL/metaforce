@@ -38,16 +38,16 @@ public:
   void Reset(CStateManager& mgr, bool deactivate);
   void UpdateFx(const CTransform4f& xf, float dt, CStateManager& mgr);
   const bool AreEffectsFinished() const;
-  const bool CanRenderAuxEffects() const { return x37c_24_renderAuxEffects; }
-  const bool IsFiring() const { return x37c_25_firing; }
+  const bool CanRenderAuxEffects() const { return mRenderAuxEffects; }
+  const bool IsFiring() const { return mFiring; }
 
 private:
   struct SSortedListEntry {
-    float x0_position;
-    int x4_remainingTime;
+    float mPosition;
+    int mRemainingTime;
     SSortedListEntry(float position, int remainingTime)
-    : x0_position(position), x4_remainingTime(remainingTime) {}
-    bool operator<(const SSortedListEntry& other) const { return x0_position < other.x0_position; }
+    : mPosition(position), mRemainingTime(remainingTime) {}
+    bool operator<(const SSortedListEntry& other) const { return mPosition < other.mPosition; }
   };
   enum EFlameState {
     kFS_Default,
@@ -74,37 +74,37 @@ private:
   void SetWorldDarkening(CStateManager& mgr, TAreaId area, float speed, float target);
   bool CanDamage(CActor& actor, CStateManager& mgr);
 
-  CRandom16 x2e8_rand;
-  float x2ec_particlesDoneTimer;
-  float x2f0_flamesDoneTimer;
-  rstl::optional_object< CVector3f > x2f4_lastParticleCollisionLoc;
-  TLockedToken< CGenDescription > x304_mainFire;
-  TLockedToken< CGenDescription > x310_mainSmoke;
-  TLockedToken< CGenDescription > x31c_secondarySmoke;
-  TLockedToken< CGenDescription > x328_secondaryFire;
-  TLockedToken< CGenDescription > x334_secondarySparks;
-  TLockedToken< CSwooshDescription > x340_swooshCenter;
-  TLockedToken< CSwooshDescription > x34c_swooshFire;
-  rstl::single_ptr< CElementGen > x358_mainFireGen;
-  rstl::single_ptr< CElementGen > x35c_mainSmokeGen;
-  rstl::single_ptr< CElementGen > x360_secondarySmokeGen;
-  rstl::single_ptr< CElementGen > x364_secondaryFireGen;
-  rstl::single_ptr< CElementGen > x368_secondarySparksGen;
-  rstl::single_ptr< CParticleSwoosh > x36c_swooshCenterGen;
-  rstl::single_ptr< CParticleSwoosh > x370_swooshFireGen;
-  EFlameState x374_flameState;
-  TAreaId x378_currentLitArea;
-  bool x37c_24_renderAuxEffects : 1;
-  bool x37c_25_firing : 1;
-  bool x37c_26_runningSlowish : 1;
-  bool x37c_27_newPointAdded : 1;
-  bool x37c_28_activeLighting : 1;
-  rstl::reserved_vector< rstl::vector< SSortedListEntry >, 3 > x380_flameContactPoints;
-  int x3b4_numSmokeParticlesSpawned;
-  rstl::reserved_vector< TUniqueId, 4 > x3b8_lightIds;
+  CRandom16 mRand;
+  float mParticlesDoneTimer;
+  float mFlamesDoneTimer;
+  rstl::optional_object< CVector3f > mLastParticleCollisionLoc;
+  TLockedToken< CGenDescription > mMainFire;
+  TLockedToken< CGenDescription > mMainSmoke;
+  TLockedToken< CGenDescription > mSecondarySmoke;
+  TLockedToken< CGenDescription > mSecondaryFire;
+  TLockedToken< CGenDescription > mSecondarySparks;
+  TLockedToken< CSwooshDescription > mSwooshCenter;
+  TLockedToken< CSwooshDescription > mSwooshFire;
+  rstl::single_ptr< CElementGen > mMainFireGen;
+  rstl::single_ptr< CElementGen > mMainSmokeGen;
+  rstl::single_ptr< CElementGen > mSecondarySmokeGen;
+  rstl::single_ptr< CElementGen > mSecondaryFireGen;
+  rstl::single_ptr< CElementGen > mSecondarySparksGen;
+  rstl::single_ptr< CParticleSwoosh > mSwooshCenterGen;
+  rstl::single_ptr< CParticleSwoosh > mSwooshFireGen;
+  EFlameState mFlameState;
+  TAreaId mCurrentLitArea;
+  bool mRenderAuxEffects : 1;
+  bool mFiring : 1;
+  bool mRunningSlowish : 1;
+  bool mNewPointAdded : 1;
+  bool mActiveLighting : 1;
+  rstl::reserved_vector< rstl::vector< SSortedListEntry >, 3 > mFlameContactPoints;
+  int mNumSmokeParticlesSpawned;
+  rstl::reserved_vector< TUniqueId, 4 > mLightIds;
 };
-CHECK_SIZEOF(CNewFlameThrower, (VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02 ? 0x3f0
-                                : VERSION >= VERSION_GM8P_00                             ? 0x3d8
+CHECK_SIZEOF(CNewFlameThrower, (VERSION >= VERSION_GM8P_00 ? 0x3f0
+                                : VERSION >= VERSION_GM8E_02                             ? 0x3d8
                                                                                          : 0x3c8))
 
 #endif // _CNEWFLAMETHROWER

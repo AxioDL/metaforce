@@ -8,8 +8,8 @@
 #include <string.h>
 
 CDolphinController::CDolphinController()
-: x1c4_validControllers(PAD_CHAN0_BIT | PAD_CHAN1_BIT | PAD_CHAN2_BIT | PAD_CHAN3_BIT)
-, x1c8_invalidControllers(0)
+: mValidControllers(PAD_CHAN0_BIT | PAD_CHAN1_BIT | PAD_CHAN2_BIT | PAD_CHAN3_BIT)
+, mInvalidControllers(0)
 , x1cc_(0) {
   static bool sIsInitialized = false;
   if (!sIsInitialized) {
@@ -33,15 +33,15 @@ CDolphinController::~CDolphinController() {}
 
 bool CDolphinController::Initialize() {
   GBAInit();
-  memset(x4_status, 0, sizeof(PADStatus) * 4);
+  memset(mStatus, 0, sizeof(PADStatus) * 4);
   for (uint i = 0; i < 4; ++i) {
-    x34_gamepadStates[i].SetDeviceIsPresent(false);
-    x194_motorStates[i] = kMS_StopHard;
-    x1b4_controllerTypePollTime[i] = 0;
-    x1a4_controllerTypes[i] = skTypeUnknown;
+    mGamepadStates[i].SetDeviceIsPresent(false);
+    mMotorStates[i] = kMS_StopHard;
+    mControllerTypePollTime[i] = 0;
+    mControllerTypes[i] = skTypeUnknown;
   }
 
-  PADControlAllMotors((const u32*)x194_motorStates);
+  PADControlAllMotors((const u32*)mMotorStates);
   Poll();
   return true;
 }
@@ -56,53 +56,53 @@ void CDolphinController::ReadDevices() {
   PADRead(status);
   if (status[0].err == PAD_ERR_NONE) {
     PADClamp(status);
-    memcpy(x4_status, status, sizeof(PADStatus) * 4);
+    memcpy(mStatus, status, sizeof(PADStatus) * 4);
   } else {
     for (int i = 0; i < 4; ++i) {
-      x4_status[i].err = status[i].err;
+      mStatus[i].err = status[i].err;
     }
   }
 
   for (int i = 0; i < 4; ++i) {
     uint controller = (PAD_CHAN0_BIT >> i);
-    if (x4_status[i].err != PAD_ERR_NOT_READY) {
-      if (x4_status[i].err == PAD_ERR_NONE) {
-        x34_gamepadStates[i].SetDeviceIsPresent(true);
-      } else if (x4_status[i].err == PAD_ERR_NO_CONTROLLER) {
-        x1c8_invalidControllers |= controller;
-        x34_gamepadStates[i].SetDeviceIsPresent(false);
+    if (mStatus[i].err != PAD_ERR_NOT_READY) {
+      if (mStatus[i].err == PAD_ERR_NONE) {
+        mGamepadStates[i].SetDeviceIsPresent(true);
+      } else if (mStatus[i].err == PAD_ERR_NO_CONTROLLER) {
+        mInvalidControllers |= controller;
+        mGamepadStates[i].SetDeviceIsPresent(false);
       }
     }
 
-    if (x1b4_controllerTypePollTime[i] != 0) {
-      --x1b4_controllerTypePollTime[i];
+    if (mControllerTypePollTime[i] != 0) {
+      --mControllerTypePollTime[i];
     } else {
       const uint type = SIProbe(i);
       if ((type & (SI_ERROR_NO_RESPONSE | SI_ERROR_UNKNOWN | SI_ERROR_BUSY)) != 0) {
-        if (x1b4_controllerTypePollTime[i] == 0) {
-          x1a4_controllerTypes[i] = skTypeUnknown;
+        if (mControllerTypePollTime[i] == 0) {
+          mControllerTypes[i] = skTypeUnknown;
         }
       } else {
-        x1b4_controllerTypePollTime[i] = 60;
+        mControllerTypePollTime[i] = 60;
         if (type == SI_GC_WAVEBIRD) {
-          x1a4_controllerTypes[i] = skTypeWavebird;
+          mControllerTypes[i] = skTypeWavebird;
         } else if (type == SI_GBA) {
-          x1a4_controllerTypes[i] = skTypeGBA;
+          mControllerTypes[i] = skTypeGBA;
         } else if (type == SI_GC_CONTROLLER) {
-          x1a4_controllerTypes[i] = skTypeStandard;
+          mControllerTypes[i] = skTypeStandard;
         }
       }
     }
   }
 
-  if (x1c8_invalidControllers != 0 && PADReset(x1c8_invalidControllers)) {
-    x1c8_invalidControllers = 0;
+  if (mInvalidControllers != 0 && PADReset(mInvalidControllers)) {
+    mInvalidControllers = 0;
   }
 }
 
 void CDolphinController::ProcessInputData() {
   for (int i = 0; i < 4; ++i) {
-    if (x34_gamepadStates[i].DeviceIsPresent()) {
+    if (mGamepadStates[i].DeviceIsPresent()) {
       ProcessAxis(i, kJA_LeftX);
       ProcessAxis(i, kJA_LeftY);
       ProcessAxis(i, kJA_RightX);
@@ -114,21 +114,21 @@ void CDolphinController::ProcessInputData() {
 
 void CDolphinController::ProcessAxis(int controller, EJoyAxis axis) {
   const float maxAxisValue = 1.f / GetAnalogStickMaxValue(axis);
-  CControllerAxis& data = x34_gamepadStates[controller].GetAxis(axis);
+  CControllerAxis& data = mGamepadStates[controller].GetAxis(axis);
 
   float axisValue = 0.f;
   switch (axis) {
   case kJA_LeftX:
-    axisValue = x4_status[controller].stickX;
+    axisValue = mStatus[controller].stickX;
     break;
   case kJA_LeftY:
-    axisValue = x4_status[controller].stickY;
+    axisValue = mStatus[controller].stickY;
     break;
   case kJA_RightX:
-    axisValue = x4_status[controller].substickX;
+    axisValue = mStatus[controller].substickX;
     break;
   case kJA_RightY:
-    axisValue = x4_status[controller].substickY;
+    axisValue = mStatus[controller].substickY;
     break;
   default:
     break;
@@ -159,19 +159,19 @@ static ushort mButtonMapping[size_t(kBU_MAX)] = {
 
 void CDolphinController::ProcessButtons(int controller) {
   for (int i = 0; i < int(kBU_MAX); ++i) {
-    ProcessDigitalButton(controller, x34_gamepadStates[controller].GetButton(EButton(i)),
+    ProcessDigitalButton(controller, mGamepadStates[controller].GetButton(EButton(i)),
                          mButtonMapping[i]);
   }
 
-  ProcessAnalogButton(x4_status[controller].triggerLeft,
-                      x34_gamepadStates[controller].GetAnalogButton(kBA_Left));
-  ProcessAnalogButton(x4_status[controller].triggerRight,
-                      x34_gamepadStates[controller].GetAnalogButton(kBA_Right));
+  ProcessAnalogButton(mStatus[controller].triggerLeft,
+                      mGamepadStates[controller].GetAnalogButton(kBA_Left));
+  ProcessAnalogButton(mStatus[controller].triggerRight,
+                      mGamepadStates[controller].GetAnalogButton(kBA_Right));
 }
 
 void CDolphinController::ProcessDigitalButton(int controller, CControllerButton& button,
                                               ushort mapping) {
-  bool btnPressed = (x4_status[controller].button & mapping);
+  bool btnPressed = (mStatus[controller].button & mapping);
   button.SetPressEvent(PADButtonDown(button.GetIsPressed(), btnPressed));
   button.SetReleaseEvent(PADButtonUp(button.GetIsPressed(), btnPressed));
   button.SetIsPressed(btnPressed);
@@ -195,16 +195,16 @@ void CDolphinController::ProcessAnalogButton(float value, CControllerAxis& axis)
 uint CDolphinController::GetDeviceCount() const { return 4; }
 
 CControllerGamepadData& CDolphinController::GetGamepadData(int controller) {
-  return x34_gamepadStates[controller];
+  return mGamepadStates[controller];
 }
 
 uint CDolphinController::GetControllerType(int controller) const {
-  return x1a4_controllerTypes[controller];
+  return mControllerTypes[controller];
 }
 
 void CDolphinController::SetMotorState(EIOPort port, EMotorState state) {
-  x194_motorStates[port] = state;
-  PADControlAllMotors((const u32*)x194_motorStates);
+  mMotorStates[port] = state;
+  PADControlAllMotors((const u32*)mMotorStates);
 }
 
 float CDolphinController::GetAnalogStickMaxValue(EJoyAxis axis) const {

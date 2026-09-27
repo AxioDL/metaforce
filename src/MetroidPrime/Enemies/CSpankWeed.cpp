@@ -32,21 +32,21 @@ CSpankWeed::CSpankWeed(const TUniqueId uid, const rstl::string& name, const CEnt
                        const float maxSightRange, const float hideTime)
 : CPatterned(kC_SpankWeed, uid, name, kFT_Zero, info, xf, mData, pInfo, kMT_Flyer, kCT_One,
              kBT_Restricted, actParms, kCS_Medium)
-, x568_maxDetectionRange(maxDetectionRange)
-, x56c_detectionHeightRange(pInfo.GetDetectionHeightRange())
-, x570_maxHearingRange(maxHearingRange)
-, x574_maxSightRange(maxSightRange)
-, x578_hideTime(hideTime)
-, x57c_canKnockBack(false)
+, mMaxDetectionRange(maxDetectionRange)
+, mDetectionHeightRange(pInfo.GetDetectionHeightRange())
+, mMaxHearingRange(maxHearingRange)
+, mMaxSightRange(maxSightRange)
+, mHideTime(hideTime)
+, mCanKnockBack(false)
 , x580_(0.f)
-, x584_retreatOrigin(xf.GetTranslation())
+, mRetreatOrigin(xf.GetTranslation())
 , x590_(kInvalidUniqueId)
-, x598_isHiding(true)
-, x59c_lockonOffset(CVector3f::Zero())
-, x5a8_lockonTarget(CVector3f::Zero())
-, x5b4_state(-1)
-, x5b8_previousState(-1)
-, x5bc_animPhase(-1) {
+, mIsHiding(true)
+, mLockonOffset(CVector3f::Zero())
+, mLockonTarget(CVector3f::Zero())
+, mState(-1)
+, mPreviousState(-1)
+, mAnimPhase(-1) {
   SetCallTouch(false);
   SetDrawShadow(false);
 
@@ -81,8 +81,8 @@ CSpankWeed::CSpankWeed(const TUniqueId uid, const rstl::string& name, const CEnt
     const CTransform4f locatorXf = GetAnimationData()->GetLocatorTransform(segId, nullptr);
     const CVector3f& scale = CVector3f(GetModelData()->GetScale());
     const CTransform4f scaledXf = GetTransform() * (CTransform4f::Scale(scale) * locatorXf);
-    x5a8_lockonTarget = scaledXf.GetTranslation();
-    x59c_lockonOffset = scaledXf.GetTranslation() - GetTranslation();
+    mLockonTarget = scaledXf.GetTranslation();
+    mLockonOffset = scaledXf.GetTranslation() - GetTranslation();
   }
 
   KnockBackCtrl().SetAutoResetImpulse(false);
@@ -94,8 +94,8 @@ void CSpankWeed::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CState
   bool oldActive = GetActive();
   switch (msg) {
   case kSM_Registered: {
-    if (!x450_bodyController->GetIsActive()) {
-      x450_bodyController->Activate(mgr);
+    if (!mBodyController->GetIsActive()) {
+      mBodyController->Activate(mgr);
       const CAABox box = GetBoundingBox();
       const float halfWidth = 0.5f * box.GetWidth();
       const float halfDepth = 0.5f * box.GetDepth();
@@ -114,12 +114,12 @@ void CSpankWeed::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CState
           joints.push_back(desc);
         }
       }
-      x594_collisionMgr = rs_new CCollisionActorManager(mgr, GetUniqueId(), GetCurrentAreaId(),
+      mCollisionMgr = rs_new CCollisionActorManager(mgr, GetUniqueId(), GetCurrentAreaId(),
                                                         joints, GetActive());
       CMaterialList list;
       list.Add(CMaterialList(kMT_CameraPassthrough));
       list.Add(CMaterialList(kMT_Immovable));
-      x594_collisionMgr->AddMaterial(mgr, list);
+      mCollisionMgr->AddMaterial(mgr, list);
     }
     if (HasActorLights())
       ActorLights()->SetNeedsRelight(true);
@@ -134,12 +134,12 @@ void CSpankWeed::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CState
       const TUniqueId touchedId = colAct->GetLastTouchedObject();
       CEntity* playerObj = mgr.ObjectById(touchedId);
       if (CPlayer* player = TCastToPtr< CPlayer >(playerObj)) {
-        if (x420_curDamageRemTime <= 0.f && x5b4_state != 4 && x5b4_state != 6) {
+        if (mCurDamageRemTime <= 0.f && mState != 4 && mState != 6) {
           mgr.ApplyDamage(
               GetUniqueId(), player->GetUniqueId(), GetUniqueId(), GetContactDamage(),
               CMaterialFilter::MakeIncludeExclude(CMaterialList(SolidMaterial), CMaterialList()),
               CVector3f::Zero());
-          x420_curDamageRemTime = x424_damageWaitTime;
+          mCurDamageRemTime = mDamageWaitTime;
         }
       }
     }
@@ -147,40 +147,40 @@ void CSpankWeed::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CState
   }
   case kSM_Deleted:
     mgr.DeleteObjectRequest(x590_);
-    x594_collisionMgr->Destroy(mgr);
+    mCollisionMgr->Destroy(mgr);
     break;
   case kSM_Activate:
     if (HasActorLights())
       ActorLights()->SetNeedsRelight(true);
     break;
   case kSM_Decrement:
-    if (x5b4_state != 0 && x5b4_state != 5 && x5b4_state != 6 && x5b4_state != 4) {
+    if (mState != 0 && mState != 5 && mState != 6 && mState != 4) {
       SetWasHit(true);
-      x428_damageCooldownTimer = x424_damageWaitTime;
+      mDamageCooldownTimer = mDamageWaitTime;
     }
     break;
   case kSM_SuspendedMove:
-    if (x594_collisionMgr.get())
-      x594_collisionMgr->SetMovable(mgr, false);
+    if (mCollisionMgr.get())
+      mCollisionMgr->SetMovable(mgr, false);
     break;
   }
   CPatterned::AcceptScriptMsg(msg, uid, mgr);
   const bool active = GetActive();
-  if (oldActive != active && x594_collisionMgr.get())
-    x594_collisionMgr->SetActive(mgr, active);
+  if (oldActive != active && mCollisionMgr.get())
+    mCollisionMgr->SetActive(mgr, active);
 }
 
 void CSpankWeed::Think(float dt, CStateManager& mgr) {
   if (!GetActive())
     return;
   HealthInfo(mgr)->SetHP(1000000.f);
-  if (!x598_isHiding) {
+  if (!mIsHiding) {
     const CVector3f scale = GetModelData()->GetScale();
     const CVector3f eyeOrigin = GetLocatorTransform(rstl::string_l("Eye")).GetTranslation();
     CVector3f offset = CVector3f::ByElementMultiply(scale, eyeOrigin);
     offset = GetTransform().Rotate(offset);
     MoveCollisionPrimitive(offset);
-    x594_collisionMgr->Update(dt, mgr, CCollisionActorManager::kUO_ObjectSpace);
+    mCollisionMgr->Update(dt, mgr, CCollisionActorManager::kUO_ObjectSpace);
     SetTransformDirty(true);
   }
   CPatterned::Think(dt, mgr);
@@ -188,30 +188,30 @@ void CSpankWeed::Think(float dt, CStateManager& mgr) {
 
 void CSpankWeed::KnockBack(const CVector3f& backVec, CStateManager& mgr, const CDamageInfo& info,
                            float magnitude, bool direct, const bool inDeferred) {
-  if (x57c_canKnockBack) {
+  if (mCanKnockBack) {
     CPatterned::KnockBack(backVec, mgr, info, magnitude, direct, inDeferred);
-    x57c_canKnockBack = false;
+    mCanKnockBack = false;
   }
 }
 
 void CSpankWeed::Patrol(CStateManager& mgr, EStateMsg msg, float arg) {
   switch (msg) {
   case kStateMsg_Activate:
-    x460_knockBackController.SetEnableFreeze(false);
-    x450_bodyController->SetLocomotionType(pas::kLT_Relaxed);
+    mKnockBackController.SetEnableFreeze(false);
+    mBodyController->SetLocomotionType(pas::kLT_Relaxed);
     RemoveMaterial(kMT_Solid, kMT_Scannable, mgr);
     RemoveMaterial(kMT_Orbit, kMT_Target, mgr);
-    x594_collisionMgr->SetActive(mgr, false);
-    x598_isHiding = true;
-    x5b4_state = 0;
+    mCollisionMgr->SetActive(mgr, false);
+    mIsHiding = true;
+    mState = 0;
     break;
   case kStateMsg_Deactivate:
     AddMaterial(kMT_Orbit, kMT_Target, kMT_Scannable, mgr);
-    SetTranslation(x584_retreatOrigin);
-    x594_collisionMgr->SetActive(mgr, true);
-    x598_isHiding = false;
-    x460_knockBackController.SetEnableFreeze(true);
-    x5b8_previousState = 0;
+    SetTranslation(mRetreatOrigin);
+    mCollisionMgr->SetActive(mgr, true);
+    mIsHiding = false;
+    mKnockBackController.SetEnableFreeze(true);
+    mPreviousState = 0;
     break;
   }
 }
@@ -219,27 +219,27 @@ void CSpankWeed::Patrol(CStateManager& mgr, EStateMsg msg, float arg) {
 void CSpankWeed::FadeIn(CStateManager& mgr, EStateMsg msg, float arg) {
   switch (msg) {
   case kStateMsg_Activate:
-    x5bc_animPhase = 0;
-    x57c_canKnockBack = true;
-    x5b4_state = 5;
+    mAnimPhase = 0;
+    mCanKnockBack = true;
+    mState = 5;
     break;
   case kStateMsg_Update:
-    switch (x5bc_animPhase) {
+    switch (mAnimPhase) {
     case 0:
-      if (x450_bodyController->GetCurrentStateId() == pas::kAS_Step)
-        x5bc_animPhase = 2;
+      if (mBodyController->GetCurrentStateId() == pas::kAS_Step)
+        mAnimPhase = 2;
       else
-        x450_bodyController->CommandMgr().DeliverCmd(
+        mBodyController->CommandMgr().DeliverCmd(
             CBCStepCmd(pas::kSD_Forward, pas::kStep_Normal));
       break;
     case 2:
-      if (x450_bodyController->GetCurrentStateId() != pas::kAS_Step)
-        x5bc_animPhase = 3;
+      if (mBodyController->GetCurrentStateId() != pas::kAS_Step)
+        mAnimPhase = 3;
       break;
     }
     break;
   case kStateMsg_Deactivate:
-    x5b8_previousState = 5;
+    mPreviousState = 5;
     break;
   }
   SetWorldLightingDirty(true);
@@ -248,27 +248,27 @@ void CSpankWeed::FadeIn(CStateManager& mgr, EStateMsg msg, float arg) {
 void CSpankWeed::FadeOut(CStateManager& mgr, EStateMsg msg, float arg) {
   switch (msg) {
   case kStateMsg_Activate:
-    x5bc_animPhase = 0;
-    x57c_canKnockBack = false;
-    x5b4_state = 6;
+    mAnimPhase = 0;
+    mCanKnockBack = false;
+    mState = 6;
     break;
   case kStateMsg_Update:
-    switch (x5bc_animPhase) {
+    switch (mAnimPhase) {
     case 0:
-      if (x450_bodyController->GetCurrentStateId() == pas::kAS_Step)
-        x5bc_animPhase = 2;
+      if (mBodyController->GetCurrentStateId() == pas::kAS_Step)
+        mAnimPhase = 2;
       else
-        x450_bodyController->CommandMgr().DeliverCmd(
+        mBodyController->CommandMgr().DeliverCmd(
             CBCStepCmd(pas::kSD_Backward, pas::kStep_Normal));
       break;
     case 2:
-      if (x450_bodyController->GetCurrentStateId() != pas::kAS_Step)
-        x5bc_animPhase = 3;
+      if (mBodyController->GetCurrentStateId() != pas::kAS_Step)
+        mAnimPhase = 3;
       break;
     }
     break;
   case kStateMsg_Deactivate:
-    x5b8_previousState = 6;
+    mPreviousState = 6;
     break;
   }
 }
@@ -276,13 +276,13 @@ void CSpankWeed::FadeOut(CStateManager& mgr, EStateMsg msg, float arg) {
 void CSpankWeed::Lurk(CStateManager& mgr, EStateMsg msg, float arg) {
   switch (msg) {
   case kStateMsg_Activate:
-    x460_knockBackController.SetEnableFreeze(true);
-    x450_bodyController->SetLocomotionType(pas::kLT_Lurk);
+    mKnockBackController.SetEnableFreeze(true);
+    mBodyController->SetLocomotionType(pas::kLT_Lurk);
     RemoveMaterial(kMT_Solid, mgr);
-    x5b4_state = 1;
+    mState = 1;
     break;
   case kStateMsg_Deactivate:
-    x5b8_previousState = 1;
+    mPreviousState = 1;
     break;
   }
 }
@@ -290,12 +290,12 @@ void CSpankWeed::Lurk(CStateManager& mgr, EStateMsg msg, float arg) {
 void CSpankWeed::TargetPatrol(CStateManager& mgr, EStateMsg msg, float arg) {
   switch (msg) {
   case kStateMsg_Activate:
-    x450_bodyController->SetLocomotionType(pas::kLT_Combat);
+    mBodyController->SetLocomotionType(pas::kLT_Combat);
     RemoveMaterial(kMT_Solid, mgr);
-    x5b4_state = 2;
+    mState = 2;
     break;
   case kStateMsg_Deactivate:
-    x5b8_previousState = 2;
+    mPreviousState = 2;
     break;
   }
 }
@@ -303,52 +303,52 @@ void CSpankWeed::TargetPatrol(CStateManager& mgr, EStateMsg msg, float arg) {
 void CSpankWeed::Attack(CStateManager& mgr, EStateMsg msg, float arg) {
   switch (msg) {
   case kStateMsg_Activate:
-    x450_bodyController->CommandMgr().DeliverCmd(CBCMeleeAttackCmd(pas::kS_Zero));
-    x5b4_state = 3;
+    mBodyController->CommandMgr().DeliverCmd(CBCMeleeAttackCmd(pas::kS_Zero));
+    mState = 3;
     break;
   case kStateMsg_Update:
-    if (x450_bodyController->GetCurrentStateId() != pas::kAS_MeleeAttack)
-      x450_bodyController->CommandMgr().DeliverCmd(CBCMeleeAttackCmd(pas::kS_Zero));
+    if (mBodyController->GetCurrentStateId() != pas::kAS_MeleeAttack)
+      mBodyController->CommandMgr().DeliverCmd(CBCMeleeAttackCmd(pas::kS_Zero));
     break;
   case kStateMsg_Deactivate:
-    x5b8_previousState = 3;
+    mPreviousState = 3;
     break;
   }
 }
 
 bool CSpankWeed::InDetectionRange(CStateManager& mgr, float arg) {
   float playerDist = GetPlayerDistance(mgr);
-  if (x56c_detectionHeightRange > 0.f) {
+  if (mDetectionHeightRange > 0.f) {
     const CVector3f playerPos = mgr.GetPlayer()->GetTranslation();
-    return CMath::AbsF(playerPos.GetZ() - GetTranslation().GetZ()) < x56c_detectionHeightRange &&
-           playerDist < x568_maxDetectionRange * x568_maxDetectionRange;
+    return CMath::AbsF(playerPos.GetZ() - GetTranslation().GetZ()) < mDetectionHeightRange &&
+           playerDist < mMaxDetectionRange * mMaxDetectionRange;
   }
-  return playerDist < x568_maxDetectionRange * x568_maxDetectionRange;
+  return playerDist < mMaxDetectionRange * mMaxDetectionRange;
 }
 
 bool CSpankWeed::HearPlayer(CStateManager& mgr, float arg) {
   float playerDist = GetPlayerDistance(mgr);
-  if (x56c_detectionHeightRange > 0.f) {
+  if (mDetectionHeightRange > 0.f) {
     const CVector3f playerPos = mgr.GetPlayer()->GetTranslation();
-    return CMath::AbsF(playerPos.GetZ() - GetTranslation().GetZ()) < x56c_detectionHeightRange &&
-           playerDist < x570_maxHearingRange * x570_maxHearingRange;
+    return CMath::AbsF(playerPos.GetZ() - GetTranslation().GetZ()) < mDetectionHeightRange &&
+           playerDist < mMaxHearingRange * mMaxHearingRange;
   }
-  return playerDist < x570_maxHearingRange * x570_maxHearingRange;
+  return playerDist < mMaxHearingRange * mMaxHearingRange;
 }
 
 bool CSpankWeed::InRange(CStateManager& mgr, float arg) {
   float playerDist = GetPlayerDistance(mgr);
-  if (x56c_detectionHeightRange > 0.f) {
+  if (mDetectionHeightRange > 0.f) {
     const CVector3f playerPos = mgr.GetPlayer()->GetTranslation();
-    return CMath::AbsF(playerPos.GetZ() - GetTranslation().GetZ()) < x56c_detectionHeightRange &&
-           playerDist < x574_maxSightRange * x574_maxSightRange;
+    return CMath::AbsF(playerPos.GetZ() - GetTranslation().GetZ()) < mDetectionHeightRange &&
+           playerDist < mMaxSightRange * mMaxSightRange;
   }
-  return playerDist < x574_maxSightRange * x574_maxSightRange;
+  return playerDist < mMaxSightRange * mMaxSightRange;
 }
 
 bool CSpankWeed::Delay(CStateManager& mgr, float arg) {
   if (GetWasHit()) {
-    if (x330_stateMachineState.GetTime() > x578_hideTime) {
+    if (mStateMachineState.GetTime() > mHideTime) {
       SetWasHit(false);
       return true;
     }
@@ -360,27 +360,27 @@ bool CSpankWeed::Delay(CStateManager& mgr, float arg) {
 void CSpankWeed::Flinch(CStateManager& mgr, EStateMsg msg, float arg) {
   switch (msg) {
   case kStateMsg_Activate:
-    x5bc_animPhase = 0;
-    x5b4_state = 4;
+    mAnimPhase = 0;
+    mState = 4;
     RemoveMaterial(kMT_Orbit, kMT_Target, mgr);
     break;
   case kStateMsg_Update:
-    switch (x5bc_animPhase) {
+    switch (mAnimPhase) {
     case 0:
-      if (x450_bodyController->GetCurrentStateId() == pas::kAS_KnockBack)
-        x5bc_animPhase = 2;
+      if (mBodyController->GetCurrentStateId() == pas::kAS_KnockBack)
+        mAnimPhase = 2;
       else
-        x450_bodyController->CommandMgr().DeliverCmd(
+        mBodyController->CommandMgr().DeliverCmd(
             CBCKnockBackCmd(CVector3f::Zero(), pas::kS_Zero));
       break;
     case 2:
-      if (x450_bodyController->GetCurrentStateId() != pas::kAS_KnockBack)
-        x5bc_animPhase = 3;
+      if (mBodyController->GetCurrentStateId() != pas::kAS_KnockBack)
+        mAnimPhase = 3;
       break;
     }
     break;
   case kStateMsg_Deactivate:
-    x5b8_previousState = 4;
+    mPreviousState = 4;
     break;
   }
 }
@@ -405,20 +405,20 @@ CVector3f CSpankWeed::GetAimPosition(const CStateManager& mgr, float dt) const {
 CVector3f CSpankWeed::GetOrbitPosition(const CStateManager& mgr) const {
   CVector3f ret = CPatterned::GetOrbitPosition(mgr);
   const float maxTime = 1.f;
-  float time = rstl::min_val(x330_stateMachineState.GetTime(), maxTime);
-  CVector3f target = GetTranslation() + x59c_lockonOffset;
-  if (x5b4_state == 3 && x5b8_previousState == 2)
+  float time = rstl::min_val(mStateMachineState.GetTime(), maxTime);
+  CVector3f target = GetTranslation() + mLockonOffset;
+  if (mState == 3 && mPreviousState == 2)
     return CVector3f::Lerp(ret, target, time);
-  else if (x5b4_state == 2 && x5b8_previousState == 3)
+  else if (mState == 2 && mPreviousState == 3)
     return CVector3f::Lerp(target, ret, time);
   return ret;
 }
 
 float CSpankWeed::GetPlayerDistance(CStateManager& mgr) const {
-  return (mgr.GetPlayer()->GetTranslation() - x5a8_lockonTarget).MagSquared();
+  return (mgr.GetPlayer()->GetTranslation() - mLockonTarget).MagSquared();
 }
 
-bool CSpankWeed::AnimOver(CStateManager& mgr, float arg) { return x5bc_animPhase == 3; }
+bool CSpankWeed::AnimOver(CStateManager& mgr, float arg) { return mAnimPhase == 3; }
 
 bool CSpankWeed::Attacked(CStateManager& mgr, float arg) { return CPatterned::Attacked(mgr, arg); }
 

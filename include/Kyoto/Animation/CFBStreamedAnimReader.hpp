@@ -17,24 +17,24 @@ class TAnimSourceInfo : public IAnimSourceInfo {
 public:
   ~TAnimSourceInfo() override {}
 
-  TAnimSourceInfo(const TSubAnimTypeToken< T >& source) : x4_source(source) {}
-  bool HasPOIData() const override { return x4_source->HasPOIData(); }
+  TAnimSourceInfo(const TSubAnimTypeToken< T >& source) : mSource(source) {}
+  bool HasPOIData() const override { return mSource->HasPOIData(); }
   const rstl::vector< CBoolPOINode >& GetBoolPOIStream() const override {
-    return x4_source->GetBoolPOIStream();
+    return mSource->GetBoolPOIStream();
   }
   const rstl::vector< CInt32POINode >& GetInt32POIStream() const override {
-    return x4_source->GetInt32POIStream();
+    return mSource->GetInt32POIStream();
   }
   const rstl::vector< CParticlePOINode >& GetParticlePOIStream() const override {
-    return x4_source->GetParticlePOIStream();
+    return mSource->GetParticlePOIStream();
   }
   const rstl::vector< CSoundPOINode >& GetSoundPOIStream() const override {
-    return x4_source->GetSoundPOIStream();
+    return mSource->GetSoundPOIStream();
   }
-  CCharAnimTime GetAnimationDuration() const override { return x4_source->GetAnimationDuration(); }
+  CCharAnimTime GetAnimationDuration() const override { return mSource->GetAnimationDuration(); }
 
 private:
-  TSubAnimTypeToken< T > x4_source;
+  TSubAnimTypeToken< T > mSource;
 };
 
 class CFBStreamedAnimReaderTotals {
@@ -45,32 +45,32 @@ public:
   void SetToReadStart(const CFBStreamedCompression& source);
   void IncrementInto(CBitLevelLoader< CMemoryInputToBitLevelLoader >& loader,
                      const CFBStreamedCompression& source, CFBStreamedAnimReaderTotals& out);
-  uint GetFrameNumber() const { return x1c_curKey; }
-  uint NumEntries() const { return x24_boneChanCount; }
-  uint GetSegId(uint index) const { return xc_segIds[index]; }
-  bool HasOffset(uint index) const { return x8_hasTrans[index]; }
-  bool AmCalculatedDown() const { return x20_calculated; }
+  uint GetFrameNumber() const { return mCurKey; }
+  uint NumEntries() const { return mBoneChanCount; }
+  uint GetSegId(uint index) const { return mSegIds[index]; }
+  bool HasOffset(uint index) const { return mHasTrans[index]; }
+  bool AmCalculatedDown() const { return mCalculated; }
   const CQuaternion& GetQuat(uint index) const {
-    return *reinterpret_cast< const CQuaternion* >(x10_computedFloats + index * 8);
+    return *reinterpret_cast< const CQuaternion* >(mComputedFloats + index * 8);
   }
   const CVector3f& GetVector(uint index) const {
     uint offset = index * 8 + 4;
-    return *reinterpret_cast< const CVector3f* >(x10_computedFloats + offset);
+    return *reinterpret_cast< const CVector3f* >(mComputedFloats + offset);
   }
 
 private:
   void Allocate(uint channelCount);
 
-  uchar* x0_buffer;
-  short* x4_cumulativeInts;
-  bool* x8_hasTrans;
-  short* xc_segIds;
-  float* x10_computedFloats;
-  uint x14_rotDiv;
-  float x18_transMult;
-  uint x1c_curKey;
-  bool x20_calculated;
-  uint x24_boneChanCount;
+  uchar* mBuffer;
+  short* mCumulativeInts;
+  bool* mHasTrans;
+  short* mSegIds;
+  float* mComputedFloats;
+  uint mRotDiv;
+  float mTransMult;
+  uint mCurKey;
+  bool mCalculated;
+  uint mBoneChanCount;
 };
 CHECK_SIZEOF(CFBStreamedAnimReaderTotals, 0x28)
 
@@ -81,18 +81,18 @@ public:
   CFBFullBodyAspectsForStream(const CFBKeyFrameReductionPerChannel_HeaderForAll& header,
                               const CTimeRemainderAndFraction& time, const CCharAnimTime& duration);
   void SetTime(const CTimeRemainderAndFraction& time);
-  uint GetPrevIndex() const { return x18_priorKey; }
-  float GetT() const { return x14_t; }
+  uint GetPrevIndex() const { return mPriorKey; }
+  float GetT() const { return mT; }
 
 private:
-  const CFBKeyFrameReductionPerChannel_HeaderForAll* x0_header;
-  uint x4_priorFrame;
-  uint x8_nextFrame;
-  uint xc_lastFrame;
-  float x10_sampleTime;
-  float x14_t;
-  uint x18_priorKey;
-  uint x1c_nextKey;
+  const CFBKeyFrameReductionPerChannel_HeaderForAll* mHeader;
+  uint mPriorFrame;
+  uint mNextFrame;
+  uint mLastFrame;
+  float mSampleTime;
+  float mT;
+  uint mPriorKey;
+  uint mNextKey;
 };
 CHECK_SIZEOF(CFBFullBodyAspectsForStream, 0x20)
 
@@ -104,16 +104,16 @@ public:
                CBitLevelLoader< CMemoryInputToBitLevelLoader >& loader, const CCharAnimTime& time);
   void DoIncrement(CBitLevelLoader< CMemoryInputToBitLevelLoader >& loader);
   float GetT() const;
-  CFBStreamedAnimReaderTotals& Prior() { return x10_nextSel ? x14_a : x3c_b; }
-  CFBStreamedAnimReaderTotals& Next() { return x10_nextSel ? x3c_b : x14_a; }
+  CFBStreamedAnimReaderTotals& Prior() { return mNextSel ? mA : mB; }
+  CFBStreamedAnimReaderTotals& Next() { return mNextSel ? mB : mA; }
 
 private:
-  TSubAnimTypeToken< CFBStreamedCompression > x0_source;
-  bool x10_nextSel;
-  CFBStreamedAnimReaderTotals x14_a;
-  CFBStreamedAnimReaderTotals x3c_b;
-  CFBFullBodyAspectsForStream x64_aspects;
-  uint x84_curKey;
+  TSubAnimTypeToken< CFBStreamedCompression > mSource;
+  bool mNextSel;
+  CFBStreamedAnimReaderTotals mA;
+  CFBStreamedAnimReaderTotals mB;
+  CFBFullBodyAspectsForStream mAspects;
+  uint mCurKey;
 };
 CHECK_SIZEOF(CFBStreamedPairOfTotals, 0x88)
 
@@ -122,30 +122,30 @@ class CMemoryInputToBitLevelLoader {
 
 public:
 #if NONMATCHING
-  CMemoryInputToBitLevelLoader(const uint* data) : x0_data(reinterpret_cast< const uchar* >(data)) {}
+  CMemoryInputToBitLevelLoader(const uint* data) : mData(reinterpret_cast< const uchar* >(data)) {}
 #else
   CMemoryInputToBitLevelLoader(const uint* data)
-  : x0_data(reinterpret_cast< const uchar* >(data) - sizeof(uint)) {}
+  : mData(reinterpret_cast< const uchar* >(data) - sizeof(uint)) {}
 #endif
 
 private:
-  const uchar* x0_data;
+  const uchar* mData;
 };
 CHECK_SIZEOF(CMemoryInputToBitLevelLoader, 0x4)
 
 template < typename T >
 class CBitLevelLoader {
 public:
-  CBitLevelLoader(T& input) : x0_input(&input), x4_word(Input(*x0_input)), x8_bit(0) {}
+  CBitLevelLoader(T& input) : mInput(&input), mWord(Input(*mInput)), mBit(0) {}
   uint LoadUnsigned(uint bits);
   int LoadSigned(uint bits);
 
 private:
   static uint Input(T& input);
 
-  T* x0_input;
-  uint x4_word;
-  uint x8_bit;
+  T* mInput;
+  uint mWord;
+  uint mBit;
 };
 
 template < typename T >
@@ -155,21 +155,21 @@ NTSC_INLINE uint CBitLevelLoader< T >::LoadUnsigned(uint bits) {
   uint shift = 0;
   while (remaining != 0) {
 #if NONMATCHING
-    if (x8_bit == 32) {
-      x8_bit = 0;
-      x4_word = Input(*x0_input);
+    if (mBit == 32) {
+      mBit = 0;
+      mWord = Input(*mInput);
     }
 #endif
-    uint count = rstl::min_val(32 - x8_bit, remaining);
+    uint count = rstl::min_val(32 - mBit, remaining);
     uint highShift = 32 - count;
-    result |= ((x4_word >> x8_bit) << highShift) >> (highShift - shift);
-    x8_bit += count;
+    result |= ((mWord >> mBit) << highShift) >> (highShift - shift);
+    mBit += count;
     shift += count;
     remaining -= count;
 #if !NONMATCHING
-    if (x8_bit == 32) {
-      x8_bit = 0;
-      x4_word = Input(*x0_input);
+    if (mBit == 32) {
+      mBit = 0;
+      mWord = Input(*mInput);
     }
 #endif
   }
@@ -196,12 +196,12 @@ template <>
 inline uint
 CBitLevelLoader< CMemoryInputToBitLevelLoader >::Input(CMemoryInputToBitLevelLoader& input) {
 #if NONMATCHING
-  uint value = TLoadedVal< uint >::Read(input.x0_data);
-  input.x0_data += sizeof(uint);
+  uint value = TLoadedVal< uint >::Read(input.mData);
+  input.mData += sizeof(uint);
   return value;
 #else
-  input.x0_data += sizeof(uint);
-  return TLoadedVal< uint >::Read(input.x0_data);
+  input.mData += sizeof(uint);
+  return TLoadedVal< uint >::Read(input.mData);
 #endif
 }
 
@@ -209,17 +209,17 @@ class CSegIdToIndexConverter {
 public:
   CSegIdToIndexConverter(const CFBStreamedAnimReaderTotals& totals) {
     for (uint i = 0; i < 100; ++i) {
-      x0_indices[i] = ~0u;
+      mIndices[i] = ~0u;
     }
     uint count = totals.NumEntries();
     for (uint i = 0; i < count; ++i) {
-      x0_indices[totals.GetSegId(i)] = i;
+      mIndices[totals.GetSegId(i)] = i;
     }
   }
-  uint SegIdToIndex(uint seg) const { return x0_indices[seg]; }
+  uint SegIdToIndex(uint seg) const { return mIndices[seg]; }
 
 private:
-  uint x0_indices[100];
+  uint mIndices[100];
 };
 CHECK_SIZEOF(CSegIdToIndexConverter, 0x190)
 
@@ -249,12 +249,12 @@ private:
   void SetReadTime(const CCharAnimTime& time) const;
   void GetSegStatement(CSegStatement& statement, const CSegId& seg) const;
 
-  TSubAnimTypeToken< CFBStreamedCompression > x54_source;
-  CSteadyStateAnimInfo x64_steadyStateInfo;
-  mutable CFBStreamedPairOfTotals x7c_totals;
-  mutable CMemoryInputToBitLevelLoader x104_input;
-  mutable CBitLevelLoader< CMemoryInputToBitLevelLoader > x108_bitLoader;
-  CSegIdToIndexConverter x114_segIdToIndex;
+  TSubAnimTypeToken< CFBStreamedCompression > mSource;
+  CSteadyStateAnimInfo mSteadyStateInfo;
+  mutable CFBStreamedPairOfTotals mTotals;
+  mutable CMemoryInputToBitLevelLoader mInput;
+  mutable CBitLevelLoader< CMemoryInputToBitLevelLoader > mBitLoader;
+  CSegIdToIndexConverter mSegIdToIndex;
 };
 CHECK_SIZEOF(CFBStreamedAnimReader, 0x2a4)
 

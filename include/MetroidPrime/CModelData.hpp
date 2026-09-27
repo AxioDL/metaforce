@@ -37,14 +37,14 @@ struct SMultipassDrawContext;
 
 class CStaticRes {
 public:
-  CStaticRes(CAssetId id, const CVector3f& scale) : x0_cmdlId(id), x4_scale(scale) {}
+  CStaticRes(CAssetId id, const CVector3f& scale) : mCmdlId(id), mScale(scale) {}
 
-  const CAssetId GetId() const { return x0_cmdlId; }
-  const CVector3f GetScale() const { return x4_scale; }
+  const CAssetId GetId() const { return mCmdlId; }
+  const CVector3f GetScale() const { return mScale; }
 
 private:
-  CAssetId x0_cmdlId;
-  CVector3f x4_scale;
+  CAssetId mCmdlId;
+  CVector3f mScale;
 };
 
 class CModelData {
@@ -58,7 +58,7 @@ public:
   };
 
   // TODO these probably aren't real
-  bool HasNormalModel() const { return x1c_normalModel; }
+  bool HasNormalModel() const { return mNormalModel; }
 
   CModelData();
   CModelData(const CAnimRes&);
@@ -91,9 +91,9 @@ public:
   void Touch(EWhichModel which, int) const;
   CAdvancementDeltas AdvanceAnimationIgnoreParticles(float dt, CRandom16& rand, bool advTree);
 
-  const CAnimData* GetAnimationData() const { return xc_animData.get(); }
+  const CAnimData* GetAnimationData() const { return mAnimData.get(); }
   CAnimData* AnimationData() {
-    CAnimData* ret = xc_animData.get();
+    CAnimData* ret = mAnimData.get();
     return ret;
   }
   CAABox GetBounds(const CTransform4f& xf) const;
@@ -109,21 +109,21 @@ public:
   CTransform4f GetLocatorTransform(const rstl::string& name) const;
   CTransform4f GetScaledLocatorTransform(const rstl::string& name) const;
 
-  bool HasAnimation() const { return !xc_animData.null(); }
-  bool IsNull() const { return xc_animData.null() && !x1c_normalModel; }
+  bool HasAnimation() const { return !mAnimData.null(); }
+  bool IsNull() const { return mAnimData.null() && !mNormalModel; }
   // TODO: maybe fake, but fixes CPatterned ctor codegen
-  bool IsNotNull() const { return !xc_animData.null() || x1c_normalModel; }
+  bool IsNotNull() const { return !mAnimData.null() || mNormalModel; }
 
   void SetXRayModel(const rstl::pair< CAssetId, CAssetId >& assets);
   void SetInfraModel(const rstl::pair< CAssetId, CAssetId >& assets);
 
-  void SetAmbientColor(const CColor& color) { x18_ambientColor = color; }
-  bool GetSortThermal() const { return x14_25_sortThermal; }
-  void SetSortThermal(bool b) { x14_25_sortThermal = b; }
+  void SetAmbientColor(const CColor& color) { mAmbientColor = color; }
+  bool GetSortThermal() const { return mSortThermal; }
+  void SetSortThermal(bool b) { mSortThermal = b; }
 
-  CVector3f ScaleCopy() const { return x0_scale; }
-  const CVector3f& GetScale() const { return x0_scale; }
-  void SetScale(const CVector3f& scale) { x0_scale = scale; }
+  CVector3f ScaleCopy() const { return mScale; }
+  const CVector3f& GetScale() const { return mScale; }
+  void SetScale(const CVector3f& scale) { mScale = scale; }
 
   bool GetIsLoop() const;
   void EnableLooping(bool enable);
@@ -145,14 +145,14 @@ private:
   static void FlatDrawCallback(TModelPositions, TModelNormals, const SFlatDrawContext*);
   static void MultiLightingDrawCallback(TModelPositions, TModelNormals, SMultiLightingDrawContext*);
   static void MultipassDrawCallback(TModelPositions, TModelNormals, const SMultipassDrawContext*);
-  CVector3f x0_scale;
-  rstl::auto_ptr< CAnimData > xc_animData;
-  mutable bool x14_24_renderSorted : 1;
-  bool x14_25_sortThermal : 1;
-  CColor x18_ambientColor;
-  rstl::optional_object< TLockedToken< CModel > > x1c_normalModel;
-  rstl::optional_object< TLockedToken< CModel > > x2c_xrayModel;
-  rstl::optional_object< TLockedToken< CModel > > x3c_infraModel;
+  CVector3f mScale;
+  rstl::auto_ptr< CAnimData > mAnimData;
+  mutable bool mRenderSorted : 1;
+  bool mSortThermal : 1;
+  CColor mAmbientColor;
+  rstl::optional_object< TLockedToken< CModel > > mNormalModel;
+  rstl::optional_object< TLockedToken< CModel > > mXrayModel;
+  rstl::optional_object< TLockedToken< CModel > > mInfraModel;
 };
 CHECK_SIZEOF(CModelData, 0x4c)
 

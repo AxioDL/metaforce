@@ -28,7 +28,7 @@ public:
   CVector3f GetAimPosition(const CStateManager&, float) const override { return GetTranslation(); }
   CVector3f GetOrbitPosition(const CStateManager&) const override { return GetTranslation(); }
   rstl::optional_object< CAABox > GetTouchBounds() const override;
-  void Death(CStateManager&, const CVector3f&, EScriptObjectState) override { x334_isCold = true; }
+  void Death(CStateManager&, const CVector3f&, EScriptObjectState) override { mIsCold = true; }
   void KnockBack(const CVector3f&, CStateManager&, const CDamageInfo&, float, bool,
                  const bool) override {}
   void TakeDamage(const CVector3f&, float) override {
@@ -37,26 +37,26 @@ public:
   }
   float GetDamageFlashTimer() const { return x324_; }
   void UsePhazonModel();
-  void SetThermalMag(float mag) { x32c_thermalMag = mag; }
+  void SetThermalMag(float mag) { mThermalMag = mag; }
   void SetX340(bool value) { x340_ = value; }
-  bool IsUsingPhazonModel() const { return x335_usePhazonModel; }
+  bool IsUsingPhazonModel() const { return mUsePhazonModel; }
   void PreThink(float dt, CStateManager& mgr) override;
   void Think(float dt, CStateManager& mgr) override;
 
 private:
-  CModelData x2d8_phazonModel;
+  CModelData mPhazonModel;
   float x324_;
   float x328_;
-  float x32c_thermalMag;
+  float mThermalMag;
   CColor x330_;
-  bool x334_isCold;
-  bool x335_usePhazonModel;
-  CHealthInfo x338_healthInfo;
+  bool mIsCold;
+  bool mUsePhazonModel;
+  CHealthInfo mHealthInfo;
   bool x340_;
   bool x341_;
 };
 
-CHECK_SIZEOF(CDestroyableRock, (VERSION >= VERSION_GM8P_00 ? 0x358 : 0x348))
+CHECK_SIZEOF(CDestroyableRock, (VERSION >= VERSION_GM8E_02 ? 0x358 : 0x348))
 
 class CThardus : public CPatterned {
 public:
@@ -111,7 +111,7 @@ public:
   bool CodeTrigger(CStateManager& mgr, float arg) override;
   bool IsDizzy(CStateManager& mgr, float arg) override;
   bool ShouldCallForBackup(CStateManager& mgr, float arg) override;
-  CPathFindSearch* GetSearchPath() override { return &x7f0_pathFindSearch; }
+  CPathFindSearch* GetSearchPath() override { return &mPathFindSearch; }
 
   CThardus(TUniqueId uid, const rstl::string& name, const CEntityInfo& info, const CTransform4f& xf,
            const CModelData& mData, const CActorParameters& actParms, const CPatternedInfo& pInfo,
@@ -197,32 +197,32 @@ private:
   TUniqueId x56c_;
   uint x570_;
   uint x574_;
-  rstl::reserved_vector< rstl::reserved_vector< TUniqueId, 16 >, 2 > x578_waypoints;
+  rstl::reserved_vector< rstl::reserved_vector< TUniqueId, 16 >, 2 > mWaypointGroups;
   int x5c4_;
-  bool x5c8_heardPlayer;
+  bool mHeardPlayer;
   rstl::vector< CModelData > x5cc_;
   rstl::vector< CModelData > x5dc_;
-  int x5ec_stateProg;
-  rstl::single_ptr< CCollisionActorManager > x5f0_rockColliders;
+  int mStateProg;
+  rstl::single_ptr< CCollisionActorManager > mRockColliders;
   rstl::single_ptr< CCollisionActorManager > x5f4_;
   rstl::single_ptr< CCollisionActorManager > x5f8_;
-  TUniqueId x5fc_projectileId;
+  TUniqueId mProjectileId;
   CAssetId x600_;
   CAssetId x604_;
   CAssetId x608_;
-  TEditorId x60c_projectileEditorId;
-  rstl::vector< TUniqueId > x610_destroyableRocks;
+  TEditorId mProjectileEditorId;
+  rstl::vector< TUniqueId > mDestroyableRocks;
   rstl::vector< TUniqueId > x620_;
   CAssetId x630_;
-  rstl::vector< TUniqueId > x634_nonDestroyableActors;
+  rstl::vector< TUniqueId > mNonDestroyableActors;
   EThardusState x644_;
-  uint x648_currentRock;
-  TUniqueId x64c_fog;
+  uint mCurrentRock;
+  TUniqueId mFog;
   CVector2f x650_;
   int x658_;
   int x65c_;
   uint x660_;
-  rstl::reserved_vector< TUniqueId, 16 > x664_repulsors;
+  rstl::reserved_vector< TUniqueId, 16 > mRepulsors;
   bool x688_;
   bool x689_;
   uint x68c_;
@@ -234,8 +234,8 @@ private:
   float x6a4_;
   float x6a8_;
   float x6ac_;
-  rstl::vector< bool > x6b0_destroyedRocks;
-  rstl::vector< TUniqueId > x6c0_rockLights;
+  rstl::vector< bool > mDestroyedRocks;
+  rstl::vector< TUniqueId > mRockLights;
   CAssetId x6d0_;
   CAssetId x6d4_;
   CAssetId x6d8_;
@@ -252,10 +252,10 @@ private:
   int x758_;
   int x75c_;
   int x760_;
-  CTransform4f x764_startTransform;
+  CTransform4f mStartTransform;
   uint x794_;
   rstl::vector< TUniqueId > x798_;
-  rstl::vector< TUniqueId > x7a8_timers;
+  rstl::vector< TUniqueId > mTimers;
   float x7b8_;
   float x7bc_;
   float x7c0_;
@@ -264,21 +264,21 @@ private:
   CVector3f x7cc_;
   CVector3f x7d8_;
   CVector3f x7e4_;
-  CPathFindSearch x7f0_pathFindSearch;
+  CPathFindSearch mPathFindSearch;
   bool x8d4_;
   CVector3f x8d8_;
   CVector3f x8e4_;
   bool x8f0_;
-  char x8f1_curPatrolPath;
-  char x8f2_curPatrolPathWaypoint;
-  rstl::vector< TUniqueId > x8f4_waypoints;
+  char mCurPatrolPath;
+  char mCurPatrolPathWaypoint;
+  rstl::vector< TUniqueId > mWaypoints;
   CSfxHandle x904_;
   bool x908_;
   bool x909_;
-  rstl::vector< float > x90c_rockHealths;
-  TCachedToken< CTexture > x91c_flareTexture;
-  TUniqueId x928_currentRockId;
-  CVector3f x92c_currentRockPos;
+  rstl::vector< float > mRockHealths;
+  TCachedToken< CTexture > mFlareTexture;
+  TUniqueId mCurrentRockId;
+  CVector3f mCurrentRockPos;
   bool x938_;
   bool x939_;
   bool x93a_;
@@ -288,13 +288,13 @@ private:
   uint x940_;
   float x944_;
   uint x948_;
-  bool x94c_initialized;
+  bool mInitialized;
   bool x94d_;
   CVector3f x950_;
-  bool x95c_doCodeTrigger;
+  bool mDoCodeTrigger;
   uchar x95d_;
   bool x95e_;
 };
-CHECK_SIZEOF(CThardus, (VERSION >= VERSION_GM8P_00 ? 0x970 : 0x960))
+CHECK_SIZEOF(CThardus, (VERSION >= VERSION_GM8E_02 ? 0x970 : 0x960))
 
 #endif // _CTHARDUS

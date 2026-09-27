@@ -26,7 +26,7 @@ public:
   public:
 #if defined(TARGET_PC)
     ModelInstance(TModelData materialData, const SModelArrays& arrays)
-    : x4_materialData(materialData), mArrays(arrays) {}
+    : mMaterialData(materialData), mArrays(arrays) {}
 #else
     ModelInstance(rstl::vector< void* >& surfaces, TModelData materialData, const void* positions,
                   const void* normals, const void* colors, const void* uvs,
@@ -43,9 +43,9 @@ public:
     const rstl::vector< void* >& GetSurfaces() const { return x0_surfacePtrs; }
 #endif
 
-    const void* GetMaterialPointer() const { return GetModelDataPointer(x4_materialData); }
-    TModelData GetMaterialData() const { return x4_materialData; }
-    void SetMaterialPointer(TModelData mat) { x4_materialData = mat; }
+    const void* GetMaterialPointer() const { return GetModelDataPointer(mMaterialData); }
+    TModelData GetMaterialData() const { return mMaterialData; }
+    void SetMaterialPointer(TModelData mat) { mMaterialData = mat; }
 #if defined(TARGET_PC)
     const SModelArrays& GetArrays() const { return mArrays; }
     const void* GetVertexPointer() const { return mArrays.positions.data(); }
@@ -54,26 +54,26 @@ public:
     const void* GetTCPointer() const { return mArrays.texCoords.data(); }
     const void* GetPackedTCPointer() const { return mArrays.packedTexCoords.data(); }
 #else
-    const void* GetVertexPointer() const { return x8_positions; }
-    const void* GetNormalPointer() const { return xc_normals; }
-    const void* GetColorPointer() const { return x10_colors; }
-    const void* GetTCPointer() const { return x14_texCoords; }
-    const void* GetPackedTCPointer() const { return x18_packedTexCoords; }
+    const void* GetVertexPointer() const { return mPositions; }
+    const void* GetNormalPointer() const { return mNormals; }
+    const void* GetColorPointer() const { return mColors; }
+    const void* GetTCPointer() const { return mTexCoords; }
+    const void* GetPackedTCPointer() const { return mPackedTexCoords; }
 #endif
 
   private:
 #if !defined(TARGET_PC)
-    rstl::vector< void* >& x0_surfacePtrs;
+    rstl::vector< void* >& mSurfacePtrs;
 #endif
-    TModelData x4_materialData;
+    TModelData mMaterialData;
 #if defined(TARGET_PC)
     SModelArrays mArrays;
 #else
-    const void* x8_positions;
-    const void* xc_normals;
-    const void* x10_colors;
-    const void* x14_texCoords;
-    const void* x18_packedTexCoords;
+    const void* mPositions;
+    const void* mNormals;
+    const void* mColors;
+    const void* mTexCoords;
+    const void* mPackedTexCoords;
 #endif
   };
 #if defined(TARGET_PC)
@@ -100,19 +100,19 @@ public:
                                    rstl::vector< TCachedToken< CTexture > >& textures,
                                    IObjectStore& store, bool cache);
 
-  const ModelInstance& GetModelInstance() const { return x0_instance; }
-  bool AreTexturesLoaded() const { return !x40_24_loadTextures; }
+  const ModelInstance& GetModelInstance() const { return mInstance; }
+  bool AreTexturesLoaded() const { return !mLoadTextures; }
 
-  const void* GetPositions() const { return x0_instance.GetVertexPointer(); }
-  const void* GetNormals() const { return x0_instance.GetNormalPointer(); }
+  const void* GetPositions() const { return mInstance.GetVertexPointer(); }
+  const void* GetNormals() const { return mInstance.GetNormalPointer(); }
 
-  const CAABox& GetBoundingBox() const { return x20_bounds; }
-  const CCubeSurface& GetNormalSurfaces() const { return x38_firstUnsorted; }
-  const CCubeSurface& GetAlphaSurfaces() const { return x3c_firstSorted; }
-  bool GetShouldDrawWorldFlag() const { return x40_25_visible; }
-  void SetShouldDrawWorldFlag(bool shouldDraw) { x40_25_visible = shouldDraw; }
-  uchar GetModelFlags() const { return x41_visorFlags; }
-  int GetModelIndex() const { return x44_idx; } // TODO: name
+  const CAABox& GetBoundingBox() const { return mBounds; }
+  const CCubeSurface& GetNormalSurfaces() const { return mFirstUnsorted; }
+  const CCubeSurface& GetAlphaSurfaces() const { return mFirstSorted; }
+  bool GetShouldDrawWorldFlag() const { return mVisible; }
+  void SetShouldDrawWorldFlag(bool shouldDraw) { mVisible = shouldDraw; }
+  uchar GetModelFlags() const { return mVisorFlags; }
+  int GetModelIndex() const { return mIdx; } // TODO: name
 
   CCubeMaterial GetMaterialByIndex(const int idx) const;
   void SetStaticArraysCurrent() const;
@@ -132,7 +132,7 @@ public:
   void DrawNormalSurfaces(const CModelFlags& flags) const;
   void DrawAlphaSurfaces(const CModelFlags& flags) const;
 
-  rstl::vector< TCachedToken< CTexture > >& GetTextures() const { return *x1c_textures; };
+  rstl::vector< TCachedToken< CTexture > >& GetTextures() const { return *mTextures; };
 
 #if defined(TARGET_PC)
   size_t GetSurfaceStorageSize() const {
@@ -141,15 +141,15 @@ public:
 #endif
 
 private:
-  ModelInstance x0_instance;
-  rstl::vector< TCachedToken< CTexture > >* x1c_textures;
-  CAABox x20_bounds;
-  CCubeSurface x38_firstUnsorted;
-  CCubeSurface x3c_firstSorted;
-  mutable bool x40_24_loadTextures : 1;
-  bool x40_25_visible : 1;
-  uchar x41_visorFlags;
-  int x44_idx;
+  ModelInstance mInstance;
+  rstl::vector< TCachedToken< CTexture > >* mTextures;
+  CAABox mBounds;
+  CCubeSurface mFirstUnsorted;
+  CCubeSurface mFirstSorted;
+  mutable bool mLoadTextures : 1;
+  bool mVisible : 1;
+  uchar mVisorFlags;
+  int mIdx;
 #if defined(TARGET_PC)
   rstl::vector< CCubeSurface::SSurfaceData > mSurfaces;
 #endif

@@ -22,20 +22,20 @@ public:
   CWorldLight(CInputStream& in);
 
   CLight GetAsCGraphicsLight() const;
-  bool DoesCastShadows() const { return x34_castShadows; }
-  const CVector3f& GetPosition() const { return x10_position; }
+  bool DoesCastShadows() const { return mCastShadows; }
+  const CVector3f& GetPosition() const { return mPosition; }
 
 public:
-  EWorldLightType x0_type;
-  CVector3f x4_color;
-  CVector3f x10_position;
-  CVector3f x1c_direction;
-  float x28_q;
-  float x2c_cutoffAngle;
+  EWorldLightType mType;
+  CVector3f mColor;
+  CVector3f mPosition;
+  CVector3f mDirection;
+  float mQ;
+  float mCutoffAngle;
   float x30_;
-  bool x34_castShadows;
+  bool mCastShadows;
   float x38_;
-  EFalloffType x3c_falloff;
+  EFalloffType mFalloff;
   float x40_;
 };
 CHECK_SIZEOF(CWorldLight, 0x44)

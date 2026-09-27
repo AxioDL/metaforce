@@ -8,15 +8,15 @@
 
 class CSphere {
 public:
-  CSphere(const CVector3f& pos, const float radius) : x0_center(pos), xc_radius(radius){}
+  CSphere(const CVector3f& pos, const float radius) : mCenter(pos), mRadius(radius){}
   
-  const CVector3f& GetCenter() const { return x0_center; }
-  const float GetRadius() const { return xc_radius; }
+  const CVector3f& GetCenter() const { return mCenter; }
+  const float GetRadius() const { return mRadius; }
   CUnitVector3f GetSurfaceNormal(const CVector3f& v) const;
 
 private:
-  CVector3f x0_center;
-  float xc_radius;
+  CVector3f mCenter;
+  float mRadius;
 };
 CHECK_SIZEOF(CSphere, 0x10)
 

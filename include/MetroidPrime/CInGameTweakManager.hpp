@@ -12,25 +12,25 @@ public:
   struct Audio {
   public:
     Audio(float fadeIn, float fadeOut, float vol, const rstl::string& fileName, uint handle)
-    : x0_fadeIn(fadeIn)
-    , x4_fadeOut(fadeOut)
-    , x8_volume(vol)
-    , xc_fileName(fileName)
-    , x1c_res(handle) {}
+    : mFadeIn(fadeIn)
+    , mFadeOut(fadeOut)
+    , mVolume(vol)
+    , mFileName(fileName)
+    , mRes(handle) {}
 
-    float GetFadeIn() const { return x0_fadeIn; }
-    float GetFadeOut() const { return x4_fadeOut; }
-    float GetVolume() const { return x8_volume; }
-    const rstl::string& GetFileName() const { return xc_fileName; }
-    const CAssetId& GetResId() const { return x1c_res; }
+    float GetFadeIn() const { return mFadeIn; }
+    float GetFadeOut() const { return mFadeOut; }
+    float GetVolume() const { return mVolume; }
+    const rstl::string& GetFileName() const { return mFileName; }
+    const CAssetId& GetResId() const { return mRes; }
     // static Audio None() { return Audio(0.f, 0.f, 0.f, "", 0); }
 
   private:
-    float x0_fadeIn;
-    float x4_fadeOut;
-    float x8_volume;
-    rstl::string xc_fileName;
-    CAssetId x1c_res;
+    float mFadeIn;
+    float mFadeOut;
+    float mVolume;
+    rstl::string mFileName;
+    CAssetId mRes;
   };
   enum EType {};
 
@@ -38,20 +38,20 @@ public:
   // CTweakValue(const rstl::string&, EType, const Audio&);
   // CTweakValue(CTextInputStream&);
   // void PutTo(CTextOutStream&);
-  const rstl::string& GetName() const { return x4_key; }
+  const rstl::string& GetName() const { return mKey; }
   const rstl::string& GetValueAsString() const;
   void SetValueFromString(const rstl::string&);
-  const Audio& GetAudio() const { return x24_audio; }
-  EType GetType() const { return x0_type; }
+  const Audio& GetAudio() const { return mAudio; }
+  EType GetType() const { return mType; }
 
 private:
-  EType x0_type;
-  rstl::string x4_key;
-  rstl::string x14_str;
-  Audio x24_audio;
+  EType mType;
+  rstl::string mKey;
+  rstl::string mStr;
+  Audio mAudio;
   union {
-    uint x44_int;
-    float x44_flt;
+    uint mInt;
+    float mFlt;
   };
 };
 
@@ -76,7 +76,7 @@ public:
                                                 const rstl::string& midiObj);
 
 private:
-  rstl::vector< CTweakValue > x0_values;
+  rstl::vector< CTweakValue > mValues;
 };
 
 CHECK_SIZEOF(CInGameTweakManager, 0x10)

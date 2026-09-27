@@ -11,13 +11,13 @@ public:
   void Shutdown(CBodyController& bc) override;
 
 private:
-  bool x4_needsIdle;
-  int x8_anims[4];
-  float x18_angles[4];
-  float x28_hWeight;
-  float x2c_hWeightVel;
-  float x30_vWeight;
-  float x34_vWeightVel;
+  bool mNeedsIdle;
+  int mAnims[4];
+  float mAngles[4];
+  float mHWeight;
+  float mHWeightVel;
+  float mVWeight;
+  float mVWeightVel;
   pas::EAnimationState GetBodyStateTransition(float dt, CBodyController& bc);
 };
 

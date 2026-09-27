@@ -64,53 +64,53 @@ rstl::pair< CVector3f, CVector3f > CHudEnergyInterface::XRayEnergyCoordFunc(floa
 
 CHudEnergyInterface::CHudEnergyInterface(CGuiFrame& hud, float energy, int totalTanks,
                                          int filledTanks, bool energyLow, EHudType type)
-: x0_hudType(type)
-, x4_energyLowFader(0.f)
-, x8_flashMag(0.f)
-, xc_tankEnergy(energy)
-, x10_totalEnergyTanks(totalTanks)
-, x14_numTanksFilled(filledTanks)
-, x18_cachedBarEnergy(0.f)
+: mHudType(type)
+, mEnergyLowFader(0.f)
+, mFlashMag(0.f)
+, mTankEnergy(energy)
+, mTotalEnergyTanks(totalTanks)
+, mNumTanksFilled(filledTanks)
+, mCachedBarEnergy(0.f)
 , x1c_24_(true)
 , x1c_25_(true)
-, x1c_26_barDirty(true)
-, x1c_27_energyLow(energyLow) {
-  x20_textpane_energydigits =
+, mBarDirty(true)
+, mEnergyLow(energyLow) {
+  mTextpane_energydigits =
       static_cast< CGuiTextPane* >(hud.FindWidget(rstl::string_l(skEnergyDigitsWidgetName)));
-  x24_meter_energytanks =
+  mMeter_energytanks =
       static_cast< CAuiMeter* >(hud.FindWidget(rstl::string_l(skEnergyTanksWidgetName)));
-  x28_textpane_energywarning =
+  mTextpane_energywarning =
       static_cast< CGuiTextPane* >(hud.FindWidget(rstl::string_l(skEnergyWarningWidgetName)));
-  x2c_energybart01_energybar =
+  mEnergybart01_energybar =
       static_cast< CAuiEnergyBarT01* >(hud.FindWidget(rstl::string_l(skEnergyBarWidgetName)));
 
-  const CTweakGuiColors::SPerVisorColors& colors = gpTweakGuiColors->GetVisorColors(x0_hudType);
-  x2c_energybart01_energybar->SetCoordFunc(skEnergyCoordFuncs[x0_hudType]);
-  x2c_energybart01_energybar->SetTesselation(skEnergyTesselations[x0_hudType]);
-  x20_textpane_energydigits->TextSupport().SetFontColor(colors.x14_energyDigitsFont);
-  x20_textpane_energydigits->TextSupport().SetOutlineColor(colors.x18_energyDigitsOutline);
-  x2c_energybart01_energybar->SetMaxEnergy(CPlayerState::GetBaseHealthCapacity());
-  x2c_energybart01_energybar->SetFilledColor(colors.x0_energyBarFilled);
-  x2c_energybart01_energybar->SetShadowColor(colors.x8_energyBarShadow);
-  x2c_energybart01_energybar->SetEmptyColor(colors.x4_energyBarEmpty);
-  x2c_energybart01_energybar->SetFilledDrainSpeed(gpTweakGui->GetEnergyBarFilledSpeed());
-  x2c_energybart01_energybar->SetShadowDrainSpeed(gpTweakGui->GetEnergyBarShadowSpeed());
-  x2c_energybart01_energybar->SetShadowDrainDelay(gpTweakGui->GetEnergyBarDrainDelay());
-  x2c_energybart01_energybar->SetIsAlwaysResetTimer(gpTweakGui->GetEnergyBarAlwaysResetDelay());
-  x24_meter_energytanks->SetMaxCapacity(14);
-  if (x28_textpane_energywarning) {
-    x28_textpane_energywarning->TextSupport().SetFontColor(
+  const CTweakGuiColors::SPerVisorColors& colors = gpTweakGuiColors->GetVisorColors(mHudType);
+  mEnergybart01_energybar->SetCoordFunc(skEnergyCoordFuncs[mHudType]);
+  mEnergybart01_energybar->SetTesselation(skEnergyTesselations[mHudType]);
+  mTextpane_energydigits->TextSupport().SetFontColor(colors.mEnergyDigitsFont);
+  mTextpane_energydigits->TextSupport().SetOutlineColor(colors.mEnergyDigitsOutline);
+  mEnergybart01_energybar->SetMaxEnergy(CPlayerState::GetBaseHealthCapacity());
+  mEnergybart01_energybar->SetFilledColor(colors.mEnergyBarFilled);
+  mEnergybart01_energybar->SetShadowColor(colors.mEnergyBarShadow);
+  mEnergybart01_energybar->SetEmptyColor(colors.mEnergyBarEmpty);
+  mEnergybart01_energybar->SetFilledDrainSpeed(gpTweakGui->GetEnergyBarFilledSpeed());
+  mEnergybart01_energybar->SetShadowDrainSpeed(gpTweakGui->GetEnergyBarShadowSpeed());
+  mEnergybart01_energybar->SetShadowDrainDelay(gpTweakGui->GetEnergyBarDrainDelay());
+  mEnergybart01_energybar->SetIsAlwaysResetTimer(gpTweakGui->GetEnergyBarAlwaysResetDelay());
+  mMeter_energytanks->SetMaxCapacity(14);
+  if (mTextpane_energywarning) {
+    mTextpane_energywarning->TextSupport().SetFontColor(
         gpTweakGuiColors->GetEnergyWarningFont());
-    x28_textpane_energywarning->TextSupport().SetOutlineColor(
+    mTextpane_energywarning->TextSupport().SetOutlineColor(
         gpTweakGuiColors->GetEnergyWarningOutline());
     const rstl::wstring text =
-        x1c_27_energyLow ? rstl::wstring_l(gpStringTable->GetString(9)) : rstl::wstring_l(L"");
-    x28_textpane_energywarning->TextSupport().SetText(text);
+        mEnergyLow ? rstl::wstring_l(gpStringTable->GetString(9)) : rstl::wstring_l(L"");
+    mTextpane_energywarning->TextSupport().SetText(text);
   }
-  const CColor& tankFilled = colors.xc_energyTankFilled;
-  const CColor& tankEmpty = colors.x10_energyTankEmpty;
+  const CColor& tankFilled = colors.mEnergyTankFilled;
+  const CColor& tankEmpty = colors.mEnergyTankEmpty;
   for (int i = 0; i < 14; ++i) {
-    CGuiWidget* workerGroup = x24_meter_energytanks->GetWorkerWidget(i);
+    CGuiWidget* workerGroup = mMeter_energytanks->GetWorkerWidget(i);
     CGuiGroup* group = static_cast< CGuiGroup* >(workerGroup);
     CGuiWidget* workers[2];
     workers[0] = group->GetWorkerWidget(0);
@@ -125,63 +125,63 @@ CHudEnergyInterface::CHudEnergyInterface(CGuiFrame& hud, float energy, int total
 }
 
 void CHudEnergyInterface::SetCurrEnergy(float energy, bool wrapped) {
-  xc_tankEnergy = energy;
-  x2c_energybart01_energybar->SetCurrEnergy(
+  mTankEnergy = energy;
+  mEnergybart01_energybar->SetCurrEnergy(
       energy, energy == 0.f
                   ? CAuiEnergyBarT01::kSM_Instant
                   : (wrapped ? CAuiEnergyBarT01::kSM_Wrapped : CAuiEnergyBarT01::kSM_Normal));
 }
 
 void CHudEnergyInterface::SetNumTotalEnergyTanks(int tanks) {
-  x10_totalEnergyTanks = tanks;
-  x24_meter_energytanks->SetCapacity(tanks);
+  mTotalEnergyTanks = tanks;
+  mMeter_energytanks->SetCapacity(tanks);
 }
 
 void CHudEnergyInterface::SetNumFilledEnergyTanks(int tanks) {
-  x14_numTanksFilled = tanks;
-  x24_meter_energytanks->SetCurrValue(tanks);
+  mNumTanksFilled = tanks;
+  mMeter_energytanks->SetCurrValue(tanks);
 }
 
 void CHudEnergyInterface::SetFlashMagnitude(float mag) {
-  x8_flashMag = CMath::Clamp(0.f, mag, 1.f);
+  mFlashMag = CMath::Clamp(0.f, mag, 1.f);
 }
 
 void CHudEnergyInterface::SetEnergyLow(bool low) {
-  if (low != x1c_27_energyLow) {
+  if (low != mEnergyLow) {
     const rstl::wstring text =
         low ? rstl::wstring_l(gpStringTable->GetString(9)) : rstl::wstring_l(L"");
-    if (x28_textpane_energywarning) {
-      x28_textpane_energywarning->TextSupport().SetText(text);
+    if (mTextpane_energywarning) {
+      mTextpane_energywarning->TextSupport().SetText(text);
     }
     if (low) {
       CSfxManager::SfxStart(0x57d);
     }
-    x1c_27_energyLow = low;
+    mEnergyLow = low;
   }
 }
 
 void CHudEnergyInterface::Update(float dt, float energyLowPulse) {
-  if (x28_textpane_energywarning) {
-    if (x1c_27_energyLow) {
-      x4_energyLowFader = rstl::min_val(1.f, x4_energyLowFader + 2.f * dt);
-      x28_textpane_energywarning->SetColor(
-          CColor::White().WithAlphaOf(x4_energyLowFader * energyLowPulse));
+  if (mTextpane_energywarning) {
+    if (mEnergyLow) {
+      mEnergyLowFader = rstl::min_val(1.f, mEnergyLowFader + 2.f * dt);
+      mTextpane_energywarning->SetColor(
+          CColor::White().WithAlphaOf(mEnergyLowFader * energyLowPulse));
     } else {
-      x4_energyLowFader = rstl::max_val(0.f, x4_energyLowFader - 2.f * dt);
-      x28_textpane_energywarning->SetColor(
-          CColor::White().WithAlphaOf(x4_energyLowFader * energyLowPulse));
+      mEnergyLowFader = rstl::max_val(0.f, mEnergyLowFader - 2.f * dt);
+      mTextpane_energywarning->SetColor(
+          CColor::White().WithAlphaOf(mEnergyLowFader * energyLowPulse));
     }
-    if (x28_textpane_energywarning->GetModifiedColor().GetAlphau8()) {
-      x28_textpane_energywarning->SetIsVisible(true);
+    if (mTextpane_energywarning->GetModifiedColor().GetAlphau8()) {
+      mTextpane_energywarning->SetIsVisible(true);
     } else {
-      x28_textpane_energywarning->SetIsVisible(false);
+      mTextpane_energywarning->SetIsVisible(false);
     }
   }
 
-  const float barEnergy = x2c_energybart01_energybar->GetLaggedEnergy();
-  if (barEnergy != x18_cachedBarEnergy || x1c_26_barDirty) {
-    x1c_26_barDirty = false;
-    x18_cachedBarEnergy = barEnergy;
+  const float barEnergy = mEnergybart01_energybar->GetLaggedEnergy();
+  if (barEnergy != mCachedBarEnergy || mBarDirty) {
+    mBarDirty = false;
+    mCachedBarEnergy = barEnergy;
     char digits[4];
 #if NONMATCHING
     snprintf(digits, sizeof(digits), "%02d",
@@ -190,69 +190,69 @@ void CHudEnergyInterface::Update(float dt, float energyLowPulse) {
     sprintf(digits, "%02d",
             static_cast< int >(CMath::ModF(barEnergy, CPlayerState::GetEnergyTankCapacity())));
 #endif
-    x20_textpane_energydigits->TextSupport().SetText(rstl::string(digits));
+    mTextpane_energydigits->TextSupport().SetText(rstl::string(digits));
   }
 
-  const CTweakGuiColors::SPerVisorColors& colors = gpTweakGuiColors->GetVisorColors(x0_hudType);
-  const CColor barEmpty = colors.x4_energyBarEmpty;
-  const CColor barFilled = colors.x0_energyBarFilled;
-  const CColor barShadow = colors.x8_energyBarShadow;
+  const CTweakGuiColors::SPerVisorColors& colors = gpTweakGuiColors->GetVisorColors(mHudType);
+  const CColor barEmpty = colors.mEnergyBarEmpty;
+  const CColor barFilled = colors.mEnergyBarFilled;
+  const CColor barShadow = colors.mEnergyBarShadow;
   const CColor lowEmpty = gpTweakGuiColors->GetEnergyBarEmptyLowEnergy();
   const CColor lowFilled = gpTweakGuiColors->GetEnergyBarFilledLowEnergy();
   const CColor lowShadow = gpTweakGuiColors->GetEnergyBarShadowLowEnergy();
-  const CColor emptyColor = x1c_27_energyLow ? lowEmpty : barEmpty;
-  const CColor filledColor = x1c_27_energyLow ? lowFilled : barFilled;
-  const CColor shadowColor = x1c_27_energyLow ? lowShadow : barShadow;
+  const CColor emptyColor = mEnergyLow ? lowEmpty : barEmpty;
+  const CColor filledColor = mEnergyLow ? lowFilled : barFilled;
+  const CColor shadowColor = mEnergyLow ? lowShadow : barShadow;
   CColor useFillColor =
-      CColor::Lerp(filledColor, gpTweakGuiColors->GetEnergyBarFlashColor(), x8_flashMag);
-  if (x1c_27_energyLow) {
+      CColor::Lerp(filledColor, gpTweakGuiColors->GetEnergyBarFlashColor(), mFlashMag);
+  if (mEnergyLow) {
     const CColor pulseColor(1.f, 0.8f, 0.4f, 1.f);
     useFillColor = CColor::Lerp(useFillColor, pulseColor, energyLowPulse);
   }
-  x2c_energybart01_energybar->SetFilledColor(useFillColor);
-  x2c_energybart01_energybar->SetShadowColor(shadowColor);
-  x2c_energybart01_energybar->SetEmptyColor(emptyColor);
+  mEnergybart01_energybar->SetFilledColor(useFillColor);
+  mEnergybart01_energybar->SetShadowColor(shadowColor);
+  mEnergybart01_energybar->SetEmptyColor(emptyColor);
 }
 
 CHudBossEnergyInterface::CHudBossEnergyInterface(CGuiFrame& frame)
-: x0_alpha(1.f), x4_fader(0.f), x8_curEnergy(0.f), xc_maxEnergy(0.f), x10_24_visible(false) {
-  x14_basewidget_bossenergystuff = frame.FindWidget(skEnemyEnergyGroupWidgetName);
-  x18_energybart01_bossbar =
+: mAlpha(1.f), mFader(0.f), mCurEnergy(0.f), mMaxEnergy(0.f), mVisible(false) {
+  mBasewidget_bossenergystuff = frame.FindWidget(skEnemyEnergyGroupWidgetName);
+  mEnergybart01_bossbar =
       static_cast< CAuiEnergyBarT01* >(frame.FindWidget(skEnemyEnergyBarWidgetName));
-  x1c_textpane_boss = static_cast< CGuiTextPane* >(frame.FindWidget("textpane_boss"));
-  x18_energybart01_bossbar->SetCoordFunc(BossEnergyCoordFunc);
-  x18_energybart01_bossbar->SetTesselation(0.2f);
+  mTextpane_boss = static_cast< CGuiTextPane* >(frame.FindWidget("textpane_boss"));
+  mEnergybart01_bossbar->SetCoordFunc(BossEnergyCoordFunc);
+  mEnergybart01_bossbar->SetTesselation(0.2f);
   const CTweakGuiColors::SPerVisorColors& colors = gpTweakGuiColors->GetVisorColors(0);
-  x18_energybart01_bossbar->SetFilledColor(colors.x0_energyBarFilled);
-  x18_energybart01_bossbar->SetShadowColor(colors.x8_energyBarShadow);
-  x18_energybart01_bossbar->SetEmptyColor(colors.x4_energyBarEmpty);
+  mEnergybart01_bossbar->SetFilledColor(colors.mEnergyBarFilled);
+  mEnergybart01_bossbar->SetShadowColor(colors.mEnergyBarShadow);
+  mEnergybart01_bossbar->SetEmptyColor(colors.mEnergyBarEmpty);
 }
 
 void CHudBossEnergyInterface::SetBossParams(const bool visible, const rstl::wstring& name,
                                             float energy, float maxEnergy) {
-  x10_24_visible = visible;
+  mVisible = visible;
   if (visible) {
-    x18_energybart01_bossbar->SetFilledDrainSpeed(1000.f * (0.001f * maxEnergy));
-    x18_energybart01_bossbar->SetCurrEnergy(energy, CAuiEnergyBarT01::kSM_Normal);
-    x18_energybart01_bossbar->SetMaxEnergy(maxEnergy);
-    x1c_textpane_boss->TextSupport().SetText(name);
+    mEnergybart01_bossbar->SetFilledDrainSpeed(1000.f * (0.001f * maxEnergy));
+    mEnergybart01_bossbar->SetCurrEnergy(energy, CAuiEnergyBarT01::kSM_Normal);
+    mEnergybart01_bossbar->SetMaxEnergy(maxEnergy);
+    mTextpane_boss->TextSupport().SetText(name);
   }
-  x8_curEnergy = energy;
-  xc_maxEnergy = maxEnergy;
+  mCurEnergy = energy;
+  mMaxEnergy = maxEnergy;
 }
 
-void CHudBossEnergyInterface::SetAlpha(float alpha) { x0_alpha = alpha; }
+void CHudBossEnergyInterface::SetAlpha(float alpha) { mAlpha = alpha; }
 
 void CHudBossEnergyInterface::Update(float dt) {
-  if (x10_24_visible) {
-    x4_fader = rstl::min_val(1.f, x4_fader + dt);
+  if (mVisible) {
+    mFader = rstl::min_val(1.f, mFader + dt);
   } else {
-    x4_fader = rstl::max_val(0.f, x4_fader - dt);
+    mFader = rstl::max_val(0.f, mFader - dt);
   }
-  if (x4_fader > 0.f) {
-    x14_basewidget_bossenergystuff->SetColor(CColor::White().WithAlphaOf(x0_alpha * x4_fader));
-    x14_basewidget_bossenergystuff->SetVisibility(true, kTM_Children);
+  if (mFader > 0.f) {
+    mBasewidget_bossenergystuff->SetColor(CColor::White().WithAlphaOf(mAlpha * mFader));
+    mBasewidget_bossenergystuff->SetVisibility(true, kTM_Children);
   } else {
-    x14_basewidget_bossenergystuff->SetVisibility(false, kTM_Children);
+    mBasewidget_bossenergystuff->SetVisibility(false, kTM_Children);
   }
 }

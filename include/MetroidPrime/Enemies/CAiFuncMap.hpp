@@ -24,8 +24,8 @@ public:
   const CAiTriggerFunc GetTriggerFunc(const char* state) const;
 
 private:
-  rstl::vector< rstl::pair< const char*, CAiStateFunc > > x0_states;
-  rstl::vector< rstl::pair< const char*, CAiTriggerFunc > > x10_triggers;
+  rstl::vector< rstl::pair< const char*, CAiStateFunc > > mStates;
+  rstl::vector< rstl::pair< const char*, CAiTriggerFunc > > mTriggers;
 };
 
 #endif // _CAIFUNCMAP

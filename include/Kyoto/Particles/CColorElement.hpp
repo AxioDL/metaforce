@@ -7,10 +7,10 @@
 #include "Kyoto/Particles/IElement.hpp"
 
 class CCEConstant : public CColorElement {
-  CRealElement* x4_r;
-  CRealElement* x8_g;
-  CRealElement* xc_b;
-  CRealElement* x10_a;
+  CRealElement* mR;
+  CRealElement* mG;
+  CRealElement* mB;
+  CRealElement* mA;
 
 public:
   CCEConstant(CRealElement* r, CRealElement* g, CRealElement* b, CRealElement* a);
@@ -19,7 +19,7 @@ public:
 };
 
 class CCEFastConstant : public CColorElement {
-  CColor x4_val;
+  CColor mVal;
 
 public:
   CCEFastConstant(float r, float g, float b, float a);
@@ -28,9 +28,9 @@ public:
 };
 
 class CCEFade : public CColorElement {
-  CColorElement* x4_a;
-  CColorElement* x8_b;
-  CRealElement* xc_endFrame;
+  CColorElement* mA;
+  CColorElement* mB;
+  CRealElement* mEndFrame;
 
 public:
   CCEFade(CColorElement* a, CColorElement* b, CRealElement* end);
@@ -39,10 +39,10 @@ public:
 };
 
 class CCEFadeEnd : public CColorElement {
-  CColorElement* x4_a;
-  CColorElement* x8_b;
-  CRealElement* xc_startFrame;
-  CRealElement* x10_endFrame;
+  CColorElement* mA;
+  CColorElement* mB;
+  CRealElement* mStartFrame;
+  CRealElement* mEndFrame;
 
 public:
   CCEFadeEnd(CColorElement* a, CColorElement* b, CRealElement* start, CRealElement* end);
@@ -51,9 +51,9 @@ public:
 };
 
 class CCETimeChain : public CColorElement {
-  CColorElement* x4_a;
-  CColorElement* x8_b;
-  CIntElement* xc_swFrame;
+  CColorElement* mA;
+  CColorElement* mB;
+  CIntElement* mSwFrame;
 
 public:
   CCETimeChain(CColorElement* a, CColorElement* b, CIntElement* c);
@@ -62,10 +62,10 @@ public:
 };
 
 class CCEPulse : public CColorElement {
-  CIntElement* x4_aDuration;
-  CIntElement* x8_bDuration;
-  CColorElement* xc_aVal;
-  CColorElement* x10_bVal;
+  CIntElement* mADuration;
+  CIntElement* mBDuration;
+  CColorElement* mAVal;
+  CColorElement* mBVal;
 
 public:
   CCEPulse(CIntElement* a, CIntElement* b, CColorElement* c, CColorElement* d);
@@ -74,13 +74,13 @@ public:
 };
 
 class CCEKeyframeEmitter : public CColorElement {
-  int x4_percent;
-  int x8_unk1;
-  bool xc_loop;
-  bool xd_unk2;
-  int x10_loopEnd;
-  int x14_loopStart;
-  rstl::vector< CColor > x18_keys;
+  int mPercent;
+  int mUnk1;
+  bool mLoop;
+  bool mUnk2;
+  int mLoopEnd;
+  int mLoopStart;
+  rstl::vector< CColor > mKeys;
 
 public:
   CCEKeyframeEmitter(CInputStream& in);

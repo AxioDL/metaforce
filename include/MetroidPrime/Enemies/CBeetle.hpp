@@ -103,33 +103,33 @@ private:
   void SetupRetreatPoints(CStateManager& mgr);
   s32 FindFurthestRetreatPoint(CStateManager& mgr);
 
-  s32 x568_stateProg;
-  EEntranceType x56c_entranceType;
-  TUniqueId x570_aiMgr;
-  ushort x572_pad;
-  CVector3f x574_tailAimReference;
-  float x580_f3;
-  CDamageInfo x584_touchDamage;
-  float x5a0_headbuttDist;
-  float x5a4_jumpBackwardDist;
-  float x5a8_animTimeRem;
-  rstl::optional_object< CModelData > x5ac_tailModel;
-  CPathFindSearch x5fc_pathFindSearch;
-  rstl::reserved_vector< CVector3f, 8 > x6e0_retreatPoints;
-  CDamageVulnerability x744_platingVuln;
-  CDamageVulnerability x7ac_tailVuln;
-  float x814_attackDelayTimer;
-  float x818_stateFinishTimer;
-  float x81c_speedBackup;
-  uint x820_posDeviationCounter;
-  CVector3f x824_predictPos;
-  float x830_intoGroundFactor;
-  float x834_retreatTime;
-  bool x838_24_hitSomething : 1;
-  bool x838_25_burrowing : 1;
-  bool x838_26_canSkid : 1;
-  uchar x839_pad[7];
+  s32 mStateProg;
+  EEntranceType mEntranceType;
+  TUniqueId mAiMgr;
+  ushort mPad0;
+  CVector3f mTailAimReference;
+  float mF3;
+  CDamageInfo mTouchDamage;
+  float mHeadbuttDist;
+  float mJumpBackwardDist;
+  float mAnimTimeRem;
+  rstl::optional_object< CModelData > mTailModel;
+  CPathFindSearch mPathFindSearch;
+  rstl::reserved_vector< CVector3f, 8 > mRetreatPoints;
+  CDamageVulnerability mPlatingVuln;
+  CDamageVulnerability mTailVuln;
+  float mAttackDelayTimer;
+  float mStateFinishTimer;
+  float mSpeedBackup;
+  uint mPosDeviationCounter;
+  CVector3f mPredictPos;
+  float mIntoGroundFactor;
+  float mRetreatTime;
+  bool mHitSomething : 1;
+  bool mBurrowing : 1;
+  bool mCanSkid : 1;
+  uchar mPad1[7];
 };
-CHECK_SIZEOF(CBeetle, (VERSION >= VERSION_GM8P_00 ? 0x850 : 0x840))
+CHECK_SIZEOF(CBeetle, (VERSION >= VERSION_GM8E_02 ? 0x850 : 0x840))
 
 #endif // _CBEETLE

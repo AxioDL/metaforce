@@ -2,7 +2,7 @@
 #include "rstl/rc_ptr.hpp"
 #include "rstl/auto_ptr.hpp"
 
-CAnimTreeNode::CAnimTreeNode(const rstl::string& name) : x4_name(name) {}
+CAnimTreeNode::CAnimTreeNode(const rstl::string& name) : mName(name) {}
 
 rstl::ncrc_ptr< CAnimTreeNode > Cast(const rstl::ownership_transfer< IAnimReader >& ptr) {
   IAnimReader* reader = ptr.take_ownership();

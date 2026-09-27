@@ -8,16 +8,16 @@
 
 class CLine {
 public:
-  CLine(const CVector3f& origin, const CUnitVector3f& dir) : x0_origin(origin), xc_dir(dir) {}
+  CLine(const CVector3f& origin, const CUnitVector3f& dir) : mOrigin(origin), mDir(dir) {}
   CLine(const CVector3f& origin, const CVector3f& dir)
-  : x0_origin(origin), xc_dir(*reinterpret_cast< const CUnitVector3f* >(&dir)) {}
+  : mOrigin(origin), mDir(*reinterpret_cast< const CUnitVector3f* >(&dir)) {}
 
-  const CVector3f& GetRefPoint() const { return x0_origin; }
-  const CUnitVector3f& GetNormal() const { return xc_dir; }
+  const CVector3f& GetRefPoint() const { return mOrigin; }
+  const CUnitVector3f& GetNormal() const { return mDir; }
 
 private:
-  CVector3f x0_origin;
-  CUnitVector3f xc_dir;
+  CVector3f mOrigin;
+  CUnitVector3f mDir;
 };
 
 #endif // _CLINE

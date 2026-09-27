@@ -45,27 +45,27 @@ public:
   };
 
   struct SPatchInfo {
-    char x0_xSubdivs;
-    char x1_ySubdivs;
-    float x4_localMinX;
-    float x8_localMinY;
-    float xc_globalMinX;
-    float x10_globalMinY;
-    float x14_tileSize;
-    float x18_rippleResolution;
-    float x1c_tileHypRadius;
-    float x20_ooTileSize;
-    float x24_ooRippleResolution;
-    short x28_tileX;
-    short x2a_gridDimX;
-    short x2c_gridDimY;
-    short x2e_tileY;
-    const char* x30_gridFlags;
-    uchar x34_redShift;
-    uchar x35_greenShift;
-    uchar x36_blueShift;
-    uchar x37_normalMode;
-    float x38_wavecapIntensityScale;
+    char mXSubdivs;
+    char mYSubdivs;
+    float mLocalMinX;
+    float mLocalMinY;
+    float mGlobalMinX;
+    float mGlobalMinY;
+    float mTileSize;
+    float mRippleResolution;
+    float mTileHypRadius;
+    float mOoTileSize;
+    float mOoRippleResolution;
+    short mTileX;
+    short mGridDimX;
+    short mGridDimY;
+    short mTileY;
+    const char* mGridFlags;
+    uchar mRedShift;
+    uchar mGreenShift;
+    uchar mBlueShift;
+    uchar mNormalMode;
+    float mWavecapIntensityScale;
 
     SPatchInfo(const CVector3f& localMin, const CVector3f& localMax, const CVector3f& pos,
                float rippleResolution, float tileSize, float wavecapIntensityScale,
@@ -75,18 +75,18 @@ public:
   };
 
   struct SRippleInfo {
-    const CRipple* x0_ripple;
-    int x4_fromX;
-    int x8_toX;
-    int xc_fromY;
-    int x10_toY;
-    int x14_gfromX;
-    int x18_gtoX;
-    int x1c_gfromY;
-    int x20_gtoY;
+    const CRipple* mRipple;
+    int mFromX;
+    int mToX;
+    int mFromY;
+    int mToY;
+    int mGfromX;
+    int mGtoX;
+    int mGfromY;
+    int mGtoY;
 
     SRippleInfo(const CRipple& ripple, int fromX, int toX, int fromY, int toY)
-    : x0_ripple(&ripple), x14_gfromX(fromX), x18_gtoX(toX), x1c_gfromY(fromY), x20_gtoY(toY) {}
+    : mRipple(&ripple), mGfromX(fromX), mGtoX(toX), mGfromY(fromY), mGtoY(toY) {}
   };
 
   static int numTilesInHField;
@@ -132,15 +132,15 @@ public:
   float CalculateRippleIntensity(const float base) const;
   float GetRippleScaleFromKineticEnergy(float baseI, float velDot);
 
-  float GetAlpha() const { return x40_alpha; }
-  EFluidType GetFluidType() const { return x44_fluidType; }
-  const CFluidUVMotion& GetUVMotion() const { return x4c_uvMotion; }
-  const TLockedToken< CTexture >& GetTexturePattern1() const { return *x10_texPattern1; }
-  bool HasTexturePattern1() const { return x10_texPattern1; }
-  const TLockedToken< CTexture >& GetTexturePattern2() const { return *x20_texPattern2; }
-  bool HasTexturePattern2() const { return x20_texPattern2; }
-  const TLockedToken< CTexture >& GetColorTexture() const { return *x30_texColor; }
-  bool HasColorTexture() const { return x30_texColor; }
+  float GetAlpha() const { return mAlpha; }
+  EFluidType GetFluidType() const { return mFluidType; }
+  const CFluidUVMotion& GetUVMotion() const { return mUvMotion; }
+  const TLockedToken< CTexture >& GetTexturePattern1() const { return *mTexPattern1; }
+  bool HasTexturePattern1() const { return mTexPattern1; }
+  const TLockedToken< CTexture >& GetTexturePattern2() const { return *mTexPattern2; }
+  bool HasTexturePattern2() const { return mTexPattern2; }
+  const TLockedToken< CTexture >& GetColorTexture() const { return *mTexColor; }
+  bool HasColorTexture() const { return mTexColor; }
   static const float GetRippleIntensityRange() { return kRippleIntensityRange; }
 
 protected:
@@ -148,16 +148,16 @@ protected:
                               const unsigned char& flags, float curY, int startYDiv,
                               const CFluidPlaneCPURender::SPatchInfo& info);
 
-  CAssetId x4_texPattern1Id;
-  CAssetId x8_texPattern2Id;
-  CAssetId xc_texColorId;
-  rstl::optional_object< TLockedToken< CTexture > > x10_texPattern1;
-  rstl::optional_object< TLockedToken< CTexture > > x20_texPattern2;
-  rstl::optional_object< TLockedToken< CTexture > > x30_texColor;
-  float x40_alpha;
-  EFluidType x44_fluidType;
-  float x48_rippleIntensity;
-  CFluidUVMotion x4c_uvMotion;
+  CAssetId mTexPattern1Id;
+  CAssetId mTexPattern2Id;
+  CAssetId mTexColorId;
+  rstl::optional_object< TLockedToken< CTexture > > mTexPattern1;
+  rstl::optional_object< TLockedToken< CTexture > > mTexPattern2;
+  rstl::optional_object< TLockedToken< CTexture > > mTexColor;
+  float mAlpha;
+  EFluidType mFluidType;
+  float mRippleIntensity;
+  CFluidUVMotion mUvMotion;
 };
 CHECK_SIZEOF(CFluidPlane, 0xA0);
 
@@ -184,14 +184,14 @@ public:
 
   class CSplashRecord {
   public:
-    CSplashRecord(TUniqueId id) : x0_time(0.f), x4_id(id) {}
-    void SetTime(float t) { x0_time = t; }
-    float GetTime() const { return x0_time; }
-    TUniqueId GetUniqueId() const { return x4_id; }
+    CSplashRecord(TUniqueId id) : mTime(0.f), mId(id) {}
+    void SetTime(float t) { mTime = t; }
+    float GetTime() const { return mTime; }
+    TUniqueId GetUniqueId() const { return mId; }
 
   private:
-    float x0_time;
-    TUniqueId x4_id;
+    float mTime;
+    TUniqueId mId;
   };
 
   CFluidPlaneManager();
@@ -203,19 +203,19 @@ public:
   void CreateSplash(TUniqueId splasher, CStateManager& mgr, const CScriptWater& water,
                     const CVector3f& pos, float factor, bool sfx);
 
-  CRippleManager& RippleManager() { return x0_rippleManager; }
-  const CRippleManager& GetRippleManager() const { return x0_rippleManager; }
+  CRippleManager& RippleManager() { return mRippleManager; }
+  const CRippleManager& GetRippleManager() const { return mRippleManager; }
   float GetLastSplashDeltaTime(TUniqueId uid) const;
   float GetLastRippleDeltaTime(TUniqueId uid) const;
 
-  rstl::reserved_vector< CSplashRecord, 32 >& SplashRecords() { return x18_splashes; }
+  rstl::reserved_vector< CSplashRecord, 32 >& SplashRecords() { return mSplashes; }
   const rstl::reserved_vector< CSplashRecord, 32 >& GetSplashRecords() const {
-    return x18_splashes;
+    return mSplashes;
   }
-  float GetTime() const { return x11c_uvT; }
-  void SetTime(float t) { x11c_uvT = t; }
+  float GetTime() const { return mUvT; }
+  void SetTime(float t) { mUvT = t; }
 
-  float GetUVTime() const { return x11c_uvT; }
+  float GetUVTime() const { return mUvT; }
 
   static uint GetFreqTableIndex(float);
   static void SetupRippleMap();
@@ -223,9 +223,9 @@ public:
   static const float kOldestTime;
 
 private:
-  CRippleManager x0_rippleManager;
-  rstl::reserved_vector< CSplashRecord, 32 > x18_splashes;
-  float x11c_uvT;
+  CRippleManager mRippleManager;
+  rstl::reserved_vector< CSplashRecord, 32 > mSplashes;
+  float mUvT;
   mutable bool x120_;
   mutable bool x121_;
 };

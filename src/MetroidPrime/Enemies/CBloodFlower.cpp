@@ -133,7 +133,7 @@ void CBloodFlower::BulbAttack(CStateManager& mgr, const EStateMsg msg, const flo
 
 void CBloodFlower::TriggerPodSteam(CStateManager& mgr, const bool activate) const {
   for (AUTO(conn, GetConnectionList().begin()); conn != GetConnectionList().end(); ++conn) {
-    AUTO(search, mgr.GetIdListForScript(conn->x8_objId));
+    AUTO(search, mgr.GetIdListForScript(conn->mObjId));
     if (search.first != search.second) {
       if (CScriptTrigger* trigger =
               TCastToPtr< CScriptTrigger >(mgr.ObjectById(search.first->second))) {
@@ -258,7 +258,7 @@ void CBloodFlower::Render(const CStateManager& mgr) const {
 
 void CBloodFlower::ResetShotTimer(CStateManager& mgr) {
   const float rnd = -mgr.Random()->Float();
-  mCurAttackTime = x308_attackTimeVariation * rnd;
+  mCurAttackTime = mAttackTimeVariation * rnd;
 }
 
 EWeaponCollisionResponseTypes CBloodFlower::GetCollisionResponseType(const CVector3f& position,

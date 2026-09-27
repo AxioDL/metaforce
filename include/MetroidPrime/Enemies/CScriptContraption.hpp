@@ -46,11 +46,11 @@ public:
   CFlameThrower* CreateFlameThrower(const rstl::string& name, CStateManager& mgr);
 
 private:
-  rstl::list< SFlameThrower > x2e8_children;
-  TToken< CWeaponDescription > x300_flameThrowerGenDesc;
-  CAssetId x308_flameFxId;
-  CDamageInfo x30c_dInfo;
+  rstl::list< SFlameThrower > mChildren;
+  TToken< CWeaponDescription > mFlameThrowerGenDesc;
+  CAssetId mFlameFxId;
+  CDamageInfo mDInfo;
 };
-CHECK_SIZEOF(CScriptContraption, (VERSION >= VERSION_GM8P_00 ? 0x338 : 0x328))
+CHECK_SIZEOF(CScriptContraption, (VERSION >= VERSION_GM8E_02 ? 0x338 : 0x328))
 
 #endif // _CSCRIPTCONTRAPTION

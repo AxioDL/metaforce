@@ -21,7 +21,7 @@ public:
   void PreDraw();
   void Draw() const;
   bool IsLoaded() const;
-  bool IsTransitioning() const { return x8_curSubscreen != xc_nextSubscreen; }
+  bool IsTransitioning() const { return mCurSubscreen != mNextSubscreen; }
   bool ShouldSwitchToMapScreen() const;
   bool ShouldSwitchToInGame() const;
   float GetHelmetCamYOff() const;
@@ -40,32 +40,32 @@ private:
   bool InputEnabled() const;
   void TransitionComplete();
 
-  ESubScreen x0_initialSubscreen;
-  int x4_direction;
-  ESubScreen x8_curSubscreen;
-  ESubScreen xc_nextSubscreen;
-  float x10_alphaInterp;
-  TCachedToken< CStringTable > x14_strgPauseScreen;
-  const CDependencyGroup& x20_suitDgrp;
-  const CDependencyGroup& x24_ballDgrp;
-  TCachedToken< CGuiFrame > x28_pauseScreenInstructions;
-  CGuiFrame* x34_loadedPauseScreenInstructions;
-  CGuiTextPane* x38_textpane_l1;
-  CGuiTextPane* x3c_textpane_r;
-  CGuiTextPane* x40_textpane_a;
-  CGuiTextPane* x44_textpane_b;
-  CGuiTextPane* x48_textpane_return;
-  CGuiTextPane* x4c_textpane_next;
-  CGuiTextPane* x50_textpane_back;
-  CAssetId x54_frmePauseScreenId;
-  uint x58_frmePauseScreenBufSz;
-  rstl::single_ptr< char > x5c_frmePauseScreenBuf;
-  rstl::single_ptr< CDvdRequest > x60_loadTok;
-  rstl::reserved_vector< rstl::auto_ptr< CGuiFrame >, 2 > x64_frameInsts;
-  uint x78_activeIdx;
-  rstl::reserved_vector< rstl::auto_ptr< CPauseScreenBase >, 2 > x7c_screens;
-  bool x90_resourcesLoaded;
-  bool x91_initialTransition;
+  ESubScreen mInitialSubscreen;
+  int mDirection;
+  ESubScreen mCurSubscreen;
+  ESubScreen mNextSubscreen;
+  float mAlphaInterp;
+  TCachedToken< CStringTable > mStrgPauseScreen;
+  const CDependencyGroup& mSuitDgrp;
+  const CDependencyGroup& mBallDgrp;
+  TCachedToken< CGuiFrame > mPauseScreenInstructions;
+  CGuiFrame* mLoadedPauseScreenInstructions;
+  CGuiTextPane* mTextpane_l1;
+  CGuiTextPane* mTextpane_r;
+  CGuiTextPane* mTextpane_a;
+  CGuiTextPane* mTextpane_b;
+  CGuiTextPane* mTextpane_return;
+  CGuiTextPane* mTextpane_next;
+  CGuiTextPane* mTextpane_back;
+  CAssetId mFrmePauseScreenId;
+  uint mFrmePauseScreenBufSz;
+  rstl::single_ptr< char > mFrmePauseScreenBuf;
+  rstl::single_ptr< CDvdRequest > mLoadTok;
+  rstl::reserved_vector< rstl::auto_ptr< CGuiFrame >, 2 > mFrameInsts;
+  uint mActiveIdx;
+  rstl::reserved_vector< rstl::auto_ptr< CPauseScreenBase >, 2 > mScreens;
+  bool mResourcesLoaded;
+  bool mInitialTransition;
 };
 CHECK_SIZEOF(CPauseScreen, 0x94)
 

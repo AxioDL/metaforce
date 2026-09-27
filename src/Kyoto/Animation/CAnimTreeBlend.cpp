@@ -1,19 +1,19 @@
 #include "Kyoto/Animation/CAnimTreeBlend.hpp"
 
 rstl::ownership_transfer< IAnimReader > CAnimTreeBlend::VClone() const {
-  return rs_new CAnimTreeBlend(CharacterSpaceBlend(), Cast(x14_a->Clone()), Cast(x18_b->Clone()),
-                               x24_blendWeight, x4_name);
+  return rs_new CAnimTreeBlend(CharacterSpaceBlend(), Cast(mA->Clone()), Cast(mB->Clone()),
+                               mBlendWeight, mName);
 }
 
-float CAnimTreeBlend::VGetBlendingWeight() const { return x24_blendWeight; }
+float CAnimTreeBlend::VGetBlendingWeight() const { return mBlendWeight; }
 
 CCharAnimTime CAnimTreeBlend::VGetTimeRemaining() const {
-  return rstl::max_val(x14_a->GetTimeRemaining(), x18_b->GetTimeRemaining());
+  return rstl::max_val(mA->GetTimeRemaining(), mB->GetTimeRemaining());
 }
 
 CSteadyStateAnimInfo CAnimTreeBlend::VGetSteadyStateAnimInfo() const {
-  CSteadyStateAnimInfo infoA = x14_a->GetSteadyStateAnimInfo();
-  CSteadyStateAnimInfo infoB = x18_b->GetSteadyStateAnimInfo();
+  CSteadyStateAnimInfo infoA = mA->GetSteadyStateAnimInfo();
+  CSteadyStateAnimInfo infoB = mB->GetSteadyStateAnimInfo();
   CVector3f offsetA = infoA.GetOffset();
   CVector3f offsetB = infoB.GetOffset();
   CCharAnimTime durationA = infoA.GetDuration();
@@ -21,10 +21,10 @@ CSteadyStateAnimInfo CAnimTreeBlend::VGetSteadyStateAnimInfo() const {
   CVector3f offset;
   if (durationA < durationB) {
     float scale = durationB / durationA;
-    offset = offsetA * scale * x24_blendWeight + offsetB * (1.f - x24_blendWeight);
+    offset = offsetA * scale * mBlendWeight + offsetB * (1.f - mBlendWeight);
   } else if (durationB < durationA) {
     float scale = durationA / durationB;
-    offset = offsetA * x24_blendWeight + offsetB * scale * (1.f - x24_blendWeight);
+    offset = offsetA * mBlendWeight + offsetB * scale * (1.f - mBlendWeight);
   } else {
     offset = offsetA + offsetB;
   }
@@ -38,28 +38,28 @@ rstl::string CAnimTreeBlend::CreatePrimitiveName(const rstl::ncrc_ptr< CAnimTree
   return rstl::string_l("");
 }
 
-void CAnimTreeBlend::SetBlendingWeight(float weight) { x24_blendWeight = weight; }
+void CAnimTreeBlend::SetBlendingWeight(float weight) { mBlendWeight = weight; }
 
 CAdvancementResults CAnimTreeBlend::VAdvanceView(const CCharAnimTime& time) {
   IncAdvancementDepth();
-#if VERSION >= VERSION_GM8P_00
-  CAdvancementResults resA = x14_a->AdvanceView(time);
-  CAdvancementResults resB = x18_b->AdvanceView(time);
+#if VERSION >= VERSION_GM8E_02
+  CAdvancementResults resA = mA->AdvanceView(time);
+  CAdvancementResults resB = mB->AdvanceView(time);
 #else
-  CAdvancementResults resA = x14_a->AdvanceView(time);
+  CAdvancementResults resA = mA->AdvanceView(time);
   const CAdvancementDeltas& deltasA = resA.GetAdvancementDeltas();
-  CAdvancementResults resB = x18_b->AdvanceView(time);
+  CAdvancementResults resB = mB->AdvanceView(time);
   const CAdvancementDeltas& deltasB = resB.GetAdvancementDeltas();
 #endif
   DecAdvancementDepth();
   if (ShouldCullTree()) {
     if (GetBlendingWeight() < 0.5f)
-      x20_25_cullSelector = 1;
+      mCullSelector = 1;
     else
-      x20_25_cullSelector = 2;
+      mCullSelector = 2;
   }
   CCharAnimTime remainder = rstl::max_val(resA.GetRemainder(), resB.GetRemainder());
-#if VERSION >= VERSION_GM8P_00
+#if VERSION >= VERSION_GM8E_02
   const CAdvancementDeltas& deltasA = resA.GetAdvancementDeltas();
   const CAdvancementDeltas& deltasB = resB.GetAdvancementDeltas();
 #endif

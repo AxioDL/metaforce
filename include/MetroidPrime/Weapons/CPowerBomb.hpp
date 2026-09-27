@@ -22,8 +22,8 @@ public:
   rstl::optional_object<CAABox> GetTouchBounds() const override;
   void Touch(CActor&, CStateManager&) override;
 
-  float GetCurTime() const { return x15c_curTime; }
-  bool IsEnding() const { return x15c_curTime > kEndingTime; }
+  float GetCurTime() const { return mCurTime; }
+  bool IsEnding() const { return mCurTime > kEndingTime; }
   void ApplyDynamicDamage(const CVector3f&, CStateManager&);
 
   static const CColor& FadeColor() { return kFadeColor; }
@@ -32,13 +32,13 @@ private:
   static CColor kFadeColor;
   static const float kEndingTime;
 
-  bool x158_24_canStartFilter : 1;
-  bool x158_25_filterEnabled : 1;
-  float x15c_curTime;
-  float x160_curRadius;
-  float x164_radiusIncrement;
-  rstl::single_ptr< CElementGen > x168_particle;
-  float x16c_radius;
+  bool mCanStartFilter : 1;
+  bool mFilterEnabled : 1;
+  float mCurTime;
+  float mCurRadius;
+  float mRadiusIncrement;
+  rstl::single_ptr< CElementGen > mParticle;
+  float mRadius;
 };
 
 #endif // _CPOWERBOMB

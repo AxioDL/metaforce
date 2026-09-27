@@ -7,9 +7,9 @@ CScriptTargetingPoint::CScriptTargetingPoint(TUniqueId uid, const rstl::string& 
                                              const bool active)
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(kMT_NoStepLogic),
          CActorParameters::None(), kInvalidUniqueId)
-, xe8_e4_(false)
+, mE4_(false)
 , xea_(kInvalidUniqueId)
-, xec_time(0.f) {}
+, mTime(0.f) {}
 
 ENTITY_ACCEPT_IMPL(CScriptTargetingPoint)
 
@@ -27,8 +27,8 @@ void CScriptTargetingPoint::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId 
 bool CScriptTargetingPoint::GetLocked() const { return GetConnectionList().size() > 0; }
 
 void CScriptTargetingPoint::Think(float dt, CStateManager&) {
-  if (xec_time > 0.f) {
-    xec_time -= dt;
+  if (mTime > 0.f) {
+    mTime -= dt;
   }
 }
 

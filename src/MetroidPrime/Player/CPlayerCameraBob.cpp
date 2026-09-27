@@ -35,35 +35,35 @@ float CPlayerCameraBob::kHeavyLandingHelmetBobDamping =
     CMath::SqrtF(kHeavyLandingHelmetBobSpringConstant) * 6.f;
 
 CPlayerCameraBob::CPlayerCameraBob(ECameraBobType type, const CVector2f& vec, float bobPeriod)
-: x0_type(type)
-, x4_vec(vec)
-, xc_bobPeriod(bobPeriod)
-, x10_targetBobMagnitude(0.f)
-, x14_bobMagnitude(0.f)
-, x18_bobTimeScale(0.f)
-, x1c_bobTime(0.f)
-, x20_oldState(kCBS_Unspecified)
-, x24_curState(kCBS_Unspecified)
-, x28_applyLandingTrans(false)
-, x29_hardLand(false)
-, x2c_cameraBobTransform(CTransform4f::Identity())
-, x5c_playerVelocity(CVector3f(0.f, 0.f, 0.f))
-, x68_playerPeakFallVel(0.f)
-, x6c_landingVelocity(0.f)
-, x70_landingTranslation(0.f)
-, x74_camVelocity(0.f)
-, x78_camTranslation(0.f)
-, xc4_wanderTime(0.f)
-, xc8_viewWanderSpeed(kViewWanderSpeedMin)
-, xcc_wanderIndex(0)
-, xd0_viewWanderXf(CTransform4f::Identity())
-, x100_wanderMagnitude(FLT_EPSILON)
-, x104_targetWanderMagnitude(0.f) {
+: mType(type)
+, mVec(vec)
+, mBobPeriod(bobPeriod)
+, mTargetBobMagnitude(0.f)
+, mBobMagnitude(0.f)
+, mBobTimeScale(0.f)
+, mBobTime(0.f)
+, mOldState(kCBS_Unspecified)
+, mCurState(kCBS_Unspecified)
+, mApplyLandingTrans(false)
+, mHardLand(false)
+, mCameraBobTransform(CTransform4f::Identity())
+, mPlayerVelocity(CVector3f(0.f, 0.f, 0.f))
+, mPlayerPeakFallVel(0.f)
+, mLandingVelocity(0.f)
+, mLandingTranslation(0.f)
+, mCamVelocity(0.f)
+, mCamTranslation(0.f)
+, mWanderTime(0.f)
+, mViewWanderSpeed(kViewWanderSpeedMin)
+, mWanderIndex(0)
+, mViewWanderXf(CTransform4f::Identity())
+, mWanderMagnitude(FLT_EPSILON)
+, mTargetWanderMagnitude(0.f) {
   for (int i = 0; i < 4; ++i) {
-    x7c_wanderPoints.push_back(CVector3f(0.f, 1.f, 0.f));
+    mWanderPoints.push_back(CVector3f(0.f, 1.f, 0.f));
   }
   for (int i = 0; i < 4; ++i) {
-    xb0_wanderPitches.push_back(0.f);
+    mWanderPitches.push_back(0.f);
   }
 }
 
@@ -85,82 +85,82 @@ void CPlayerCameraBob::ReadTweaks(CInputStream& in) {
 }
 
 void CPlayerCameraBob::Update(float dt, CStateManager& mgr) {
-  x1c_bobTime += dt * x18_bobTimeScale;
-  if (x28_applyLandingTrans) {
+  mBobTime += dt * mBobTimeScale;
+  if (mApplyLandingTrans) {
     float damping = kLandingBobDamping;
     float spring = kLandingBobSpringConstant;
-    if (x29_hardLand) {
+    if (mHardLand) {
       damping = kHeavyLandingBobDamping;
       spring = kHeavyLandingBobSpringConstant;
     }
 
-    x6c_landingVelocity +=
-        dt * (-(damping * x6c_landingVelocity) - spring * x70_landingTranslation);
-    x70_landingTranslation += x6c_landingVelocity * dt;
-    x74_camVelocity += dt * (-(kHeavyLandingHelmetBobDamping * x74_camVelocity) -
-                             kHeavyLandingHelmetBobSpringConstant * x78_camTranslation);
-    x78_camTranslation += x74_camVelocity * dt;
-    if (CMath::AbsF(x6c_landingVelocity) < 0.005f && CMath::AbsF(x70_landingTranslation) < 0.005f &&
-        CMath::AbsF(x74_camVelocity) < 0.005f && CMath::AbsF(x78_camTranslation) < 0.005f) {
-      x28_applyLandingTrans = false;
-      x70_landingTranslation = 0.f;
-      x78_camTranslation = 0.f;
+    mLandingVelocity +=
+        dt * (-(damping * mLandingVelocity) - spring * mLandingTranslation);
+    mLandingTranslation += mLandingVelocity * dt;
+    mCamVelocity += dt * (-(kHeavyLandingHelmetBobDamping * mCamVelocity) -
+                             kHeavyLandingHelmetBobSpringConstant * mCamTranslation);
+    mCamTranslation += mCamVelocity * dt;
+    if (CMath::AbsF(mLandingVelocity) < 0.005f && CMath::AbsF(mLandingTranslation) < 0.005f &&
+        CMath::AbsF(mCamVelocity) < 0.005f && CMath::AbsF(mCamTranslation) < 0.005f) {
+      mApplyLandingTrans = false;
+      mLandingTranslation = 0.f;
+      mCamTranslation = 0.f;
     }
   }
 
-  if (x24_curState == kCBS_WalkNoBob) {
-    x104_targetWanderMagnitude = 1.f;
+  if (mCurState == kCBS_WalkNoBob) {
+    mTargetWanderMagnitude = 1.f;
   } else {
-    x104_targetWanderMagnitude = 0.f;
+    mTargetWanderMagnitude = 0.f;
   }
 
   float magnitude = mgr.GetCameraManager()->GetCameraBobMagnitude();
-  x70_landingTranslation *= magnitude;
-  x78_camTranslation *= magnitude;
-  x104_targetWanderMagnitude *= magnitude;
+  mLandingTranslation *= magnitude;
+  mCamTranslation *= magnitude;
+  mTargetWanderMagnitude *= magnitude;
   if (mgr.GetPlayer()->GetDoneSidewaysDashing()) {
-    x70_landingTranslation *= 0.2f;
-    x78_camTranslation *= 0.2f;
-    x104_targetWanderMagnitude *= 0.2f;
+    mLandingTranslation *= 0.2f;
+    mCamTranslation *= 0.2f;
+    mTargetWanderMagnitude *= 0.2f;
   }
 
-  x100_wanderMagnitude +=
-      kTargetMagnitudeTrackingRate * (x104_targetWanderMagnitude - x100_wanderMagnitude);
-  if (x100_wanderMagnitude < 0.f) {
-    x100_wanderMagnitude = 0.f;
+  mWanderMagnitude +=
+      kTargetMagnitudeTrackingRate * (mTargetWanderMagnitude - mWanderMagnitude);
+  if (mWanderMagnitude < 0.f) {
+    mWanderMagnitude = 0.f;
   }
-  x14_bobMagnitude += kTargetMagnitudeTrackingRate * (x10_targetBobMagnitude - x14_bobMagnitude);
+  mBobMagnitude += kTargetMagnitudeTrackingRate * (mTargetBobMagnitude - mBobMagnitude);
   UpdateViewWander(dt, mgr);
-  x2c_cameraBobTransform =
+  mCameraBobTransform =
       CalculateCameraBobTransformation() * GetViewWanderTransform() *
       CTransform4f::LookAt(CVector3f::Zero(),
-                           CVector3f(0.f, kHeavyLandingViewDip, x78_camTranslation));
+                           CVector3f(0.f, kHeavyLandingViewDip, mCamTranslation));
 }
 
 void CPlayerCameraBob::SetBobTimeScale(const float scale) {
-  x18_bobTimeScale = scale;
-  x18_bobTimeScale = rstl::max_val(x18_bobTimeScale, 0.f);
-  x18_bobTimeScale = rstl::min_val(x18_bobTimeScale, 1.f);
+  mBobTimeScale = scale;
+  mBobTimeScale = rstl::max_val(mBobTimeScale, 0.f);
+  mBobTimeScale = rstl::min_val(mBobTimeScale, 1.f);
 }
 
 void CPlayerCameraBob::SetBobMagnitude(const float scale) {
-  x10_targetBobMagnitude = scale;
-  x10_targetBobMagnitude = rstl::max_val(x10_targetBobMagnitude, 0.f);
-  x10_targetBobMagnitude = rstl::min_val(x10_targetBobMagnitude, 1.f);
+  mTargetBobMagnitude = scale;
+  mTargetBobMagnitude = rstl::max_val(mTargetBobMagnitude, 0.f);
+  mTargetBobMagnitude = rstl::min_val(mTargetBobMagnitude, 1.f);
 }
 
 CTransform4f CPlayerCameraBob::CalculateCameraBobTransformation() const {
   float x = 0.f;
   float z = 0.f;
   CalculateMovingTranslation(x, z);
-  if (x28_applyLandingTrans) {
+  if (mApplyLandingTrans) {
     z += CalculateLandingTranslation();
   }
 
   return CTransform4f::Translate(x, 0.f, z);
 }
 
-CTransform4f CPlayerCameraBob::GetCameraBobTransformation() const { return x2c_cameraBobTransform; }
+CTransform4f CPlayerCameraBob::GetCameraBobTransformation() const { return mCameraBobTransform; }
 
 CTransform4f CPlayerCameraBob::GetGunBobTransformation() const {
   return CTransform4f(
@@ -169,80 +169,80 @@ CTransform4f CPlayerCameraBob::GetGunBobTransformation() const {
 
 CVector3f CPlayerCameraBob::GetHelmetBobTranslation() const {
   return kHelmetBobMagnitude *
-         (x2c_cameraBobTransform.GetTranslation() - CVector3f(0.f, 0.f, x78_camTranslation));
+         (mCameraBobTransform.GetTranslation() - CVector3f(0.f, 0.f, mCamTranslation));
 }
 
-float CPlayerCameraBob::CalculateLandingTranslation() const { return x70_landingTranslation; }
+float CPlayerCameraBob::CalculateLandingTranslation() const { return mLandingTranslation; }
 
 void CPlayerCameraBob::CalculateMovingTranslation(float& x, float& z) const {
-  switch (x0_type) {
+  switch (mType) {
   case kCBT_Zero: {
-    double angle = 2.0 * M_PI * fmod(x1c_bobTime, 2.0 * xc_bobPeriod) / xc_bobPeriod;
-    x = (x14_bobMagnitude * x4_vec[0]) * CCast::ToReal32(sin(angle));
-    z = (x14_bobMagnitude * x4_vec[1]) * CCast::ToReal32(cos(angle / 2.0) * fabs(cos(angle / 2.0)));
+    double angle = 2.0 * M_PI * fmod(mBobTime, 2.0 * mBobPeriod) / mBobPeriod;
+    x = (mBobMagnitude * mVec[0]) * CCast::ToReal32(sin(angle));
+    z = (mBobMagnitude * mVec[1]) * CCast::ToReal32(cos(angle / 2.0) * fabs(cos(angle / 2.0)));
     break;
   }
   case kCBT_One: {
-    float time = CCast::ToReal32(fmod(x1c_bobTime, 2.0 * xc_bobPeriod));
-    double angle = (M_PI * time) / xc_bobPeriod;
-    if (time > xc_bobPeriod) {
-      x = (2.f - time / xc_bobPeriod) * (x14_bobMagnitude * x4_vec[0]);
+    float time = CCast::ToReal32(fmod(mBobTime, 2.0 * mBobPeriod));
+    double angle = (M_PI * time) / mBobPeriod;
+    if (time > mBobPeriod) {
+      x = (2.f - time / mBobPeriod) * (mBobMagnitude * mVec[0]);
     } else {
-      x = time / xc_bobPeriod * (x14_bobMagnitude * x4_vec[0]);
+      x = time / mBobPeriod * (mBobMagnitude * mVec[0]);
     }
     float sine = CCast::ToReal32(sin(fmod(angle, M_PI)));
-    z = ((1.f - sine) * (x14_bobMagnitude * x4_vec[1])) / 2.f +
-        0.5f * (-(sine * sine - 1.f) * (x14_bobMagnitude * x4_vec[1]));
+    z = ((1.f - sine) * (mBobMagnitude * mVec[1])) / 2.f +
+        0.5f * (-(sine * sine - 1.f) * (mBobMagnitude * mVec[1]));
     break;
   }
   }
 }
 
-void CPlayerCameraBob::ResetCameraBobTime() { x1c_bobTime = 0.f; }
+void CPlayerCameraBob::ResetCameraBobTime() { mBobTime = 0.f; }
 
 void CPlayerCameraBob::SetState(ECameraBobState state, CStateManager& mgr) {
-  if (state == x24_curState) {
+  if (state == mCurState) {
     return;
   }
 
-  x20_oldState = x24_curState;
-  x24_curState = state;
+  mOldState = mCurState;
+  mCurState = state;
 
-  if (x20_oldState == kCBS_InAir) {
-    x28_applyLandingTrans = true;
-    x68_playerPeakFallVel =
-        rstl::max_val(x68_playerPeakFallVel, kMaxNegativeVerticalSpeedConsidered);
-    x29_hardLand = x68_playerPeakFallVel < kPeakNegativeVerticalSpeedForHeavyLanding;
-    if (x29_hardLand) {
-      x74_camVelocity += x68_playerPeakFallVel;
+  if (mOldState == kCBS_InAir) {
+    mApplyLandingTrans = true;
+    mPlayerPeakFallVel =
+        rstl::max_val(mPlayerPeakFallVel, kMaxNegativeVerticalSpeedConsidered);
+    mHardLand = mPlayerPeakFallVel < kPeakNegativeVerticalSpeedForHeavyLanding;
+    if (mHardLand) {
+      mCamVelocity += mPlayerPeakFallVel;
     }
-    x6c_landingVelocity += x68_playerPeakFallVel;
-    x68_playerPeakFallVel = 0.f;
+    mLandingVelocity += mPlayerPeakFallVel;
+    mPlayerPeakFallVel = 0.f;
   }
 
-  if (x24_curState == kCBS_WalkNoBob && x100_wanderMagnitude) {
+  if (mCurState == kCBS_WalkNoBob && mWanderMagnitude) {
     InitViewWander(mgr);
   }
 }
 
 void CPlayerCameraBob::SetPlayerVelocity(const CVector3f& velocity) {
-  x5c_playerVelocity = velocity;
-  x68_playerPeakFallVel = rstl::min_val(velocity[kDZ], x68_playerPeakFallVel);
+  mPlayerVelocity = velocity;
+  mPlayerPeakFallVel = rstl::min_val(velocity[kDZ], mPlayerPeakFallVel);
 }
 
 void CPlayerCameraBob::InitViewWander(CStateManager& mgr) {
-  x7c_wanderPoints[0] = CVector3f(0.f, 1.f, 0.f);
-  x7c_wanderPoints[1] = x7c_wanderPoints[0];
-  x7c_wanderPoints[2] = x7c_wanderPoints[0];
-  x7c_wanderPoints[3] = CalculateRandomViewWanderPosition(mgr);
-  xb0_wanderPitches[0] = 0.f;
-  xb0_wanderPitches[1] = xb0_wanderPitches[0];
-  xb0_wanderPitches[2] = xb0_wanderPitches[0];
-  xb0_wanderPitches[3] = CalculateRandomViewWanderPitch(mgr);
-  xc8_viewWanderSpeed =
+  mWanderPoints[0] = CVector3f(0.f, 1.f, 0.f);
+  mWanderPoints[1] = mWanderPoints[0];
+  mWanderPoints[2] = mWanderPoints[0];
+  mWanderPoints[3] = CalculateRandomViewWanderPosition(mgr);
+  mWanderPitches[0] = 0.f;
+  mWanderPitches[1] = mWanderPitches[0];
+  mWanderPitches[2] = mWanderPitches[0];
+  mWanderPitches[3] = CalculateRandomViewWanderPitch(mgr);
+  mViewWanderSpeed =
       (kViewWanderSpeedMax - kViewWanderSpeedMin) * mgr.Random()->Float() + kViewWanderSpeedMin;
-  xc4_wanderTime = 0.f;
-  xcc_wanderIndex = 0;
+  mWanderTime = 0.f;
+  mWanderIndex = 0;
 }
 
 CVector3f CPlayerCameraBob::CalculateRandomViewWanderPosition(CStateManager& mgr) {
@@ -258,27 +258,27 @@ float CPlayerCameraBob::CalculateRandomViewWanderPitch(CStateManager& mgr) {
 
 void CPlayerCameraBob::UpdateViewWander(float dt, CStateManager& mgr) {
   CVector3f point = CMath::GetCatmullRomSplinePoint(
-      x7c_wanderPoints[xcc_wanderIndex], x7c_wanderPoints[(xcc_wanderIndex + 1) % 4],
-      x7c_wanderPoints[(xcc_wanderIndex + 2) % 4], x7c_wanderPoints[(xcc_wanderIndex + 3) % 4],
-      xc4_wanderTime);
+      mWanderPoints[mWanderIndex], mWanderPoints[(mWanderIndex + 1) % 4],
+      mWanderPoints[(mWanderIndex + 2) % 4], mWanderPoints[(mWanderIndex + 3) % 4],
+      mWanderTime);
   float pitch = CMath::GetCatmullRomSplinePoint(
-      xb0_wanderPitches[xcc_wanderIndex], xb0_wanderPitches[(xcc_wanderIndex + 1) % 4],
-      xb0_wanderPitches[(xcc_wanderIndex + 2) % 4], xb0_wanderPitches[(xcc_wanderIndex + 3) % 4],
-      xc4_wanderTime);
-  point = CVector3f(x100_wanderMagnitude * point[0], point[1], x100_wanderMagnitude * point[2]);
-  xd0_viewWanderXf = CTransform4f::LookAt(CVector3f(0.f, 0.f, 0.f), point) *
-                     CTransform4f::RotateY(CRelAngle::FromRadians(pitch * x100_wanderMagnitude));
+      mWanderPitches[mWanderIndex], mWanderPitches[(mWanderIndex + 1) % 4],
+      mWanderPitches[(mWanderIndex + 2) % 4], mWanderPitches[(mWanderIndex + 3) % 4],
+      mWanderTime);
+  point = CVector3f(mWanderMagnitude * point[0], point[1], mWanderMagnitude * point[2]);
+  mViewWanderXf = CTransform4f::LookAt(CVector3f(0.f, 0.f, 0.f), point) *
+                     CTransform4f::RotateY(CRelAngle::FromRadians(pitch * mWanderMagnitude));
 
-  xc4_wanderTime += xc8_viewWanderSpeed * dt;
-  if (xc4_wanderTime >= 1.f) {
-    x7c_wanderPoints[xcc_wanderIndex] = CalculateRandomViewWanderPosition(mgr);
-    xb0_wanderPitches[xcc_wanderIndex] = CalculateRandomViewWanderPitch(mgr);
-    xc8_viewWanderSpeed =
+  mWanderTime += mViewWanderSpeed * dt;
+  if (mWanderTime >= 1.f) {
+    mWanderPoints[mWanderIndex] = CalculateRandomViewWanderPosition(mgr);
+    mWanderPitches[mWanderIndex] = CalculateRandomViewWanderPitch(mgr);
+    mViewWanderSpeed =
         (kViewWanderSpeedMax - kViewWanderSpeedMin) * mgr.Random()->Float() + kViewWanderSpeedMin;
-    ++xcc_wanderIndex;
-    xcc_wanderIndex %= 4;
-    xc4_wanderTime -= 1.f;
+    ++mWanderIndex;
+    mWanderIndex %= 4;
+    mWanderTime -= 1.f;
   }
 }
 
-const CTransform4f& CPlayerCameraBob::GetViewWanderTransform() const { return xd0_viewWanderXf; }
+const CTransform4f& CPlayerCameraBob::GetViewWanderTransform() const { return mViewWanderXf; }

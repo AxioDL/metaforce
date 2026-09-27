@@ -5,11 +5,11 @@
 
 inline CSpawnSystemKeyframeData::CSpawnSystemKeyframeInfo::CSpawnSystemKeyframeInfo(
     CInputStream& in)
-: x0_id(in.Get< uint >())
+: mId(in.Get< uint >())
 , x4(in.Get< uint >())
 , x8(in.Get< uint >())
 , xc(in.Get< uint >())
-, x10_token() {}
+, mToken() {}
 
 CSpawnSystemKeyframeData::CSpawnSystemKeyframeData(CInputStream& in)
 : mUnknown1(in.Get< int >())
@@ -44,6 +44,6 @@ CSpawnSystemKeyframeData::GetSpawnedSystemsAtFrame(uint frame) {
 }
 
 void CSpawnSystemKeyframeData::CSpawnSystemKeyframeInfo::LoadToken(CSimplePool* pool) {
-  x10_token = pool->GetObj(SObjectTag('PART', x0_id));
-  x10_token->Lock();
+  mToken = pool->GetObj(SObjectTag('PART', mId));
+  mToken->Lock();
 }

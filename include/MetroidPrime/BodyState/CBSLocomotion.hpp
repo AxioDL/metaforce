@@ -25,7 +25,7 @@ public:
   virtual pas::EAnimationState GetBodyStateTransition(float dt, CBodyController& bc);
 
 protected:
-  pas::ELocomotionType x4_locomotionType;
+  pas::ELocomotionType mLocomotionType;
 
   float GetStartVelocityMagnitude(CBodyController& bc) const;
   void ReStartBodyState(CBodyController& bc, bool maintainVel);
@@ -49,9 +49,9 @@ public:
 protected:
   static const float skMinWalkPercent;
 
-  rstl::reserved_vector< rstl::reserved_vector< rstl::pair< int, float >, 8 >, 14 > x8_anims;
-  pas::ELocomotionAnim x3c4_anim;
-  float x3c8_primeTime;
+  rstl::reserved_vector< rstl::reserved_vector< rstl::pair< int, float >, 8 >, 14 > mAnims;
+  pas::ELocomotionAnim mAnim;
+  float mPrimeTime;
 
   float UpdateRun(float vel, CBodyController& bc, pas::ELocomotionAnim anim);
   float UpdateWalk(float vel, CBodyController& bc, pas::ELocomotionAnim anim);
@@ -89,7 +89,7 @@ public:
   virtual bool IsBackPedal(CBodyController& bc) const;
 
 private:
-  bool x3cc_pitchable;
+  bool mPitchable;
 };
 CHECK_SIZEOF(CBSFlyerLocomotion, 0x3D0)
 
@@ -103,8 +103,8 @@ public:
   float UpdateLocomotionAnimation(float dt, float velMag, CBodyController& bc, bool init) override;
 
 private:
-  rstl::reserved_vector< int, 14 > x8_anims;
-  pas::ELocomotionAnim x44_anim;
+  rstl::reserved_vector< int, 14 > mAnims;
+  pas::ELocomotionAnim mAnim;
 };
 CHECK_SIZEOF(CBSRestrictedLocomotion, 0x48)
 

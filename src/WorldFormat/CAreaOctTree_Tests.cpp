@@ -63,13 +63,13 @@ static bool BoxLineTest(const CAABox& box, const CLine& line, float& lT, float& 
 
 void CAreaOctTree::Node::LineTestEx(const CLine& line, const CMaterialFilter& filter,
                                     SRayResult& res, float length) const {
-  if (x20_nodeType == kTT_Invalid) {
+  if (mNodeType == kTT_Invalid) {
     return;
   }
 
   float lT = 0.f;
   float hT = 0.f;
-  if (!BoxLineTest(x0_aabb, line, lT, hT)) {
+  if (!BoxLineTest(mAabb, line, lT, hT)) {
     return;
   }
 
@@ -80,13 +80,13 @@ void CAreaOctTree::Node::LineTestEx(const CLine& line, const CMaterialFilter& fi
 
 bool CAreaOctTree::Node::LineTest(const CLine& line, const CMaterialFilter& filter,
                                   const float length) const {
-  if (x20_nodeType == kTT_Invalid) {
+  if (mNodeType == kTT_Invalid) {
     return true;
   }
 
   float lT = 0.f;
   float hT = 0.f;
-  if (!BoxLineTest(x0_aabb, line, lT, hT)) {
+  if (!BoxLineTest(mAabb, line, lT, hT)) {
     return true;
   }
 
@@ -169,7 +169,7 @@ bool CAreaOctTree::Node::LineTestInternal(const CLine& line, const CMaterialFilt
       return true;
     }
 
-    CVector3f center = x0_aabb.GetCenterPoint();
+    CVector3f center = mAabb.GetCenterPoint();
     CVector3f lowPoint = line.GetRefPoint() + lT * line.GetNormal();
     CVector3f highPoint = line.GetRefPoint() + hT * line.GetNormal();
     CVector3f crossingTimes(dirRecip.GetX() * (center.GetX() - line.GetRefPoint().GetX()),
@@ -284,13 +284,13 @@ void CAreaOctTree::Node::LineTestExInternal(const CLine& line, const CMaterialFi
       if (filter.Passes(material) && t <= bestT) {
         bestT = t;
         foundTriangle = true;
-        candidate.x10_surface = triangle;
-        candidate.x3c_t = t;
+        candidate.mSurface = triangle;
+        candidate.mT = t;
       }
     }
     if (foundTriangle) {
       result = candidate;
-      result.x0_plane = result.x10_surface->GetPlane();
+      result.mPlane = result.mSurface->GetPlane();
     }
   } else if (GetTreeType() == kTT_Branch) {
     if (GetChildFlags() == 0xa) {
@@ -310,22 +310,22 @@ void CAreaOctTree::Node::LineTestExInternal(const CLine& line, const CMaterialFi
       if (BoxLineTest(rightBounds, line, rightLowT, rightHighT)) {
         right.LineTestExInternal(line, filter, rightResult, rightLowT, rightHighT, maxT, dirRecip);
       }
-      if (!leftResult.x10_surface.valid() && !rightResult.x10_surface.valid()) {
+      if (!leftResult.mSurface.valid() && !rightResult.mSurface.valid()) {
         result = SRayResult();
         return;
       } else {
-        if (leftResult.x10_surface.valid() && rightResult.x10_surface.valid()) {
-          if (leftResult.x3c_t < rightResult.x3c_t) {
+        if (leftResult.mSurface.valid() && rightResult.mSurface.valid()) {
+          if (leftResult.mT < rightResult.mT) {
             result = leftResult;
           } else {
             result = rightResult;
           }
-        } else if (leftResult.x10_surface.valid()) {
+        } else if (leftResult.mSurface.valid()) {
           result = leftResult;
         } else {
           result = rightResult;
         }
-        if (result.x3c_t > highT) {
+        if (result.mT > highT) {
           result = SRayResult();
         }
       }
@@ -335,7 +335,7 @@ void CAreaOctTree::Node::LineTestExInternal(const CLine& line, const CMaterialFi
     float crossingTimes[3];
     int count = 0;
     int components[4] = {-1, -1, -1, 0};
-    CVector3f center = x0_aabb.GetCenterPoint();
+    CVector3f center = mAabb.GetCenterPoint();
     CVector3f lowPoint = line.GetRefPoint() + lT * line.GetNormal();
     CVector3f highPoint = line.GetRefPoint() + hT * line.GetNormal();
     for (int i = 0; i < 3; ++i) {
@@ -418,8 +418,8 @@ void CAreaOctTree::Node::LineTestExInternal(const CLine& line, const CMaterialFi
         if (child.GetTreeType() != kTT_Invalid) {
           child.LineTestExInternal(line, filter, result, childLowT, childHighT, maxT, dirRecip);
         }
-        if (result.x10_surface.valid()) {
-          if (result.x3c_t > highT) {
+        if (result.mSurface.valid()) {
+          if (result.mT > highT) {
             result = SRayResult();
           }
           return;

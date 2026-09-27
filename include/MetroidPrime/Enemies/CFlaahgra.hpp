@@ -37,21 +37,21 @@ public:
   float GetDizzyDuration() const { return x144_; }
   float GetCoverCooldown() const { return x148_; }
   float GetRetreatHP() const { return x140_; }
-  const CActorParameters& GetActorParameters() const { return xd8_actorParameters; }
-  float GetFaintToSmallHP() const { return xc_faintToSmallHP; }
+  const CActorParameters& GetActorParameters() const { return mActorParameters; }
+  float GetFaintToSmallHP() const { return mFaintToSmallHP; }
 
-  const CDamageVulnerability& GetSnakeVulnerability() const { return x10_snakeVulnerability; }
+  const CDamageVulnerability& GetSnakeVulnerability() const { return mSnakeVulnerability; }
 
-  CAssetId GetProjectileRes() const { return x78_projectileRes; }
-  const CDamageInfo& GetProjectileDamage() const { return x7c_projectileDamage; }
-  CAssetId GetChargedProjectileRes() const { return x98_chargedProjectileRes; }
-  const CDamageInfo& GetChargedProjectileDamage() const { return x9c_chargedProjectileDamage; }
-  CAssetId GetGrowingPlantsRes() const { return xb8_growingPlantsRes; }
-  const CDamageInfo& GetBombSlotDamage() const { return xbc_bombSlotDamage; }
+  CAssetId GetProjectileRes() const { return mProjectileRes; }
+  const CDamageInfo& GetProjectileDamage() const { return mProjectileDamage; }
+  CAssetId GetChargedProjectileRes() const { return mChargedProjectileRes; }
+  const CDamageInfo& GetChargedProjectileDamage() const { return mChargedProjectileDamage; }
+  CAssetId GetGrowingPlantsRes() const { return mGrowingPlantsRes; }
+  const CDamageInfo& GetBombSlotDamage() const { return mBombSlotDamage; }
 
   CAssetId GetDependencyGroup() const { return x158_; }
 
-  CAnimationParameters GetAnimationParameters() const { return x14c_animationParameters; }
+  CAnimationParameters GetAnimationParameters() const { return mAnimationParameters; }
 
   static int GetNumProperties() { return skNumProperties; }
 
@@ -59,19 +59,19 @@ private:
   float x0_;
   float x4_;
   float x8_;
-  float xc_faintToSmallHP;
-  CDamageVulnerability x10_snakeVulnerability;
-  CAssetId x78_projectileRes;
-  CDamageInfo x7c_projectileDamage;
-  CAssetId x98_chargedProjectileRes;
-  CDamageInfo x9c_chargedProjectileDamage;
-  CAssetId xb8_growingPlantsRes;
-  CDamageInfo xbc_bombSlotDamage;
-  CActorParameters xd8_actorParameters;
+  float mFaintToSmallHP;
+  CDamageVulnerability mSnakeVulnerability;
+  CAssetId mProjectileRes;
+  CDamageInfo mProjectileDamage;
+  CAssetId mChargedProjectileRes;
+  CDamageInfo mChargedProjectileDamage;
+  CAssetId mGrowingPlantsRes;
+  CDamageInfo mBombSlotDamage;
+  CActorParameters mActorParameters;
   float x140_;
   float x144_;
   float x148_;
-  CAnimationParameters x14c_animationParameters;
+  CAnimationParameters mAnimationParameters;
   CAssetId x158_;
 
   static const int skNumProperties;
@@ -92,9 +92,9 @@ public:
   rstl::optional_object< CAABox > GetTouchBounds() const override;
 
 private:
-  TUniqueId xe8_owner;
+  TUniqueId mOwner;
 };
-CHECK_SIZEOF(CFlaahgraRenderer, (VERSION >= VERSION_GM8P_00 ? 0x100 : 0xf0))
+CHECK_SIZEOF(CFlaahgraRenderer, (VERSION >= VERSION_GM8E_02 ? 0x100 : 0xf0))
 
 class CFlaahgra : public CPatterned {
 public:
@@ -200,25 +200,25 @@ private:
   TUniqueId GetMirrorNearestPlayer(const CStateManager& mgr) const;
   CFlaahgraProjectile* CreateProjectile(const CTransform4f& xf, CStateManager& mgr);
 
-  int x568_state;
-  CFlaahgraData x56c_data;
-  rstl::auto_ptr< CBoneTracking > x6c8_boneTracking;
-  TUniqueId x6d0_rendererId;
-  TToken< CGenDescription > x6d4_plantsParticleGenDesc;
-  CProjectileInfo x6dc_normalProjectileInfo;
-  CProjectileInfo x704_bigStrikeProjectileInfo;
-  int x72c_projectilesCreated;
-  rstl::reserved_vector< CVector3f, 5 > x730_projectileDirs;
-  rstl::reserved_vector< TUniqueId, 4 > x770_mirrorWaypoints;
-  TUniqueId x77c_targetMirrorWaypointId;
+  int mState;
+  CFlaahgraData mData;
+  rstl::auto_ptr< CBoneTracking > mBoneTracking;
+  TUniqueId mRendererId;
+  TToken< CGenDescription > mPlantsParticleGenDesc;
+  CProjectileInfo mNormalProjectileInfo;
+  CProjectileInfo mBigStrikeProjectileInfo;
+  int mProjectilesCreated;
+  rstl::reserved_vector< CVector3f, 5 > mProjectileDirs;
+  rstl::reserved_vector< TUniqueId, 4 > mMirrorWaypoints;
+  TUniqueId mTargetMirrorWaypointId;
   int x780_;
   int x784_;
-  int x788_stage;
+  int mStage;
   CVector3f x78c_;
-  int x798_meleeInitialAnimState;
-  rstl::single_ptr< CCollisionActorManager > x79c_leftArmCollision;
-  rstl::single_ptr< CCollisionActorManager > x7a0_rightArmCollision;
-  rstl::single_ptr< CCollisionActorManager > x7a4_sphereCollision;
+  int mMeleeInitialAnimState;
+  rstl::single_ptr< CCollisionActorManager > mLeftArmCollision;
+  rstl::single_ptr< CCollisionActorManager > mRightArmCollision;
+  rstl::single_ptr< CCollisionActorManager > mSphereCollision;
   int x7a8_;
   int x7ac_;
   uint x7b0_;
@@ -226,42 +226,42 @@ private:
   float x7b8_;
   float x7bc_;
   float x7c0_;
-  float x7c4_actionDuration;
+  float mActionDuration;
   float x7c8_;
-  float x7cc_generateEndCooldown;
-  float x7d0_hitSomethingTime;
-  float x7d4_faintTime;
+  float mGenerateEndCooldown;
+  float mHitSomethingTime;
+  float mFaintTime;
   float x7d8_;
-  CDamageInfo x7dc_halfContactDamage;
+  CDamageInfo mHalfContactDamage;
   int x7f8_;
-#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
-  int x80c_projectileAttackCount;
+#if VERSION >= VERSION_GM8P_00
+  int mProjectileAttackCount;
 #endif
-  rstl::reserved_vector< TUniqueId, 6 > x7fc_sphereColliders;
-  TUniqueId x80c_headActor;
+  rstl::reserved_vector< TUniqueId, 6 > mSphereColliders;
+  TUniqueId mHeadActor;
   float x810_;
-#if VERSION < VERSION_GM8P_00 || VERSION == VERSION_GM8E_02
+#if VERSION < VERSION_GM8P_00
   float x814_;
 #endif
-  float x818_curHp;
+  float mCurHp;
   float x81c_;
-  CVector3f x820_aimPosition;
+  CVector3f mAimPosition;
   rstl::reserved_vector< CVector3f, 4 > x82c_;
   rstl::reserved_vector< CVector3f, 4 > x860_;
-  CVector3f x894_fallDirection;
+  CVector3f mFallDirection;
   CVector3f x8a0_;
   CAnimRes x8ac_;
-  rstl::optional_object< CToken > x8c8_depGroup;
-  rstl::vector< CToken > x8d4_tokens;
-  bool x8e4_24_loaded : 1;
-  bool x8e4_25_loading : 1;
+  rstl::optional_object< CToken > mDepGroup;
+  rstl::vector< CToken > mTokens;
+  bool mLoaded : 1;
+  bool mLoading : 1;
   bool x8e4_26_ : 1;
   bool x8e4_27_ : 1;
   bool x8e4_28_ : 1;
-  bool x8e4_29_getup : 1;
-  bool x8e4_30_bigStrike : 1;
+  bool mGetup : 1;
+  bool mBigStrike : 1;
   bool x8e4_31_ : 1;
-#if VERSION < VERSION_GM8P_00 || VERSION == VERSION_GM8E_02
+#if VERSION < VERSION_GM8P_00
   bool x8e5_24_ : 1;
 #endif
   bool x8e5_25_ : 1;
@@ -269,7 +269,7 @@ private:
   bool x8e5_27_ : 1;
   bool x8e5_28_ : 1;
   bool x8e5_29_ : 1;
-#if VERSION < VERSION_GM8P_00 || VERSION == VERSION_GM8E_02
+#if VERSION < VERSION_GM8P_00
   bool x8e5_30_ : 1;
 #endif
 
@@ -279,6 +279,6 @@ private:
   static const pas::ESeverity skpAttackTypeLookup[];
   static const int skpComboChain[];
 };
-CHECK_SIZEOF(CFlaahgra, (VERSION >= VERSION_GM8P_00 ? 0x8f8 : 0x8e8))
+CHECK_SIZEOF(CFlaahgra, (VERSION >= VERSION_GM8E_02 ? 0x8f8 : 0x8e8))
 
 #endif // _CFLAAHGRA

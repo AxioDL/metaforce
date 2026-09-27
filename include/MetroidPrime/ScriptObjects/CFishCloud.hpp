@@ -42,37 +42,37 @@ public:
 
 private:
   class CModifierSource {
-    TUniqueId x0_source;
-    float x4_radius;
-    float x8_priority;
-    bool xc_isRepulsor;
-    bool xd_isSwirl;
+    TUniqueId mSource;
+    float mRadius;
+    float mPriority;
+    bool mIsRepulsor;
+    bool mIsSwirl;
 
   public:
     CModifierSource(const TUniqueId& source, bool repulsor, bool swirl, float radius,
                     float priority);
-    void SetAffectPriority(float priority) { x8_priority = priority; }
-    void SetAffectRadius(float radius) { x4_radius = radius; }
-    float GetAffectPriority() const { return x8_priority; }
-    float GetAffectRadius() const { return x4_radius; }
-    bool IsRepulsor() const { return xc_isRepulsor; }
-    bool IsSwirl() const { return xd_isSwirl; }
-    const TUniqueId& GetSource() const { return x0_source; }
+    void SetAffectPriority(float priority) { mPriority = priority; }
+    void SetAffectRadius(float radius) { mRadius = radius; }
+    float GetAffectPriority() const { return mPriority; }
+    float GetAffectRadius() const { return mRadius; }
+    bool IsRepulsor() const { return mIsRepulsor; }
+    bool IsSwirl() const { return mIsSwirl; }
+    const TUniqueId& GetSource() const { return mSource; }
     bool operator<(const CModifierSource& other) const;
   };
   typedef rstl::vector<CModifierSource> TModifierSourceVector;
   class CBoid {
     friend class CFishCloud;
-    CVector3f x0_pos;
-    CVector3f xc_vel;
-    float x18_scale;
-    CBoid* x1c_next;
-    bool x20_active;
+    CVector3f mPos;
+    CVector3f mVel;
+    float mScale;
+    CBoid* mNext;
+    bool mActive;
 
   public:
     CBoid(const CVector3f& pos, const CVector3f& vel, float scale);
-    CVector3f& Translation() { return x0_pos; }
-    const CVector3f& GetTranslation() const { return x0_pos; }
+    CVector3f& Translation() { return mPos; }
+    const CVector3f& GetTranslation() const { return mPos; }
   };
   typedef rstl::vector<CBoid*> TBoidPtrVector;
   typedef rstl::vector<CBoid> TBoidVector;
@@ -110,50 +110,50 @@ private:
   void UpdateParticles(float dt);
   void RenderParticles() const;
 
-  TBoidVector xe8_boids;
-  TBoidPtrVector xf8_boidPartitionLists;
-  TModifierSourceVector x108_modifierSources;
-  int x118_thinkCounter;
-  int x11c_updateMask;
-  CVector3f x120_scale;
-  float x12c_randomMovementTimer;
-  float x130_speed;
-  int x134_numBoids;
-  float x138_separationRadius;
-  float x13c_cohesionMagnitude;
-  float x140_alignmentWeight;
-  float x144_separationMagnitude;
-  float x148_weaponRepelMagnitude;
-  float x14c_playerRepelMagnitude;
-  float x150_scatterVel;
-  float x154_maxScatterAngle;
-  float x158_containmentMagnitude;
-  float x15c_playerRepelDampingSpeed;
-  float x160_weaponRepelDampingSpeed;
-  float x164_playerRepelDamping;
-  float x168_weaponRepelDamping;
-  CColor x16c_color;
-  float x170_weaponKillRadius;
-  float x174_containmentRadius;
-  rstl::reserved_vector< rstl::auto_ptr< float >, 4 > x178_posWorkspaces;
-  rstl::reserved_vector< float*, 4 > x19c_nrmWorkspaces;
-  rstl::reserved_vector< rstl::ncrc_ptr< CModelData >, 4 > x1b0_models;
-  rstl::reserved_vector< TLockedToken< CGenDescription >, 4 > x1c4_particleDescs;
-  rstl::reserved_vector< rstl::auto_ptr< CElementGen >, 4 > x1f8_particleGens;
-  rstl::reserved_vector< int, 4 > x21c_deathParticleCounts;
-  CModelData::EWhichModel x230_whichModel;
-  ushort x234_deathSfx;
-  CVector3f x238_partitionPitch;
-  CVector3f x244_ooPartitionPitch;
-  bool x250_24_randomMovement : 1;
-  bool x250_25_worldSpace : 1;
-  bool x250_26_enableWeaponRepelDamping : 1;
-  bool x250_27_validModel : 1;
-  bool x250_28_killable : 1;
-  bool x250_29_repelFromThreats : 1;
-  bool x250_30_enablePlayerRepelDamping : 1;
-  bool x250_31_updateWithoutPartitions : 1;
+  TBoidVector mBoids;
+  TBoidPtrVector mBoidPartitionLists;
+  TModifierSourceVector mModifierSources;
+  int mThinkCounter;
+  int mUpdateMask;
+  CVector3f mScale;
+  float mRandomMovementTimer;
+  float mSpeed;
+  int mNumBoids;
+  float mSeparationRadius;
+  float mCohesionMagnitude;
+  float mAlignmentWeight;
+  float mSeparationMagnitude;
+  float mWeaponRepelMagnitude;
+  float mPlayerRepelMagnitude;
+  float mScatterVel;
+  float mMaxScatterAngle;
+  float mContainmentMagnitude;
+  float mPlayerRepelDampingSpeed;
+  float mWeaponRepelDampingSpeed;
+  float mPlayerRepelDamping;
+  float mWeaponRepelDamping;
+  CColor mColor;
+  float mWeaponKillRadius;
+  float mContainmentRadius;
+  rstl::reserved_vector< rstl::auto_ptr< float >, 4 > mPosWorkspaces;
+  rstl::reserved_vector< float*, 4 > mNrmWorkspaces;
+  rstl::reserved_vector< rstl::ncrc_ptr< CModelData >, 4 > mModels;
+  rstl::reserved_vector< TLockedToken< CGenDescription >, 4 > mParticleDescs;
+  rstl::reserved_vector< rstl::auto_ptr< CElementGen >, 4 > mParticleGens;
+  rstl::reserved_vector< int, 4 > mDeathParticleCounts;
+  CModelData::EWhichModel mWhichModel;
+  ushort mDeathSfx;
+  CVector3f mPartitionPitch;
+  CVector3f mOoPartitionPitch;
+  bool mRandomMovement : 1;
+  bool mWorldSpace : 1;
+  bool mEnableWeaponRepelDamping : 1;
+  bool mValidModel : 1;
+  bool mKillable : 1;
+  bool mRepelFromThreats : 1;
+  bool mEnablePlayerRepelDamping : 1;
+  bool mUpdateWithoutPartitions : 1;
 };
-CHECK_SIZEOF(CFishCloud, (VERSION >= VERSION_GM8P_00 ? 0x268 : 0x258))
+CHECK_SIZEOF(CFishCloud, (VERSION >= VERSION_GM8E_02 ? 0x268 : 0x258))
 
 #endif // _CFISHCLOUD

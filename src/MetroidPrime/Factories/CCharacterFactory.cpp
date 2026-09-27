@@ -16,10 +16,10 @@
 
 inline CAnimationManager::CAnimationManager(const TToken< CAnimationDatabase >& animDB,
                                           const CAnimSysContext& sysCtx)
-: x0_animDB(animDB)
-, x8_sysCtx(sysCtx) {}
+: mAnimDB(animDB)
+, mSysCtx(sysCtx) {}
 
-inline CTransitionManager::CTransitionManager(const CAnimSysContext& context) : x0_context(context) {}
+inline CTransitionManager::CTransitionManager(const CAnimSysContext& context) : mContext(context) {}
 
 rstl::auto_ptr< IObj > CCharacterFactory::CDummyFactory::Build(const SObjectTag& tag,
                                                                const CVParamTransfer& params) {
@@ -56,13 +56,13 @@ void CCharacterFactory::CDummyFactory::CancelBuild(const SObjectTag&) {}
 
 CCharacterFactory::CCharacterFactory(CSimplePool& store, const CAnimCharacterSet& ancs,
                                      CAssetId selfId)
-: x4_charInfoDB(GetCharacterInfoDB(ancs))
-, x14_charLayoutInfoDB(GetCharLayoutInfoDB(store, x4_charInfoDB))
-, x40_additiveInfo(ancs.GetAnimationSet().GetAdditiveAnimInfoList())
-, x50_defaultAdditiveInfo(ancs.GetAnimationSet().GetDefaultAdditiveAnimInfo())
-, x58_animResources(ancs.GetAnimationSet().GetAnimResIdEventResIdList())
-, x68_selfId(selfId)
-, x70_cacheResPool(x6c_dummyFactory) {
+: mCharInfoDB(GetCharacterInfoDB(ancs))
+, mCharLayoutInfoDB(GetCharLayoutInfoDB(store, mCharInfoDB))
+, mAdditiveInfo(ancs.GetAnimationSet().GetAdditiveAnimInfoList())
+, mDefaultAdditiveInfo(ancs.GetAnimationSet().GetDefaultAdditiveAnimInfo())
+, mAnimResources(ancs.GetAnimationSet().GetAnimResIdEventResIdList())
+, mSelfId(selfId)
+, mCacheResPool(mDummyFactory) {
   const CAnimationSet::AnimationList& animations = ancs.GetAnimationSet().GetAnimations();
   const CAnimationSet::TransitionList& transitions = ancs.GetAnimationSet().GetTransitions();
   const CAnimationSet::HalfTransitionList& halfTransitions =
@@ -72,19 +72,19 @@ CCharacterFactory::CCharacterFactory(CSimplePool& store, const CAnimCharacterSet
   const TToken< CTransitionDatabaseGame > transDB(
       rs_new CTransitionDatabaseGame(transitions, halfTransitions, defaultTrans));
   const rstl::ncrc_ptr< CRandom16 > random(rs_new CRandom16(2334));
-  x24_sysContext =
+  mSysContext =
       rstl::ncrc_ptr< CAnimSysContext >(rs_new CAnimSysContext(transDB, random, store));
-  x28_animMgr = rs_new CAnimationManager(animDB, *x24_sysContext);
-  x2c_transMgr = rs_new CTransitionManager(*x24_sysContext);
+  mAnimMgr = rs_new CAnimationManager(animDB, *mSysContext);
+  mTransMgr = rs_new CTransitionManager(*mSysContext);
 
   rstl::vector< CPrimitive > primitives;
   animDB.NonConstCopy()->GetAllUniquePrimitives(primitives);
-  x30_animSourceDB.reserve(primitives.size());
+  mAnimSourceDB.reserve(primitives.size());
   rstl::vector< CPrimitive >::const_iterator it = primitives.begin();
   rstl::vector< CPrimitive >::const_iterator primEnd = primitives.end();
   for (; it != primEnd; ++it) {
     const SObjectTag tag('ANIM', it->GetAnimResId());
-    x30_animSourceDB.push_back(store.GetObj(tag));
+    mAnimSourceDB.push_back(store.GetObj(tag));
   }
 }
 
@@ -92,26 +92,26 @@ rstl::auto_ptr< CAnimData >
 CCharacterFactory::CreateCharacter(int charIdx, bool loop,
                                    const TLockedToken< CCharacterFactory >& factory,
                                    int defaultAnim) const {
-  const CCharacterInfo& charInfo = x4_charInfoDB[charIdx];
+  const CCharacterInfo& charInfo = mCharInfoDB[charIdx];
   const SObjectTag modelTag(0, charInfo.GetModelId());
-  TToken< CSkinnedModel > skinnedModel = x70_cacheResPool.GetObj(
+  TToken< CSkinnedModel > skinnedModel = mCacheResPool.GetObj(
       modelTag, CVParamTransfer(rs_new TObjOwnerParam< const CCharacterInfo* const >(&charInfo)));
   const CAssetId iceModelId = charInfo.GetIceModelId();
   const CAssetId iceSkinId = charInfo.GetIceSkinRulesId();
   const SObjectTag iceTag(1, iceModelId);
   rstl::optional_object< TLockedToken< CSkinnedModelWithAvgNormals > > iceModel;
   if (iceModelId != 0 && iceSkinId != 0) {
-    iceModel = TLockedToken< CSkinnedModelWithAvgNormals >(x70_cacheResPool.GetObj(
+    iceModel = TLockedToken< CSkinnedModelWithAvgNormals >(mCacheResPool.GetObj(
         iceTag, CVParamTransfer(rs_new TObjOwnerParam< const CCharacterInfo* const >(&charInfo))));
   }
-  CAnimData* animData = rs_new CAnimData(x68_selfId, charInfo, defaultAnim, charIdx, loop,
-                                         x14_charLayoutInfoDB[charIdx], skinnedModel, iceModel,
-                                         x24_sysContext, x28_animMgr, x2c_transMgr, factory);
+  CAnimData* animData = rs_new CAnimData(mSelfId, charInfo, defaultAnim, charIdx, loop,
+                                         mCharLayoutInfoDB[charIdx], skinnedModel, iceModel,
+                                         mSysContext, mAnimMgr, mTransMgr, factory);
   return animData;
 }
 
 const CCharacterInfo& CCharacterFactory::GetCharInfo(int charIdx) const {
-  return x4_charInfoDB[charIdx];
+  return mCharInfoDB[charIdx];
 }
 
 rstl::vector< CCharacterInfo >
@@ -144,8 +144,8 @@ CCharacterFactory::GetCharLayoutInfoDB(CSimplePool& store,
 
 int CCharacterFactory::GetEventResourceIdForAnimResourceId(int id) const {
   AUTO(cmp, (rstl::default_pair_sorter_finder< rstl::vector< rstl::pair< int, int > > >()));
-  AUTO(it, rstl::binary_find(x58_animResources.begin(), x58_animResources.end(), id, cmp));
-  if (it != x58_animResources.end()) {
+  AUTO(it, rstl::binary_find(mAnimResources.begin(), mAnimResources.end(), id, cmp));
+  if (it != mAnimResources.end()) {
     return it->second;
   }
   return -1;

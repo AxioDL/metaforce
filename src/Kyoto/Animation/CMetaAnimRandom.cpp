@@ -7,14 +7,14 @@
 #include "Kyoto/Streams/COutputStream.hpp"
 #include "rstl/rc_ptr.hpp"
 
-CMetaAnimRandom::CMetaAnimRandom(CInputStream& in) : x4_randomData(CreateRandomData(in)) {}
+CMetaAnimRandom::CMetaAnimRandom(CInputStream& in) : mRandomData(CreateRandomData(in)) {}
 
 rstl::ncrc_ptr< CAnimTreeNode >
 CMetaAnimRandom::VGetAnimationTree(const CAnimSysContext& animSys,
                                    const CMetaAnimTreeBuildOrders& orders) const {
   const int r = animSys.GetRandomNumberGenerator().Range(1, 100);
 
-  CMetaAnimRandom::RandomData::const_iterator rd = x4_randomData.begin();
+  CMetaAnimRandom::RandomData::const_iterator rd = mRandomData.begin();
   bool found = false;
   while (!found) {
     if (r <= rd->second) {
@@ -29,16 +29,16 @@ CMetaAnimRandom::VGetAnimationTree(const CAnimSysContext& animSys,
 }
 
 void CMetaAnimRandom::GetUniquePrimitives(rstl::set< CPrimitive >& primsOut) const {
-  CMetaAnimRandom::RandomData::const_iterator it = x4_randomData.begin();
-  CMetaAnimRandom::RandomData::const_iterator end = x4_randomData.end();
+  CMetaAnimRandom::RandomData::const_iterator it = mRandomData.begin();
+  CMetaAnimRandom::RandomData::const_iterator end = mRandomData.end();
   for (; it != end; ++it)
     it->first->GetUniquePrimitives(primsOut);
 }
 
 void CMetaAnimRandom::WriteAnimData(COutputStream& out) const {
-  CMetaAnimRandom::RandomData::const_iterator it = x4_randomData.begin();
-  CMetaAnimRandom::RandomData::const_iterator end = x4_randomData.end();
-  out.WriteInt32(x4_randomData.size());
+  CMetaAnimRandom::RandomData::const_iterator it = mRandomData.begin();
+  CMetaAnimRandom::RandomData::const_iterator end = mRandomData.end();
+  out.WriteInt32(mRandomData.size());
   while (it != end) {
     rstl::rc_ptr< IMetaAnim > anim = it->first;
     int weight = it->second;

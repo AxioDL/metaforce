@@ -22,18 +22,18 @@ public:
   void BuildPoints(volatile void* pipe) const;
   void BuildNormals(volatile void* pipe) const;
   void BuildNormalsFrom(const CVector3f* averageNormals, CVector3f* out) const;
-  int GetNumPoints() const { return x10_vertexCount; }
-  int GetNumNormals() const { return x14_normalCount; }
-  int GetNumVirtualBones() const { return x0_virtualBones.size(); }
-  const rstl::vector< CVirtualBone >& GetVirtualBones() const { return x0_virtualBones; }
+  int GetNumPoints() const { return mVertexCount; }
+  int GetNumNormals() const { return mNormalCount; }
+  int GetNumVirtualBones() const { return mVirtualBones.size(); }
+  const rstl::vector< CVirtualBone >& GetVirtualBones() const { return mVirtualBones; }
 
   
   static int ProcessingPoints(int count, ushort** buf);
   static int ProcessingNormals(int count, ushort** buf);
 private:
-  rstl::vector< CVirtualBone > x0_virtualBones;
-  int x10_vertexCount;
-  int x14_normalCount;
+  rstl::vector< CVirtualBone > mVirtualBones;
+  int mVertexCount;
+  int mNormalCount;
 };
 
 const CFactoryFnReturn FSkinRulesFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer&);

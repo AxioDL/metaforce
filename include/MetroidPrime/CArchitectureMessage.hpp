@@ -33,16 +33,16 @@ class CArchitectureMessage {
 public:
   CArchitectureMessage(EArchMsgTarget target, int type,
                        const rstl::rc_ptr< IArchitectureMessageParm >& parm)
-  : x0_target(target), x4_type(static_cast< EArchMsgType >(type)), x8_parm(parm) {}
+  : mTarget(target), mType(static_cast< EArchMsgType >(type)), mParm(parm) {}
 
-  EArchMsgType GetType() const { return x4_type; }
-  const IArchitectureMessageParm* GetParm() const { return x8_parm.GetPtr(); }
-  EArchMsgTarget GetTarget() const { return x0_target; }
+  EArchMsgType GetType() const { return mType; }
+  const IArchitectureMessageParm* GetParm() const { return mParm.GetPtr(); }
+  EArchMsgTarget GetTarget() const { return mTarget; }
 
 private:
-  EArchMsgTarget x0_target;
-  EArchMsgType x4_type;
-  rstl::rc_ptr< IArchitectureMessageParm > x8_parm;
+  EArchMsgTarget mTarget;
+  EArchMsgType mType;
+  rstl::rc_ptr< IArchitectureMessageParm > mParm;
 };
 
 #endif // _CARCHITECTUREMESSAGE

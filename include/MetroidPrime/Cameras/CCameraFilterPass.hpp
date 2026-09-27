@@ -61,16 +61,16 @@ public:
   static void DrawRandomStatic(const CColor& color, float alpha, bool cookieCutter);
 
 private:
-  EFilterType x0_curType;
-  EFilterType x4_nextType;
-  EFilterShape x8_shape;
-  float xc_duration;
-  float x10_remTime;
-  CColor x14_prevColor;
-  CColor x18_curColor;
-  CColor x1c_nextColor;
-  CAssetId x20_nextTxtr;
-  rstl::auto_ptr< TLockedToken< CTexture > > x24_texObj;
+  EFilterType mCurType;
+  EFilterType mNextType;
+  EFilterShape mShape;
+  float mDuration;
+  float mRemTime;
+  CColor mPrevColor;
+  CColor mCurColor;
+  CColor mNextColor;
+  CAssetId mNextTxtr;
+  rstl::auto_ptr< TLockedToken< CTexture > > mTexObj;
 };
 CHECK_SIZEOF(CCameraFilterPass, 0x2c)
 

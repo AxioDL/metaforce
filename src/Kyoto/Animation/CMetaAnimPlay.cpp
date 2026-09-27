@@ -8,24 +8,24 @@
 rstl::ncrc_ptr< CAnimTreeNode >
 CMetaAnimPlay::VGetAnimationTree(const CAnimSysContext& animSys,
                                  const CMetaAnimTreeBuildOrders& orders) const {
-  if (orders.x0_recursiveAdvance)
+  if (orders.mRecursiveAdvance)
     return GetAnimationTree(
-        animSys, CMetaAnimTreeBuildOrders::PreAdvanceForAll(*orders.x0_recursiveAdvance));
+        animSys, CMetaAnimTreeBuildOrders::PreAdvanceForAll(*orders.mRecursiveAdvance));
 
   IObjectStore& pool = animSys.GetSimplePool();
-  const SObjectTag tag('ANIM', x4_primitive.GetResourceId());
+  const SObjectTag tag('ANIM', mPrimitive.GetResourceId());
   TLockedToken< CAllFormatsAnimSource > anim = pool.GetObj(tag);
   rstl::ownership_transfer< IAnimReader > reader =
-      CAllFormatsAnimSource::GetNewReader(anim, x1c_startTime);
-  return rs_new CAnimTreeAnimReaderContainer(reader, x4_primitive.GetName(),
-                                             x4_primitive.GetAnimDatabaseIndex());
+      CAllFormatsAnimSource::GetNewReader(anim, mStartTime);
+  return rs_new CAnimTreeAnimReaderContainer(reader, mPrimitive.GetName(),
+                                             mPrimitive.GetAnimDatabaseIndex());
 }
 
 void CMetaAnimPlay::GetUniquePrimitives(rstl::set< CPrimitive >& primsOut) const {
-  primsOut.insert(x4_primitive);
+  primsOut.insert(mPrimitive);
 }
 
 void CMetaAnimPlay::WriteAnimData(COutputStream& out) const {
-  x4_primitive.PutTo(out);
-  x1c_startTime.PutTo(out);
+  mPrimitive.PutTo(out);
+  mStartTime.PutTo(out);
 }

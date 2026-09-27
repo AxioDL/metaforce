@@ -14,19 +14,19 @@ public:
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) override;
   void Think(float, CStateManager&) override;
   void UpdateEntity(TUniqueId, CStateManager&);
-  bool IsPassive() const { return x44_25_isPassive; }
-  void SetIsPassive(bool b) { x44_25_isPassive = b; }
+  bool IsPassive() const { return mIsPassive; }
+  void SetIsPassive(bool b) { mIsPassive = b; }
 
 private:
-  int x34_animationId;
-  float x38_initialLifetime;
-  float x3c_playbackRate;
-  float x40_lifetime;
-  bool x44_24_isLooped : 1;
-  bool x44_25_isPassive : 1;
-  bool x44_26_fadeOut : 1;
-  bool x44_27_timedLoop : 1;
-  bool x44_28_playing : 1; // false;
+  int mAnimationId;
+  float mInitialLifetime;
+  float mPlaybackRate;
+  float mLifetime;
+  bool mIsLooped : 1;
+  bool mIsPassive : 1;
+  bool mFadeOut : 1;
+  bool mTimedLoop : 1;
+  bool mPlaying : 1; // false;
   bool x44_29_ : 1; // false;
 };
 

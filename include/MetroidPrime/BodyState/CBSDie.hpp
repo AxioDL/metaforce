@@ -15,8 +15,8 @@ public:
   void Shutdown(CBodyController&) override;
 
 private:
-  float x4_remTime;
-  bool x8_isDead;
+  float mRemTime;
+  bool mIsDead;
 };
 
 #endif // _CBSDIE

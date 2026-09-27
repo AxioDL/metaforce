@@ -8,7 +8,7 @@
 #include "rstl/vector.hpp"
 
 class CREConstant : public CRealElement {
-  float x4_val;
+  float mVal;
 
 public:
   CREConstant(float val);
@@ -18,9 +18,9 @@ public:
 };
 
 class CRESineWave : public CRealElement {
-  CRealElement* x4_frequency;
-  CRealElement* x8_amplitude;
-  CRealElement* xc_phase;
+  CRealElement* mFrequency;
+  CRealElement* mAmplitude;
+  CRealElement* mPhase;
 
 public:
   CRESineWave(CRealElement* a, CRealElement* b, CRealElement* c);
@@ -29,7 +29,7 @@ public:
 };
 
 class CRETimeScale : public CRealElement {
-  CRealElement* x4_a;
+  CRealElement* mA;
 
 public:
   CRETimeScale(CRealElement* a);
@@ -38,8 +38,8 @@ public:
 };
 
 class CREAdd : public CRealElement {
-  CRealElement* x4_a;
-  CRealElement* x8_b;
+  CRealElement* mA;
+  CRealElement* mB;
 
 public:
   CREAdd(CRealElement* a, CRealElement* b);
@@ -48,8 +48,8 @@ public:
 };
 
 class CREMultiply : public CRealElement {
-  CRealElement* x4_a;
-  CRealElement* x8_b;
+  CRealElement* mA;
+  CRealElement* mB;
 
 public:
   CREMultiply(CRealElement* a, CRealElement* b);
@@ -58,8 +58,8 @@ public:
 };
 
 class CREDotProduct : public CRealElement {
-  CVectorElement* x4_a;
-  CVectorElement* x8_b;
+  CVectorElement* mA;
+  CVectorElement* mB;
 
 public:
   CREDotProduct(CVectorElement* a, CVectorElement* b);
@@ -68,8 +68,8 @@ public:
 };
 
 class CRERandom : public CRealElement {
-  CRealElement* x4_min;
-  CRealElement* x8_max;
+  CRealElement* mMin;
+  CRealElement* mMax;
 
 public:
   CRERandom(CRealElement* min, CRealElement* max);
@@ -78,8 +78,8 @@ public:
 };
 
 class CREInitialRandom : public CRealElement {
-  CRealElement* x4_min;
-  CRealElement* x8_max;
+  CRealElement* mMin;
+  CRealElement* mMax;
 
 public:
   CREInitialRandom(CRealElement* min, CRealElement* max);
@@ -89,9 +89,9 @@ public:
 };
 
 class CRETimeChain : public CRealElement {
-  CRealElement* x4_a;
-  CRealElement* x8_b;
-  CIntElement* xc_swFrame;
+  CRealElement* mA;
+  CRealElement* mB;
+  CIntElement* mSwFrame;
 
 public:
   CRETimeChain(CRealElement* a, CRealElement* b, CIntElement* c);
@@ -100,9 +100,9 @@ public:
 };
 
 class CREClamp : public CRealElement {
-  CRealElement* x4_min;
-  CRealElement* x8_max;
-  CRealElement* xc_val;
+  CRealElement* mMin;
+  CRealElement* mMax;
+  CRealElement* mVal;
 
 public:
   CREClamp(CRealElement* a, CRealElement* b, CRealElement* c);
@@ -111,10 +111,10 @@ public:
 };
 
 class CREPulse : public CRealElement {
-  CIntElement* x4_aDuration;
-  CIntElement* x8_bDuration;
-  CRealElement* xc_valA;
-  CRealElement* x10_valB;
+  CIntElement* mADuration;
+  CIntElement* mBDuration;
+  CRealElement* mValA;
+  CRealElement* mValB;
 
 public:
   CREPulse(CIntElement* a, CIntElement* b, CRealElement* c, CRealElement* d);
@@ -123,7 +123,7 @@ public:
 };
 
 class CRELifetimePercent : public CRealElement {
-  CRealElement* x4_percentVal;
+  CRealElement* mPercentVal;
 
 public:
   CRELifetimePercent(CRealElement* a); // : x4_percentVal(a) {}
@@ -132,8 +132,8 @@ public:
 };
 
 class CRELifetimeTween : public CRealElement {
-  CRealElement* x4_a;
-  CRealElement* x8_b;
+  CRealElement* mA;
+  CRealElement* mB;
 
 public:
   CRELifetimeTween(CRealElement* a, CRealElement* b);
@@ -142,13 +142,13 @@ public:
 };
 
 class CREKeyframeEmitter : public CRealElement {
-  int x4_percent;
-  int x8_unk1;
-  bool xc_loop;
-  bool xd_unk2;
-  int x10_loopEnd;
-  int x14_loopStart;
-  rstl::vector< float > x18_keys;
+  int mPercent;
+  int mUnk1;
+  bool mLoop;
+  bool mUnk2;
+  int mLoopEnd;
+  int mLoopStart;
+  rstl::vector< float > mKeys;
 
 public:
   CREKeyframeEmitter(CInputStream& in);
@@ -217,7 +217,7 @@ public:
 };
 
 class CREVectorXToReal : public CRealElement {
-  CVectorElement* x4_a;
+  CVectorElement* mA;
 
 public:
   CREVectorXToReal(CVectorElement* a);
@@ -226,7 +226,7 @@ public:
 };
 
 class CREVectorYToReal : public CRealElement {
-  CVectorElement* x4_a;
+  CVectorElement* mA;
 
 public:
   CREVectorYToReal(CVectorElement* a);
@@ -235,7 +235,7 @@ public:
 };
 
 class CREVectorZToReal : public CRealElement {
-  CVectorElement* x4_a;
+  CVectorElement* mA;
 
 public:
   CREVectorZToReal(CVectorElement* a);
@@ -244,7 +244,7 @@ public:
 };
 
 class CREVectorMagnitude : public CRealElement {
-  CVectorElement* x4_a;
+  CVectorElement* mA;
 
 public:
   CREVectorMagnitude(CVectorElement* a);
@@ -253,8 +253,8 @@ public:
 };
 
 class CREInitialSwitch : public CRealElement {
-  CRealElement* x4_a;
-  CRealElement* x8_b;
+  CRealElement* mA;
+  CRealElement* mB;
 
 public:
   CREInitialSwitch(CRealElement* a, CRealElement* b);
@@ -263,10 +263,10 @@ public:
 };
 
 class CRECompareLessThan : public CRealElement {
-  CRealElement* x4_a;
-  CRealElement* x8_b;
-  CRealElement* xc_c;
-  CRealElement* x10_d;
+  CRealElement* mA;
+  CRealElement* mB;
+  CRealElement* mC;
+  CRealElement* mD;
 
 public:
   CRECompareLessThan(CRealElement* a, CRealElement* b, CRealElement* c, CRealElement* d);
@@ -275,10 +275,10 @@ public:
 };
 
 class CRECompareEqual : public CRealElement {
-  CRealElement* x4_a;
-  CRealElement* x8_b;
-  CRealElement* xc_c;
-  CRealElement* x10_d;
+  CRealElement* mA;
+  CRealElement* mB;
+  CRealElement* mC;
+  CRealElement* mD;
 
 public:
   CRECompareEqual(CRealElement* a, CRealElement* b, CRealElement* c, CRealElement* d);
@@ -287,11 +287,11 @@ public:
 };
 
 class CREConstantRange : public CRealElement {
-  CRealElement* x4_val;
-  CRealElement* x8_min;
-  CRealElement* xc_max;
-  CRealElement* x10_inRange;
-  CRealElement* x14_outOfRange;
+  CRealElement* mVal;
+  CRealElement* mMin;
+  CRealElement* mMax;
+  CRealElement* mInRange;
+  CRealElement* mOutOfRange;
 
 public:
   CREConstantRange(CRealElement* a, CRealElement* b, CRealElement* c, CRealElement* d,
@@ -301,7 +301,7 @@ public:
 };
 
 class CREExternalVar : public CRealElement {
-  CIntElement* x4_a;
+  CIntElement* mA;
 
 public:
   CREExternalVar(CIntElement* a);
@@ -310,8 +310,8 @@ public:
 };
 
 class CRESubtract : public CRealElement {
-  CRealElement* x4_a;
-  CRealElement* x8_b;
+  CRealElement* mA;
+  CRealElement* mB;
 
 public:
   CRESubtract(CRealElement* a, CRealElement* b);
@@ -320,7 +320,7 @@ public:
 };
 
 class CREGetComponentRed : public CRealElement {
-  CColorElement* x4_a;
+  CColorElement* mA;
 
 public:
   CREGetComponentRed(CColorElement* a);
@@ -329,7 +329,7 @@ public:
 };
 
 class CREGetComponentGreen : public CRealElement {
-  CColorElement* x4_a;
+  CColorElement* mA;
 
 public:
   CREGetComponentGreen(CColorElement* a);
@@ -338,7 +338,7 @@ public:
 };
 
 class CREGetComponentBlue : public CRealElement {
-  CColorElement* x4_a;
+  CColorElement* mA;
 
 public:
   CREGetComponentBlue(CColorElement* a);
@@ -347,7 +347,7 @@ public:
 };
 
 class CREGetComponentAlpha : public CRealElement {
-  CColorElement* x4_a;
+  CColorElement* mA;
 
 public:
   CREGetComponentAlpha(CColorElement* a);
@@ -356,8 +356,8 @@ public:
 };
 
 class CREIntTimesReal : public CRealElement {
-  CIntElement* x4_a;
-  CRealElement* x8_b;
+  CIntElement* mA;
+  CRealElement* mB;
 
 public:
   CREIntTimesReal(CIntElement* a, CRealElement* b);

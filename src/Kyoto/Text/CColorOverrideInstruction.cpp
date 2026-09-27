@@ -2,8 +2,8 @@
 #include "Kyoto/Text/CFontRenderState.hpp"
 
 void CColorOverrideInstruction::Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const {
-  state.GetOverride()[x4_idx] = true;
-  state.GetOptions().SetPaletteEntry(x4_idx, state.ConvertToTextureSpace(x8_color));
+  state.GetOverride()[mIdx] = true;
+  state.GetOptions().SetPaletteEntry(mIdx, state.ConvertToTextureSpace(mColor));
 }
 
 void CColorOverrideInstruction::PageInvoke(CFontRenderState& state, CTextRenderBuffer* buf) const {

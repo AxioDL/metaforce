@@ -10,23 +10,23 @@ CScriptPlayerStateChange::CScriptPlayerStateChange(TUniqueId uid, const rstl::st
                                                    const int itemCapacity, const EControl control,
                                                    const EControlCommandOption controlCmdOpt)
 : CEntity(uid, info, active, name)
-, x34_itemType(itemType)
-, x38_itemCount(itemCount)
-, x3c_itemCapacity(itemCapacity)
-, x40_ctrl(control)
-, x44_ctrlCmdOpt(controlCmdOpt) {}
+, mItemType(itemType)
+, mItemCount(itemCount)
+, mItemCapacity(itemCapacity)
+, mCtrl(control)
+, mCtrlCmdOpt(controlCmdOpt) {}
 
 ENTITY_ACCEPT_IMPL(CScriptPlayerStateChange)
 
 void CScriptPlayerStateChange::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId,
                                                CStateManager& stateMgr) {
   if (GetActive() && msg == kSM_SetToZero) {
-    stateMgr.PlayerState()->InitializePowerUp(CPlayerState::EItemType(x34_itemType),
-                                              x3c_itemCapacity);
-    stateMgr.PlayerState()->IncrPickUp(CPlayerState::EItemType(x34_itemType), x38_itemCount);
+    stateMgr.PlayerState()->InitializePowerUp(CPlayerState::EItemType(mItemType),
+                                              mItemCapacity);
+    stateMgr.PlayerState()->IncrPickUp(CPlayerState::EItemType(mItemType), mItemCount);
 
-    if (x44_ctrlCmdOpt != kCCO_Unfiltered) {
-      switch (x40_ctrl) {
+    if (mCtrlCmdOpt != kCCO_Unfiltered) {
+      switch (mCtrl) {
       case kC_Filtered:
         bool filtered = Filtered();
         ControlMapper::SetCommandFiltered(ControlMapper::kC_OrbitClose, filtered);

@@ -31,23 +31,23 @@ CArtifactScanSorter skArtifactScanSorter;
 CLogBookScreen::CLogBookScreen(const CStateManager& mgr, CGuiFrame& frame,
                                const CStringTable& pauseStrg)
 : CPauseScreenBase(mgr, frame, pauseStrg)
-, x19c_scanCompletes(5, CScanCategory())
-, x200_viewScans(5, CArticleList())
-, x254_viewInterp(0.f)
-, x258_artifactDoll(rs_new CArtifactDoll())
-, x25c_leavePauseState(kLPS_InPause)
-, x260_24_loaded(false)
-, x260_25_inTextScroll(false)
-, x260_26_exitTextScroll(false) {
+, mScanCompletes(5, CScanCategory())
+, mViewScans(5, CArticleList())
+, mViewInterp(0.f)
+, mArtifactDoll(rs_new CArtifactDoll())
+, mLeavePauseState(kLPS_InPause)
+, mLoaded(false)
+, mInTextScroll(false)
+, mExitTextScroll(false) {
   CMain::EnsureWorldPaksReady();
   InitializeLogBook();
 }
 
 CLogBookScreen::~CLogBookScreen() {
-  x258_artifactDoll->CompleteArtifactHeadScan(x4_mgr);
+  mArtifactDoll->CompleteArtifactHeadScan(mMgr);
 
-  for (int i = 0; i < x144_model_titles.size(); ++i) {
-    CGuiModel* model = x144_model_titles[i];
+  for (int i = 0; i < mModel_titles.size(); ++i) {
+    CGuiModel* model = mModel_titles[i];
     model->SetO2PTransform(model->GetTransform());
   }
 
@@ -56,53 +56,53 @@ CLogBookScreen::~CLogBookScreen() {
 
 void CLogBookScreen::Update(float dt, CRandom16& rand, CArchitectureQueue& queue) {
   CPauseScreenBase::Update(dt, rand, queue);
-  x258_artifactDoll->Update(dt, x4_mgr);
+  mArtifactDoll->Update(dt, mMgr);
   PumpArticleLoad();
 
-  if (x10_mode == kM_TextScroll) {
-    if (x260_25_inTextScroll) {
-      x254_viewInterp = rstl::min_val(1.f, x254_viewInterp + 4.f * dt);
+  if (mMode == kM_TextScroll) {
+    if (mInTextScroll) {
+      mViewInterp = rstl::min_val(1.f, mViewInterp + 4.f * dt);
     } else {
-      x254_viewInterp = rstl::max_val(0.f, x254_viewInterp - 4.f * dt);
+      mViewInterp = rstl::max_val(0.f, mViewInterp - 4.f * dt);
     }
 
-    CColor color = CColor::White().WithAlphaOf(x254_viewInterp);
-    x74_basewidget_leftguages->SetColor(color);
-    x88_basewidget_rightguages->SetColor(color);
+    CColor color = CColor::White().WithAlphaOf(mViewInterp);
+    mBasewidget_leftguages->SetColor(color);
+    mBasewidget_rightguages->SetColor(color);
 
-    CColor invColor = CColor::White().WithAlphaOf(1.f - x254_viewInterp);
-    x70_tablegroup_leftlog->SetColor(invColor);
-    x84_tablegroup_rightlog->SetColor(invColor);
-    x17c_model_textalpha->SetColor(invColor);
-    x174_textpane_body->SetColor(color);
+    CColor invColor = CColor::White().WithAlphaOf(1.f - mViewInterp);
+    mTablegroup_leftlog->SetColor(invColor);
+    mTablegroup_rightlog->SetColor(invColor);
+    mModel_textalpha->SetColor(invColor);
+    mTextpane_body->SetColor(color);
 
-    for (int i = 0; i < xf0_imagePanes.size(); ++i) {
-      xf0_imagePanes[i]->SetDeResFactor(1.f - x254_viewInterp);
+    for (int i = 0; i < mImagePanes.size(); ++i) {
+      mImagePanes[i]->SetDeResFactor(1.f - mViewInterp);
     }
 
-    if (x254_viewInterp == 0.f && x25c_leavePauseState == kLPS_InPause) {
+    if (mViewInterp == 0.f && mLeavePauseState == kLPS_InPause) {
       ChangeMode(kM_RightTable);
     }
   }
 
-  if (x25c_leavePauseState == kLPS_LeavingPause && x254_viewInterp == 0.f) {
-    x25c_leavePauseState = kLPS_LeftPause;
+  if (mLeavePauseState == kLPS_LeavingPause && mViewInterp == 0.f) {
+    mLeavePauseState = kLPS_LeftPause;
   }
 }
 
 void CLogBookScreen::Touch() {
   CPauseScreenBase::Touch();
-  x258_artifactDoll->Touch();
+  mArtifactDoll->Touch();
 }
 
 bool CLogBookScreen::IsArtifactCategorySelected() const {
-  return x70_tablegroup_leftlog->GetUserSelection() + 1 == CWorldSaveGameInfo::kSC_Artifact;
+  return mTablegroup_leftlog->GetUserSelection() + 1 == CWorldSaveGameInfo::kSC_Artifact;
 }
 
 int CLogBookScreen::GetSelectedArtifactHeadScanIndex() const {
-  const CScanCategory& category = x19c_scanCompletes[x70_tablegroup_leftlog->GetUserSelection()];
-  if (x1c_rightSel < category.size()) {
-    return CArtifactDoll::GetArtifactHeadScanIndex(category[x1c_rightSel].first);
+  const CScanCategory& category = mScanCompletes[mTablegroup_leftlog->GetUserSelection()];
+  if (mRightSel < category.size()) {
+    return CArtifactDoll::GetArtifactHeadScanIndex(category[mRightSel].first);
   }
 
   return -1;
@@ -111,21 +111,21 @@ int CLogBookScreen::GetSelectedArtifactHeadScanIndex() const {
 void CLogBookScreen::Draw(float transInterp, float totalAlpha, float yOff) const {
   CPauseScreenBase::Draw(transInterp, totalAlpha, yOff);
 
-  bool artifactSel = x10_mode == kM_RightTable && IsArtifactCategorySelected();
+  bool artifactSel = mMode == kM_RightTable && IsArtifactCategorySelected();
   int headIdx = GetSelectedArtifactHeadScanIndex();
-  x258_artifactDoll->Draw(transInterp * (1.f - x254_viewInterp), x4_mgr, artifactSel, headIdx);
+  mArtifactDoll->Draw(transInterp * (1.f - mViewInterp), mMgr, artifactSel, headIdx);
 }
 
 void CLogBookScreen::ProcessInput(const CFinalInput& input) {
-  x260_25_inTextScroll = false;
-  if (x25c_leavePauseState == kLPS_LeftPause) {
+  mInTextScroll = false;
+  if (mLeavePauseState == kLPS_LeftPause) {
     return;
   }
 
-  if (x10_mode == kM_TextScroll) {
-    int oldPage = x174_textpane_body->TextSupport().GetPageCounter();
+  if (mMode == kM_TextScroll) {
+    int oldPage = mTextpane_body->TextSupport().GetPageCounter();
     int newPage = oldPage;
-    int pageCount = x174_textpane_body->TextSupport().GetTotalPageCount();
+    int pageCount = mTextpane_body->TextSupport().GetTotalPageCount();
     bool lastPage = oldPage == pageCount - 1;
 
     if (pageCount != -1) {
@@ -135,28 +135,28 @@ void CLogBookScreen::ProcessInput(const CFinalInput& input) {
         newPage = rstl::min_val(pageCount - 1, oldPage + 1);
       }
 
-      x174_textpane_body->TextSupport().SetPage(newPage);
+      mTextpane_body->TextSupport().SetPage(newPage);
       if (oldPage != newPage) {
         CSfxManager::SfxStart(0x5a4, 0x7f, 0x40, false);
       }
 
-      x198_28_pulseTextArrowTop = newPage > 0;
-      x198_29_pulseTextArrowBottom = !lastPage;
+      mPulseTextArrowTop = newPage > 0;
+      mPulseTextArrowBottom = !lastPage;
     } else {
-      x198_28_pulseTextArrowTop = x198_29_pulseTextArrowBottom = false;
+      mPulseTextArrowTop = mPulseTextArrowBottom = false;
     }
 
-    if (!x260_26_exitTextScroll) {
-      x260_26_exitTextScroll = input.PB() || ((input.PA() && lastPage) ? true : false);
+    if (!mExitTextScroll) {
+      mExitTextScroll = input.PB() || ((input.PA() && lastPage) ? true : false);
     }
 
-    x260_25_inTextScroll = gpTweakGui->GetLatchArticleText() ? !x260_26_exitTextScroll : input.DA();
+    mInTextScroll = gpTweakGui->GetLatchArticleText() ? !mExitTextScroll : input.DA();
   } else {
-    x198_28_pulseTextArrowTop = x198_29_pulseTextArrowBottom = false;
+    mPulseTextArrowTop = mPulseTextArrowBottom = false;
   }
 
-  if (x25c_leavePauseState == kLPS_LeavingPause) {
-    x260_25_inTextScroll = false;
+  if (mLeavePauseState == kLPS_LeavingPause) {
+    mInTextScroll = false;
   }
 
   CPauseScreenBase::ProcessInput(input);
@@ -166,32 +166,32 @@ bool CLogBookScreen::VReady() const { return true; }
 
 void CLogBookScreen::VActivate() {
   for (int i = 0; i < 5; ++i) {
-    CGuiTextPane* category = xa8_textpane_categories[i];
+    CGuiTextPane* category = mTextpane_categories[i];
     if (IsScanCategoryReady(static_cast< CWorldSaveGameInfo::EScanCategory >(i + 1))) {
-      category->TextSupport().SetText(xc_pauseStrg.GetString(i + 1));
+      category->TextSupport().SetText(mPauseStrg.GetString(i + 1));
     } else {
       category->TextSupport().SetText(rstl::wstring_l(L"??????"));
-      x70_tablegroup_leftlog->GetWorkerWidget(i)->SetIsSelectable(false);
+      mTablegroup_leftlog->GetWorkerWidget(i)->SetIsSelectable(false);
     }
   }
 
-  x178_textpane_title->TextSupport().SetText(xc_pauseStrg.GetString(0));
+  mTextpane_title->TextSupport().SetText(mPauseStrg.GetString(0));
 
   for (int i = 5; i < 5; ++i) {
-    x70_tablegroup_leftlog->GetWorkerWidget(i)->SetIsSelectable(false);
+    mTablegroup_leftlog->GetWorkerWidget(i)->SetIsSelectable(false);
   }
 }
 
 void CLogBookScreen::ChangedMode(EMode oldMode) {
   if (oldMode == kM_TextScroll) {
-    x74_basewidget_leftguages->SetVisibility(false, kTM_Children);
-    x88_basewidget_rightguages->SetVisibility(false, kTM_Children);
+    mBasewidget_leftguages->SetVisibility(false, kTM_Children);
+    mBasewidget_rightguages->SetVisibility(false, kTM_Children);
     UpdateBodyText();
-    x174_textpane_body->TextSupport().SetPage(0);
-  } else if (x10_mode == kM_TextScroll) {
-    x74_basewidget_leftguages->SetVisibility(true, kTM_Children);
-    x88_basewidget_rightguages->SetVisibility(true, kTM_Children);
-    x260_25_inTextScroll = true;
+    mTextpane_body->TextSupport().SetPage(0);
+  } else if (mMode == kM_TextScroll) {
+    mBasewidget_leftguages->SetVisibility(true, kTM_Children);
+    mBasewidget_rightguages->SetVisibility(true, kTM_Children);
+    mInTextScroll = true;
     UpdateBodyImagesAndText();
   }
 }
@@ -199,14 +199,14 @@ void CLogBookScreen::ChangedMode(EMode oldMode) {
 void CLogBookScreen::UpdateRightTable() {
   CPauseScreenBase::UpdateRightTable();
 
-  const CScanCategory& category = x19c_scanCompletes[x70_tablegroup_leftlog->GetUserSelection()];
+  const CScanCategory& category = mScanCompletes[mTablegroup_leftlog->GetUserSelection()];
   int count = category.size();
-  x1f0_curViewScans = CArticleList();
-  x1f0_curViewScans.reserve(count);
+  mCurViewScans = CArticleList();
+  mCurViewScans.reserve(count);
 
   for (AUTO(it, category.begin()); it != category.end(); ++it) {
     TCachedToken< CScannableObjectInfo > scan = gpSimplePool->GetObj(SObjectTag('SCAN', it->first));
-    x1f0_curViewScans.push_back(SArticle(scan, rstl::optional_object_null()));
+    mCurViewScans.push_back(SArticle(scan, rstl::optional_object_null()));
   }
 
   PumpArticleLoad();
@@ -214,16 +214,16 @@ void CLogBookScreen::UpdateRightTable() {
 }
 
 bool CLogBookScreen::ShouldLeftTableAdvance() {
-  if (!x260_24_loaded || x1f0_curViewScans.empty()) {
+  if (!mLoaded || mCurViewScans.empty()) {
     return false;
   }
 
   return IsScanCategoryReady(static_cast< CWorldSaveGameInfo::EScanCategory >(
-      x70_tablegroup_leftlog->GetUserSelection() + 1));
+      mTablegroup_leftlog->GetUserSelection() + 1));
 }
 
 bool CLogBookScreen::ShouldRightTableAdvance() {
-  SArticle& article = x1f0_curViewScans[x1c_rightSel];
+  SArticle& article = mCurViewScans[mRightSel];
   if (!article.first.TryCache()) {
     return false;
   }
@@ -234,21 +234,21 @@ bool CLogBookScreen::ShouldRightTableAdvance() {
     return false;
   }
 
-  if (!x198_25_handledInput &&
-      x19c_scanCompletes[x70_tablegroup_leftlog->GetUserSelection()][x1c_rightSel].second) {
+  if (!mHandledInput &&
+      mScanCompletes[mTablegroup_leftlog->GetUserSelection()][mRightSel].second) {
     return true;
   }
   return false;
 }
 
-uint CLogBookScreen::GetRightTableCount() const { return x1f0_curViewScans.size(); }
+uint CLogBookScreen::GetRightTableCount() const { return mCurViewScans.size(); }
 
 void CLogBookScreen::RightTableSelectionChanged(int oldSel, int newSel) { UpdateRightTitles(); }
 
 void CLogBookScreen::InitializeLogBook() {
-  const CStateManager& mgr = x4_mgr;
+  const CStateManager& mgr = mMgr;
   for (int i = 0; i < 5; ++i) {
-    x19c_scanCompletes[i].reserve(gpMemoryCard->GetScanCategoryCount(
+    mScanCompletes[i].reserve(gpMemoryCard->GetScanCategoryCount(
         static_cast< CWorldSaveGameInfo::EScanCategory >(i + 1)));
   }
 
@@ -257,19 +257,19 @@ void CLogBookScreen::InitializeLogBook() {
   for (AUTO(it, states.begin()); it != states.end(); ++it) {
     if (it->second != CWorldSaveGameInfo::kSC_None) {
       CAssetId scan = it->first;
-      CScanCategory& category = x19c_scanCompletes[it->second - 1];
+      CScanCategory& category = mScanCompletes[it->second - 1];
       bool complete = IsScanComplete(static_cast< CWorldSaveGameInfo::EScanCategory >(it->second),
                                      scan, playerState);
       category.push_back(SScanComplete(scan, complete));
     }
   }
 
-  rstl::sort(x19c_scanCompletes[4].begin(), x19c_scanCompletes[4].end(), skArtifactScanSorter);
+  rstl::sort(mScanCompletes[4].begin(), mScanCompletes[4].end(), skArtifactScanSorter);
 
-  for (int i = 0; i < x19c_scanCompletes.size(); ++i) {
-    const CScanCategory& category = x19c_scanCompletes[i];
+  for (int i = 0; i < mScanCompletes.size(); ++i) {
+    const CScanCategory& category = mScanCompletes[i];
     int count = rstl::min_val(5, category.size());
-    CArticleList& articles = x200_viewScans[i];
+    CArticleList& articles = mViewScans[i];
     articles.reserve(count);
 
     for (int j = 0; j < count; ++j) {
@@ -281,8 +281,8 @@ void CLogBookScreen::InitializeLogBook() {
 }
 
 void CLogBookScreen::PumpArticleLoad() {
-  x260_24_loaded = true;
-  for (AUTO(category, x200_viewScans.begin()); category != x200_viewScans.end(); ++category) {
+  mLoaded = true;
+  for (AUTO(category, mViewScans.begin()); category != mViewScans.end(); ++category) {
     for (AUTO(it, category->begin()); it != category->end(); ++it) {
       if (it->first.TryCache()) {
         rstl::optional_object< TCachedToken< CStringTable > >& str = it->second;
@@ -292,16 +292,16 @@ void CLogBookScreen::PumpArticleLoad() {
           str = TCachedToken< CStringTable >(
               gpSimplePool->GetObj(SObjectTag('STRG', it->first.GetObject()->GetStringTableId())));
           str->Lock();
-          x260_24_loaded = false;
+          mLoaded = false;
         }
       } else {
-        x260_24_loaded = false;
+        mLoaded = false;
       }
     }
   }
 
   int remaining = 6;
-  for (AUTO(it, x1f0_curViewScans.begin()); it != x1f0_curViewScans.end(); ++it) {
+  for (AUTO(it, mCurViewScans.begin()); it != mCurViewScans.end(); ++it) {
     if (it->first.IsLoaded()) {
       it->first.Lock();
       it->first.TryCache();
@@ -321,12 +321,12 @@ void CLogBookScreen::PumpArticleLoad() {
     }
   }
 
-  int articleIdx = x18_firstViewRightSel;
-  if (!x1f0_curViewScans.empty()) {
+  int articleIdx = mFirstViewRightSel;
+  if (!mCurViewScans.empty()) {
     while (remaining > 0) {
       const int cur = articleIdx;
-      if (!x1f0_curViewScans[cur].first.IsLocked()) {
-        x1f0_curViewScans[cur].first.Lock();
+      if (!mCurViewScans[cur].first.IsLocked()) {
+        mCurViewScans[cur].first.Lock();
         --remaining;
       }
       articleIdx = NextSurroundingArticleIndex(cur);
@@ -336,9 +336,9 @@ void CLogBookScreen::PumpArticleLoad() {
     }
   }
 
-  for (int i = 0; i < x1f0_curViewScans.size(); ++i) {
-    if (x1f0_curViewScans[i].first.TryCache()) {
-      rstl::optional_object< TCachedToken< CStringTable > >& str = x1f0_curViewScans[i].second;
+  for (int i = 0; i < mCurViewScans.size(); ++i) {
+    if (mCurViewScans[i].first.TryCache()) {
+      rstl::optional_object< TCachedToken< CStringTable > >& str = mCurViewScans[i].second;
       if (str && str->TryCache()) {
         UpdateRightTitles();
         UpdateBodyText();
@@ -348,67 +348,67 @@ void CLogBookScreen::PumpArticleLoad() {
 }
 
 int CLogBookScreen::NextSurroundingArticleIndex(int cur) {
-  if (cur < x18_firstViewRightSel) {
-    int next = x18_firstViewRightSel - cur + 6;
-    next += x18_firstViewRightSel;
-    return next < x1f0_curViewScans.size() ? next : cur - 1;
+  if (cur < mFirstViewRightSel) {
+    int next = mFirstViewRightSel - cur + 6;
+    next += mFirstViewRightSel;
+    return next < mCurViewScans.size() ? next : cur - 1;
   }
 
-  if (cur < x18_firstViewRightSel + 6) {
-    if (cur + 1 < x1f0_curViewScans.size()) {
+  if (cur < mFirstViewRightSel + 6) {
+    if (cur + 1 < mCurViewScans.size()) {
       return cur + 1;
     }
-    if (x18_firstViewRightSel == 0) {
+    if (mFirstViewRightSel == 0) {
       return -1;
     }
-    return x18_firstViewRightSel - 1;
+    return mFirstViewRightSel - 1;
   }
 
-  int next = x18_firstViewRightSel - (cur - (x18_firstViewRightSel + 5));
+  int next = mFirstViewRightSel - (cur - (mFirstViewRightSel + 5));
   if (next >= 0) {
     return next;
   }
-  if (cur >= x1f0_curViewScans.size() - 1) {
+  if (cur >= mCurViewScans.size() - 1) {
     return -1;
   }
   return cur + 1;
 }
 
 void CLogBookScreen::UpdateBodyImagesAndText() {
-  const CScannableObjectInfo* const scan = x1f0_curViewScans[x1c_rightSel].first.GetObject();
-  for (int i = 0; i < xf0_imagePanes.size(); ++i) {
-    CAuiImagePane* pane = xf0_imagePanes[i];
+  const CScannableObjectInfo* const scan = mCurViewScans[mRightSel].first.GetObject();
+  for (int i = 0; i < mImagePanes.size(); ++i) {
+    CAuiImagePane* pane = mImagePanes[i];
     pane->SetTextureID0(kInvalidAssetId, gpSimplePool);
     pane->SetAnimationParms(CVector2f::Zero(), 0.f, 0.f);
   }
 
   for (int i = 0; i < 4; ++i) {
     const CScannableObjectInfo::SBucket& bucket = scan->GetBucket(i);
-    if (bucket.x8_imagePos != CScannableObjectInfo::kPT_Invalid) {
-      CAuiImagePane* pane = xf0_imagePanes[bucket.x8_imagePos];
-      if (bucket.x14_interval > 0.f) {
-        pane->SetAnimationParms(CVector2f(bucket.xc_size.GetX(), bucket.xc_size.GetY()),
-                                bucket.x14_interval, bucket.x18_fadeDuration);
+    if (bucket.mImagePos != CScannableObjectInfo::kPT_Invalid) {
+      CAuiImagePane* pane = mImagePanes[bucket.mImagePos];
+      if (bucket.mInterval > 0.f) {
+        pane->SetAnimationParms(CVector2f(bucket.mSize.GetX(), bucket.mSize.GetY()),
+                                bucket.mInterval, bucket.mFadeDuration);
       }
-      pane->SetTextureID0(bucket.x0_texture, gpSimplePool);
+      pane->SetTextureID0(bucket.mTexture, gpSimplePool);
       pane->SetFlashFactor(0.f);
     }
   }
 
-  x260_26_exitTextScroll = false;
+  mExitTextScroll = false;
   UpdateBodyText();
 }
 
 void CLogBookScreen::UpdateBodyText() {
-  if (x10_mode != kM_TextScroll) {
-    x174_textpane_body->TextSupport().SetText(rstl::wstring_l(L""));
+  if (mMode != kM_TextScroll) {
+    mTextpane_body->TextSupport().SetText(rstl::wstring_l(L""));
     return;
   }
 
   rstl::optional_object< TCachedToken< CStringTable > >& str =
-      x1f0_curViewScans[x1c_rightSel].second;
+      mCurViewScans[mRightSel].second;
   if (str && str->TryCache() &&
-      static_cast< int >(x174_textpane_body->TextSupport().GetText().size()) == 0) {
+      static_cast< int >(mTextpane_body->TextSupport().GetText().size()) == 0) {
     const CStringTable* const table = str->GetObject();
     rstl::wstring text = table->GetString(0);
     if (table->GetStringCount() > 2) {
@@ -427,18 +427,18 @@ void CLogBookScreen::UpdateBodyText() {
       }
     }
 
-    x174_textpane_body->TextSupport().SetText(text, true);
+    mTextpane_body->TextSupport().SetText(text, true);
   }
 }
 
 void CLogBookScreen::UpdateRightTitles() {
-  const CScanCategory& category = x19c_scanCompletes[x70_tablegroup_leftlog->GetUserSelection()];
-  for (int i = 0; i < xd8_textpane_titles.size(); ++i) {
-    int scanIdx = x18_firstViewRightSel + i;
+  const CScanCategory& category = mScanCompletes[mTablegroup_leftlog->GetUserSelection()];
+  for (int i = 0; i < mTextpane_titles.size(); ++i) {
+    int scanIdx = mFirstViewRightSel + i;
     rstl::wstring text;
-    if (scanIdx < x1f0_curViewScans.size()) {
+    if (scanIdx < mCurViewScans.size()) {
       const rstl::optional_object< TCachedToken< CStringTable > >& str =
-          x1f0_curViewScans[scanIdx].second;
+          mCurViewScans[scanIdx].second;
       if (str && str->GetObject()) {
         if (category[scanIdx].second) {
           if (str->GetObject()->GetStringCount() > 1) {
@@ -455,29 +455,29 @@ void CLogBookScreen::UpdateRightTitles() {
         text = rstl::wstring_l(L"........");
       }
     }
-    xd8_textpane_titles[i]->TextSupport().SetText(text);
+    mTextpane_titles[i]->TextSupport().SetText(text);
   }
 
   int rightSelRem;
-  int rightSelMod = x18_firstViewRightSel % 5;
+  int rightSelMod = mFirstViewRightSel % 5;
   rightSelRem = 5 - rightSelMod;
-  for (int i = 0; i < x144_model_titles.size(); ++i) {
-    CGuiModel* model = x144_model_titles[i];
+  for (int i = 0; i < mModel_titles.size(); ++i) {
+    CGuiModel* model = mModel_titles[i];
     int row = rightSelRem;
     if (i >= rightSelMod) {
       row -= 5;
     }
-    const float zOff = x38_highlightPitch * row;
+    const float zOff = mHighlightPitch * row;
     model->SetO2PTransform(CTransform4f::Translate(0.f, 0.f, zOff) * model->GetTransform());
   }
 }
 
-void CLogBookScreen::TransitioningAway() { x25c_leavePauseState = kLPS_LeavingPause; }
+void CLogBookScreen::TransitioningAway() { mLeavePauseState = kLPS_LeavingPause; }
 
-bool CLogBookScreen::InputDisabled() const { return x25c_leavePauseState == kLPS_LeavingPause; }
+bool CLogBookScreen::InputDisabled() const { return mLeavePauseState == kLPS_LeavingPause; }
 
 bool CLogBookScreen::IsScanCategoryReady(CWorldSaveGameInfo::EScanCategory category) {
-  const CPlayerState& playerState = *x4_mgr.GetPlayerState();
+  const CPlayerState& playerState = *mMgr.GetPlayerState();
   const rstl::vector< CMemoryCard::ScanState >& states = gpMemoryCard->GetScanStates();
   for (AUTO(it, states.begin()); it != states.end(); ++it) {
     const uint& currentCategory = it->second;

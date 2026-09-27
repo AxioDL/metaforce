@@ -14,17 +14,17 @@ CScriptDistanceFog::CScriptDistanceFog(TUniqueId uid, const rstl::string& name,
                                        const bool active, float thermalTarget, float thermalSpeed,
                                        float xrayTarget, float xraySpeed)
 : CEntity(uid, info, active, name)
-, x34_mode(mode)
-, x38_color(color)
-, x3c_range(range)
-, x44_colorDelta(colorDelta)
-, x48_rangeDelta(rangeDelta)
-, x50_thermalTarget(thermalTarget)
-, x54_thermalSpeed(thermalSpeed)
-, x58_xrayTarget(xrayTarget)
-, x5c_xraySpeed(xraySpeed)
-, x60_explicit(expl)
-, x61_nonZero(!close_enough(rangeDelta, CVector2f(0.f, 0.f)) || !close_enough(colorDelta, 0.f)) {}
+, mMode(mode)
+, mColor(color)
+, mRange(range)
+, mColorDelta(colorDelta)
+, mRangeDelta(rangeDelta)
+, mThermalTarget(thermalTarget)
+, mThermalSpeed(thermalSpeed)
+, mXrayTarget(xrayTarget)
+, mXraySpeed(xraySpeed)
+, mExplicit(expl)
+, mNonZero(!close_enough(rangeDelta, CVector2f(0.f, 0.f)) || !close_enough(colorDelta, 0.f)) {}
 
 CScriptDistanceFog::~CScriptDistanceFog() {}
 
@@ -37,38 +37,38 @@ void CScriptDistanceFog::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId obj
   if (GetCurrentAreaId() != kInvalidAreaId && GetActive()) {
     switch (msg) {
     case kSM_InitializedInArea:
-      if (x60_explicit) {
+      if (mExplicit) {
         const TAreaId aid = GetCurrentAreaId();
         CGameArea::CAreaFog* fog = stateMgr.World()->Area(aid)->AreaFog();
-        if (x34_mode == kRFM_None) {
+        if (mMode == kRFM_None) {
           fog->DisableFog();
         } else {
-          fog->SetFogExplicit(x34_mode, x38_color, x3c_range);
+          fog->SetFogExplicit(mMode, mColor, mRange);
         }
       }
       break;
     case kSM_Action:
-      if (x61_nonZero) {
+      if (mNonZero) {
         const TAreaId aid = GetCurrentAreaId();
         CGameArea::CAreaFog* fog = stateMgr.World()->Area(aid)->AreaFog();
-        if (x34_mode != kRFM_None) {
-          fog->FadeFog(x34_mode, x38_color, x3c_range, x44_colorDelta, x48_rangeDelta);
+        if (mMode != kRFM_None) {
+          fog->FadeFog(mMode, mColor, mRange, mColorDelta, mRangeDelta);
         } else {
-          fog->RollFogOut(x48_rangeDelta.GetX(), x44_colorDelta, x38_color);
+          fog->RollFogOut(mRangeDelta.GetX(), mColorDelta, mColor);
         }
       }
 
-      if (!close_enough(x54_thermalSpeed, 0.f)) {
+      if (!close_enough(mThermalSpeed, 0.f)) {
         const TAreaId aid = GetCurrentAreaId();
         stateMgr.World()
             ->Area(aid)
-            ->SetThermalSpeedAndTarget(x54_thermalSpeed, x50_thermalTarget);
+            ->SetThermalSpeedAndTarget(mThermalSpeed, mThermalTarget);
       }
-      if (!close_enough(x5c_xraySpeed, 0.f)) {
+      if (!close_enough(mXraySpeed, 0.f)) {
         const TAreaId aid = GetCurrentAreaId();
         stateMgr.World()
             ->Area(aid)
-            ->SetXRaySpeedAndTarget(x5c_xraySpeed, x58_xrayTarget);
+            ->SetXRaySpeedAndTarget(mXraySpeed, mXrayTarget);
       }
       break;
     }

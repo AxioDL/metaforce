@@ -26,8 +26,8 @@ public:
   TToken< CCharacterFactory > GetFactory(const CAnimRes& res);
 
 private:
-  CDummyFactory x0_dummyFactory;
-  CSimplePool x4_dummyStore;
+  CDummyFactory mDummyFactory;
+  CSimplePool mDummyStore;
 };
 
 NESTED_CHECK_SIZEOF(CCharacterFactoryBuilder, CDummyFactory, 0x4)

@@ -15,25 +15,25 @@ public:
   enum EMapAreaList { kMAL_Loaded, kMAL_Loading, kMAL_Unloaded };
 
   class CMapAreaBFSInfo {
-    int x0_areaIdx;
-    int x4_depth;
-    float x8_surfDrawDepth;
-    float xc_outlineDrawDepth;
+    int mAreaIdx;
+    int mDepth;
+    float mSurfDrawDepth;
+    float mOutlineDrawDepth;
 
   public:
     CMapAreaBFSInfo(int areaIdx, int depth, float surfDepth, float outlineDepth);
-    int GetAreaIndex() const { return x0_areaIdx; }
-    int GetDepth() const { return x4_depth; }
-    float GetOutlineDrawDepth() const { return xc_outlineDrawDepth; }
-    float GetSurfaceDrawDepth() const { return x8_surfDrawDepth; }
+    int GetAreaIndex() const { return mAreaIdx; }
+    int GetDepth() const { return mDepth; }
+    float GetOutlineDrawDepth() const { return mOutlineDrawDepth; }
+    float GetSurfaceDrawDepth() const { return mSurfDrawDepth; }
   };
 
   class CMapObjectSortInfo {
-    float x0_zDist;
-    int x4_areaIdx;
-    int x8_typeAndIdx;
-    CColor xc_surfColor;
-    CColor x10_outlineColor;
+    float mZDist;
+    int mAreaIdx;
+    int mTypeAndIdx;
+    CColor mSurfColor;
+    CColor mOutlineColor;
 
   public:
     enum EObjectCode {
@@ -46,50 +46,50 @@ public:
 
     CMapObjectSortInfo(float zDist, int areaIdx, EObjectCode type, int idx, CColor surfColor,
                        CColor outlineColor);
-    const CColor& GetOutlineColor() const { return x10_outlineColor; }
-    const CColor& GetSurfaceColor() const { return xc_surfColor; }
-    int GetLocalObjectIndex() const { return x8_typeAndIdx & 0xffff; }
-    EObjectCode GetObjectCode() const { return EObjectCode(x8_typeAndIdx & 0xffff0000); }
-    int GetAreaIndex() const { return x4_areaIdx; }
-    float GetZDistance() const { return x0_zDist; }
+    const CColor& GetOutlineColor() const { return mOutlineColor; }
+    const CColor& GetSurfaceColor() const { return mSurfColor; }
+    int GetLocalObjectIndex() const { return mTypeAndIdx & 0xffff; }
+    EObjectCode GetObjectCode() const { return EObjectCode(mTypeAndIdx & 0xffff0000); }
+    int GetAreaIndex() const { return mAreaIdx; }
+    float GetZDistance() const { return mZDist; }
   };
 
   class CMapAreaData {
-    CAssetId x0_areaRes;
-    mutable TCachedToken< CMapArea > x4_area;
-    mutable EMapAreaList x10_list;
-    mutable CMapAreaData* x14_next;
+    CAssetId mAreaRes;
+    mutable TCachedToken< CMapArea > mArea;
+    mutable EMapAreaList mList;
+    mutable CMapAreaData* mNext;
 
   public:
     CMapAreaData(CAssetId areaRes, EMapAreaList list, CMapAreaData* next);
     void Lock();
     void Unlock();
     bool IsLoaded() const;
-    CMapArea* MapArea() { return x4_area.GetT(); }
+    CMapArea* MapArea() { return mArea.GetT(); }
     CMapArea* GetMapArea() const;
-    CMapAreaData* NextMapAreaData() { return x14_next; }
-    CMapAreaData* GetNextMapAreaData() const { return x14_next; }
-    EMapAreaList GetContainingList() const { return x10_list; }
-    void SetContainingList(EMapAreaList list) const { x10_list = list; }
-    void SetNextMapArea(CMapAreaData* next) const { x14_next = next; }
+    CMapAreaData* NextMapAreaData() { return mNext; }
+    CMapAreaData* GetNextMapAreaData() const { return mNext; }
+    EMapAreaList GetContainingList() const { return mList; }
+    void SetContainingList(EMapAreaList list) const { mList = list; }
+    void SetNextMapArea(CMapAreaData* next) const { mNext = next; }
   };
 
   class CMapWorldDrawParms {
-    float x0_alphaSurfVisited;
-    float x4_alphaOlVisited;
-    float x8_alphaSurfUnvisited;
-    float xc_alphaOlUnvisited;
-    float x10_alpha;
-    float x14_outlineWidthScale;
-    const CStateManager& x18_mgr;
-    const CTransform4f& x1c_modelXf;
-    const CTransform4f& x20_viewXf;
-    const IWorld& x24_wld;
-    const CMapWorldInfo& x28_mwInfo;
-    float x2c_playerFlashIntensity;
-    float x30_hintFlashIntensity;
-    float x34_objectScale;
-    bool x38_sortDoorSurfs;
+    float mAlphaSurfVisited;
+    float mAlphaOlVisited;
+    float mAlphaSurfUnvisited;
+    float mAlphaOlUnvisited;
+    float mAlpha;
+    float mOutlineWidthScale;
+    const CStateManager& mMgr;
+    const CTransform4f& mModelXf;
+    const CTransform4f& mViewXf;
+    const IWorld& mWld;
+    const CMapWorldInfo& mMwInfo;
+    float mPlayerFlashIntensity;
+    float mHintFlashIntensity;
+    float mObjectScale;
+    bool mSortDoorSurfs;
 
   public:
     CMapWorldDrawParms(float alphaSurfVisited, float alphaOlVisited, float alphaSurfUnvisited,
@@ -97,36 +97,36 @@ public:
                        const CTransform4f& modelXf, const CTransform4f& viewXf, const IWorld& wld,
                        const CMapWorldInfo& mwInfo, float outlineWidthScale, bool sortDoorSurfs,
                        float playerFlash, float hintFlash, float objectScale);
-    const IWorld& GetWorld() const { return x24_wld; }
-    float GetOutlineWidthScale() const { return x14_outlineWidthScale; }
-    const CTransform4f& GetPlaneProjectionTransform() const { return x1c_modelXf; }
-    float GetHintAreaFlashIntensity() const { return x30_hintFlashIntensity; }
-    float GetPlayerAreaFlashIntensity() const { return x2c_playerFlashIntensity; }
-    const CTransform4f& GetCameraTransform() const { return x20_viewXf; }
-    float GetAlphaOutlineUnvisited() const { return xc_alphaOlUnvisited; }
-    float GetAlphaSurfaceUnvisited() const { return x8_alphaSurfUnvisited; }
-    float GetAlphaOutlineVisited() const { return x4_alphaOlVisited; }
-    float GetAlphaSurfaceVisited() const { return x0_alphaSurfVisited; }
-    float GetAlpha() const { return x10_alpha; }
-    const CMapWorldInfo& GetMapWorldInfo() const { return x28_mwInfo; }
-    const CStateManager& GetStateManager() const { return x18_mgr; }
-    bool GetIsSortDoorSurfaces() const { return x38_sortDoorSurfs; }
-    float GetObjectScale() const { return x34_objectScale; }
+    const IWorld& GetWorld() const { return mWld; }
+    float GetOutlineWidthScale() const { return mOutlineWidthScale; }
+    const CTransform4f& GetPlaneProjectionTransform() const { return mModelXf; }
+    float GetHintAreaFlashIntensity() const { return mHintFlashIntensity; }
+    float GetPlayerAreaFlashIntensity() const { return mPlayerFlashIntensity; }
+    const CTransform4f& GetCameraTransform() const { return mViewXf; }
+    float GetAlphaOutlineUnvisited() const { return mAlphaOlUnvisited; }
+    float GetAlphaSurfaceUnvisited() const { return mAlphaSurfUnvisited; }
+    float GetAlphaOutlineVisited() const { return mAlphaOlVisited; }
+    float GetAlphaSurfaceVisited() const { return mAlphaSurfVisited; }
+    float GetAlpha() const { return mAlpha; }
+    const CMapWorldInfo& GetMapWorldInfo() const { return mMwInfo; }
+    const CStateManager& GetStateManager() const { return mMgr; }
+    bool GetIsSortDoorSurfaces() const { return mSortDoorSurfs; }
+    float GetObjectScale() const { return mObjectScale; }
   };
 
 private:
-  rstl::vector< CMapAreaData > x0_areas;
-  rstl::reserved_vector< CMapAreaData*, 3 > x10_listHeads;
-  mutable rstl::vector< bool > x20_traversed;
-  mutable CVector3f x30_worldSpherePoint;
-  mutable float x3c_worldSphereRadius;
-  mutable float x40_worldSphereHalfDepth;
+  rstl::vector< CMapAreaData > mAreas;
+  rstl::reserved_vector< CMapAreaData*, 3 > mListHeads;
+  mutable rstl::vector< bool > mTraversed;
+  mutable CVector3f mWorldSpherePoint;
+  mutable float mWorldSphereRadius;
+  mutable float mWorldSphereHalfDepth;
 
 public:
   explicit CMapWorld(CInputStream& in);
   ~CMapWorld();
-  uint GetNumAreas() const { return x0_areas.size(); }
-  CMapArea* GetMapArea(int aid) { return x0_areas[aid].MapArea(); }
+  uint GetNumAreas() const { return mAreas.size(); }
+  CMapArea* GetMapArea(int aid) { return mAreas[aid].MapArea(); }
   CMapArea* GetMapArea(int aid) const;
   bool IsMapAreaInBFSInfoVector(const CMapAreaData* area,
                                 const rstl::vector< CMapAreaBFSInfo >& vec) const;

@@ -7,150 +7,150 @@ static float kMinorFidgetDelay = 20.f;
 static float kMajorFidgetDelay = 20.f;
 
 CFidget::CFidget()
-: x0_state(kS_NoFidget)
-, x4_type(SamusGun::kFT_Invalid)
-, x8_delayTriggerBits(0)
-, xc_animSet(-1)
-, x10_delayTimerEnableBits(3)
-, x14_timeSinceFire(0.f)
-, x18_timeSinceStrikeCooldown(0.f)
-, x1c_timeSinceUnmorph(0.f)
-, x20_timeSinceBobbing(0.f)
-, x24_minorDelayTimer(0.f)
-, x28_majorDelayTimer(0.f)
-, x2c_holsterTimeSinceFire(0.f)
-, x30_timeUntilHolster(105.f)
-, x34_24_loading(false) {}
+: mState(kS_NoFidget)
+, mType(SamusGun::kFT_Invalid)
+, mDelayTriggerBits(0)
+, mAnimSet(-1)
+, mDelayTimerEnableBits(3)
+, mTimeSinceFire(0.f)
+, mTimeSinceStrikeCooldown(0.f)
+, mTimeSinceUnmorph(0.f)
+, mTimeSinceBobbing(0.f)
+, mMinorDelayTimer(0.f)
+, mMajorDelayTimer(0.f)
+, mHolsterTimeSinceFire(0.f)
+, mTimeUntilHolster(105.f)
+, mLoading(false) {}
 
 void CFidget::ResetAll() {
-  x0_state = kS_NoFidget;
-  x4_type = SamusGun::kFT_Invalid;
-  x18_timeSinceStrikeCooldown = 0.f;
-  x1c_timeSinceUnmorph = 0.f;
-  x14_timeSinceFire = 0.f;
-  x24_minorDelayTimer = 0.f;
-  x28_majorDelayTimer = 0.f;
-  x2c_holsterTimeSinceFire = 0.f;
-  x8_delayTriggerBits = 0;
-  xc_animSet = -1;
-  x10_delayTimerEnableBits = 3;
-  x34_24_loading = false;
+  mState = kS_NoFidget;
+  mType = SamusGun::kFT_Invalid;
+  mTimeSinceStrikeCooldown = 0.f;
+  mTimeSinceUnmorph = 0.f;
+  mTimeSinceFire = 0.f;
+  mMinorDelayTimer = 0.f;
+  mMajorDelayTimer = 0.f;
+  mHolsterTimeSinceFire = 0.f;
+  mDelayTriggerBits = 0;
+  mAnimSet = -1;
+  mDelayTimerEnableBits = 3;
+  mLoading = false;
 }
 
-void CFidget::ResetMinor() { x0_state = kS_NoFidget; }
+void CFidget::ResetMinor() { mState = kS_NoFidget; }
 
 CFidget::EState CFidget::Update(int fireButtonStates, bool bobbing, bool inStrikeCooldown, float dt,
                                 CStateManager& mgr) {
-  if (x0_state) {
-    switch (x0_state) {
+  if (mState) {
+    switch (mState) {
     case kS_MinorFidget:
-      return x34_24_loading ? kS_Loading : kS_StillMinorFidget;
+      return mLoading ? kS_Loading : kS_StillMinorFidget;
     case kS_MajorFidget:
-      return x34_24_loading ? kS_Loading : kS_StillMajorFidget;
+      return mLoading ? kS_Loading : kS_StillMajorFidget;
     case kS_HolsterBeam:
-      return x34_24_loading ? kS_Loading : kS_StillHolsterBeam;
+      return mLoading ? kS_Loading : kS_StillHolsterBeam;
     default:
-      x0_state = kS_NoFidget;
+      mState = kS_NoFidget;
       break;
     }
   }
 
   if (fireButtonStates != 0) {
-    x14_timeSinceFire = 0.f;
-    x2c_holsterTimeSinceFire = 0.f;
+    mTimeSinceFire = 0.f;
+    mHolsterTimeSinceFire = 0.f;
   } else {
-    if (x14_timeSinceFire < 6.f)
-      x14_timeSinceFire += dt;
-    if (x2c_holsterTimeSinceFire < x30_timeUntilHolster + 1.f)
-      x2c_holsterTimeSinceFire += dt;
+    if (mTimeSinceFire < 6.f)
+      mTimeSinceFire += dt;
+    if (mHolsterTimeSinceFire < mTimeUntilHolster + 1.f)
+      mHolsterTimeSinceFire += dt;
   }
 
   if (inStrikeCooldown)
-    x18_timeSinceStrikeCooldown = 0.f;
-  else if (x18_timeSinceStrikeCooldown < 11.f)
-    x18_timeSinceStrikeCooldown += dt;
+    mTimeSinceStrikeCooldown = 0.f;
+  else if (mTimeSinceStrikeCooldown < 11.f)
+    mTimeSinceStrikeCooldown += dt;
 
   if (mgr.GetPlayer()->GetMorphballTransitionState() == CPlayer::kMS_Unmorphed) {
-    if (x1c_timeSinceUnmorph < 21.f)
-      x1c_timeSinceUnmorph += dt;
+    if (mTimeSinceUnmorph < 21.f)
+      mTimeSinceUnmorph += dt;
   } else {
-    x1c_timeSinceUnmorph = 0.f;
+    mTimeSinceUnmorph = 0.f;
   }
 
   if (bobbing)
-    x20_timeSinceBobbing = 0.f;
-  else if (x20_timeSinceBobbing < 21.f)
-    x20_timeSinceBobbing += dt;
+    mTimeSinceBobbing = 0.f;
+  else if (mTimeSinceBobbing < 21.f)
+    mTimeSinceBobbing += dt;
 
   u32 pendingTriggerBits = 0;
-  if (x0_state == kS_NoFidget) {
-    if ((x10_delayTimerEnableBits & 0x1) != 0) {
-      x24_minorDelayTimer += dt;
-      if (x24_minorDelayTimer > kMinorFidgetDelay) {
+  if (mState == kS_NoFidget) {
+    if ((mDelayTimerEnableBits & 0x1) != 0) {
+      mMinorDelayTimer += dt;
+      if (mMinorDelayTimer > kMinorFidgetDelay) {
         pendingTriggerBits |= 0x1;
-        x24_minorDelayTimer = 0.f;
+        mMinorDelayTimer = 0.f;
       }
     }
 
-    if ((x10_delayTimerEnableBits & 0x2) != 0) {
-      x28_majorDelayTimer += dt;
-      if (x28_majorDelayTimer > kMajorFidgetDelay) {
+    if ((mDelayTimerEnableBits & 0x2) != 0) {
+      mMajorDelayTimer += dt;
+      if (mMajorDelayTimer > kMajorFidgetDelay) {
         pendingTriggerBits |= 0x2;
-        x28_majorDelayTimer = 0.f;
+        mMajorDelayTimer = 0.f;
       }
     }
   }
 
-  if (x2c_holsterTimeSinceFire > x30_timeUntilHolster) {
-    x0_state = kS_HolsterBeam;
+  if (mHolsterTimeSinceFire > mTimeUntilHolster) {
+    mState = kS_HolsterBeam;
   } else {
-    if (x18_timeSinceStrikeCooldown > 10.f && x1c_timeSinceUnmorph > 20.f &&
-        x20_timeSinceBobbing > 20.f) {
+    if (mTimeSinceStrikeCooldown > 10.f && mTimeSinceUnmorph > 20.f &&
+        mTimeSinceBobbing > 20.f) {
       if ((pendingTriggerBits & 0x1) != 0)
-        x8_delayTriggerBits |= 0x1;
+        mDelayTriggerBits |= 0x1;
       else if ((pendingTriggerBits & 0x2) != 0)
-        x8_delayTriggerBits |= 0x2;
+        mDelayTriggerBits |= 0x2;
     }
 
-    if ((x8_delayTriggerBits & 0x3) == 0x3) {
+    if ((mDelayTriggerBits & 0x3) == 0x3) {
       EState newState = kS_MinorFidget;
-      x0_state = 50 < (mgr.Random()->Next() % 100) ? kS_MajorFidget : kS_MinorFidget;
-    } else if ((x8_delayTriggerBits & 0x1)) {
-      x0_state = kS_MinorFidget;
+      mState = 50 < (mgr.Random()->Next() % 100) ? kS_MajorFidget : kS_MinorFidget;
+    } else if ((mDelayTriggerBits & 0x1)) {
+      mState = kS_MinorFidget;
     } else {
-      if ((x8_delayTriggerBits & 0x2)) {
-        x0_state = kS_MajorFidget;
+      if ((mDelayTriggerBits & 0x2)) {
+        mState = kS_MajorFidget;
       } else {
-        x0_state = kS_NoFidget;
+        mState = kS_NoFidget;
       }
     }
   }
 
-  switch (x0_state) {
+  switch (mState) {
   case kS_MinorFidget:
-    x34_24_loading = true;
-    x10_delayTimerEnableBits = 2;
-    x8_delayTriggerBits &= ~0x1;
+    mLoading = true;
+    mDelayTimerEnableBits = 2;
+    mDelayTriggerBits &= ~0x1;
     kMinorFidgetDelay = mgr.Random()->Range(20.f, 29.f);
-    x4_type = SamusGun::kFT_Minor;
-    xc_animSet = mgr.Random()->Range(0, 4);
+    mType = SamusGun::kFT_Minor;
+    mAnimSet = mgr.Random()->Range(0, 4);
     break;
   case kS_MajorFidget:
-    x34_24_loading = true;
-    x10_delayTimerEnableBits = 1;
-    x8_delayTriggerBits &= ~0x2;
+    mLoading = true;
+    mDelayTimerEnableBits = 1;
+    mDelayTriggerBits &= ~0x2;
     kMajorFidgetDelay = mgr.Random()->Range(20.f, 30.f);
-    x4_type = SamusGun::kFT_Major;
-    xc_animSet = mgr.Random()->Range(0, 5);
+    mType = SamusGun::kFT_Major;
+    mAnimSet = mgr.Random()->Range(0, 5);
     break;
   case kS_HolsterBeam:
-    x4_type = SamusGun::kFT_Minor;
-    x34_24_loading = true;
-    xc_animSet = 0;
+    mType = SamusGun::kFT_Minor;
+    mLoading = true;
+    mAnimSet = 0;
     break;
   default:
     break;
   }
 
-  return x0_state;
+  return mState;
 }

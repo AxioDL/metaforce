@@ -18,14 +18,14 @@ public:
   void CreateUserInputMsg(CArchitectureQueue& queue, float dt, int i,
                           const CControllerGamepadData& cont);
   bool Update(float dt, CArchitectureQueue& queue);
-  IController* GetController() const { return x4_controller.get(); }
+  IController* GetController() const { return mController.get(); }
 
 private:
-  COsContext* x0_context;
-  rstl::single_ptr< IController > x4_controller;
-  bool x8_connectedControllers[4];
-  float xc_leftDiv;
-  float x10_rightDiv;
+  COsContext* mContext;
+  rstl::single_ptr< IController > mController;
+  bool mConnectedControllers[4];
+  float mLeftDiv;
+  float mRightDiv;
 };
 CHECK_SIZEOF(CInputGenerator, 0x14)
 

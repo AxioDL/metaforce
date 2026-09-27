@@ -1,6 +1,6 @@
 #include "Kyoto/Animation/CParticlePOINode.hpp"
 
-CParticlePOINode::CParticlePOINode(CInputStream& in) : CPOINode(in), x38_data(in) {}
+CParticlePOINode::CParticlePOINode(CInputStream& in) : CPOINode(in), mData(in) {}
 
 CParticlePOINode CParticlePOINode::CopyNodeMinusStartTime(const CParticlePOINode& node,
                                                           const CCharAnimTime& startTime) {

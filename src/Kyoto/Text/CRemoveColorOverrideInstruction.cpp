@@ -3,7 +3,7 @@
 #include "Kyoto/Text/CFontRenderState.hpp"
 
 void CRemoveColorOverrideInstruction::Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const {
-  state.GetOverride()[x4_idx] = false;
+  state.GetOverride()[mIdx] = false;
   state.RefreshPalette();
 }
 

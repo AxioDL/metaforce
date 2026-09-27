@@ -26,16 +26,16 @@ public:
   bool Valid() const;
 
 private:
-  CTransform4f x0_xf;
-  float x30_scale;
-  float x34_radius;
-  float x38_userAlpha;
-  float x3c_heightAlpha;
-  float x40_maxObjHeight;
-  float x44_displacement;
-  bool x48_24_collision : 1;
-  bool x48_25_alwaysCalculateRadius : 1;
-  bool x48_26_radiusCalculated : 1;
+  CTransform4f mXf;
+  float mScale;
+  float mRadius;
+  float mUserAlpha;
+  float mHeightAlpha;
+  float mMaxObjHeight;
+  float mDisplacement;
+  bool mCollision : 1;
+  bool mAlwaysCalculateRadius : 1;
+  bool mRadiusCalculated : 1;
 };
 CHECK_SIZEOF(CSimpleShadow, 0x4c)
 

@@ -36,27 +36,27 @@ CScriptPickup::CScriptPickup(TUniqueId uid, const rstl::string& name, const CEnt
                 SMoverData(1.f, CVector3f::Zero(), CAxisAngle::Identity(), CVector3f::Zero(),
                            CAxisAngle::Identity()),
                 aParams, 0.3f, 0.1f)
-, x258_itemType(itemType)
-, x25c_amount(amount)
-, x260_capacity(capacity)
-, x264_possibility(possibility)
-, x268_fadeInTime(fadeInTime)
-, x26c_lifeTime(lifeTime)
-, x270_curTime(0.f)
-, x278_delayTimer(startDelay)
-, x28c_24_generated(false)
-, x28c_25_inTractor(false)
-, x28c_26_enableTractorTest(false) {
+, mItemType(itemType)
+, mAmount(amount)
+, mCapacity(capacity)
+, mPossibility(possibility)
+, mFadeInTime(fadeInTime)
+, mLifeTime(lifeTime)
+, mCurTime(0.f)
+, mDelayTimer(startDelay)
+, mGenerated(false)
+, mInTractor(false)
+, mEnableTractorTest(false) {
   if (pickupEffect != kInvalidAssetId) {
-    x27c_pickupParticleDesc = gpSimplePool->GetObj(SObjectTag('PART', pickupEffect));
-    x27c_pickupParticleDesc->Lock();
+    mPickupParticleDesc = gpSimplePool->GetObj(SObjectTag('PART', pickupEffect));
+    mPickupParticleDesc->Lock();
   }
 
   if (HasAnimation()) {
     AnimationData()->SetAnimation(CAnimPlaybackParms(0, -1, 1.f, true), false);
   }
 
-  if (x268_fadeInTime) {
+  if (mFadeInTime) {
     SetModelFlags(CModelFlags::AlphaBlended(0.f).DepthCompareUpdate(true, false));
   }
 }
@@ -68,32 +68,32 @@ void CScriptPickup::Think(float dt, CStateManager& mgr) {
     return;
   }
 
-  if (x278_delayTimer >= 0.f) {
+  if (mDelayTimer >= 0.f) {
     CPhysicsActor::Stop();
-    x278_delayTimer -= dt;
+    mDelayTimer -= dt;
     return;
   }
 
-  x270_curTime += dt;
-  if (x28c_25_inTractor && (x26c_lifeTime - x270_curTime) < 2.f) {
-    x270_curTime = rstl::max_val(x26c_lifeTime - 2.f - FLT_EPSILON, x270_curTime - 2.f * dt);
+  mCurTime += dt;
+  if (mInTractor && (mLifeTime - mCurTime) < 2.f) {
+    mCurTime = rstl::max_val(mLifeTime - 2.f - FLT_EPSILON, mCurTime - 2.f * dt);
   }
 
   CModelFlags drawFlags = CModelFlags::Normal();
 
-  if (x268_fadeInTime) {
-    if (x270_curTime < x268_fadeInTime) {
+  if (mFadeInTime) {
+    if (mCurTime < mFadeInTime) {
       drawFlags =
-          CModelFlags::AlphaBlended(x270_curTime / x268_fadeInTime).DepthCompareUpdate(true, false);
+          CModelFlags::AlphaBlended(mCurTime / mFadeInTime).DepthCompareUpdate(true, false);
     } else {
-      x268_fadeInTime = 0.f;
+      mFadeInTime = 0.f;
     }
-  } else if (x26c_lifeTime) {
+  } else if (mLifeTime) {
     float alpha = 1.f;
-    if (x26c_lifeTime < 2.f) {
-      alpha = 1.f - (x26c_lifeTime / x270_curTime);
-    } else if ((x26c_lifeTime - x270_curTime) < 2.f) {
-      alpha = (x26c_lifeTime - x270_curTime) / 2.f;
+    if (mLifeTime < 2.f) {
+      alpha = 1.f - (mLifeTime / mCurTime);
+    } else if ((mLifeTime - mCurTime) < 2.f) {
+      alpha = (mLifeTime - mCurTime) / 2.f;
     }
 
     drawFlags = CModelFlags::AlphaBlended(alpha).DepthCompareUpdate(true, false);
@@ -107,20 +107,20 @@ void CScriptPickup::Think(float dt, CStateManager& mgr) {
     RotateToOR(deltas.GetOrientationDelta(), dt);
   }
 
-  if (x28c_25_inTractor) {
+  if (mInTractor) {
     CVector3f velocity =
         mgr.GetPlayer()->GetTranslation() + (CVector3f::Up() * 2.f) - GetTranslation();
-    x274_tractorTime += dt;
-    float halfTractorTime = rstl::min_val(x274_tractorTime, 2.f) * 0.5f;
+    mTractorTime += dt;
+    float halfTractorTime = rstl::min_val(mTractorTime, 2.f) * 0.5f;
     velocity = velocity.AsNormalized() * (halfTractorTime * 20.f);
-    if (x28c_26_enableTractorTest && mgr.GetPlayer()->GetPlayerGun()->GetChargePercentage() <
+    if (mEnableTractorTest && mgr.GetPlayer()->GetPlayerGun()->GetChargePercentage() <
                                          CPlayerGun::GetTractorBeamFactor()) {
-      x28c_26_enableTractorTest = false;
-      x28c_25_inTractor = false;
+      mEnableTractorTest = false;
+      mInTractor = false;
       velocity = CVector3f::Zero();
     }
     SetVelocityWR(velocity);
-  } else if (x28c_24_generated) {
+  } else if (mGenerated) {
     if (mgr.GetPlayer()->GetPlayerGun()->GetChargePercentage() >
         CPlayerGun::GetTractorBeamFactor()) {
       const CFirstPersonCamera* camera = mgr.CameraManager()->FirstPersonCamera();
@@ -129,21 +129,21 @@ void CScriptPickup::Think(float dt, CStateManager& mgr) {
       float dot = CVector3f::Dot(cameraFront, posDelta.AsNormalized());
       float fovCos = cosine(CAbsAngle::FromDegrees(gpTweakGame->GetFirstPersonFOV()));
       if (dot > fovCos && posDelta.MagSquared() < skDrawInDistance * skDrawInDistance) {
-        x28c_25_inTractor = true;
-        x28c_26_enableTractorTest = true;
-        x274_tractorTime = 0.f;
+        mInTractor = true;
+        mEnableTractorTest = true;
+        mTractorTime = 0.f;
       }
     }
   }
 
-  if (x26c_lifeTime && x270_curTime > x26c_lifeTime) {
+  if (mLifeTime && mCurTime > mLifeTime) {
     mgr.DeleteObjectRequest(GetUniqueId());
   }
 }
 
 void CScriptPickup::Touch(CActor& act, CStateManager& mgr) {
-  if (GetActive() && !(x278_delayTimer >= 0) && TCastToPtr< CPlayer >(act)) {
-    CPlayerState::EItemType itemType = x258_itemType;
+  if (GetActive() && !(mDelayTimer >= 0) && TCastToPtr< CPlayer >(act)) {
+    CPlayerState::EItemType itemType = mItemType;
     if (itemType >= CPlayerState::kIT_Truth && itemType <= CPlayerState::kIT_Newborn) {
       CAssetId id = CArtifactDoll::GetArtifactHeadScanFromItemType(itemType);
       if (id != kInvalidAssetId) {
@@ -151,22 +151,22 @@ void CScriptPickup::Touch(CActor& act, CStateManager& mgr) {
       }
     }
 
-    if (x27c_pickupParticleDesc) {
+    if (mPickupParticleDesc) {
       if (mgr.GetPlayerState()->GetActiveVisor(mgr) != CPlayerState::kPV_Thermal) {
         mgr.AddObject(rs_new CExplosion(
-            TLockedToken< CGenDescription >(*x27c_pickupParticleDesc), mgr.AllocateUniqueId(), true,
+            TLockedToken< CGenDescription >(*mPickupParticleDesc), mgr.AllocateUniqueId(), true,
             CEntityInfo(GetCurrentAreaId(), CEntity::NullConnectionList, kInvalidEditorId),
             rstl::string_l("Explosion - Pickup Effect"), GetTransform(), 0,
             CVector3f(1.f, 1.f, 1.f), CColor::White()));
       }
     }
 
-    mgr.PlayerState()->InitializePowerUp(itemType, x260_capacity);
-    mgr.PlayerState()->IncrPickUp(itemType, x25c_amount);
+    mgr.PlayerState()->InitializePowerUp(itemType, mCapacity);
+    mgr.PlayerState()->IncrPickUp(itemType, mAmount);
     mgr.DeleteObjectRequest(GetUniqueId());
     SendScriptMsgs(kSS_Arrived, mgr, kSM_None);
 
-    if (x260_capacity > 0) {
+    if (mCapacity > 0) {
       const CPlayerState* playerState = mgr.GetPlayerState();
       int total = playerState->GetTotalPickupCount();
       int colRate = playerState->CalculateItemCollectionRate();
@@ -205,8 +205,8 @@ void CScriptPickup::Render(const CStateManager& mgr) const { CPhysicsActor::Rend
 
 ENTITY_ACCEPT_IMPL(CScriptPickup)
 
-CPlayerState::EItemType CScriptPickup::GetItem() const { return x258_itemType; }
+CPlayerState::EItemType CScriptPickup::GetItem() const { return mItemType; }
 
-float CScriptPickup::GetPossibility() const { return x264_possibility; }
+float CScriptPickup::GetPossibility() const { return mPossibility; }
 
-void CScriptPickup::SetWasGenerated() { x28c_24_generated = true; }
+void CScriptPickup::SetWasGenerated() { mGenerated = true; }

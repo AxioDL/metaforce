@@ -62,7 +62,7 @@ static bool sStaticListInitialized;
 struct CParticleListItemViewPointComp {
   bool operator()(const CElementGen::CParticleListItem& a,
                   const CElementGen::CParticleListItem& b) const {
-    return a.x4_viewPoint.GetY() > b.x4_viewPoint.GetY() ? true : false;
+    return a.mViewPoint.GetY() > b.mViewPoint.GetY() ? true : false;
   }
 };
 
@@ -71,7 +71,7 @@ struct CParticleListItemViewPointComp {
 struct CTexturedParticleListItemViewPointComp {
   bool operator()(const CElementGen::CTexturedParticleListItem& a,
                   const CElementGen::CTexturedParticleListItem& b) const {
-    return a.x4_viewPoint.GetY() > b.x4_viewPoint.GetY() ? true : false;
+    return a.mViewPoint.GetY() > b.mViewPoint.GetY() ? true : false;
   }
 };
 
@@ -84,227 +84,227 @@ static const GXVtxDescList sVtxDescList[] = {
 
 CElementGen::CElementGen(TToken< CGenDescription > gen, EModelOrientationType orientType,
                          EOptionalSystemFlags optFlags)
-: x1c_genDesc(gen)
-, x28_loadedGenDesc(*x1c_genDesc)
-, x2c_orientType(orientType)
-, x70_internalStartFrame(0)
-, x74_curFrame(0)
-, x78_curSeconds(0.0)
-, x84_prevFrame(-1)
-, x88_particleEmission(true)
-, x8c_generatorRemainder(0.f)
-, x90_MAXP(0)
-, x94_randomSeed(sSeed)
-, x98_generatorRate(1.f)
-, xdc_translation(CVector3f::Zero())
-, xe8_globalTranslation(CVector3f::Zero())
-, xf4_POFS(CVector3f::Zero())
-, x100_globalScale(1.f, 1.f, 1.f)
-, x10c_globalScaleTransform(CTransform4f::Identity())
-, x13c_globalScaleTransformInverse(CTransform4f::Identity())
-, x16c_localScale(1.f, 1.f, 1.f)
-, x178_localScaleTransform(CTransform4f::Identity())
-, x1a8_localScaleTransformInverse(CTransform4f::Identity())
-, x1d8_orientation(CTransform4f::Identity())
-, x208_orientationInverse(CMatrix3f::Identity())
-, x22c_globalOrientation(CTransform4f::Identity())
-, x25c_activeParticleCount(0)
-, x260_cumulativeParticles(0)
-, x264_recursiveParticleCount(0)
-, x26c_24_translationDirty(false)
-, x26c_28_zTest(true)
-, x26c_29_ORNT(false)
-, x26d_25_warmedUp(false)
-, x26d_26_modelsUseLights(false)
-, x26d_27_enableOPTS(optFlags & kOSF_Two)
-, x26d_28_enableADV(false)
-, x274_backupLightActive(false)
-, x27c_randState(x94_randomSeed)
-, x2b0_SSPO(CVector3f::Zero())
-, x2c0_SEPO(CVector3f::Zero())
+: mGenDesc(gen)
+, mLoadedGenDesc(*mGenDesc)
+, mOrientType(orientType)
+, mInternalStartFrame(0)
+, mCurFrame(0)
+, mCurSeconds(0.0)
+, mPrevFrame(-1)
+, mParticleEmission(true)
+, mGeneratorRemainder(0.f)
+, mMAXP(0)
+, mRandomSeed(sSeed)
+, mGeneratorRate(1.f)
+, mTranslation(CVector3f::Zero())
+, mGlobalTranslation(CVector3f::Zero())
+, mPOFS(CVector3f::Zero())
+, mGlobalScale(1.f, 1.f, 1.f)
+, mGlobalScaleTransform(CTransform4f::Identity())
+, mGlobalScaleTransformInverse(CTransform4f::Identity())
+, mLocalScale(1.f, 1.f, 1.f)
+, mLocalScaleTransform(CTransform4f::Identity())
+, mLocalScaleTransformInverse(CTransform4f::Identity())
+, mOrientation(CTransform4f::Identity())
+, mOrientationInverse(CMatrix3f::Identity())
+, mGlobalOrientation(CTransform4f::Identity())
+, mActiveParticleCount(0)
+, mCumulativeParticles(0)
+, mRecursiveParticleCount(0)
+, mTranslationDirty(false)
+, mZTest(true)
+, mORNT(false)
+, mWarmedUp(false)
+, mModelsUseLights(false)
+, mEnableOPTS(optFlags & kOSF_Two)
+, mEnableADV(false)
+, mBackupLightActive(false)
+, mRandState(mRandomSeed)
+, mSSPO(CVector3f::Zero())
+, mSEPO(CVector3f::Zero())
 , x2cc(0.f)
 , x2d0(0.f)
-, x2d4_aabbMin(CVector3f::Zero())
-, x2e0_aabbMax(CVector3f::Zero())
-, x2ec_maxSize(0.f)
-, x2f0_systemBounds(CAABox::MakeMaxInvertedBox())
-, x308_lightType(kLT_None)
-, x30c_LCLR(CColor::White())
-, x310_LINT(1.f)
-, x314_LOFF(CVector3f::Zero())
-, x320_LDIR(1.f, 0.f, 0.f)
-, x32c_falloffType(kFT_Linear)
-, x330_LFOR(1.f)
-, x334_LSLA(45.f)
-, x338_moduColor(0xFFFFFFFF) {
-  CGlobalRandom gr(x27c_randState);
+, mAabbMin(CVector3f::Zero())
+, mAabbMax(CVector3f::Zero())
+, mMaxSize(0.f)
+, mSystemBounds(CAABox::MakeMaxInvertedBox())
+, mLightType(kLT_None)
+, mLCLR(CColor::White())
+, mLINT(1.f)
+, mLOFF(CVector3f::Zero())
+, mLDIR(1.f, 0.f, 0.f)
+, mFalloffType(kFT_Linear)
+, mLFOR(1.f)
+, mLSLA(45.f)
+, mModuColor(0xFFFFFFFF) {
+  CGlobalRandom gr(mRandState);
 
-  if (CIntElement* seed = x28_loadedGenDesc->x10_SEED) {
+  if (CIntElement* seed = mLoadedGenDesc->mSEED) {
     int seedVal;
-    seed->GetValue(x74_curFrame, seedVal);
-    x94_randomSeed = seedVal;
+    seed->GetValue(mCurFrame, seedVal);
+    mRandomSeed = seedVal;
   }
-  x27c_randState.SetSeed(x94_randomSeed);
+  mRandState.SetSeed(mRandomSeed);
   ++mParticleSystemAliveCount;
 
-  x26c_25_LIT_ = x28_loadedGenDesc->x30_29_LIT_;
-  x26c_26_AAPH = x28_loadedGenDesc->x30_26_AAPH;
-  x26c_27_ZBUF = x28_loadedGenDesc->x30_27_ZBUF;
-  x26c_29_ORNT = x28_loadedGenDesc->x30_30_ORNT;
-  x26c_30_MBLR = x26c_29_ORNT ? false : x28_loadedGenDesc->x31_24_MBLR;
+  mLIT_ = mLoadedGenDesc->mLIT_;
+  mAAPH = mLoadedGenDesc->mAAPH;
+  mZBUF = mLoadedGenDesc->mZBUF;
+  mORNT = mLoadedGenDesc->mORNT;
+  mMBLR = mORNT ? false : mLoadedGenDesc->mMBLR;
 
-  if (CIntElement* mbsp = x28_loadedGenDesc->x34_MBSP) {
-    mbsp->GetValue(x74_curFrame, x270_MBSP);
+  if (CIntElement* mbsp = mLoadedGenDesc->mMBSP) {
+    mbsp->GetValue(mCurFrame, mMBSP);
   }
 
   int idx = 0;
-  if (CModVectorElement* vel1 = x28_loadedGenDesc->x68_VEL1) {
-    x280_VELSources[idx] = vel1;
-    x278_hasVMD[idx] = x28_loadedGenDesc->x31_28_VMD1;
+  if (CModVectorElement* vel1 = mLoadedGenDesc->mVEL1) {
+    mVELSources[idx] = vel1;
+    mHasVMD[idx] = mLoadedGenDesc->mVMD1;
     ++idx;
   }
-  if (CModVectorElement* vel2 = x28_loadedGenDesc->x6c_VEL2) {
-    x280_VELSources[idx] = vel2;
-    x278_hasVMD[idx] = x28_loadedGenDesc->x31_29_VMD2;
+  if (CModVectorElement* vel2 = mLoadedGenDesc->mVEL2) {
+    mVELSources[idx] = vel2;
+    mHasVMD[idx] = mLoadedGenDesc->mVMD2;
     ++idx;
   }
-  if (CModVectorElement* vel3 = x28_loadedGenDesc->x70_VEL3) {
-    x280_VELSources[idx] = vel3;
-    x278_hasVMD[idx] = x28_loadedGenDesc->x31_30_VMD3;
+  if (CModVectorElement* vel3 = mLoadedGenDesc->mVEL3) {
+    mVELSources[idx] = vel3;
+    mHasVMD[idx] = mLoadedGenDesc->mVMD3;
     ++idx;
   }
-  if (CModVectorElement* vel4 = x28_loadedGenDesc->x74_VEL4) {
-    x280_VELSources[idx] = vel4;
-    x278_hasVMD[idx] = x28_loadedGenDesc->x31_31_VMD4;
+  if (CModVectorElement* vel4 = mLoadedGenDesc->mVEL4) {
+    mVELSources[idx] = vel4;
+    mHasVMD[idx] = mLoadedGenDesc->mVMD4;
     ++idx;
   }
   for (int i = idx; i < 4; ++i) {
-    x280_VELSources[i] = nullptr;
+    mVELSources[i] = nullptr;
   }
 
-  if (x28_loadedGenDesc->x10c_ADV1 || x28_loadedGenDesc->x110_ADV2 ||
-      x28_loadedGenDesc->x114_ADV3 || x28_loadedGenDesc->x118_ADV4 ||
-      x28_loadedGenDesc->x11c_ADV5 || x28_loadedGenDesc->x120_ADV6 ||
-      x28_loadedGenDesc->x124_ADV7 || x28_loadedGenDesc->x128_ADV8) {
-    x26d_28_enableADV = true;
+  if (mLoadedGenDesc->mADV1 || mLoadedGenDesc->mADV2 ||
+      mLoadedGenDesc->mADV3 || mLoadedGenDesc->mADV4 ||
+      mLoadedGenDesc->mADV5 || mLoadedGenDesc->mADV6 ||
+      mLoadedGenDesc->mADV7 || mLoadedGenDesc->mADV8) {
+    mEnableADV = true;
   }
 
   for (int i = 0; i < 16; ++i) {
-    x9c_externalVars[i] = 0.f;
+    mExternalVars[i] = 0.f;
   }
 
-  x2a0_CSSD = 0;
-  if (CIntElement* cssd = x28_loadedGenDesc->x8c_CSSD) {
-    cssd->GetValue(0, x2a0_CSSD);
+  mCSSD = 0;
+  if (CIntElement* cssd = mLoadedGenDesc->mCSSD) {
+    cssd->GetValue(0, mCSSD);
   }
 
-  x2a8_PISY = 16;
-  if (CIntElement* pisy = x28_loadedGenDesc->xb4_PISY) {
-    pisy->GetValue(0, x2a8_PISY);
-    if (x2a8_PISY <= 0) {
-      x2a8_PISY = 1;
+  mPISY = 16;
+  if (CIntElement* pisy = mLoadedGenDesc->mPISY) {
+    pisy->GetValue(0, mPISY);
+    if (mPISY <= 0) {
+      mPISY = 1;
     }
   }
 
-  x2a4_SISY = 16;
-  if (CIntElement* sisy = x28_loadedGenDesc->xb8_SISY) {
-    sisy->GetValue(0, x2a4_SISY);
+  mSISY = 16;
+  if (CIntElement* sisy = mLoadedGenDesc->mSISY) {
+    sisy->GetValue(0, mSISY);
   }
 
-  x2ac_SSSD = 0;
-  if (CIntElement* sssd = x28_loadedGenDesc->xd0_SSSD) {
-    sssd->GetValue(0, x2ac_SSSD);
+  mSSSD = 0;
+  if (CIntElement* sssd = mLoadedGenDesc->mSSSD) {
+    sssd->GetValue(0, mSSSD);
   }
 
-  if (x28_loadedGenDesc->xd4_SSPO) {
-    x28_loadedGenDesc->xd4_SSPO->GetValue(0, x2b0_SSPO);
-    if (!x28_loadedGenDesc->xd4_SSPO->IsFastConstant()) {
-      x26c_24_translationDirty = true;
+  if (mLoadedGenDesc->mSSPO) {
+    mLoadedGenDesc->mSSPO->GetValue(0, mSSPO);
+    if (!mLoadedGenDesc->mSSPO->IsFastConstant()) {
+      mTranslationDirty = true;
     }
   }
 
-  x2bc_SESD = 0;
-  if (CIntElement* sesd = x28_loadedGenDesc->xe4_SESD) {
-    sesd->GetValue(0, x2bc_SESD);
+  mSESD = 0;
+  if (CIntElement* sesd = mLoadedGenDesc->mSESD) {
+    sesd->GetValue(0, mSESD);
   }
 
-  if (x28_loadedGenDesc->xe8_SEPO) {
-    x28_loadedGenDesc->xe8_SEPO->GetValue(0, x2c0_SEPO);
-    if (!x28_loadedGenDesc->xe8_SEPO->IsFastConstant()) {
-      x26c_24_translationDirty = true;
+  if (mLoadedGenDesc->mSEPO) {
+    mLoadedGenDesc->mSEPO->GetValue(0, mSEPO);
+    if (!mLoadedGenDesc->mSEPO->IsFastConstant()) {
+      mTranslationDirty = true;
     }
   }
 
-  if (x28_loadedGenDesc->xc_POFS) {
-    x28_loadedGenDesc->xc_POFS->GetValue(x74_curFrame, xf4_POFS);
-    if (!x28_loadedGenDesc->xc_POFS->IsFastConstant()) {
-      x26c_24_translationDirty = true;
+  if (mLoadedGenDesc->mPOFS) {
+    mLoadedGenDesc->mPOFS->GetValue(mCurFrame, mPOFS);
+    if (!mLoadedGenDesc->mPOFS->IsFastConstant()) {
+      mTranslationDirty = true;
     }
   }
 
-  if (CIntElement* pslt = x28_loadedGenDesc->x0_PSLT) {
-    pslt->GetValue(0, x268_PSLT);
+  if (CIntElement* pslt = mLoadedGenDesc->mPSLT) {
+    pslt->GetValue(0, mPSLT);
   } else {
-    x268_PSLT = 0x7FFFFF;
+    mPSLT = 0x7FFFFF;
   }
 
-  if (CIntElement* maxp = x28_loadedGenDesc->x1c_MAXP) {
-    maxp->GetValue(x74_curFrame, x90_MAXP);
+  if (CIntElement* maxp = mLoadedGenDesc->mMAXP) {
+    maxp->GetValue(mCurFrame, mMAXP);
   }
 
-  int count = x90_MAXP;
+  int count = mMAXP;
   if (count > 256) {
     count = 256;
   }
-  x30_particles.reserve(count);
+  mParticles.reserve(count);
 
-  if (x26d_28_enableADV) {
-    x60_advValues.assign(count);
+  if (mEnableADV) {
+    mAdvValues.assign(count);
   }
 
-  if (x2c_orientType == kMOT_One) {
-    x50_parentMatrices.assign(x90_MAXP, CMatrix3f::Identity());
+  if (mOrientType == kMOT_One) {
+    mParentMatrices.assign(mMAXP, CMatrix3f::Identity());
   }
 
-  x26c_31_LINE = x28_loadedGenDesc->x30_24_LINE;
-  x26d_24_FXLL = x28_loadedGenDesc->x30_25_FXLL;
+  mLINE = mLoadedGenDesc->mLINE;
+  mFXLL = mLoadedGenDesc->mFXLL;
 
-  if (x28_loadedGenDesc->xec_LTYP != nullptr) {
+  if (mLoadedGenDesc->mLTYP != nullptr) {
     int ltypVal = 0;
-    x28_loadedGenDesc->xec_LTYP->GetValue(x74_curFrame, ltypVal);
+    mLoadedGenDesc->mLTYP->GetValue(mCurFrame, ltypVal);
     switch (LightType(ltypVal)) {
     case kLT_None:
-      x308_lightType = kLT_None;
+      mLightType = kLT_None;
       break;
     case kLT_Custom:
-      x308_lightType = kLT_Custom;
+      mLightType = kLT_Custom;
       break;
     case kLT_Directional:
-      x308_lightType = kLT_Directional;
+      mLightType = kLT_Directional;
       break;
     case kLT_Spot:
-      x308_lightType = kLT_Spot;
+      mLightType = kLT_Spot;
       break;
     default:
-      x308_lightType = kLT_None;
+      mLightType = kLT_None;
       break;
     }
 
-    if (x28_loadedGenDesc->x100_LFOT != nullptr) {
+    if (mLoadedGenDesc->mLFOT != nullptr) {
       int lfotVal = 1;
-      x28_loadedGenDesc->x100_LFOT->GetValue(x74_curFrame, lfotVal);
+      mLoadedGenDesc->mLFOT->GetValue(mCurFrame, lfotVal);
       switch (static_cast< EFalloffType >(lfotVal)) {
       case kFT_Constant:
-        x32c_falloffType = kFT_Constant;
+        mFalloffType = kFT_Constant;
         break;
       case kFT_Linear:
-        x32c_falloffType = kFT_Linear;
+        mFalloffType = kFT_Linear;
         break;
       case kFT_Quadratic:
-        x32c_falloffType = kFT_Quadratic;
+        mFalloffType = kFT_Quadratic;
         break;
       default:
-        x32c_falloffType = kFT_Linear;
+        mFalloffType = kFT_Linear;
         break;
       }
     }
@@ -313,9 +313,9 @@ CElementGen::CElementGen(TToken< CGenDescription > gen, EModelOrientationType or
 
 CElementGen::~CElementGen() {
   --mParticleSystemAliveCount;
-  mParticleAliveCount -= x30_particles.size();
+  mParticleAliveCount -= mParticles.size();
 
-  for (AUTO(it, x290_activePartChildren.begin()); it != x290_activePartChildren.end(); ++it) {
+  for (AUTO(it, mActivePartChildren.begin()); it != mActivePartChildren.end(); ++it) {
     delete *it;
   }
 }
@@ -331,13 +331,13 @@ void CElementGen::Initialize() {
 void CElementGen::ShutDown() { sStaticListInitialized = false; }
 
 void CElementGen::SetTranslation(const CVector3f& translation) {
-  xdc_translation = translation;
-  for (AUTO(it, x290_activePartChildren.begin()); it != x290_activePartChildren.end(); ++it) {
+  mTranslation = translation;
+  for (AUTO(it, mActivePartChildren.begin()); it != mActivePartChildren.end(); ++it) {
     CParticleGen* ch = *it;
     if (ch->Get4CharId() == 'ELSC') {
-      ch->SetTranslation(translation + x2c0_SEPO);
+      ch->SetTranslation(translation + mSEPO);
     } else if (ch->Get4CharId() == 'SWHC') {
-      ch->SetTranslation(translation + x2b0_SSPO);
+      ch->SetTranslation(translation + mSSPO);
     } else {
       ch->SetTranslation(translation);
     }
@@ -345,55 +345,55 @@ void CElementGen::SetTranslation(const CVector3f& translation) {
 }
 
 void CElementGen::SetGlobalTranslation(const CVector3f& translation) {
-  xe8_globalTranslation = translation;
-  for (AUTO(it, x290_activePartChildren.begin()); it != x290_activePartChildren.end(); ++it) {
+  mGlobalTranslation = translation;
+  for (AUTO(it, mActivePartChildren.begin()); it != mActivePartChildren.end(); ++it) {
     (*it)->SetGlobalTranslation(translation);
   }
 }
 
 void CElementGen::SetModulationColor(const CColor& col) {
-  x338_moduColor = col;
-  for (AUTO(it, x290_activePartChildren.begin()); it != x290_activePartChildren.end(); ++it) {
+  mModuColor = col;
+  for (AUTO(it, mActivePartChildren.begin()); it != mActivePartChildren.end(); ++it) {
     (*it)->SetModulationColor(col);
   }
 }
 
-const CColor& CElementGen::GetModulationColor() const { return x338_moduColor; }
+const CColor& CElementGen::GetModulationColor() const { return mModuColor; }
 
 void CElementGen::SetGlobalScale(const CVector3f& scale) {
-  x100_globalScale = scale;
-  x10c_globalScaleTransform = CTransform4f::Scale(x100_globalScale.GetX(), x100_globalScale.GetY(),
-                                                  x100_globalScale.GetZ());
-  x13c_globalScaleTransformInverse = CTransform4f::Scale(
-      1.f / x100_globalScale.GetX(), 1.f / x100_globalScale.GetY(), 1.f / x100_globalScale.GetZ());
-  for (AUTO(it, x290_activePartChildren.begin()); it != x290_activePartChildren.end(); ++it) {
+  mGlobalScale = scale;
+  mGlobalScaleTransform = CTransform4f::Scale(mGlobalScale.GetX(), mGlobalScale.GetY(),
+                                                  mGlobalScale.GetZ());
+  mGlobalScaleTransformInverse = CTransform4f::Scale(
+      1.f / mGlobalScale.GetX(), 1.f / mGlobalScale.GetY(), 1.f / mGlobalScale.GetZ());
+  for (AUTO(it, mActivePartChildren.begin()); it != mActivePartChildren.end(); ++it) {
     (*it)->SetGlobalScale(scale);
   }
 }
 
 void CElementGen::SetLocalScale(const CVector3f& scale) {
-  x16c_localScale = scale;
-  x178_localScaleTransform =
-      CTransform4f::Scale(x16c_localScale.GetX(), x16c_localScale.GetY(), x16c_localScale.GetZ());
-  x1a8_localScaleTransformInverse = CTransform4f::Scale(
-      1.f / x16c_localScale.GetX(), 1.f / x16c_localScale.GetY(), 1.f / x16c_localScale.GetZ());
-  for (AUTO(it, x290_activePartChildren.begin()); it != x290_activePartChildren.end(); ++it) {
+  mLocalScale = scale;
+  mLocalScaleTransform =
+      CTransform4f::Scale(mLocalScale.GetX(), mLocalScale.GetY(), mLocalScale.GetZ());
+  mLocalScaleTransformInverse = CTransform4f::Scale(
+      1.f / mLocalScale.GetX(), 1.f / mLocalScale.GetY(), 1.f / mLocalScale.GetZ());
+  for (AUTO(it, mActivePartChildren.begin()); it != mActivePartChildren.end(); ++it) {
     (*it)->SetLocalScale(scale);
   }
 }
 
 void CElementGen::SetOrientation(const CTransform4f& orientation) {
-  x1d8_orientation = orientation;
-  x208_orientationInverse = x1d8_orientation.GetQuickInverse().BuildMatrix3f();
-  for (AUTO(it, x290_activePartChildren.begin()); it != x290_activePartChildren.end(); ++it) {
+  mOrientation = orientation;
+  mOrientationInverse = mOrientation.GetQuickInverse().BuildMatrix3f();
+  for (AUTO(it, mActivePartChildren.begin()); it != mActivePartChildren.end(); ++it) {
     (*it)->SetOrientation(orientation);
   }
 }
 
 void CElementGen::SetGlobalOrientation(const CTransform4f& orientation) {
-  x22c_globalOrientation.SetRotation(orientation);
-  for (AUTO(it, x290_activePartChildren.begin()); it != x290_activePartChildren.end(); ++it) {
-    (*it)->SetGlobalOrientation(x22c_globalOrientation);
+  mGlobalOrientation.SetRotation(orientation);
+  for (AUTO(it, mActivePartChildren.begin()); it != mActivePartChildren.end(); ++it) {
+    (*it)->SetGlobalOrientation(mGlobalOrientation);
   }
 }
 
@@ -405,11 +405,11 @@ void CElementGen::SetGlobalOrientAndTrans(const CTransform4f& xf) {
 const bool CElementGen::Update(double dt) {
   CParticleGlobals::SParticleSystem thisSystem('PART', this);
 
-  if (x28_loadedGenDesc->x4_PSWT && !x26d_25_warmedUp) {
+  if (mLoadedGenDesc->mPSWT && !mWarmedUp) {
     int pswt = 0;
-    x28_loadedGenDesc->x4_PSWT->GetValue(x74_curFrame, pswt);
+    mLoadedGenDesc->mPSWT->GetValue(mCurFrame, pswt);
     InternalUpdate(kTickTime * pswt);
-    x26d_25_warmedUp = true;
+    mWarmedUp = true;
   }
 
   return InternalUpdate(dt);
@@ -417,62 +417,62 @@ const bool CElementGen::Update(double dt) {
 
 bool CElementGen::InternalUpdate(double dt) {
   CStopwatch sw;
-  CGlobalRandom gr(x27c_randState);
+  CGlobalRandom gr(mRandState);
 
   int frameUpdateCount = 0;
-  double t = x74_curFrame * kTickTime;
+  double t = mCurFrame * kTickTime;
   double dt1 = close_enough(dt, kTickTime) ? kTickTime : dt;
 
-  CParticleGlobals::SetEmitterTime(x74_curFrame);
+  CParticleGlobals::SetEmitterTime(mCurFrame);
 
-  if (x28_loadedGenDesc->x8_PSTS) {
+  if (mLoadedGenDesc->mPSTS) {
     float psts = 1.0f;
-    x28_loadedGenDesc->x8_PSTS->GetValue(x74_curFrame, psts);
+    mLoadedGenDesc->mPSTS->GetValue(mCurFrame, psts);
     dt1 *= psts;
     dt1 = rstl::max_val(0.0, dt1);
   }
 
-  x78_curSeconds += dt1;
+  mCurSeconds += dt1;
 
-  if (x26c_30_MBLR && dt > 0.0) {
-    if (x28_loadedGenDesc->x34_MBSP) {
-      x28_loadedGenDesc->x34_MBSP->GetValue(x74_curFrame, x270_MBSP);
+  if (mMBLR && dt > 0.0) {
+    if (mLoadedGenDesc->mMBSP) {
+      mLoadedGenDesc->mMBSP->GetValue(mCurFrame, mMBSP);
     }
   }
 
-  while (t < x78_curSeconds && !close_enough(t, x78_curSeconds)) {
-    x2d4_aabbMin = CVector3f(FLT_MAX, FLT_MAX, FLT_MAX);
-    x2e0_aabbMax = CVector3f(-FLT_MAX, -FLT_MAX, -FLT_MAX);
-    x2ec_maxSize = 0.0f;
+  while (t < mCurSeconds && !close_enough(t, mCurSeconds)) {
+    mAabbMin = CVector3f(FLT_MAX, FLT_MAX, FLT_MAX);
+    mAabbMax = CVector3f(-FLT_MAX, -FLT_MAX, -FLT_MAX);
+    mMaxSize = 0.0f;
 
-    CParticleGlobals::SetEmitterTime(x74_curFrame);
+    CParticleGlobals::SetEmitterTime(mCurFrame);
     UpdateExistingParticles();
-    CParticleGlobals::SetParticleLifetime(x268_PSLT);
+    CParticleGlobals::SetParticleLifetime(mPSLT);
 
-    if (x74_curFrame < x268_PSLT && x88_particleEmission) {
+    if (mCurFrame < mPSLT && mParticleEmission) {
       float grte = 0.0f;
-      if (x28_loadedGenDesc->x20_GRTE->GetValue(x74_curFrame, grte)) {
-        x30_particles.clear();
+      if (mLoadedGenDesc->mGRTE->GetValue(mCurFrame, grte)) {
+        mParticles.clear();
         return true;
       }
 
-      grte = rstl::max_val(0.0f, grte * x98_generatorRate);
-      x8c_generatorRemainder += grte;
-      int genCount = static_cast< int >(floor(x8c_generatorRemainder));
-      x8c_generatorRemainder -= static_cast< float >(genCount);
+      grte = rstl::max_val(0.0f, grte * mGeneratorRate);
+      mGeneratorRemainder += grte;
+      int genCount = static_cast< int >(floor(mGeneratorRemainder));
+      mGeneratorRemainder -= static_cast< float >(genCount);
 
-      if (x28_loadedGenDesc->x1c_MAXP) {
-        x28_loadedGenDesc->x1c_MAXP->GetValue(x74_curFrame, x90_MAXP);
+      if (mLoadedGenDesc->mMAXP) {
+        mLoadedGenDesc->mMAXP->GetValue(mCurFrame, mMAXP);
       }
 
       CreateNewParticles(genCount);
     }
 
-    if (x26c_24_translationDirty) {
+    if (mTranslationDirty) {
       UpdatePSTranslationAndOrientation();
     }
 
-    if (x308_lightType != kLT_None) {
+    if (mLightType != kLT_None) {
       UpdateLightParameters();
     }
 
@@ -480,15 +480,15 @@ bool CElementGen::InternalUpdate(double dt) {
 
     ++frameUpdateCount;
     t += kTickTime;
-    ++x74_curFrame;
+    ++mCurFrame;
   }
 
-  if (close_enough(t, x78_curSeconds)) {
-    x78_curSeconds = t;
-    x80_timeDeltaScale = 1.0f;
+  if (close_enough(t, mCurSeconds)) {
+    mCurSeconds = t;
+    mTimeDeltaScale = 1.0f;
   } else {
     UpdateChildParticleSystems(dt1 - (double)frameUpdateCount * kTickTime);
-    x80_timeDeltaScale = 1.0f - static_cast< float >((t - x78_curSeconds) / kTickTime);
+    mTimeDeltaScale = 1.0f - static_cast< float >((t - mCurSeconds) / kTickTime);
   }
 
   BuildParticleSystemBounds();
@@ -498,147 +498,147 @@ bool CElementGen::InternalUpdate(double dt) {
 }
 
 void CElementGen::UpdateLightParameters() {
-  x28_loadedGenDesc->xf0_LCLR->GetValue(x74_curFrame, x30c_LCLR);
-  x28_loadedGenDesc->xf4_LINT->GetValue(x74_curFrame, x310_LINT);
-  if (x308_lightType != kLT_Directional) {
-    x28_loadedGenDesc->xf8_LOFF->GetValue(x74_curFrame, x314_LOFF);
-    x28_loadedGenDesc->x104_LFOR->GetValue(x74_curFrame, x330_LFOR);
-    if (x308_lightType == kLT_Spot) {
-      x28_loadedGenDesc->x108_LSLA->GetValue(x74_curFrame, x334_LSLA);
+  mLoadedGenDesc->mLCLR->GetValue(mCurFrame, mLCLR);
+  mLoadedGenDesc->mLINT->GetValue(mCurFrame, mLINT);
+  if (mLightType != kLT_Directional) {
+    mLoadedGenDesc->mLOFF->GetValue(mCurFrame, mLOFF);
+    mLoadedGenDesc->mLFOR->GetValue(mCurFrame, mLFOR);
+    if (mLightType == kLT_Spot) {
+      mLoadedGenDesc->mLSLA->GetValue(mCurFrame, mLSLA);
     }
   }
-  if (x308_lightType != kLT_Custom) {
-    x28_loadedGenDesc->xfc_LDIR->GetValue(x74_curFrame, x320_LDIR);
+  if (mLightType != kLT_Custom) {
+    mLoadedGenDesc->mLDIR->GetValue(mCurFrame, mLDIR);
   }
 }
 
 void CElementGen::UpdateAdvanceAccessParameters(int particleFrame, int particleIndex) {
-  float* params = x60_advValues[particleFrame].values;
+  float* params = mAdvValues[particleFrame].values;
   CParticleGlobals::mParticleAccessParameters = params;
-  if (x28_loadedGenDesc->x10c_ADV1) {
-    x28_loadedGenDesc->x10c_ADV1->GetValue(particleIndex, params[0]);
+  if (mLoadedGenDesc->mADV1) {
+    mLoadedGenDesc->mADV1->GetValue(particleIndex, params[0]);
   }
-  if (x28_loadedGenDesc->x110_ADV2) {
-    x28_loadedGenDesc->x110_ADV2->GetValue(particleIndex, params[1]);
+  if (mLoadedGenDesc->mADV2) {
+    mLoadedGenDesc->mADV2->GetValue(particleIndex, params[1]);
   }
-  if (x28_loadedGenDesc->x114_ADV3) {
-    x28_loadedGenDesc->x114_ADV3->GetValue(particleIndex, params[2]);
+  if (mLoadedGenDesc->mADV3) {
+    mLoadedGenDesc->mADV3->GetValue(particleIndex, params[2]);
   }
-  if (x28_loadedGenDesc->x118_ADV4) {
-    x28_loadedGenDesc->x118_ADV4->GetValue(particleIndex, params[3]);
+  if (mLoadedGenDesc->mADV4) {
+    mLoadedGenDesc->mADV4->GetValue(particleIndex, params[3]);
   }
-  if (x28_loadedGenDesc->x11c_ADV5) {
-    x28_loadedGenDesc->x11c_ADV5->GetValue(particleIndex, params[4]);
+  if (mLoadedGenDesc->mADV5) {
+    mLoadedGenDesc->mADV5->GetValue(particleIndex, params[4]);
   }
-  if (x28_loadedGenDesc->x120_ADV6) {
-    x28_loadedGenDesc->x120_ADV6->GetValue(particleIndex, params[5]);
+  if (mLoadedGenDesc->mADV6) {
+    mLoadedGenDesc->mADV6->GetValue(particleIndex, params[5]);
   }
-  if (x28_loadedGenDesc->x124_ADV7) {
-    x28_loadedGenDesc->x124_ADV7->GetValue(particleIndex, params[6]);
+  if (mLoadedGenDesc->mADV7) {
+    mLoadedGenDesc->mADV7->GetValue(particleIndex, params[6]);
   }
-  if (x28_loadedGenDesc->x128_ADV8) {
-    x28_loadedGenDesc->x128_ADV8->GetValue(particleIndex, params[7]);
+  if (mLoadedGenDesc->mADV8) {
+    mLoadedGenDesc->mADV8->GetValue(particleIndex, params[7]);
   }
 }
 
 bool CElementGen::UpdateVelocitySource(int velIdx, int frame, CParticle& particle) {
   bool reset;
-  if (x278_hasVMD[velIdx]) {
-    CVector3f localVel = x208_orientationInverse * particle.x1c_vel;
-    CVector3f localPos = x208_orientationInverse * (particle.x4_pos - xdc_translation);
-    reset = x280_VELSources[velIdx]->GetValue(frame, localVel, localPos);
-    particle.x1c_vel = x1d8_orientation.Rotate(localVel);
-    particle.x4_pos = x1d8_orientation.Rotate(localPos) + xdc_translation;
+  if (mHasVMD[velIdx]) {
+    CVector3f localVel = mOrientationInverse * particle.mVel;
+    CVector3f localPos = mOrientationInverse * (particle.mPos - mTranslation);
+    reset = mVELSources[velIdx]->GetValue(frame, localVel, localPos);
+    particle.mVel = mOrientation.Rotate(localVel);
+    particle.mPos = mOrientation.Rotate(localPos) + mTranslation;
   } else {
-    reset = x280_VELSources[velIdx]->GetValue(frame, particle.x1c_vel, particle.x4_pos);
+    reset = mVELSources[velIdx]->GetValue(frame, particle.mVel, particle.mPos);
   }
   if (reset) {
-    particle.x0_endFrame = -1;
+    particle.mEndFrame = -1;
     return true;
   }
   return false;
 }
 
 void CElementGen::UpdateExistingParticles() {
-  AUTO(p, x30_particles.begin());
-  x25c_activeParticleCount = 0;
-  CParticleGlobals::SetEmitterTime(x74_curFrame);
+  AUTO(p, mParticles.begin());
+  mActiveParticleCount = 0;
+  CParticleGlobals::SetEmitterTime(mCurFrame);
   CParticleGlobals::mParticleAccessParameters = NULL;
 
-  while (p != x30_particles.end()) {
-    if (p->x0_endFrame < x74_curFrame) {
+  while (p != mParticles.end()) {
+    if (p->mEndFrame < mCurFrame) {
       --mParticleAliveCount;
-      if (p + 1 == x30_particles.end()) {
-        x30_particles.x4_count = x30_particles.size() - 1;
+      if (p + 1 == mParticles.end()) {
+        mParticles.mCount = mParticles.size() - 1;
         break;
       }
-      *p = x30_particles.back();
-      if (x2c_orientType == kMOT_One) {
-        x50_parentMatrices[x25c_activeParticleCount] = x50_parentMatrices[x30_particles.size() - 1];
+      *p = mParticles.back();
+      if (mOrientType == kMOT_One) {
+        mParentMatrices[mActiveParticleCount] = mParentMatrices[mParticles.size() - 1];
       }
-      if (x26d_28_enableADV) {
-        x60_advValues[x25c_activeParticleCount] = x60_advValues[x30_particles.size() - 1];
+      if (mEnableADV) {
+        mAdvValues[mActiveParticleCount] = mAdvValues[mParticles.size() - 1];
       }
-      --x30_particles.x4_count;
-      if (p != x30_particles.end()) {
-        if (p->x0_endFrame < x74_curFrame) {
+      --mParticles.mCount;
+      if (p != mParticles.end()) {
+        if (p->mEndFrame < mCurFrame) {
           continue;
         }
       }
     }
-    p->x10_prevPos = p->x4_pos;
-    p->x4_pos += p->x1c_vel;
-    int particleFrame = x74_curFrame - p->x28_startFrame;
+    p->mPrevPos = p->mPos;
+    p->mPos += p->mVel;
+    int particleFrame = mCurFrame - p->mStartFrame;
     CParticleGlobals::mCurrentParticle = &*p;
-    CParticleGlobals::SetParticleLifetime(p->x0_endFrame - p->x28_startFrame);
+    CParticleGlobals::SetParticleLifetime(p->mEndFrame - p->mStartFrame);
     CParticleGlobals::UpdateParticleLifetimeTweenValues(particleFrame);
-    if (x26d_28_enableADV) {
-      UpdateAdvanceAccessParameters(x25c_activeParticleCount, particleFrame);
+    if (mEnableADV) {
+      UpdateAdvanceAccessParameters(mActiveParticleCount, particleFrame);
     }
-    ++x25c_activeParticleCount;
-    if (x280_VELSources[0] != NULL) {
+    ++mActiveParticleCount;
+    if (mVELSources[0] != NULL) {
       UpdateVelocitySource(0, particleFrame, *p);
-      if (x280_VELSources[1] != NULL) {
+      if (mVELSources[1] != NULL) {
         UpdateVelocitySource(1, particleFrame, *p);
-        if (x280_VELSources[2] != NULL) {
+        if (mVELSources[2] != NULL) {
           UpdateVelocitySource(2, particleFrame, *p);
-          if (x280_VELSources[3] != NULL) {
+          if (mVELSources[3] != NULL) {
             UpdateVelocitySource(3, particleFrame, *p);
           }
         }
       }
     }
-    if (x26c_31_LINE) {
-      if (CRealElement* leng = x28_loadedGenDesc->x14_LENG) {
-        leng->GetValue(particleFrame, p->x2c_lineLengthOrSize);
+    if (mLINE) {
+      if (CRealElement* leng = mLoadedGenDesc->mLENG) {
+        leng->GetValue(particleFrame, p->mLineLengthOrSize);
       }
-      if (CRealElement* widt = x28_loadedGenDesc->x18_WIDT) {
-        widt->GetValue(particleFrame, p->x30_lineWidthOrRota);
+      if (CRealElement* widt = mLoadedGenDesc->mWIDT) {
+        widt->GetValue(particleFrame, p->mLineWidthOrRota);
       }
     } else {
-      if (CRealElement* rota = x28_loadedGenDesc->x3c_ROTA) {
-        rota->GetValue(particleFrame, p->x30_lineWidthOrRota);
+      if (CRealElement* rota = mLoadedGenDesc->mROTA) {
+        rota->GetValue(particleFrame, p->mLineWidthOrRota);
       }
-      if (CRealElement* size = x28_loadedGenDesc->x38_SIZE) {
-        size->GetValue(particleFrame, p->x2c_lineLengthOrSize);
+      if (CRealElement* size = mLoadedGenDesc->mSIZE) {
+        size->GetValue(particleFrame, p->mLineLengthOrSize);
       }
     }
-    if (CColorElement* colr = x28_loadedGenDesc->x24_COLR) {
-      colr->GetValue(particleFrame, p->x34_color);
+    if (CColorElement* colr = mLoadedGenDesc->mCOLR) {
+      colr->GetValue(particleFrame, p->mColor);
     }
-    AccumulateBounds(p->x4_pos, p->x2c_lineLengthOrSize);
+    AccumulateBounds(p->mPos, p->mLineLengthOrSize);
     ++p;
   }
 
-  if (x30_particles.size() > 0) {
-    rstl::list< CWarp* >::iterator it = x4_modifiersList.begin();
-    rstl::list< CWarp* >::iterator endIt = x4_modifiersList.end();
+  if (mParticles.size() > 0) {
+    rstl::list< CWarp* >::iterator it = mModifiersList.begin();
+    rstl::list< CWarp* >::iterator endIt = mModifiersList.end();
     while (it != endIt) {
       if ((*it)->UpdateWarp()) {
-        CParticle* base = x30_particles.data();
-        (*it)->ModifyParticles(x30_particles.size(), sizeof(CParticle), &base->x0_endFrame,
-                               &base->x10_prevPos, &base->x4_pos, &base->x1c_vel, &base->x34_color,
-                               &base->x2c_lineLengthOrSize, &base->x30_lineWidthOrRota);
+        CParticle* base = mParticles.data();
+        (*it)->ModifyParticles(mParticles.size(), sizeof(CParticle), &base->mEndFrame,
+                               &base->mPrevPos, &base->mPos, &base->mVel, &base->mColor,
+                               &base->mLineLengthOrSize, &base->mLineWidthOrRota);
       }
       ++it;
     }
@@ -651,26 +651,26 @@ void CElementGen::CreateNewParticles(int count) {
   }
 
   int newCount = count;
-  if (x30_particles.size() >= x90_MAXP) {
+  if (mParticles.size() >= mMAXP) {
     return;
   }
 
-  if (newCount + x30_particles.size() > x90_MAXP) {
-    newCount = x90_MAXP - x30_particles.size();
+  if (newCount + mParticles.size() > mMAXP) {
+    newCount = mMAXP - mParticles.size();
   }
 
   if (newCount + mParticleAliveCount > 0xa00) {
     newCount = 0xa00 - mParticleAliveCount;
   }
 
-  CGlobalRandom gr(x27c_randState);
-  x30_particles.reserve(newCount + x30_particles.size());
+  CGlobalRandom gr(mRandState);
+  mParticles.reserve(newCount + mParticles.size());
 
-  if (x26d_28_enableADV && x60_advValues.capacity() < newCount + x30_particles.size()) {
-    int newCap = x60_advValues.capacity() * 2;
-    x60_advValues.reserve(rstl::min_val(x90_MAXP, newCap));
-    while (x60_advValues.size() < x60_advValues.capacity()) {
-      x60_advValues.push_back(CAdvancedValues());
+  if (mEnableADV && mAdvValues.capacity() < newCount + mParticles.size()) {
+    int newCap = mAdvValues.capacity() * 2;
+    mAdvValues.reserve(rstl::min_val(mMAXP, newCap));
+    while (mAdvValues.size() < mAdvValues.capacity()) {
+      mAdvValues.push_back(CAdvancedValues());
     }
   }
 
@@ -679,111 +679,111 @@ void CElementGen::CreateNewParticles(int count) {
   for (int i = 0; i < newCount; ++i) {
     // TODO: The x1c_vel values somehow get frsp'd, despite being
     // floats from CVector3f::Zero and being stored as floats in CParticle.
-    x30_particles.push_back(CParticle());
+    mParticles.push_back(CParticle());
 
-    int particleIndex = x30_particles.size() - 1;
+    int particleIndex = mParticles.size() - 1;
     ++mParticleAliveCount;
-    ++x25c_activeParticleCount;
-    ++x260_cumulativeParticles;
+    ++mActiveParticleCount;
+    ++mCumulativeParticles;
 
-    if (x2c_orientType == kMOT_One) {
-      x50_parentMatrices[particleIndex] = x1d8_orientation.BuildMatrix3f();
+    if (mOrientType == kMOT_One) {
+      mParentMatrices[particleIndex] = mOrientation.BuildMatrix3f();
     }
 
-    CParticle& particle = x30_particles[particleIndex];
-    particle.x28_startFrame = x74_curFrame;
+    CParticle& particle = mParticles[particleIndex];
+    particle.mStartFrame = mCurFrame;
 
-    if (CIntElement* ltme = x28_loadedGenDesc->x28_LTME) {
-      ltme->GetValue(0, particle.x0_endFrame);
+    if (CIntElement* ltme = mLoadedGenDesc->mLTME) {
+      ltme->GetValue(0, particle.mEndFrame);
     }
 
-    CParticleGlobals::SetParticleLifetime(particle.x0_endFrame);
+    CParticleGlobals::SetParticleLifetime(particle.mEndFrame);
     CParticleGlobals::UpdateParticleLifetimeTweenValues(0);
     CParticleGlobals::mCurrentParticle = &particle;
 
-    if (x26d_28_enableADV) {
+    if (mEnableADV) {
       UpdateAdvanceAccessParameters(particleIndex, 0);
     }
 
-    particle.x0_endFrame += x74_curFrame;
+    particle.mEndFrame += mCurFrame;
 
-    if (CColorElement* colr = x28_loadedGenDesc->x24_COLR) {
-      colr->GetValue(0, particle.x34_color);
+    if (CColorElement* colr = mLoadedGenDesc->mCOLR) {
+      colr->GetValue(0, particle.mColor);
     } else {
-      particle.x34_color = CColor(0xFFFFFFFF);
+      particle.mColor = CColor(0xFFFFFFFF);
     }
 
-    if (CEmitterElement* emtr = x28_loadedGenDesc->x2c_EMTR) {
-      emtr->GetValue(x74_curFrame, particle.x4_pos, particle.x1c_vel);
-      particle.x4_pos =
-          x1d8_orientation.Rotate(particle.x4_pos) +
-          ((x13c_globalScaleTransformInverse * x1a8_localScaleTransformInverse) * xdc_translation) +
-          xf4_POFS;
-      particle.x1c_vel = x1d8_orientation.Rotate(particle.x1c_vel);
+    if (CEmitterElement* emtr = mLoadedGenDesc->mEMTR) {
+      emtr->GetValue(mCurFrame, particle.mPos, particle.mVel);
+      particle.mPos =
+          mOrientation.Rotate(particle.mPos) +
+          ((mGlobalScaleTransformInverse * mLocalScaleTransformInverse) * mTranslation) +
+          mPOFS;
+      particle.mVel = mOrientation.Rotate(particle.mVel);
     } else {
       const CVector3f& compPos =
-          (x13c_globalScaleTransformInverse * x1a8_localScaleTransformInverse) * xdc_translation;
-      particle.x4_pos = compPos + xf4_POFS;
-      particle.x1c_vel = CVector3f::Zero();
+          (mGlobalScaleTransformInverse * mLocalScaleTransformInverse) * mTranslation;
+      particle.mPos = compPos + mPOFS;
+      particle.mVel = CVector3f::Zero();
     }
 
-    particle.x10_prevPos = particle.x4_pos;
+    particle.mPrevPos = particle.mPos;
 
-    if (x26c_31_LINE) {
-      if (CRealElement* leng = x28_loadedGenDesc->x14_LENG) {
-        leng->GetValue(0, particle.x2c_lineLengthOrSize);
+    if (mLINE) {
+      if (CRealElement* leng = mLoadedGenDesc->mLENG) {
+        leng->GetValue(0, particle.mLineLengthOrSize);
       } else {
-        particle.x2c_lineLengthOrSize = 1.f;
+        particle.mLineLengthOrSize = 1.f;
       }
-      if (CRealElement* widt = x28_loadedGenDesc->x18_WIDT) {
-        widt->GetValue(0, particle.x30_lineWidthOrRota);
+      if (CRealElement* widt = mLoadedGenDesc->mWIDT) {
+        widt->GetValue(0, particle.mLineWidthOrRota);
       } else {
-        particle.x30_lineWidthOrRota = 1.f;
+        particle.mLineWidthOrRota = 1.f;
       }
     } else {
-      if (CRealElement* rota = x28_loadedGenDesc->x3c_ROTA) {
-        rota->GetValue(0, particle.x30_lineWidthOrRota);
+      if (CRealElement* rota = mLoadedGenDesc->mROTA) {
+        rota->GetValue(0, particle.mLineWidthOrRota);
       } else {
-        particle.x30_lineWidthOrRota = 0.f;
+        particle.mLineWidthOrRota = 0.f;
       }
-      if (CRealElement* size = x28_loadedGenDesc->x38_SIZE) {
-        size->GetValue(0, particle.x2c_lineLengthOrSize);
+      if (CRealElement* size = mLoadedGenDesc->mSIZE) {
+        size->GetValue(0, particle.mLineLengthOrSize);
       } else {
-        particle.x2c_lineLengthOrSize = 0.1f;
+        particle.mLineLengthOrSize = 0.1f;
       }
     }
 
-    AccumulateBounds(particle.x4_pos, particle.x2c_lineLengthOrSize);
+    AccumulateBounds(particle.mPos, particle.mLineLengthOrSize);
   }
 }
 
 void CElementGen::UpdatePSTranslationAndOrientation() {
-  CGlobalRandom gr(x27c_randState);
-  if (x268_PSLT >= x74_curFrame) {
-    if (CVectorElement* pofs = x28_loadedGenDesc->xc_POFS) {
-      pofs->GetValue(x74_curFrame, xf4_POFS);
+  CGlobalRandom gr(mRandState);
+  if (mPSLT >= mCurFrame) {
+    if (CVectorElement* pofs = mLoadedGenDesc->mPOFS) {
+      pofs->GetValue(mCurFrame, mPOFS);
     }
-    if (CVectorElement* sspo = x28_loadedGenDesc->xd4_SSPO) {
-      sspo->GetValue(x74_curFrame, x2b0_SSPO);
+    if (CVectorElement* sspo = mLoadedGenDesc->mSSPO) {
+      sspo->GetValue(mCurFrame, mSSPO);
     }
-    if (CVectorElement* sepo = x28_loadedGenDesc->xe8_SEPO) {
-      sepo->GetValue(x74_curFrame, x2c0_SEPO);
+    if (CVectorElement* sepo = mLoadedGenDesc->mSEPO) {
+      sepo->GetValue(mCurFrame, mSEPO);
     }
   }
 }
 
 CElementGen* CElementGen::ConstructChildParticleSystem(TToken< CGenDescription > desc) const {
   CElementGen* child =
-      rs_new CElementGen(desc, kMOT_Normal, x26d_27_enableOPTS ? kOSF_Two : kOSF_One);
-  child->x26d_26_modelsUseLights = x26d_26_modelsUseLights;
-  child->SetGlobalTranslation(xe8_globalTranslation);
-  child->SetGlobalOrientation(x22c_globalOrientation);
-  child->SetGlobalScale(x100_globalScale);
-  child->SetLocalScale(x16c_localScale);
-  child->SetTranslation(xdc_translation);
-  child->SetOrientation(x1d8_orientation);
-  child->SetParticleEmission(x88_particleEmission);
-  child->SetModulationColor(x338_moduColor);
+      rs_new CElementGen(desc, kMOT_Normal, mEnableOPTS ? kOSF_Two : kOSF_One);
+  child->mModelsUseLights = mModelsUseLights;
+  child->SetGlobalTranslation(mGlobalTranslation);
+  child->SetGlobalOrientation(mGlobalOrientation);
+  child->SetGlobalScale(mGlobalScale);
+  child->SetLocalScale(mLocalScale);
+  child->SetTranslation(mTranslation);
+  child->SetOrientation(mOrientation);
+  child->SetParticleEmission(mParticleEmission);
+  child->SetModulationColor(mModuColor);
   return child;
 }
 
@@ -792,132 +792,132 @@ void CElementGen::UpdateChildParticleSystems(double dt) {
     return;
   }
 
-  CGlobalRandom gr(x27c_randState);
+  CGlobalRandom gr(mRandState);
 
   // ICTS - child particle systems spawned at CSSD frame
-  if (x28_loadedGenDesc->x78_ICTS && x84_prevFrame != x74_curFrame && x74_curFrame == x2a0_CSSD) {
+  if (mLoadedGenDesc->mICTS && mPrevFrame != mCurFrame && mCurFrame == mCSSD) {
     int ncsyVal = 1;
-    if (CIntElement* ncsy = x28_loadedGenDesc->x88_NCSY) {
-      ncsy->GetValue(x74_curFrame, ncsyVal);
+    if (CIntElement* ncsy = mLoadedGenDesc->mNCSY) {
+      ncsy->GetValue(mCurFrame, ncsyVal);
     }
-    x290_activePartChildren.reserve(ncsyVal + x290_activePartChildren.size());
+    mActivePartChildren.reserve(ncsyVal + mActivePartChildren.size());
     for (int i = 0; i < ncsyVal; ++i) {
-      TLockedToken< CGenDescription > icsToken = x28_loadedGenDesc->x78_ICTS->GetToken();
-      bool descOPTS = icsToken->x32_25_OPTS;
-      if (x26d_27_enableOPTS && descOPTS) {
+      TLockedToken< CGenDescription > icsToken = mLoadedGenDesc->mICTS->GetToken();
+      bool descOPTS = icsToken->mOPTS;
+      if (mEnableOPTS && descOPTS) {
         break;
       }
-      x290_activePartChildren.push_back(ConstructChildParticleSystem(icsToken));
+      mActivePartChildren.push_back(ConstructChildParticleSystem(icsToken));
     }
   }
 
   // IITS - child particle systems spawned periodically
-  if (x28_loadedGenDesc->xa4_IITS && x84_prevFrame != x74_curFrame && x74_curFrame < x268_PSLT &&
-      x88_particleEmission == true && x74_curFrame >= x2a4_SISY &&
-      ((x74_curFrame - x2a4_SISY) % x2a8_PISY) == 0) {
-    TLockedToken< CGenDescription > iitsToken = x28_loadedGenDesc->xa4_IITS->GetToken();
-    bool iitsOPTS = iitsToken->x32_25_OPTS;
-    if (!(x26d_27_enableOPTS && iitsOPTS)) {
-      x290_activePartChildren.reserve(x290_activePartChildren.size() + 1);
-      x290_activePartChildren.push_back(ConstructChildParticleSystem(iitsToken));
+  if (mLoadedGenDesc->mIITS && mPrevFrame != mCurFrame && mCurFrame < mPSLT &&
+      mParticleEmission == true && mCurFrame >= mSISY &&
+      ((mCurFrame - mSISY) % mPISY) == 0) {
+    TLockedToken< CGenDescription > iitsToken = mLoadedGenDesc->mIITS->GetToken();
+    bool iitsOPTS = iitsToken->mOPTS;
+    if (!(mEnableOPTS && iitsOPTS)) {
+      mActivePartChildren.reserve(mActivePartChildren.size() + 1);
+      mActivePartChildren.push_back(ConstructChildParticleSystem(iitsToken));
     }
   }
 
   // KSSM - spawn system keyframe data
-  if (x28_loadedGenDesc->xbc_KSSM.get() != nullptr && x84_prevFrame != x74_curFrame &&
-      x74_curFrame < x268_PSLT) {
+  if (mLoadedGenDesc->mKSSM.get() != nullptr && mPrevFrame != mCurFrame &&
+      mCurFrame < mPSLT) {
     const ushort backupSeed = sSeed;
     rstl::vector< CSpawnSystemKeyframeData::CSpawnSystemKeyframeInfo >& spawns =
-        x28_loadedGenDesc->xbc_KSSM->GetSpawnedSystemsAtFrame(x74_curFrame);
-    x290_activePartChildren.reserve(spawns.size() + x290_activePartChildren.size());
+        mLoadedGenDesc->mKSSM->GetSpawnedSystemsAtFrame(mCurFrame);
+    mActivePartChildren.reserve(spawns.size() + mActivePartChildren.size());
     for (int i = 0; i < spawns.size(); ++i) {
       TLockedToken< CGenDescription > kssmToken = *spawns[i].GetToken();
-      bool kssmOPTS = kssmToken->x32_25_OPTS;
-      if (x26d_27_enableOPTS && kssmOPTS) {
+      bool kssmOPTS = kssmToken->mOPTS;
+      if (mEnableOPTS && kssmOPTS) {
         continue;
       }
       sSeed = backupSeed + i;
-      x290_activePartChildren.push_back(ConstructChildParticleSystem(kssmToken));
+      mActivePartChildren.push_back(ConstructChildParticleSystem(kssmToken));
     }
     sSeed = backupSeed;
   }
 
   // IDTS - child particle systems spawned at death
-  if (x74_curFrame == x268_PSLT && x84_prevFrame != x74_curFrame && x28_loadedGenDesc->x90_IDTS) {
+  if (mCurFrame == mPSLT && mPrevFrame != mCurFrame && mLoadedGenDesc->mIDTS) {
     int ndsyVal = 1;
-    if (CIntElement* ndsy = x28_loadedGenDesc->xa0_NDSY) {
+    if (CIntElement* ndsy = mLoadedGenDesc->mNDSY) {
       ndsy->GetValue(0, ndsyVal);
     }
-    x290_activePartChildren.reserve(ndsyVal + x290_activePartChildren.size());
+    mActivePartChildren.reserve(ndsyVal + mActivePartChildren.size());
     for (int i = 0; i < ndsyVal; ++i) {
-      TLockedToken< CGenDescription > idtsToken = x28_loadedGenDesc->x90_IDTS->GetToken();
-      bool idtsOPTS = idtsToken->x32_25_OPTS;
-      if (x26d_27_enableOPTS && idtsOPTS) {
+      TLockedToken< CGenDescription > idtsToken = mLoadedGenDesc->mIDTS->GetToken();
+      bool idtsOPTS = idtsToken->mOPTS;
+      if (mEnableOPTS && idtsOPTS) {
         break;
       }
-      x290_activePartChildren.push_back(ConstructChildParticleSystem(idtsToken));
+      mActivePartChildren.push_back(ConstructChildParticleSystem(idtsToken));
     }
   }
 
   // SSWH - swoosh child particle system
-  if (x28_loadedGenDesc->xc0_SSWH && x84_prevFrame != x74_curFrame && x74_curFrame == x2ac_SSSD) {
-    CParticleSwoosh* swoosh = rs_new CParticleSwoosh(*x28_loadedGenDesc->xc0_SSWH, 0);
-    swoosh->SetGlobalTranslation(xe8_globalTranslation);
-    swoosh->SetGlobalScale(x100_globalScale);
-    swoosh->SetLocalScale(x16c_localScale);
-    swoosh->SetTranslation(xdc_translation + x2b0_SSPO);
-    swoosh->SetOrientation(x1d8_orientation);
-    const bool emission = x88_particleEmission;
+  if (mLoadedGenDesc->mSSWH && mPrevFrame != mCurFrame && mCurFrame == mSSSD) {
+    CParticleSwoosh* swoosh = rs_new CParticleSwoosh(*mLoadedGenDesc->mSSWH, 0);
+    swoosh->SetGlobalTranslation(mGlobalTranslation);
+    swoosh->SetGlobalScale(mGlobalScale);
+    swoosh->SetLocalScale(mLocalScale);
+    swoosh->SetTranslation(mTranslation + mSSPO);
+    swoosh->SetOrientation(mOrientation);
+    const bool emission = mParticleEmission;
     swoosh->SetParticleEmission(emission);
-    x290_activePartChildren.reserve(x290_activePartChildren.size() + 1);
-    x290_activePartChildren.push_back(swoosh);
+    mActivePartChildren.reserve(mActivePartChildren.size() + 1);
+    mActivePartChildren.push_back(swoosh);
   }
 
   // SELC - electric child particle system
-  if (x28_loadedGenDesc->xd8_SELC && x84_prevFrame != x74_curFrame && x74_curFrame == x2bc_SESD) {
-    CParticleElectric* electric = rs_new CParticleElectric(*x28_loadedGenDesc->xd8_SELC);
-    electric->SetGlobalTranslation(xe8_globalTranslation);
-    electric->SetGlobalScale(x100_globalScale);
-    electric->SetLocalScale(x16c_localScale);
-    electric->SetTranslation(xdc_translation + x2c0_SEPO);
-    electric->SetOrientation(x1d8_orientation);
-    electric->SetParticleEmission(x88_particleEmission);
-    x290_activePartChildren.reserve(x290_activePartChildren.size() + 1);
-    x290_activePartChildren.push_back(electric);
+  if (mLoadedGenDesc->mSELC && mPrevFrame != mCurFrame && mCurFrame == mSESD) {
+    CParticleElectric* electric = rs_new CParticleElectric(*mLoadedGenDesc->mSELC);
+    electric->SetGlobalTranslation(mGlobalTranslation);
+    electric->SetGlobalScale(mGlobalScale);
+    electric->SetLocalScale(mLocalScale);
+    electric->SetTranslation(mTranslation + mSEPO);
+    electric->SetOrientation(mOrientation);
+    electric->SetParticleEmission(mParticleEmission);
+    mActivePartChildren.reserve(mActivePartChildren.size() + 1);
+    mActivePartChildren.push_back(electric);
   }
 
   // Update all child particle systems
-  AUTO(it, x290_activePartChildren.begin());
-  while (it != x290_activePartChildren.end()) {
+  AUTO(it, mActivePartChildren.begin());
+  while (it != mActivePartChildren.end()) {
     CParticleGen* child = *it;
     child->Update(dt);
     if (child->IsSystemDeletable() == true) {
       delete child;
-      it = x290_activePartChildren.erase(it);
+      it = mActivePartChildren.erase(it);
     } else {
       ++it;
     }
   }
 
-  x84_prevFrame = x74_curFrame;
+  mPrevFrame = mCurFrame;
 }
 
 void CElementGen::SetParticleEmission(bool emission) {
-  x88_particleEmission = emission;
-  for (AUTO(it, x290_activePartChildren.begin()); it != x290_activePartChildren.end(); ++it) {
+  mParticleEmission = emission;
+  for (AUTO(it, mActivePartChildren.begin()); it != mActivePartChildren.end(); ++it) {
     (*it)->SetParticleEmission(emission);
   }
 }
 
 void CElementGen::ForceParticleCreation(int amount) {
   CParticleGlobals::SParticleSystem thisSystem('PART', this);
-  CParticleGlobals::SetEmitterTime(x74_curFrame);
+  CParticleGlobals::SetEmitterTime(mCurFrame);
   CreateNewParticles(amount);
 }
 
 void CElementGen::EndLifetime() {
-  x268_PSLT = 0;
-  for (AUTO(it, x290_activePartChildren.begin()); it != x290_activePartChildren.end(); ++it) {
+  mPSLT = 0;
+  for (AUTO(it, mActivePartChildren.begin()); it != mActivePartChildren.end(); ++it) {
     CParticleGen* child = *it;
     if (child->Get4CharId() == 'PART') {
       static_cast< CElementGen* >(child)->EndLifetime();
@@ -928,23 +928,23 @@ void CElementGen::EndLifetime() {
 }
 
 void CElementGen::DestroyParticles() {
-  mParticleAliveCount -= x30_particles.size();
-  x30_particles.clear();
-  if (x2c_orientType == kMOT_One) {
-    x50_parentMatrices.clear();
+  mParticleAliveCount -= mParticles.size();
+  mParticles.clear();
+  if (mOrientType == kMOT_One) {
+    mParentMatrices.clear();
   }
-  for (AUTO(it, x290_activePartChildren.begin()); it != x290_activePartChildren.end(); ++it) {
+  for (AUTO(it, mActivePartChildren.begin()); it != mActivePartChildren.end(); ++it) {
     (*it)->DestroyParticles();
   }
 }
 
 bool CElementGen::IsSystemDeletable() const {
-  for (AUTO(it, x290_activePartChildren.begin()); it != x290_activePartChildren.end(); ++it) {
+  for (AUTO(it, mActivePartChildren.begin()); it != mActivePartChildren.end(); ++it) {
     if (!(*it)->IsSystemDeletable()) {
       return false;
     }
   }
-  if (x268_PSLT < x74_curFrame && static_cast< int >(x25c_activeParticleCount) == 0) {
+  if (mPSLT < mCurFrame && static_cast< int >(mActiveParticleCount) == 0) {
     return true;
   }
   return false;
@@ -953,20 +953,20 @@ bool CElementGen::IsSystemDeletable() const {
 void CElementGen::Render() {
   CStopwatch timer;
 
-  x274_backupLightActive = CGraphics::GetLightMask();
+  mBackupLightActive = CGraphics::GetLightMask();
   CGraphics::DisableAllLights();
 
-  for (AUTO(it, x290_activePartChildren.begin()); it != x290_activePartChildren.end(); ++it) {
+  for (AUTO(it, mActivePartChildren.begin()); it != mActivePartChildren.end(); ++it) {
     (*it)->Render();
   }
 
   CParticleGlobals::SParticleSystem sys('PART', this);
 
-  if (x30_particles.size() > 0) {
-    if (x28_loadedGenDesc->x48_PMDL || x28_loadedGenDesc->x31_26_PMUS) {
+  if (mParticles.size() > 0) {
+    if (mLoadedGenDesc->mPMDL || mLoadedGenDesc->mPMUS) {
       RenderModels();
     }
-    if (x26c_31_LINE) {
+    if (mLINE) {
       RenderLines();
     } else {
       RenderParticles();
@@ -977,11 +977,11 @@ void CElementGen::Render() {
 }
 
 void CElementGen::RenderBasicParticlesNoRotTS(const CTransform4f& xf) {
-  for (int i = 0; i < x30_particles.size(); ++i) {
-    CParticle& particle = x30_particles[i];
-    CVector3f viewPos = xf * particle.x4_pos;
-    float halfSize = 0.5f * particle.x2c_lineLengthOrSize;
-    uint color = particle.x34_color.GetColor_u32();
+  for (int i = 0; i < mParticles.size(); ++i) {
+    CParticle& particle = mParticles[i];
+    CVector3f viewPos = xf * particle.mPos;
+    float halfSize = 0.5f * particle.mLineLengthOrSize;
+    uint color = particle.mColor.GetColor_u32();
     float x = viewPos.GetX() + halfSize;
     float y = viewPos.GetY();
     float z = viewPos.GetZ() + halfSize;
@@ -990,17 +990,17 @@ void CElementGen::RenderBasicParticlesNoRotTS(const CTransform4f& xf) {
     GXColor1u32(color);
     GXTexCoord1s16(0x0202);
 
-    x -= particle.x2c_lineLengthOrSize;
+    x -= particle.mLineLengthOrSize;
     GXPosition3f32(x, y, z);
     GXColor1u32(color);
     GXTexCoord1s16(0x0002);
 
-    z -= particle.x2c_lineLengthOrSize;
+    z -= particle.mLineLengthOrSize;
     GXPosition3f32(x, y, z);
     GXColor1u32(color);
     GXTexCoord1s16(0x0000);
 
-    x += particle.x2c_lineLengthOrSize;
+    x += particle.mLineLengthOrSize;
     GXPosition3f32(x, y, z);
     GXColor1u32(color);
     GXTexCoord1s16(0x0200);
@@ -1008,12 +1008,12 @@ void CElementGen::RenderBasicParticlesNoRotTS(const CTransform4f& xf) {
 }
 
 void CElementGen::RenderBasicParticlesRotTS(const CTransform4f& xf) {
-  for (int i = 0; i < x30_particles.size(); ++i) {
-    CParticle& particle = x30_particles[i];
-    CVector3f viewPos = xf * particle.x4_pos;
-    float halfSize = 0.5f * particle.x2c_lineLengthOrSize;
-    float theta = particle.x30_lineWidthOrRota * (M_PIF / 180.f);
-    uint color = particle.x34_color.GetColor_u32();
+  for (int i = 0; i < mParticles.size(); ++i) {
+    CParticle& particle = mParticles[i];
+    CVector3f viewPos = xf * particle.mPos;
+    float halfSize = 0.5f * particle.mLineLengthOrSize;
+    float theta = particle.mLineWidthOrRota * (M_PIF / 180.f);
+    uint color = particle.mColor.GetColor_u32();
     float sinT = CMath::FastSinR(theta) * halfSize;
     float cosT = CMath::FastCosR(theta) * halfSize;
     float sinPlusCos = sinT + cosT;
@@ -1042,12 +1042,12 @@ void CElementGen::RenderBasicParticlesRotTS(const CTransform4f& xf) {
 }
 
 void CElementGen::RenderBasicParticlesNoRotNoTS(const CTransform4f& xf) {
-  for (int i = 0; i < x30_particles.size(); ++i) {
-    CParticle& particle = x30_particles[i];
+  for (int i = 0; i < mParticles.size(); ++i) {
+    CParticle& particle = mParticles[i];
     CVector3f viewPos =
-        xf * ((particle.x4_pos - particle.x10_prevPos) * x80_timeDeltaScale + particle.x10_prevPos);
-    float halfSize = 0.5f * particle.x2c_lineLengthOrSize;
-    uint color = particle.x34_color.GetColor_u32();
+        xf * ((particle.mPos - particle.mPrevPos) * mTimeDeltaScale + particle.mPrevPos);
+    float halfSize = 0.5f * particle.mLineLengthOrSize;
+    uint color = particle.mColor.GetColor_u32();
     float x = viewPos.GetX() + halfSize;
     float y = viewPos.GetY();
     float z = viewPos.GetZ() + halfSize;
@@ -1056,17 +1056,17 @@ void CElementGen::RenderBasicParticlesNoRotNoTS(const CTransform4f& xf) {
     GXColor1u32(color);
     GXTexCoord1s16(0x0202);
 
-    x -= particle.x2c_lineLengthOrSize;
+    x -= particle.mLineLengthOrSize;
     GXPosition3f32(x, y, z);
     GXColor1u32(color);
     GXTexCoord1s16(0x0002);
 
-    z -= particle.x2c_lineLengthOrSize;
+    z -= particle.mLineLengthOrSize;
     GXPosition3f32(x, y, z);
     GXColor1u32(color);
     GXTexCoord1s16(0x0000);
 
-    x += particle.x2c_lineLengthOrSize;
+    x += particle.mLineLengthOrSize;
     GXPosition3f32(x, y, z);
     GXColor1u32(color);
     GXTexCoord1s16(0x0200);
@@ -1074,13 +1074,13 @@ void CElementGen::RenderBasicParticlesNoRotNoTS(const CTransform4f& xf) {
 }
 
 void CElementGen::RenderBasicParticlesRotNoTS(const CTransform4f& xf) {
-  for (int i = 0; i < x30_particles.size(); ++i) {
-    CParticle& particle = x30_particles[i];
+  for (int i = 0; i < mParticles.size(); ++i) {
+    CParticle& particle = mParticles[i];
     CVector3f viewPos =
-        xf * ((particle.x4_pos - particle.x10_prevPos) * x80_timeDeltaScale + particle.x10_prevPos);
-    float halfSize = 0.5f * particle.x2c_lineLengthOrSize;
-    float theta = particle.x30_lineWidthOrRota * (M_PIF / 180.f);
-    uint color = particle.x34_color.GetColor_u32();
+        xf * ((particle.mPos - particle.mPrevPos) * mTimeDeltaScale + particle.mPrevPos);
+    float halfSize = 0.5f * particle.mLineLengthOrSize;
+    float theta = particle.mLineWidthOrRota * (M_PIF / 180.f);
+    uint color = particle.mColor.GetColor_u32();
     float sinT = CMath::FastSinR(theta) * halfSize;
     float cosT = CMath::FastCosR(theta) * halfSize;
     float sinPlusCos = sinT + cosT;
@@ -1108,19 +1108,19 @@ void CElementGen::RenderBasicParticlesRotNoTS(const CTransform4f& xf) {
 }
 
 void CElementGen::RenderParticles() {
-  CGlobalRandom gr(x27c_randState);
+  CGlobalRandom gr(mRandState);
 
   if (IsIndirectTextured()) {
     RenderParticlesIndirectTexture();
     return;
   }
 
-  if (x28_loadedGenDesc->x38_SIZE != nullptr && x28_loadedGenDesc->x38_SIZE->IsConstant()) {
+  if (mLoadedGenDesc->mSIZE != nullptr && mLoadedGenDesc->mSIZE->IsConstant()) {
     float sizeVal = 1.f;
-    x28_loadedGenDesc->x38_SIZE->GetValue(0, sizeVal);
+    mLoadedGenDesc->mSIZE->GetValue(0, sizeVal);
     if (sizeVal == 0.f) {
       sizeVal = 1.f;
-      x28_loadedGenDesc->x38_SIZE->GetValue(1, sizeVal);
+      mLoadedGenDesc->mSIZE->GetValue(1, sizeVal);
       if (sizeVal == 0.f) {
         return;
       }
@@ -1129,16 +1129,16 @@ void CElementGen::RenderParticles() {
 
   CGraphics::SetCullMode(kCM_None);
 
-  bool hasModuColor = x338_moduColor.GetColor_u32() != 0xFFFFFFFF;
+  bool hasModuColor = mModuColor.GetColor_u32() != 0xFFFFFFFF;
 
   CTransform4f systemViewCopy(CGraphics::GetViewMatrix());
   CTransform4f systemModelMatrix(systemViewCopy);
   systemModelMatrix.SetTranslation(CVector3f::Zero());
-  CTransform4f systemCameraCopy(systemModelMatrix.GetQuickInverse() * x22c_globalOrientation);
-  systemModelMatrix = CTransform4f::Translate(xe8_globalTranslation) * x10c_globalScaleTransform *
-                      systemModelMatrix * x178_localScaleTransform;
+  CTransform4f systemCameraCopy(systemModelMatrix.GetQuickInverse() * mGlobalOrientation);
+  systemModelMatrix = CTransform4f::Translate(mGlobalTranslation) * mGlobalScaleTransform *
+                      systemModelMatrix * mLocalScaleTransform;
 
-  if (x26c_29_ORNT) {
+  if (mORNT) {
     CGraphics::SetModelMatrix(systemModelMatrix * systemCameraCopy);
   } else {
     CGraphics::SetModelMatrix(systemModelMatrix);
@@ -1153,22 +1153,22 @@ void CElementGen::RenderParticles() {
   uvs.yMin = 0.f;
   uvs.yMax = 1.f;
 
-  bool noRota = x28_loadedGenDesc->x3c_ROTA == nullptr;
-  if (x28_loadedGenDesc->x3c_ROTA != nullptr && x28_loadedGenDesc->x3c_ROTA->IsConstant()) {
+  bool noRota = mLoadedGenDesc->mROTA == nullptr;
+  if (mLoadedGenDesc->mROTA != nullptr && mLoadedGenDesc->mROTA->IsConstant()) {
     float value = 1.f;
-    x28_loadedGenDesc->x3c_ROTA->GetValue(0, value);
+    mLoadedGenDesc->mROTA->GetValue(0, value);
     if (0.f == value) {
       value = 1.f;
-      x28_loadedGenDesc->x3c_ROTA->GetValue(1, value);
+      mLoadedGenDesc->mROTA->GetValue(1, value);
       if (0.f == value) {
         noRota = true;
       }
     }
   }
 
-  if (x28_loadedGenDesc->x40_TEXR != nullptr) {
-    int partFrame = x74_curFrame - x30_particles[0].x28_startFrame;
-    TToken< CTexture > tex = x28_loadedGenDesc->x40_TEXR->GetValueTexture(partFrame);
+  if (mLoadedGenDesc->mTEXR != nullptr) {
+    int partFrame = mCurFrame - mParticles[0].mStartFrame;
+    TToken< CTexture > tex = mLoadedGenDesc->mTEXR->GetValueTexture(partFrame);
     tex->Load(GX_TEXMAP0, CTexture::kCM_Repeat);
 
     CGraphics::SetTevOp(kTS_Stage0, CGraphics::kEnvModulate);
@@ -1184,8 +1184,8 @@ void CElementGen::RenderParticles() {
       CGraphics::SetTevOp(kTS_Stage1, CGraphics::kEnvPassthru);
     }
 
-    x28_loadedGenDesc->x40_TEXR->GetValueUV(x74_curFrame - x30_particles[0].x28_startFrame, uvs);
-    constUVs = x28_loadedGenDesc->x40_TEXR->HasConstantUV();
+    mLoadedGenDesc->mTEXR->GetValueUV(mCurFrame - mParticles[0].mStartFrame, uvs);
+    constUVs = mLoadedGenDesc->mTEXR->HasConstantUV();
   } else {
     CGraphics::SetTevOp(kTS_Stage0, CGraphics::kEnvPassthru);
     CGraphics::SetTevOp(kTS_Stage1, CGraphics::kEnvPassthru);
@@ -1199,7 +1199,7 @@ void CElementGen::RenderParticles() {
     nextStage = GX_TEVSTAGE2;
     CGX::SetTevOrder(GX_TEVSTAGE1, GX_TEXCOORD_NULL, GX_TEXMAP_NULL, GX_COLOR1A1);
     CGX::SetChanAmbColor(CGX::Channel1, CColor(0.f, 0.f, 0.f, 1.f).GetGXColor());
-    CGX::SetChanMatColor(CGX::Channel1, x338_moduColor.GetGXColor());
+    CGX::SetChanMatColor(CGX::Channel1, mModuColor.GetGXColor());
     CGX::SetChanCtrl(CGX::Channel1, false, GX_SRC_REG, GX_SRC_REG, GX_LIGHT_NULL, GX_DF_NONE,
                      GX_AF_NONE);
   } else {
@@ -1209,7 +1209,7 @@ void CElementGen::RenderParticles() {
 
   bool moveRedToAlphaBuffer = sMoveRedToAlphaBuffer;
   if (sSubtractBlend) {
-    CGraphics::SetDepthWriteMode(x26c_28_zTest, kE_LEqual, false);
+    CGraphics::SetDepthWriteMode(mZTest, kE_LEqual, false);
     CGX::SetBlendMode(GX_BM_SUBTRACT, GX_BL_ONE, GX_BL_ZERO, GX_LO_CLEAR);
     if (moveRedToAlphaBuffer) {
       CGX::SetTevColorIn(nextStage, GX_CC_ZERO, GX_CC_CPREV, GX_CC_APREV, GX_CC_ZERO);
@@ -1220,7 +1220,7 @@ void CElementGen::RenderParticles() {
       nextStage = static_cast< GXTevStageID >(nextStage + 1);
     }
   } else if (moveRedToAlphaBuffer) {
-    CGraphics::SetDepthWriteMode(x26c_28_zTest, kE_LEqual, false);
+    CGraphics::SetDepthWriteMode(mZTest, kE_LEqual, false);
     CGraphics::SetBlendMode(kBM_Blend, kBF_One, kBF_One, kLO_Clear);
     CGX::SetTevColorIn(nextStage, GX_CC_ZERO, GX_CC_CPREV, GX_CC_APREV, GX_CC_ZERO);
     CGX::SetTevAlphaIn(nextStage, GX_CA_ZERO, GX_CA_TEXA, GX_CA_APREV, GX_CA_ZERO);
@@ -1228,11 +1228,11 @@ void CElementGen::RenderParticles() {
     CGX::SetTevOrder(nextStage, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR_NULL);
     GXSetTevSwapMode(nextStage, GX_TEV_SWAP0, GX_TEV_SWAP1);
     nextStage = static_cast< GXTevStageID >(nextStage + 1);
-  } else if (x26c_26_AAPH) {
-    CGraphics::SetDepthWriteMode(x26c_28_zTest, kE_LEqual, false);
+  } else if (mAAPH) {
+    CGraphics::SetDepthWriteMode(mZTest, kE_LEqual, false);
     CGraphics::SetBlendMode(kBM_Blend, kBF_SrcAlpha, kBF_One, kLO_Clear);
   } else {
-    CGraphics::SetDepthWriteMode(x26c_28_zTest, kE_LEqual, x26c_27_ZBUF);
+    CGraphics::SetDepthWriteMode(mZTest, kE_LEqual, mZBUF);
     CGraphics::SetBlendMode(kBM_Blend, kBF_SrcAlpha, kBF_InvSrcAlpha, kLO_Clear);
   }
 
@@ -1251,37 +1251,37 @@ void CElementGen::RenderParticles() {
     GXSetVtxAttrFmt(GX_VTXFMT6, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0);
   }
 
-  int particleCount = x30_particles.size();
-  int mbspVal = rstl::max_val(1, x270_MBSP);
+  int particleCount = mParticles.size();
+  int mbspVal = rstl::max_val(1, mMBSP);
 
-  if (!x26c_30_MBLR) {
+  if (!mMBLR) {
     CGX::Begin(GX_QUADS, GX_VTXFMT6, static_cast< ushort >(particleCount * 4));
   } else {
     CGX::Begin(GX_QUADS, GX_VTXFMT6, static_cast< ushort >(mbspVal * (particleCount * 4)));
   }
 
-  bool noTS = !close_enough(x80_timeDeltaScale, 1.f, 0.00001f);
-  bool SORT = x28_loadedGenDesc->x30_28_SORT;
+  bool noTS = !close_enough(mTimeDeltaScale, 1.f, 0.00001f);
+  bool SORT = mLoadedGenDesc->mSORT;
   CParticleListItem* sortItems = nullptr;
 
   if (SORT) {
     sortItems =
         static_cast< CParticleListItem* >(alloca(particleCount * sizeof(CParticleListItem)));
     for (int i = 0; i < particleCount; ++i) {
-      CParticle& particle = x30_particles[i];
-      const CVector3f& delta = particle.x4_pos - particle.x10_prevPos;
-      const CVector3f& pos = delta * x80_timeDeltaScale + particle.x10_prevPos;
+      CParticle& particle = mParticles[i];
+      const CVector3f& delta = particle.mPos - particle.mPrevPos;
+      const CVector3f& pos = delta * mTimeDeltaScale + particle.mPrevPos;
       // TODO: I think this is the constructor, but need the copy to be elided
-      sortItems[i].x4_viewPoint = systemCameraCopy * pos;
-      sortItems[i].x0_partIdx = static_cast< ushort >(i);
+      sortItems[i].mViewPoint = systemCameraCopy * pos;
+      sortItems[i].mPartIdx = static_cast< ushort >(i);
     }
     rstl::sort(sortItems, sortItems + particleCount, CParticleListItemViewPointComp());
   }
 
-  CParticleGlobals::SetEmitterTime(x74_curFrame);
+  CParticleGlobals::SetEmitterTime(mCurFrame);
 
-  if (!x26c_30_MBLR) {
-    if (!SORT && constUVs && !x26c_29_ORNT) {
+  if (!mMBLR) {
+    if (!SORT && constUVs && !mORNT) {
       if (noRota) {
         if (noTS) {
           RenderBasicParticlesNoRotNoTS(systemCameraCopy);
@@ -1295,48 +1295,48 @@ void CElementGen::RenderParticles() {
           RenderBasicParticlesRotTS(systemCameraCopy);
         }
       }
-    } else if (!x26c_29_ORNT) {
+    } else if (!mORNT) {
       CParticleListItem* sortIt = sortItems;
       for (int i = 0; i < particleCount; ++i) {
-        CParticle& particle = SORT ? x30_particles[sortIt->x0_partIdx] : x30_particles[i];
+        CParticle& particle = SORT ? mParticles[sortIt->mPartIdx] : mParticles[i];
         CVector3f viewPoint =
             systemCameraCopy *
-            ((particle.x4_pos - particle.x10_prevPos) * x80_timeDeltaScale + particle.x10_prevPos);
+            ((particle.mPos - particle.mPrevPos) * mTimeDeltaScale + particle.mPrevPos);
 
-        uint color = particle.x34_color.GetColor_u32();
+        uint color = particle.mColor.GetColor_u32();
 
         if (!constUVs) {
-          int partFrame = x74_curFrame - particle.x28_startFrame - 1;
-          CParticleGlobals::SetParticleLifetime(particle.x0_endFrame - particle.x28_startFrame);
+          int partFrame = mCurFrame - particle.mStartFrame - 1;
+          CParticleGlobals::SetParticleLifetime(particle.mEndFrame - particle.mStartFrame);
           CParticleGlobals::UpdateParticleLifetimeTweenValues(partFrame);
-          x28_loadedGenDesc->x40_TEXR->GetValueUV(partFrame, uvs);
+          mLoadedGenDesc->mTEXR->GetValueUV(partFrame, uvs);
 
           if (noRota) {
-            float x = (particle.x2c_lineLengthOrSize * 0.5f) + viewPoint.GetX();
+            float x = (particle.mLineLengthOrSize * 0.5f) + viewPoint.GetX();
             float y = viewPoint.GetY();
-            float z = (particle.x2c_lineLengthOrSize * 0.5f) + viewPoint.GetZ();
+            float z = (particle.mLineLengthOrSize * 0.5f) + viewPoint.GetZ();
 
             GXPosition3f32(x, y, z);
             GXColor1u32(color);
             GXTexCoord2f32(uvs.xMax, uvs.yMax);
 
-            x -= particle.x2c_lineLengthOrSize;
+            x -= particle.mLineLengthOrSize;
             GXPosition3f32(x, y, z);
             GXColor1u32(color);
             GXTexCoord2f32(uvs.xMin, uvs.yMax);
 
-            z -= particle.x2c_lineLengthOrSize;
+            z -= particle.mLineLengthOrSize;
             GXPosition3f32(x, y, z);
             GXColor1u32(color);
             GXTexCoord2f32(uvs.xMin, uvs.yMin);
 
-            x += particle.x2c_lineLengthOrSize;
+            x += particle.mLineLengthOrSize;
             GXPosition3f32(x, y, z);
             GXColor1u32(color);
             GXTexCoord2f32(uvs.xMax, uvs.yMin);
           } else {
-            float halfSize = 0.5f * particle.x2c_lineLengthOrSize;
-            float theta = particle.x30_lineWidthOrRota * (M_PIF / 180.f);
+            float halfSize = 0.5f * particle.mLineLengthOrSize;
+            float theta = particle.mLineWidthOrRota * (M_PIF / 180.f);
             float sinT = CMath::FastSinR(theta) * halfSize;
             float cosT = CMath::FastCosR(theta) * halfSize;
 
@@ -1366,31 +1366,31 @@ void CElementGen::RenderParticles() {
             GXTexCoord2f32(uvs.xMax, uvs.yMin);
           }
         } else if (noRota) {
-          float x = (particle.x2c_lineLengthOrSize * 0.5f) + viewPoint.GetX();
+          float x = (particle.mLineLengthOrSize * 0.5f) + viewPoint.GetX();
           float y = viewPoint.GetY();
-          float z = (particle.x2c_lineLengthOrSize * 0.5f) + viewPoint.GetZ();
+          float z = (particle.mLineLengthOrSize * 0.5f) + viewPoint.GetZ();
 
           GXPosition3f32(x, y, z);
           GXColor1u32(color);
           GXTexCoord1s16(0x0202);
 
-          x -= particle.x2c_lineLengthOrSize;
+          x -= particle.mLineLengthOrSize;
           GXPosition3f32(x, y, z);
           GXColor1u32(color);
           GXTexCoord1s16(0x0002);
 
-          z -= particle.x2c_lineLengthOrSize;
+          z -= particle.mLineLengthOrSize;
           GXPosition3f32(x, y, z);
           GXColor1u32(color);
           GXTexCoord1s16(0x0000);
 
-          x += particle.x2c_lineLengthOrSize;
+          x += particle.mLineLengthOrSize;
           GXPosition3f32(x, y, z);
           GXColor1u32(color);
           GXTexCoord1s16(0x0200);
         } else {
-          float halfSize = 0.5f * particle.x2c_lineLengthOrSize;
-          float theta = particle.x30_lineWidthOrRota * (M_PIF / 180.f);
+          float halfSize = 0.5f * particle.mLineLengthOrSize;
+          float theta = particle.mLineWidthOrRota * (M_PIF / 180.f);
           float sinT = CMath::FastSinR(theta) * halfSize;
           float cosT = CMath::FastCosR(theta) * halfSize;
 
@@ -1434,20 +1434,20 @@ void CElementGen::RenderParticles() {
 
       CParticleListItem* sortIt = sortItems;
       for (int i = 0; i < particleCount; ++i) {
-        CParticle* particle = SORT ? &x30_particles[sortIt->x0_partIdx] : &x30_particles[i];
+        CParticle* particle = SORT ? &mParticles[sortIt->mPartIdx] : &mParticles[i];
 
-        CVector3f delta = particle->x4_pos - particle->x10_prevPos;
-        const CVector3f& pos = delta * x80_timeDeltaScale + particle->x10_prevPos;
+        CVector3f delta = particle->mPos - particle->mPrevPos;
+        const CVector3f& pos = delta * mTimeDeltaScale + particle->mPrevPos;
 
-        uint color = particle->x34_color.GetColor_u32();
-        float rota = x28_loadedGenDesc->x3c_ROTA == nullptr ? 1.f : particle->x30_lineWidthOrRota;
-        float velMagSq = particle->x1c_vel.MagSquared();
+        uint color = particle->mColor.GetColor_u32();
+        float rota = mLoadedGenDesc->mROTA == nullptr ? 1.f : particle->mLineWidthOrRota;
+        float velMagSq = particle->mVel.MagSquared();
 
         CVector3f dir;
         if (velMagSq > canBeNormEps) {
-          dir = particle->x1c_vel * frsqrte(velMagSq);
+          dir = particle->mVel * frsqrte(velMagSq);
         } else {
-          const CVector3f& dv = particle->x4_pos - particle->x10_prevPos;
+          const CVector3f& dv = particle->mPos - particle->mPrevPos;
           float dMagSq = dv.MagSquared();
           if (dMagSq > canBeNormEps) {
             dir = dv * frsqrte(dMagSq);
@@ -1456,24 +1456,24 @@ void CElementGen::RenderParticles() {
           }
         }
 
-        CVector3f fore = dir * particle->x2c_lineLengthOrSize;
+        CVector3f fore = dir * particle->mLineLengthOrSize;
 
         CVector3f right;
-        if (x28_loadedGenDesc->x30_31_RSOP) {
+        if (mLoadedGenDesc->mRSOP) {
           right = CVector3f::Cross(dir, fwd);
           float crMagSq = right.MagSquared();
 
           if (crMagSq > canBeNormEps) {
             float invMag = frsqrte(crMagSq);
-            right *= particle->x2c_lineLengthOrSize * rota * invMag;
+            right *= particle->mLineLengthOrSize * rota * invMag;
           } else {
-            CVector3f camDelta = origin - particle->x4_pos;
+            CVector3f camDelta = origin - particle->mPos;
             right = CVector3f::Cross(dir, camDelta.AsNormalized());
             float cr2MagSq = right.MagSquared();
 
             if (cr2MagSq > canBeNormEps) {
               float invMag = frsqrte(cr2MagSq);
-              right *= particle->x2c_lineLengthOrSize * rota * invMag;
+              right *= particle->mLineLengthOrSize * rota * invMag;
             }
           }
         } else {
@@ -1481,10 +1481,10 @@ void CElementGen::RenderParticles() {
         }
 
         if (!constUVs) {
-          int partFrame = x74_curFrame - particle->x28_startFrame - 1;
-          CParticleGlobals::SetParticleLifetime(particle->x0_endFrame - particle->x28_startFrame);
+          int partFrame = mCurFrame - particle->mStartFrame - 1;
+          CParticleGlobals::SetParticleLifetime(particle->mEndFrame - particle->mStartFrame);
           CParticleGlobals::UpdateParticleLifetimeTweenValues(partFrame);
-          x28_loadedGenDesc->x40_TEXR->GetValueUV(partFrame, uvs);
+          mLoadedGenDesc->mTEXR->GetValueUV(partFrame, uvs);
 
           CVector3f p = pos + right * 0.5f + fore * 0.5f;
           GXPositionVector3f(p);
@@ -1540,45 +1540,45 @@ void CElementGen::RenderParticles() {
     // MBLR
     float mbspFac = 1.f / static_cast< float >(mbspVal);
     for (int i = 0; i < particleCount; ++i) {
-      CParticle* particle = &x30_particles[i];
+      CParticle* particle = &mParticles[i];
 
-      CVector3f delta = particle->x4_pos - particle->x10_prevPos;
-      CVector3f vec = delta * x80_timeDeltaScale + particle->x10_prevPos;
+      CVector3f delta = particle->mPos - particle->mPrevPos;
+      CVector3f vec = delta * mTimeDeltaScale + particle->mPrevPos;
       CVector3f mbspVec = delta * mbspFac;
 
-      CColor col = particle->x34_color;
+      CColor col = particle->mColor;
       col.SetAlpha(col.GetAlpha() * mbspFac);
       uint color = col.GetColor_u32();
 
       if (!constUVs) {
-        int partFrame = x74_curFrame - particle->x28_startFrame - 1;
-        CParticleGlobals::SetParticleLifetime(particle->x0_endFrame - particle->x28_startFrame);
+        int partFrame = mCurFrame - particle->mStartFrame - 1;
+        CParticleGlobals::SetParticleLifetime(particle->mEndFrame - particle->mStartFrame);
         CParticleGlobals::UpdateParticleLifetimeTweenValues(partFrame);
-        x28_loadedGenDesc->x40_TEXR->GetValueUV(partFrame, uvs);
+        mLoadedGenDesc->mTEXR->GetValueUV(partFrame, uvs);
 
         if (noRota) {
           for (int j = 0; j < mbspVal; ++j) {
             vec += mbspVec;
             CVector3f viewPoint = systemCameraCopy * vec;
-            float x = (0.5f * particle->x2c_lineLengthOrSize) + viewPoint.GetX();
+            float x = (0.5f * particle->mLineLengthOrSize) + viewPoint.GetX();
             float y = viewPoint.GetY();
-            float z = (0.5f * particle->x2c_lineLengthOrSize) + viewPoint.GetZ();
+            float z = (0.5f * particle->mLineLengthOrSize) + viewPoint.GetZ();
 
             GXPosition3f32(x, y, z);
             GXColor1u32(color);
             GXTexCoord2f32(uvs.xMax, uvs.yMax);
 
-            x -= particle->x2c_lineLengthOrSize;
+            x -= particle->mLineLengthOrSize;
             GXPosition3f32(x, y, z);
             GXColor1u32(color);
             GXTexCoord2f32(uvs.xMin, uvs.yMax);
 
-            z -= particle->x2c_lineLengthOrSize;
+            z -= particle->mLineLengthOrSize;
             GXPosition3f32(x, y, z);
             GXColor1u32(color);
             GXTexCoord2f32(uvs.xMin, uvs.yMin);
 
-            x += particle->x2c_lineLengthOrSize;
+            x += particle->mLineLengthOrSize;
             GXPosition3f32(x, y, z);
             GXColor1u32(color);
             GXTexCoord2f32(uvs.xMax, uvs.yMin);
@@ -1587,8 +1587,8 @@ void CElementGen::RenderParticles() {
           for (int j = 0; j < mbspVal; ++j) {
             vec += mbspVec;
             CVector3f viewPoint = systemCameraCopy * vec;
-            float halfSize = 0.5f * particle->x2c_lineLengthOrSize;
-            float theta = particle->x30_lineWidthOrRota * (M_PIF / 180.f);
+            float halfSize = 0.5f * particle->mLineLengthOrSize;
+            float theta = particle->mLineWidthOrRota * (M_PIF / 180.f);
 
             float sinT = CMath::FastSinR(theta) * halfSize;
             float cosT = CMath::FastCosR(theta) * halfSize;
@@ -1623,25 +1623,25 @@ void CElementGen::RenderParticles() {
         for (int j = 0; j < mbspVal; ++j) {
           vec += mbspVec;
           CVector3f viewPoint = systemCameraCopy * vec;
-          float x = (0.5f * particle->x2c_lineLengthOrSize) + viewPoint.GetX();
+          float x = (0.5f * particle->mLineLengthOrSize) + viewPoint.GetX();
           float y = viewPoint.GetY();
-          float z = (0.5f * particle->x2c_lineLengthOrSize) + viewPoint.GetZ();
+          float z = (0.5f * particle->mLineLengthOrSize) + viewPoint.GetZ();
 
           GXPosition3f32(x, y, z);
           GXColor1u32(color);
           GXTexCoord1s16(0x0202);
 
-          x -= particle->x2c_lineLengthOrSize;
+          x -= particle->mLineLengthOrSize;
           GXPosition3f32(x, y, z);
           GXColor1u32(color);
           GXTexCoord1s16(0x0002);
 
-          z -= particle->x2c_lineLengthOrSize;
+          z -= particle->mLineLengthOrSize;
           GXPosition3f32(x, y, z);
           GXColor1u32(color);
           GXTexCoord1s16(0x0000);
 
-          x += particle->x2c_lineLengthOrSize;
+          x += particle->mLineLengthOrSize;
           GXPosition3f32(x, y, z);
           GXColor1u32(color);
           GXTexCoord1s16(0x0200);
@@ -1650,8 +1650,8 @@ void CElementGen::RenderParticles() {
         for (int j = 0; j < mbspVal; ++j) {
           vec += mbspVec;
           CVector3f viewPoint = systemCameraCopy * vec;
-          float halfSize = 0.5f * particle->x2c_lineLengthOrSize;
-          float theta = particle->x30_lineWidthOrRota * (M_PIF / 180.f);
+          float halfSize = 0.5f * particle->mLineLengthOrSize;
+          float theta = particle->mLineWidthOrRota * (M_PIF / 180.f);
 
           float sinT = CMath::FastSinR(theta) * halfSize;
           float cosT = CMath::FastCosR(theta) * halfSize;
@@ -1710,7 +1710,7 @@ void CElementGen::RenderParticlesFlameThrower(CElementGen* const* gens, int coun
   for (GXTexMapID mapId = GX_TEXMAP0; mapId < count;
        ++genPtr, mapId = static_cast< GXTexMapID >(mapId + 1)) {
     const TLockedToken< CTexture >& tex =
-        (*genPtr)->x28_loadedGenDesc->x40_TEXR->GetValueTexture(0);
+        (*genPtr)->mLoadedGenDesc->mTEXR->GetValueTexture(0);
     (*tex)->Load(mapId, CTexture::kCM_Repeat);
   }
 
@@ -1751,22 +1751,22 @@ void CElementGen::RenderParticlesFlameThrower(CElementGen* const* gens, int coun
   for (int i = 0; i < count; ++i) {
     CElementGen* gen = gens[i];
     int numParts = gen->GetParticleCount();
-    float timeDelta = gen->x80_timeDeltaScale;
+    float timeDelta = gen->mTimeDeltaScale;
 
     for (int j = 0; j < numParts; ++j) {
-      CParticle& particle = gen->x30_particles[j];
-      if (particle.x0_endFrame == -1)
+      CParticle& particle = gen->mParticles[j];
+      if (particle.mEndFrame == -1)
         continue;
 
       // ?
-      sortItems[activeCount].x4_viewPoint = systemCameraCopy * particle.x4_pos;
+      sortItems[activeCount].mViewPoint = systemCameraCopy * particle.mPos;
 
       // TODO: this should be the constructor
-      sortItems[activeCount].x4_viewPoint =
+      sortItems[activeCount].mViewPoint =
           systemCameraCopy *
-          ((particle.x4_pos - particle.x10_prevPos) * timeDelta + particle.x10_prevPos);
-      sortItems[activeCount].x0_texMapIdx = i;
-      sortItems[activeCount].x2_partIdx = j;
+          ((particle.mPos - particle.mPrevPos) * timeDelta + particle.mPrevPos);
+      sortItems[activeCount].mTexMapIdx = i;
+      sortItems[activeCount].mPartIdx = j;
       activeCount++;
     }
   }
@@ -1780,16 +1780,16 @@ void CElementGen::RenderParticlesFlameThrower(CElementGen* const* gens, int coun
 
   for (int i = 0; i < activeCount; ++i) {
     CTexturedParticleListItem* readPtr = &sortItems[i];
-    ushort map = readPtr->x0_texMapIdx;
+    ushort map = readPtr->mTexMapIdx;
 
     if (lastMap != map) {
       gen = gens[map];
       emitterTime = gen->GetEmitterTime();
-      CGenDescription* desc = gens[map]->x28_loadedGenDesc;
+      CGenDescription* desc = gens[map]->mLoadedGenDesc;
       genDesc = desc;
 
       if (!moveRedToAlpha) {
-        if (desc->x30_26_AAPH) {
+        if (desc->mAAPH) {
           CGraphics::SetBlendMode(kBM_Blend, kBF_SrcAlpha, kBF_One, kLO_Clear);
         } else {
           CGraphics::SetBlendMode(kBM_Blend, kBF_SrcAlpha, kBF_InvSrcAlpha, kLO_Clear);
@@ -1802,19 +1802,19 @@ void CElementGen::RenderParticlesFlameThrower(CElementGen* const* gens, int coun
       lastMap = map;
     }
 
-    CParticle& particle = gen->x30_particles[readPtr->x2_partIdx];
+    CParticle& particle = gen->mParticles[readPtr->mPartIdx];
 
-    int elapsed = emitterTime - particle.x28_startFrame - 1;
-    CParticleGlobals::SetParticleLifetime(particle.x0_endFrame - particle.x28_startFrame);
+    int elapsed = emitterTime - particle.mStartFrame - 1;
+    CParticleGlobals::SetParticleLifetime(particle.mEndFrame - particle.mStartFrame);
     CParticleGlobals::UpdateParticleLifetimeTweenValues(elapsed);
 
-    genDesc->x40_TEXR->GetValueUV(elapsed, uvs);
+    genDesc->mTEXR->GetValueUV(elapsed, uvs);
 
     CGX::Begin(GX_QUADS, GX_VTXFMT6, 4);
 
-    float halfSize = 0.5f * particle.x2c_lineLengthOrSize;
-    float theta = particle.x30_lineWidthOrRota * (M_PIF / 180.f);
-    uint color = particle.x34_color.GetColor_u32();
+    float halfSize = 0.5f * particle.mLineLengthOrSize;
+    float theta = particle.mLineWidthOrRota * (M_PIF / 180.f);
+    uint color = particle.mColor.GetColor_u32();
     float sinT = halfSize * CMath::FastSinR(theta);
     float cosT = halfSize * CMath::FastCosR(theta);
 
@@ -1824,23 +1824,23 @@ void CElementGen::RenderParticlesFlameThrower(CElementGen* const* gens, int coun
     float negSinPlusCos = -sinT + cosT;
     float negCos = -cosT;
 
-    GXPosition3f32(sinPlusCos + readPtr->x4_viewPoint.GetX(), readPtr->x4_viewPoint.GetY(),
-                   cosMinusSin + readPtr->x4_viewPoint.GetZ());
+    GXPosition3f32(sinPlusCos + readPtr->mViewPoint.GetX(), readPtr->mViewPoint.GetY(),
+                   cosMinusSin + readPtr->mViewPoint.GetZ());
     GXColor1u32(color);
     GXTexCoord2f32(uvs.xMax, uvs.yMax);
 
-    GXPosition3f32(sinMinusCos + readPtr->x4_viewPoint.GetX(), readPtr->x4_viewPoint.GetY(),
-                   sinPlusCos + readPtr->x4_viewPoint.GetZ());
+    GXPosition3f32(sinMinusCos + readPtr->mViewPoint.GetX(), readPtr->mViewPoint.GetY(),
+                   sinPlusCos + readPtr->mViewPoint.GetZ());
     GXColor1u32(color);
     GXTexCoord2f32(uvs.xMin, uvs.yMax);
 
-    GXPosition3f32(readPtr->x4_viewPoint.GetX() - sinPlusCos, readPtr->x4_viewPoint.GetY(),
-                   readPtr->x4_viewPoint.GetZ() - cosMinusSin);
+    GXPosition3f32(readPtr->mViewPoint.GetX() - sinPlusCos, readPtr->mViewPoint.GetY(),
+                   readPtr->mViewPoint.GetZ() - cosMinusSin);
     GXColor1u32(color);
     GXTexCoord2f32(uvs.xMin, uvs.yMin);
 
-    GXPosition3f32(negSinPlusCos + readPtr->x4_viewPoint.GetX(), readPtr->x4_viewPoint.GetY(),
-                   (negCos - sinT) + readPtr->x4_viewPoint.GetZ());
+    GXPosition3f32(negSinPlusCos + readPtr->mViewPoint.GetX(), readPtr->mViewPoint.GetY(),
+                   (negCos - sinT) + readPtr->mViewPoint.GetZ());
     GXColor1u32(color);
     GXTexCoord2f32(uvs.xMax, uvs.yMin);
 
@@ -1858,18 +1858,18 @@ void CElementGen::RenderParticlesFlameThrower(CElementGen* const* gens, int coun
 void CElementGen::RenderParticlesIndirectTexture() {
   CTransform4f systemViewCopy(CGraphics::GetViewMatrix());
   systemViewCopy.SetTranslation(CVector3f::Zero());
-  CTransform4f systemCameraCopy(systemViewCopy.GetQuickInverse() * x22c_globalOrientation);
-  systemViewCopy = CTransform4f::Translate(xe8_globalTranslation) * x10c_globalScaleTransform *
-                   systemViewCopy * x178_localScaleTransform;
+  CTransform4f systemCameraCopy(systemViewCopy.GetQuickInverse() * mGlobalOrientation);
+  systemViewCopy = CTransform4f::Translate(mGlobalTranslation) * mGlobalScaleTransform *
+                   systemViewCopy * mLocalScaleTransform;
   CGraphics::SetModelMatrix(systemViewCopy);
 
   CGX::SetAlphaCompare(GX_ALWAYS, 0, GX_AOP_AND, GX_ALWAYS, 0);
 
-  if (x26c_26_AAPH) {
+  if (mAAPH) {
     CGX::SetZMode(true, GX_LEQUAL, false);
     CGX::SetBlendMode(GX_BM_BLEND, GX_BL_SRCALPHA, GX_BL_ONE, GX_LO_CLEAR);
   } else {
-    CGX::SetZMode(true, GX_LEQUAL, x26c_27_ZBUF);
+    CGX::SetZMode(true, GX_LEQUAL, mZBUF);
     CGX::SetBlendMode(GX_BM_BLEND, GX_BL_SRCALPHA, GX_BL_INVSRCALPHA, GX_LO_CLEAR);
   }
 
@@ -1885,22 +1885,22 @@ void CElementGen::RenderParticlesIndirectTexture() {
   uvsInd.yMax = 1.f;
 
   TToken< CTexture > texToken =
-      x28_loadedGenDesc->x40_TEXR->GetValueTexture(x74_curFrame - x30_particles[0].x28_startFrame);
+      mLoadedGenDesc->mTEXR->GetValueTexture(mCurFrame - mParticles[0].mStartFrame);
   texToken->Load(GX_TEXMAP0, CTexture::kCM_Repeat);
   CTexture* cachedTex = *texToken;
 
-  bool constTexr = x28_loadedGenDesc->x40_TEXR->HasConstantTexture();
-  x28_loadedGenDesc->x40_TEXR->GetValueUV(x74_curFrame - x30_particles[0].x28_startFrame, uvs);
-  bool constUVs = x28_loadedGenDesc->x40_TEXR->HasConstantUV();
+  bool constTexr = mLoadedGenDesc->mTEXR->HasConstantTexture();
+  mLoadedGenDesc->mTEXR->GetValueUV(mCurFrame - mParticles[0].mStartFrame, uvs);
+  bool constUVs = mLoadedGenDesc->mTEXR->HasConstantUV();
 
   TToken< CTexture > indTexToken =
-      x28_loadedGenDesc->x44_TIND->GetValueTexture(x74_curFrame - x30_particles[0].x28_startFrame);
+      mLoadedGenDesc->mTIND->GetValueTexture(mCurFrame - mParticles[0].mStartFrame);
   indTexToken->Load(GX_TEXMAP2, CTexture::kCM_Repeat);
   CTexture* cachedIndTex = *indTexToken;
 
-  bool constIndTexr = x28_loadedGenDesc->x44_TIND->HasConstantTexture();
-  bool constIndUVs = x28_loadedGenDesc->x44_TIND->HasConstantUV();
-  x28_loadedGenDesc->x44_TIND->GetValueUV(x74_curFrame - x30_particles[0].x28_startFrame, uvsInd);
+  bool constIndTexr = mLoadedGenDesc->mTIND->HasConstantTexture();
+  bool constIndUVs = mLoadedGenDesc->mTIND->HasConstantUV();
+  mLoadedGenDesc->mTIND->GetValueUV(mCurFrame - mParticles[0].mStartFrame, uvsInd);
 
   CGX::SetNumTexGens(3);
   CGX::SetTexCoordGen(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_TEX0, GX_IDENTITY, false, GX_PTIDENTITY);
@@ -1925,7 +1925,7 @@ void CElementGen::RenderParticlesIndirectTexture() {
   CGX::SetTevKAlphaSel(GX_TEVSTAGE0, GX_TEV_KASEL_8_8);
   CGX::SetTevKAlphaSel(GX_TEVSTAGE1, GX_TEV_KASEL_8_8);
 
-  if (!x28_loadedGenDesc->x32_24_CIND) {
+  if (!mLoadedGenDesc->mCIND) {
     CGX::SetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_TEXC, GX_CC_ONE, GX_CC_ZERO);
     CGX::SetTevColorIn(GX_TEVSTAGE1, GX_CC_ZERO, GX_CC_TEXC, GX_CC_RASC, GX_CC_CPREV);
   } else {
@@ -1944,19 +1944,19 @@ void CElementGen::RenderParticlesIndirectTexture() {
                    GX_AF_NONE);
 
   CParticleListItem* sortItems = nullptr;
-  int particleCount = x30_particles.size();
-  bool SORT = x28_loadedGenDesc->x30_28_SORT;
+  int particleCount = mParticles.size();
+  bool SORT = mLoadedGenDesc->mSORT;
 
   if (SORT) {
     sortItems =
         static_cast< CParticleListItem* >(alloca(particleCount * sizeof(CParticleListItem)));
     CParticleListItem* cur = sortItems;
     for (int i = 0; i < particleCount; ++i) {
-      CParticle& particle = x30_particles[i];
-      const CVector3f& delta = particle.x4_pos - particle.x10_prevPos;
-      const CVector3f& pos = delta * x80_timeDeltaScale + particle.x10_prevPos;
-      cur->x4_viewPoint = systemCameraCopy * pos;
-      cur->x0_partIdx = static_cast< ushort >(i);
+      CParticle& particle = mParticles[i];
+      const CVector3f& delta = particle.mPos - particle.mPrevPos;
+      const CVector3f& pos = delta * mTimeDeltaScale + particle.mPrevPos;
+      cur->mViewPoint = systemCameraCopy * pos;
+      cur->mPartIdx = static_cast< ushort >(i);
       cur++;
     }
 
@@ -1972,10 +1972,10 @@ void CElementGen::RenderParticlesIndirectTexture() {
 
   CParticleListItem* sortIt = sortItems;
   for (int i = 0; i < particleCount; ++i) {
-    CParticle* particle = SORT ? &x30_particles[sortIt->x0_partIdx] : &x30_particles[i];
+    CParticle* particle = SORT ? &mParticles[sortIt->mPartIdx] : &mParticles[i];
     const CVector3f& viewPoint =
         systemCameraCopy *
-        ((particle->x4_pos - particle->x10_prevPos) * x80_timeDeltaScale + particle->x10_prevPos);
+        ((particle->mPos - particle->mPrevPos) * mTimeDeltaScale + particle->mPrevPos);
 
     float vpX = viewPoint.GetX();
     float vpY = viewPoint.GetY();
@@ -1983,7 +1983,7 @@ void CElementGen::RenderParticlesIndirectTexture() {
 
     if (!constTexr) {
       TToken< CTexture > tex =
-          x28_loadedGenDesc->x40_TEXR->GetValueTexture(x74_curFrame - particle->x28_startFrame);
+          mLoadedGenDesc->mTEXR->GetValueTexture(mCurFrame - particle->mStartFrame);
       if (*tex != cachedTex) {
         tex->Load(GX_TEXMAP0, CTexture::kCM_Repeat);
         cachedTex = *tex;
@@ -1992,7 +1992,7 @@ void CElementGen::RenderParticlesIndirectTexture() {
 
     if (!constIndTexr) {
       TToken< CTexture > tex =
-          x28_loadedGenDesc->x44_TIND->GetValueTexture(x74_curFrame - particle->x28_startFrame);
+          mLoadedGenDesc->mTIND->GetValueTexture(mCurFrame - particle->mStartFrame);
       if (*tex != cachedIndTex) {
         tex->Load(GX_TEXMAP2, CTexture::kCM_Repeat);
         cachedIndTex = *tex;
@@ -2000,15 +2000,15 @@ void CElementGen::RenderParticlesIndirectTexture() {
     }
 
     if (!constUVs) {
-      x28_loadedGenDesc->x40_TEXR->GetValueUV(x74_curFrame - x30_particles[i].x28_startFrame, uvs);
+      mLoadedGenDesc->mTEXR->GetValueUV(mCurFrame - mParticles[i].mStartFrame, uvs);
     }
 
     if (!constIndUVs) {
-      x28_loadedGenDesc->x44_TIND->GetValueUV(x74_curFrame - x30_particles[i].x28_startFrame,
+      mLoadedGenDesc->mTIND->GetValueUV(mCurFrame - mParticles[i].mStartFrame,
                                               uvsInd);
     }
 
-    float size = particle->x2c_lineLengthOrSize * 0.5f;
+    float size = particle->mLineLengthOrSize * 0.5f;
 
     CGraphics::CClippedScreenRect clipRect = CGraphics::ClipScreenRectFromMS(
         CVector3f(vpX - size, vpY, vpZ - size), CVector3f(size + vpX, vpY, size + vpZ), kTF_RGB565);
@@ -2039,7 +2039,7 @@ void CElementGen::RenderParticlesIndirectTexture() {
         CGraphics::LoadDolphinSpareTexture(width, height, GX_TF_RGB565, NULL,
                                            CGraphics::kSpareBufferTexMapID);
 
-        uint color = particle->x34_color.GetColor_u32();
+        uint color = particle->mColor.GetColor_u32();
         CGX::Begin(GX_QUADS, GX_VTXFMT0, 4);
 
         GXPosition3f32(size + vpX, vpY, size + vpZ);
@@ -2084,20 +2084,20 @@ void CElementGen::RenderParticlesIndirectTexture() {
 }
 
 void CElementGen::RenderLines() {
-  bool hasModuColor = x338_moduColor.GetColor_u32() != 0xFFFFFFFF;
-  CGlobalRandom gr(x27c_randState);
+  bool hasModuColor = mModuColor.GetColor_u32() != 0xFFFFFFFF;
+  CGlobalRandom gr(mRandState);
 
   CTransform4f systemViewPointMatrix(CGraphics::GetViewMatrix());
   systemViewPointMatrix.SetTranslation(CVector3f::Zero());
-  CTransform4f systemCameraMatrix(systemViewPointMatrix.GetQuickInverse() * x22c_globalOrientation);
-  systemViewPointMatrix = CTransform4f::Translate(xe8_globalTranslation) *
-                          x10c_globalScaleTransform * systemViewPointMatrix *
-                          x178_localScaleTransform;
+  CTransform4f systemCameraMatrix(systemViewPointMatrix.GetQuickInverse() * mGlobalOrientation);
+  systemViewPointMatrix = CTransform4f::Translate(mGlobalTranslation) *
+                          mGlobalScaleTransform * systemViewPointMatrix *
+                          mLocalScaleTransform;
   CGraphics::SetModelMatrix(systemViewPointMatrix);
 
   CGraphics::SetAlphaCompare(kAF_Always, 0, kAO_And, kAF_Always, 0);
 
-  if (x26c_26_AAPH) {
+  if (mAAPH) {
     CGraphics::SetDepthWriteMode(true, kE_LEqual, false);
     CGraphics::SetBlendMode(kBM_Blend, kBF_SrcAlpha, kBF_One, kLO_Clear);
   } else {
@@ -2113,11 +2113,11 @@ void CElementGen::RenderLines() {
   uvs.yMax = 1.f;
 
   const bool widtConst =
-      x28_loadedGenDesc->x18_WIDT != nullptr && x28_loadedGenDesc->x18_WIDT->IsConstant();
+      mLoadedGenDesc->mWIDT != nullptr && mLoadedGenDesc->mWIDT->IsConstant();
 
-  if (x28_loadedGenDesc->x40_TEXR != nullptr) {
-    int partFrame = x74_curFrame - x30_particles[0].x28_startFrame;
-    TToken< CTexture > tex = x28_loadedGenDesc->x40_TEXR->GetValueTexture(partFrame);
+  if (mLoadedGenDesc->mTEXR != nullptr) {
+    int partFrame = mCurFrame - mParticles[0].mStartFrame;
+    TToken< CTexture > tex = mLoadedGenDesc->mTEXR->GetValueTexture(partFrame);
     tex->Load(GX_TEXMAP0, CTexture::kCM_Repeat);
 
     CGraphics::SetTevOp(kTS_Stage0, CGraphics::kEnvModulate);
@@ -2133,8 +2133,8 @@ void CElementGen::RenderLines() {
       CGraphics::SetTevOp(kTS_Stage1, CGraphics::kEnvPassthru);
     }
 
-    x28_loadedGenDesc->x40_TEXR->GetValueUV(x74_curFrame - x30_particles[0].x28_startFrame, uvs);
-    constUVs = x28_loadedGenDesc->x40_TEXR->HasConstantUV();
+    mLoadedGenDesc->mTEXR->GetValueUV(mCurFrame - mParticles[0].mStartFrame, uvs);
+    constUVs = mLoadedGenDesc->mTEXR->HasConstantUV();
   } else {
     CGraphics::SetTevOp(kTS_Stage0, CGraphics::kEnvPassthru);
     CGraphics::SetTevOp(kTS_Stage1, CGraphics::kEnvPassthru);
@@ -2151,7 +2151,7 @@ void CElementGen::RenderLines() {
   if (hasModuColor) {
     CGX::SetNumChans(2);
     CGX::SetTevOrder(GX_TEVSTAGE1, GX_TEXCOORD_NULL, GX_TEXMAP_NULL, GX_COLOR1A1);
-    CGX::SetChanMatColor(CGX::Channel1, x338_moduColor.GetGXColor());
+    CGX::SetChanMatColor(CGX::Channel1, mModuColor.GetGXColor());
     CGX::SetChanCtrl(CGX::Channel1, false, GX_SRC_REG, GX_SRC_REG, GX_LIGHT_NULL, GX_DF_NONE,
                      GX_AF_NONE);
   } else {
@@ -2166,37 +2166,37 @@ void CElementGen::RenderLines() {
 
   if (widtConst) {
     float lineWidth = 1.f;
-    x28_loadedGenDesc->x18_WIDT->GetValue(0, lineWidth);
+    mLoadedGenDesc->mWIDT->GetValue(0, lineWidth);
     if (lineWidth < 0.f) {
       lineWidth = 0.f;
     } else if (lineWidth > 42.5f) {
       lineWidth = 42.5f;
     }
     CGX::SetLineWidth(CCast::ToUint8(6.f * lineWidth), GX_TO_ZERO);
-    CGX::Begin(GX_LINES, GX_VTXFMT0, static_cast< ushort >(x30_particles.size() * 2));
+    CGX::Begin(GX_LINES, GX_VTXFMT0, static_cast< ushort >(mParticles.size() * 2));
   }
 
-  for (int i = 0; i < x30_particles.size(); ++i) {
-    CParticle& particle = x30_particles[i];
+  for (int i = 0; i < mParticles.size(); ++i) {
+    CParticle& particle = mParticles[i];
 
     if (!constUVs) {
-      x28_loadedGenDesc->x40_TEXR->GetValueUV(x74_curFrame - particle.x28_startFrame, uvs);
+      mLoadedGenDesc->mTEXR->GetValueUV(mCurFrame - particle.mStartFrame, uvs);
     }
 
-    CVector3f dVec = particle.x4_pos - particle.x10_prevPos;
+    CVector3f dVec = particle.mPos - particle.mPrevPos;
 
-    if (x26d_24_FXLL) {
+    if (mFXLL) {
       float mag = dVec.Magnitude();
       if (mag > 0.f) {
         dVec *= 1.f / mag;
       }
     }
 
-    CVector3f p1 = systemCameraMatrix * particle.x4_pos;
-    CVector3f p2 = systemCameraMatrix * (particle.x4_pos + (particle.x2c_lineLengthOrSize * dVec));
+    CVector3f p1 = systemCameraMatrix * particle.mPos;
+    CVector3f p2 = systemCameraMatrix * (particle.mPos + (particle.mLineLengthOrSize * dVec));
 
     if (widtConst) {
-      uint color = particle.x34_color.GetColor_u32();
+      uint color = particle.mColor.GetColor_u32();
       GXPosition3f32(p1[0], p1[1], p1[2]);
       GXColor1u32(color);
       GXTexCoord2f32(uvs.xMin, uvs.yMin);
@@ -2204,7 +2204,7 @@ void CElementGen::RenderLines() {
       GXColor1u32(color);
       GXTexCoord2f32(uvs.xMax, uvs.yMax);
     } else {
-      float lineWidth = particle.x30_lineWidthOrRota;
+      float lineWidth = particle.mLineWidthOrRota;
       if (lineWidth < 0.f) {
         lineWidth = 0.f;
       } else if (lineWidth > 42.5f) {
@@ -2212,7 +2212,7 @@ void CElementGen::RenderLines() {
       }
       CGX::SetLineWidth(CCast::ToUint8(6.f * lineWidth), GX_TO_ZERO);
       CGX::Begin(GX_LINES, GX_VTXFMT0, 2);
-      uint color = particle.x34_color.GetColor_u32();
+      uint color = particle.mColor.GetColor_u32();
       GXPosition3f32(p1[0], p1[1], p1[2]);
       GXColor1u32(color);
       GXTexCoord2f32(uvs.xMin, uvs.yMin);
@@ -2232,29 +2232,29 @@ void CElementGen::RenderLines() {
 
 void CElementGen::RenderModels() {
   CParticleGlobals::mParticleAccessParameters = NULL;
-  if (x26d_26_modelsUseLights) {
-    CGraphics::SetLightState(x274_backupLightActive);
+  if (mModelsUseLights) {
+    CGraphics::SetLightState(mBackupLightActive);
   } else {
     CGraphics::SetAmbientColor(CColor::White());
   }
 
   bool moveRedToAlphaBuffer = false;
   SUVElementSet uvs;
-  CGlobalRandom gr(x27c_randState);
+  CGlobalRandom gr(mRandState);
   uvs.xMin = 0.f;
   uvs.xMax = 1.f;
   uvs.yMin = 0.f;
   uvs.yMax = 1.f;
 
-  if (x28_loadedGenDesc->x31_26_PMUS) {
+  if (mLoadedGenDesc->mPMUS) {
     bool enableMRTA = false;
-    if (sMoveRedToAlphaBuffer && x28_loadedGenDesc->x31_25_PMAB &&
-        x28_loadedGenDesc->x40_TEXR != NULL) {
+    if (sMoveRedToAlphaBuffer && mLoadedGenDesc->mPMAB &&
+        mLoadedGenDesc->mTEXR != NULL) {
       enableMRTA = true;
     }
     moveRedToAlphaBuffer = enableMRTA;
 
-    if (x28_loadedGenDesc->x31_25_PMAB) {
+    if (mLoadedGenDesc->mPMAB) {
       CGraphics::SetDepthWriteMode(true, kE_LEqual, false);
       if (enableMRTA) {
         CGraphics::SetBlendMode(kBM_Blend, kBF_One, kBF_One, kLO_Clear);
@@ -2270,9 +2270,9 @@ void CElementGen::RenderModels() {
 
     CGraphics::SetCullMode(kCM_None);
 
-    if (x28_loadedGenDesc->x40_TEXR != NULL) {
-      int partFrame = x74_curFrame - x30_particles[0].x28_startFrame;
-      TToken< CTexture > tex(x28_loadedGenDesc->x40_TEXR->GetValueTexture(partFrame));
+    if (mLoadedGenDesc->mTEXR != NULL) {
+      int partFrame = mCurFrame - mParticles[0].mStartFrame;
+      TToken< CTexture > tex(mLoadedGenDesc->mTEXR->GetValueTexture(partFrame));
       tex.GetT()->Load(GX_TEXMAP0, CTexture::kCM_Repeat);
 
       CGraphics::SetTevOp(kTS_Stage0, CGraphics::kEnvModulate);
@@ -2303,8 +2303,8 @@ void CElementGen::RenderModels() {
         CGraphics::SetTevOp(kTS_Stage1, CGraphics::kEnvPassthru);
       }
 
-      x28_loadedGenDesc->x40_TEXR->GetValueUV(x74_curFrame - x30_particles[0].x28_startFrame, uvs);
-      x28_loadedGenDesc->x40_TEXR->HasConstantUV();
+      mLoadedGenDesc->mTEXR->GetValueUV(mCurFrame - mParticles[0].mStartFrame, uvs);
+      mLoadedGenDesc->mTEXR->HasConstantUV();
     } else {
       CGraphics::SetTevOp(kTS_Stage0, CGraphics::kEnvPassthru);
       CGraphics::SetTevOp(kTS_Stage1, CGraphics::kEnvPassthru);
@@ -2314,55 +2314,55 @@ void CElementGen::RenderModels() {
   CVector3f pmopVec(0.f, 0.f, 0.f);
 
   CTransform4f orient(CTransform4f::Identity());
-  if (!x28_loadedGenDesc->x31_27_PMOO) {
-    orient = x1d8_orientation;
+  if (!mLoadedGenDesc->mPMOO) {
+    orient = mOrientation;
   }
-  orient = orient * x22c_globalOrientation;
+  orient = orient * mGlobalOrientation;
 
   bool pmrtConst = false;
-  if (x28_loadedGenDesc->x5c_PMRT != NULL && x28_loadedGenDesc->x5c_PMRT->IsFastConstant()) {
+  if (mLoadedGenDesc->mPMRT != NULL && mLoadedGenDesc->mPMRT->IsFastConstant()) {
     pmrtConst = true;
   }
 
   CVector3f trans =
-      (x13c_globalScaleTransformInverse * x1a8_localScaleTransformInverse) * xe8_globalTranslation;
+      (mGlobalScaleTransformInverse * mLocalScaleTransformInverse) * mGlobalTranslation;
 
   CTransform4f rot(CTransform4f::Identity());
   if (pmrtConst) {
     CVector3f pmrtVal(0.f, 0.f, 0.f);
-    x28_loadedGenDesc->x5c_PMRT->GetValue(x74_curFrame, pmrtVal);
+    mLoadedGenDesc->mPMRT->GetValue(mCurFrame, pmrtVal);
     rot = CTransform4f::RotateZ(CRelAngle::FromDegrees(pmrtVal.GetZ()));
     rot.RotateLocalY(CRelAngle::FromDegrees(pmrtVal.GetY()));
     rot.RotateLocalX(CRelAngle::FromDegrees(pmrtVal.GetX()));
   }
   rot = orient * rot;
 
-  CParticleGlobals::SetEmitterTime(x74_curFrame);
-  CColor col = x338_moduColor;
+  CParticleGlobals::SetEmitterTime(mCurFrame);
+  CColor col = mModuColor;
 
-  for (int i = 0; i < x30_particles.size(); ++i) {
-    CParticle& particle = x30_particles[i];
-    if (particle.x0_endFrame != -1) {
-      int lifetime = particle.x0_endFrame - particle.x28_startFrame;
-      int partFrame = x74_curFrame - particle.x28_startFrame - 1;
+  for (int i = 0; i < mParticles.size(); ++i) {
+    CParticle& particle = mParticles[i];
+    if (particle.mEndFrame != -1) {
+      int lifetime = particle.mEndFrame - particle.mStartFrame;
+      int partFrame = mCurFrame - particle.mStartFrame - 1;
       CParticleGlobals::SetParticleLifetime(lifetime);
       CParticleGlobals::UpdateParticleLifetimeTweenValues(partFrame);
       CParticleGlobals::mCurrentParticle = &particle;
 
-      if (x26d_28_enableADV) {
-        CParticleGlobals::mParticleAccessParameters = x60_advValues[i].values;
+      if (mEnableADV) {
+        CParticleGlobals::mParticleAccessParameters = mAdvValues[i].values;
       }
 
-      if (x28_loadedGenDesc->x58_PMOP != NULL) {
-        x28_loadedGenDesc->x58_PMOP->GetValue(partFrame, pmopVec);
+      if (mLoadedGenDesc->mPMOP != NULL) {
+        mLoadedGenDesc->mPMOP->GetValue(partFrame, pmopVec);
       }
 
       CTransform4f partTrans = CTransform4f::Translate(
           trans +
-          ((particle.x4_pos - particle.x10_prevPos) * x80_timeDeltaScale + particle.x10_prevPos));
+          ((particle.mPos - particle.mPrevPos) * mTimeDeltaScale + particle.mPrevPos));
 
-      if (x2c_orientType == kMOT_One) {
-        CTransform4f partRot(x50_parentMatrices[i], CVector3f::Zero());
+      if (mOrientType == kMOT_One) {
+        CTransform4f partRot(mParentMatrices[i], CVector3f::Zero());
         partTrans.AddTranslation((orient * partRot) * pmopVec);
         partTrans *= partRot;
       } else {
@@ -2371,9 +2371,9 @@ void CElementGen::RenderModels() {
 
       if (pmrtConst) {
         partTrans *= rot;
-      } else if (x28_loadedGenDesc->x5c_PMRT != NULL) {
+      } else if (mLoadedGenDesc->mPMRT != NULL) {
         CVector3f pmrtVal(0.f, 0.f, 0.f);
-        x28_loadedGenDesc->x5c_PMRT->GetValue(partFrame, pmrtVal);
+        mLoadedGenDesc->mPMRT->GetValue(partFrame, pmrtVal);
         rot = CTransform4f::RotateZ(CRelAngle::FromDegrees(pmrtVal.GetZ()));
         rot.RotateLocalY(CRelAngle::FromDegrees(pmrtVal.GetY()));
         rot.RotateLocalX(CRelAngle::FromDegrees(pmrtVal.GetX()));
@@ -2382,20 +2382,20 @@ void CElementGen::RenderModels() {
         partTrans *= rot;
       }
 
-      if (x28_loadedGenDesc->x60_PMSC != NULL) {
+      if (mLoadedGenDesc->mPMSC != NULL) {
         CVector3f pmscVal(0.f, 0.f, 0.f);
-        x28_loadedGenDesc->x60_PMSC->GetValue(partFrame, pmscVal);
+        mLoadedGenDesc->mPMSC->GetValue(partFrame, pmscVal);
         partTrans *= CTransform4f::Scale(pmscVal.GetX(), pmscVal.GetY(), pmscVal.GetZ());
       }
 
-      if (x28_loadedGenDesc->x64_PMCL != NULL) {
-        x28_loadedGenDesc->x64_PMCL->GetValue(partFrame, col);
-        col = CColor::Modulate(col, x338_moduColor);
+      if (mLoadedGenDesc->mPMCL != NULL) {
+        mLoadedGenDesc->mPMCL->GetValue(partFrame, col);
+        col = CColor::Modulate(col, mModuColor);
       }
 
-      CGraphics::SetModelMatrix(x10c_globalScaleTransform * partTrans * x178_localScaleTransform);
+      CGraphics::SetModelMatrix(mGlobalScaleTransform * partTrans * mLocalScaleTransform);
 
-      if (x28_loadedGenDesc->x31_26_PMUS) {
+      if (mLoadedGenDesc->mPMUS) {
         if (moveRedToAlphaBuffer) {
           CGX::Begin(GX_QUADS, GX_VTXFMT0, 4);
           GXPosition3f32(0.5f, 0.f, 0.5f);
@@ -2426,10 +2426,10 @@ void CElementGen::RenderModels() {
           CGraphics::StreamEnd();
         }
       } else {
-        CModel* model = x28_loadedGenDesc->x48_PMDL->GetObject();
+        CModel* model = mLoadedGenDesc->mPMDL->GetObject();
         if (sSubtractBlend) {
           model->Draw(CModelFlags::AlphaBlended(0.5f).DepthCompareUpdate(true, false));
-        } else if (x28_loadedGenDesc->x31_25_PMAB) {
+        } else if (mLoadedGenDesc->mPMAB) {
           model->Draw(CModelFlags::Additive(col).DepthCompareUpdate(true, false));
         } else if (1.f == col.GetAlpha()) {
           model->Draw(CModelFlags::Normal());
@@ -2440,7 +2440,7 @@ void CElementGen::RenderModels() {
     }
   }
 
-  if (x26d_26_modelsUseLights) {
+  if (mModelsUseLights) {
     CGraphics::DisableAllLights();
   }
 
@@ -2452,11 +2452,11 @@ void CElementGen::RenderModels() {
   CGraphics::SetAlphaCompare(kAF_Always, 0, kAO_And, kAF_Always, 0);
 }
 
-int CElementGen::GetParticleCountAll() const { return x264_recursiveParticleCount; }
+int CElementGen::GetParticleCountAll() const { return mRecursiveParticleCount; }
 
 int CElementGen::GetParticleCountAllInternal() const {
-  int ret = x25c_activeParticleCount;
-  for (AUTO(it, x290_activePartChildren.begin()); it != x290_activePartChildren.end(); ++it) {
+  int ret = mActiveParticleCount;
+  for (AUTO(it, mActivePartChildren.begin()); it != mActivePartChildren.end(); ++it) {
     CParticleGen* child = *it;
     if (child->Get4CharId() == 'PART') {
       ret += static_cast< CElementGen* >(child)->GetParticleCountAll();
@@ -2466,8 +2466,8 @@ int CElementGen::GetParticleCountAllInternal() const {
 }
 
 int CElementGen::GetSystemCount() {
-  int ret = static_cast< int >(x25c_activeParticleCount) > 0;
-  for (AUTO(it, x290_activePartChildren.begin()); it != x290_activePartChildren.end(); ++it) {
+  int ret = static_cast< int >(mActiveParticleCount) > 0;
+  for (AUTO(it, mActivePartChildren.begin()); it != mActivePartChildren.end(); ++it) {
     CParticleGen* child = *it;
     if (child->Get4CharId() == 'PART') {
       ret += static_cast< CElementGen* >(child)->GetSystemCount();
@@ -2482,27 +2482,27 @@ void CElementGen::AccumulateBounds(const CVector3f& pos, float size) {
   float x = pos.GetX();
   float y = pos.GetY();
   float z = pos.GetZ();
-  if (x > x2e0_aabbMax.GetX())
-    x2e0_aabbMax.SetX(x);
-  if (x < x2d4_aabbMin.GetX())
-    x2d4_aabbMin.SetX(x);
-  if (y > x2e0_aabbMax.GetY())
-    x2e0_aabbMax.SetY(y);
-  if (y < x2d4_aabbMin.GetY())
-    x2d4_aabbMin.SetY(y);
-  if (z > x2e0_aabbMax.GetZ())
-    x2e0_aabbMax.SetZ(z);
-  if (z < x2d4_aabbMin.GetZ())
-    x2d4_aabbMin.SetZ(z);
-  if (size > x2ec_maxSize)
-    x2ec_maxSize = size;
+  if (x > mAabbMax.GetX())
+    mAabbMax.SetX(x);
+  if (x < mAabbMin.GetX())
+    mAabbMin.SetX(x);
+  if (y > mAabbMax.GetY())
+    mAabbMax.SetY(y);
+  if (y < mAabbMin.GetY())
+    mAabbMin.SetY(y);
+  if (z > mAabbMax.GetZ())
+    mAabbMax.SetZ(z);
+  if (z < mAabbMin.GetZ())
+    mAabbMin.SetZ(z);
+  if (size > mMaxSize)
+    mMaxSize = size;
 }
 
 void CElementGen::BuildParticleSystemBounds() {
   CAABox childBounds = CAABox::MakeMaxInvertedBox();
   bool accumulated = false;
 
-  for (AUTO(it, x290_activePartChildren.begin()); it != x290_activePartChildren.end(); ++it) {
+  for (AUTO(it, mActivePartChildren.begin()); it != mActivePartChildren.end(); ++it) {
     rstl::optional_object< CAABox > chBounds = (*it)->GetBounds();
     if (chBounds) {
       accumulated = true;
@@ -2512,25 +2512,25 @@ void CElementGen::BuildParticleSystemBounds() {
     }
   }
 
-  x264_recursiveParticleCount = GetParticleCountAllInternal();
+  mRecursiveParticleCount = GetParticleCountAllInternal();
 
   if (GetParticleCount() > 0) {
     CVector3f scale = CVector3f::ByElementMultiply(
-        CVector3f(x2ec_maxSize, x2ec_maxSize, x2ec_maxSize), x100_globalScale);
+        CVector3f(mMaxSize, mMaxSize, mMaxSize), mGlobalScale);
 
-    CAABox box = CAABox(x2d4_aabbMin, x2e0_aabbMax)
-                     .GetTransformedAABox((x10c_globalScaleTransform * x22c_globalOrientation) *
-                                          x178_localScaleTransform);
+    CAABox box = CAABox(mAabbMin, mAabbMax)
+                     .GetTransformedAABox((mGlobalScaleTransform * mGlobalOrientation) *
+                                          mLocalScaleTransform);
 
-    x2f0_systemBounds = CAABox(box.GetMinPoint() + xe8_globalTranslation - scale,
-                               box.GetMaxPoint() + xe8_globalTranslation + scale);
+    mSystemBounds = CAABox(box.GetMinPoint() + mGlobalTranslation - scale,
+                               box.GetMaxPoint() + mGlobalTranslation + scale);
   } else {
-    x2f0_systemBounds = CAABox::MakeMaxInvertedBox();
+    mSystemBounds = CAABox::MakeMaxInvertedBox();
   }
 
   if (accumulated) {
-    x2f0_systemBounds.AccumulateBounds(childBounds.GetMinPoint());
-    x2f0_systemBounds.AccumulateBounds(childBounds.GetMaxPoint());
+    mSystemBounds.AccumulateBounds(childBounds.GetMinPoint());
+    mSystemBounds.AccumulateBounds(childBounds.GetMaxPoint());
   }
 }
 
@@ -2538,74 +2538,74 @@ rstl::optional_object< CAABox > CElementGen::GetBounds() const {
   if (GetParticleCountAll() <= 0) {
     return rstl::optional_object< CAABox >();
   }
-  return rstl::optional_object< CAABox >(x2f0_systemBounds);
+  return rstl::optional_object< CAABox >(mSystemBounds);
 }
 
-int CElementGen::GetEmitterTime() const { return x74_curFrame; }
+int CElementGen::GetEmitterTime() const { return mCurFrame; }
 
-bool CElementGen::SystemHasLight() const { return x308_lightType != kLT_None; }
+bool CElementGen::SystemHasLight() const { return mLightType != kLT_None; }
 
 CLight CElementGen::GetLight() const {
-  switch (x308_lightType) {
+  switch (mLightType) {
   case kLT_Directional: {
     return CLight::BuildDirectional(
-        x320_LDIR.AsNormalized(),
-        CColor(x30c_LCLR.GetRed() * x310_LINT, x30c_LCLR.GetGreen() * x310_LINT,
-               x30c_LCLR.GetBlue() * x310_LINT, x30c_LCLR.GetAlpha() * x310_LINT));
+        mLDIR.AsNormalized(),
+        CColor(mLCLR.GetRed() * mLINT, mLCLR.GetGreen() * mLINT,
+               mLCLR.GetBlue() * mLINT, mLCLR.GetAlpha() * mLINT));
   }
   case kLT_Spot: {
     CLight spotLight =
-        CLight::BuildSpot(x314_LOFF, x320_LDIR.AsNormalized(),
-                          CColor(x30c_LCLR.GetRed() * x310_LINT, x30c_LCLR.GetGreen() * x310_LINT,
-                                 x30c_LCLR.GetBlue() * x310_LINT, x30c_LCLR.GetAlpha() * x310_LINT),
-                          x334_LSLA);
-    float quad = x32c_falloffType == kFT_Quadratic ? x330_LFOR : 0.f;
-    float linear = x32c_falloffType == kFT_Linear ? x330_LFOR : 0.f;
-    float constant = x32c_falloffType == kFT_Constant ? 1.f : 0.f;
+        CLight::BuildSpot(mLOFF, mLDIR.AsNormalized(),
+                          CColor(mLCLR.GetRed() * mLINT, mLCLR.GetGreen() * mLINT,
+                                 mLCLR.GetBlue() * mLINT, mLCLR.GetAlpha() * mLINT),
+                          mLSLA);
+    float quad = mFalloffType == kFT_Quadratic ? mLFOR : 0.f;
+    float linear = mFalloffType == kFT_Linear ? mLFOR : 0.f;
+    float constant = mFalloffType == kFT_Constant ? 1.f : 0.f;
     spotLight.SetAttenuation(constant, linear, quad);
     return spotLight;
   }
   default: {
-    float quad = x32c_falloffType == kFT_Quadratic ? x330_LFOR : 0.f;
-    float linear = x32c_falloffType == kFT_Linear ? x330_LFOR : 0.f;
-    float constant = x32c_falloffType == kFT_Constant ? 1.f : 0.f;
-    return CLight::BuildCustom(x314_LOFF, CVector3f(1.f, 0.f, 0.f), x30c_LCLR, constant, linear,
-                               quad, x310_LINT, 0.f, 0.f);
+    float quad = mFalloffType == kFT_Quadratic ? mLFOR : 0.f;
+    float linear = mFalloffType == kFT_Linear ? mLFOR : 0.f;
+    float constant = mFalloffType == kFT_Constant ? 1.f : 0.f;
+    return CLight::BuildCustom(mLOFF, CVector3f(1.f, 0.f, 0.f), mLCLR, constant, linear,
+                               quad, mLINT, 0.f, 0.f);
   }
   }
 }
 
 void CElementGen::SetGeneratorRate(float rate) {
-  x98_generatorRate = rstl::max_val(rate, 0.f);
-  for (AUTO(it, x290_activePartChildren.begin()); it != x290_activePartChildren.end(); ++it) {
+  mGeneratorRate = rstl::max_val(rate, 0.f);
+  for (AUTO(it, mActivePartChildren.begin()); it != mActivePartChildren.end(); ++it) {
     CParticleGen* child = *it;
     if (child->Get4CharId() == 'PART') {
-      child->SetGeneratorRate(x98_generatorRate);
+      child->SetGeneratorRate(mGeneratorRate);
     }
   }
 }
-float CElementGen::GetGeneratorRate() const { return x98_generatorRate; }
+float CElementGen::GetGeneratorRate() const { return mGeneratorRate; }
 
 
 
 uint CElementGen::Get4CharId() const { return 'PART'; }
 
-int CElementGen::GetNumActiveChildParticles() const { return x290_activePartChildren.size(); }
+int CElementGen::GetNumActiveChildParticles() const { return mActivePartChildren.size(); }
 
 CParticleGen* CElementGen::GetActiveChildParticle(int index) const {
-  return x290_activePartChildren[index];
+  return mActivePartChildren[index];
 }
 
-void CElementGen::SetExternalVar(int index, float val) { x9c_externalVars[index] = val; }
+void CElementGen::SetExternalVar(int index, float val) { mExternalVars[index] = val; }
 
-float CElementGen::GetExternalVar(int index) const { return x9c_externalVars[index]; }
+float CElementGen::GetExternalVar(int index) const { return mExternalVars[index]; }
 
 bool CElementGen::IsIndirectTextured() const {
-  return x28_loadedGenDesc->x40_TEXR != nullptr && x28_loadedGenDesc->x44_TIND != nullptr;
+  return mLoadedGenDesc->mTEXR != nullptr && mLoadedGenDesc->mTIND != nullptr;
 }
 
-bool CElementGen::GetParticleEmission() const { return x88_particleEmission; }
+bool CElementGen::GetParticleEmission() const { return mParticleEmission; }
 
-const CTransform4f& CElementGen::GetGlobalOrientation() const { return x22c_globalOrientation; }
+const CTransform4f& CElementGen::GetGlobalOrientation() const { return mGlobalOrientation; }
 
-const CVector3f& CElementGen::GetGlobalTranslation() const { return xe8_globalTranslation; }
+const CVector3f& CElementGen::GetGlobalTranslation() const { return mGlobalTranslation; }

@@ -38,37 +38,37 @@ private:
   static uint mNumParticlesUpdating;
   static uint mNumParticlesDrawing;
 
-  TLockedToken< CElectricDescription > xe8_electricToken;
-  rstl::single_ptr< CParticleElectric > xf4_electric;
-  TLockedToken< CGenDescription > xf8_particleSystemToken;
-  rstl::single_ptr< CElementGen > x104_particleSystem;
-  TUniqueId x108_lightId;
-  CAssetId x10c_partId;
-  bool x110_24_enable : 1;
-  bool x110_25_noTimerUnlessAreaOccluded : 1;
-  bool x110_26_rebuildSystemsOnActivate : 1;
-  bool x110_27_useRateInverseCamDist : 1;
-  bool x110_28_combatVisorVisible : 1;
-  bool x110_29_thermalVisorVisible : 1;
-  bool x110_30_xrayVisorVisible : 1;
-  bool x110_31_anyVisorVisible : 1;
-  bool x111_24_useRateCamDistRange : 1;
-  bool x111_25_dieWhenSystemsDone : 1;
-  bool x111_26_canRender : 1;
-  float x114_rateInverseCamDist;
-  float x118_rateInverseCamDistSq;
-  float x11c_rateInverseCamDistRate;
-  float x120_rateCamDistRangeMin;
-  float x124_rateCamDistRangeMax;
-  float x128_rateCamDistRangeFarRate;
-  mutable float x12c_remTime;
-  float x130_duration;
-  float x134_durationResetWhileVisible;
-  rstl::single_ptr< CActorLights > x138_actorLights;
-  TUniqueId x13c_triggerId;
-  float x140_destroyDelayTimer;
+  TLockedToken< CElectricDescription > mElectricToken;
+  rstl::single_ptr< CParticleElectric > mElectric;
+  TLockedToken< CGenDescription > mParticleSystemToken;
+  rstl::single_ptr< CElementGen > mParticleSystem;
+  TUniqueId mLightId;
+  CAssetId mPartId;
+  bool mEnable : 1;
+  bool mNoTimerUnlessAreaOccluded : 1;
+  bool mRebuildSystemsOnActivate : 1;
+  bool mUseRateInverseCamDist : 1;
+  bool mCombatVisorVisible : 1;
+  bool mThermalVisorVisible : 1;
+  bool mXrayVisorVisible : 1;
+  bool mAnyVisorVisible : 1;
+  bool mUseRateCamDistRange : 1;
+  bool mDieWhenSystemsDone : 1;
+  bool mCanRender : 1;
+  float mRateInverseCamDist;
+  float mRateInverseCamDistSq;
+  float mRateInverseCamDistRate;
+  float mRateCamDistRangeMin;
+  float mRateCamDistRangeMax;
+  float mRateCamDistRangeFarRate;
+  mutable float mRemTime;
+  float mDuration;
+  float mDurationResetWhileVisible;
+  rstl::single_ptr< CActorLights > mActorLights;
+  TUniqueId mTriggerId;
+  float mDestroyDelayTimer;
 };
 
-CHECK_SIZEOF(CScriptEffect, (VERSION >= VERSION_GM8P_00 ? 0x158 : 0x148))
+CHECK_SIZEOF(CScriptEffect, (VERSION >= VERSION_GM8E_02 ? 0x158 : 0x148))
 
 #endif // _CSCRIPTEFFECT

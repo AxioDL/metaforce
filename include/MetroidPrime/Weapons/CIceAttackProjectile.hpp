@@ -33,7 +33,7 @@ public:
                        float turnSpeed, CAssetId steamTexture, ushort freezeSfx,
                        ushort explosionSfx, CAssetId iceTexture);
 
-  void SetUseWorldRay(bool use) { x192_useWorldRay = use; }
+  void SetUseWorldRay(bool use) { mUseWorldRay = use; }
 
 private:
   class CTrailObject {
@@ -46,47 +46,47 @@ private:
     void AddToRenderer(const CFrustumPlanes& planes, const CStateManager& mgr) const;
     bool ExplosionStarted() const;
     bool ExplosionFinished() const;
-    CActorLights& ActorLights() { return x18_actorLights; }
+    CActorLights& ActorLights() { return mActorLights; }
 
   private:
-    rstl::auto_ptr< CElementGen > x0_trail;
-    rstl::auto_ptr< CElementGen > x8_explosion;
-    TUniqueId x10_collisionObj;
-    float x14_elapsed;
-    CActorLights x18_actorLights;
-    CVector3f x2f8_position;
-    CVector3f x304_normal;
-    CVector3f x310_step;
-    uint x31c_createdParticles;
-    bool x320_collisionActive;
+    rstl::auto_ptr< CElementGen > mTrail;
+    rstl::auto_ptr< CElementGen > mExplosion;
+    TUniqueId mCollisionObj;
+    float mElapsed;
+    CActorLights mActorLights;
+    CVector3f mPosition;
+    CVector3f mNormal;
+    CVector3f mStep;
+    uint mCreatedParticles;
+    bool mCollisionActive;
   };
 
   void CreateTrailObject(CStateManager& mgr, const CVector3f& normal, float dt);
   void UpdateTrailObjects(float dt, CStateManager& mgr);
 
-  TToken< CGenDescription > xe8_trailDesc;
-  TToken< CGenDescription > xf0_explosionDesc;
-  TToken< CGenDescription > xf8_movingDesc;
-  rstl::auto_ptr< CElementGen > x100_movingGen;
-  rstl::vector< CTrailObject > x108_trailObjects;
-  TUniqueId x118_owner;
-  CDamageInfo x11c_damage;
-  CDamageInfo x138_currentDamage;
-  rstl::optional_object< CAABox > x154_bounds;
-  float x170_speed;
-  float x174_turnSpeed;
-  float x178_moveTime;
-  float x17c_explosionTimer;
-  int x180_frameCount;
-  CAssetId x184_steamTexture;
-  ushort x188_freezeSfx;
-  ushort x18a_explosionSfx;
-  CAssetId x18c_iceTexture;
-  bool x190_finishedMoving;
-  bool x191_explosionSoundStarted;
-  bool x192_useWorldRay;
-  CSfxHandle x194_explosionSfxHandle;
+  TToken< CGenDescription > mTrailDesc;
+  TToken< CGenDescription > mExplosionDesc;
+  TToken< CGenDescription > mMovingDesc;
+  rstl::auto_ptr< CElementGen > mMovingGen;
+  rstl::vector< CTrailObject > mTrailObjects;
+  TUniqueId mOwner;
+  CDamageInfo mDamage;
+  CDamageInfo mCurrentDamage;
+  rstl::optional_object< CAABox > mBounds;
+  float mSpeed;
+  float mTurnSpeed;
+  float mMoveTime;
+  float mExplosionTimer;
+  int mFrameCount;
+  CAssetId mSteamTexture;
+  ushort mFreezeSfx;
+  ushort mExplosionSfx;
+  CAssetId mIceTexture;
+  bool mFinishedMoving;
+  bool mExplosionSoundStarted;
+  bool mUseWorldRay;
+  CSfxHandle mExplosionSfxHandle;
 };
-CHECK_SIZEOF(CIceAttackProjectile, (VERSION >= VERSION_GM8P_00 ? 0x1a8 : 0x198))
+CHECK_SIZEOF(CIceAttackProjectile, (VERSION >= VERSION_GM8E_02 ? 0x1a8 : 0x198))
 
 #endif // _CICEATTACKPROJECTILE

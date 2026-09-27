@@ -15,7 +15,7 @@ public:
   void Shutdown(CBodyController& bc) override;
 
 private:
-  uint x4_24_hasGroundHit : 1;
+  uint mHasGroundHit : 1;
 
   pas::EAnimationState GetBodyStateTransition(float dt, CBodyController& bc);
 };

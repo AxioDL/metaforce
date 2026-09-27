@@ -44,10 +44,10 @@ public:
                                              int defaultAnim) const;
   const CCharacterInfo& GetCharInfo(int charIdx) const;
   const rstl::vector< rstl::pair< uint, CAdditiveAnimationInfo > >& GetAdditiveAnimInfoList() const {
-    return x40_additiveInfo;
+    return mAdditiveInfo;
   }
   const CAdditiveAnimationInfo& GetDefaultAdditiveAnimInfo() const {
-    return x50_defaultAdditiveInfo;
+    return mDefaultAdditiveInfo;
   }
 
   static rstl::vector< CCharacterInfo > GetCharacterInfoDB(const CAnimCharacterSet& ancs);
@@ -55,18 +55,18 @@ public:
   GetCharLayoutInfoDB(CSimplePool& store, const rstl::vector< CCharacterInfo >& chars);
 
 private:
-  rstl::vector< CCharacterInfo > x4_charInfoDB;
-  rstl::vector< TToken< CCharLayoutInfo > > x14_charLayoutInfoDB;
-  rstl::ncrc_ptr< CAnimSysContext > x24_sysContext;
-  rstl::rc_ptr< CAnimationManager > x28_animMgr;
-  rstl::rc_ptr< CTransitionManager > x2c_transMgr;
-  rstl::vector< TCachedToken< CAllFormatsAnimSource > > x30_animSourceDB;
-  rstl::vector< rstl::pair< uint, CAdditiveAnimationInfo > > x40_additiveInfo;
-  CAdditiveAnimationInfo x50_defaultAdditiveInfo;
-  rstl::vector< rstl::pair< int, int > > x58_animResources;
-  CAssetId x68_selfId;
-  CDummyFactory x6c_dummyFactory;
-  mutable CSimplePool x70_cacheResPool;
+  rstl::vector< CCharacterInfo > mCharInfoDB;
+  rstl::vector< TToken< CCharLayoutInfo > > mCharLayoutInfoDB;
+  rstl::ncrc_ptr< CAnimSysContext > mSysContext;
+  rstl::rc_ptr< CAnimationManager > mAnimMgr;
+  rstl::rc_ptr< CTransitionManager > mTransMgr;
+  rstl::vector< TCachedToken< CAllFormatsAnimSource > > mAnimSourceDB;
+  rstl::vector< rstl::pair< uint, CAdditiveAnimationInfo > > mAdditiveInfo;
+  CAdditiveAnimationInfo mDefaultAdditiveInfo;
+  rstl::vector< rstl::pair< int, int > > mAnimResources;
+  CAssetId mSelfId;
+  CDummyFactory mDummyFactory;
+  mutable CSimplePool mCacheResPool;
 };
 
 NESTED_CHECK_SIZEOF(CCharacterFactory, CDummyFactory, 0x4)

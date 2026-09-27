@@ -35,23 +35,40 @@ inline CObjOwnerDerivedFromIObjUntyped::~CObjOwnerDerivedFromIObjUntyped() {}
 template < typename T >
 class TObjOwnerDerivedFromIObj : public CObjOwnerDerivedFromIObjUntyped {
 public:
+  TObjOwnerDerivedFromIObj(T* obj) : CObjOwnerDerivedFromIObjUntyped(obj) {}
   ~TObjOwnerDerivedFromIObj() {
     if (Owned()) {
       delete Owned();
     }
   }
+
   T* Owned() { return static_cast< T* >(m_objPtr); }
 
-  static rstl::auto_ptr< TObjOwnerDerivedFromIObj< T > > GetNewDerivedObject(T* obj) {
+#if VERSION >= VERSION_R3IJ_00
+  typedef rstl::auto_ptr< IObj > TOwnerPtr;
+#else
+  typedef rstl::auto_ptr< TObjOwnerDerivedFromIObj< T > > TOwnerPtr;
+#endif
+
+  static TOwnerPtr GetNewDerivedObject(T* obj) {
+#if VERSION >= VERSION_R3IJ_00
+    return rstl::auto_ptr< TObjOwnerDerivedFromIObj< T > >(
+        rs_new TObjOwnerDerivedFromIObj< T >(obj));
+#else
     return rs_new TObjOwnerDerivedFromIObj< T >(obj);
-  }
-  static rstl::auto_ptr< TObjOwnerDerivedFromIObj< T > >
-  GetNewDerivedObject(const rstl::auto_ptr< T >& obj) {
-    return rs_new TObjOwnerDerivedFromIObj< T >(obj);
+#endif
   }
 
+  static TOwnerPtr GetNewDerivedObject(const rstl::auto_ptr< T >& obj) {
+#if VERSION >= VERSION_R3IJ_00
+    return rstl::auto_ptr< TObjOwnerDerivedFromIObj< T > >(
+        rs_new TObjOwnerDerivedFromIObj< T >(obj));
+#else
+    return rs_new TObjOwnerDerivedFromIObj< T >(obj);
+#endif
+  }
+  
 private:
-  TObjOwnerDerivedFromIObj(T* obj) : CObjOwnerDerivedFromIObjUntyped(obj) {}
   TObjOwnerDerivedFromIObj(const rstl::auto_ptr< T >& obj) : CObjOwnerDerivedFromIObjUntyped(obj) {}
 };
 

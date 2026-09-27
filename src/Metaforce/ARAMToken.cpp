@@ -2,57 +2,57 @@
 
 #include "Kyoto/Alloc/CMemory.hpp"
 
-CARAMToken::CARAMToken() : x0_status(kS_Six), x4_mramPtr(nullptr), xc_dataLen(0) {}
+CARAMToken::CARAMToken() : mStatus(kS_Six), mMramPtr(nullptr), mDataLen(0) {}
 
 CARAMToken::CARAMToken(void* ptr, uint len, int)
-: x0_status(ptr ? kS_One : kS_Six), x4_mramPtr(ptr), xc_dataLen(ptr ? len : 0) {}
+: mStatus(ptr ? kS_One : kS_Six), mMramPtr(ptr), mDataLen(ptr ? len : 0) {}
 
 CARAMToken::CARAMToken(const CARAMToken& other)
-: x0_status(other.x0_status), x4_mramPtr(other.x4_mramPtr), xc_dataLen(other.xc_dataLen) {
-  other.x0_status = kS_Six;
-  other.x4_mramPtr = nullptr;
-  other.xc_dataLen = 0;
+: mStatus(other.mStatus), mMramPtr(other.mMramPtr), mDataLen(other.mDataLen) {
+  other.mStatus = kS_Six;
+  other.mMramPtr = nullptr;
+  other.mDataLen = 0;
 }
 
-CARAMToken::~CARAMToken() { CMemory::Free(x4_mramPtr); }
+CARAMToken::~CARAMToken() { CMemory::Free(mMramPtr); }
 
 CARAMToken& CARAMToken::operator=(const CARAMToken& other) {
   if (this != &other) {
-    CMemory::Free(x4_mramPtr);
-    x0_status = other.x0_status;
-    x4_mramPtr = other.x4_mramPtr;
-    xc_dataLen = other.xc_dataLen;
-    other.x0_status = kS_Six;
-    other.x4_mramPtr = nullptr;
-    other.xc_dataLen = 0;
+    CMemory::Free(mMramPtr);
+    mStatus = other.mStatus;
+    mMramPtr = other.mMramPtr;
+    mDataLen = other.mDataLen;
+    other.mStatus = kS_Six;
+    other.mMramPtr = nullptr;
+    other.mDataLen = 0;
   }
   return *this;
 }
 
 void CARAMToken::PostConstruct(void* ptr, uint len, int) {
-  if (ptr != x4_mramPtr) {
-    CMemory::Free(x4_mramPtr);
+  if (ptr != mMramPtr) {
+    CMemory::Free(mMramPtr);
   }
-  x4_mramPtr = ptr;
-  xc_dataLen = ptr ? len : 0;
-  x0_status = ptr ? kS_One : kS_Six;
+  mMramPtr = ptr;
+  mDataLen = ptr ? len : 0;
+  mStatus = ptr ? kS_One : kS_Six;
 }
 
-bool CARAMToken::LoadToMRAM() { return x0_status == kS_One; }
-bool CARAMToken::LoadToARAM() { return x0_status == kS_One; }
-bool CARAMToken::RefreshStatus() { return x0_status == kS_One; }
+bool CARAMToken::LoadToMRAM() { return mStatus == kS_One; }
+bool CARAMToken::LoadToARAM() { return mStatus == kS_One; }
+bool CARAMToken::RefreshStatus() { return mStatus == kS_One; }
 void CARAMToken::UpdateAllDMAs() {}
 void CARAMToken::ForceSyncARAM() {}
-void* CARAMToken::GetMRAMSafe() { return x4_mramPtr; }
+void* CARAMToken::GetMRAMSafe() { return mMramPtr; }
 
 void CARAMToken::MakeInvalid() {
-  x0_status = kS_Six;
-  x4_mramPtr = nullptr;
-  xc_dataLen = 0;
+  mStatus = kS_Six;
+  mMramPtr = nullptr;
+  mDataLen = 0;
 }
 
 void* CARAMToken::ForceSyncMRAM() {
-  void* ptr = x4_mramPtr;
+  void* ptr = mMramPtr;
   MakeInvalid();
   return ptr;
 }

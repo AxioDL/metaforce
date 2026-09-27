@@ -12,12 +12,12 @@ CScriptGenerator::CScriptGenerator(const TUniqueId uid, const rstl::string& name
                                    const bool noInheritXf, const bool active, const float minScale,
                                    const float maxScale)
 : CEntity(uid, info, active, name)
-, x34_spawnCount(spawnCount)
-, x38_24_noReuseFollowers(noReuseFollowers)
-, x38_25_noInheritTransform(noInheritXf)
-, x3c_offset(vec1)
-, x48_minScale(minScale)
-, x4c_maxScale(maxScale) {}
+, mSpawnCount(spawnCount)
+, mNoReuseFollowers(noReuseFollowers)
+, mNoInheritTransform(noInheritXf)
+, mOffset(vec1)
+, mMinScale(minScale)
+, mMaxScale(maxScale) {}
 
 CScriptGenerator::~CScriptGenerator() {}
 
@@ -33,11 +33,11 @@ void CScriptGenerator::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sende
     follows.reserve(!GetConnectionList().empty() ? GetConnectionList().size() : 1);
     rstl::vector< SConnection >::const_iterator iter = GetConnectionList().begin();
     for (; iter != GetConnectionList().end(); ++iter) {
-      if (iter->x0_state != kSS_Zero || iter->x4_msg != kSM_Follow) {
+      if (iter->mState != kSS_Zero || iter->mMsg != kSM_Follow) {
         continue;
       }
 
-      const TUniqueId uid = stateMgr.GetIdForScript(iter->x8_objId);
+      const TUniqueId uid = stateMgr.GetIdForScript(iter->mObjId);
       if (uid != kInvalidUniqueId) {
         const CEntity* entity = stateMgr.GetObjectById(uid);
         if (entity && entity->GetActive()) {
@@ -54,22 +54,22 @@ void CScriptGenerator::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sende
     activates.reserve(GetConnectionList().size());
 
     for (iter = GetConnectionList().begin(); iter != GetConnectionList().end(); ++iter) {
-      if (iter->x0_state != kSS_Zero) {
+      if (iter->mState != kSS_Zero) {
         continue;
       }
 
-      TUniqueId uid = stateMgr.GetIdForScript(iter->x8_objId);
+      TUniqueId uid = stateMgr.GetIdForScript(iter->mObjId);
       if (uid == kInvalidUniqueId) {
         continue;
       }
 
-      if (iter->x4_msg == kSM_Activate) {
+      if (iter->mMsg == kSM_Activate) {
         if (!stateMgr.GetObjectById(uid)) {
           continue;
         }
-        activates.push_back(rstl::pair< TUniqueId, TEditorId >(uid, iter->x8_objId));
+        activates.push_back(rstl::pair< TUniqueId, TEditorId >(uid, iter->mObjId));
       } else {
-        stateMgr.SendScriptMsgAlways(uid, GetUniqueId(), iter->x4_msg);
+        stateMgr.SendScriptMsgAlways(uid, GetUniqueId(), iter->mMsg);
       }
     }
 
@@ -77,7 +77,7 @@ void CScriptGenerator::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sende
       break;
     }
 
-    for (int i = 0; i < x34_spawnCount; ++i) {
+    for (int i = 0; i < mSpawnCount; ++i) {
       if (activates.size() == 0 || follows.size() == 0) {
         break;
       }
@@ -112,15 +112,15 @@ void CScriptGenerator::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sende
         const CWallCrawlerSwarm* wallCrawlerSwarm = TCastToConstPtr< CWallCrawlerSwarm >(follow);
 
         if (activateActor && wallCrawlerSwarm) {
-          if (!x38_25_noInheritTransform) {
+          if (!mNoInheritTransform) {
             activateActor->SetTransform(wallCrawlerSwarm->GetTransform());
           }
-          activateActor->SetTranslation(wallCrawlerSwarm->GetLastKilledOffset() + x3c_offset);
+          activateActor->SetTranslation(wallCrawlerSwarm->GetLastKilledOffset() + mOffset);
         } else if (activateActor && followActor) {
-          if (!x38_25_noInheritTransform) {
+          if (!mNoInheritTransform) {
             activateActor->SetTransform(followActor->GetTransform());
           }
-          activateActor->SetTranslation(followActor->GetTranslation() + x3c_offset);
+          activateActor->SetTranslation(followActor->GetTranslation() + mOffset);
         }
         if (genObj) {
           CEntity* genObj = stateMgr.ObjectById(objId);
@@ -130,19 +130,19 @@ void CScriptGenerator::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sende
 
           if (activateActor) {
             if (activateActor && wallCrawlerSwarm) {
-              if (!x38_25_noInheritTransform) {
+              if (!mNoInheritTransform) {
                 activateActor->SetTransform(wallCrawlerSwarm->GetTransform());
               }
-              activateActor->SetTranslation(wallCrawlerSwarm->GetLastKilledOffset() + x3c_offset);
+              activateActor->SetTranslation(wallCrawlerSwarm->GetLastKilledOffset() + mOffset);
             } else if (activateActor && followActor) {
-              if (!x38_25_noInheritTransform) {
+              if (!mNoInheritTransform) {
                 activateActor->SetTransform(followActor->GetTransform());
               }
-              activateActor->SetTranslation(followActor->GetTranslation() + x3c_offset);
+              activateActor->SetTranslation(followActor->GetTranslation() + mOffset);
             }
           }
 
-          const float rnd = stateMgr.Random()->Range(x48_minScale, x4c_maxScale);
+          const float rnd = stateMgr.Random()->Range(mMinScale, mMaxScale);
           if (activateActor->HasModelData()) {
             activateActor->ModelData()->SetScale(rnd * activateActor->ModelData()->GetScale());
           }
@@ -152,7 +152,7 @@ void CScriptGenerator::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sende
       }
 
       activates.erase(activates.begin() + activatesRand);
-      if (x38_24_noReuseFollowers) {
+      if (mNoReuseFollowers) {
         follows.erase(follows.begin() + followsRand);
       }
     }

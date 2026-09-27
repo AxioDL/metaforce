@@ -9,11 +9,11 @@
 class CRumbleGenerator {
 private:
   static const EMotorState kStopAll[4];
-  CRumbleVoice x0_voices[4];
-  float xc0_periodTime[4];
-  float xd0_onTime[4];
-  EMotorState xe0_commandArray[4];
-  bool xf0_24_disabled : 1;
+  CRumbleVoice mVoices[4];
+  float mPeriodTime[4];
+  float mOnTime[4];
+  EMotorState mCommandArray[4];
+  bool mDisabled : 1;
 
 public:
   CRumbleGenerator();
@@ -23,13 +23,13 @@ public:
   void Stop(short id, EIOPort port) {
     if (id == -1)
       return;
-    CRumbleVoice& vox = x0_voices[size_t(port)];
+    CRumbleVoice& vox = mVoices[size_t(port)];
     vox.Deactivate(id, false);
   }
   void Deactivate(short, bool);
   void Update(float);
   void HardStopAll();
-  bool GetDisabled() const { return xf0_24_disabled; }
+  bool GetDisabled() const { return mDisabled; }
   void SetDisabled(const bool disabled);
 };
 

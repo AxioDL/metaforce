@@ -10,7 +10,7 @@ class CObjectReference;
 
 class CToken {
 public:
-  CToken() : x0_objRef(NULL), x4_lockHeld_init(0) {}
+  CToken() : mObjRef(NULL), mLockHeld_init(0) {}
   CToken(CObjectReference* ref);
   CToken(IObj* obj); // : x0_objRef(new CObjectReference(obj)), x4_lockHeld(false) {}
   CToken(const CToken& other);
@@ -19,21 +19,21 @@ public:
   CObjOwnerDerivedFromIObjUntyped* GetObj();
   void Lock();
   void Unlock();
-  bool IsLocked() const { return x4_lockHeld; }
-  bool IsLoaded() const { return x0_objRef->IsLoaded(); }
+  bool IsLocked() const { return mLockHeld; }
+  bool IsLoaded() const { return mObjRef->IsLoaded(); }
   void RemoveRef();
   CToken& operator=(const CToken&);
-  bool HasReference() const { return x0_objRef != nullptr; }
-  const SObjectTag& GetTag() const { return x0_objRef->GetTag(); }
+  bool HasReference() const { return mObjRef != nullptr; }
+  const SObjectTag& GetTag() const { return mObjRef->GetTag(); }
   FourCC GetReferenceType() const { return GetTag().GetType(); }
 
-  const CObjectReference* GetRef() const { return x0_objRef; }
+  const CObjectReference* GetRef() const { return mObjRef; }
 
 private:
-  CObjectReference* x0_objRef;
+  CObjectReference* mObjRef;
   union {
-    bool x4_lockHeld;
-    int x4_lockHeld_init;
+    bool mLockHeld;
+    int mLockHeld_init;
   };
 };
 

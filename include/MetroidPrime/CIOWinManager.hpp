@@ -14,17 +14,17 @@ class CIOWin;
 class CIOWinManager {
 public:
   struct IOWinPQNode {
-    rstl::ncrc_ptr< CIOWin > x0_iowin;
-    int x4_prio;
-    IOWinPQNode* x8_next;
+    rstl::ncrc_ptr< CIOWin > mIowin;
+    int mPrio;
+    IOWinPQNode* mNext;
 
     IOWinPQNode(rstl::ncrc_ptr< CIOWin > iowin, int prio, IOWinPQNode* next);
 
     rstl::ncrc_ptr< CIOWin > GetIOWin() const;
-    IOWinPQNode* GetNext() const { return x8_next; }
-    void SetNext(IOWinPQNode* next) { x8_next = next; }
-    int GetPriority() const { return x4_prio; }
-    void SetPriority(int prio) { x4_prio = prio; }
+    IOWinPQNode* GetNext() const { return mNext; }
+    void SetNext(IOWinPQNode* next) { mNext = next; }
+    int GetPriority() const { return mPrio; }
+    void SetPriority(int prio) { mPrio = prio; }
   };
 
   CIOWinManager();
@@ -41,12 +41,12 @@ public:
   bool DistributeOneMessage(const CArchitectureMessage& msg, CArchitectureQueue& queue);
   bool OnIOWinMessage(const CArchitectureMessage& msg);
 
-  inline bool IsEmpty() const { return x4_pumpRoot == nullptr && x0_drawRoot == nullptr; }
+  inline bool IsEmpty() const { return mPumpRoot == nullptr && mDrawRoot == nullptr; }
 
 private:
-  IOWinPQNode* x0_drawRoot;
-  IOWinPQNode* x4_pumpRoot;
-  CArchitectureQueue x8_localGatherQueue;
+  IOWinPQNode* mDrawRoot;
+  IOWinPQNode* mPumpRoot;
+  CArchitectureQueue mLocalGatherQueue;
 };
 CHECK_SIZEOF(CIOWinManager, 0x20)
 

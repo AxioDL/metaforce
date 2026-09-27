@@ -13,7 +13,7 @@
 #include "math.h"
 #include "rstl/math.hpp"
 
-CBSFall::CBSFall() : x4_rotateSpeed(0.f), x8_remTime(0.f), xc_fallState(pas::kFS_Invalid) {}
+CBSFall::CBSFall() : mRotateSpeed(0.f), mRemTime(0.f), mFallState(pas::kFS_Invalid) {}
 
 void CBSFall::Start(CBodyController& bc, CStateManager& mgr) {
   const CBCKnockDownCmd* cmd =
@@ -39,27 +39,27 @@ void CBSFall::Start(CBodyController& bc, CStateManager& mgr) {
         CMath::ClampRadians(CRelAngle::FromDegrees(knockdownAngle).AsRadians() - angle.AsRadians());
     float minAngle = rstl::min_val(delta1, delta2);
     const float flippedAngle = CMath::ClampRadians(angleDiff) > M_PIF ? -minAngle : minAngle;
-    x8_remTime = 0.15f * bc.GetAnimTimeRemaining();
-    x4_rotateSpeed = (x8_remTime > FLT_EPSILON) ? flippedAngle / x8_remTime : flippedAngle;
+    mRemTime = 0.15f * bc.GetAnimTimeRemaining();
+    mRotateSpeed = (mRemTime > FLT_EPSILON) ? flippedAngle / mRemTime : flippedAngle;
   } else {
-    x8_remTime = 0.f;
-    x4_rotateSpeed = 0.f;
+    mRemTime = 0.f;
+    mRotateSpeed = 0.f;
   }
 
   CPASAnimParm knockdownParm3(knockdownState->GetAnimParmData(best.second, 3));
-  xc_fallState = pas::EFallState(knockdownParm3.GetEnumValue());
+  mFallState = pas::EFallState(knockdownParm3.GetEnumValue());
 }
 
 pas::EAnimationState CBSFall::UpdateBody(float dt, CBodyController& bc, CStateManager& mgr) {
   const pas::EAnimationState st = GetBodyStateTransition(dt, bc);
-  if (st == pas::kAS_Invalid && x8_remTime > 0.f) {
-    bc.SetDeltaRotation(CQuaternion::ZRotation(CRelAngle::FromRadians(x4_rotateSpeed * dt)));
-    x8_remTime -= dt;
+  if (st == pas::kAS_Invalid && mRemTime > 0.f) {
+    bc.SetDeltaRotation(CQuaternion::ZRotation(CRelAngle::FromRadians(mRotateSpeed * dt)));
+    mRemTime -= dt;
   }
   return st;
 }
 
-void CBSFall::Shutdown(CBodyController& bc) { bc.SetFallState(xc_fallState); }
+void CBSFall::Shutdown(CBodyController& bc) { bc.SetFallState(mFallState); }
 
 pas::EAnimationState CBSFall::GetBodyStateTransition(float dt, CBodyController& bc) {
   if (bc.IsAnimationOver()) {

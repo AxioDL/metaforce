@@ -35,24 +35,24 @@ CFrustumPlanes::CFrustumPlanes(const CTransform4f& xf, float fov, float aspect, 
   CVector3f pos = xf.GetTranslation();
   CVector3f nearPos = xf * CVector3f(0.f, nearZ, 0.f);
 
-  x0_planes.push_back(
+  mPlanes.push_back(
       CPlane(nearPos, CreateNormal(worldCorners[0], worldCorners[2], worldCorners[1])));
-  x0_planes.push_back(
+  mPlanes.push_back(
       CPlane(pos, CreateNormal(CVector3f::Zero(), worldCorners[1], worldCorners[0])));
-  x0_planes.push_back(
+  mPlanes.push_back(
       CPlane(pos, CreateNormal(CVector3f::Zero(), worldCorners[3], worldCorners[2])));
-  x0_planes.push_back(
+  mPlanes.push_back(
       CPlane(pos, CreateNormal(CVector3f::Zero(), worldCorners[0], worldCorners[3])));
-  x0_planes.push_back(
+  mPlanes.push_back(
       CPlane(pos, CreateNormal(CVector3f::Zero(), worldCorners[2], worldCorners[1])));
   if (useFarPlane) {
-    x0_planes.push_back(CPlane(farZ - x0_planes[0].GetConstant(), -x0_planes[0].GetNormal()));
+    mPlanes.push_back(CPlane(farZ - mPlanes[0].GetConstant(), -mPlanes[0].GetNormal()));
   }
 }
 
 bool CFrustumPlanes::BoxInFrustumPlanes(const CAABox& box) const {
-  for (int i = 0; i < x0_planes.size(); ++i) {
-    if (!box.InsidePlane(x0_planes[i])) {
+  for (int i = 0; i < mPlanes.size(); ++i) {
+    if (!box.InsidePlane(mPlanes[i])) {
       return false;
     }
   }
@@ -60,7 +60,7 @@ bool CFrustumPlanes::BoxInFrustumPlanes(const CAABox& box) const {
 }
 
 bool CFrustumPlanes::BoxInFrustumPlanes(const rstl::optional_object< CAABox >& box) const {
-  if (x0_planes.empty()) {
+  if (mPlanes.empty()) {
     return true;
   }
 
@@ -74,16 +74,16 @@ bool CFrustumPlanes::BoxInFrustumPlanes(const rstl::optional_object< CAABox >& b
 int CFrustumPlanes::BoxFrustumPlanesCheck(const CAABox& box) const {
   int ret = 1;
 
-  for (int i = 0; i < x0_planes.size(); ++i) {
-    CVector3f closestPoint = box.ClosestPointAlongVector(x0_planes[i].GetNormal());
+  for (int i = 0; i < mPlanes.size(); ++i) {
+    CVector3f closestPoint = box.ClosestPointAlongVector(mPlanes[i].GetNormal());
 
-    if (x0_planes[i].IsFacing(closestPoint)) {
+    if (mPlanes[i].IsFacing(closestPoint)) {
       return 0;
     }
 
     if (ret == 1) {
-      CVector3f furthestPoint = box.FurthestPointAlongVector(x0_planes[i].GetNormal());
-      if (x0_planes[i].IsFacing(furthestPoint)) {
+      CVector3f furthestPoint = box.FurthestPointAlongVector(mPlanes[i].GetNormal());
+      if (mPlanes[i].IsFacing(furthestPoint)) {
         ret = 2;
       }
     }
@@ -94,8 +94,8 @@ int CFrustumPlanes::BoxFrustumPlanesCheck(const CAABox& box) const {
 bool CFrustumPlanes::SphereInFrustumPlanes(const CSphere& sphere) const {
   float radius = sphere.GetRadius();
   CVector3f pos = sphere.GetCenter();
-  for (int i = 0; i < x0_planes.size(); ++i) {
-    if (x0_planes[i].GetHeight(pos) - radius > 0.f) {
+  for (int i = 0; i < mPlanes.size(); ++i) {
+    if (mPlanes[i].GetHeight(pos) - radius > 0.f) {
       return false;
     }
   }
@@ -103,8 +103,8 @@ bool CFrustumPlanes::SphereInFrustumPlanes(const CSphere& sphere) const {
 }
 
 bool CFrustumPlanes::PointInFrustumPlanes(const CVector3f& point) const {
-  for (int i = 0; i < x0_planes.size(); ++i) {
-    if (x0_planes[i].IsFacing(point)) {
+  for (int i = 0; i < mPlanes.size(); ++i) {
+    if (mPlanes[i].IsFacing(point)) {
       return false;
     }
   }

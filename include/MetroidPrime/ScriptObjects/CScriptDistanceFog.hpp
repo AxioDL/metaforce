@@ -9,17 +9,17 @@
 #include "MetroidPrime/CGameArea.hpp"
 
 class CScriptDistanceFog : public CEntity {
-  ERglFogMode x34_mode;
-  CColor x38_color;
-  CVector2f x3c_range;
-  float x44_colorDelta;
-  CVector2f x48_rangeDelta;
-  float x50_thermalTarget;
-  float x54_thermalSpeed;
-  float x58_xrayTarget;
-  float x5c_xraySpeed;
-  bool x60_explicit;
-  bool x61_nonZero;
+  ERglFogMode mMode;
+  CColor mColor;
+  CVector2f mRange;
+  float mColorDelta;
+  CVector2f mRangeDelta;
+  float mThermalTarget;
+  float mThermalSpeed;
+  float mXrayTarget;
+  float mXraySpeed;
+  bool mExplicit;
+  bool mNonZero;
 
 public:
   CScriptDistanceFog(TUniqueId, const rstl::string&, const CEntityInfo&, ERglFogMode, const CColor&,

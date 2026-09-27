@@ -4,7 +4,7 @@
 #include "Kyoto/Streams/CInputStream.hpp"
 
 CTransition::CTransition(CInputStream& in)
-: x0_id(in.Get<uint>())
-, x4_animA(in.Get<uint>())
-, x8_animB(in.Get<uint>())
-, xc_trans(CMetaTransFactory::CreateMetaTrans(in)) {}
+: mId(in.Get<uint>())
+, mAnimA(in.Get<uint>())
+, mAnimB(in.Get<uint>())
+, mTrans(CMetaTransFactory::CreateMetaTrans(in)) {}

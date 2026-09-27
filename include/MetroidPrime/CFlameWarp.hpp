@@ -17,38 +17,38 @@ public:
   ~CFlameWarp() override;
 
   const rstl::reserved_vector< CVector3f, 9 >& GetCollisionPoints() const {
-    return x4_collisionPoints;
+    return mCollisionPoints;
   }
-  float GetMinSize() const { return x90_minSize; }
-  float GetMaxSize() const { return x94_maxSize; }
-  void SetWarpPoint(const CVector3f& p) { x74_warpPoint = p; }
-  void SetFloatingPoint(const CVector3f& p) { x80_floatingPoint = p; }
-  const CVector3f& GetFloatingPoint() const { return x80_floatingPoint; }
-  void SetMaxDistSq(float d) { x8c_maxDistSq = d; }
-  void SetStateManager(CStateManager& mgr) { x9c_stateMgr = &mgr; }
+  float GetMinSize() const { return mMinSize; }
+  float GetMaxSize() const { return mMaxSize; }
+  void SetWarpPoint(const CVector3f& p) { mWarpPoint = p; }
+  void SetFloatingPoint(const CVector3f& p) { mFloatingPoint = p; }
+  const CVector3f& GetFloatingPoint() const { return mFloatingPoint; }
+  void SetMaxDistSq(float d) { mMaxDistSq = d; }
+  void SetStateManager(CStateManager& mgr) { mStateMgr = &mgr; }
   bool UpdateWarp() override;
   void ModifyParticles(int particleCount, int stripe, int*, CVector3f* particlePrevPos,
                        CVector3f* particlePos, CVector3f* particleVelocity, CColor* color,
                        float* lineLengthOrSize, float* lineWidthOrRota) override;
-  void Activate(bool val) override { xa0_24_activated = val; }
+  void Activate(bool val) override { mActivated = val; }
   bool IsActivated() override;
-  bool IsProcessed() const { return xa0_26_processed; }
+  bool IsProcessed() const { return mProcessed; }
   FourCC Get4CharID() override;
   void ResetPosition(const CVector3f& pos);
   CAABox CalculateBounds() const;
 
 private:
-  rstl::reserved_vector< CVector3f, 9 > x4_collisionPoints;
-  CVector3f x74_warpPoint;
-  CVector3f x80_floatingPoint;
-  float x8c_maxDistSq;
-  float x90_minSize;
-  float x94_maxSize;
-  float x98_maxInfluenceDistSq;
-  CStateManager* x9c_stateMgr;
-  bool xa0_24_activated : 1;
-  bool xa0_25_collisionWarp : 1;
-  bool xa0_26_processed : 1;
+  rstl::reserved_vector< CVector3f, 9 > mCollisionPoints;
+  CVector3f mWarpPoint;
+  CVector3f mFloatingPoint;
+  float mMaxDistSq;
+  float mMinSize;
+  float mMaxSize;
+  float mMaxInfluenceDistSq;
+  CStateManager* mStateMgr;
+  bool mActivated : 1;
+  bool mCollisionWarp : 1;
+  bool mProcessed : 1;
 };
 CHECK_SIZEOF(CFlameWarp, 0xa4)
 

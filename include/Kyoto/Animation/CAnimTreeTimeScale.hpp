@@ -31,10 +31,10 @@ public:
   CAnimTreeTimeScale(const rstl::ncrc_ptr< CAnimTreeNode >& node, float timeScale,
                      const rstl::string& name)
   : CAnimTreeSingleChild(node, name)
-  , x18_timeScale(rs_new CConstantAnimationTimeScale(timeScale))
-  , x20_curAccelTime(0.f)
-  , x28_targetAccelTime(CCharAnimTime::Infinity())
-  , x30_initialTime(CCharAnimTime::ZeroFlat()) {}
+  , mTimeScale(rs_new CConstantAnimationTimeScale(timeScale))
+  , mCurAccelTime(0.f)
+  , mTargetAccelTime(CCharAnimTime::Infinity())
+  , mInitialTime(CCharAnimTime::ZeroFlat()) {}
   CAnimTreeTimeScale(const rstl::ncrc_ptr< CAnimTreeNode >& node,
                      const rstl::ownership_transfer< IVaryingAnimationTimeScale >& timeScale,
                      const CCharAnimTime& time, const rstl::string& name);
@@ -49,15 +49,15 @@ private:
                      const CCharAnimTime& curTime, const CCharAnimTime& targetTime,
                      const CCharAnimTime& initialTime, const rstl::string& name)
   : CAnimTreeSingleChild(node, name)
-  , x18_timeScale(timeScale)
-  , x20_curAccelTime(curTime)
-  , x28_targetAccelTime(targetTime)
-  , x30_initialTime(initialTime) {}
+  , mTimeScale(timeScale)
+  , mCurAccelTime(curTime)
+  , mTargetAccelTime(targetTime)
+  , mInitialTime(initialTime) {}
 
-  rstl::object_owner< IVaryingAnimationTimeScale > x18_timeScale;
-  CCharAnimTime x20_curAccelTime;
-  CCharAnimTime x28_targetAccelTime;
-  CCharAnimTime x30_initialTime;
+  rstl::object_owner< IVaryingAnimationTimeScale > mTimeScale;
+  CCharAnimTime mCurAccelTime;
+  CCharAnimTime mTargetAccelTime;
+  CCharAnimTime mInitialTime;
 };
 CHECK_SIZEOF(CAnimTreeTimeScale, 0x38)
 

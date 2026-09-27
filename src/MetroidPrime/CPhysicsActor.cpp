@@ -13,77 +13,77 @@ CPhysicsActor::CPhysicsActor(TUniqueId uid, const bool active, const rstl::strin
                              const CAABox& aabb, const SMoverData& moverData,
                              const CActorParameters& actParams, float stepUp, float stepDown)
 : CActor(uid, active, name, info, xf, mData, matList, actParams, kInvalidUniqueId)
-, xe8_mass(moverData.x30_mass)
-, xec_massRecip(moverData.x30_mass > 0.f ? 1.f / moverData.x30_mass : 1.f)
-, xf0_inertiaTensor(0.f)
-, xf4_inertiaTensorRecip(0.f)
-, xf8_24_movable(true)
-, xf8_25_angularEnabled(false)
-, xf9_standardCollider(false)
-, xfc_constantForce(CVector3f(0.f, 0.f, 0.f))
-, x108_angularMomentum(CAxisAngle::Identity())
+, mMass(moverData.mMass)
+, mMassRecip(moverData.mMass > 0.f ? 1.f / moverData.mMass : 1.f)
+, mInertiaTensor(0.f)
+, mInertiaTensorRecip(0.f)
+, mMovable(true)
+, mAngularEnabled(false)
+, mStandardCollider(false)
+, mConstantForce(CVector3f(0.f, 0.f, 0.f))
+, mAngularMomentum(CAxisAngle::Identity())
 , x114_(CMatrix3f::Identity())
-, x138_velocity(CVector3f(0.f, 0.f, 0.f))
-, x144_angularVelocity(CAxisAngle::Identity())
-, x150_momentum(moverData.x18_momentum)
-, x15c_force(CVector3f(0.f, 0.f, 0.f))
-, x168_impulse(CVector3f(0.f, 0.f, 0.f))
-, x174_torque(CAxisAngle::Identity())
-, x180_angularImpulse(CAxisAngle::Identity())
-, x18c_moveImpulse(CVector3f(0.f, 0.f, 0.f))
-, x198_moveAngularImpulse(CAxisAngle::Identity())
-, x1a4_baseBoundingBox(aabb)
-, x1c0_collisionPrimitive(aabb, matList)
-, x1e8_primitiveOffset(xf.GetTranslation())
-, x1f4_lastNonCollidingState(xf.GetTranslation(),
+, mVelocity(CVector3f(0.f, 0.f, 0.f))
+, mAngularVelocity(CAxisAngle::Identity())
+, mMomentum(moverData.mMomentum)
+, mForce(CVector3f(0.f, 0.f, 0.f))
+, mImpulse(CVector3f(0.f, 0.f, 0.f))
+, mTorque(CAxisAngle::Identity())
+, mAngularImpulse(CAxisAngle::Identity())
+, mMoveImpulse(CVector3f(0.f, 0.f, 0.f))
+, mMoveAngularImpulse(CAxisAngle::Identity())
+, mBaseBoundingBox(aabb)
+, mCollisionPrimitive(aabb, matList)
+, mPrimitiveOffset(xf.GetTranslation())
+, mLastNonCollidingState(xf.GetTranslation(),
                              CNUQuaternion::BuildFromMatrix3f(xf.BuildMatrix3f()),
                              CVector3f::Zero(), CAxisAngle::Identity())
-, x238_maximumCollisionVelocity(1000000.0)
-, x23c_stepUpHeight(stepUp)
-, x240_stepDownHeight(stepDown)
-, x244_restitutionCoefModifier(0.f)
-, x248_collisionAccuracyModifier(1.f)
-, x24c_numTicksStuck(0)
-, x250_numTicksPartialUpdate(0) {
-  SetMass(moverData.x30_mass);
+, mMaximumCollisionVelocity(1000000.0)
+, mStepUpHeight(stepUp)
+, mStepDownHeight(stepDown)
+, mRestitutionCoefModifier(0.f)
+, mCollisionAccuracyModifier(1.f)
+, mNumTicksStuck(0)
+, mNumTicksPartialUpdate(0) {
+  SetMass(moverData.mMass);
   MoveCollisionPrimitive(CVector3f::Zero());
-  SetVelocityOR(moverData.x0_velocity);
-  SetAngularVelocityOR(moverData.xc_angularVelocity);
+  SetVelocityOR(moverData.mVelocity);
+  SetAngularVelocityOR(moverData.mAngularVelocity);
   ComputeDerivedQuantities();
 }
 
 CPhysicsActor::~CPhysicsActor() {}
 
 void CPhysicsActor::ApplyImpulseWR(const CVector3f& impulse, const CAxisAngle& angularImpulse) {
-  x168_impulse = x168_impulse + impulse;
-  x180_angularImpulse = x180_angularImpulse + angularImpulse;
+  mImpulse = mImpulse + impulse;
+  mAngularImpulse = mAngularImpulse + angularImpulse;
 }
 
 void CPhysicsActor::ApplyTorqueWR(const CVector3f& torque) {
-  x174_torque = x174_torque + CAxisAngle(torque);
+  mTorque = mTorque + CAxisAngle(torque);
 }
 
 void CPhysicsActor::ApplyForceWR(const CVector3f& force, const CAxisAngle& torque) {
-  x15c_force = x15c_force + force;
-  x174_torque = x174_torque + torque;
+  mForce = mForce + force;
+  mTorque = mTorque + torque;
 }
 
 void CPhysicsActor::ApplyImpulseOR(const CVector3f& impulse, const CAxisAngle& angle) {
-  x168_impulse = x168_impulse + GetTransform().Rotate(impulse);
+  mImpulse = mImpulse + GetTransform().Rotate(impulse);
   CAxisAngle rotatedAngle(GetTransform().Rotate(angle.GetVector()));
-  x180_angularImpulse = x180_angularImpulse + rotatedAngle;
+  mAngularImpulse = mAngularImpulse + rotatedAngle;
 }
 
 void CPhysicsActor::ApplyForceOR(const CVector3f& force, const CAxisAngle& torque) {
-  x15c_force = x15c_force + GetTransform().Rotate(force);
+  mForce = mForce + GetTransform().Rotate(force);
   CAxisAngle rotatedTorque(GetTransform().Rotate(torque.GetVector()));
-  x174_torque = x174_torque + rotatedTorque;
+  mTorque = mTorque + rotatedTorque;
 }
 
 void CPhysicsActor::ComputeDerivedQuantities() {
-  x138_velocity = xfc_constantForce * xec_massRecip;
+  mVelocity = mConstantForce * mMassRecip;
   x114_ = GetTransform().BuildMatrix3f();
-  x144_angularVelocity = CAxisAngle(x108_angularMomentum.GetVector() * xf4_inertiaTensorRecip);
+  mAngularVelocity = CAxisAngle(mAngularMomentum.GetVector() * mInertiaTensorRecip);
 }
 
 CPhysicsState CPhysicsActor::GetPhysicsState() const {
@@ -106,7 +106,7 @@ void CPhysicsActor::SetPhysicsState(const CPhysicsState& state) {
 }
 
 CVector3f CPhysicsActor::CalculateNewVelocityWR_UsingImpulses() const {
-  return x138_velocity + xec_massRecip * (x168_impulse + x18c_moveImpulse);
+  return mVelocity + mMassRecip * (mImpulse + mMoveImpulse);
 }
 
 CMotionState CPhysicsActor::PredictMotion(float dt) const {
@@ -122,28 +122,28 @@ CMotionState CPhysicsActor::PredictMotion(float dt) const {
 }
 
 CMotionState CPhysicsActor::PredictAngularMotion(float dt) const {
-  CVector3f v1 = (x180_angularImpulse.GetVector() + x198_moveAngularImpulse.GetVector()) *
-                 xf4_inertiaTensorRecip;
-  CVector3f v2 = x144_angularVelocity.GetVector() + v1;
+  CVector3f v1 = (mAngularImpulse.GetVector() + mMoveAngularImpulse.GetVector()) *
+                 mInertiaTensorRecip;
+  CVector3f v2 = mAngularVelocity.GetVector() + v1;
 
   CNUQuaternion q3 = (0.5f * CNUQuaternion(0.f, v2)) *
                      CNUQuaternion::BuildFromQuaternion(CQuaternion::FromMatrix(GetTransform()));
-  CAxisAngle torque = x174_torque;
+  CAxisAngle torque = mTorque;
 
   return CMotionState(CVector3f::Zero(), q3 * dt, CVector3f::Zero(),
-                      (torque * dt) + x180_angularImpulse);
+                      (torque * dt) + mAngularImpulse);
 }
 
 CMotionState CPhysicsActor::PredictLinearMotion(float dt) const {
   CVector3f velocity = CVector3f(CalculateNewVelocityWR_UsingImpulses());
-  CVector3f sum = x15c_force + x150_momentum;
+  CVector3f sum = mForce + mMomentum;
 
-  return CMotionState(dt * velocity, CNUQuaternion(0.f, CVector3f::Zero()), dt * sum + x168_impulse,
+  return CMotionState(dt * velocity, CNUQuaternion(0.f, CVector3f::Zero()), dt * sum + mImpulse,
                       CAxisAngle::Identity());
 }
 
 CMotionState CPhysicsActor::PredictMotion_Internal(float dt) const {
-  if (!xf8_25_angularEnabled) {
+  if (!mAngularEnabled) {
 
     const CMotionState& msl = PredictLinearMotion(dt);
     CVector3f translation = msl.GetTranslation();
@@ -163,8 +163,8 @@ void CPhysicsActor::SetMotionState(const CMotionState& state) {
   SetRotation(CQuaternion::FromNUQuaternion(state.GetOrientation()));
   SetTranslation(state.GetTranslation());
 
-  xfc_constantForce = state.GetVelocity();
-  x108_angularMomentum = state.GetAngularMomentum();
+  mConstantForce = state.GetVelocity();
+  mAngularMomentum = state.GetAngularMomentum();
   ComputeDerivedQuantities();
 }
 
@@ -180,19 +180,19 @@ void CPhysicsActor::AddMotionState(const CMotionState& state) {
 
   const CVector3f pos = GetTranslation();
   SetTranslation(pos + state.GetTranslation());
-  xfc_constantForce += state.GetVelocity();
-  x108_angularMomentum += state.GetAngularMomentum();
+  mConstantForce += state.GetVelocity();
+  mAngularMomentum += state.GetAngularMomentum();
   ComputeDerivedQuantities();
 }
 
 bool CPhysicsActor::WillMove(const CStateManager& mgr) {
-  if (close_enough(x138_velocity, CVector3f::Zero()) &&
-      close_enough(x168_impulse, CVector3f::Zero()) &&
-      close_enough(x174_torque.GetVector(), CVector3f::Zero()) &&
-      close_enough(x18c_moveImpulse, CVector3f::Zero()) &&
-      close_enough(x144_angularVelocity.GetVector(), CVector3f::Zero()) &&
-      close_enough(x180_angularImpulse.GetVector(), CVector3f::Zero()) &&
-      close_enough(x198_moveAngularImpulse.GetVector(), CVector3f::Zero()) &&
+  if (close_enough(mVelocity, CVector3f::Zero()) &&
+      close_enough(mImpulse, CVector3f::Zero()) &&
+      close_enough(mTorque.GetVector(), CVector3f::Zero()) &&
+      close_enough(mMoveImpulse, CVector3f::Zero()) &&
+      close_enough(mAngularVelocity.GetVector(), CVector3f::Zero()) &&
+      close_enough(mAngularImpulse.GetVector(), CVector3f::Zero()) &&
+      close_enough(mMoveAngularImpulse.GetVector(), CVector3f::Zero()) &&
       close_enough(GetTotalForceWR(), CVector3f::Zero())) {
     return false;
   }
@@ -202,36 +202,36 @@ bool CPhysicsActor::WillMove(const CStateManager& mgr) {
 
 void CPhysicsActor::Stop() {
   ClearForcesAndTorques();
-  xfc_constantForce = CVector3f::Zero();
-  x108_angularMomentum = CAxisAngle::Identity();
+  mConstantForce = CVector3f::Zero();
+  mAngularMomentum = CAxisAngle::Identity();
   ComputeDerivedQuantities();
 }
 
 void CPhysicsActor::ClearForcesAndTorques() {
-  x15c_force = x168_impulse = x18c_moveImpulse = CVector3f::Zero();
-  x174_torque = x180_angularImpulse = x198_moveAngularImpulse = CAxisAngle::Identity();
+  mForce = mImpulse = mMoveImpulse = CVector3f::Zero();
+  mTorque = mAngularImpulse = mMoveAngularImpulse = CAxisAngle::Identity();
 }
 
 void CPhysicsActor::ClearImpulses() {
-  x168_impulse = x18c_moveImpulse = CVector3f::Zero();
-  x180_angularImpulse = x198_moveAngularImpulse = CAxisAngle::Identity();
+  mImpulse = mMoveImpulse = CVector3f::Zero();
+  mAngularImpulse = mMoveAngularImpulse = CAxisAngle::Identity();
 }
 
 void CPhysicsActor::UseCollisionImpulses() {
-  xfc_constantForce += x168_impulse;
-  x108_angularMomentum += x180_angularImpulse;
-  x168_impulse = CVector3f::Zero();
-  x180_angularImpulse = CAxisAngle::Identity();
+  mConstantForce += mImpulse;
+  mAngularMomentum += mAngularImpulse;
+  mImpulse = CVector3f::Zero();
+  mAngularImpulse = CAxisAngle::Identity();
   ComputeDerivedQuantities();
 }
 
 void CPhysicsActor::MoveToWR(const CVector3f& trans, float d) {
-  xfc_constantForce = (trans - GetTranslation()) * GetMass() * (1.f / d);
+  mConstantForce = (trans - GetTranslation()) * GetMass() * (1.f / d);
   ComputeDerivedQuantities();
 }
 
 void CPhysicsActor::MoveToInOneFrameWR(const CVector3f& trans, float d) {
-  x18c_moveImpulse += (trans - GetTranslation()) * GetMass() * (1.f / d);
+  mMoveImpulse += (trans - GetTranslation()) * GetMass() * (1.f / d);
 }
 
 CVector3f CPhysicsActor::GetMoveToORImpulseWR(const CVector3f& trans, float d) const {
@@ -247,86 +247,86 @@ CVector3f CPhysicsActor::GetRotateToORAngularMomentumWR(const CQuaternion& q, fl
 
     const double ac = acos(rotated.GetScalar());
     return rotated.GetVector().AsNormalized() * ((static_cast< float >(ac) * 2.0f) * (1.0f / d)) *
-           xf0_inertiaTensor;
+           mInertiaTensor;
   }
 }
 
 void CPhysicsActor::MoveToOR(const CVector3f& trans, float d) {
-  xfc_constantForce = GetMoveToORImpulseWR(trans, d);
+  mConstantForce = GetMoveToORImpulseWR(trans, d);
   ComputeDerivedQuantities();
 }
 
 void CPhysicsActor::RotateToOR(const CQuaternion& q, float d) {
   const CVector3f& vec = GetRotateToORAngularMomentumWR(q, d);
-  x108_angularMomentum = CAxisAngle(vec);
+  mAngularMomentum = CAxisAngle(vec);
   ComputeDerivedQuantities();
 }
 
 void CPhysicsActor::MoveInOneFrameOR(const CVector3f& trans, float d) {
-  x18c_moveImpulse += GetMoveToORImpulseWR(trans, d);
+  mMoveImpulse += GetMoveToORImpulseWR(trans, d);
 }
 
 void CPhysicsActor::RotateInOneFrameOR(const CQuaternion& q, float d) {
   const CVector3f& vec = GetRotateToORAngularMomentumWR(q, d);
-  x198_moveAngularImpulse += CAxisAngle(vec);
+  mMoveAngularImpulse += CAxisAngle(vec);
 }
 
 void CPhysicsActor::SetVelocityOR(const CVector3f& vel) {
   SetVelocityWR(GetTransform().Rotate(vel));
 }
 
-CVector3f CPhysicsActor::GetTotalForceWR() const { return x15c_force + x150_momentum; }
+CVector3f CPhysicsActor::GetTotalForceWR() const { return mForce + mMomentum; }
 
 void CPhysicsActor::SetVelocityWR(const CVector3f& vel) {
-  x138_velocity = vel;
-  xfc_constantForce = xe8_mass * x138_velocity;
+  mVelocity = vel;
+  mConstantForce = mMass * mVelocity;
 }
 
 void CPhysicsActor::SetAngularVelocityWR(const CAxisAngle& angVel) {
-  x144_angularVelocity = angVel;
-  x108_angularMomentum = CAxisAngle(x144_angularVelocity.GetVector() * xf0_inertiaTensor);
+  mAngularVelocity = angVel;
+  mAngularMomentum = CAxisAngle(mAngularVelocity.GetVector() * mInertiaTensor);
 }
 
 CAxisAngle CPhysicsActor::GetAngularVelocityOR() const {
-  return CAxisAngle(GetTransform().TransposeRotate(x144_angularVelocity.GetVector()));
+  return CAxisAngle(GetTransform().TransposeRotate(mAngularVelocity.GetVector()));
 }
 
 void CPhysicsActor::SetAngularVelocityOR(const CAxisAngle& angVel) {
-  x144_angularVelocity = CAxisAngle(GetTransform().Rotate(angVel.GetVector()));
-  x108_angularMomentum = CAxisAngle(x144_angularVelocity.GetVector() * xf0_inertiaTensor);
+  mAngularVelocity = CAxisAngle(GetTransform().Rotate(angVel.GetVector()));
+  mAngularMomentum = CAxisAngle(mAngularVelocity.GetVector() * mInertiaTensor);
 }
 
 void CPhysicsActor::SetMass(float mass) {
-  xe8_mass = mass;
-  xec_massRecip = (xe8_mass > 0.0f) ? (1.0f / xe8_mass) : 1.0f;
-  SetInertiaTensorScalar(0.16666667f * xe8_mass);
+  mMass = mass;
+  mMassRecip = (mMass > 0.0f) ? (1.0f / mMass) : 1.0f;
+  SetInertiaTensorScalar(0.16666667f * mMass);
 }
 
 void CPhysicsActor::SetInertiaTensorScalar(float tensor) {
-  xf0_inertiaTensor = (tensor > 0.0f) ? tensor : 1.0f;
-  xf4_inertiaTensorRecip = 1.0f / xf0_inertiaTensor;
+  mInertiaTensor = (tensor > 0.0f) ? tensor : 1.0f;
+  mInertiaTensorRecip = 1.0f / mInertiaTensor;
 }
 
 const CCollisionPrimitive* CPhysicsActor::GetCollisionPrimitive() const {
-  return &x1c0_collisionPrimitive;
+  return &mCollisionPrimitive;
 }
 
 void CPhysicsActor::MoveCollisionPrimitive(const CVector3f& offset) {
-  x1e8_primitiveOffset = offset;
+  mPrimitiveOffset = offset;
 }
 
 CTransform4f CPhysicsActor::GetPrimitiveTransform() const {
-  return CTransform4f::Translate(GetTransform().GetTranslation() + x1e8_primitiveOffset);
+  return CTransform4f::Translate(GetTransform().GetTranslation() + mPrimitiveOffset);
 }
 
 void CPhysicsActor::CollidedWith(const TUniqueId& id, const CCollisionInfoList& list,
                                  CStateManager& mgr) {}
 
-const CAABox& CPhysicsActor::GetBaseBoundingBox() const { return x1a4_baseBoundingBox; }
+const CAABox& CPhysicsActor::GetBaseBoundingBox() const { return mBaseBoundingBox; }
 
 CAABox CPhysicsActor::GetBoundingBox() const {
-  CVector3f off = x1e8_primitiveOffset + GetTransform().GetTranslation();
-  return CAABox(x1a4_baseBoundingBox.GetMinPoint() + off, x1a4_baseBoundingBox.GetMaxPoint() + off);
+  CVector3f off = mPrimitiveOffset + GetTransform().GetTranslation();
+  return CAABox(mBaseBoundingBox.GetMinPoint() + off, mBaseBoundingBox.GetMaxPoint() + off);
 }
 
 CAABox CPhysicsActor::GetMotionVolume(float dt) const {
@@ -346,17 +346,17 @@ CAABox CPhysicsActor::GetMotionVolume(float dt) const {
 }
 
 void CPhysicsActor::SetBoundingBox(const CAABox& box) {
-  x1a4_baseBoundingBox = box;
+  mBaseBoundingBox = box;
   MoveCollisionPrimitive(CVector3f::Zero());
 }
 
 float CPhysicsActor::GetWeight() const { return kGravityAccel * GetMass(); }
 
-CVector3f CPhysicsActor::GetPrimitiveOffset() const { return x1e8_primitiveOffset; }
+CVector3f CPhysicsActor::GetPrimitiveOffset() const { return mPrimitiveOffset; }
 
-float CPhysicsActor::GetStepDownHeight() const { return x240_stepDownHeight; }
+float CPhysicsActor::GetStepDownHeight() const { return mStepDownHeight; }
 
-float CPhysicsActor::GetStepUpHeight() const { return x23c_stepUpHeight; }
+float CPhysicsActor::GetStepUpHeight() const { return mStepUpHeight; }
 
 CVector3f CPhysicsActor::GetOrbitPosition(const CStateManager&) const {
   return GetBoundingBox().GetCenterPoint();
@@ -374,21 +374,21 @@ CVector3f CPhysicsActor::GetAimPosition(const CStateManager&, float dt) const {
 void CPhysicsActor::Render(const CStateManager& mgr) const { CActor::Render(mgr); }
 
 void CPhysicsActor::SetCoefficientOfRestitutionModifier(float modifier) {
-  x244_restitutionCoefModifier = modifier;
+  mRestitutionCoefModifier = modifier;
 }
 
 float CPhysicsActor::GetCoefficientOfRestitutionModifier() const {
-  return x244_restitutionCoefModifier;
+  return mRestitutionCoefModifier;
 }
 
 void CPhysicsActor::SetCollisionAccuracyModifier(float modifier) {
-  x248_collisionAccuracyModifier = modifier;
+  mCollisionAccuracyModifier = modifier;
 }
 
-float CPhysicsActor::GetCollisionAccuracyModifier() const { return x248_collisionAccuracyModifier; }
+float CPhysicsActor::GetCollisionAccuracyModifier() const { return mCollisionAccuracyModifier; }
 
 void CPhysicsActor::SetMaxVelocityAfterCollision(float velocity) {
-  x238_maximumCollisionVelocity = velocity;
+  mMaximumCollisionVelocity = velocity;
 }
 
-float CPhysicsActor::GetMaximumCollisionVelocity() const { return x238_maximumCollisionVelocity; }
+float CPhysicsActor::GetMaximumCollisionVelocity() const { return mMaximumCollisionVelocity; }

@@ -17,33 +17,33 @@
 #include "rstl/math.hpp"
 
 CBSHurled::CBSHurled()
-: x4_state(pas::kHS_Invalid)
-, x8_knockAngle(0.f)
-, xc_animSeries(-1)
-, x10_rotateSpeed(0.f)
-, x14_remTime(0.f)
-, x18_curTime(0.f)
-, x1c_lastTranslation(CVector3f::Zero())
-, x28_landedDur(0.f)
-, x2c_24_needsRecover(false) {}
+: mState(pas::kHS_Invalid)
+, mKnockAngle(0.f)
+, mAnimSeries(-1)
+, mRotateSpeed(0.f)
+, mRemTime(0.f)
+, mCurTime(0.f)
+, mLastTranslation(CVector3f::Zero())
+, mLandedDur(0.f)
+, mNeedsRecover(false) {}
 
 bool CBSHurled::IsInAir(const CBodyController&) const { return true; }
 
 void CBSHurled::Start(CBodyController& bc, CStateManager& mgr) {
   const CBCHurledCmd* cmd = static_cast< const CBCHurledCmd* >(bc.CommandMgr().GetCmd(kBSC_Hurled));
-  x4_state = pas::EHurledState(cmd->GetSkipLaunchState() != false);
+  mState = pas::EHurledState(cmd->GetSkipLaunchState() != false);
 
   CActor* owner = &bc.GetOwner();
 
   const CVector3f localDir = owner->GetTransform().TransposeRotate(cmd->GetHitDirection());
   float angle = CMath::ClampRadians(atan2(localDir.GetY(), localDir.GetX()));
-  x8_knockAngle = CMath::Rad2Deg(angle);
+  mKnockAngle = CMath::Rad2Deg(angle);
 
   const CPASDatabase& db = bc.GetPASDatabase();
 
   const CPASAnimParmData parms(pas::kAS_Hurled, CPASAnimParm::FromInt32(-1),
-                               CPASAnimParm::FromReal32(x8_knockAngle),
-                               CPASAnimParm::FromEnum(x4_state));
+                               CPASAnimParm::FromReal32(mKnockAngle),
+                               CPASAnimParm::FromEnum(mState));
   const rstl::pair< float, int > best = db.FindBestAnimation(parms, *mgr.Random(), -1);
 
   const CAnimPlaybackParms playParms(best.second, -1, 1.f, true);
@@ -51,7 +51,7 @@ void CBSHurled::Start(CBodyController& bc, CStateManager& mgr) {
 
   const CPASAnimState* hurledState = db.GetAnimState(pas::kAS_Hurled);
   CPASAnimParm parm0(hurledState->GetAnimParmData(best.second, 0));
-  xc_animSeries = parm0.GetInt32Value();
+  mAnimSeries = parm0.GetInt32Value();
 
   mgr.DeliverScriptMsg(owner, kInvalidUniqueId, kSM_Falling);
   mgr.DeliverScriptMsg(owner, kInvalidUniqueId, kSM_Jumped);
@@ -70,42 +70,42 @@ void CBSHurled::Start(CBodyController& bc, CStateManager& mgr) {
   const float minAngle = rstl::min_val(delta1, delta2);
   const float flippedAngle =
       (CMath::ClampRadians(angle - animAngle) > M_PIF) ? -minAngle : minAngle;
-  x14_remTime = 0.15f * bc.GetAnimTimeRemaining();
-  x10_rotateSpeed = (x14_remTime > FLT_EPSILON) ? flippedAngle / x14_remTime : flippedAngle;
-  x18_curTime = 0.f;
-  x2c_24_needsRecover = false;
+  mRemTime = 0.15f * bc.GetAnimTimeRemaining();
+  mRotateSpeed = (mRemTime > FLT_EPSILON) ? flippedAngle / mRemTime : flippedAngle;
+  mCurTime = 0.f;
+  mNeedsRecover = false;
 }
 
 pas::EAnimationState CBSHurled::UpdateBody(float dt, CBodyController& bc, CStateManager& mgr) {
   pas::EAnimationState state = GetBodyStateTransition(dt, bc);
   if (state == pas::kAS_Invalid) {
-    x18_curTime += dt;
+    mCurTime += dt;
 
-    if (x14_remTime > 0.f) {
-      const CRelAngle angle(x10_rotateSpeed * dt);
+    if (mRemTime > 0.f) {
+      const CRelAngle angle(mRotateSpeed * dt);
       bc.SetDeltaRotation(CQuaternion::ZRotation(angle));
-      x14_remTime -= dt;
+      mRemTime -= dt;
     }
 
     if (bc.CommandMgr().GetCmd(kBSC_ExitState) != NULL) {
-      x2c_24_needsRecover = true;
+      mNeedsRecover = true;
     }
 
-    switch (x4_state) {
+    switch (mState) {
     case pas::kHS_KnockIntoAir: {
       if (bc.IsAnimationOver()) {
-        const CPASAnimParmData parms(pas::kAS_Hurled, CPASAnimParm::FromInt32(xc_animSeries),
-                                     CPASAnimParm::FromReal32(x8_knockAngle),
+        const CPASAnimParmData parms(pas::kAS_Hurled, CPASAnimParm::FromInt32(mAnimSeries),
+                                     CPASAnimParm::FromReal32(mKnockAngle),
                                      CPASAnimParm::FromEnum(1));
         bc.LoopBestAnimation(parms, *mgr.Random());
-        x4_state = pas::kHS_KnockLoop;
-        x28_landedDur = 0.f;
+        mState = pas::kHS_KnockLoop;
+        mLandedDur = 0.f;
       }
       break;
     }
     case pas::kHS_KnockLoop:
       if (ShouldStartLand(dt, bc)) {
-        x4_state = pas::kHS_KnockDown;
+        mState = pas::kHS_KnockDown;
         PlayLandAnimation(bc, mgr);
       } else if (ShouldStartStrikeWall(bc)) {
         PlayStrikeWallAnimation(bc, mgr);
@@ -114,26 +114,26 @@ pas::EAnimationState CBSHurled::UpdateBody(float dt, CBodyController& bc, CState
         if (actor != NULL) {
           actor->SetVelocityWR((2.f * dt * actor->GetGravityConstant()) * CVector3f::Down());
         }
-      } else if (x2c_24_needsRecover) {
+      } else if (mNeedsRecover) {
         Recover(mgr, bc, pas::kHS_Six);
       }
       break;
     case pas::kHS_StrikeWall:
       if (bc.IsAnimationOver()) {
-        x4_state = pas::kHS_StrikeWallFallLoop;
+        mState = pas::kHS_StrikeWallFallLoop;
 
-        const CPASAnimParmData parms(pas::kAS_Hurled, CPASAnimParm::FromInt32(xc_animSeries),
-                                     CPASAnimParm::FromReal32(x8_knockAngle),
-                                     CPASAnimParm::FromEnum(x4_state));
+        const CPASAnimParmData parms(pas::kAS_Hurled, CPASAnimParm::FromInt32(mAnimSeries),
+                                     CPASAnimParm::FromReal32(mKnockAngle),
+                                     CPASAnimParm::FromEnum(mState));
         bc.LoopBestAnimation(parms, *mgr.Random());
-        x28_landedDur = 0.f;
+        mLandedDur = 0.f;
       }
       break;
     case pas::kHS_StrikeWallFallLoop:
       if (ShouldStartLand(dt, bc)) {
-        x4_state = pas::kHS_OutOfStrikeWall;
+        mState = pas::kHS_OutOfStrikeWall;
         PlayLandAnimation(bc, mgr);
-      } else if (x2c_24_needsRecover) {
+      } else if (mNeedsRecover) {
         Recover(mgr, bc, pas::kHS_Seven);
       }
       break;
@@ -145,7 +145,7 @@ pas::EAnimationState CBSHurled::UpdateBody(float dt, CBodyController& bc, CState
       }
 
       if (bc.IsAnimationOver()) {
-        x4_state = pas::kHS_Invalid;
+        mState = pas::kHS_Invalid;
         state = pas::kAS_Locomotion;
       }
 
@@ -154,7 +154,7 @@ pas::EAnimationState CBSHurled::UpdateBody(float dt, CBodyController& bc, CState
     case pas::kHS_KnockDown:
     case pas::kHS_OutOfStrikeWall:
       if (bc.IsAnimationOver()) {
-        x4_state = pas::kHS_Invalid;
+        mState = pas::kHS_Invalid;
         if (bc.GetFallState() == pas::kFS_Zero) {
           state = pas::kAS_Locomotion;
         } else {
@@ -181,17 +181,17 @@ bool CBSHurled::ShouldStartLand(float dt, CBodyController& bc) const {
       shouldStartLand = true;
     } else {
       CVector3f translation = actor->GetTranslation();
-      const bool notCloseEnough = !close_enough(translation, x1c_lastTranslation, 0.0001f);
+      const bool notCloseEnough = !close_enough(translation, mLastTranslation, 0.0001f);
       if (!notCloseEnough && actor->GetVelocityWR().GetZ() < 0.f) {
-        x28_landedDur += dt;
-        if (x28_landedDur >= 0.25f) {
+        mLandedDur += dt;
+        if (mLandedDur >= 0.25f) {
           shouldStartLand = true;
         }
       } else {
-        x28_landedDur = 0.f;
+        mLandedDur = 0.f;
       }
 
-      x1c_lastTranslation = actor->GetTranslation();
+      mLastTranslation = actor->GetTranslation();
     }
   }
 
@@ -211,9 +211,9 @@ bool CBSHurled::ShouldStartStrikeWall(CBodyController& bc) const {
 
 void CBSHurled::PlayLandAnimation(CBodyController& bc, CStateManager& mgr) {
   const CPASDatabase& db = bc.GetPASDatabase();
-  const CPASAnimParmData parms(pas::kAS_Hurled, CPASAnimParm::FromInt32(xc_animSeries),
-                               CPASAnimParm::FromReal32(x8_knockAngle),
-                               CPASAnimParm::FromEnum(x4_state));
+  const CPASAnimParmData parms(pas::kAS_Hurled, CPASAnimParm::FromInt32(mAnimSeries),
+                               CPASAnimParm::FromReal32(mKnockAngle),
+                               CPASAnimParm::FromEnum(mState));
   int animId = db.FindBestAnimation(parms, *mgr.Random(), -1).second;
   const CAnimPlaybackParms playParms(animId, -1, 1.f, true);
   bc.SetCurrentAnimation(playParms, false, false);
@@ -230,28 +230,28 @@ void CBSHurled::PlayLandAnimation(CBodyController& bc, CStateManager& mgr) {
 
 void CBSHurled::PlayStrikeWallAnimation(CBodyController& bc, CStateManager& mgr) {
   const CPASDatabase& db = bc.GetPASDatabase();
-  const CPASAnimParmData parms(pas::kAS_Hurled, CPASAnimParm::FromInt32(xc_animSeries),
-                               CPASAnimParm::FromReal32(x8_knockAngle), CPASAnimParm::FromEnum(3));
+  const CPASAnimParmData parms(pas::kAS_Hurled, CPASAnimParm::FromInt32(mAnimSeries),
+                               CPASAnimParm::FromReal32(mKnockAngle), CPASAnimParm::FromEnum(3));
   const rstl::pair< float, int > best = db.FindBestAnimation(parms, *mgr.Random(), -1);
 
   if (best.first > FLT_EPSILON) {
     const CAnimPlaybackParms playParms(best.second, -1, 1.f, true);
     bc.SetCurrentAnimation(playParms, false, false);
-    x4_state = pas::kHS_StrikeWall;
+    mState = pas::kHS_StrikeWall;
   }
 }
 
 void CBSHurled::Recover(CStateManager& mgr, CBodyController& bc, pas::EHurledState state) {
   const CPASDatabase& db = bc.GetPASDatabase();
-  const CPASAnimParmData parms(pas::kAS_Hurled, CPASAnimParm::FromInt32(xc_animSeries),
-                               CPASAnimParm::FromReal32(x8_knockAngle),
+  const CPASAnimParmData parms(pas::kAS_Hurled, CPASAnimParm::FromInt32(mAnimSeries),
+                               CPASAnimParm::FromReal32(mKnockAngle),
                                CPASAnimParm::FromEnum(state));
   const rstl::pair< float, int > best = db.FindBestAnimation(parms, *mgr.Random(), -1);
 
   if (best.first > FLT_EPSILON) {
     const CAnimPlaybackParms playParms(best.second, -1, 1.f, true);
     bc.SetCurrentAnimation(playParms, false, false);
-    x4_state = state;
+    mState = state;
 
     CPhysicsActor* actor = TCastToPtr< CPhysicsActor >(&bc.GetOwner());
     if (actor != NULL) {
@@ -259,7 +259,7 @@ void CBSHurled::Recover(CStateManager& mgr, CBodyController& bc, pas::EHurledSta
     }
   }
 
-  x2c_24_needsRecover = false;
+  mNeedsRecover = false;
 }
 
 pas::EAnimationState CBSHurled::GetBodyStateTransition(float, CBodyController& bc) {
@@ -268,7 +268,7 @@ pas::EAnimationState CBSHurled::GetBodyStateTransition(float, CBodyController& b
     return pas::kAS_LieOnGround;
   }
 
-  if (x18_curTime > 0.25f) {
+  if (mCurTime > 0.25f) {
     const CBodyStateCmd* hurledCmd =
         static_cast< const CBodyStateCmdMgr* >(cmdMgr)->GetCmd(kBSC_Hurled);
     if (hurledCmd != NULL) {

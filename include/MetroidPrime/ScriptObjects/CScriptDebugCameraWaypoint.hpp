@@ -14,7 +14,7 @@ public:
   DECLARE_TYPES_MATCH_OR_ACCEPT;
 
 private:
-  uint xe8_value;
+  uint mValue;
 };
 
 #endif // _CSCRIPTDEBUGCAMERAWAYPOINT

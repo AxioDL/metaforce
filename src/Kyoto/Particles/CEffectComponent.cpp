@@ -3,12 +3,12 @@
 #include "Kyoto/Streams/CInputStream.hpp"
 
 CEffectComponent::CEffectComponent(CInputStream& in)
-: x0_name(in)
-, x10_tag(GetSObjectTagFromStream(in))
-, x18_boneName(in)
-, x28_scale(in.Get<float>())
-, x2c_parentedMode(CParticleData::EParentedMode(in.Get<uint>()))
-, x30_flags(in.Get<uint>()) {}
+: mName(in)
+, mTag(GetSObjectTagFromStream(in))
+, mBoneName(in)
+, mScale(in.Get<float>())
+, mParentedMode(CParticleData::EParentedMode(in.Get<uint>()))
+, mFlags(in.Get<uint>()) {}
 
 
 SObjectTag CEffectComponent::GetSObjectTagFromStream(CInputStream& in) {

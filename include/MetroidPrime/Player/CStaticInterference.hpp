@@ -10,18 +10,18 @@
 class CStaticInterferenceSource {
 public:
   CStaticInterferenceSource(TUniqueId id, float magnitude, float timeLeft)
-  : x0_id(id), x4_magnitude(magnitude), x8_timeLeft(timeLeft) {}
+  : mId(id), mMagnitude(magnitude), mTimeLeft(timeLeft) {}
 
-  const TUniqueId GetSourceId() const { return x0_id; }
-  const float GetIntensity() const { return x4_magnitude; }
-  void SetIntensity(const float v) { x4_magnitude = v; }
-  const float GetTime() const { return x8_timeLeft; }
-  void SetTime(const float v) { x8_timeLeft = v; }
+  const TUniqueId GetSourceId() const { return mId; }
+  const float GetIntensity() const { return mMagnitude; }
+  void SetIntensity(const float v) { mMagnitude = v; }
+  const float GetTime() const { return mTimeLeft; }
+  void SetTime(const float v) { mTimeLeft = v; }
 
 private:
-  TUniqueId x0_id;
-  float x4_magnitude;
-  float x8_timeLeft;
+  TUniqueId mId;
+  float mMagnitude;
+  float mTimeLeft;
 };
 
 class CStateManager;

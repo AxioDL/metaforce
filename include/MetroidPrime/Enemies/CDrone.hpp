@@ -62,7 +62,7 @@ public:
   bool ShouldMove(CStateManager& mgr, float arg) override;
   bool CodeTrigger(CStateManager& mgr, float arg) override;
   void Burn(float duration, float damage) override;
-  CPathFindSearch* GetSearchPath() override { return &x6b0_pathFind; }
+  CPathFindSearch* GetSearchPath() override { return &mPathFind; }
   virtual void BuildNearList(EMaterialTypes includeMat, EMaterialTypes excludeMat, float radius,
                              rstl::reserved_vector< TUniqueId, 1024 >& list, CStateManager& mgr);
   virtual void SetLightEnabled(CStateManager& mgr, bool active);
@@ -94,14 +94,14 @@ private:
   void UpdatePitchBend(float dt);
   void UpdateThermal(CStateManager& mgr, float dt);
 
-  CAssetId x568_laserParticlesId;
-  TLockedToken< CCollisionResponseData > x56c_collisionResponse;
-  TUniqueId x578_lightId;
-  TUniqueId x57a_visorFlareId;
-  rstl::vector< CVisorFlare::CFlareDef > x57c_flares;
-  pas::EStepDirection x58c_prevDodgeDir;
-  CDamageInfo x590_damageInfo;
-  CDamageInfo x5ac_laserDamageInfo;
+  CAssetId mLaserParticlesId;
+  TLockedToken< CCollisionResponseData > mCollisionResponse;
+  TUniqueId mLightId;
+  TUniqueId mVisorFlareId;
+  rstl::vector< CVisorFlare::CFlareDef > mFlares;
+  pas::EStepDirection mPrevDodgeDir;
+  CDamageInfo mDamageInfo;
+  CDamageInfo mLaserDamageInfo;
   float x5c8_;
   float x5cc_;
   float x5d0_;
@@ -110,8 +110,8 @@ private:
   float x5dc_;
   float x5e0_;
   float x5e4_;
-  mutable float x5e8_shieldTime;
-  float x5ec_turnSpeed;
+  mutable float mShieldTime;
+  float mTurnSpeed;
   float x5f0_;
   float x5f4_;
   float x5f8_;
@@ -146,41 +146,41 @@ private:
   float x66c_;
   CVector3f x670_;
   CVector3f x67c_;
-  TUniqueId x688_teamMgr;
-  CCollidableSphere x690_colSphere;
-  CPathFindSearch x6b0_pathFind;
+  TUniqueId mTeamMgr;
+  CCollidableSphere mColSphere;
+  CPathFindSearch mPathFind;
   CAxisAngle x794_;
   CVector3f x7a0_;
-  CVector3f x7ac_lightPos;
+  CVector3f mLightPos;
   float x7b8_;
   float x7bc_;
   float x7c0_;
   float x7c4_;
   int x7c8_;
-  ushort x7cc_laserSfx;
-  CSfxHandle x7d0_laserSfxHandle;
+  ushort mLaserSfx;
+  CSfxHandle mLaserSfxHandle;
   uint x7d4_;
-  rstl::reserved_vector< TUniqueId, 2 > x7d8_laserIds;
-  rstl::reserved_vector< CVector3f, 2 > x7e0_lasersStart;
-  rstl::reserved_vector< CVector3f, 2 > x7fc_lasersEnd;
-  rstl::reserved_vector< float, 2 > x818_lasersTime;
-  rstl::reserved_vector< bool, 2 > x824_activeLasers;
-  rstl::single_ptr< CModelData > x82c_shieldModel;
+  rstl::reserved_vector< TUniqueId, 2 > mLaserIds;
+  rstl::reserved_vector< CVector3f, 2 > mLasersStart;
+  rstl::reserved_vector< CVector3f, 2 > mLasersEnd;
+  rstl::reserved_vector< float, 2 > mLasersTime;
+  rstl::reserved_vector< bool, 2 > mActiveLasers;
+  rstl::single_ptr< CModelData > mShieldModel;
   short x830_;
   int x832_24_ : 3;
   int x832_27_ : 3;
-  bool x834_24_waveHit : 1;
+  bool mWaveHit : 1;
   bool x834_25_ : 1;
   bool x834_26_ : 1;
   bool x834_27_ : 1;
   bool x834_28_ : 1;
-  bool x834_29_codeTrigger : 1;
-  bool x834_30_visible : 1;
-  bool x834_31_attackOver : 1;
+  bool mCodeTrigger : 1;
+  bool mVisible : 1;
+  bool mAttackOver : 1;
   bool x835_24_ : 1;
   bool x835_25_ : 1;
   bool x835_26_ : 1;
 };
-CHECK_SIZEOF(CDrone, (VERSION >= VERSION_GM8P_00 ? 0x848 : 0x838))
+CHECK_SIZEOF(CDrone, (VERSION >= VERSION_GM8E_02 ? 0x848 : 0x838))
 
 #endif // _CDRONE

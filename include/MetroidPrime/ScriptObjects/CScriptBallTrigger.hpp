@@ -16,12 +16,12 @@ public:
   void InhabitantExited(CActor&, CStateManager&) override;
 
 private:
-  float x150_force;
-  float x154_minAngle;
-  float x158_maxDistance;
-  CVector3f x15c_forceAngle;
-  bool x168_24_canApplyForce : 1;
-  bool x168_25_stopPlayer : 1;
+  float mForce;
+  float mMinAngle;
+  float mMaxDistance;
+  CVector3f mForceAngle;
+  bool mCanApplyForce : 1;
+  bool mStopPlayer : 1;
 };
 
 #endif // _CSCRIPTBALLTRIGGER

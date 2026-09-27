@@ -54,71 +54,71 @@ CMapArea::CMapArea(CInputStream& in, uint size) {
   std::array< uchar, 52 > header;
   REQUIRE(in.ReadBytes(header.data(), header.size()) == header.size(), "Truncated MAPA header");
   CResourceReader reader(header, Log.name);
-  x0_magic = reader.Read< uint >();
-  x4_version = reader.Read< uint >();
-  REQUIRE(x0_magic == 0xdeadd00d, "Invalid MAPA magic {:#x}", x0_magic);
-  REQUIRE(x4_version == 2, "Unsupported MAPA version {}", x4_version);
+  mMagic = reader.Read< uint >();
+  mVersion = reader.Read< uint >();
+  REQUIRE(mMagic == 0xdeadd00d, "Invalid MAPA magic {:#x}", mMagic);
+  REQUIRE(mVersion == 2, "Unsupported MAPA version {}", mVersion);
   x8_ = reader.Read< uint >();
   const uint visibility = reader.Read< uint >();
   REQUIRE(visibility <= kVM_Never, "Invalid MAPA visibility {}", visibility);
-  xc_visibilityMode = static_cast< EVisMode >(visibility);
-  x10_box = reader.ReadAABox();
-  x28_mappableObjCount = reader.Read< int >();
-  x2c_vertexCount = reader.Read< int >();
-  x30_surfaceCount = reader.Read< int >();
-  x34_size = size - 52;
-  REQUIRE(x28_mappableObjCount >= 0 && x2c_vertexCount >= 0 && x30_surfaceCount >= 0,
+  mVisibilityMode = static_cast< EVisMode >(visibility);
+  mBox = reader.ReadAABox();
+  mMappableObjCount = reader.Read< int >();
+  mVertexCount = reader.Read< int >();
+  mSurfaceCount = reader.Read< int >();
+  mSize = size - 52;
+  REQUIRE(mMappableObjCount >= 0 && mVertexCount >= 0 && mSurfaceCount >= 0,
           "Negative MAPA record count");
-  REQUIRE(static_cast< uint >(x28_mappableObjCount) <= x34_size / 80 &&
-              static_cast< uint >(x2c_vertexCount) <= x34_size / 12 &&
-              static_cast< uint >(x30_surfaceCount) <= x34_size / 32,
+  REQUIRE(static_cast< uint >(mMappableObjCount) <= mSize / 80 &&
+              static_cast< uint >(mVertexCount) <= mSize / 12 &&
+              static_cast< uint >(mSurfaceCount) <= mSize / 32,
           "MAPA record count exceeds resource");
-  const size_t objectBytes = static_cast< size_t >(x28_mappableObjCount) * 80;
-  const size_t vertexBytes = static_cast< size_t >(x2c_vertexCount) * 12;
-  const size_t surfaceBytes = static_cast< size_t >(x30_surfaceCount) * 32;
-  REQUIRE(objectBytes <= x34_size && vertexBytes <= x34_size - objectBytes &&
-              surfaceBytes <= x34_size - objectBytes - vertexBytes,
+  const size_t objectBytes = static_cast< size_t >(mMappableObjCount) * 80;
+  const size_t vertexBytes = static_cast< size_t >(mVertexCount) * 12;
+  const size_t surfaceBytes = static_cast< size_t >(mSurfaceCount) * 32;
+  REQUIRE(objectBytes <= mSize && vertexBytes <= mSize - objectBytes &&
+              surfaceBytes <= mSize - objectBytes - vertexBytes,
           "MAPA records exceed resource");
-  x44_buf = rs_new uchar[x34_size];
-  REQUIRE(in.ReadBytes(x44_buf.get(), x34_size) == x34_size, "Truncated MAPA body");
+  mBuf = rs_new uchar[mSize];
+  REQUIRE(in.ReadBytes(mBuf.get(), mSize) == mSize, "Truncated MAPA body");
 
-  CResourceReader body({x44_buf.get(), x34_size}, Log.name);
-  mObjects.reserve(x28_mappableObjCount);
-  for (int i = 0; i < x28_mappableObjCount; ++i) {
+  CResourceReader body({mBuf.get(), mSize}, Log.name);
+  mObjects.reserve(mMappableObjCount);
+  for (int i = 0; i < mMappableObjCount; ++i) {
     mObjects.push_back(CMappableObject(body));
   }
-  x38_moStart = mObjects.data();
+  mMoStart = mObjects.data();
   body.Take(vertexBytes);
-  uchar* vertices = x44_buf.get() + objectBytes;
+  uchar* vertices = mBuf.get() + objectBytes;
   for (size_t offset = 0; offset < vertexBytes; offset += sizeof(float)) {
     const float value = read_bits< float >(vertices + offset);
     std::memcpy(vertices + offset, &value, sizeof(value));
   }
-  x3c_vertexStart = reinterpret_cast< CVector3f* >(vertices);
+  mVertexStart = reinterpret_cast< CVector3f* >(vertices);
   const size_t commandStart = objectBytes + vertexBytes + surfaceBytes;
-  mSurfaces.reserve(x30_surfaceCount);
-  for (int i = 0; i < x30_surfaceCount; ++i) {
+  mSurfaces.reserve(mSurfaceCount);
+  for (int i = 0; i < mSurfaceCount; ++i) {
     mSurfaces.push_back(CMapAreaSurface(body, *this, commandStart));
   }
-  x40_surfaceStart = mSurfaces.data();
+  mSurfaceStart = mSurfaces.data();
 }
 
 CMappableObject::CMappableObject(CResourceReader& in)
-: x0_type(ReadObjectType(in))
-, x4_visibilityMode(ReadObjectVisibility(in))
-, x8_objId(in.Read< uint >())
+: mType(ReadObjectType(in))
+, mVisibilityMode(ReadObjectVisibility(in))
+, mObjId(in.Read< uint >())
 , xc_(in.Read< uint >())
-, x10_transform(in.ReadTransform()) {
-  const auto padding = in.Take(sizeof(x40_pad));
-  std::memcpy(x40_pad, padding.data(), padding.size());
-  x10_transform = AdjustTransformForType();
+, mTransform(in.ReadTransform()) {
+  const auto padding = in.Take(sizeof(mPad));
+  std::memcpy(mPad, padding.data(), padding.size());
+  mTransform = AdjustTransformForType();
 }
 
 CMapArea::CMapAreaSurface::CMapAreaSurface(CResourceReader& in, const CMapArea& area,
                                            size_t commandStart)
-: x0_normal(in.ReadVector3f()), xc_centroid(in.ReadVector3f()) {
-  const auto data = std::span< const uchar >(area.x44_buf.get(), area.x34_size);
-  x18_surfOffset = ReadCommands(data, in.Read< uint >(), area.x2c_vertexCount, commandStart, false);
-  x1c_outlineOffset =
-      ReadCommands(data, in.Read< uint >(), area.x2c_vertexCount, commandStart, true);
+: mNormal(in.ReadVector3f()), mCentroid(in.ReadVector3f()) {
+  const auto data = std::span< const uchar >(area.mBuf.get(), area.mSize);
+  mSurfOffset = ReadCommands(data, in.Read< uint >(), area.mVertexCount, commandStart, false);
+  mOutlineOffset =
+      ReadCommands(data, in.Read< uint >(), area.mVertexCount, commandStart, true);
 }

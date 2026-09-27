@@ -70,25 +70,25 @@ public:
               const CActorLights*) const;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
 
-  void SetTransform(const CTransform4f& xf) { x220_xf = xf; }
-  CTransform4f GetTransform() const { return x220_xf; }
-  CTransform4f& AuxTransform() { return x2e0_auxXf; }
-  CGunController* GunController() { return x328_gunController.get(); }
-  const CGunController* GetGunController() const { return x328_gunController.get(); }
+  void SetTransform(const CTransform4f& xf) { mXf = xf; }
+  CTransform4f GetTransform() const { return mXf; }
+  CTransform4f& AuxTransform() { return mAuxXf; }
+  CGunController* GunController() { return mGunController.get(); }
+  const CGunController* GetGunController() const { return mGunController.get(); }
 
-  EArmState GetAnimState() const { return x334_animState; }
+  EArmState GetAnimState() const { return mAnimState; }
   void SetAnimState(EArmState state);
-  bool CanRender() const { return x3b2_24_active && !x3b2_29_suitLoading; }
-  const bool GetActive() const { return x3b2_24_active; }
-  void SetActive(const bool active) { x3b2_24_active = active; }
-  const bool BeamActive() const { return x3b2_25_beamActive; }
-  void SetBeamActive(const bool active) { x3b2_25_beamActive = active; }
-  const bool IsArmMoving() const { return x3b2_27_armMoving; }
-  void SetIsArmMoving(const bool active) { x3b2_27_armMoving = active; }
-  const bool IsGrappling() const { return x3b2_28_isGrappling; }
-  void SetIsGrappling(const bool active) { x3b2_28_isGrappling = active; }
-  const bool IsSuitLoading() const { return x3b2_29_suitLoading; }
-  void SetIsSuitLoading(const bool active) { x3b2_29_suitLoading = active; }
+  bool CanRender() const { return mActive && !mSuitLoading; }
+  const bool GetActive() const { return mActive; }
+  void SetActive(const bool active) { mActive = active; }
+  const bool BeamActive() const { return mBeamActive; }
+  void SetBeamActive(const bool active) { mBeamActive = active; }
+  const bool IsArmMoving() const { return mArmMoving; }
+  void SetIsArmMoving(const bool active) { mArmMoving = active; }
+  const bool IsGrappling() const { return mIsGrappling; }
+  void SetIsGrappling(const bool active) { mIsGrappling = active; }
+  const bool IsSuitLoading() const { return mSuitLoading; }
+  void SetIsSuitLoading(const bool active) { mSuitLoading = active; }
 
   void BuildSuitDependencyList();
   void FillTokenVector(const rstl::vector< SObjectTag >& tags, rstl::vector< CToken >& objects);
@@ -110,51 +110,51 @@ private:
   static float kAmplitudeX;
   static float kAmplitudeZ;
   static float kMetresPerSecond;
-  rstl::optional_object< CModelData > x0_grappleArmModel;
-  rstl::optional_object< CModelData > x50_grappleArmSkeletonModel;
-  CModelData xa0_grappleGearModel;
-  CModelData xec_grapNoz1Model;
-  CModelData x138_grapNoz2Model;
-  TToken< CAnimCharacterSet > x184_grappleArm;
-  rstl::vector< CToken > x18c_anims;
-  rstl::reserved_vector< rstl::vector< CToken >, 8 > x19c_suitDeps;
-  CTransform4f x220_xf;
-  CTransform4f x250_grapLocatorXf;
-  CTransform4f x280_grapNozLoc1Xf;
-  CTransform4f x2b0_grapNozLoc2Xf;
-  CTransform4f x2e0_auxXf;
-  CVector3f x310_grapplePointPos;
-  CVector3f x31c_scale;
-  rstl::single_ptr< CGunController > x328_gunController;
-  CSfxHandle x32c_grappleLoopSfx;
-  CSfxHandle x330_swooshSfx;
-  EArmState x334_animState;
-  float x338_beamT;
-  float x33c_beamDist;
-  float x340_anglePhase;
-  float x344_xAmplitude;
-  float x348_zAmplitude;
-  rstl::pair< ushort, CSfxHandle > x34c_animSfx;
-  TLockedToken< CGenDescription > x354_grappleSegmentDesc;
-  TLockedToken< CGenDescription > x360_grappleClawDesc;
-  TLockedToken< CGenDescription > x36c_grappleHitDesc;
-  TLockedToken< CGenDescription > x378_grappleMuzzleDesc;
-  TLockedToken< CSwooshDescription > x384_grappleSwooshDesc;
-  rstl::single_ptr< CElementGen > x390_grappleSegmentGen;
-  rstl::single_ptr< CElementGen > x394_grappleClawGen;
-  rstl::single_ptr< CElementGen > x398_grappleHitGen;
-  rstl::single_ptr< CElementGen > x39c_grappleMuzzleGen;
-  rstl::single_ptr< CParticleSwoosh > x3a0_grappleSwooshGen;
-  rstl::single_ptr< CRainSplashGenerator > x3a4_rainSplashGenerator;
-  CPlayerState::EPlayerSuit x3a8_loadedSuit;
-  int x3ac_pitchBend;
-  short x3b0_rumbleHandle;
-  bool x3b2_24_active : 1;
-  bool x3b2_25_beamActive : 1;
-  bool x3b2_26_grappleHit : 1;
-  bool x3b2_27_armMoving : 1;
-  bool x3b2_28_isGrappling : 1;
-  bool x3b2_29_suitLoading : 1;
+  rstl::optional_object< CModelData > mGrappleArmModel;
+  rstl::optional_object< CModelData > mGrappleArmSkeletonModel;
+  CModelData mGrappleGearModel;
+  CModelData mGrapNoz1Model;
+  CModelData mGrapNoz2Model;
+  TToken< CAnimCharacterSet > mGrappleArm;
+  rstl::vector< CToken > mAnims;
+  rstl::reserved_vector< rstl::vector< CToken >, 8 > mSuitDeps;
+  CTransform4f mXf;
+  CTransform4f mGrapLocatorXf;
+  CTransform4f mGrapNozLoc1Xf;
+  CTransform4f mGrapNozLoc2Xf;
+  CTransform4f mAuxXf;
+  CVector3f mGrapplePointPos;
+  CVector3f mScale;
+  rstl::single_ptr< CGunController > mGunController;
+  CSfxHandle mGrappleLoopSfx;
+  CSfxHandle mSwooshSfx;
+  EArmState mAnimState;
+  float mBeamT;
+  float mBeamDist;
+  float mAnglePhase;
+  float mXAmplitude;
+  float mZAmplitude;
+  rstl::pair< ushort, CSfxHandle > mAnimSfx;
+  TLockedToken< CGenDescription > mGrappleSegmentDesc;
+  TLockedToken< CGenDescription > mGrappleClawDesc;
+  TLockedToken< CGenDescription > mGrappleHitDesc;
+  TLockedToken< CGenDescription > mGrappleMuzzleDesc;
+  TLockedToken< CSwooshDescription > mGrappleSwooshDesc;
+  rstl::single_ptr< CElementGen > mGrappleSegmentGen;
+  rstl::single_ptr< CElementGen > mGrappleClawGen;
+  rstl::single_ptr< CElementGen > mGrappleHitGen;
+  rstl::single_ptr< CElementGen > mGrappleMuzzleGen;
+  rstl::single_ptr< CParticleSwoosh > mGrappleSwooshGen;
+  rstl::single_ptr< CRainSplashGenerator > mRainSplashGenerator;
+  CPlayerState::EPlayerSuit mLoadedSuit;
+  int mPitchBend;
+  short mRumbleHandle;
+  bool mActive : 1;
+  bool mBeamActive : 1;
+  bool mGrappleHit : 1;
+  bool mArmMoving : 1;
+  bool mIsGrappling : 1;
+  bool mSuitLoading : 1;
 };
 CHECK_SIZEOF(CGrappleArm, 0x3b4)
 

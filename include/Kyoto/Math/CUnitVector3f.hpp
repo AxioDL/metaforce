@@ -19,6 +19,7 @@ public:
       Normalize();
     }
   }
+
   CUnitVector3f(const CVector3f& vec, const ENormalize normalize) : CVector3f(vec) {
     if (normalize == kN_Yes) {
       Normalize();

@@ -35,9 +35,9 @@ public:
   void Draw() const;
   void TouchModels();
   bool WaitForModelsAndTextures();
-  bool IsTransitionFinished() const { return x44_24_transitionFinished; }
+  bool IsTransitionFinished() const { return mTransitionFinished; }
 
-  ETransType GetTransType() const { return x30_transType; }
+  ETransType GetTransType() const { return mTransType; }
 
 private:
   struct SModelDatas;
@@ -54,27 +54,27 @@ private:
   void DrawDisabled() const;
   void DrawText() const;
 
-  float x0_curTime;
-  rstl::single_ptr< SModelDatas > x4_modelData;
-  rstl::single_ptr< CGuiTextSupport > x8_textData;
-  rstl::optional_object< TToken< CStringTable > > xc_strTable;
-  float x18_bgOffset;
-  float x1c_bgHeight;
-  CRandom16 x20_random;
-  ushort x24_sfx;
-  CSfxHandle x28_sfxHandle;
-  uchar x2c_volume;
-  uchar x2d_panning;
-  ETransType x30_transType;
-  float x34_stopTime;
-  float x38_textStartTime;
-  float x3c_sfxInterval;
-  int x40_strIdx;
-  bool x44_24_transitionFinished : 1;
-  bool x44_25_stopSoon : 1;
-  bool x44_26_goingUp : 1;
-  bool x44_27_fadeWhite : 1;
-  bool x44_28_textDirty : 1;
+  float mCurTime;
+  rstl::single_ptr< SModelDatas > mModelData;
+  rstl::single_ptr< CGuiTextSupport > mTextData;
+  rstl::optional_object< TToken< CStringTable > > mStrTable;
+  float mBgOffset;
+  float mBgHeight;
+  CRandom16 mRandom;
+  ushort mSfx;
+  CSfxHandle mSfxHandle;
+  uchar mVolume;
+  uchar mPanning;
+  ETransType mTransType;
+  float mStopTime;
+  float mTextStartTime;
+  float mSfxInterval;
+  int mStrIdx;
+  bool mTransitionFinished : 1;
+  bool mStopSoon : 1;
+  bool mGoingUp : 1;
+  bool mFadeWhite : 1;
+  bool mTextDirty : 1;
 };
 CHECK_SIZEOF(CWorldTransManager, 0x48)
 

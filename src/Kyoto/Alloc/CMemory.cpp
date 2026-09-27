@@ -35,9 +35,9 @@ void CMemory::SetAllocator(COsContext& ctx, IAllocator& allocator) {
 }
 
 static bool cmemory_enum_alloc_cb(const IAllocator::SAllocInfo& info, const void* ptr) {
-  if (info.x8_isAllocated && info.x9_ == 0) {
+  if (info.mIsAllocated && info.x9_ == 0) {
     ++gLeakCount;
-    gLeakBytes += info.x4_len;
+    gLeakBytes += info.mLen;
   }
   return true;
 }

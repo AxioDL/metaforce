@@ -8,11 +8,11 @@ class CCollisionInfoList;
 
 class CBallFilter : public ICollisionFilter {
 public:
-  explicit CBallFilter(const CActor& actor) : x4_actor(actor) {}
+  explicit CBallFilter(const CActor& actor) : mActor(actor) {}
   void Filter(const CCollisionInfoList& in, CCollisionInfoList& out) const;
 
 private:
-  const CActor& x4_actor;
+  const CActor& mActor;
 };
 
 #endif // _CBALLFILTER

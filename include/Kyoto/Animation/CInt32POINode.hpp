@@ -10,20 +10,20 @@ public:
                 float weight = 1.f, int charIdx = -1, int flags = 0, int value = 0,
                 const rstl::string& locatorName = rstl::string_l("root"))
   : CPOINode(name, type, time, index, unique, weight, charIdx, flags)
-  , x38_val(value)
-  , x3c_lctrName(locatorName) {}
+  , mVal(value)
+  , mLctrName(locatorName) {}
 
   explicit CInt32POINode(CInputStream& in);
 
   static CInt32POINode CopyNodeMinusStartTime(const CInt32POINode& node,
                                               const CCharAnimTime& startTime);
 
-  int GetValue() const { return x38_val; }
-  const rstl::string& GetLocatorName() const { return x3c_lctrName; }
+  int GetValue() const { return mVal; }
+  const rstl::string& GetLocatorName() const { return mLctrName; }
 
 private:
-  int x38_val;
-  rstl::string x3c_lctrName;
+  int mVal;
+  rstl::string mLctrName;
 };
 
 #endif // _CINT32POINODE

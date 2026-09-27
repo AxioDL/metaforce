@@ -32,23 +32,23 @@ static const CVector3f skExtendedTouchBounds(1.f, 1.f, 1.f);
 static const CVector3f skTentacleOffset(-0.2f, 0.f, -0.3f);
 
 CMetroidBetaData::CMetroidBetaData(CInputStream& in, int propCount)
-: x0_frozenVulnerability(in)
-, x68_energyDrainVulnerability(in)
-, xd0_energyDrainPerSec(in.Get< float >())
-, xd4_maxEnergyDrainAllowed(in.Get< float >())
-, xd8_breakLeashEnergyDrain(in.Get< float >())
-, xdc_telegraphAttackTime(in.Get< float >())
-, xe0_specialAttackTime(in.Get< float >())
+: mFrozenVulnerability(in)
+, mEnergyDrainVulnerability(in)
+, mEnergyDrainPerSec(in.Get< float >())
+, mMaxEnergyDrainAllowed(in.Get< float >())
+, mBreakLeashEnergyDrain(in.Get< float >())
+, mTelegraphAttackTime(in.Get< float >())
+, mSpecialAttackTime(in.Get< float >())
 , xe4_(in.Get< float >())
-, xe8_maxGrowthScale(in.Get< float >())
-, xec_stage2GrowthEnergy(in.Get< float >())
-, xf0_stage3GrowthEnergy(in.Get< float >())
-, xf4_electricParticleId(in.Get< CAssetId >())
-, xf8_electricSwooshEffectId(in.Get< CAssetId >())
-, xfc_electricMorphBallHitEffectId(in.Get< CAssetId >())
-, x100_electricGunHitEffectId(in.Get< CAssetId >())
-, x104_electricGunFeedbackId(in.Get< CAssetId >())
-, x108_24_startsInWall(in.ReadBool()) {}
+, mMaxGrowthScale(in.Get< float >())
+, mStage2GrowthEnergy(in.Get< float >())
+, mStage3GrowthEnergy(in.Get< float >())
+, mElectricParticleId(in.Get< CAssetId >())
+, mElectricSwooshEffectId(in.Get< CAssetId >())
+, mElectricMorphBallHitEffectId(in.Get< CAssetId >())
+, mElectricGunHitEffectId(in.Get< CAssetId >())
+, mElectricGunFeedbackId(in.Get< CAssetId >())
+, mStartsInWall(in.ReadBool()) {}
 
 CMetroidBeta::CMetroidBeta(const TUniqueId uid, const rstl::string& name, const CEntityInfo& info,
                            const CTransform4f& xf, const CModelData& mData,
@@ -56,27 +56,27 @@ CMetroidBeta::CMetroidBeta(const TUniqueId uid, const rstl::string& name, const 
                            const CMetroidBetaData& metroidData)
 : CPatterned(kC_MetroidBeta, uid, name, kFT_One, info, xf, mData, pInfo, kMT_Flyer, kCT_One,
              kBT_Flyer, aParms, kCS_Large)
-, x568_progState(-1)
-, x56c_data(metroidData)
-, x678_teamMgr(kInvalidUniqueId)
-, x67c_pathFind(nullptr, 3, pInfo.GetPathfindingIndex(), 1.f, 1.f)
-, x760_leftClaw(0xff)
-, x761_rightClaw(0xff)
-, x764_collisionManager(nullptr)
-, x768_colPrim(GetBoundingBox(), GetMaterialList())
-, x790_pelvisCollisionId(kInvalidUniqueId)
-, x794_attackCooldown(0.f)
-, x798_telegraphTimer(0.f)
-, x79c_drainedEnergy(0.f)
-, x7a0_interferenceTime(0.f)
-, x7a4_specialAttackTime(0.f)
-, x7a8_targetPos(CVector3f::Zero())
-, x7b4_growthScale(GetModelData()->ScaleCopy())
-, x7c0_generateStartScale(GetModelData()->ScaleCopy())
-, x7cc_initialScale(GetModelData()->ScaleCopy())
-, x7d8_generateDuration(0.f)
-, x7dc_growthEnergy(0.f)
-, x7e0_previousGrowthEnergy(0.f)
+, mProgState(-1)
+, mData(metroidData)
+, mTeamMgr(kInvalidUniqueId)
+, mPathFind(nullptr, 3, pInfo.GetPathfindingIndex(), 1.f, 1.f)
+, mLeftClaw(0xff)
+, mRightClaw(0xff)
+, mCollisionManager(nullptr)
+, mColPrim(GetBoundingBox(), GetMaterialList())
+, mPelvisCollisionId(kInvalidUniqueId)
+, mAttackCooldown(0.f)
+, mTelegraphTimer(0.f)
+, mDrainedEnergy(0.f)
+, mInterferenceTime(0.f)
+, mSpecialAttackTime(0.f)
+, mTargetPos(CVector3f::Zero())
+, mGrowthScale(GetModelData()->ScaleCopy())
+, mGenerateStartScale(GetModelData()->ScaleCopy())
+, mInitialScale(GetModelData()->ScaleCopy())
+, mGenerateDuration(0.f)
+, mGrowthEnergy(0.f)
+, mPreviousGrowthEnergy(0.f)
 , x7e4_(gpSimplePool->GetObj(SObjectTag('PART', metroidData.GetElectricParticleId())))
 , x7f0_(gpSimplePool->GetObj(SObjectTag('SWHC', metroidData.GetElectricSwooshEffectId())))
 , x7fc_(gpSimplePool->GetObj(SObjectTag('PART', metroidData.GetElectricMorphBallHitEffectId())))
@@ -87,8 +87,8 @@ CMetroidBeta::CMetroidBeta(const TUniqueId uid, const rstl::string& name, const 
 , x828_(rs_new CElementGen(x7fc_))
 , x82c_(rs_new CElementGen(x808_))
 , x830_(rs_new CElementGen(x814_))
-, x834_particlePhase(0.f)
-, x838_random(1469)
+, mParticlePhase(0.f)
+, mRandom(1469)
 , x840_24_(false)
 , x840_25_(false)
 , x840_26_(false)
@@ -108,7 +108,7 @@ CMetroidBeta::CMetroidBeta(const TUniqueId uid, const rstl::string& name, const 
   const float scale = 0.75f * GetModelData()->ScaleCopy().GetY();
   const CAABox box(CVector3f(-scale, -scale, -2.f * scale), CVector3f(scale, scale, 2.f * scale));
   SetBoundingBox(box);
-  x768_colPrim.Box() = box;
+  mColPrim.Box() = box;
 }
 
 CMetroidBeta::~CMetroidBeta() {}
@@ -117,11 +117,11 @@ ENTITY_ACCEPT_IMPL(CMetroidBeta)
 
 void CMetroidBeta::Think(float dt, CStateManager& mgr) {
   if (GetActive()) {
-    if (CTeamAiMgr::GetTeamAiRole(mgr, x678_teamMgr, GetUniqueId()) == nullptr) {
+    if (CTeamAiMgr::GetTeamAiRole(mgr, mTeamMgr, GetUniqueId()) == nullptr) {
       SwarmAdd(mgr);
     }
     CPatterned::Think(dt, mgr);
-    x764_collisionManager->Update(dt, mgr, CCollisionActorManager::kUO_ObjectSpace);
+    mCollisionManager->Update(dt, mgr, CCollisionActorManager::kUO_ObjectSpace);
     UpdateHealthInfo(mgr);
     UpdateAILogicTimers(dt, mgr);
     UpdateParticleEffects(dt, mgr);
@@ -135,18 +135,18 @@ void CMetroidBeta::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
     BodyCtrl()->Activate(mgr);
     SetupCollisionManager(mgr);
     UpdateSoundVolume();
-    x760_leftClaw = GetAnimationData()->GetLocatorSegId(rstl::string_l(skLeftClaw));
-    x761_rightClaw = GetAnimationData()->GetLocatorSegId(rstl::string_l(skRightClaw));
+    mLeftClaw = GetAnimationData()->GetLocatorSegId(rstl::string_l(skLeftClaw));
+    mRightClaw = GetAnimationData()->GetLocatorSegId(rstl::string_l(skRightClaw));
     break;
   case kSM_Activate:
-    x764_collisionManager->SetActive(mgr, true);
+    mCollisionManager->SetActive(mgr, true);
     break;
   case kSM_Deactivate:
-    x764_collisionManager->SetActive(mgr, false);
+    mCollisionManager->SetActive(mgr, false);
     SwarmRemove(mgr);
     break;
   case kSM_Deleted:
-    x764_collisionManager->Destroy(mgr);
+    mCollisionManager->Destroy(mgr);
     SwarmRemove(mgr);
     break;
   case kSM_Damage:
@@ -163,14 +163,14 @@ void CMetroidBeta::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
             if (damage.GetWeaponMode().IsCharged() || damage.GetWeaponMode().IsComboed() ||
                 damage.GetWeaponMode().GetType() == kWT_Missile) {
               x840_31_ = true;
-              x83c_shotSeverity += 1.f;
+              mShotSeverity += 1.f;
             }
             const CVector3f pos = projectile->GetTranslation();
             KnockBack(pos - projectile->GetPreviousPos(), mgr, damage, damage.GetKnockBackPower(),
                       true, false);
           }
           if (x840_25_) {
-            x83c_shotSeverity += 0.1f;
+            mShotSeverity += 0.1f;
           }
           x840_26_ = true;
         }
@@ -179,7 +179,7 @@ void CMetroidBeta::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
       CDamageInfo damage = weapon->GetCurrentDamageInfo();
       damage.SetRadius(0.f);
       mgr.ApplyDamage(
-          uid, x790_pelvisCollisionId, weapon->GetOwnerId(), damage,
+          uid, mPelvisCollisionId, weapon->GetOwnerId(), damage,
           CMaterialFilter::MakeIncludeExclude(CMaterialList(SolidMaterial), CMaterialList()),
           CVector3f::Zero());
     }
@@ -191,7 +191,7 @@ void CMetroidBeta::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
     if (const CCollisionActor* actor = TCastToConstPtr< CCollisionActor >(mgr.GetObjectById(uid))) {
       if (HealthInfo(mgr)->GetHP() > 0.f) {
         const TUniqueId touched = actor->GetLastTouchedObject();
-        if (touched == mgr.GetPlayer()->GetUniqueId() && x420_curDamageRemTime <= 0.f) {
+        if (touched == mgr.GetPlayer()->GetUniqueId() && mCurDamageRemTime <= 0.f) {
           CDamageInfo damage = GetContactDamage();
           damage.SetDamage(0.5f * damage.GetDamage());
           if (x840_29_ && x840_30_) {
@@ -201,24 +201,24 @@ void CMetroidBeta::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
               GetUniqueId(), mgr.GetPlayer()->GetUniqueId(), GetUniqueId(), damage,
               CMaterialFilter::MakeIncludeExclude(CMaterialList(SolidMaterial), CMaterialList()),
               CVector3f::Zero());
-          x420_curDamageRemTime = x424_damageWaitTime;
+          mCurDamageRemTime = mDamageWaitTime;
           x840_30_ = false;
         }
       }
     }
     break;
   case kSM_InitializedInArea: {
-    if (x678_teamMgr == kInvalidUniqueId) {
-      x678_teamMgr = CTeamAiMgr::GetTeamAiMgr(*this, mgr);
+    if (mTeamMgr == kInvalidUniqueId) {
+      mTeamMgr = CTeamAiMgr::GetTeamAiMgr(*this, mgr);
     }
     const TAreaId areaId = GetCurrentAreaId();
-    x67c_pathFind.SetArea(
-        mgr.GetWorld()->GetAreaAlways(areaId).GetPostConstructed()->x10bc_pathArea);
+    mPathFind.SetArea(
+        mgr.GetWorld()->GetAreaAlways(areaId).GetPostConstructed()->mPathArea);
     break;
   }
   case kSM_SuspendedMove:
-    if (x764_collisionManager.get() != nullptr) {
-      x764_collisionManager->SetMovable(mgr, false);
+    if (mCollisionManager.get() != nullptr) {
+      mCollisionManager->SetMovable(mgr, false);
     }
     break;
   default:
@@ -231,7 +231,7 @@ void CMetroidBeta::Render(const CStateManager& mgr) const {
   if (x840_25_) {
     x820_->Render();
     x824_->Render();
-    if (x83c_shotSeverity > 0.f) {
+    if (mShotSeverity > 0.f) {
       x830_->Render();
     }
   }
@@ -275,8 +275,8 @@ void CMetroidBeta::Touch(CActor& actor, CStateManager& mgr) {
       if (projectile->GetOwnerId() == mgr.GetPlayer()->GetUniqueId()) {
         if (projectile->HasAttrib(CWeapon::kPA_Charged) &&
             !projectile->HasAttrib(CWeapon::kPA_Ice)) {
-          x79c_drainedEnergy = x56c_data.GetMaxEnergyDrainAllowed() * GetDamageMultiplier();
-          x83c_shotSeverity = 1.f;
+          mDrainedEnergy = mData.GetMaxEnergyDrainAllowed() * GetDamageMultiplier();
+          mShotSeverity = 1.f;
           x840_24_ = false;
         } else {
           const CDamageVulnerability* vulnerability = GetDamageVulnerability();
@@ -293,7 +293,7 @@ void CMetroidBeta::Touch(CActor& actor, CStateManager& mgr) {
             Freeze(mgr, relativePos, direction, multiplier * GetFreezeDuration());
             x840_24_ = false;
           }
-          x83c_shotSeverity += 0.1f;
+          mShotSeverity += 0.1f;
         }
         x840_27_ = true;
       }
@@ -308,7 +308,7 @@ void CMetroidBeta::CollidedWith(const TUniqueId& uid, const CCollisionInfoList& 
     static const CMaterialList stopMaterials(kMT_Ceiling, kMT_Wall, kMT_Character);
     for (int i = 0; i < list.GetCount(); ++i) {
       if (list[i].GetMaterialLeft().SharesMaterials(stopMaterials)) {
-        x7a4_specialAttackTime += 3.f * x500_preThinkDt;
+        mSpecialAttackTime += 3.f * mPreThinkDt;
         break;
       }
     }
@@ -334,7 +334,7 @@ void CMetroidBeta::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node
 
 CVector3f CMetroidBeta::GetAimPosition(const CStateManager& mgr, float dt) const {
   if (const CCollisionActor* actor =
-          TCastToConstPtr< CCollisionActor >(mgr.GetObjectById(x790_pelvisCollisionId))) {
+          TCastToConstPtr< CCollisionActor >(mgr.GetObjectById(mPelvisCollisionId))) {
     return actor->GetTranslation();
   }
   return CPatterned::GetAimPosition(mgr, dt);
@@ -358,13 +358,13 @@ CVector3f CMetroidBeta::GetOrigin(const CStateManager& mgr, const CTeamAiRole& r
 
 const CDamageVulnerability* CMetroidBeta::GetDamageVulnerability() const {
   if (GetBodyCtrl()->GetPercentageFrozen() > 0.f) {
-    return &x56c_data.GetFrozenVulnerability();
+    return &mData.GetFrozenVulnerability();
   }
   if (x840_25_) {
-    return &x56c_data.GetEnergyDrainVulnerability();
+    return &mData.GetEnergyDrainVulnerability();
   }
   if (x840_28_ && !GetBodyCtrl()->IsFrozen()) {
-    return &x56c_data.GetEnergyDrainVulnerability();
+    return &mData.GetEnergyDrainVulnerability();
   }
   return CAi::GetDamageVulnerability();
 }
@@ -398,11 +398,11 @@ bool CMetroidBeta::PathShagged(CStateManager&, float) {
 }
 
 bool CMetroidBeta::Attacked(CStateManager&, float) {
-  if (x7dc_growthEnergy - x7e0_previousGrowthEnergy > 0.f) {
-    if (x7e0_previousGrowthEnergy < x56c_data.GetStage2GrowthEnergy()) {
-      return x7dc_growthEnergy >= x56c_data.GetStage2GrowthEnergy();
+  if (mGrowthEnergy - mPreviousGrowthEnergy > 0.f) {
+    if (mPreviousGrowthEnergy < mData.GetStage2GrowthEnergy()) {
+      return mGrowthEnergy >= mData.GetStage2GrowthEnergy();
     }
-    if (x7dc_growthEnergy >= x56c_data.GetStage3GrowthEnergy()) {
+    if (mGrowthEnergy >= mData.GetStage3GrowthEnergy()) {
       return true;
     }
   }
@@ -414,7 +414,7 @@ bool CMetroidBeta::ShotAt(CStateManager&, float) { return x840_27_; }
 bool CMetroidBeta::ShouldAttack(CStateManager& mgr, float) {
   const CPlayer& player = *mgr.GetPlayer();
   if (player.IsInsideFluid() || GetCurrentAreaId() != player.GetCurrentAreaId() ||
-      x794_attackCooldown > 0.f) {
+      mAttackCooldown > 0.f) {
     return false;
   }
   if (player.GetOrbitState() == CPlayer::kOS_ForcedOrbitObject ||
@@ -426,8 +426,8 @@ bool CMetroidBeta::ShouldAttack(CStateManager& mgr, float) {
   const CVector3f source = GetTentacleSourcePos();
   const CVector3f target = ComputeTargetPos(mgr);
   const CVector3f direction = target - source;
-  const float maxAttackRange = x300_maxAttackRange;
-  float minRange = x2fc_minAttackRange;
+  const float maxAttackRange = mMaxAttackRange;
+  float minRange = mMinAttackRange;
   const float margin = 0.25f * (maxAttackRange - minRange);
   const float distanceSq = direction.MagSquared();
   minRange = margin + minRange;
@@ -440,7 +440,7 @@ bool CMetroidBeta::ShouldAttack(CStateManager& mgr, float) {
   if (IsPatternObstructed(mgr, source, target)) {
     return false;
   }
-  if (const CTeamAiMgr* aiMgr = TCastToConstPtr< CTeamAiMgr >(mgr.GetObjectById(x678_teamMgr))) {
+  if (const CTeamAiMgr* aiMgr = TCastToConstPtr< CTeamAiMgr >(mgr.GetObjectById(mTeamMgr))) {
     return aiMgr->GetProjectileAttackers().size() < aiMgr->GetProjectileRoleCount();
   }
   return true;
@@ -448,12 +448,12 @@ bool CMetroidBeta::ShouldAttack(CStateManager& mgr, float) {
 
 bool CMetroidBeta::ShouldSpecialAttack(CStateManager& mgr, float) {
   const CPlayer& player = *mgr.GetPlayer();
-  if (GetCurrentAreaId() == player.GetCurrentAreaId() && x794_attackCooldown <= 0.f) {
+  if (GetCurrentAreaId() == player.GetCurrentAreaId() && mAttackCooldown <= 0.f) {
     const CVector3f target = player.GetAimPosition(mgr, 0.f);
     const CVector3f direction = target - GetTranslation();
-    if (direction.MagSquared() < x2fc_minAttackRange * x2fc_minAttackRange &&
+    if (direction.MagSquared() < mMinAttackRange * mMinAttackRange &&
         !ShouldTurn(mgr, 0.f) && !IsPatternObstructed(mgr, GetTranslation(), target)) {
-      if (CTeamAiMgr* aiMgr = TCastToPtr< CTeamAiMgr >(mgr.ObjectById(x678_teamMgr))) {
+      if (CTeamAiMgr* aiMgr = TCastToPtr< CTeamAiMgr >(mgr.ObjectById(mTeamMgr))) {
         if (aiMgr->IsPartOfTeam(GetUniqueId())) {
           return aiMgr->AddMeleeAttacker(GetUniqueId());
         }
@@ -475,7 +475,7 @@ bool CMetroidBeta::InAttackPosition(CStateManager& mgr, float) {
   if (CVector2f::GetAngleDiff(direction.ToVec2f(), playerForward.ToVec2f()) < maxAngle &&
       CVector3f::Dot(direction, GetTransform().GetForward()) < 0.f) {
     if ((player.GetTranslation() - GetTranslation()).MagSquared() <
-        x300_maxAttackRange * x300_maxAttackRange) {
+        mMaxAttackRange * mMaxAttackRange) {
       const CVector3f& pos = GetTranslation();
       const CVector3f& playerPos = player.GetTranslation();
       if (pos.GetZ() > playerPos.GetZ() && pos.GetZ() < playerPos.GetZ() + 0.5f) {
@@ -491,7 +491,7 @@ bool CMetroidBeta::InAttackPosition(CStateManager& mgr, float) {
 bool CMetroidBeta::StartAttack(CStateManager& mgr, float) {
   const CPlayer& player = *mgr.GetPlayer();
   if (player.IsInsideFluid() || GetCurrentAreaId() != player.GetCurrentAreaId() ||
-      x794_attackCooldown > 0.f) {
+      mAttackCooldown > 0.f) {
     return false;
   }
   if (player.GetOrbitState() == CPlayer::kOS_ForcedOrbitObject ||
@@ -504,8 +504,8 @@ bool CMetroidBeta::StartAttack(CStateManager& mgr, float) {
   const CVector3f target = ComputeTargetPos(mgr);
   const CVector3f direction = target - source;
   const float distanceSq = direction.MagSquared();
-  const float minRange = x2fc_minAttackRange;
-  const float maxRange = x300_maxAttackRange;
+  const float minRange = mMinAttackRange;
+  const float maxRange = mMaxAttackRange;
   const float minRangeSq = minRange * minRange;
   const float maxRangeSq = maxRange * maxRange;
   if (distanceSq < minRangeSq || distanceSq > maxRangeSq) {
@@ -514,7 +514,7 @@ bool CMetroidBeta::StartAttack(CStateManager& mgr, float) {
   if (IsPatternObstructed(mgr, source, target)) {
     return false;
   }
-  if (CTeamAiMgr* aiMgr = TCastToPtr< CTeamAiMgr >(mgr.ObjectById(x678_teamMgr))) {
+  if (CTeamAiMgr* aiMgr = TCastToPtr< CTeamAiMgr >(mgr.ObjectById(mTeamMgr))) {
     if (aiMgr->IsPartOfTeam(GetUniqueId())) {
       return aiMgr->AddProjectileAttacker(GetUniqueId());
     }
@@ -532,7 +532,7 @@ bool CMetroidBeta::InDetectionRange(CStateManager& mgr, float arg) {
 }
 
 bool CMetroidBeta::InPosition(CStateManager&, float) {
-  const CVector3f direction = x7a8_targetPos - GetTranslation();
+  const CVector3f direction = mTargetPos - GetTranslation();
   return direction.MagSquared() < 25.f;
 }
 
@@ -542,22 +542,22 @@ bool CMetroidBeta::ShouldTurn(CStateManager& mgr, float) {
   return CVector2f::GetAngleDiff(forward, direction) > CRelAngle::FromDegrees(15.f).AsRadians();
 }
 
-bool CMetroidBeta::ShouldWallHang(CStateManager&, float) { return x56c_data.StartsInWall(); }
+bool CMetroidBeta::ShouldWallHang(CStateManager&, float) { return mData.StartsInWall(); }
 
-bool CMetroidBeta::AnimOver(CStateManager&, float) { return x568_progState == 3; }
+bool CMetroidBeta::AnimOver(CStateManager&, float) { return mProgState == 3; }
 
 void CMetroidBeta::PathFind(CStateManager& mgr, EStateMsg msg, float dt) {
   switch (msg) {
   case kStateMsg_Activate: {
     x840_26_ = false;
     BodyCtrl()->SetLocomotionType(pas::kLT_Lurk);
-    const CTeamAiRole* role = CTeamAiMgr::GetTeamAiRole(mgr, x678_teamMgr, GetUniqueId());
+    const CTeamAiRole* role = CTeamAiMgr::GetTeamAiRole(mgr, mTeamMgr, GetUniqueId());
     if (role != nullptr) {
-      x2e0_destPos = role->GetTeamPosition();
+      mDestPos = role->GetTeamPosition();
     } else {
-      x2e0_destPos = GetOrigin(mgr, CTeamAiRole(GetUniqueId()), mgr.GetPlayer()->GetTranslation());
+      mDestPos = GetOrigin(mgr, CTeamAiRole(GetUniqueId()), mgr.GetPlayer()->GetTranslation());
     }
-    x7a8_targetPos = x2e0_destPos;
+    mTargetPos = mDestPos;
     CPatterned::PathFind(mgr, kStateMsg_Activate, 0.f);
     break;
   }
@@ -565,14 +565,14 @@ void CMetroidBeta::PathFind(CStateManager& mgr, EStateMsg msg, float dt) {
     if (GetSearchPath() != nullptr && !PathShagged(mgr, 0.f) && !PathOver(mgr, 0.f)) {
       CPatterned::PathFind(mgr, msg, dt);
     } else {
-      const CTeamAiRole* role = CTeamAiMgr::GetTeamAiRole(mgr, x678_teamMgr, GetUniqueId());
+      const CTeamAiRole* role = CTeamAiMgr::GetTeamAiRole(mgr, mTeamMgr, GetUniqueId());
       if (role != nullptr) {
-        x7a8_targetPos = role->GetTeamPosition();
+        mTargetPos = role->GetTeamPosition();
       } else {
-        x7a8_targetPos =
+        mTargetPos =
             GetOrigin(mgr, CTeamAiRole(GetUniqueId()), mgr.GetPlayer()->GetTranslation());
       }
-      ApplyForwardSteering(mgr, x7a8_targetPos);
+      ApplyForwardSteering(mgr, mTargetPos);
     }
     ApplySeparationBehavior(mgr);
     break;
@@ -588,13 +588,13 @@ void CMetroidBeta::TurnAround(CStateManager& mgr, EStateMsg msg, float dt) {
       BodyCtrl()->CommandMgr().DeliverCmd(
           CBCLocomotionCmd(CVector3f::Zero(), direction.AsNormalized(), 1.f));
     } else {
-      const CTeamAiRole* role = CTeamAiMgr::GetTeamAiRole(mgr, x678_teamMgr, GetUniqueId());
+      const CTeamAiRole* role = CTeamAiMgr::GetTeamAiRole(mgr, mTeamMgr, GetUniqueId());
       const CVector3f& target = role != nullptr ? role->GetTeamPosition()
                                                 : GetOrigin(mgr, CTeamAiRole(GetUniqueId()),
                                                             mgr.GetPlayer()->GetTranslation());
       const CVector3f& position = GetTranslation();
       const CVector3f arrivalPos(position[kDX], position[kDY], target[kDZ]);
-      const CVector3f arrival = x45c_steeringBehaviors.Arrival(*this, arrivalPos, 0.5f);
+      const CVector3f arrival = mSteeringBehaviors.Arrival(*this, arrivalPos, 0.5f);
       if (arrival.MagSquared() > 0.01f) {
         BodyCtrl()->CommandMgr().DeliverCmd(CBCLocomotionCmd(arrival, CVector3f::Zero(), 1.f));
       }
@@ -608,11 +608,11 @@ void CMetroidBeta::Attack(CStateManager& mgr, EStateMsg msg, float dt) {
   CPlayer& player = *mgr.Player();
   switch (msg) {
   case kStateMsg_Activate:
-    x568_progState = 2;
-    x79c_drainedEnergy = 0.f;
+    mProgState = 2;
+    mDrainedEnergy = 0.f;
     x840_25_ = true;
     x840_24_ = true;
-    x83c_shotSeverity = 0.f;
+    mShotSeverity = 0.f;
     BodyCtrl()->SetLocomotionType(pas::kLT_Internal6);
     player.GetPlayerEnergyDrain().AddEnergyDrainSource(GetUniqueId(), 1.f);
     if (player.GetMorphballTransitionState() != CPlayer::kMS_Morphed) {
@@ -625,10 +625,10 @@ void CMetroidBeta::Attack(CStateManager& mgr, EStateMsg msg, float dt) {
     const CVector3f target = ComputeTargetPos(mgr);
     CVector3f direction = GetTranslation() - target;
     direction.SetZ(0.f);
-    const float minRange = x2fc_minAttackRange;
+    const float minRange = mMinAttackRange;
     if (direction.MagSquared() >= minRange * minRange) {
       const CVector3f destination = target + minRange * direction.AsNormalized();
-      const CVector3f seek = x45c_steeringBehaviors.Seek(*this, destination);
+      const CVector3f seek = mSteeringBehaviors.Seek(*this, destination);
       BodyCtrl()->CommandMgr().DeliverCmd(CBCLocomotionCmd(seek, CVector3f::Zero(), 1.f));
     }
     const CVector3f face = -direction;
@@ -641,18 +641,18 @@ void CMetroidBeta::Attack(CStateManager& mgr, EStateMsg msg, float dt) {
       SetRotation(orientation.BuildNormalized());
     }
     if (ShouldReleaseFromTarget(mgr)) {
-      x568_progState = 3;
+      mProgState = 3;
     }
     break;
   }
   case kStateMsg_Deactivate: {
     BodyCtrl()->SetLocomotionType(pas::kLT_Lurk);
-    x794_attackCooldown = x308_attackTimeVariation * mgr.Random()->Float() + x304_averageAttackTime;
+    mAttackCooldown = mAttackTimeVariation * mgr.Random()->Float() + mAverageAttackTime;
     x840_25_ = false;
-    x83c_shotSeverity = 0.f;
+    mShotSeverity = 0.f;
     ApplyBreakLeashDamage(mgr);
     if (GetGrowthStage() < 2.f) {
-      ApplyGrowth(x79c_drainedEnergy, mgr);
+      ApplyGrowth(mDrainedEnergy, mgr);
     }
     CPlayer& player = *mgr.Player();
     player.GetPlayerEnergyDrain().RemoveEnergyDrainSource(GetUniqueId());
@@ -661,7 +661,7 @@ void CMetroidBeta::Attack(CStateManager& mgr, EStateMsg msg, float dt) {
         player.GetOrbitTargetId() == GetUniqueId()) {
       player.SetOrbitState(CPlayer::kOS_OrbitObject, mgr);
     }
-    CTeamAiMgr::ResetTeamAiRole(kAT_Projectile, mgr, x678_teamMgr, GetUniqueId(), true);
+    CTeamAiMgr::ResetTeamAiRole(kAT_Projectile, mgr, mTeamMgr, GetUniqueId(), true);
     break;
   }
   }
@@ -670,45 +670,45 @@ void CMetroidBeta::Attack(CStateManager& mgr, EStateMsg msg, float dt) {
 void CMetroidBeta::SpecialAttack(CStateManager& mgr, EStateMsg msg, float dt) {
   switch (msg) {
   case kStateMsg_Activate:
-    x568_progState = 2;
+    mProgState = 2;
     x840_29_ = x840_30_ = true;
     x840_31_ = false;
     BodyCtrl()->SetLocomotionType(pas::kLT_Internal10);
-    x7a4_specialAttackTime = 0.f;
+    mSpecialAttackTime = 0.f;
     ExtendTouchBounds(mgr, skExtendedTouchBounds);
     break;
   case kStateMsg_Update:
-    switch (x568_progState) {
+    switch (mProgState) {
     case 2:
-      x7a4_specialAttackTime += dt;
-      if (x7a4_specialAttackTime < x56c_data.GetSpecialAttackTime()) {
+      mSpecialAttackTime += dt;
+      if (mSpecialAttackTime < mData.GetSpecialAttackTime()) {
         if (!x840_30_ || x840_31_) {
-          x568_progState = 3;
+          mProgState = 3;
         } else {
           const CVector3f target = mgr.GetPlayer()->GetAimPosition(mgr, 0.f);
           const CVector3f direction = target - GetTranslation();
           const CVector3f forward = GetTransform().GetForward();
           if (CVector3f::Dot(forward, direction) > 0.f) {
-            const CVector3f seek = x45c_steeringBehaviors.Seek(*this, target);
+            const CVector3f seek = mSteeringBehaviors.Seek(*this, target);
             BodyCtrl()->CommandMgr().DeliverCmd(CBCLocomotionCmd(seek, CVector3f::Zero(), 1.f));
             ApplySeparationBehavior(mgr);
           } else {
-            x568_progState = 3;
+            mProgState = 3;
           }
         }
       } else {
-        x568_progState = 3;
+        mProgState = 3;
       }
       break;
     }
     break;
   case kStateMsg_Deactivate:
-    x794_attackCooldown = x308_attackTimeVariation * mgr.Random()->Float() + x304_averageAttackTime;
+    mAttackCooldown = mAttackTimeVariation * mgr.Random()->Float() + mAverageAttackTime;
     x840_29_ = x840_30_ = false;
-    x7a4_specialAttackTime = 0.f;
+    mSpecialAttackTime = 0.f;
     BodyCtrl()->SetLocomotionType(pas::kLT_Lurk);
     ExtendTouchBounds(mgr, CVector3f::Zero());
-    CTeamAiMgr::ResetTeamAiRole(kAT_Melee, mgr, x678_teamMgr, GetUniqueId(), true);
+    CTeamAiMgr::ResetTeamAiRole(kAT_Melee, mgr, mTeamMgr, GetUniqueId(), true);
     break;
   }
 }
@@ -731,9 +731,9 @@ void CMetroidBeta::TargetPatrol(CStateManager& mgr, EStateMsg msg, float dt) {
       CPatterned::Patrol(mgr, msg, dt);
       CPatterned::UpdateDest(mgr);
     } else {
-      SetDestPos(x3a0_latestLeashPosition);
+      SetDestPos(mLatestLeashPosition);
     }
-    x7a8_targetPos = x2e0_destPos;
+    mTargetPos = mDestPos;
     if (GetSearchPath() != nullptr) {
       CPatterned::PathFind(mgr, msg, dt);
     }
@@ -742,7 +742,7 @@ void CMetroidBeta::TargetPatrol(CStateManager& mgr, EStateMsg msg, float dt) {
     if (GetSearchPath() != nullptr && !PathShagged(mgr, 0.f)) {
       CPatterned::PathFind(mgr, msg, dt);
     } else {
-      const CVector3f arrival = x45c_steeringBehaviors.Arrival(*this, x7a8_targetPos, 15.f);
+      const CVector3f arrival = mSteeringBehaviors.Arrival(*this, mTargetPos, 15.f);
       BodyCtrl()->CommandMgr().DeliverCmd(CBCLocomotionCmd(arrival, CVector3f::Zero(), 1.f));
     }
     ApplySeparationBehavior(mgr);
@@ -753,20 +753,20 @@ void CMetroidBeta::TargetPatrol(CStateManager& mgr, EStateMsg msg, float dt) {
 void CMetroidBeta::SelectTarget(CStateManager& mgr, EStateMsg msg, float dt) {
   switch (msg) {
   case kStateMsg_Activate:
-    x568_progState = 1;
+    mProgState = 1;
     break;
   case kStateMsg_Update:
-    switch (x568_progState) {
+    switch (mProgState) {
     case 1:
       if (GetBodyCtrl()->GetCurrentStateId() == pas::kAS_Generate) {
-        x568_progState = 2;
+        mProgState = 2;
       } else {
         BodyCtrl()->CommandMgr().DeliverCmd(CBCGenerateCmd(pas::kGType_Three, CVector3f::Zero()));
       }
       break;
     case 2:
       if (GetBodyCtrl()->GetCurrentStateId() != pas::kAS_Generate) {
-        x568_progState = 3;
+        mProgState = 3;
       } else {
         BodyCtrl()->CommandMgr().DeliverTargetVector(mgr.GetPlayer()->GetTranslation() -
                                                      GetTranslation());
@@ -782,22 +782,22 @@ void CMetroidBeta::SelectTarget(CStateManager& mgr, EStateMsg msg, float dt) {
 void CMetroidBeta::TelegraphAttack(CStateManager& mgr, EStateMsg msg, float dt) {
   switch (msg) {
   case kStateMsg_Activate:
-    x568_progState = 2;
-    x798_telegraphTimer = x56c_data.GetTelegraphAttackTime();
+    mProgState = 2;
+    mTelegraphTimer = mData.GetTelegraphAttackTime();
     x840_31_ = false;
     BodyCtrl()->CommandMgr().ClearLocomotionCmds();
     BodyCtrl()->SetLocomotionType(pas::kLT_Combat);
     break;
   case kStateMsg_Update:
-    x798_telegraphTimer -= dt;
-    if (x798_telegraphTimer > 0.f) {
+    mTelegraphTimer -= dt;
+    if (mTelegraphTimer > 0.f) {
       const CVector3f direction = mgr.GetPlayer()->GetTranslation() - GetTranslation();
       if (direction.CanBeNormalized()) {
         BodyCtrl()->CommandMgr().DeliverCmd(
             CBCLocomotionCmd(CVector3f::Zero(), direction.AsNormalized(), 1.f));
       }
     } else {
-      x568_progState = 3;
+      mProgState = 3;
     }
     break;
   case kStateMsg_Deactivate:
@@ -809,19 +809,19 @@ void CMetroidBeta::TelegraphAttack(CStateManager& mgr, EStateMsg msg, float dt) 
 void CMetroidBeta::Generate(CStateManager& mgr, EStateMsg msg, float dt) {
   switch (msg) {
   case kStateMsg_Activate:
-    if (x7dc_growthEnergy >= x56c_data.GetStage3GrowthEnergy()) {
+    if (mGrowthEnergy >= mData.GetStage3GrowthEnergy()) {
       MassiveDeath(mgr);
     }
-    x568_progState = 1;
-    x7c0_generateStartScale = GetModelData()->ScaleCopy();
+    mProgState = 1;
+    mGenerateStartScale = GetModelData()->ScaleCopy();
     x840_28_ = true;
     break;
   case kStateMsg_Update:
-    switch (x568_progState) {
+    switch (mProgState) {
     case 1:
       if (GetBodyCtrl()->GetCurrentStateId() == pas::kAS_Generate) {
-        x7d8_generateDuration = GetBodyCtrl()->GetAnimTimeRemaining();
-        x568_progState = x7d8_generateDuration > 0.f ? 2 : 3;
+        mGenerateDuration = GetBodyCtrl()->GetAnimTimeRemaining();
+        mProgState = mGenerateDuration > 0.f ? 2 : 3;
       } else if (Attacked(mgr, 0.f)) {
         BodyCtrl()->CommandMgr().DeliverCmd(CBCGenerateCmd(pas::kGType_Two, CVector3f::Zero()));
       } else {
@@ -830,18 +830,18 @@ void CMetroidBeta::Generate(CStateManager& mgr, EStateMsg msg, float dt) {
       break;
     case 2:
       if (GetBodyCtrl()->GetCurrentStateId() != pas::kAS_Generate) {
-        x568_progState = 3;
+        mProgState = 3;
       } else if (Attacked(mgr, 0.f) && !GetBodyCtrl()->IsFrozen()) {
         const float timeRemaining = GetBodyCtrl()->GetAnimTimeRemaining();
-        CVector3f scale = x7c0_generateStartScale;
-        const float t = CMath::Clamp(0.f, 1.f - timeRemaining / x7d8_generateDuration, 1.f);
+        CVector3f scale = mGenerateStartScale;
+        const float t = CMath::Clamp(0.f, 1.f - timeRemaining / mGenerateDuration, 1.f);
         if (t < 0.25f) {
-          scale = CMath::Clamp(0.f, 1.f - 0.5f * (t / 0.25f), 1.f) * x7c0_generateStartScale;
+          scale = CMath::Clamp(0.f, 1.f - 0.5f * (t / 0.25f), 1.f) * mGenerateStartScale;
         } else {
-          const float duration = 0.75f * x7d8_generateDuration;
-          const CVector3f halfScale = 0.5f * x7c0_generateStartScale;
+          const float duration = 0.75f * mGenerateDuration;
+          const CVector3f halfScale = 0.5f * mGenerateStartScale;
           const float remaining = duration - timeRemaining;
-          scale = halfScale + remaining * ((x7b4_growthScale - halfScale) / duration);
+          scale = halfScale + remaining * ((mGrowthScale - halfScale) / duration);
         }
         UpdateModelScale(scale);
         UpdateSoundVolume();
@@ -850,11 +850,11 @@ void CMetroidBeta::Generate(CStateManager& mgr, EStateMsg msg, float dt) {
     }
     break;
   case kStateMsg_Deactivate:
-    x7d8_generateDuration = 0.f;
+    mGenerateDuration = 0.f;
     x840_28_ = false;
     if (Attacked(mgr, 0.f)) {
-      x7e0_previousGrowthEnergy = x7dc_growthEnergy;
-      UpdateModelScale(x7b4_growthScale);
+      mPreviousGrowthEnergy = mGrowthEnergy;
+      UpdateModelScale(mGrowthScale);
     }
     UpdateSoundVolume();
     break;
@@ -865,34 +865,34 @@ void CMetroidBeta::WallHang(CStateManager& mgr, EStateMsg msg, float dt) {
   switch (msg) {
   case kStateMsg_Activate:
     BodyCtrl()->SetLocomotionType(pas::kLT_Crouch);
-    x568_progState = 0;
+    mProgState = 0;
     RemoveMaterial(kMT_Solid, mgr);
-    x764_collisionManager->SetActive(mgr, false);
+    mCollisionManager->SetActive(mgr, false);
     break;
   case kStateMsg_Update:
-    switch (x568_progState) {
+    switch (mProgState) {
     case 0:
       if (x840_26_) {
-        x568_progState = 1;
+        mProgState = 1;
       }
       break;
     case 1:
       if (GetBodyCtrl()->GetCurrentStateId() == pas::kAS_Generate) {
-        x568_progState = 2;
+        mProgState = 2;
       } else {
         BodyCtrl()->CommandMgr().DeliverCmd(CBCGenerateCmd(pas::kGType_Zero, CVector3f::Zero()));
       }
       break;
     case 2:
       if (GetBodyCtrl()->GetCurrentStateId() != pas::kAS_Generate) {
-        x568_progState = 3;
+        mProgState = 3;
       }
       break;
     }
     break;
   case kStateMsg_Deactivate:
     BodyCtrl()->SetLocomotionType(pas::kLT_Relaxed);
-    x764_collisionManager->SetActive(mgr, true);
+    mCollisionManager->SetActive(mgr, true);
     break;
   }
 }
@@ -901,25 +901,25 @@ bool CMetroidBeta::ShouldReleaseFromTarget(CStateManager& mgr) {
   if (GetBodyCtrl()->IsFrozen()) {
     return true;
   }
-  if (x83c_shotSeverity >= 1.f) {
+  if (mShotSeverity >= 1.f) {
     x840_24_ = false;
     return true;
   }
   const CVector3f source = GetTentacleSourcePos();
   const CVector3f target = ComputeTargetPos(mgr);
   const CVector3f direction = target - source;
-  if (direction.MagSquared() > x300_maxAttackRange * x300_maxAttackRange) {
+  if (direction.MagSquared() > mMaxAttackRange * mMaxAttackRange) {
     return true;
   }
   const CVector2f flatDirection = direction.DropZ();
-  const float minDistanceSq = 0.25f * x2fc_minAttackRange * x2fc_minAttackRange;
+  const float minDistanceSq = 0.25f * mMinAttackRange * mMinAttackRange;
   if (flatDirection.MagSquared() < minDistanceSq) {
     return true;
   }
   if (IsPatternObstructed(mgr, source, target)) {
     return true;
   }
-  if (x79c_drainedEnergy >= x56c_data.GetMaxEnergyDrainAllowed() * GetDamageMultiplier() ||
+  if (mDrainedEnergy >= mData.GetMaxEnergyDrainAllowed() * GetDamageMultiplier() ||
       mgr.GetPlayer()->IsInsideFluid()) {
     return true;
   }
@@ -928,8 +928,8 @@ bool CMetroidBeta::ShouldReleaseFromTarget(CStateManager& mgr) {
 
 void CMetroidBeta::SuckEnergyFromTarget(float dt, CStateManager& mgr) {
   CPlayer& player = *mgr.Player();
-  const float damage = dt * x56c_data.GetEnergyDrainPerSec() * GetDamageMultiplier();
-  x79c_drainedEnergy += damage;
+  const float damage = dt * mData.GetEnergyDrainPerSec() * GetDamageMultiplier();
+  mDrainedEnergy += damage;
   const CDamageInfo info(CWeaponMode(kWT_PoisonWater), damage, 0.f, 0.f, true);
   player.SetNoDamageLoopSfx(true);
   mgr.ApplyDamage(
@@ -939,13 +939,13 @@ void CMetroidBeta::SuckEnergyFromTarget(float dt, CStateManager& mgr) {
   player.SetNoDamageLoopSfx(false);
   if (player.GetMorphballTransitionState() == CPlayer::kMS_Unmorphed) {
     const float magnitude =
-        0.1f * CMath::AbsF(CMath::FastSinR((M_PIF / 2.f) * x7a0_interferenceTime));
+        0.1f * CMath::AbsF(CMath::FastSinR((M_PIF / 2.f) * mInterferenceTime));
     mgr.PlayerState()->StaticInterference().AddSource(GetUniqueId(), magnitude, 0.2f);
     if (mgr.GetPlayer()->GetStaticTimer() < 0.2f) {
       player.SetHudDisable(0.2f);
     }
   }
-  x7a0_interferenceTime += dt;
+  mInterferenceTime += dt;
 }
 
 void CMetroidBeta::UpdateParticleEffects(float dt, CStateManager& mgr) {
@@ -960,7 +960,7 @@ void CMetroidBeta::UpdateParticleEffects(float dt, CStateManager& mgr) {
     const CTransform4f rotation = CTransform4f::LookAt(CVector3f::Zero(), step);
     x820_->SetParticleEmission(true);
     const int hitIndex =
-        x83c_shotSeverity > 0.f ? static_cast< int >(countFloat * (1.f - x83c_shotSeverity)) : -1;
+        mShotSeverity > 0.f ? static_cast< int >(countFloat * (1.f - mShotSeverity)) : -1;
     x830_->SetParticleEmission(hitIndex >= 0);
     const float inverseCount = 1.f / float(count);
     float previousRotation = swoosh.GetSwooshes()[swoosh.GetSwooshCount() - 1].mInitialRot;
@@ -968,8 +968,8 @@ void CMetroidBeta::UpdateParticleEffects(float dt, CStateManager& mgr) {
       const float indexFloat = float(i);
       const float phase = float(i) > 0.f ? (2.f * M_PIF) / indexFloat : 0.f;
       const float amplitude = 0.25f * indexFloat * inverseCount;
-      const float random = 0.5f * x838_random.Float();
-      const float x = random * (amplitude * CMath::FastCosR(phase + x834_particlePhase));
+      const float random = 0.5f * mRandom.Float();
+      const float x = random * (amplitude * CMath::FastCosR(phase + mParticlePhase));
       const float z = random * (amplitude * CMath::FastSinR(phase));
       const CVector3f pos =
           source + (float(i) > 0.f ? rotation * CVector3f(x, 0.f, z) : CVector3f::Zero());
@@ -992,7 +992,7 @@ void CMetroidBeta::UpdateParticleEffects(float dt, CStateManager& mgr) {
     }
     x820_->SetParticleEmission(false);
     x820_->Update(dt);
-    x834_particlePhase += 0.17f;
+    mParticlePhase += 0.17f;
     UpdateHitTargetParticleEffect(dt, mgr, target);
   }
 }
@@ -1028,15 +1028,15 @@ void CMetroidBeta::SetupCollisionManager(CStateManager& mgr) {
   rstl::vector< CJointCollisionDescription > joints;
   joints.reserve(1);
   AddSphereCollisionList(skSphereJoints, 1, joints);
-  x764_collisionManager =
+  mCollisionManager =
       rs_new CCollisionActorManager(mgr, GetUniqueId(), GetCurrentAreaId(), joints, false);
-  x764_collisionManager->SetActive(mgr, GetActive());
-  for (uint i = 0; i < x764_collisionManager->GetNumCollisionActors(); ++i) {
-    const CJointCollisionDescription& desc = x764_collisionManager->GetCollisionDescFromIndex(i);
+  mCollisionManager->SetActive(mgr, GetActive());
+  for (uint i = 0; i < mCollisionManager->GetNumCollisionActors(); ++i) {
+    const CJointCollisionDescription& desc = mCollisionManager->GetCollisionDescFromIndex(i);
     const TUniqueId uid = desc.GetCollisionActorId();
     if (CCollisionActor* actor = TCastToPtr< CCollisionActor >(mgr.ObjectById(uid))) {
       if (desc.GetName() == rstl::string_l(skPelvis)) {
-        x790_pelvisCollisionId = uid;
+        mPelvisCollisionId = uid;
       }
     }
   }
@@ -1045,7 +1045,7 @@ void CMetroidBeta::SetupCollisionManager(CStateManager& mgr) {
       CMaterialList(kMT_Solid, kMT_Wall, kMT_Floor, kMT_Ceiling),
       CMaterialList(kMT_CollisionActor, kMT_Player, kMT_Character)));
   AddMaterial(kMT_ProjectilePassthrough, mgr);
-  x764_collisionManager->AddMaterial(mgr, CMaterialList(kMT_AIJoint, kMT_CameraPassthrough));
+  mCollisionManager->AddMaterial(mgr, CMaterialList(kMT_AIJoint, kMT_CameraPassthrough));
 }
 
 void CMetroidBeta::AddSphereCollisionList(const SSphereJointInfo* joints, int count,
@@ -1064,7 +1064,7 @@ void CMetroidBeta::AddSphereCollisionList(const SSphereJointInfo* joints, int co
 void CMetroidBeta::SetupHealthInfo(CStateManager& mgr) {
   const CHealthInfo& health = *HealthInfo(mgr);
   if (CCollisionActor* actor =
-          TCastToPtr< CCollisionActor >(mgr.ObjectById(x790_pelvisCollisionId))) {
+          TCastToPtr< CCollisionActor >(mgr.ObjectById(mPelvisCollisionId))) {
     *actor->HealthInfo(mgr) = health;
     actor->SetDamageVulnerability(*GetDamageVulnerability());
   }
@@ -1073,7 +1073,7 @@ void CMetroidBeta::SetupHealthInfo(CStateManager& mgr) {
 void CMetroidBeta::UpdateHealthInfo(CStateManager& mgr) {
   if (IsAlive()) {
     if (CCollisionActor* actor =
-            TCastToPtr< CCollisionActor >(mgr.ObjectById(x790_pelvisCollisionId))) {
+            TCastToPtr< CCollisionActor >(mgr.ObjectById(mPelvisCollisionId))) {
       actor->SetDamageVulnerability(*GetDamageVulnerability());
       HealthInfo(mgr)->SetHP(actor->HealthInfo(mgr)->GetHP());
     }
@@ -1087,14 +1087,14 @@ void CMetroidBeta::UpdateHealthInfo(CStateManager& mgr) {
 
 void CMetroidBeta::ExtendTouchBounds(CStateManager& mgr, const CVector3f& bounds) {
   if (CCollisionActor* actor =
-          TCastToPtr< CCollisionActor >(mgr.ObjectById(x790_pelvisCollisionId))) {
+          TCastToPtr< CCollisionActor >(mgr.ObjectById(mPelvisCollisionId))) {
     actor->SetExtendedTouchBounds(bounds);
   }
 }
 
 void CMetroidBeta::ApplyBreakLeashDamage(CStateManager& mgr) {
   if (x840_24_) {
-    const float damage = x56c_data.GetBreakLeashEnergyDrain() * GetDamageMultiplier();
+    const float damage = mData.GetBreakLeashEnergyDrain() * GetDamageMultiplier();
     const CDamageInfo info(CWeaponMode::Power(), damage, 0.f, 0.f, true);
     mgr.ApplyDamage(
         GetUniqueId(), mgr.GetPlayer()->GetUniqueId(), GetUniqueId(), info,
@@ -1104,9 +1104,9 @@ void CMetroidBeta::ApplyBreakLeashDamage(CStateManager& mgr) {
 }
 
 CVector3f CMetroidBeta::GetTentacleSourcePos() const {
-  const CTransform4f leftXf = GetLctrTransform(x760_leftClaw);
+  const CTransform4f leftXf = GetLctrTransform(mLeftClaw);
   const CVector3f left = leftXf.GetTranslation();
-  const CTransform4f rightXf = GetLctrTransform(x761_rightClaw);
+  const CTransform4f rightXf = GetLctrTransform(mRightClaw);
   const CVector3f center = 0.5f * (left + rightXf.GetTranslation());
   return center + CVector3f::ByElementMultiply(GetModelData()->GetScale(),
                                                GetTransform().Rotate(skTentacleOffset));
@@ -1136,22 +1136,22 @@ float CMetroidBeta::GetDamageMultiplier() const {
 }
 
 float CMetroidBeta::GetGrowthStage() const {
-  if (x7dc_growthEnergy < x56c_data.GetStage2GrowthEnergy()) {
-    return 1.f + x7dc_growthEnergy / x56c_data.GetStage2GrowthEnergy();
+  if (mGrowthEnergy < mData.GetStage2GrowthEnergy()) {
+    return 1.f + mGrowthEnergy / mData.GetStage2GrowthEnergy();
   }
-  if (x7dc_growthEnergy < x56c_data.GetStage3GrowthEnergy()) {
-    return 2.f + (x7dc_growthEnergy - x56c_data.GetStage2GrowthEnergy()) /
-                     (x56c_data.GetStage3GrowthEnergy() - x56c_data.GetStage2GrowthEnergy());
+  if (mGrowthEnergy < mData.GetStage3GrowthEnergy()) {
+    return 2.f + (mGrowthEnergy - mData.GetStage2GrowthEnergy()) /
+                     (mData.GetStage3GrowthEnergy() - mData.GetStage2GrowthEnergy());
   }
   return 3.f;
 }
 
 void CMetroidBeta::ApplyGrowth(float amount, CStateManager& mgr) {
-  x7dc_growthEnergy += amount;
-  const float amountScale = x56c_data.GetMaxGrowthScale() - x7cc_initialScale.GetY();
-  const float growth = CMath::Clamp(0.f, x7dc_growthEnergy / x56c_data.GetGrowthEnergy(), 1.f);
-  const float scale = growth * amountScale + x7cc_initialScale.GetY();
-  x7b4_growthScale = CVector3f(scale, scale, scale);
+  mGrowthEnergy += amount;
+  const float amountScale = mData.GetMaxGrowthScale() - mInitialScale.GetY();
+  const float growth = CMath::Clamp(0.f, mGrowthEnergy / mData.GetGrowthEnergy(), 1.f);
+  const float scale = growth * amountScale + mInitialScale.GetY();
+  mGrowthScale = CVector3f(scale, scale, scale);
   TakeDamage(CVector3f::Zero(), 0.f);
 }
 
@@ -1166,8 +1166,8 @@ void CMetroidBeta::UpdateSoundVolume() {
 void CMetroidBeta::UpdateModelScale(const CVector3f& scale) { ModelData()->SetScale(scale); }
 
 void CMetroidBeta::SwarmAdd(CStateManager& mgr) {
-  if (x678_teamMgr != kInvalidUniqueId) {
-    if (CTeamAiMgr* aiMgr = TCastToPtr< CTeamAiMgr >(mgr.ObjectById(x678_teamMgr))) {
+  if (mTeamMgr != kInvalidUniqueId) {
+    if (CTeamAiMgr* aiMgr = TCastToPtr< CTeamAiMgr >(mgr.ObjectById(mTeamMgr))) {
       if (!aiMgr->IsPartOfTeam(GetUniqueId())) {
         aiMgr->AssignTeamAiRole(*this, CTeamAiRole::kTAR_Projectile, CTeamAiRole::kTAR_Invalid,
                                 CTeamAiRole::kTAR_Invalid);
@@ -1177,8 +1177,8 @@ void CMetroidBeta::SwarmAdd(CStateManager& mgr) {
 }
 
 void CMetroidBeta::SwarmRemove(CStateManager& mgr) {
-  if (x678_teamMgr != kInvalidUniqueId) {
-    if (CTeamAiMgr* aiMgr = TCastToPtr< CTeamAiMgr >(mgr.ObjectById(x678_teamMgr))) {
+  if (mTeamMgr != kInvalidUniqueId) {
+    if (CTeamAiMgr* aiMgr = TCastToPtr< CTeamAiMgr >(mgr.ObjectById(mTeamMgr))) {
       if (aiMgr->IsPartOfTeam(GetUniqueId())) {
         aiMgr->RemoveTeamAiRole(GetUniqueId());
       }
@@ -1192,7 +1192,7 @@ void CMetroidBeta::ApplySeparationBehavior(CStateManager& mgr) {
     if (const CPatterned* ai = TCastToConstPtr< CPatterned >(list[i])) {
       if (ai != this && ai->GetCurrentAreaId() == GetCurrentAreaId()) {
         const CVector3f separation =
-            x45c_steeringBehaviors.Separation(*this, ai->GetTranslation(), 5.f);
+            mSteeringBehaviors.Separation(*this, ai->GetTranslation(), 5.f);
         if (separation.IsNonZero()) {
           BodyCtrl()->CommandMgr().DeliverCmd(CBCLocomotionCmd(separation, CVector3f::Zero(), 1.f));
         }
@@ -1207,11 +1207,11 @@ void CMetroidBeta::ApplyForwardSteering(CStateManager& mgr, const CVector3f& des
   if (delta.MagSquared() > 25.f) {
     const CVector3f arrivalPos(GetTranslation().GetX(), GetTranslation().GetY(),
                                destination.GetZ());
-    const CVector3f arrival = x45c_steeringBehaviors.Arrival(*this, arrivalPos, 0.5f);
+    const CVector3f arrival = mSteeringBehaviors.Arrival(*this, arrivalPos, 0.5f);
     if (arrival.MagSquared() > 0.01f) {
       BodyCtrl()->CommandMgr().DeliverCmd(CBCLocomotionCmd(arrival, CVector3f::Zero(), 3.f));
     }
-    const CVector3f seek = x45c_steeringBehaviors.Seek(*this, destination);
+    const CVector3f seek = mSteeringBehaviors.Seek(*this, destination);
     BodyCtrl()->CommandMgr().DeliverCmd(CBCLocomotionCmd(seek, CVector3f::Zero(), 1.f));
   } else if (ShouldTurn(mgr, 0.f)) {
     const CVector3f direction = mgr.GetPlayer()->GetTranslation() - GetTranslation();
@@ -1233,10 +1233,10 @@ void CMetroidBeta::AdjustPathFindSteering(CStateManager& mgr) {
 }
 
 void CMetroidBeta::UpdateAILogicTimers(float dt, CStateManager& mgr) {
-  if (x794_attackCooldown > 0.f) {
+  if (mAttackCooldown > 0.f) {
     const float delta =
         mgr.GetPlayer()->GetMorphballTransitionState() == CPlayer::kMS_Morphed ? 2.f * dt : dt;
-    x794_attackCooldown -= delta;
+    mAttackCooldown -= delta;
   }
-  x83c_shotSeverity = x83c_shotSeverity > 0.3f * dt ? x83c_shotSeverity - 0.3f * dt : 0.f;
+  mShotSeverity = mShotSeverity > 0.3f * dt ? mShotSeverity - 0.3f * dt : 0.f;
 }

@@ -35,8 +35,8 @@ public:
 
   static void DrawWideScreen(const CColor& color, const CTexture* tex, float v);
 
-  EBlurType GetCurrType() const { return x10_curType; }
-  bool GetNoPersistentCopy() const { return x2d_noPersistentCopy; }
+  EBlurType GetCurrType() const { return mCurType; }
+  bool GetNoPersistentCopy() const { return mNoPersistentCopy; }
 
   void GetFbCopy(GXTexFmt fmt, uchar* buf) const;
   void FreePersistentFbTexture();
@@ -46,17 +46,17 @@ private:
   static const float skXRayViewportScaleX;
   static const float skXRayViewportScaleY;
 
-  rstl::optional_object< TCachedToken< CTexture > > x0_paletteTex;
-  EBlurType x10_curType;
-  EBlurType x14_endType;
-  float x18_endValue;
-  float x1c_curValue;
-  float x20_startValue;
-  float x24_totalTime;
-  float x28_remainingTime;
-  bool x2c_usePersistent;
-  mutable bool x2d_noPersistentCopy;
-  void* x30_persistentBuf;
+  rstl::optional_object< TCachedToken< CTexture > > mPaletteTex;
+  EBlurType mCurType;
+  EBlurType mEndType;
+  float mEndValue;
+  float mCurValue;
+  float mStartValue;
+  float mTotalTime;
+  float mRemainingTime;
+  bool mUsePersistent;
+  mutable bool mNoPersistentCopy;
+  void* mPersistentBuf;
 };
 CHECK_SIZEOF(CCameraBlurPass, 0x34)
 

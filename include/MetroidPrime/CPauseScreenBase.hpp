@@ -48,9 +48,9 @@ public:
   CPauseScreenBase(const CStateManager& mgr, CGuiFrame& frame, const CStringTable& pauseStrg);
   bool ShouldExitPauseScreen() const;
   bool IsReady();
-  bool CanDraw() const { return x198_27_canDraw; }
-  EMode GetMode() const { return x10_mode; }
-  float GetAlpha() const { return x14_alpha; }
+  bool CanDraw() const { return mCanDraw; }
+  EMode GetMode() const { return mMode; }
+  float GetAlpha() const { return mAlpha; }
 
 protected:
   void InitializeFrameGlue();
@@ -62,58 +62,58 @@ protected:
   void OnTableSelectionChange(CGuiTableGroup* caller, int oldSel);
   void OnRightTableCancel(CGuiTableGroup* caller);
 
-  const CStateManager& x4_mgr;
-  CGuiFrame& x8_frame;
-  const CStringTable& xc_pauseStrg;
-  EMode x10_mode;
-  float x14_alpha;
-  int x18_firstViewRightSel;
-  int x1c_rightSel;
+  const CStateManager& mMgr;
+  CGuiFrame& mFrame;
+  const CStringTable& mPauseStrg;
+  EMode mMode;
+  float mAlpha;
+  int mFirstViewRightSel;
+  int mRightSel;
   CVector3f x20_;
-  CVector3f x2c_rightTableStart;
-  float x38_highlightPitch;
-  CVector3f x3c_sliderStart;
-  CVector3f x48_tableDoubleStart;
-  CVector3f x54_tableTripleStart;
-  CGuiWidget* x60_basewidget_pivot;
-  CGuiWidget* x64_basewidget_bgframe;
-  CGuiWidget* x68_basewidget_leftside;
-  CGuiWidget* x6c_basewidget_leftlog;
-  CGuiTableGroup* x70_tablegroup_leftlog;
-  CGuiWidget* x74_basewidget_leftguages;
-  CGuiModel* x78_model_lefthighlight;
-  CGuiWidget* x7c_basewidget_rightside;
-  CGuiWidget* x80_basewidget_rightlog;
-  CGuiTableGroup* x84_tablegroup_rightlog;
-  CGuiWidget* x88_basewidget_rightguages;
-  CGuiModel* x8c_model_righthighlight;
-  CGuiModel* x90_model_textarrowtop;
-  CGuiModel* x94_model_textarrowbottom;
-  CGuiModel* x98_model_scrollleftup;
-  CGuiModel* x9c_model_scrollleftdown;
-  CGuiModel* xa0_model_scrollrightup;
-  CGuiModel* xa4_model_scrollrightdown;
-  rstl::reserved_vector< CGuiTextPane*, 5 > xa8_textpane_categories;
-  rstl::reserved_vector< CGuiModel*, 5 > xc0_model_categories;
-  rstl::reserved_vector< CGuiTextPane*, 5 > xd8_textpane_titles;
-  rstl::reserved_vector< CAuiImagePane*, 20 > xf0_imagePanes;
-  rstl::reserved_vector< CGuiModel*, 5 > x144_model_titles;
-  rstl::reserved_vector< CGuiModel*, 5 > x15c_model_righttitledecos;
-  CGuiTextPane* x174_textpane_body;
-  CGuiTextPane* x178_textpane_title;
-  CGuiModel* x17c_model_textalpha;
-  CGuiWidget* x180_basewidget_yicon;
-  CGuiTextPane* x184_textpane_yicon;
-  CGuiTextPane* x188_textpane_ytext;
-  CGuiSliderGroup* x18c_slidergroup_slider;
-  CGuiTableGroup* x190_tablegroup_double;
-  CGuiTableGroup* x194_tablegroup_triple;
-  bool x198_24_ready : 1;
-  bool x198_25_handledInput : 1;
-  bool x198_26_exitPauseScreen : 1;
-  bool x198_27_canDraw : 1;
-  bool x198_28_pulseTextArrowTop : 1;
-  bool x198_29_pulseTextArrowBottom : 1;
+  CVector3f mRightTableStart;
+  float mHighlightPitch;
+  CVector3f mSliderStart;
+  CVector3f mTableDoubleStart;
+  CVector3f mTableTripleStart;
+  CGuiWidget* mBasewidget_pivot;
+  CGuiWidget* mBasewidget_bgframe;
+  CGuiWidget* mBasewidget_leftside;
+  CGuiWidget* mBasewidget_leftlog;
+  CGuiTableGroup* mTablegroup_leftlog;
+  CGuiWidget* mBasewidget_leftguages;
+  CGuiModel* mModel_lefthighlight;
+  CGuiWidget* mBasewidget_rightside;
+  CGuiWidget* mBasewidget_rightlog;
+  CGuiTableGroup* mTablegroup_rightlog;
+  CGuiWidget* mBasewidget_rightguages;
+  CGuiModel* mModel_righthighlight;
+  CGuiModel* mModel_textarrowtop;
+  CGuiModel* mModel_textarrowbottom;
+  CGuiModel* mModel_scrollleftup;
+  CGuiModel* mModel_scrollleftdown;
+  CGuiModel* mModel_scrollrightup;
+  CGuiModel* mModel_scrollrightdown;
+  rstl::reserved_vector< CGuiTextPane*, 5 > mTextpane_categories;
+  rstl::reserved_vector< CGuiModel*, 5 > mModel_categories;
+  rstl::reserved_vector< CGuiTextPane*, 5 > mTextpane_titles;
+  rstl::reserved_vector< CAuiImagePane*, 20 > mImagePanes;
+  rstl::reserved_vector< CGuiModel*, 5 > mModel_titles;
+  rstl::reserved_vector< CGuiModel*, 5 > mModel_righttitledecos;
+  CGuiTextPane* mTextpane_body;
+  CGuiTextPane* mTextpane_title;
+  CGuiModel* mModel_textalpha;
+  CGuiWidget* mBasewidget_yicon;
+  CGuiTextPane* mTextpane_yicon;
+  CGuiTextPane* mTextpane_ytext;
+  CGuiSliderGroup* mSlidergroup_slider;
+  CGuiTableGroup* mTablegroup_double;
+  CGuiTableGroup* mTablegroup_triple;
+  bool mReady : 1;
+  bool mHandledInput : 1;
+  bool mExitPauseScreen : 1;
+  bool mCanDraw : 1;
+  bool mPulseTextArrowTop : 1;
+  bool mPulseTextArrowBottom : 1;
 };
 CHECK_SIZEOF(CPauseScreenBase, 0x19c)
 

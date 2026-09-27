@@ -75,19 +75,19 @@ static const char* const skPauseScreenDGRPs[] = {
 float skMapScreenCameraOffset = 2.f;
 
 struct SDumpableTextureInfo {
-  CAssetId x0_id;
-  int x4_score;
-  TToken< CTexture > x8_token;
+  CAssetId mId;
+  int mScore;
+  TToken< CTexture > mToken;
 
   SDumpableTextureInfo(int score, CAssetId id, TToken< CTexture >& token)
-  : x0_id(id), x4_score(score), x8_token(token) {}
+  : mId(id), mScore(score), mToken(token) {}
 };
 CHECK_SIZEOF(SDumpableTextureInfo, 0x10)
 
 struct CTextureScoreGreaterThan {
   CTextureScoreGreaterThan() {}
   bool operator()(const SDumpableTextureInfo& a, const SDumpableTextureInfo& b) const {
-    return a.x4_score < b.x4_score;
+    return a.mScore < b.mScore;
   }
 };
 
@@ -102,52 +102,52 @@ CInGameGuiManager::TPauseScreenDGRPs CInGameGuiManager::LockPauseScreenDependenc
 }
 
 CInGameGuiManager::CInGameGuiManager(const CStateManager& mgr, CArchitectureQueue& queue)
-: x0_iggmPreLoad(gpSimplePool->GetObj("PreLoadIGGM_DGRP"))
-, x18_loadPhase(kLP_LoadDepsGroup)
-, x1c_rand(1234)
-, x20_faceplateDecor(mgr)
-, x30_playerVisor(nullptr)
-, x34_samusHud(nullptr)
-, x38_autoMapper(nullptr)
-, x3c_pauseScreenBlur(nullptr)
-, x40_samusReflection(nullptr)
-, x44_messageScreen(nullptr)
-, x48_pauseScreen(nullptr)
-, x4c_saveUI(nullptr)
-, x50_deathDot(gpSimplePool->GetObj("TXTR_DeathDot"))
-, x5c_pauseScreenDGRPs(LockPauseScreenDependencies())
-, x124_pauseGameHudMessage(kInvalidAssetId)
-, x128_pauseGameHudTime(0.f)
-, x144_basewidget_automapper(nullptr)
-, x148_model_automapper(nullptr)
-, x14c_basehud_camera(nullptr)
-, x150_basewidget_functional(nullptr)
-, x154_automapperRotate(CQuaternion::NoRotation())
-, x164_automapperOffset(CVector3f::Zero())
-, x170_camRotate(CQuaternion::NoRotation())
-, x180_camOffset(CVector3f::Zero())
-, x18c_mapCamXf(CTransform4f::Identity())
-, x1bc_prevState(kIGGS_Zero)
-, x1c0_nextState(kIGGS_Zero)
-, x1d8_onScreenTexAlpha(0.f)
-, x1dc_onScreenTexTok(nullptr)
-, x1e0_helmetVisMode(gpTweakGui->GetHelmetVisMode())
-, x1e4_enableTargetingManager(gpTweakGui->GetEnableTargetingManager())
-, x1e8_enableAutoMapper(gpTweakGui->GetEnableAutoMapper())
-, x1ec_hudVisMode(gpTweakGui->GetHudVisMode())
-, x1f0_enablePlayerVisor(gpTweakGui->GetEnablePlayerVisor())
-, x1f4_visorStaticAlpha(mgr.GetPlayer()->GetVisorStaticAlpha())
+: mIggmPreLoad(gpSimplePool->GetObj("PreLoadIGGM_DGRP"))
+, mLoadPhase(kLP_LoadDepsGroup)
+, mRand(1234)
+, mFaceplateDecor(mgr)
+, mPlayerVisor(nullptr)
+, mSamusHud(nullptr)
+, mAutoMapper(nullptr)
+, mPauseScreenBlur(nullptr)
+, mSamusReflection(nullptr)
+, mMessageScreen(nullptr)
+, mPauseScreen(nullptr)
+, mSaveUI(nullptr)
+, mDeathDot(gpSimplePool->GetObj("TXTR_DeathDot"))
+, mPauseScreenDGRPs(LockPauseScreenDependencies())
+, mPauseGameHudMessage(kInvalidAssetId)
+, mPauseGameHudTime(0.f)
+, mBasewidget_automapper(nullptr)
+, mModel_automapper(nullptr)
+, mBasehud_camera(nullptr)
+, mBasewidget_functional(nullptr)
+, mAutomapperRotate(CQuaternion::NoRotation())
+, mAutomapperOffset(CVector3f::Zero())
+, mCamRotate(CQuaternion::NoRotation())
+, mCamOffset(CVector3f::Zero())
+, mMapCamXf(CTransform4f::Identity())
+, mPrevState(kIGGS_Zero)
+, mNextState(kIGGS_Zero)
+, mOnScreenTexAlpha(0.f)
+, mOnScreenTexTok(nullptr)
+, mHelmetVisMode(gpTweakGui->GetHelmetVisMode())
+, mEnableTargetingManager(gpTweakGui->GetEnableTargetingManager())
+, mEnableAutoMapper(gpTweakGui->GetEnableAutoMapper())
+, mHudVisMode(gpTweakGui->GetHudVisMode())
+, mEnablePlayerVisor(gpTweakGui->GetEnablePlayerVisor())
+, mVisorStaticAlpha(mgr.GetPlayer()->GetVisorStaticAlpha())
 , x1f8_24_(false)
-, x1f8_25_playerAlive(true)
-, x1f8_26_deferTransition(false)
-, x1f8_27_inSaveUI(true) {
-  x50_deathDot.Lock();
-  x0_iggmPreLoad.Lock();
-  xc8_inGameGuiDGRPs.reserve(14);
+, mPlayerAlive(true)
+, mDeferTransition(false)
+, mInSaveUI(true) {
+  mDeathDot.Lock();
+  mIggmPreLoad.Lock();
+  mInGameGuiDGRPs.reserve(14);
   for (uint i = 0; i < 14; ++i) {
     TToken< CDependencyGroup > token = gpSimplePool->GetObj(skInGameGuiDGRPs[i]);
     token.Lock();
-    xc8_inGameGuiDGRPs.push_back(token);
+    mInGameGuiDGRPs.push_back(token);
   }
 }
 
@@ -155,38 +155,38 @@ CInGameGuiManager::~CInGameGuiManager() {}
 
 void CInGameGuiManager::InitializeDumpableARAMTextures() {
   int count = 0;
-  for (AUTO(it, xc8_inGameGuiDGRPs.begin()); it != xc8_inGameGuiDGRPs.end(); ++it) {
+  for (AUTO(it, mInGameGuiDGRPs.begin()); it != mInGameGuiDGRPs.end(); ++it) {
     count += (*it)->GetCountForResType('TXTR');
   }
-  xd8_inGameTextureIDs.reserve(count);
+  mInGameTextureIDs.reserve(count);
 
-  for (AUTO(it, xc8_inGameGuiDGRPs.begin()); it != xc8_inGameGuiDGRPs.end(); ++it) {
+  for (AUTO(it, mInGameGuiDGRPs.begin()); it != mInGameGuiDGRPs.end(); ++it) {
     const rstl::vector< SObjectTag >& tags = (*it)->GetObjectTagVector();
     for (AUTO(tag, tags.begin()); tag != tags.end(); ++tag) {
       if (tag->GetType() == 'TXTR') {
-        if (xd8_inGameTextureIDs.end() ==
-            rstl::find(xd8_inGameTextureIDs.begin(), xd8_inGameTextureIDs.end(), tag->GetId())) {
-          xd8_inGameTextureIDs.push_back(tag->GetId());
+        if (mInGameTextureIDs.end() ==
+            rstl::find(mInGameTextureIDs.begin(), mInGameTextureIDs.end(), tag->GetId())) {
+          mInGameTextureIDs.push_back(tag->GetId());
         }
       }
     }
   }
-  xc8_inGameGuiDGRPs = rstl::vector< TToken< CDependencyGroup > >();
+  mInGameGuiDGRPs = rstl::vector< TToken< CDependencyGroup > >();
 
-  const rstl::vector< SObjectTag >& tags = x5c_pauseScreenDGRPs[12]->GetObjectTagVector();
-  xe8_pauseResources.reserve(tags.size());
+  const rstl::vector< SObjectTag >& tags = mPauseScreenDGRPs[12]->GetObjectTagVector();
+  mPauseResources.reserve(tags.size());
   for (AUTO(it, tags.begin()); it != tags.end(); ++it) {
-    xe8_pauseResources.push_back(gpSimplePool->GetObj(*it));
+    mPauseResources.push_back(gpSimplePool->GetObj(*it));
   }
 }
 
 bool CInGameGuiManager::CheckDGRPLoadComplete() {
-  for (AUTO(it, x5c_pauseScreenDGRPs.begin()); it != x5c_pauseScreenDGRPs.end(); ++it) {
+  for (AUTO(it, mPauseScreenDGRPs.begin()); it != mPauseScreenDGRPs.end(); ++it) {
     if (!it->IsLoaded()) {
       return false;
     }
   }
-  for (AUTO(it, xc8_inGameGuiDGRPs.begin()); it != xc8_inGameGuiDGRPs.end(); ++it) {
+  for (AUTO(it, mInGameGuiDGRPs.begin()); it != mInGameGuiDGRPs.end(); ++it) {
     if (!it->IsLoaded()) {
       return false;
     }
@@ -195,65 +195,65 @@ bool CInGameGuiManager::CheckDGRPLoadComplete() {
 }
 
 bool CInGameGuiManager::CheckLoadComplete(const CStateManager& mgr) {
-  switch (x18_loadPhase) {
+  switch (mLoadPhase) {
   case kLP_LoadDepsGroup: {
-    if (x0_iggmPreLoad.IsLoaded()) {
-      const rstl::vector< SObjectTag >& tags = x0_iggmPreLoad->GetObjectTagVector();
-      x8_preLoadDeps.reserve(tags.size());
+    if (mIggmPreLoad.IsLoaded()) {
+      const rstl::vector< SObjectTag >& tags = mIggmPreLoad->GetObjectTagVector();
+      mPreLoadDeps.reserve(tags.size());
       for (AUTO(it, tags.begin()); it != tags.end(); ++it) {
         CToken token = gpSimplePool->GetObj(*it);
         token.Lock();
-        x8_preLoadDeps.push_back(token);
+        mPreLoadDeps.push_back(token);
       }
-      x0_iggmPreLoad.Unlock();
-      x18_loadPhase = kLP_PreLoadDeps;
+      mIggmPreLoad.Unlock();
+      mLoadPhase = kLP_PreLoadDeps;
     } else {
       return false;
     }
   }
   case kLP_PreLoadDeps: {
-    for (AUTO(it, x8_preLoadDeps.begin()); it != x8_preLoadDeps.end(); ++it) {
+    for (AUTO(it, mPreLoadDeps.begin()); it != mPreLoadDeps.end(); ++it) {
       if (!it->IsLoaded()) {
         return false;
       }
     }
-    x18_loadPhase = kLP_LoadDeps;
-    x30_playerVisor = rs_new CPlayerVisor(mgr);
-    x34_samusHud = rs_new CSamusHud(mgr);
-    x38_autoMapper = rs_new CAutoMapper(mgr);
-    x3c_pauseScreenBlur = rs_new CPauseScreenBlur();
-    x40_samusReflection = rs_new CSamusFaceReflection(mgr);
+    mLoadPhase = kLP_LoadDeps;
+    mPlayerVisor = rs_new CPlayerVisor(mgr);
+    mSamusHud = rs_new CSamusHud(mgr);
+    mAutoMapper = rs_new CAutoMapper(mgr);
+    mPauseScreenBlur = rs_new CPauseScreenBlur();
+    mSamusReflection = rs_new CSamusFaceReflection(mgr);
   }
   case kLP_LoadDeps: {
-    if (x38_autoMapper->CheckLoadComplete() && x34_samusHud->CheckLoadComplete(mgr) &&
-        x50_deathDot.TryCache() && CheckDGRPLoadComplete()) {
-      x8_preLoadDeps = rstl::vector< CToken >();
+    if (mAutoMapper->CheckLoadComplete() && mSamusHud->CheckLoadComplete(mgr) &&
+        mDeathDot.TryCache() && CheckDGRPLoadComplete()) {
+      mPreLoadDeps = rstl::vector< CToken >();
       InitializeDumpableARAMTextures();
 
-      x144_basewidget_automapper =
-          x34_samusHud->GetBaseHudFrame()->FindWidget(rstl::string_l("BaseWidget_AutoMapper"));
-      x148_model_automapper = static_cast< CGuiModel* >(
-          x34_samusHud->GetBaseHudFrame()->FindWidget(rstl::string_l("Model_AutoMapper")));
-      x14c_basehud_camera = x34_samusHud->GetBaseHudFrame()->GetFrameCamera();
-      x150_basewidget_functional =
-          x34_samusHud->GetBaseHudFrame()->FindWidget(rstl::string_l("BaseWidget_Functional"));
+      mBasewidget_automapper =
+          mSamusHud->GetBaseHudFrame()->FindWidget(rstl::string_l("BaseWidget_AutoMapper"));
+      mModel_automapper = static_cast< CGuiModel* >(
+          mSamusHud->GetBaseHudFrame()->FindWidget(rstl::string_l("Model_AutoMapper")));
+      mBasehud_camera = mSamusHud->GetBaseHudFrame()->GetFrameCamera();
+      mBasewidget_functional =
+          mSamusHud->GetBaseHudFrame()->FindWidget(rstl::string_l("BaseWidget_Functional"));
 
-      x154_automapperRotate =
-          CQuaternion::FromMatrix(x144_basewidget_automapper->GetWorldTransform());
-      x164_automapperOffset = x144_basewidget_automapper->GetWorldTransform().GetTranslation();
-      x170_camRotate = CQuaternion::NoRotation();
-      x180_camOffset =
-          x14c_basehud_camera->GetWorldTransform().GetTranslation() +
-          CVector3f(0.f, skMapScreenCameraOffset, gpTweakAutoMapper->xec_camVerticalOffset);
-      x18c_mapCamXf = CTransform4f(x170_camRotate.BuildTransform(), x180_camOffset);
+      mAutomapperRotate =
+          CQuaternion::FromMatrix(mBasewidget_automapper->GetWorldTransform());
+      mAutomapperOffset = mBasewidget_automapper->GetWorldTransform().GetTranslation();
+      mCamRotate = CQuaternion::NoRotation();
+      mCamOffset =
+          mBasehud_camera->GetWorldTransform().GetTranslation() +
+          CVector3f(0.f, skMapScreenCameraOffset, gpTweakAutoMapper->mCamVerticalOffset);
+      mMapCamXf = CTransform4f(mCamRotate.BuildTransform(), mCamOffset);
       BeginStateTransition(kIGGS_InGame, mgr);
-      x18_loadPhase = kLP_Done;
+      mLoadPhase = kLP_Done;
     } else {
       return false;
     }
   }
   case kLP_Done:
-    x34_samusHud->Touch();
+    mSamusHud->Touch();
     return true;
   default:
     return false;
@@ -261,30 +261,30 @@ bool CInGameGuiManager::CheckLoadComplete(const CStateManager& mgr) {
 }
 
 void CInGameGuiManager::StartFadeIn() {
-  xf8_camFilter.SetFilter(CCameraFilterPass::kFT_Multiply, CCameraFilterPass::kFS_Fullscreen, 0.f,
+  mCamFilter.SetFilter(CCameraFilterPass::kFT_Multiply, CCameraFilterPass::kFS_Fullscreen, 0.f,
                           CColor::Black(), kInvalidAssetId);
-  xf8_camFilter.DisableFilter(0.5f);
+  mCamFilter.DisableFilter(0.5f);
 }
 
 void CInGameGuiManager::Draw(const CStateManager& mgr) const {
   if (!GetIsGameDraw()) {
     gpRender->SetRequestRGBA6(true);
   }
-  if (x1d8_onScreenTexAlpha > 0.f && x1dc_onScreenTexTok->GetObject() != nullptr) {
-    const CTexture& tex = *x1dc_onScreenTexTok->GetObject();
+  if (mOnScreenTexAlpha > 0.f && mOnScreenTexTok->GetObject() != nullptr) {
+    const CTexture& tex = *mOnScreenTexTok->GetObject();
     gpRender->SetDepthReadWrite(false, false);
     gpRender->SetBlendMode_AlphaBlended();
     CGraphics::SetTevOp(kTS_Stage0, CGraphics::kEnvModulate);
     CGraphics::SetTevOp(kTS_Stage1, CGraphics::kEnvPassthru);
-    const int w = x1c4_onScreenTex.x4_extent[0];
-    const int h = x1c4_onScreenTex.x4_extent[1];
+    const int w = mOnScreenTex.mExtent[0];
+    const int h = mOnScreenTex.mExtent[1];
     const CViewport& viewport = CGraphics::GetViewport();
-    const int x = viewport.mLeft + (viewport.mWidth - w) / 2 + x1c4_onScreenTex.xc_offset.GetX();
-    const int y = viewport.mTop + (viewport.mHeight - h) / 2 - x1c4_onScreenTex.xc_offset.GetY();
+    const int x = viewport.mLeft + (viewport.mWidth - w) / 2 + mOnScreenTex.mOffset.GetX();
+    const int y = viewport.mTop + (viewport.mHeight - h) / 2 - mOnScreenTex.mOffset.GetY();
 #if defined(TARGET_PC)
-    metaforce::RenderUiTexture(tex, x, y, w, h, CColor::White().WithAlphaOf(x1d8_onScreenTexAlpha));
+    metaforce::RenderUiTexture(tex, x, y, w, h, CColor::White().WithAlphaOf(mOnScreenTexAlpha));
 #else
-    CGraphics::Render2D(tex, x, y, w, h, CColor::White().WithAlphaOf(x1d8_onScreenTexAlpha));
+    CGraphics::Render2D(tex, x, y, w, h, CColor::White().WithAlphaOf(mOnScreenTexAlpha));
 #endif
   }
 
@@ -295,30 +295,30 @@ void CInGameGuiManager::Draw(const CStateManager& mgr) const {
   }
   const bool notInCine = !mgr.GetCameraManager()->IsInCinematicCamera();
   const bool drawVisor = notInCine && IsInOrTransitioningToOrFromState(kIGGS_InGame);
-  if (x3c_pauseScreenBlur->IsGameDraw()) {
-    x34_samusHud->GetTargetingManager().Draw(mgr, true);
+  if (mPauseScreenBlur->IsGameDraw()) {
+    mSamusHud->GetTargetingManager().Draw(mgr, true);
     CGraphics::SetDepthRange(1.f / 64.f, 1.f / 32.f);
     const bool scanVisor = mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::kPV_Scan;
-    if (drawVisor && x1f0_enablePlayerVisor != 0) {
+    if (drawVisor && mEnablePlayerVisor != 0) {
       if (mgr.GetPlayer()->GetCameraState() == CPlayer::kCS_FirstPerson) {
-        x20_faceplateDecor.Draw(mgr);
+        mFaceplateDecor.Draw(mgr);
       }
-      const bool targetingEnabled = x1e4_enableTargetingManager != 0;
+      const bool targetingEnabled = mEnableTargetingManager != 0;
       const CTargetingManager* targeting =
-          scanVisor && targetingEnabled ? &x34_samusHud->GetTargetingManager() : nullptr;
-      x30_playerVisor->Draw(mgr, targeting);
+          scanVisor && targetingEnabled ? &mSamusHud->GetTargetingManager() : nullptr;
+      mPlayerVisor->Draw(mgr, targeting);
     }
-    x40_samusReflection->Draw(mgr);
+    mSamusReflection->Draw(mgr);
     if (drawVisor) {
-      const bool hudVis = x1ec_hudVisMode != CTweakGui::kHud_Zero;
-      const bool targeting = x1e4_enableTargetingManager != 0;
+      const bool hudVis = mHudVisMode != CTweakGui::kHud_Zero;
+      const bool targeting = mEnableTargetingManager != 0;
       CGraphics::SetDepthRange(1.f / 512.f, 1.f / 64.f);
       if (staticAlpha > 0.f) {
         CCameraFilterPass::DrawFilter(CCameraFilterPass::kFT_Blend,
                                       CCameraFilterPass::kFS_RandomStatic,
                                       CColor::White().WithAlphaOf(staticAlpha), nullptr, 1.f);
       }
-      x34_samusHud->Draw(mgr, x1f4_visorStaticAlpha * (1.f - staticAlpha), x1e0_helmetVisMode,
+      mSamusHud->Draw(mgr, mVisorStaticAlpha * (1.f - staticAlpha), mHelmetVisMode,
                          hudVis, targeting && !scanVisor);
     }
   }
@@ -326,10 +326,10 @@ void CInGameGuiManager::Draw(const CStateManager& mgr) const {
   const bool preDrawBlur =
       IsInGameplayStateNotTransitioning() || IsInOrTransitioningToOrFromState(kIGGS_MapScreen);
   if (preDrawBlur) {
-    x3c_pauseScreenBlur->Draw(mgr);
+    mPauseScreenBlur->Draw(mgr);
   }
-  if (notInCine && x1e8_enableAutoMapper != 0 &&
-      (x3c_pauseScreenBlur->IsGameDraw() || IsInOrTransitioningToOrFromState(kIGGS_MapScreen))) {
+  if (notInCine && mEnableAutoMapper != 0 &&
+      (mPauseScreenBlur->IsGameDraw() || IsInOrTransitioningToOrFromState(kIGGS_MapScreen))) {
     const CPlayerState& playerState = *mgr.GetPlayerState();
     const CPlayer::EPlayerMorphBallState morphState =
         mgr.GetPlayer()->GetMorphballTransitionState();
@@ -344,34 +344,34 @@ void CInGameGuiManager::Draw(const CStateManager& mgr) const {
     } else {
       mapAlpha = 0.f;
     }
-    CGuiCamera* camera = x34_samusHud->GetBaseHudFrame()->GetFrameCamera();
+    CGuiCamera* camera = mSamusHud->GetBaseHudFrame()->GetFrameCamera();
     camera->Draw(CGuiWidgetDrawParms(0.f, CVector3f::Zero()));
     CGraphics::SetDepthRange(0.f, 1.f / 512.f);
-    x148_model_automapper->SetIsVisible(true);
-    x148_model_automapper->Draw(CGuiWidgetDrawParms(1.f, CVector3f::Zero()));
+    mModel_automapper->SetIsVisible(true);
+    mModel_automapper->Draw(CGuiWidgetDrawParms(1.f, CVector3f::Zero()));
     CGraphics::SetDepthWriteMode(true, kE_GEqual, false);
-    x38_autoMapper->Draw(mgr, CTransform4f::Translate(0.f, 0.02f, 0.f) * x18c_mapCamXf,
-                         mapAlpha * (x1f4_visorStaticAlpha * t));
+    mAutoMapper->Draw(mgr, CTransform4f::Translate(0.f, 0.02f, 0.f) * mMapCamXf,
+                         mapAlpha * (mVisorStaticAlpha * t));
     CGraphics::SetDepthWriteMode(true, kE_LEqual, true);
-    x148_model_automapper->SetIsVisible(false);
+    mModel_automapper->SetIsVisible(false);
   }
   if (!preDrawBlur) {
-    x3c_pauseScreenBlur->Draw(mgr);
+    mPauseScreenBlur->Draw(mgr);
   }
-  if (x1e0_helmetVisMode != 0u && notInCine) {
-    const float cameraOffset = x48_pauseScreen.null() ? 0.f : x48_pauseScreen->GetHelmetCamYOff();
-    x34_samusHud->DrawHelmet(mgr, cameraOffset);
+  if (mHelmetVisMode != 0u && notInCine) {
+    const float cameraOffset = mPauseScreen.null() ? 0.f : mPauseScreen->GetHelmetCamYOff();
+    mSamusHud->DrawHelmet(mgr, cameraOffset);
   }
-  if (!x4c_saveUI.null()) {
-    x4c_saveUI->Draw();
+  if (!mSaveUI.null()) {
+    mSaveUI->Draw();
   }
-  if (!x44_messageScreen.null()) {
-    x44_messageScreen->Draw();
+  if (!mMessageScreen.null()) {
+    mMessageScreen->Draw();
   }
-  if (!x48_pauseScreen.null()) {
-    x48_pauseScreen->Draw();
+  if (!mPauseScreen.null()) {
+    mPauseScreen->Draw();
   }
-  xf8_camFilter.Draw();
+  mCamFilter.Draw();
 
   if (deathTime > 0.f) {
     const float deathDuration =
@@ -421,7 +421,7 @@ void CInGameGuiManager::Draw(const CStateManager& mgr) const {
       CGraphics::StreamVertex(CVector3f(x, 0.f, negZ));
       CGraphics::StreamEnd();
       gpRender->SetBlendMode_ColorMultiply();
-      x50_deathDot.GetObject()->Load(GX_TEXMAP0, CTexture::kCM_Repeat);
+      mDeathDot.GetObject()->Load(GX_TEXMAP0, CTexture::kCM_Repeat);
       CGraphics::StreamBegin(kP_TriangleStrip);
       CGraphics::StreamColor(CColor::White().WithAlphaOf(colorT));
       CGraphics::StreamTexcoord(0.f, 0.f);
@@ -438,232 +438,232 @@ void CInGameGuiManager::Draw(const CStateManager& mgr) const {
 }
 
 void CInGameGuiManager::PreDraw(CStateManager& mgr, bool isCameraActive) {
-  if (!x48_pauseScreen.null()) {
-    x48_pauseScreen->PreDraw();
+  if (!mPauseScreen.null()) {
+    mPauseScreen->PreDraw();
   }
   if (isCameraActive) {
-    x40_samusReflection->PreDraw(mgr);
+    mSamusReflection->PreDraw(mgr);
   }
 }
 
 void CInGameGuiManager::Update(const CStateManager& mgr, float dt, CArchitectureQueue& queue,
                                bool cameraActive) {
   EnsureStates(mgr);
-  if (x1d8_onScreenTexAlpha == 0.f) {
-    x1dc_onScreenTexTok = nullptr;
+  if (mOnScreenTexAlpha == 0.f) {
+    mOnScreenTexTok = nullptr;
   }
   const SOnScreenTex& pending = mgr.GetPendingScreenTex();
-  if (pending.x0_id != x1c4_onScreenTex.x0_id) {
-    if (x1dc_onScreenTexTok.null()) {
-      x1c4_onScreenTex.x0_id = pending.x0_id;
-      x1c4_onScreenTex.x4_extent = pending.x4_extent;
-      x1c4_onScreenTex.xc_offset = pending.xc_offset;
-      if (x1c4_onScreenTex.x0_id != kInvalidAssetId) {
-        x1dc_onScreenTexTok = rs_new TCachedToken< CTexture >(
-            gpSimplePool->GetObj(SObjectTag('TXTR', x1c4_onScreenTex.x0_id)));
-        x1dc_onScreenTexTok->Lock();
-        x1d8_onScreenTexAlpha = FLT_EPSILON;
+  if (pending.mId != mOnScreenTex.mId) {
+    if (mOnScreenTexTok.null()) {
+      mOnScreenTex.mId = pending.mId;
+      mOnScreenTex.mExtent = pending.mExtent;
+      mOnScreenTex.mOffset = pending.mOffset;
+      if (mOnScreenTex.mId != kInvalidAssetId) {
+        mOnScreenTexTok = rs_new TCachedToken< CTexture >(
+            gpSimplePool->GetObj(SObjectTag('TXTR', mOnScreenTex.mId)));
+        mOnScreenTexTok->Lock();
+        mOnScreenTexAlpha = FLT_EPSILON;
       }
     } else {
-      if (pending.x0_id == kInvalidAssetId && pending.x4_extent == CVector2i(0, 0)) {
-        x1c4_onScreenTex.x4_extent = pending.x4_extent;
-        x1c4_onScreenTex.x0_id = kInvalidAssetId;
-        x1d8_onScreenTexAlpha = 0.f;
+      if (pending.mId == kInvalidAssetId && pending.mExtent == CVector2i(0, 0)) {
+        mOnScreenTex.mExtent = pending.mExtent;
+        mOnScreenTex.mId = kInvalidAssetId;
+        mOnScreenTexAlpha = 0.f;
       } else {
-        x1d8_onScreenTexAlpha = rstl::max_val(0.f, x1d8_onScreenTexAlpha - dt);
+        mOnScreenTexAlpha = rstl::max_val(0.f, mOnScreenTexAlpha - dt);
       }
     }
-  } else if (x1c4_onScreenTex.x0_id != kInvalidAssetId && !x1dc_onScreenTexTok.null() &&
-             x1dc_onScreenTexTok->TryCache()) {
-    x1d8_onScreenTexAlpha = rstl::min_val(1.f, x1d8_onScreenTexAlpha + dt);
+  } else if (mOnScreenTex.mId != kInvalidAssetId && !mOnScreenTexTok.null() &&
+             mOnScreenTexTok->TryCache()) {
+    mOnScreenTexAlpha = rstl::min_val(1.f, mOnScreenTexAlpha + dt);
   }
 
   if (cameraActive) {
     const float visorStaticAlpha = mgr.GetPlayer()->GetVisorStaticAlpha();
-    if (visorStaticAlpha != x1f4_visorStaticAlpha) {
+    if (visorStaticAlpha != mVisorStaticAlpha) {
       if (TCastToConstPtr< CFirstPersonCamera >(mgr.GetCameraManager()->GetCurrentCamera(mgr))) {
-        if (CMath::AbsF(visorStaticAlpha - x1f4_visorStaticAlpha) < 0.5f) {
-          if (x1f4_visorStaticAlpha == 0.f) {
+        if (CMath::AbsF(visorStaticAlpha - mVisorStaticAlpha) < 0.5f) {
+          if (mVisorStaticAlpha == 0.f) {
             CSfxManager::SfxStart(SFXui_x_hudon_00, 127, 64, false, CSfxManager::kMedPriority,
                                   false, CSfxManager::kAllAreas);
-          } else if (x1f4_visorStaticAlpha == 1.f) {
+          } else if (mVisorStaticAlpha == 1.f) {
             CSfxManager::SfxStart(SFXui_x_hudoff_00, 127, 64, false, CSfxManager::kMedPriority,
                                   false, CSfxManager::kAllAreas);
           }
         }
       }
     }
-    x1f4_visorStaticAlpha = visorStaticAlpha;
+    mVisorStaticAlpha = visorStaticAlpha;
   }
   if (cameraActive) {
-    x20_faceplateDecor.Update(dt, mgr);
+    mFaceplateDecor.Update(dt, mgr);
   }
   if (cameraActive) {
-    x40_samusReflection->Update(dt, mgr, x1c_rand);
+    mSamusReflection->Update(dt, mgr, mRand);
   }
-  if (x1f0_enablePlayerVisor != 0 && cameraActive) {
-    x30_playerVisor->Update(dt, mgr);
+  if (mEnablePlayerVisor != 0 && cameraActive) {
+    mPlayerVisor->Update(dt, mgr);
   }
-  if (cameraActive && x1f8_25_playerAlive) {
-    x34_samusHud->Update(dt, mgr, x1e0_helmetVisMode, x1ec_hudVisMode != CTweakGui::kHud_Zero,
-                         x1e4_enableTargetingManager != 0);
+  if (cameraActive && mPlayerAlive) {
+    mSamusHud->Update(dt, mgr, mHelmetVisMode, mHudVisMode != CTweakGui::kHud_Zero,
+                         mEnableTargetingManager != 0);
   }
-  if (x1e8_enableAutoMapper != 0) {
+  if (mEnableAutoMapper != 0) {
     UpdateAutoMapper(mgr, dt);
   }
-  x3c_pauseScreenBlur->Update(dt, mgr, x12c_dumpedTextures.empty());
+  mPauseScreenBlur->Update(dt, mgr, mDumpedTextures.empty());
 
-  if (!x4c_saveUI.null()) {
-    const CIOWin::EMessageReturn ret = x4c_saveUI->Update(dt);
+  if (!mSaveUI.null()) {
+    const CIOWin::EMessageReturn ret = mSaveUI->Update(dt);
     if (ret != CIOWin::kMR_Normal) {
-      x1f8_27_inSaveUI = ret == CIOWin::kMR_Exit;
+      mInSaveUI = ret == CIOWin::kMR_Exit;
       BeginStateTransition(kIGGS_InGame, mgr);
     }
-  } else if (!x44_messageScreen.null()) {
-    const float blurAmt = x3c_pauseScreenBlur->GetBlurAmt();
-    if (!x44_messageScreen->Update(dt, blurAmt)) {
+  } else if (!mMessageScreen.null()) {
+    const float blurAmt = mPauseScreenBlur->GetBlurAmt();
+    if (!mMessageScreen->Update(dt, blurAmt)) {
       BeginStateTransition(kIGGS_InGame, mgr);
     }
   }
-  if (!x48_pauseScreen.null()) {
-    x48_pauseScreen->Update(dt, mgr, x1c_rand, queue);
+  if (!mPauseScreen.null()) {
+    mPauseScreen->Update(dt, mgr, mRand, queue);
     if (!IsStateTransitioning()) {
-      if (x48_pauseScreen->ShouldSwitchToMapScreen()) {
+      if (mPauseScreen->ShouldSwitchToMapScreen()) {
         BeginStateTransition(kIGGS_MapScreen, mgr);
-      } else if (x48_pauseScreen->ShouldSwitchToInGame()) {
+      } else if (mPauseScreen->ShouldSwitchToInGame()) {
         BeginStateTransition(kIGGS_InGame, mgr);
       }
     }
   }
-  x34_samusHud->Touch();
-  x30_playerVisor->Touch();
-  x34_samusHud->GetTargetingManager().Touch();
+  mSamusHud->Touch();
+  mPlayerVisor->Touch();
+  mSamusHud->GetTargetingManager().Touch();
 
   if (IsStateTransitioning()) {
-    if (InGameGuiStates::IsGameplayState(x1c0_nextState)) {
+    if (InGameGuiStates::IsGameplayState(mNextState)) {
       TryReloadAreaTextures();
     }
-    const CAutoMapper& mapper = *x38_autoMapper;
+    const CAutoMapper& mapper = *mAutoMapper;
     const bool mapperIsTransitioning = mapper.GetCurrentState() != mapper.GetNextState();
-    if ((!mapperIsTransitioning || x1e8_enableAutoMapper == 0) &&
-        x3c_pauseScreenBlur->IsNotTransitioning()) {
+    if ((!mapperIsTransitioning || mEnableAutoMapper == 0) &&
+        mPauseScreenBlur->IsNotTransitioning()) {
       TryCompleteStateTransition(queue);
     }
   }
-  xf8_camFilter.Update(dt);
+  mCamFilter.Update(dt);
   if (mgr.GetCameraManager()->IsInCinematicCamera()) {
     mgr.SetViewportScaleX(1.f);
     mgr.SetViewportScaleY(1.f);
   } else {
-    const float scaleX = rstl::min_val(x34_samusHud->GetDesiredViewportScaleX(),
-                                       x30_playerVisor->GetDesiredViewportScaleX(mgr));
-    const float scaleY = rstl::min_val(x34_samusHud->GetDesiredViewportScaleY(),
-                                       x30_playerVisor->GetDesiredViewportScaleY(mgr));
+    const float scaleX = rstl::min_val(mSamusHud->GetDesiredViewportScaleX(),
+                                       mPlayerVisor->GetDesiredViewportScaleX(mgr));
+    const float scaleY = rstl::min_val(mSamusHud->GetDesiredViewportScaleY(),
+                                       mPlayerVisor->GetDesiredViewportScaleY(mgr));
     mgr.SetViewportScaleX(scaleX);
     mgr.SetViewportScaleY(scaleY);
   }
-  x1f8_25_playerAlive = mgr.GetPlayerState()->IsAlive();
+  mPlayerAlive = mgr.GetPlayerState()->IsAlive();
 }
 
 void CInGameGuiManager::UpdateAutoMapper(const CStateManager& mgr, float dt) {
-  x38_autoMapper->Update(dt, mgr);
-  const CTransform4f xf = x148_model_automapper->Parent()->GetWorldTransform() *
-                          x144_basewidget_automapper->GetTransform();
-  x154_automapperRotate = CQuaternion::FromMatrix(xf);
-  x164_automapperOffset = xf.GetTranslation();
+  mAutoMapper->Update(dt, mgr);
+  const CTransform4f xf = mModel_automapper->Parent()->GetWorldTransform() *
+                          mBasewidget_automapper->GetTransform();
+  mAutomapperRotate = CQuaternion::FromMatrix(xf);
+  mAutomapperOffset = xf.GetTranslation();
 
-  const CTransform4f& cameraXf = x14c_basehud_camera->GetWorldTransform();
-  x170_camRotate = CQuaternion::FromMatrix(cameraXf);
-  x180_camOffset = cameraXf.GetTranslation() + skMapScreenCameraOffset * cameraXf.GetForward() +
-                   gpTweakAutoMapper->xec_camVerticalOffset * cameraXf.GetUp();
+  const CTransform4f& cameraXf = mBasehud_camera->GetWorldTransform();
+  mCamRotate = CQuaternion::FromMatrix(cameraXf);
+  mCamOffset = cameraXf.GetTranslation() + skMapScreenCameraOffset * cameraXf.GetForward() +
+                   gpTweakAutoMapper->mCamVerticalOffset * cameraXf.GetUp();
 
   const float frameLength =
-      CMath::SlowTangentR(0.5f * CMath::Deg2Rad(x14c_basehud_camera->GetParms().perspective.fov)) /
+      CMath::SlowTangentR(0.5f * CMath::Deg2Rad(mBasehud_camera->GetParms().perspective.fov)) /
       0.7f;
-  const float scaleX = frameLength * gpTweakAutoMapper->xe4_automapperScaleX;
-  const float scaleZ = frameLength * gpTweakAutoMapper->xe8_automapperScaleZ;
-  if (x38_autoMapper->IsFullyOutOfMiniMapState()) {
-    x148_model_automapper->SetO2WTransform(
-        CTransform4f(x170_camRotate.BuildTransform(), x180_camOffset) *
+  const float scaleX = frameLength * gpTweakAutoMapper->mAutomapperScaleX;
+  const float scaleZ = frameLength * gpTweakAutoMapper->mAutomapperScaleZ;
+  if (mAutoMapper->IsFullyOutOfMiniMapState()) {
+    mModel_automapper->SetO2WTransform(
+        CTransform4f(mCamRotate.BuildTransform(), mCamOffset) *
         CTransform4f::Scale(scaleX, 1.f, scaleZ));
-    x18c_mapCamXf = CTransform4f(x170_camRotate.BuildTransform(), x180_camOffset) *
+    mMapCamXf = CTransform4f(mCamRotate.BuildTransform(), mCamOffset) *
                     CTransform4f::Scale(frameLength, 1.f, frameLength);
-    x148_model_automapper->SetColor(gpTweakAutoMapper->x24_automapperWidgetColor);
-  } else if (x38_autoMapper->IsFullyInMiniMapState()) {
-    x148_model_automapper->SetO2WTransform(
-        CTransform4f(x154_automapperRotate.BuildTransform(), x164_automapperOffset));
-    x18c_mapCamXf = x148_model_automapper->GetWorldTransform();
-    x148_model_automapper->SetColor(gpTweakAutoMapper->x38_automapperWidgetMiniColor);
+    mModel_automapper->SetColor(gpTweakAutoMapper->mAutomapperWidgetColor);
+  } else if (mAutoMapper->IsFullyInMiniMapState()) {
+    mModel_automapper->SetO2WTransform(
+        CTransform4f(mAutomapperRotate.BuildTransform(), mAutomapperOffset));
+    mMapCamXf = mModel_automapper->GetWorldTransform();
+    mModel_automapper->SetColor(gpTweakAutoMapper->mAutomapperWidgetMiniColor);
   } else {
     float t;
-    if (x38_autoMapper->GetNextState() != CAutoMapper::kAMS_MiniMap) {
-      t = x38_autoMapper->GetInterp();
+    if (mAutoMapper->GetNextState() != CAutoMapper::kAMS_MiniMap) {
+      t = mAutoMapper->GetInterp();
     } else {
-      t = 1.f - x38_autoMapper->GetInterp();
+      t = 1.f - mAutoMapper->GetInterp();
     }
-    const CQuaternion rotate = CQuaternion::Slerp(x154_automapperRotate, x170_camRotate, t);
-    const CVector3f offset = CVector3f::Lerp(x164_automapperOffset, x180_camOffset, t);
+    const CQuaternion rotate = CQuaternion::Slerp(mAutomapperRotate, mCamRotate, t);
+    const CVector3f offset = CVector3f::Lerp(mAutomapperOffset, mCamOffset, t);
     const float st = t * (frameLength - 1.f) + 1.f;
-    x18c_mapCamXf =
+    mMapCamXf =
         CTransform4f(rotate.BuildTransform(), offset) * CTransform4f::Scale(st, 1.f, st);
-    x148_model_automapper->SetO2WTransform(
+    mModel_automapper->SetO2WTransform(
         CTransform4f(rotate.BuildTransform(), offset) *
         CTransform4f::Scale(t * (scaleX - 1.f) + 1.f, 1.f, t * (scaleZ - 1.f) + 1.f));
-    const CColor color = CColor::Lerp(gpTweakAutoMapper->x38_automapperWidgetMiniColor,
-                                      gpTweakAutoMapper->x24_automapperWidgetColor, t);
-    x148_model_automapper->SetColor(color);
+    const CColor color = CColor::Lerp(gpTweakAutoMapper->mAutomapperWidgetMiniColor,
+                                      gpTweakAutoMapper->mAutomapperWidgetColor, t);
+    mModel_automapper->SetColor(color);
   }
 }
 
 void CInGameGuiManager::TryCompleteStateTransition(CArchitectureQueue& queue) {
-  if (x1c0_nextState != kIGGS_PauseGame && x1c0_nextState != kIGGS_PauseLogBook) {
-    if (!x48_pauseScreen.null() && x48_pauseScreen->IsTransitioning()) {
+  if (mNextState != kIGGS_PauseGame && mNextState != kIGGS_PauseLogBook) {
+    if (!mPauseScreen.null() && mPauseScreen->IsTransitioning()) {
       return;
     }
-    x48_pauseScreen = nullptr;
+    mPauseScreen = nullptr;
   }
-  if (InGameGuiStates::IsGameplayState(x1c0_nextState)) {
-    x44_messageScreen = nullptr;
+  if (InGameGuiStates::IsGameplayState(mNextState)) {
+    mMessageScreen = nullptr;
     if (!TryReloadAreaTextures()) {
       return;
     }
     CModel::EnableTextureTimeout();
     RefreshHudOptions();
   }
-  x1bc_prevState = x1c0_nextState;
+  mPrevState = mNextState;
 }
 
-void CInGameGuiManager::RefreshHudOptions() { x34_samusHud->RefreshHudOptions(); }
+void CInGameGuiManager::RefreshHudOptions() { mSamusHud->RefreshHudOptions(); }
 
 void CInGameGuiManager::ProcessControllerInput(const CStateManager& mgr, const CFinalInput& input,
                                                CArchitectureQueue& queue) {
   if (input.ControllerNumber() == 0) {
     if (!IsInGameplayStateNotTransitioning()) {
       if (IsInPausedStateNotTransitioning()) {
-        if (x1bc_prevState == kIGGS_MapScreen) {
-          if (x38_autoMapper->IsInMapperState(CAutoMapper::kAMS_MapScreen) ||
-              x38_autoMapper->IsInMapperState(CAutoMapper::kAMS_MapScreenUniverse)) {
-            x38_autoMapper->ProcessControllerInput(input, mgr);
-            if (x38_autoMapper->CanLeaveMapScreen(mgr)) {
+        if (mPrevState == kIGGS_MapScreen) {
+          if (mAutoMapper->IsInMapperState(CAutoMapper::kAMS_MapScreen) ||
+              mAutoMapper->IsInMapperState(CAutoMapper::kAMS_MapScreenUniverse)) {
+            mAutoMapper->ProcessControllerInput(input, mgr);
+            if (mAutoMapper->CanLeaveMapScreen(mgr)) {
               BeginStateTransition(kIGGS_InGame, mgr);
             }
           }
           return;
         }
-        if (x1bc_prevState == kIGGS_PauseSaveGame) {
-          x4c_saveUI->ProcessUserInput(input);
+        if (mPrevState == kIGGS_PauseSaveGame) {
+          mSaveUI->ProcessUserInput(input);
           return;
         }
-        if (x1bc_prevState == kIGGS_PauseHUDMessage) {
-          x44_messageScreen->ProcessControllerInput(input);
+        if (mPrevState == kIGGS_PauseHUDMessage) {
+          mMessageScreen->ProcessControllerInput(input);
           return;
         }
-        if (!x48_pauseScreen.null()) {
-          x48_pauseScreen->ProcessControllerInput(mgr, input);
+        if (!mPauseScreen.null()) {
+          mPauseScreen->ProcessControllerInput(mgr, input);
         }
       }
     } else {
-      x34_samusHud->ProcessControllerInput(input);
+      mSamusHud->ProcessControllerInput(input);
     }
   }
 }
@@ -676,43 +676,43 @@ void CInGameGuiManager::PauseGame(const CStateManager& mgr, EInGameGuiState stat
 
 void CInGameGuiManager::ShowPauseGameHudMessage(const CStateManager& mgr, CAssetId message,
                                                 float time) {
-  x124_pauseGameHudMessage = message;
-  x128_pauseGameHudTime = time;
+  mPauseGameHudMessage = message;
+  mPauseGameHudTime = time;
   PauseGame(mgr, kIGGS_PauseHUDMessage);
 }
 
-bool CInGameGuiManager::GetIsGameDraw() const { return x3c_pauseScreenBlur->IsGameDraw(); }
+bool CInGameGuiManager::GetIsGameDraw() const { return mPauseScreenBlur->IsGameDraw(); }
 
 void CInGameGuiManager::BeginStateTransition(EInGameGuiState state, const CStateManager& mgr) {
-  if (x1c0_nextState == state) {
+  if (mNextState == state) {
     return;
   }
 
-  x1bc_prevState = x1c0_nextState;
-  x1c0_nextState = state;
+  mPrevState = mNextState;
+  mNextState = state;
 
   if (state == kIGGS_InGame) {
     CSfxManager::SetChannel(CSfxManager::kSC_Game);
-    x4c_saveUI = nullptr;
-    x38_autoMapper->UnmuteAllLoopedSounds();
+    mSaveUI = nullptr;
+    mAutoMapper->UnmuteAllLoopedSounds();
   } else if (state == kIGGS_PauseHUDMessage) {
-    x44_messageScreen = rs_new CMessageScreen(x124_pauseGameHudMessage, x128_pauseGameHudTime);
+    mMessageScreen = rs_new CMessageScreen(mPauseGameHudMessage, mPauseGameHudTime);
   } else if (state == kIGGS_PauseSaveGame) {
-    x4c_saveUI = rs_new CSaveGameScreen(kSC_InGame, gpGameState->GetCardSerial());
-  } else if (InGameGuiStates::IsGameplayState(x1bc_prevState)) {
-    x1f8_26_deferTransition = true;
+    mSaveUI = rs_new CSaveGameScreen(kSC_InGame, gpGameState->GetCardSerial());
+  } else if (InGameGuiStates::IsGameplayState(mPrevState)) {
+    mDeferTransition = true;
   }
-  x3c_pauseScreenBlur->OnNewInGameGuiState(state, mgr);
-  if (!x1f8_26_deferTransition) {
+  mPauseScreenBlur->OnNewInGameGuiState(state, mgr);
+  if (!mDeferTransition) {
     DoStateTransition(mgr);
   }
 }
 
 void CInGameGuiManager::DoStateTransition(const CStateManager& mgr) {
-  x34_samusHud->OnNewInGameGuiState(x1c0_nextState, mgr);
-  x38_autoMapper->OnNewInGameGuiState(x1c0_nextState, mgr);
-  if ((x1c0_nextState == kIGGS_PauseGame || x1c0_nextState == kIGGS_PauseLogBook) &&
-      x48_pauseScreen.null()) {
+  mSamusHud->OnNewInGameGuiState(mNextState, mgr);
+  mAutoMapper->OnNewInGameGuiState(mNextState, mgr);
+  if ((mNextState == kIGGS_PauseGame || mNextState == kIGGS_PauseLogBook) &&
+      mPauseScreen.null()) {
     const CPlayerState& playerState = *mgr.GetPlayerState();
     const CPlayerState::EPlayerSuit suit = playerState.GetCurrentSuitRaw();
 
@@ -736,15 +736,15 @@ void CInGameGuiManager::DoStateTransition(const CStateManager& mgr) {
                                             : suit == CPlayerState::kPS_Gravity ? kPD_Gravity
                                             : suit == CPlayerState::kPS_Varia   ? kPD_Varia
                                                                                 : kPD_Power);
-    const CPauseScreen::ESubScreen screen = x1c0_nextState == kIGGS_PauseLogBook
+    const CPauseScreen::ESubScreen screen = mNextState == kIGGS_PauseLogBook
                                                 ? CPauseScreen::kSS_LogBook
                                                 : CPauseScreen::kSS_Inventory;
-    x48_pauseScreen = rs_new CPauseScreen(screen, **x5c_pauseScreenDGRPs[suitResIdx],
-                                          **x5c_pauseScreenDGRPs[suitResIdx]);
+    mPauseScreen = rs_new CPauseScreen(screen, **mPauseScreenDGRPs[suitResIdx],
+                                          **mPauseScreenDGRPs[suitResIdx]);
   }
 
-  const bool needsLock = InGameGuiStates::IsPausedState(x1c0_nextState);
-  for (AUTO(it, xe8_pauseResources.begin()); it != xe8_pauseResources.end(); ++it) {
+  const bool needsLock = InGameGuiStates::IsPausedState(mNextState);
+  for (AUTO(it, mPauseResources.begin()); it != mPauseResources.end(); ++it) {
     if (needsLock) {
       it->Lock();
     } else {
@@ -754,16 +754,16 @@ void CInGameGuiManager::DoStateTransition(const CStateManager& mgr) {
 }
 
 void CInGameGuiManager::EnsureStates(const CStateManager& mgr) {
-  if (x1f8_26_deferTransition && !x3c_pauseScreenBlur->IsGameDraw()) {
+  if (mDeferTransition && !mPauseScreenBlur->IsGameDraw()) {
     DestroyAreaTextures(mgr);
-    x1f8_26_deferTransition = false;
+    mDeferTransition = false;
     DoStateTransition(mgr);
   }
 }
 
 bool CInGameGuiManager::IsTextureInPauseScreen(CAssetId id) const {
   for (int i = 0; i < 13; ++i) {
-    TToken< CDependencyGroup > token = x5c_pauseScreenDGRPs[i];
+    TToken< CDependencyGroup > token = mPauseScreenDGRPs[i];
     const rstl::vector< SObjectTag >& tags = token->GetObjectTagVector();
     for (AUTO(it, tags.begin()); it != tags.end(); ++it) {
       if (id == it->GetId()) {
@@ -809,7 +809,7 @@ void CInGameGuiManager::DestroyAreaTextures(const CStateManager& mgr) {
   }
 
   int memoryFreed = 0;
-  for (AUTO(it, xd8_inGameTextureIDs.begin()); it != xd8_inGameTextureIDs.end(); ++it) {
+  for (AUTO(it, mInGameTextureIDs.begin()); it != mInGameTextureIDs.end(); ++it) {
     CAssetId id = *it;
     if (!IsTextureInPauseScreen(id)) {
       TToken< CTexture > token = gpSimplePool->GetObj(SObjectTag('TXTR', id));
@@ -820,7 +820,7 @@ void CInGameGuiManager::DestroyAreaTextures(const CStateManager& mgr) {
         CTexture& texture = **token;
         if (texture.GetTexelFormat() != kTF_C4 && texture.fn_8030F088() == 0) {
           const int size = texture.GetMemoryAllocated();
-          x12c_dumpedTextures.push_back(TDumpedTexture(id, token));
+          mDumpedTextures.push_back(TDumpedTexture(id, token));
           texture.UnloadBitmapData(id);
           memoryFreed += size;
         }
@@ -835,7 +835,7 @@ void CInGameGuiManager::DestroyAreaTextures(const CStateManager& mgr) {
     if (memoryFreed >= 0x100000) {
       break;
     }
-    TToken< CTexture >& token = it->x8_token;
+    TToken< CTexture >& token = it->mToken;
     CTexture& texture = **token;
     bool transferred = false;
     if (!texture.GetNoSwap()) {
@@ -848,14 +848,14 @@ void CInGameGuiManager::DestroyAreaTextures(const CStateManager& mgr) {
       }
     }
     if (!transferred) {
-      texture.UnloadBitmapData(it->x0_id);
-      x12c_dumpedTextures.push_back(TDumpedTexture(it->x0_id, token));
+      texture.UnloadBitmapData(it->mId);
+      mDumpedTextures.push_back(TDumpedTexture(it->mId, token));
     }
     memoryFreed += texture.GetMemoryAllocated();
   }
 
   CTexture::sCurrentFrameCount = 0;
-  x12c_dumpedTextures.sort(
+  mDumpedTextures.sort(
       rstl::pair_sorter_finder< TDumpedTexture, rstl::less< CAssetId > >(rstl::less< CAssetId >()));
 #endif
   CModel::DisableTextureTimeout();
@@ -863,10 +863,10 @@ void CInGameGuiManager::DestroyAreaTextures(const CStateManager& mgr) {
 
 const bool CInGameGuiManager::TryReloadAreaTextures() {
   bool complete = true;
-  AUTO(it, x12c_dumpedTextures.begin());
-  while (it != x12c_dumpedTextures.end()) {
+  AUTO(it, mDumpedTextures.begin());
+  while (it != mDumpedTextures.end()) {
     if (it->second->TryReloadBitmapData(*gpResourceFactory)) {
-      it = x12c_dumpedTextures.erase(it);
+      it = mDumpedTextures.erase(it);
     } else {
       complete = false;
       ++it;

@@ -13,11 +13,11 @@ public:
 
   explicit CTransitionDatabase(
       const rstl::optional_object< TToken< CTransitionDatabase > >& token = rstl::optional_object_null())
-  : x4_token(token) {}
+  : mToken(token) {}
   ~CTransitionDatabase() {}
 
 private:
-  rstl::optional_object< TToken< CTransitionDatabase > > x4_token;
+  rstl::optional_object< TToken< CTransitionDatabase > > mToken;
 };
 CHECK_SIZEOF(CTransitionDatabase, 0x10)
 

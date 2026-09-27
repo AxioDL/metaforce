@@ -20,23 +20,23 @@ CAtomicAlpha::CAtomicAlpha(TUniqueId uid, const rstl::string& name, const CEntit
                            bool invisible, bool applyBeamAttraction)
 : CPatterned(kC_AtomicAlpha, uid, name, kFT_Zero, info, xf, mData, pInfo, kMT_Flyer, kCT_One,
              kBT_Flyer, actParms, kCS_Medium)
-, x568_24_inRange(false)
-, x568_25_invisible(invisible)
-, x568_26_applyBeamAttraction(applyBeamAttraction)
-, x56c_bombDropDelay(bombDropDelay)
-, x570_bombReappearDelay(bombReappearDelay)
-, x574_bombRappearTime(bombRappearTime)
-, x578_bombTime(0.f)
-, x57c_curBomb(0)
-, x580_pathFind(NULL, 3, pInfo.GetPathfindingIndex(), 1.f, 1.f)
-, x664_steeringBehaviors()
-, x668_bombProjectile(bombWeapon, bombDamage)
-, x690_bombModel(CStaticRes(cmdl, mData.ScaleCopy())) {
-  x668_bombProjectile.Token().Lock();
-  x6dc_bombLocators.push_back(SBomb(rstl::string_l("bomb1_LCTR"), pas::kLT_Internal10, FLT_MAX));
-  x6dc_bombLocators.push_back(SBomb(rstl::string_l("bomb2_LCTR"), pas::kLT_Internal11, FLT_MAX));
-  x6dc_bombLocators.push_back(SBomb(rstl::string_l("bomb3_LCTR"), pas::kLT_Internal12, FLT_MAX));
-  x6dc_bombLocators.push_back(SBomb(rstl::string_l("bomb4_LCTR"), pas::kLT_Internal13, FLT_MAX));
+, mInRange(false)
+, mInvisible(invisible)
+, mApplyBeamAttraction(applyBeamAttraction)
+, mBombDropDelay(bombDropDelay)
+, mBombReappearDelay(bombReappearDelay)
+, mBombRappearTime(bombRappearTime)
+, mBombTime(0.f)
+, mCurBomb(0)
+, mPathFind(NULL, 3, pInfo.GetPathfindingIndex(), 1.f, 1.f)
+, mSteeringBehaviors()
+, mBombProjectile(bombWeapon, bombDamage)
+, mBombModel(CStaticRes(cmdl, mData.ScaleCopy())) {
+  mBombProjectile.Token().Lock();
+  mBombLocators.push_back(SBomb(rstl::string_l("bomb1_LCTR"), pas::kLT_Internal10, FLT_MAX));
+  mBombLocators.push_back(SBomb(rstl::string_l("bomb2_LCTR"), pas::kLT_Internal11, FLT_MAX));
+  mBombLocators.push_back(SBomb(rstl::string_l("bomb3_LCTR"), pas::kLT_Internal12, FLT_MAX));
+  mBombLocators.push_back(SBomb(rstl::string_l("bomb4_LCTR"), pas::kLT_Internal13, FLT_MAX));
 }
 
 ENTITY_ACCEPT_IMPL(CAtomicAlpha)
@@ -50,12 +50,12 @@ void CAtomicAlpha::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
     break;
   case kSM_AddSplashInhabitant:
     if (IsAlive()) {
-      x401_30_pendingDeath = true;
+      mPendingDeath = true;
     }
     break;
   case kSM_InitializedInArea:
     const TAreaId aid = GetCurrentAreaId();
-    x580_pathFind.SetArea(mgr.GetWorld()->GetArea(aid)->GetPostConstructed()->x10bc_pathArea);
+    mPathFind.SetArea(mgr.GetWorld()->GetArea(aid)->GetPostConstructed()->mPathArea);
     break;
   }
 }
@@ -67,10 +67,10 @@ void CAtomicAlpha::Think(const float dt, CStateManager& mgr) {
     return;
   }
 
-  x578_bombTime += dt;
+  mBombTime += dt;
 
-  for (int i = 0; i < x6dc_bombLocators.size(); ++i) {
-    x6dc_bombLocators[i].x14_scaleTime += dt;
+  for (int i = 0; i < mBombLocators.size(); ++i) {
+    mBombLocators[i].mScaleTime += dt;
   }
 }
 
@@ -78,11 +78,11 @@ void CAtomicAlpha::CollidedWith(const TUniqueId& id, const CCollisionInfoList& l
                                 CStateManager& mgr) {
   if (IsAlive()) {
     if (TCastToConstPtr< CPlayer >(mgr.GetObjectById(id))) {
-      if (x420_curDamageRemTime <= 0.f) {
+      if (mCurDamageRemTime <= 0.f) {
         mgr.PlayerState()->StaticInterference().AddSource(GetUniqueId(), 0.5f, 0.25f);
 
-        for (int i = 0; i < x6dc_bombLocators.size(); ++i) {
-          x6dc_bombLocators[i].x14_scaleTime = 0.f;
+        for (int i = 0; i < mBombLocators.size(); ++i) {
+          mBombLocators[i].mScaleTime = 0.f;
         }
       }
     }
@@ -93,27 +93,27 @@ void CAtomicAlpha::CollidedWith(const TUniqueId& id, const CCollisionInfoList& l
 
 void CAtomicAlpha::Render(const CStateManager& mgr) const {
   const bool xrayActive = mgr.GetPlayerState()->IsXRayActive(mgr);
-  if (x568_25_invisible && !xrayActive) {
+  if (mInvisible && !xrayActive) {
     return;
   }
   CPatterned::Render(mgr);
 
-  for (int i = 0; i < x6dc_bombLocators.size(); ++i) {
+  for (int i = 0; i < mBombLocators.size(); ++i) {
     const float scale = rstl::min_val(
-        rstl::max_val(0.f, x6dc_bombLocators[i].x14_scaleTime - x570_bombReappearDelay) /
-            x570_bombReappearDelay,
+        rstl::max_val(0.f, mBombLocators[i].mScaleTime - mBombReappearDelay) /
+            mBombReappearDelay,
         1.f);
 
     const CTransform4f locatorXf = GetTransform() *
-                                   GetScaledLocatorTransform(x6dc_bombLocators[i].x0_locatorName) *
+                                   GetScaledLocatorTransform(mBombLocators[i].mLocatorName) *
                                    CTransform4f::Scale(scale);
-    x690_bombModel.Render(mgr, locatorXf, GetActorLights(), CModelFlags::Normal());
+    mBombModel.Render(mgr, locatorXf, GetActorLights(), CModelFlags::Normal());
   }
 }
 
 void CAtomicAlpha::AddToRenderer(const CFrustumPlanes& frustum, const CStateManager& mgr) const {
   const bool xrayActive = mgr.GetPlayerState()->IsXRayActive(mgr);
-  if (x568_25_invisible && !xrayActive) {
+  if (mInvisible && !xrayActive) {
     return;
   }
 
@@ -124,36 +124,36 @@ void CAtomicAlpha::Patrol(CStateManager& mgr, EStateMsg msg, float arg) {
   CPatterned::Patrol(mgr, msg, arg);
   switch (msg) {
   case kStateMsg_Activate:
-    x578_bombTime = 0.f;
+    mBombTime = 0.f;
     break;
   case kStateMsg_Update:
-    if (x568_24_inRange) {
+    if (mInRange) {
       if (CanDropBomb()) {
-        BodyCtrl()->SetLocomotionType(x6dc_bombLocators[x57c_curBomb].x10_locomotionType);
+        BodyCtrl()->SetLocomotionType(mBombLocators[mCurBomb].mLocomotionType);
       } else {
         BodyCtrl()->SetLocomotionType(pas::kLT_Relaxed);
       }
 
       if (Leash(mgr, arg)) {
-        x568_24_inRange = false;
+        mInRange = false;
       }
     } else {
       BodyCtrl()->SetLocomotionType(pas::kLT_Relaxed);
       if (InMaxRange(mgr, arg)) {
-        x568_24_inRange = true;
+        mInRange = true;
       }
     }
     break;
   case kStateMsg_Deactivate:
-    x568_24_inRange = false;
+    mInRange = false;
     break;
   }
 }
 
 bool CAtomicAlpha::Leash(CStateManager& mgr, float arg) {
   const CVector3f diff = mgr.GetPlayer()->GetTranslation() - GetTranslation();
-  return diff.MagSquared() > x3cc_playerLeashRadius * x3cc_playerLeashRadius &&
-         x3d4_curPlayerLeashTime > x3d0_playerLeashTime;
+  return diff.MagSquared() > mPlayerLeashRadius * mPlayerLeashRadius &&
+         mCurPlayerLeashTime > mPlayerLeashTime;
 }
 
 void CAtomicAlpha::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node,
@@ -167,9 +167,9 @@ void CAtomicAlpha::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node
     const CTransform4f xf = CTransform4f::LookAt(origin, origin + CVector3f::Down());
     LaunchProjectile(xf, mgr, 4, CWeapon::kPA_None, false, rstl::optional_object_null(),
                      CSfxManager::kInternalInvalidSfxId, false, CVector3f(1.f, 1.f, 1.f));
-    x578_bombTime = 0.f;
-    x6dc_bombLocators[x57c_curBomb].x14_scaleTime = 0.f;
-    x57c_curBomb = (x57c_curBomb + 1) % x6dc_bombLocators.size();
+    mBombTime = 0.f;
+    mBombLocators[mCurBomb].mScaleTime = 0.f;
+    mCurBomb = (mCurBomb + 1) % mBombLocators.size();
     skip = true;
     break;
   }
@@ -181,7 +181,7 @@ void CAtomicAlpha::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node
 
 bool CAtomicAlpha::AggressionCheck(CStateManager& mgr, float arg) {
   const CPlayerGun* gun = mgr.GetPlayer()->GetPlayerGun();
-  if (x568_26_applyBeamAttraction) {
+  if (mApplyBeamAttraction) {
     const float factor = gun->GetChargePercentage();
     if (factor > 0.1f) {
       return true;
@@ -197,7 +197,7 @@ void CAtomicAlpha::Attack(CStateManager& mgr, EStateMsg msg, float arg) {
     break;
   case kStateMsg_Update: {
     const CVector3f playerEyePos = mgr.GetPlayer()->GetEyePosition();
-    const CVector3f seekVec = x664_steeringBehaviors.Seek(*this, playerEyePos);
+    const CVector3f seekVec = mSteeringBehaviors.Seek(*this, playerEyePos);
     BodyCtrl()->CommandMgr().DeliverCmd(CBCLocomotionCmd(seekVec, CVector3f::Zero(), 1.f));
   } break;
   case kStateMsg_Deactivate:

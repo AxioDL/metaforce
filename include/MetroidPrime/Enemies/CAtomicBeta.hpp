@@ -50,33 +50,33 @@ private:
 
   static bool IsCharging(const CStateManager& mgr);
 
-  rstl::reserved_vector< TUniqueId, 3 > x568_projectileIds;
-  bool x574_beamFired;
-  float x578_minSpeed;
-  float x57c_maxSpeed;
-  float x580_speedStep;
-  float x584_currentSpeed;
-  CDamageVulnerability x588_frozenDamage;
-  float x5f0_moveSpeed;
-  CVector3f x5f4_direction;
-  TToken< CElectricDescription > x600_electricWeapon;
-  TToken< CWeaponDescription > x608_weaponDesc;
-  CDamageInfo x610_projectileDamage;
-  CAssetId x62c_beamParticle;
-  float x630_beamFadeSpeed;
-  float x634_beamRadius;
-  float x638_beamDamageInterval;
+  rstl::reserved_vector< TUniqueId, 3 > mProjectileIds;
+  bool mBeamFired;
+  float mMinSpeed;
+  float mMaxSpeed;
+  float mSpeedStep;
+  float mCurrentSpeed;
+  CDamageVulnerability mFrozenDamage;
+  float mMoveSpeed;
+  CVector3f mDirection;
+  TToken< CElectricDescription > mElectricWeapon;
+  TToken< CWeaponDescription > mWeaponDesc;
+  CDamageInfo mProjectileDamage;
+  CAssetId mBeamParticle;
+  float mBeamFadeSpeed;
+  float mBeamRadius;
+  float mBeamDamageInterval;
   float x63c_;
   float x640_;
-  ushort x644_sfxId1;
-  ushort x646_sfxId2;
-  ushort x648_sfxId3;
-  CSfxHandle x64c_sfxHandle1;
-  CSfxHandle x650_sfxHandle2;
-  CSfxHandle x654_sfxHandle3;
+  ushort mSfxId1;
+  ushort mSfxId2;
+  ushort mSfxId3;
+  CSfxHandle mSfxHandle1;
+  CSfxHandle mSfxHandle2;
+  CSfxHandle mSfxHandle3;
 
   static const char* skBombLocators[];
 };
-CHECK_SIZEOF(CAtomicBeta, (VERSION >= VERSION_GM8P_00 ? 0x668 : 0x658))
+CHECK_SIZEOF(CAtomicBeta, (VERSION >= VERSION_GM8E_02 ? 0x668 : 0x658))
 
 #endif // _CATOMICBETA

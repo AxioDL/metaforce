@@ -8,10 +8,10 @@ CScriptHUDMemo::CScriptHUDMemo(TUniqueId uid, const rstl::string& name, const CE
                                const CHUDMemoParms& parms, const EDisplayType disp, CAssetId msg,
                                const bool active)
 : CEntity(uid, info, active, name)
-, x34_parms(parms)
-, x3c_dispType(disp)
-, x40_stringTableId(msg)
-, x44_stringTable(msg == kInvalidAssetId ? rstl::optional_object_null()
+, mParms(parms)
+, mDispType(disp)
+, mStringTableId(msg)
+, mStringTable(msg == kInvalidAssetId ? rstl::optional_object_null()
                                          : rstl::optional_object< TLockedToken< CStringTable > >(
                                                gpSimplePool->GetObj(SObjectTag('STRG', msg)))) {}
 
@@ -21,19 +21,19 @@ void CScriptHUDMemo::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CS
   switch (msg) {
   case kSM_SetToZero:
     if (GetActive()) {
-      if (x3c_dispType == kDT_MessageBox) {
-        mgr.ShowPausedHUDMemo(x40_stringTableId, x34_parms.GetDisplayTime());
+      if (mDispType == kDT_MessageBox) {
+        mgr.ShowPausedHUDMemo(mStringTableId, mParms.GetDisplayTime());
       } else {
-        if (x44_stringTable) {
-          CSamusHud::DisplayHudMemo((*x44_stringTable)->GetString(0), x34_parms);
+        if (mStringTable) {
+          CSamusHud::DisplayHudMemo((*mStringTable)->GetString(0), mParms);
         } else {
-          CSamusHud::DisplayHudMemo(rstl::wstring_l(L""), x34_parms);
+          CSamusHud::DisplayHudMemo(rstl::wstring_l(L""), mParms);
         }
       }
     }
     break;
   case kSM_Deactivate:
-    if (GetActive() && x3c_dispType == kDT_StatusMessage) {
+    if (GetActive() && mDispType == kDT_StatusMessage) {
       CSamusHud::DisplayHudMemo(rstl::wstring_l(L""), CHUDMemoParms(0.f, false, true, false));
     }
     break;

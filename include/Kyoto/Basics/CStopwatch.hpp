@@ -9,36 +9,36 @@ class CStopwatch {
 public:
   class CSWData {
   public:
-    CSWData() : x0_timerFreq(0), x8_timerFreqO1M(0), x10_timerPeriod(0.f) {}
+    CSWData() : mTimerFreq(0), mTimerFreqO1M(0), mTimerPeriod(0.f) {}
 
     bool Initialize();
     void Wait(float) const;
 
-    s64 GetTimerFreq() const { return x0_timerFreq; }
-    s64 GetTimerFreqO1M() const { return x8_timerFreqO1M; }
-    float GetTimerPeriod() const { return x10_timerPeriod; }
+    s64 GetTimerFreq() const { return mTimerFreq; }
+    s64 GetTimerFreqO1M() const { return mTimerFreqO1M; }
+    float GetTimerPeriod() const { return mTimerPeriod; }
     s64 GetCPUCycles() const { return OSGetTime(); }
 
   private:
-    s64 x0_timerFreq;
-    s64 x8_timerFreqO1M;
-    float x10_timerPeriod;
+    s64 mTimerFreq;
+    s64 mTimerFreqO1M;
+    float mTimerPeriod;
   };
 
-  CStopwatch() : x0_startTime(mData.GetCPUCycles()) {}
+  CStopwatch() : mStartTime(mData.GetCPUCycles()) {}
   static bool InitGlobalTimer();
   static CStopwatch& GetGlobalTimerObj();
   inline void Reset() {
     if (mData.GetTimerFreq() == 0) {
       mData.Initialize();
     }
-    x0_startTime = mData.GetCPUCycles();
+    mStartTime = mData.GetCPUCycles();
   }
   inline float GetElapsedTime() const {
-    return (mData.GetCPUCycles() - x0_startTime) * mData.GetTimerPeriod();
+    return (mData.GetCPUCycles() - mStartTime) * mData.GetTimerPeriod();
   }
   inline s64 GetElapsedMicros() const {
-    return (mData.GetCPUCycles() - x0_startTime) / mData.GetTimerFreqO1M();
+    return (mData.GetCPUCycles() - mStartTime) / mData.GetTimerFreqO1M();
   }
 
   s64 GetCurrMicros() const { return mData.GetCPUCycles() / mData.GetTimerFreqO1M(); }
@@ -55,7 +55,7 @@ private:
   static CSWData mData;
   static CStopwatch mGlobalTimer;
 
-  s64 x0_startTime;
+  s64 mStartTime;
 };
 
 #endif // _CSTOPWATCH

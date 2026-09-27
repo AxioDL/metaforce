@@ -27,28 +27,28 @@ public:
   };
 
   struct SMetrics {
-    uint x0_heapSize;
+    uint mHeapSize;
     uint x4_;
     uint x8_;
     uint xc_;
     uint x10_;
-    uint x14_heapSize2; // Remaining heap size?
+    uint mHeapSize2; // Remaining heap size?
     uint x18_;
     uint x1c_;
     uint x20_;
     uint x24_;
     uint x28_;
-    uint x2c_smallNumAllocs;
-    uint x30_smallAllocatedSize;
-    uint x34_smallRemainingSize;
-    uint x38_mediumNumAllocs;
-    uint x3c_mediumAllocatedSize;
-    uint x40_mediumBlocksAvailable;
+    uint mSmallNumAllocs;
+    uint mSmallAllocatedSize;
+    uint mSmallRemainingSize;
+    uint mMediumNumAllocs;
+    uint mMediumAllocatedSize;
+    uint mMediumBlocksAvailable;
     uint x44_;
     uint x48_;
     uint x4c_;
-    uint x50_mediumTotalAllocated;
-    uint x54_fakeStatics;
+    uint mMediumTotalAllocated;
+    uint mFakeStatics;
     SMetrics(uint heapSize, uint unk1, uint unk2, uint unk3, uint unk4, uint heapSize2, uint unk5,
              uint unk6, uint unk7, uint unk8, uint unk9, uint smallAllocNumAllocs,
              uint smallAllocAllocatedSize, uint smallAllocRemainingSize, uint mediumAllocNumAllocs,
@@ -58,21 +58,21 @@ public:
   };
 
   struct SAllocInfo {
-    const void* x0_infoPtr;
-    uint x4_len;
-    bool x8_isAllocated;
+    const void* mInfoPtr;
+    uint mLen;
+    bool mIsAllocated;
     bool x9_;
-    const char* xc_fileAndLine;
-    const char* x10_type;
+    const char* mFileAndLine;
+    const char* mType;
 
     SAllocInfo(const void* ptr, uint len, bool isAllocated, bool b2, const char* fileAndLine,
                const char* type)
-    : x0_infoPtr(ptr)
-    , x4_len(len)
-    , x8_isAllocated(isAllocated)
+    : mInfoPtr(ptr)
+    , mLen(len)
+    , mIsAllocated(isAllocated)
     , x9_(b2)
-    , xc_fileAndLine(fileAndLine)
-    , x10_type(type) {}
+    , mFileAndLine(fileAndLine)
+    , mType(type) {}
   };
 
   typedef const bool (*FOutOfMemoryCb)(const void*, uint);

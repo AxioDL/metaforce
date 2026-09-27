@@ -6,16 +6,16 @@
 
 void CFontInstruction::Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const {
   if (buf != nullptr) {
-    buf->AddFontChange(x4_font);
+    buf->AddFontChange(mFont);
   }
-  state.SetFont(x4_font);
+  state.SetFont(mFont);
   state.RefreshPalette();
 }
 
 void CFontInstruction::GetAssets(rstl::vector< CToken >& assets) const {
-  assets.push_back(x4_font);
-  if(x4_font.IsLoaded()) {
-    assets.push_back(TToken<CRasterFont> (x4_font)->x80_texture.data());
+  assets.push_back(mFont);
+  if(mFont.IsLoaded()) {
+    assets.push_back(TToken<CRasterFont> (mFont)->mTexture.data());
   }
 }
 

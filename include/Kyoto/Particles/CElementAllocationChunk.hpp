@@ -16,10 +16,10 @@ public:
   uint GetAllocationCount() const;
 
 private:
-  uint x0_capacity;
-  uint x4_allocatedWords;
-  uint x8_allocationCount;
-  ALIGNAS(16) uint xc_data[256];
+  uint mCapacity;
+  uint mAllocatedWords;
+  uint mAllocationCount;
+  ALIGNAS(16) uint mData[256];
 };
 CHECK_SIZEOF(CElementAllocationChunk, 0x40c)
 
