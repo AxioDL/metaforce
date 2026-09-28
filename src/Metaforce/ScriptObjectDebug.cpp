@@ -69,6 +69,9 @@
 #include "MetroidPrime/Enemies/CWallCrawlerSwarm.hpp"
 #include "MetroidPrime/Enemies/CWallWalker.hpp"
 #include "MetroidPrime/Enemies/CWarWasp.hpp"
+#include "MetroidPrime/Player/CMorphBall.hpp" // IWYU pragma: keep
+#include "MetroidPrime/Player/CPlayer.hpp"
+#include "MetroidPrime/Player/CPlayerGun.hpp" // IWYU pragma: keep
 #include "MetroidPrime/ScriptObjects/CFire.hpp"
 #include "MetroidPrime/ScriptObjects/CFishCloud.hpp"
 #include "MetroidPrime/ScriptObjects/CFishCloudModifier.hpp"
@@ -1257,6 +1260,13 @@ void CParasite::DrawInspectorPanel() {
 void CSeedling::DrawInspectorPanel() {
   CWallWalker::DrawInspectorPanel();
   if (ImGui::CollapsingHeader("CSeedling")) {
+    ImGui::Text("Test!");
+  }
+}
+
+void CPlayer::DrawInspectorPanel() {
+  CPhysicsActor::DrawInspectorPanel();
+  if (ImGui::CollapsingHeader("CPlayer")) {
     ImGui::Text("Test!");
   }
 }

@@ -62,6 +62,10 @@ class CPlayer : public CPhysicsActor, public TOneStatic< CPlayer > {
   };
 
 public:
+    
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   class CPlayerStuckTracker {
   public:
     enum EPlayerState {
