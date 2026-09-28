@@ -12,6 +12,9 @@
 
 class CFire : public CActor {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CFire(const TToken< CGenDescription >& effect, TUniqueId uid, TAreaId area, bool active,
         TUniqueId owner, const CTransform4f& xf, const CDamageInfo& dInfo, const CAABox& aabox,
         const CVector3f& vec, bool b1, CAssetId visorEffect, bool b2, bool b3, bool b4, float f1,

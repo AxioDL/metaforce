@@ -17,6 +17,9 @@ class CGenDescription;
 
 class CBurrower : public CPatterned {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CBurrower(const TUniqueId uid, const rstl::string& name, const CEntityInfo& info,
             const CTransform4f& xf, const CModelData& mData, const CPatternedInfo& pInfo,
             const CActorParameters& actParms, const CAssetId& jumpParticle,

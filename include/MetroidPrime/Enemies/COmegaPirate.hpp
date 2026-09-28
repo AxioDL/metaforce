@@ -20,6 +20,9 @@ class CTexture;
 
 class COmegaPirate : public CElitePirate {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   COmegaPirate(TUniqueId uid, const rstl::string& name, const CEntityInfo& info,
                const CTransform4f& xf, const CModelData& mData, const CPatternedInfo& pInfo,
                const CActorParameters& actParms, const CElitePirateData& data, int skeletonModelId,
@@ -67,6 +70,9 @@ public:
 private:
   class CFlash : public CActor {
   public:
+#if TARGET_PC
+    void DrawInspectorPanel() override;
+#endif
     DECLARE_TYPES_MATCH_OR_ACCEPT;
     void Think(float dt, CStateManager& mgr) override;
     void PreRender(CStateManager& mgr, const CFrustumPlanes& frustum) override;

@@ -8,6 +8,9 @@ class CScriptMemoryRelay : public CEntity {
   bool mSkipSendActive : 1;
   bool mIgnoreMessages : 1;
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CScriptMemoryRelay(TUniqueId, const rstl::string&, const CEntityInfo&, bool, bool, const bool);
   ~CScriptMemoryRelay();
 

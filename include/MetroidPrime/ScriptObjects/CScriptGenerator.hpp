@@ -5,6 +5,9 @@
 
 class CScriptGenerator : public CEntity {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CScriptGenerator(TUniqueId uid, const rstl::string& name, const CEntityInfo& info,
                    int spawnCount, bool noReuseFollowers, const CVector3f& vec1, bool noInheritXf,
                    bool active, float minScale, float maxScale);

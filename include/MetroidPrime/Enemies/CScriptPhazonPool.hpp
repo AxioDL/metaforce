@@ -14,6 +14,9 @@ class CElementGen;
 
 class CScriptPhazonPool : public CScriptTrigger {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CScriptPhazonPool(TUniqueId uid, const rstl::string& name, const CEntityInfo& info,
                     const CTransform4f& xf, const CVector3f& scale, bool active, const CAssetId& w1,
                     const CAssetId& w2, const CAssetId& w3, const CAssetId& w4, uint p11,

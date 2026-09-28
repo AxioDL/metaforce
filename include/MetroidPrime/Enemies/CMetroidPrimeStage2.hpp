@@ -22,6 +22,9 @@ class CRayCastResult;
 
 class CMetroidPrimeStage2 : public CPatterned {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CMetroidPrimeStage2(TUniqueId uid, const rstl::string& name, const CEntityInfo& info,
                       const CTransform4f& xf, const CModelData& mData, const CPatternedInfo& pInfo,
                       const CActorParameters& actParms, CAssetId particle1, CDamageInfo dInfo,

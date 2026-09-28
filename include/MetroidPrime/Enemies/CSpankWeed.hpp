@@ -12,6 +12,9 @@ class CCollisionActorManager;
 
 class CSpankWeed : public CPatterned {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CSpankWeed(const TUniqueId uid, const rstl::string& name, const CEntityInfo& info,
              const CTransform4f& xf, const CModelData& mData, const CActorParameters& actParms,
              const CPatternedInfo& pInfo, const float maxDetectionRange,

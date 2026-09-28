@@ -14,6 +14,9 @@ class CStateMachine;
 
 class CAi : public CPhysicsActor {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   DECLARE_TYPES_MATCH;
   static void CreateFuncLookup(CAiFuncMap* funcMap);
   static const CAiStateFunc GetStateFunc(const char* func);

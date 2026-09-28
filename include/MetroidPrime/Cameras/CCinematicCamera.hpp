@@ -7,6 +7,9 @@
 
 class CCinematicCamera : public CGameCamera {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CCinematicCamera(const TUniqueId uid, const rstl::string& name, const CEntityInfo& info,
                    const CTransform4f& xf, bool active, const float shotDuration, const float fovy,
                    const float znear, const float zfar, const float aspect, const uint flags);

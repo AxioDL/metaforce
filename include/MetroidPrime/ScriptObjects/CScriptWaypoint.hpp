@@ -7,6 +7,9 @@
 
 class CScriptWaypoint : public CActor {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CScriptWaypoint(TUniqueId uid, const rstl::string& name, const CEntityInfo& info,
                   const CTransform4f& xf, const bool active, float speed, float pause,
                   int patternTranslate, int patternOrient, int patternFit, int behaviour,

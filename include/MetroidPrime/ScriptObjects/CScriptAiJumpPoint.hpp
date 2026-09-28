@@ -14,6 +14,9 @@ private:
   float mTimeRemaining;
 
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CScriptAiJumpPoint(TUniqueId, const rstl::string&, const CEntityInfo&, const CTransform4f&, bool,
                      float);
   ~CScriptAiJumpPoint();

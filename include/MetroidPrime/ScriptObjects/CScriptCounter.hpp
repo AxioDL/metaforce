@@ -10,6 +10,9 @@ class CScriptCounter : public CEntity {
   bool mAutoReset;
 
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CScriptCounter(TUniqueId, const rstl::string& name, const CEntityInfo& info, int, int, bool,
                  bool);
   ~CScriptCounter();

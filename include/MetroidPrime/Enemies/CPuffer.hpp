@@ -11,6 +11,9 @@ class CGenDescription;
 
 class CPuffer : public CPatterned {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CPuffer(TUniqueId uid, const rstl::string& name, const CEntityInfo& info, const CTransform4f& xf,
           const CModelData& modelData, const CActorParameters& actorParameters,
           const CPatternedInfo& patternedInfo, float hoverSpeed, CAssetId cloudEffect,

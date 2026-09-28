@@ -7,6 +7,9 @@
 
 class CScriptControllerAction : public CEntity {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   enum ECommands {
     kC_Forward,
     kC_Backward,

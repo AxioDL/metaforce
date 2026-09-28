@@ -11,6 +11,9 @@ class CScriptTargetingPoint : public CActor {
   float mTime;
 
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CScriptTargetingPoint(TUniqueId, const rstl::string&, const CEntityInfo&, const CTransform4f&,
                         bool);
   ~CScriptTargetingPoint();

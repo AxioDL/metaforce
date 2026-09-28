@@ -18,6 +18,9 @@ class CModelData;
 
 class CScriptDebris : public CPhysicsActor {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   enum EOrientationType {
     kOT_NotOriented,
     kOT_AlongVelocity,

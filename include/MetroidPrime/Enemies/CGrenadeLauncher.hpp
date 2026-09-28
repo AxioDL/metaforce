@@ -59,6 +59,9 @@ CHECK_SIZEOF(CEPGrenadeLauncherData, 0x58)
 
 class CGrenadeLauncher : public CPhysicsActor {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   ~CGrenadeLauncher() override;
   void Think(float dt, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;

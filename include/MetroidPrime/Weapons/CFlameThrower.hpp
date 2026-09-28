@@ -6,6 +6,9 @@
 
 class CFlameThrower : public CGameProjectile {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   enum EFlameState {
     kFS_Default,
     kFS_FireStart,

@@ -14,6 +14,9 @@ class CScriptCameraHintTrigger : public CActor {
   bool mPlayerWasInside : 1;
 
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CScriptCameraHintTrigger(TUniqueId uid, bool active, const rstl::string& name,
                            const CEntityInfo& info, const CVector3f& scale, const CTransform4f& xf,
                            bool deactivateOnEnter, const bool deactivateOnExit);

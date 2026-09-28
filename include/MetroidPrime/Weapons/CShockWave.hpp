@@ -50,6 +50,9 @@ CHECK_SIZEOF(CShockWaveInfo, 0x3c)
 
 class CShockWave : public CActor {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CShockWave(const TUniqueId uid, const rstl::string& name, const CEntityInfo& info,
              const CTransform4f& xf, const TUniqueId parent, const CShockWaveInfo& data,
              const float minActiveTime, const float knockback);

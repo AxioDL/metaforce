@@ -14,6 +14,9 @@ class CCameraSpring;
 
 class CScriptCameraHint : public CActor {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CScriptCameraHint(TUniqueId uid, const rstl::string& name, const CEntityInfo& info,
                     const CTransform4f& xf, bool active, int priority,
                     CBallCamera::EBallCameraBehaviour behavior, int overrideFlags, float minDist,

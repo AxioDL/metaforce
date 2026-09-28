@@ -14,6 +14,9 @@ class CPhysicsActor;
 
 class CIceAttackProjectile : public CActor {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   // CEntity
   ~CIceAttackProjectile() override;
   DECLARE_TYPES_MATCH_OR_ACCEPT;

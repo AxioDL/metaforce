@@ -5,6 +5,9 @@
 
 class CFlickerBat : public CPatterned {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   enum EFlickerBatState {
     kFBS_Visible,
     kFBS_Hidden,

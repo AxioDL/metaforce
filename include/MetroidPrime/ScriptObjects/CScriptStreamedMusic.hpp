@@ -7,6 +7,9 @@
 
 class CScriptStreamedMusic : public CEntity {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   ~CScriptStreamedMusic() {}
   DECLARE_TYPES_MATCH_OR_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) override;

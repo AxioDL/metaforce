@@ -9,6 +9,9 @@ class CScriptCameraShaker : public CEntity {
   CCameraShakeData mShakeData;
 
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CScriptCameraShaker(TUniqueId uid, const rstl::string& name, const CEntityInfo& info, bool active,
                       const CCameraShakeData& shakeData);
 

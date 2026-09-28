@@ -14,6 +14,9 @@ class CTeamAiRole;
 
 class CBeetle : public CPatterned {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   enum EEntranceType {
     kET_FacePlayer = 0,
     kET_UseOrientation = 1,

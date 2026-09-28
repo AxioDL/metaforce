@@ -41,6 +41,9 @@ CSpindleCameraInterpolant LoadSpindleSegment(CInputStream& in);
 
 class CScriptSpindleCamera : public CGameCamera {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CScriptSpindleCamera(
       TUniqueId uid, const rstl::string& name, const CEntityInfo& info, const CTransform4f& xf,
       bool active, int flags, float hintToCamDistMin, float hintToCamDistMax,

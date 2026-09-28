@@ -5,6 +5,9 @@
 
 class CScriptDoor : public CPhysicsActor {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   rstl::optional_object< CAABox > GetTouchBounds() const override;
   CVector3f GetOrbitPosition(const CStateManager& mgr) const override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId other, CStateManager& mgr) override;

@@ -103,6 +103,9 @@ CHECK_SIZEOF(CElitePirateData, 0x120)
 
 class CElitePirate : public CPatterned {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CElitePirate(TUniqueId uid, const rstl::string& name, const CEntityInfo& info,
                const CTransform4f& xf, const CModelData& mData, const CPatternedInfo& pInfo,
                const CActorParameters& actParms, const CElitePirateData& data);

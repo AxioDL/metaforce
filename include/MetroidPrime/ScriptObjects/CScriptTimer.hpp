@@ -15,6 +15,9 @@ class CScriptTimer : public CEntity {
   bool mIsTiming;
 
   public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
     CScriptTimer(TUniqueId, const rstl::string&, const CEntityInfo&, float, float, bool, bool, bool);
     ~CScriptTimer();
 

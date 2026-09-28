@@ -5,6 +5,9 @@
 
 class CJellyZap : public CPatterned {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CJellyZap(TUniqueId uid, const rstl::string& name, const CEntityInfo& info,
             const CTransform4f& xf, const CModelData& mData, const CDamageInfo& attackDamage,
             bool b1, float attackRadius, float f2, float f3, float f4, float attackDelay, float f6,

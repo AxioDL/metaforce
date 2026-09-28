@@ -35,6 +35,9 @@ struct SRiders {
 
 class CScriptPlatform : public CPhysicsActor {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CScriptPlatform(
       TUniqueId uid, const rstl::string& name, const CEntityInfo& info, const CTransform4f& xf,
       const CModelData& mData, const CActorParameters& actParams, const CAABox& aabb, float speed,

@@ -8,6 +8,9 @@ class CElectricDescription;
 
 class CScriptVisorGoo : public CActor {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CScriptVisorGoo(TUniqueId uid, const rstl::string& name, const CEntityInfo& info,
                   const CTransform4f& xf, CAssetId particle, CAssetId electric, float minRange,
                   float maxRange, float chanceMinRange, float chanceMaxRange, const CColor& color,

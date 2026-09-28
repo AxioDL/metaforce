@@ -10,6 +10,9 @@ class CScriptVisorFlare : public CActor {
   bool mNotInRenderLast;
 
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CScriptVisorFlare(TUniqueId uid, const rstl::string& name, const CEntityInfo& info, bool active,
                     const CVector3f& pos, CVisorFlare::EBlendMode blendMode, bool, float, float, float, uint, uint,
                     const rstl::vector<CVisorFlare::CFlareDef>& flares);

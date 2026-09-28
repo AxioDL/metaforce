@@ -14,6 +14,9 @@ class CModelData;
 
 class CSeedling : public CWallWalker {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CSeedling(TUniqueId uid, const rstl::string& name, const CEntityInfo& info,
             const CTransform4f& xf, const CModelData& mData, const CPatternedInfo& pInfo,
             const CActorParameters& actParms, const CAssetId& needleModel, const CAssetId& weaponId,

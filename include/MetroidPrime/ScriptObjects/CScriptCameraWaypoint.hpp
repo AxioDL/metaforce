@@ -8,6 +8,9 @@ class CScriptCameraWaypoint : public CActor {
   uint xec_;
 
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CScriptCameraWaypoint(TUniqueId uid, const rstl::string& name, const CEntityInfo& info,
                         const CTransform4f& xf, const bool active, float hfov, uint);
   ~CScriptCameraWaypoint();

@@ -8,6 +8,9 @@ class CScriptSpiderBallAttractionSurface : public CActor {
   CAABox mAabb;
 
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CScriptSpiderBallAttractionSurface(TUniqueId uid, const rstl::string& name,
                                      const CEntityInfo& info, const CTransform4f& xf,
                                      const CVector3f& scale, bool active);

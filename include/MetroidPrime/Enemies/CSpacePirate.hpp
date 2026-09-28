@@ -18,6 +18,9 @@ class CSpacePirate : public CPatterned {
   friend class CPirateRagDoll;
 
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   ~CSpacePirate() override {}
   DECLARE_TYPES_MATCH_OR_ACCEPT;
   void Think(float dt, CStateManager& mgr) override;
