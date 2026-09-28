@@ -21,8 +21,8 @@ enum EPOIType {
 class CInputStream;
 class CPOINode {
 public:
-  CPOINode(const rstl::string& name, ushort type, const CCharAnimTime& time, int index, bool unique,
-           float weight, int charIdx, int flags);
+  CPOINode(const rstl::string& name, EPOIType type, const CCharAnimTime& time, const int index,
+           const bool unique, const float weight, const int charIdx, const int flags);
   CPOINode(CInputStream& in);
   virtual ~CPOINode() {}
 

@@ -5,9 +5,10 @@
 
 class CBoolPOINode : public CPOINode {
 public:
-  CBoolPOINode(rstl::string name = "", ushort type = kPT_EmptyBool,
-               const CCharAnimTime& time = CCharAnimTime(), int index = -1, bool unique = false,
-               float weight = 1.f, int charIdx = -1, int flags = 0, bool value = false)
+  CBoolPOINode(const rstl::string name = "", const EPOIType type = kPT_EmptyBool,
+               const CCharAnimTime& time = CCharAnimTime(), const int index = -1,
+               const bool unique = false, const float weight = 1.f, const int charIdx = -1,
+               const int flags = 0, const bool value = false)
   : CPOINode(name, type, time, index, unique, weight, charIdx, flags), mVal(value) {}
 
   CBoolPOINode(CInputStream& in);
