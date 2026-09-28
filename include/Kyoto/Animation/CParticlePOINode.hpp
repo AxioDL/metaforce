@@ -6,10 +6,10 @@
 
 class CParticlePOINode : public CPOINode {
 public:
-  CParticlePOINode(rstl::string name = rstl::string_l(""), ushort type = kPT_Particle,
-                   const CCharAnimTime& time = CCharAnimTime(), int index = -1, bool unique = false,
-                   float weight = 1.f, int charIdx = -1, int flags = 0,
-                   const CParticleData& data = CParticleData())
+  CParticlePOINode(const rstl::string name = rstl::string_l(""), const EPOIType type = kPT_Particle,
+                   const CCharAnimTime& time = CCharAnimTime(), const int index = -1,
+                   const bool unique = false, const float weight = 1.f, const int charIdx = -1,
+                   const int flags = 0, const CParticleData& data = CParticleData())
   : CPOINode(name, type, time, index, unique, weight, charIdx, flags), mData(data) {}
 
   explicit CParticlePOINode(CInputStream& in);

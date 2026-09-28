@@ -6,20 +6,18 @@
 
 class CSoundPOINode : public CPOINode {
 public:
-  CSoundPOINode(rstl::string name = "", ushort type = kPT_Sound,
-                const CCharAnimTime& time = CCharAnimTime(), int index = -1, bool unique = false,
-                float weight = 1.f, int charIdx = -1, int flags = 0, int sfxId = 0,
-                float fallOff = 0.f, float maxDist = 0.f)
+  CSoundPOINode(const rstl::string name = "", const EPOIType type = kPT_Sound,
+                const CCharAnimTime& time = CCharAnimTime(), const int index = -1,
+                const bool unique = false, const float weight = 1.f, const int charIdx = -1,
+                const int flags = 0, const int sfxId = 0, const float fallOff = 0.f,
+                const float maxDist = 0.f)
   : CPOINode(name, type, time, index, unique, weight, charIdx, flags)
   , mSfxId(sfxId)
   , mFalloff(fallOff)
   , mMaxDist(maxDist) {}
 
   CSoundPOINode(CInputStream& in)
-  : CPOINode(in)
-  , mSfxId(in.ReadInt32())
-  , mFalloff(in.ReadFloat())
-  , mMaxDist(in.ReadFloat()) {}
+  : CPOINode(in), mSfxId(in.ReadInt32()), mFalloff(in.ReadFloat()), mMaxDist(in.ReadFloat()) {}
 
   uint GetSoundId() const { return mSfxId; }
   float GetFallOff() const { return mFalloff; }

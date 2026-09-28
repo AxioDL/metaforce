@@ -32,21 +32,21 @@ enum ETexelFormat {
 class CTexture {
 public:
   class CDumpedBitmapDataReloader {
-    int x0_;
-    uint x4_;
-    int x8_;
-    uint xc_;
-    bool x10_;
-    rstl::single_ptr< CDvdRequest > x14_;
-    rstl::single_ptr< uchar > x18_;
+    int mState;
+    uint mTextureId;
+    int mResourceSize;
+    uint mBitmapSize;
+    bool mShouldBeInARAM;
+    rstl::single_ptr< CDvdRequest > mRequest;
+    rstl::single_ptr< uchar > mData;
 
   public:
     CDumpedBitmapDataReloader(uint unk1, uint unk2, bool unk3);
 
     void BeginReloadBitmapData(CResFactory& factory);
     void* TryBuildReloadedBitmapData(CResFactory& factory);
-    int GetStatus() const { return x0_; }
-    const bool GetX10() const { return x10_; }
+    int GetStatus() const { return mState; }
+    const bool GetShouldBeInARAM() const { return mShouldBeInARAM; }
   };
 
   enum EClampMode {
