@@ -35,8 +35,8 @@ public:
   const rstl::string& GetDebugName() const { return mName; }
   const TAreaId GetAreaId() const;
   TUniqueId CheckConnectedObject_if(const CStateManager& mgr, EScriptObjectState state,
-                                   EScriptObjectMessage msg,
-                                   const CValidEntityPredicate& predicate) const;
+                                    EScriptObjectMessage msg,
+                                    const CValidEntityPredicate& predicate) const;
   const TAreaId GetCurrentAreaId() const { return mAreaId; }
   const bool GetActive() const { return mActive; }
   bool IsInGraveyard() const { return mInGraveyard; }
@@ -48,6 +48,10 @@ public:
   const rstl::vector< SConnection >& GetConnectionList() const { return mConns; }
 
   static rstl::vector< SConnection > NullConnectionList;
+
+#if TARGET_PC
+  virtual void DrawInspectorPanel();
+#endif
 
 private:
   friend class CStateManager;

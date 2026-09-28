@@ -11,7 +11,8 @@ public:
 
 private:
   void ShowMenuBar() const;
-  void ShowDebugOverlay() const;
+  static void ShowDebugOverlay() ;
+  static void ShowInspectorPanel() ;
 
   bool mVisible = true;
 };

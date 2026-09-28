@@ -41,12 +41,18 @@ void CImGuiIOWin::ShowMenuBar() const {
   ImGui::BeginMainMenuBar();
   ImGui::EndMainMenuBar();
 }
-void CImGuiIOWin::Draw() const {
-  ShowMenuBar();
-  ShowDebugOverlay();
+
+void CImGuiIOWin::ShowInspectorPanel() {
+  if (!gpStateManager || !gpStateManager->GetPlayer()) {
+    return;
+  }
+  if (ImGui::Begin("Object Inspector")) {
+    gpStateManager->Player()->DrawInspectorPanel();
+  }
+  ImGui::End();
 }
 
-void CImGuiIOWin::ShowDebugOverlay() const {
+void CImGuiIOWin::ShowDebugOverlay() {
   if (!gpStateManager || !gpStateManager->GetPlayer()) {
     return;
   }
@@ -336,4 +342,10 @@ void CImGuiIOWin::ShowDebugOverlay() const {
   }
   ImGui::End();
 #endif
+}
+
+void CImGuiIOWin::Draw() const {
+  ShowMenuBar();
+  ShowDebugOverlay();
+  ShowInspectorPanel();
 }

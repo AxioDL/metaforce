@@ -247,6 +247,9 @@ public:
   bool CanDrawStatic() const;
   void SetEnableRender(bool v) { mEnableRender = v; }
 
+#if TARGET_PC
+  void DrawInspectorPanel();
+#endif
 protected:
   void SetDrawEnabled(bool v) { mDrawEnabled = v; }
 
