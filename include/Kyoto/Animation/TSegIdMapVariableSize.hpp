@@ -7,7 +7,7 @@
 #include <rstl/single_ptr.hpp>
 
 template < typename T >
-struct TSegIdMapVariableSize {
+class TSegIdMapVariableSize {
 public:
   typedef rstl::pair< signed char, signed char > link_node;
   TSegIdMapVariableSize(uchar count)

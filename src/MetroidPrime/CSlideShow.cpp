@@ -26,6 +26,7 @@
 #include "MetroidPrime/Tweaks/CTweakPlayerRes.hpp"
 #include "MetroidPrime/Tweaks/CTweakSlideShow.hpp"
 
+static const char* const skSlideShowPrefix = "slideshow";
 static const char* const skGalleryName = "Gallery";
 static const char* const skGalleryAssets = "GalleryAssets_DGRP";
 static const char* const skGalleryTag = "TXTR_GalleryTag";
@@ -36,7 +37,6 @@ static const char skImagePrefix[] = "&image=";
 static const char skImageSuffix[] = ";";
 static const char* const skUnlockMessages[] = {"STRG_SlideShow_Unlock1_",
                                                "STRG_SlideShow_Unlock2_"};
-
 static CVector2f sZeroVector(0.f, 0.f);
 
 static int GetStickDirection(float up, float down, float left, float right) {
@@ -192,8 +192,8 @@ CSlideShow::CSlideShow()
   }
   SetTexturesLocked(mStickTextures, true);
   const rstl::reserved_vector< CAssetId, 2 >* buttons[] = {
-      &gpTweakPlayerRes->mLTrigger, &gpTweakPlayerRes->mRTrigger,
-      &gpTweakPlayerRes->mBButton, &gpTweakPlayerRes->mYButton};
+      &gpTweakPlayerRes->mLTrigger, &gpTweakPlayerRes->mRTrigger, &gpTweakPlayerRes->mBButton,
+      &gpTweakPlayerRes->mYButton};
   mButtonTextures.reserve(8);
   for (int i = 0; i < 4; ++i) {
     for (int j = 0; j < 2; ++j) {
@@ -253,7 +253,7 @@ void CSlideShow::BuildGalleryLists(uint flags) {
       int columns = 0;
       int missingRows = 0;
       while (slide < textureCount) {
-        rstl::string name = CBasics::Stringize("%s_%02d_%03d", "slideshow", i, slide);
+        rstl::string name = CBasics::Stringize("%s_%02d_%03d", skSlideShowPrefix, i, slide);
         const SObjectTag* tag = gpResourceFactory->GetResourceIdByName(name.data());
         if (tag != nullptr) {
           gallery.mTextures.push_back(tag);
@@ -307,7 +307,7 @@ void CSlideShow::BuildGalleryLists(uint flags) {
       SGalleryData& gallery = mGalleries.back();
       gallery.second.reserve(slides);
       for (int j = 0; j < slides; ++j) {
-        const char* name = CBasics::Stringize("%s_%02d_%03d", "slideshow", i, j);
+        const char* name = CBasics::Stringize("%s_%02d_%03d", skSlideShowPrefix, i, j);
         const SObjectTag* tag = gpResourceFactory->GetResourceIdByName(name);
         gallery.second.push_back(tag);
       }
@@ -517,7 +517,7 @@ void CSlideShow::Draw() const {
     }
     if (mIntroFade || mOutroFade) {
       float alpha = mFadeTimer / (mIntroFade ? gpTweakSlideShow->GetFadeTime()
-                                                        : gpTweakSlideShow->GetMusicFadeTime());
+                                             : gpTweakSlideShow->GetMusicFadeTime());
       if (mOutroFade) {
         alpha = 1.f - alpha;
       }
@@ -716,8 +716,7 @@ CIOWin::EMessageReturn CSlideShow::AdvanceSlide(bool forward) {
 
 void CSlideShow::LoadSlide() {
 #if VERSION >= VERSION_GM8P_00
-  if (mSlideB.mTextures.empty() &&
-      (mSlideA.mGallery != mGallery || mSlideA.mSlide != mSlide)) {
+  if (mSlideB.mTextures.empty() && (mSlideA.mGallery != mGallery || mSlideA.mSlide != mSlide)) {
     const SGalleryData& gallery = mGalleries[mGallery];
     mSlideA.mStopLoading = true;
     const int first = mSlide == 0 ? 0 : gallery.mSlides[mSlide - 1].first;
@@ -739,8 +738,7 @@ void CSlideShow::LoadSlide() {
     mSlideB.InitializeViewport();
   }
 #else
-  if (mSlideB.mTexture.null() &&
-      (mSlideA.mGallery != mGallery || mSlideA.mSlide != mSlide)) {
+  if (mSlideB.mTexture.null() && (mSlideA.mGallery != mGallery || mSlideA.mSlide != mSlide)) {
     const SObjectTag* tag = mGalleries[mGallery].second[mSlide];
     if (tag != nullptr && gpResourceFactory->GetResourceTypeById(tag->GetId()) == 'TXTR') {
       mSlideB.mGallery = mGallery;
@@ -838,9 +836,8 @@ void CSlideShow::UpdateControlsText(const CFinalInput& input) {
 #if VERSION >= VERSION_GM8P_00
     const CStringTable& strings = **mGalleryNames;
 #endif
-    text.append(CStringExtras::ConvertToUNICODE(
-        CBasics::Stringize("%sSI,0.6,1.0,%8.8X%s", skImagePrefix,
-                           gpTweakPlayerRes->mLStick[mLStick], skImageSuffix)));
+    text.append(CStringExtras::ConvertToUNICODE(CBasics::Stringize(
+        "%sSI,0.6,1.0,%8.8X%s", skImagePrefix, gpTweakPlayerRes->mLStick[mLStick], skImageSuffix)));
     text.append(strings.GetString(kFirstControlString + 1), -1);
     text.append(CStringExtras::ConvertToUNICODE(rstl::string_l("   ")));
     text.append(CStringExtras::ConvertToUNICODE(CBasics::Stringize(
@@ -851,9 +848,8 @@ void CSlideShow::UpdateControlsText(const CFinalInput& input) {
     text.append(CStringExtras::ConvertToUNICODE(CBasics::Stringize(
         "%s%8.8X%s", skImagePrefix, gpTweakPlayerRes->mRTrigger[mRTrigger], skImageSuffix)));
     text.append(CStringExtras::ConvertToUNICODE(rstl::string_l("  ")));
-    text.append(CStringExtras::ConvertToUNICODE(
-        CBasics::Stringize("%sSI,0.6,1.0,%8.8X%s", skImagePrefix,
-                           gpTweakPlayerRes->mCStick[mCStick], skImageSuffix)));
+    text.append(CStringExtras::ConvertToUNICODE(CBasics::Stringize(
+        "%sSI,0.6,1.0,%8.8X%s", skImagePrefix, gpTweakPlayerRes->mCStick[mCStick], skImageSuffix)));
     text.append(strings.GetString(kFirstControlString + 2), -1);
     text.append(CStringExtras::ConvertToUNICODE(rstl::string_l("   ")));
     text.append(CStringExtras::ConvertToUNICODE(CBasics::Stringize(
@@ -873,7 +869,7 @@ void CSlideShow::SetPanSfx(bool active) {
   if (active) {
     if (!mPanSfx) {
       mPanSfx = CSfxManager::SfxStart(0x5ae, 127, 64, false, CSfxManager::kMedPriority, true,
-                                         CSfxManager::kAllAreas);
+                                      CSfxManager::kAllAreas);
     }
   } else {
     CSfxManager::SfxStop(mPanSfx);
@@ -885,7 +881,7 @@ void CSlideShow::SetZoomSfx(bool active) {
   if (active) {
     if (!mZoomSfx) {
       mZoomSfx = CSfxManager::SfxStart(0x5af, 127, 64, false, CSfxManager::kMedPriority, true,
-                                          CSfxManager::kAllAreas);
+                                       CSfxManager::kAllAreas);
     }
   } else {
     CSfxManager::SfxStop(mZoomSfx);
@@ -1016,8 +1012,7 @@ void CSlideShow::DrawControlsBorder() const {
     xf.AddTranslation(CVector3f(
         0.f, 0.f,
         scale * (bounds.GetMaxPoint().GetZ() - bounds.GetMinPoint().GetZ()) / 2.f - height / 2.f));
-    xf.AddTranslation(
-        CVector3f(0.f, 0.f, GetControlsTextHeight() / 2.f + (5.f + mControlsOffset)));
+    xf.AddTranslation(CVector3f(0.f, 0.f, GetControlsTextHeight() / 2.f + (5.f + mControlsOffset)));
     CGraphics::SetModelMatrix(xf);
     const CModelFlags flags(CModelFlags::kT_One, gpTweakSlideShow->GetBorderColor());
     gpRender->DrawModelFlat(*mGalleryBorder->GetT(), flags, false, nullptr, nullptr);
@@ -1075,8 +1070,8 @@ CIOWin::EMessageReturn CSlideShow::SSlideData::ProcessUserInput(const CFinalInpu
     const float left = ControlMapper::GetAnalogInput(ControlMapper::kC_MapMoveLeft, input);
     const float right = ControlMapper::GetAnalogInput(ControlMapper::kC_MapMoveRight, input);
 #if VERSION >= VERSION_GM8P_00
-    const float speed = gpTweakSlideShow->GetPanSpeed() *
-                        rstl::max_val(mTextureWidth, mTextureHeight) / 1024.f;
+    const float speed =
+        gpTweakSlideShow->GetPanSpeed() * rstl::max_val(mTextureWidth, mTextureHeight) / 1024.f;
 #else
     const float speed = gpTweakSlideShow->GetPanSpeed();
 #endif
@@ -1084,10 +1079,8 @@ CIOWin::EMessageReturn CSlideShow::SSlideData::ProcessUserInput(const CFinalInpu
     mVpOffset[0] += speed * right;
     mVpOffset[1] += speed * forward;
     mVpOffset[1] -= speed * back;
-    mVpOffset[0] =
-        CMath::Clamp(0.f, mVpOffset.GetX(), mCanvasSize.GetX() - mVpSize.GetX());
-    mVpOffset[1] =
-        CMath::Clamp(0.f, mVpOffset.GetY(), mCanvasSize.GetY() - mVpSize.GetY());
+    mVpOffset[0] = CMath::Clamp(0.f, mVpOffset.GetX(), mCanvasSize.GetX() - mVpSize.GetX());
+    mVpOffset[1] = CMath::Clamp(0.f, mVpOffset.GetY(), mCanvasSize.GetY() - mVpSize.GetY());
     float halfX = 0.f;
     const float availableX = texWidth / 2.f - mVpSize.GetX() / 2.f;
     if (availableX > halfX) {
@@ -1098,14 +1091,14 @@ CIOWin::EMessageReturn CSlideShow::SSlideData::ProcessUserInput(const CFinalInpu
     if (availableY > halfY) {
       halfY = availableY;
     }
-    mVpOffset[0] = CMath::Clamp(mCanvasSize.GetX() / 2.f - halfX,
-                                   mVpSize.GetX() / 2.f + mVpOffset.GetX(),
-                                   mCanvasSize.GetX() / 2.f + halfX) -
-                      mVpSize.GetX() / 2.f;
-    mVpOffset[1] = CMath::Clamp(mCanvasSize.GetY() / 2.f - halfY,
-                                   mVpSize.GetY() / 2.f + mVpOffset.GetY(),
-                                   mCanvasSize.GetY() / 2.f + halfY) -
-                      mVpSize.GetY() / 2.f;
+    mVpOffset[0] =
+        CMath::Clamp(mCanvasSize.GetX() / 2.f - halfX, mVpSize.GetX() / 2.f + mVpOffset.GetX(),
+                     mCanvasSize.GetX() / 2.f + halfX) -
+        mVpSize.GetX() / 2.f;
+    mVpOffset[1] =
+        CMath::Clamp(mCanvasSize.GetY() / 2.f - halfY, mVpSize.GetY() / 2.f + mVpOffset.GetY(),
+                     mCanvasSize.GetY() / 2.f + halfY) -
+        mVpSize.GetY() / 2.f;
     mParent->SetPanSfx(!(oldOffset == mVpOffset));
   }
   return kMR_Exit;
@@ -1203,8 +1196,8 @@ void CSlideShow::SSlideData::Draw() const {
           !(leftBottom.GetY() < y + texture.mRightTop.GetY()) &&
           !(rightTop.GetX() < x + texture.mLeftBottom.GetX()) &&
           !(rightTop.GetY() > y + texture.mLeftBottom.GetY())) {
-        DrawTexture(texture.mToken, CVector3f(x + texture.mLeftBottom.GetX(), 0.f,
-                                               y + texture.mRightTop.GetY()),
+        DrawTexture(texture.mToken,
+                    CVector3f(x + texture.mLeftBottom.GetX(), 0.f, y + texture.mRightTop.GetY()),
                     mMulColor.WithAlphaModulatedBy(texture.mAlpha), &mVpOffset, &mVpSize);
       }
     }

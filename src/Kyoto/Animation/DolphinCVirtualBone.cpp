@@ -9,19 +9,21 @@
 #include <string.h>
 
 static rstl::reserved_vector< SSkinWeighting, 3 > StreamInSkinWeighting(CInputStream& in) {
+  int i = 0;
+  int weightCount = 0;
   rstl::reserved_vector< SSkinWeighting, 3 > weights;
-  const int weightCount = in.Get< int >();
+  weightCount = in.ReadInt32();
 
   if (weightCount > weights.capacity()) {
-    for (int i = 0; i < weights.capacity(); ++i) {
+    for (i = 0; i < weights.capacity(); ++i) {
       weights.push_back(SSkinWeighting(in));
     }
 
-    for (int i = weights.capacity(); i < weightCount; ++i) {
+    for (i = weights.capacity(); i < weightCount; ++i) {
       SSkinWeighting tmp(in);
     }
   } else {
-    for (int i = 0; i < weightCount; ++i) {
+    for (i = 0; i < weightCount; ++i) {
       weights.push_back(SSkinWeighting(in));
     }
   }
