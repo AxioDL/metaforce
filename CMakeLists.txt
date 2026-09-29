@@ -708,17 +708,14 @@ set(GAME_FILES
       src/Metaforce/ScriptObjectDebug.cpp
 )
 
-add_library(prime SHARED ${GAME_FILES})
-target_compile_definitions(prime PRIVATE TARGET_PC=1 VERSION=0 NONMATCHING=1)
-target_include_directories(prime PRIVATE include extern/rstl/include)
-target_link_libraries(prime PRIVATE ${GAME_LIBS})
-aurora_copy_runtime_dlls(prime)
-add_executable(metaforce
-        src/Metaforce/main.cpp
-)
+if (ANDROID)
+    add_library(metaforce SHARED ${GAME_FILES})
+else ()
+    add_executable(metaforce ${GAME_FILES})
+endif ()
 target_compile_definitions(metaforce PRIVATE TARGET_PC=1 VERSION=0 NONMATCHING=1)
 target_include_directories(metaforce PRIVATE include extern/rstl/include)
-target_link_libraries(metaforce PRIVATE ${GAME_LIBS} prime)
+target_link_libraries(metaforce PRIVATE ${GAME_LIBS})
 include(extern/aurora/cmake/AuroraCopyRuntimeDLLs.cmake)
 aurora_copy_runtime_dlls(metaforce)
 borealis_configure_android_application(metaforce)
@@ -733,25 +730,10 @@ if (CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "GNU")
         -Wno-trigraphs
         -Wno-multichar
         -Wno-enum-compare
-        -Wl,--export-all-symbols
-    )
-    target_compile_options(prime PRIVATE
-            $<$<COMPILE_LANGUAGE:CXX>:-Werror=delete-incomplete>
-            -Wno-switch
-            -Wno-deprecated-enum-compare
-            -Wno-deprecated-enum-compare-conditional
-            -Wno-deprecated-enum-enum-conversion
-            -Wno-trigraphs
-            -Wno-multichar
-            -Wno-enum-compare
-            -Wl,--export-all-symbols
     )
 elseif (CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
     target_compile_options(metaforce PRIVATE
         /we4150 # deletion of pointer to incomplete type 'type'; no destructor called
-    )
-    target_compile_options(prime PRIVATE
-            /we4150 # deletion of pointer to incomplete type 'type'; no destructor called
     )
 endif ()
 
@@ -759,16 +741,12 @@ endif ()
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     if (MSVC)
         target_compile_options(metaforce PRIVATE "$<$<COMPILE_LANGUAGE:CXX>:/clang:-fcomplete-member-pointers>")
-        target_compile_options(prime PRIVATE "$<$<COMPILE_LANGUAGE:CXX>:/clang:-fcomplete-member-pointers>")
     else()
         target_compile_options(metaforce PRIVATE "$<$<COMPILE_LANGUAGE:CXX>:-fcomplete-member-pointers>")
-        target_compile_options(prime PRIVATE "$<$<COMPILE_LANGUAGE:CXX>:/clang:-fcomplete-member-pointers>")
     endif()
 elseif (MSVC)
     target_compile_options(metaforce PRIVATE "$<$<COMPILE_LANGUAGE:CXX>:/we5243>")
-    target_compile_options(prime PRIVATE "$<$<COMPILE_LANGUAGE:CXX>:/clang:-fcomplete-member-pointers>")
 endif()
-
 
 # Packaging logic
 function(get_target_output_name target result_var)
