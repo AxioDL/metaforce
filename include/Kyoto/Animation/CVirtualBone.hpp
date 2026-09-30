@@ -9,7 +9,7 @@ struct SSkinWeighting {
   CSegId mId;
   float mWeight;
   explicit SSkinWeighting(CInputStream& in)
-  : mId(in.Get< int >()), mWeight(in.Get< float >()) {}
+  : mId((uchar)in.ReadLong()), mWeight(in.ReadFloat()) {}
 };
 
 class CPoseAsTransforms;

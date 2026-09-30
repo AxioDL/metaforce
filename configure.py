@@ -51,17 +51,6 @@ RSTL_VERSIONS = {
     "R3MP01_00": 41,
 }
 
-DISABLED_VERSIONS = [
-    # 1,
-    # 2,
-    # 3,
-    # 4,
-    # 5,
-    6,
-    # 7,
-    8,
-]
-
 parser = argparse.ArgumentParser()
 parser.add_argument(
     "mode",
@@ -167,11 +156,6 @@ args = parser.parse_args()
 config = ProjectConfig()
 config.version = str(args.version)
 version_num = VERSIONS.index(config.version)
-
-if version_num in DISABLED_VERSIONS:
-    print(f"Version {VERSIONS[version_num]} is disabled using default")
-    version_num = DEFAULT_VERSION
-    config.version = VERSIONS[DEFAULT_VERSION]
 
 # Apply arguments
 config.build_dir = args.build_dir
@@ -2222,7 +2206,7 @@ config.libs = [
                 ),
             ),
             Object(NonMatching, "Kyoto/Animation/DolphinCSkinRules.cpp"),
-            Object(EquivalentFor("GM8E01_00"), "Kyoto/Animation/DolphinCVirtualBone.cpp"),
+            Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "Kyoto/Animation/DolphinCVirtualBone.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "Kyoto/Graphics/DolphinCModel.cpp"),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48"),

@@ -1,3 +1,4 @@
+#include "MetroidPrime/CGameGlobalObjects.hpp"
 #include "MetroidPrime/CMain.hpp"
 
 #include "stdint.h"
@@ -48,7 +49,6 @@
 #include "MetroidPrime/CDecalManager.hpp"
 #include "MetroidPrime/CEnvFxManager.hpp"
 #include "MetroidPrime/CErrorOutputWindow.hpp"
-#include "MetroidPrime/CGameGlobalObjects.hpp"
 #include "MetroidPrime/CInGameTweakManager.hpp"
 #include "MetroidPrime/CMainFlow.hpp"
 #include "MetroidPrime/CMemoryCard.hpp"
