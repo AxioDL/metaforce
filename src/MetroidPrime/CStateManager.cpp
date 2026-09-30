@@ -1,3 +1,4 @@
+#include "MetroidPrime/Player/CPlayer.hpp"
 #define CSTATEMANAGER_OUT_OF_LINE_GETPLAYER
 #include "MetroidPrime/CStateManager.hpp"
 #undef CSTATEMANAGER_OUT_OF_LINE_GETPLAYER
@@ -33,7 +34,6 @@
 #include "MetroidPrime/HUD/CSamusHud.hpp"
 #include "MetroidPrime/Player/CGameState.hpp"
 #include "MetroidPrime/Player/CMorphBall.hpp"
-#include "MetroidPrime/Player/CPlayer.hpp"
 #include "MetroidPrime/Player/CPlayerState.hpp"
 #include "MetroidPrime/Player/CWorldTransManager.hpp"
 #include "MetroidPrime/ScriptObjects/CScriptDock.hpp"
