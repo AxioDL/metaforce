@@ -1,5 +1,5 @@
-#include "MetroidPrime/Player/CPlayer.hpp"
 #define CSTATEMANAGER_OUT_OF_LINE_GETPLAYER
+#include "MetroidPrime/Player/CPlayer.hpp"
 #include "MetroidPrime/CStateManager.hpp"
 #undef CSTATEMANAGER_OUT_OF_LINE_GETPLAYER
 
