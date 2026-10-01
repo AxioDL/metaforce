@@ -1704,7 +1704,7 @@ config.libs = [
                 "Kyoto/Animation/CMetaAnimPlay.cpp",
             ),
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "Kyoto/Animation/CMetaAnimRandom.cpp"),
-            Object(EquivalentFor("GM8E01_00"), "Kyoto/Animation/CMetaAnimSequence.cpp"),
+            Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "Kyoto/Animation/CMetaAnimSequence.cpp"),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
                 "Kyoto/Animation/CMetaTransFactory.cpp",
