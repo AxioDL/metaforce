@@ -1,0 +1,103 @@
+body {
+    --font-family-body: Titillium Web;
+    --font-family-heading: Saira SemiCondensed;
+    --font-family-monospace: Noto Mono;
+    --font-family-icons: Material Symbols Rounded;
+
+    --font-size-3xs: 11dp;
+    --font-size-2xs: 12dp;
+    --font-size-xs: 13dp;
+    --font-size-sm: 14dp;
+    --font-size-base: 15dp;
+    --font-size-md: 16dp;
+    --font-size-lg: 17dp;
+    --font-size-xl: 18dp;
+    --font-size-2xl: 20dp;
+    --font-size-3xl: 22dp;
+    --font-size-4xl: 24dp;
+    --font-size-5xl: 28dp;
+    --font-size-6xl: 32dp;
+
+    --letter-spacing-heading: 1dp;
+    --letter-spacing-section: 2dp;
+
+    --space-2xs: 2dp;
+    --space-xs: 4dp;
+    --space-sm: 8dp;
+    --space-md: 12dp;
+    --space-lg: 16dp;
+    --space-xl: 24dp;
+    --space-2xl: 32dp;
+
+    --radius-small: 2dp;
+    --radius-control: 3dp;
+    --radius-panel: 4dp;
+    --radius-window: 6dp;
+
+    --border-width: 1dp;
+    --scrollbar-width: 4dp;
+    --focus-ring-width: 2dp;
+
+    --toolbar-height: 64dp;
+    --toolbar-hidden-offset: -64dp;
+
+    --window-max-width: 1088dp;
+    --window-max-height: 768dp;
+    --modal-max-width: 640dp;
+
+    --color-text-rgb: 219, 232, 242;
+    --color-text: rgb(var(--color-text-rgb));
+    --color-accent-rgb: 64, 158, 255;
+    --color-accent: rgb(var(--color-accent-rgb));
+    --color-border-rgb: 72, 116, 158;
+    --color-border: rgb(var(--color-border-rgb));
+    --color-surface-rgb: 7, 13, 22;
+    --color-interactive-rgb: 88, 166, 240;
+    --color-control-rgb: 3, 7, 13;
+    --color-neutral-rgb: 190, 210, 228;
+    --color-neutral: rgb(var(--color-neutral-rgb));
+    --color-white-rgb: 255, 255, 255;
+    --color-white: rgb(var(--color-white-rgb));
+    --color-black-rgb: 0, 0, 0;
+    --color-black: rgb(var(--color-black-rgb));
+
+    --color-success-rgb: 84, 214, 140;
+    --color-success: rgb(var(--color-success-rgb));
+    --color-info-rgb: 110, 214, 232;
+    --color-info: rgb(var(--color-info-rgb));
+    --color-warning-rgb: 255, 170, 51;
+    --color-warning: rgb(var(--color-warning-rgb));
+    --color-error-rgb: 232, 72, 72;
+    --color-error: rgb(var(--color-error-rgb));
+
+    --color-danger-border: #8A2430;
+    --color-danger-heading: #E0494F;
+
+    --button-color: var(--color-text);
+    --button-background: rgba(var(--color-control-rgb), 20%);
+    --button-background-hover: rgba(var(--color-interactive-rgb), 20%);
+    --button-background-selected: rgba(var(--color-interactive-rgb), 12%);
+    --button-background-selected-focus: rgba(var(--color-interactive-rgb), 28%);
+    --button-background-active: rgba(var(--color-interactive-rgb), 44%);
+
+    --color-value: rgba(var(--color-text-rgb), 85%);
+    --color-value-modified: var(--color-white);
+    --color-heading: rgba(var(--color-accent-rgb), 85%);
+    --color-rule: rgba(var(--color-accent-rgb), 22%);
+
+    --control-outline: rgba(var(--color-border-rgb), 28%) 0 0 0 var(--border-width);
+    --selection-bar-width: 3dp;
+    --control-outline-focus: rgba(var(--color-accent-rgb), 45%) 0 0 0 var(--border-width);
+    --focus-ring: rgba(var(--color-accent-rgb), 85%) 0 0 0 var(--focus-ring-width);
+    --selection-gradient-rest: linear-gradient(90deg, rgba(var(--color-accent-rgb), 0%) 0dp, rgba(var(--color-accent-rgb), 0%) var(--selection-bar-width), rgba(var(--color-accent-rgb), 0%) var(--selection-bar-width), rgba(var(--color-accent-rgb), 0%) 80%);
+    --selection-gradient: linear-gradient(90deg, rgba(var(--color-accent-rgb), 100%) 0dp, rgba(var(--color-accent-rgb), 100%) var(--selection-bar-width), rgba(var(--color-accent-rgb), 26%) var(--selection-bar-width), rgba(var(--color-accent-rgb), 0%) 80%);
+    --selection-gradient-selected: linear-gradient(90deg, rgba(var(--color-accent-rgb), 60%) 0dp, rgba(var(--color-accent-rgb), 60%) var(--selection-bar-width), rgba(var(--color-accent-rgb), 14%) var(--selection-bar-width), rgba(var(--color-accent-rgb), 0%) 80%);
+    --selection-gradient-selected-focus: linear-gradient(90deg, rgba(var(--color-accent-rgb), 100%) 0dp, rgba(var(--color-accent-rgb), 100%) var(--selection-bar-width), rgba(var(--color-accent-rgb), 34%) var(--selection-bar-width), rgba(var(--color-accent-rgb), 2%) 80%);
+    --selection-gradient-active: linear-gradient(90deg, rgba(var(--color-accent-rgb), 100%) 0dp, rgba(var(--color-accent-rgb), 100%) var(--selection-bar-width), rgba(var(--color-accent-rgb), 40%) var(--selection-bar-width), rgba(var(--color-accent-rgb), 4%) 80%);
+
+    --panel-background: rgba(var(--color-surface-rgb), 80%);
+    --panel-backdrop: blur(6dp) glass(22dp 28dp 0.35 rgba(var(--color-accent-rgb), 6%) 0.85);
+    --panel-border: rgba(var(--color-accent-rgb), 50%);
+    --panel-glow: rgba(var(--color-accent-rgb), 16%) 0 0 28dp 2dp;
+    --panel-scanlines: repeating-linear-gradient(180deg, rgba(var(--color-accent-rgb), 3%) 0dp, rgba(var(--color-accent-rgb), 3%) 1dp, rgba(var(--color-accent-rgb), 0%) 1dp, rgba(var(--color-accent-rgb), 0%) 3dp);
+}

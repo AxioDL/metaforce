@@ -29,6 +29,11 @@ void ConfigureDisplay(SDL_Window* window, bool originalAspect) {
   UpdateDisplayPolicy();
 }
 
+void SetDisplayAspectLocked(bool originalAspect) {
+  sLockAspect = originalAspect;
+  UpdateDisplayPolicy();
+}
+
 void UpdateDisplayPolicy() {
   int width = 0;
   int height = 0;

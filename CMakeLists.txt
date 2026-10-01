@@ -47,6 +47,7 @@ set(AURORA_ENABLE_DVD ON CACHE BOOL "Enable DVD API support" FORCE)
 set(AURORA_ENABLE_RMLUI ON CACHE BOOL "Enable RmlUi UI support" FORCE)
 set(AURORA_ENABLE_THP ON CACHE BOOL "Enable THP decoder" FORCE)
 set(BOREALIS_ENABLE_DISCORD OFF CACHE BOOL "Build borealis::discord" FORCE)
+set(BOREALIS_ENABLE_UI ON CACHE BOOL "Build borealis::ui (requires RmlUi)" FORCE)
 set(BOREALIS_ENABLE_HTTP OFF CACHE BOOL "Build borealis::http" FORCE)
 set(BOREALIS_ENABLE_NET OFF CACHE BOOL "Build borealis::net" FORCE)
 set(BOREALIS_ENABLE_UPDATE OFF CACHE BOOL "Build borealis::update (requires borealis::http and nlohmann_json)" FORCE)
@@ -57,7 +58,7 @@ add_subdirectory(extern/musyx EXCLUDE_FROM_ALL)
 
 set(GAME_LIBS
       aurora::core aurora::gx aurora::vi aurora::pad aurora::mtx aurora::os aurora::dvd aurora::thp aurora::card aurora::main
-      borealis::cli borealis::crash borealis::data borealis::disc borealis::io borealis::log borealis::presentation
+      borealis::cli borealis::crash borealis::data borealis::disc borealis::io borealis::log borealis::presentation borealis::ui
       musyx ZLIB::ZLIB TracyClient fmt::fmt)
 
 set(GAME_FILES
@@ -706,6 +707,9 @@ set(GAME_FILES
       src/Metaforce/CImGuiIOWin.cpp
       src/Metaforce/ResourceNameDatabase.cpp
       src/Metaforce/ScriptObjectDebug.cpp
+      src/Metaforce/UI/MenuBar.cpp
+      src/Metaforce/UI/SettingsWindow.cpp
+      src/Metaforce/UI/UI.cpp
 )
 
 if (ANDROID)
@@ -719,6 +723,24 @@ target_link_libraries(metaforce PRIVATE ${GAME_LIBS})
 include(extern/aurora/cmake/AuroraCopyRuntimeDLLs.cmake)
 aurora_copy_runtime_dlls(metaforce)
 borealis_configure_android_application(metaforce)
+
+# TODO: refactor (put result in borealis?)
+get_target_property(_metaforce_bundle metaforce MACOSX_BUNDLE)
+if (NOT _metaforce_bundle AND NOT ANDROID)
+    file(GLOB_RECURSE METAFORCE_RESOURCE_FILES CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/res/*")
+    set(_metaforce_resources_stamp "${CMAKE_CURRENT_BINARY_DIR}/metaforce_resources_$<CONFIG>.stamp")
+    add_custom_command(OUTPUT "${_metaforce_resources_stamp}"
+            COMMAND ${CMAKE_COMMAND} -E copy_directory
+            "${CMAKE_SOURCE_DIR}/res"
+            "$<TARGET_FILE_DIR:metaforce>/res"
+            COMMAND ${CMAKE_COMMAND} -E touch "${_metaforce_resources_stamp}"
+            DEPENDS ${METAFORCE_RESOURCE_FILES}
+            COMMENT "Copying resources"
+            VERBATIM
+    )
+    add_custom_target(metaforce_resources DEPENDS "${_metaforce_resources_stamp}")
+    add_dependencies(metaforce metaforce_resources)
+endif ()
 
 if (CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "GNU")
     target_compile_options(metaforce PRIVATE

@@ -1,0 +1,101 @@
+body {
+    --button-background: rgba(var(--color-control-rgb), 35%);
+
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+}
+
+popover {
+    position: absolute;
+    display: flex;
+    flex-flow: column;
+    font-family: var(--font-family-body);
+    font-size: var(--font-size-sm);
+    color: var(--color-text);
+    border-radius: var(--radius-window);
+    border-width: var(--border-width);
+    border-color: var(--panel-border);
+    background-color: rgba(var(--color-surface-rgb), 96%);
+    backdrop-filter: var(--panel-backdrop);
+    box-shadow: var(--panel-glow), rgba(var(--color-black-rgb), 55%) 0 6dp 24dp 2dp;
+    decorator: var(--panel-scanlines);
+    filter: opacity(0);
+    transform: scale(0.95);
+    transform-origin: center;
+    transition: filter transform 0.15s cubic-in-out;
+    focus: auto;
+}
+
+popover[open] {
+    filter: opacity(1);
+    transform: scale(1);
+}
+
+button {
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--radius-panel);
+    font-size: var(--font-size-sm);
+    box-shadow: var(--control-outline);
+    opacity: 1;
+}
+
+popover.context-menu {
+    min-width: 200dp;
+    max-width: 90%;
+    max-height: 90%;
+    overflow-y: auto;
+    padding: 6dp;
+    gap: 2dp;
+    transform-origin: left top;
+}
+
+.context-menu button {
+    display: flex;
+    align-items: center;
+    gap: 10dp;
+    padding: 8dp 12dp;
+    flex: 0 0 auto;
+    white-space: nowrap;
+    --button-background: transparent;
+    background-color: var(--button-background);
+    box-shadow: none;
+    transition: decorator 0.15s linear-in-out, background-color 0.1s linear-in-out;
+}
+
+.context-menu button:selected {
+    --button-background: var(--button-background-selected);
+}
+
+.context-menu button:selected icon {
+    color: var(--color-accent);
+}
+
+.context-menu button:not(:disabled):hover,
+.context-menu button:not(:disabled):focus-visible,
+.context-menu button:not(:disabled):active {
+    box-shadow: none;
+}
+
+.context-menu button:disabled {
+    background-color: transparent;
+    box-shadow: none;
+    opacity: 0.4;
+    cursor: unavailable;
+}
+
+.context-menu icon {
+    display: block;
+    flex: 0 0 1em;
+    width: 1em;
+    height: 1em;
+    line-height: 1;
+}
+
+menu-separator {
+    display: block;
+    flex: 0 0 1dp;
+    height: 1dp;
+    margin: 4dp 6dp;
+    background-color: var(--color-rule);
+}

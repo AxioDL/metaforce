@@ -1,0 +1,45 @@
+body {
+    overflow: visible;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: var(--font-family-heading);
+    font-weight: bold;
+    font-size: var(--font-size-xl);
+    color: var(--color-text);
+}
+
+button {
+    cursor: pointer;
+    focus: auto;
+}
+
+popup {
+    width: 100%;
+    display: flex;
+    align-items: stretch;
+    height: var(--toolbar-height);
+    font-size: var(--font-size-2xl);
+    background-color: var(--panel-background);
+    border-bottom-width: var(--border-width);
+    border-bottom-color: var(--panel-border);
+    backdrop-filter: var(--panel-backdrop);
+    box-shadow: var(--panel-glow);
+    decorator: var(--panel-scanlines);
+    transform: translateY(var(--toolbar-hidden-offset));
+    transition: transform 0.2s cubic-in-out;
+}
+
+popup[open] {
+    transform: translateY(0);
+}
+
+popup tab-bar {
+    flex: 1 1 0;
+}
+
+popup tab-bar tab {
+    opacity: 0.5;
+    color: var(--color-text);
+}

@@ -8,6 +8,8 @@
 #include "Metaforce/CImGuiIOWin.hpp"
 #include "Metaforce/Limiter.hpp"
 #include "Metaforce/ResourceNameDatabase.hpp"
+#include "Metaforce/UI/RuntimeConfig.hpp"
+#include "Metaforce/UI/UI.hpp"
 #include "MetroidPrime/CArchitectureMessage.hpp"
 #include "MetroidPrime/CMain.hpp"
 #include "MetroidPrime/CMemoryCard.hpp"
@@ -328,7 +330,7 @@ int Initialize(int argc, char** argv) {
       ("dvd", "Path to game disc image", cxxopts::value< std::string >()->default_value("game.rvz"))
       ("backend", "Graphics backend to use (auto, d3d11, d3d12, metal, vulkan, opengl, opengles)", cxxopts::value< AuroraBackend >()->default_value("auto"))
       ("lock-aspect", "Lock 4:3 aspect ratio")
-      ("window-size", "Initial window size", cxxopts::value< std::vector< unsigned int > >()->default_value("1280,720"), "WIDTH,HEIGHT")
+      ("window-size", "Initial window size", cxxopts::value< std::vector< unsigned int > >()->default_value("1280,896"), "WIDTH,HEIGHT")
       ("warp", "Start at WORLD,AREA[,LAYERBITS][,0xRELAY...]", cxxopts::value< std::vector< std::string > >(), "WORLD,AREA,...")
       ("load-save", "Load save slot (1-3)", cxxopts::value< int >(), "N")
       ("audio-rate", "Audio sample rate (0 for default)", cxxopts::value<unsigned int>()->default_value("0"))
@@ -447,6 +449,7 @@ int Initialize(int argc, char** argv) {
   };
   const auto auroraInfo = aurora_initialize(argc, argv, &config);
   ConfigureDisplay(auroraInfo.window, args.count("lock-aspect") != 0);
+  ui::GetRuntimeConfig().video.lockAspectRatio.setValue(args.count("lock-aspect") != 0);
   borealis::presentation::set_preferred_frame_rate(60.f);
   COsContext::mProgressiveMode = true;
 
@@ -456,6 +459,9 @@ int Initialize(int argc, char** argv) {
     return 1;
   }
   LoadDefaultKeyBindings();
+  if (!ui::Initialize()) {
+    Log.warn("Failed to initialize the Metaforce interface");
+  }
   return 0;
 }
 
@@ -466,11 +472,14 @@ void Shutdown() {
   }
   sndPCStopAudio();
   aurora_dvd_close();
+  ui::Shutdown();
   aurora_shutdown();
   borealis::log::shutdown();
 }
 
 int GetExitCode() { return exitCode; }
+
+void RequestQuit() { shouldTerminate = true; }
 
 bool HasStartupRequest() { return startup.has_value(); }
 
@@ -483,11 +492,15 @@ bool BeginFrame() {
       shouldTerminate = true;
       return false;
     }
+    if (event->type == AURORA_SDL_EVENT) {
+      ui::HandleEvent(event->sdl);
+    }
   }
   if (!aurora_begin_frame()) {
     return false;
   }
   UpdateDisplayAspect();
+  ui::Update();
   return true;
 }
 
