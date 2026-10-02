@@ -66,6 +66,7 @@ set(AURORA_ENABLE_DVD ON CACHE BOOL "Enable DVD API support" FORCE)
 set(AURORA_ENABLE_RMLUI ON CACHE BOOL "Enable RmlUi UI support" FORCE)
 set(AURORA_ENABLE_THP ON CACHE BOOL "Enable THP decoder" FORCE)
 set(BOREALIS_ENABLE_DISCORD OFF CACHE BOOL "Build borealis::discord" FORCE)
+set(BOREALIS_ENABLE_FILE_SELECT ON CACHE BOOL "Build borealis::file_select (requires SDL3)" FORCE)
 set(BOREALIS_ENABLE_UI ON CACHE BOOL "Build borealis::ui (requires RmlUi)" FORCE)
 set(BOREALIS_ENABLE_HTTP OFF CACHE BOOL "Build borealis::http" FORCE)
 set(BOREALIS_ENABLE_NET OFF CACHE BOOL "Build borealis::net" FORCE)
@@ -82,7 +83,7 @@ add_subdirectory(extern/musyx EXCLUDE_FROM_ALL)
 
 set(GAME_LIBS
       aurora::core aurora::gx aurora::vi aurora::pad aurora::mtx aurora::os aurora::dvd aurora::thp aurora::card aurora::main
-      borealis::cli borealis::crash borealis::data borealis::disc borealis::io borealis::log borealis::presentation borealis::ui
+      borealis::cli borealis::crash borealis::data borealis::disc borealis::file_select borealis::io borealis::log borealis::presentation borealis::ui
       musyx ZLIB::ZLIB TracyClient fmt::fmt)
 
 set(GAME_FILES
@@ -757,7 +758,9 @@ if (APPLE)
               "${_metaforce_platform_dir}/Base.lproj/*")
     else ()
         set(_metaforce_platform_dir "${CMAKE_SOURCE_DIR}/platforms/macos")
-        set(_metaforce_platform_files "${_metaforce_platform_dir}/Metaforce.icns")
+        set(_metaforce_platform_files
+              "${_metaforce_platform_dir}/Assets.car"
+              "${_metaforce_platform_dir}/Metaforce.icns")
     endif ()
     file(GLOB_RECURSE _metaforce_res_files CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/res/*")
     list(FILTER _metaforce_res_files EXCLUDE REGEX "/\\.DS_Store$")

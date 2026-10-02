@@ -34,6 +34,7 @@
 #include <borealis/cli.hpp>
 #include <borealis/crash.hpp>
 #include <borealis/data.hpp>
+#include <borealis/file_select.hpp>
 #include <borealis/io.hpp>
 #include <borealis/log.hpp>
 #include <borealis/presentation.hpp>
@@ -84,6 +85,7 @@ constexpr borealis::AppInfo AppInfo{
 };
 
 std::optional< borealis::data::Manager > dataManager;
+borealis::io::PathAccess discAccess;
 bool shouldTerminate = false;
 int exitCode = 0;
 Limiter limiter;
@@ -318,6 +320,33 @@ void LoadDefaultKeyBindings() {
   PADSetKeyAxisBindings(PAD_CHAN0, axes);
   PADSetKeyboardActive(PAD_CHAN0, TRUE);
 }
+
+// TODO: temp until we get a prelaunch
+std::string SelectDisc(SDL_Window* window) {
+  auto result = std::make_shared< std::optional< borealis::file_select::Result > >();
+  borealis::file_select::open_file(
+      {
+          .parentWindow = window,
+          .filters = {{"Game Disc Images", "iso;gcm;ciso;gcz;rvz;wia;tgc"}, {"All Files", "*"}},
+      },
+      [result](borealis::file_select::Result selected) { *result = std::move(selected); });
+  while (!*result) {
+    for (const AuroraEvent* event = aurora_update(); event && event->type != AURORA_NONE; ++event) {
+      if (event->type == AURORA_EXIT) {
+        return {};
+      }
+    }
+    limiter.Sleep(16670000);
+  }
+  if ((*result)->status != borealis::file_select::Status::Selected ||
+      (*result)->locations.empty()) {
+    if ((*result)->status == borealis::file_select::Status::Failed) {
+      Log.error("Disc selection failed: {}", (*result)->message);
+    }
+    return {};
+  }
+  return (*result)->locations.front();
+}
 } // namespace
 
 int Initialize(int argc, char** argv) {
@@ -327,7 +356,7 @@ int Initialize(int argc, char** argv) {
   // clang-format off
   options.add_options()
       ("h,help", "Print usage")
-      ("dvd", "Path to game disc image", cxxopts::value< std::string >()->default_value("game.rvz"))
+      ("dvd", "Path to game disc image", cxxopts::value< std::string >())
       ("backend", "Graphics backend to use (auto, d3d11, d3d12, metal, vulkan, opengl, opengles)", cxxopts::value< AuroraBackend >()->default_value("auto"))
       ("lock-aspect", "Lock 4:3 aspect ratio")
       ("window-size", "Initial window size", cxxopts::value< std::vector< unsigned int > >()->default_value("1280,896"), "WIDTH,HEIGHT")
@@ -425,13 +454,6 @@ int Initialize(int argc, char** argv) {
   Log.info("User directory: {}", userPath);
   Log.info("Cache directory: {}", cachePath);
 
-  const auto discPath = args["dvd"].as< std::string >();
-  if (!aurora_dvd_open(discPath.c_str())) {
-    Log.error("Failed to open disc image '{}'", discPath);
-    borealis::log::shutdown();
-    return 1;
-  }
-
   const auto windowSize = args["window-size"].as< std::vector< unsigned int > >();
   const AuroraConfig config{
       .appName = AppInfo.appName.data(),
@@ -449,6 +471,23 @@ int Initialize(int argc, char** argv) {
   };
   const auto auroraInfo = aurora_initialize(argc, argv, &config);
   ConfigureDisplay(auroraInfo.window, args.count("lock-aspect") != 0);
+
+  const auto discLocation =
+      args.count("dvd") ? args["dvd"].as< std::string >() : SelectDisc(auroraInfo.window);
+  if (discLocation.empty()) {
+    Log.error("No disc image selected");
+    Shutdown();
+    return 1;
+  }
+  discAccess = borealis::io::access_path(discLocation);
+  const auto discPath =
+      discAccess ? borealis::io::fs_path_to_string(discAccess.path()) : discLocation;
+  if (!aurora_dvd_open(discPath.c_str())) {
+    Log.error("Failed to open disc image '{}'", borealis::io::display_name(discLocation));
+    Shutdown();
+    return 1;
+  }
+
   ui::GetRuntimeConfig().video.lockAspectRatio.setValue(args.count("lock-aspect") != 0);
   borealis::presentation::set_preferred_frame_rate(60.f);
   COsContext::mProgressiveMode = true;
@@ -472,6 +511,7 @@ void Shutdown() {
   }
   sndPCStopAudio();
   aurora_dvd_close();
+  discAccess = {};
   ui::Shutdown();
   aurora_shutdown();
   borealis::log::shutdown();
