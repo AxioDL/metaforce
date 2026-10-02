@@ -1,0 +1,24 @@
+plugins {
+    id 'com.android.application'
+}
+
+def metaforceRepoDir = rootProject.projectDir.parentFile.parentFile
+def borealisDir = new File(metaforceRepoDir, 'extern/borealis')
+
+ext.borealisAndroid = [
+    borealisDir: borealisDir,
+    propertiesFile: new File(metaforceRepoDir, 'build/android-arm64/borealis-android.properties'),
+    namespace: 'com.axiodl.metaforce',
+    applicationId: 'com.axiodl.metaforce',
+    abis: ['arm64-v8a'],
+    assets: [
+        [
+            from: new File(metaforceRepoDir, 'res'),
+            into: 'res',
+            excludes: ['**/.DS_Store']
+        ]
+    ],
+    proguardRules: file('proguard-rules.pro')
+]
+
+apply from: new File(borealisDir, 'platforms/android/gradle/borealis-application.gradle')

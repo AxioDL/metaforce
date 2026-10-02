@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Metaforce
+Comment=Native reimplementation of Metroid Prime
+Exec=metaforce
+Icon=com.axiodl.Metaforce
+Terminal=false
+Categories=Game;ActionGame;
+StartupWMClass=metaforce

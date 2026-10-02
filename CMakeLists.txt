@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.25)
 
 if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING
-            "Build type options: Debug Release RelWithDebInfo MinSizeRel" FORCE)
+          "Build type options: Debug Release RelWithDebInfo MinSizeRel" FORCE)
 endif ()
 
 include(extern/borealis/cmake/DetectVersion.cmake)
@@ -16,10 +16,29 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+set(METAFORCE_BUNDLE_NAME Metaforce)
+set(METAFORCE_BUNDLE_IDENTIFIER com.axiodl.Metaforce)
+
+# Adjust CMAKE_SYSTEM_PROCESSOR on Windows to match compiler target
+if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    if (CMAKE_C_COMPILER_ARCHITECTURE_ID MATCHES "^ARM64")
+        set(CMAKE_SYSTEM_PROCESSOR "ARM64")
+    elseif (CMAKE_C_COMPILER_ARCHITECTURE_ID STREQUAL "x64")
+        set(CMAKE_SYSTEM_PROCESSOR "AMD64")
+    elseif (CMAKE_C_COMPILER_ARCHITECTURE_ID STREQUAL "X86")
+        set(CMAKE_SYSTEM_PROCESSOR "X86")
+    endif ()
+endif ()
+
+# Decompiled code assumes char is signed, but some compilers default to unsigned char (ARM, Android, etc.)
+if (CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "GNU" OR (MSVC AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang"))
+    add_compile_options(-fsigned-char)
+endif ()
+
 option(ENABLE_SANITIZERS "Enable AddressSanitizer and UndefinedBehaviorSanitizer" OFF)
 if (ENABLE_SANITIZERS)
     if (CMAKE_C_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC" AND
-            CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
+          CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
         add_compile_options($<$<COMPILE_LANGUAGE:C,CXX>:/fsanitize=address,undefined>)
         add_link_options(/fsanitize=address,undefined /INCREMENTAL:NO)
         set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "ProgramDatabase")
@@ -29,10 +48,10 @@ if (ENABLE_SANITIZERS)
             endforeach ()
         endforeach ()
     elseif (CMAKE_C_COMPILER_FRONTEND_VARIANT STREQUAL "GNU" AND
-            CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "GNU")
+          CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "GNU")
         add_compile_options(
-                $<$<COMPILE_LANGUAGE:C,CXX,OBJC,OBJCXX>:-fsanitize=address,undefined>
-                $<$<COMPILE_LANGUAGE:C,CXX,OBJC,OBJCXX>:-fno-omit-frame-pointer>
+              $<$<COMPILE_LANGUAGE:C,CXX,OBJC,OBJCXX>:-fsanitize=address,undefined>
+              $<$<COMPILE_LANGUAGE:C,CXX,OBJC,OBJCXX>:-fno-omit-frame-pointer>
         )
         add_link_options(-fsanitize=address,undefined)
     else ()
@@ -53,6 +72,11 @@ set(BOREALIS_ENABLE_NET OFF CACHE BOOL "Build borealis::net" FORCE)
 set(BOREALIS_ENABLE_UPDATE OFF CACHE BOOL "Build borealis::update (requires borealis::http and nlohmann_json)" FORCE)
 set(BOREALIS_ENABLE_WEBSOCKET OFF CACHE BOOL "Build borealis::ws (requires borealis::http)" FORCE)
 add_subdirectory(extern/aurora EXCLUDE_FROM_ALL)
+if (ANDROID AND TARGET _cargo-build_nod)
+    # NDK r30+ requires a versioned target triple
+    # TODO: move into aurora or nod
+    corrosion_set_env_vars(nod "TARGET_CFLAGS=--target=${CMAKE_C_COMPILER_TARGET}")
+endif ()
 add_subdirectory(extern/borealis EXCLUDE_FROM_ALL)
 add_subdirectory(extern/musyx EXCLUDE_FROM_ALL)
 
@@ -724,19 +748,54 @@ include(extern/aurora/cmake/AuroraCopyRuntimeDLLs.cmake)
 aurora_copy_runtime_dlls(metaforce)
 borealis_configure_android_application(metaforce)
 
+if (APPLE)
+    if (IOS)
+        set(_metaforce_platform_dir "${CMAKE_SOURCE_DIR}/platforms/ios")
+        file(GLOB_RECURSE _metaforce_platform_files
+              "${_metaforce_platform_dir}/Assets.car"
+              "${_metaforce_platform_dir}/AppIcon*.png"
+              "${_metaforce_platform_dir}/Base.lproj/*")
+    else ()
+        set(_metaforce_platform_dir "${CMAKE_SOURCE_DIR}/platforms/macos")
+        set(_metaforce_platform_files "${_metaforce_platform_dir}/Metaforce.icns")
+    endif ()
+    file(GLOB_RECURSE _metaforce_res_files CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/res/*")
+    list(FILTER _metaforce_res_files EXCLUDE REGEX "/\\.DS_Store$")
+    target_sources(metaforce PRIVATE ${_metaforce_platform_files} ${_metaforce_res_files})
+    foreach (_file IN LISTS _metaforce_platform_files)
+        cmake_path(RELATIVE_PATH _file BASE_DIRECTORY "${_metaforce_platform_dir}" OUTPUT_VARIABLE _rel)
+        cmake_path(GET _rel PARENT_PATH _rel_dir)
+        set_source_files_properties("${_file}" PROPERTIES MACOSX_PACKAGE_LOCATION "Resources/${_rel_dir}")
+    endforeach ()
+    foreach (_file IN LISTS _metaforce_res_files)
+        cmake_path(RELATIVE_PATH _file BASE_DIRECTORY "${CMAKE_SOURCE_DIR}" OUTPUT_VARIABLE _rel)
+        cmake_path(GET _rel PARENT_PATH _rel_dir)
+        set_source_files_properties("${_file}" PROPERTIES MACOSX_PACKAGE_LOCATION "Resources/${_rel_dir}")
+    endforeach ()
+    set_target_properties(metaforce PROPERTIES
+          MACOSX_BUNDLE TRUE
+          MACOSX_BUNDLE_BUNDLE_NAME ${METAFORCE_BUNDLE_NAME}
+          MACOSX_BUNDLE_GUI_IDENTIFIER ${METAFORCE_BUNDLE_IDENTIFIER}
+          MACOSX_BUNDLE_BUNDLE_VERSION ${BOREALIS_APP_VERSION}
+          MACOSX_BUNDLE_SHORT_VERSION_STRING ${BOREALIS_APP_SHORT_VERSION}
+          MACOSX_BUNDLE_INFO_PLIST "${_metaforce_platform_dir}/Info.plist.in"
+          OUTPUT_NAME ${METAFORCE_BUNDLE_NAME}
+    )
+endif ()
+
 # TODO: refactor (put result in borealis?)
 get_target_property(_metaforce_bundle metaforce MACOSX_BUNDLE)
 if (NOT _metaforce_bundle AND NOT ANDROID)
     file(GLOB_RECURSE METAFORCE_RESOURCE_FILES CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/res/*")
     set(_metaforce_resources_stamp "${CMAKE_CURRENT_BINARY_DIR}/metaforce_resources_$<CONFIG>.stamp")
     add_custom_command(OUTPUT "${_metaforce_resources_stamp}"
-            COMMAND ${CMAKE_COMMAND} -E copy_directory
-            "${CMAKE_SOURCE_DIR}/res"
-            "$<TARGET_FILE_DIR:metaforce>/res"
-            COMMAND ${CMAKE_COMMAND} -E touch "${_metaforce_resources_stamp}"
-            DEPENDS ${METAFORCE_RESOURCE_FILES}
-            COMMENT "Copying resources"
-            VERBATIM
+          COMMAND ${CMAKE_COMMAND} -E copy_directory
+          "${CMAKE_SOURCE_DIR}/res"
+          "$<TARGET_FILE_DIR:metaforce>/res"
+          COMMAND ${CMAKE_COMMAND} -E touch "${_metaforce_resources_stamp}"
+          DEPENDS ${METAFORCE_RESOURCE_FILES}
+          COMMENT "Copying resources"
+          VERBATIM
     )
     add_custom_target(metaforce_resources DEPENDS "${_metaforce_resources_stamp}")
     add_dependencies(metaforce metaforce_resources)
@@ -744,18 +803,18 @@ endif ()
 
 if (CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "GNU")
     target_compile_options(metaforce PRIVATE
-        $<$<COMPILE_LANGUAGE:CXX>:-Werror=delete-incomplete>
-        -Wno-switch
-        -Wno-deprecated-enum-compare
-        -Wno-deprecated-enum-compare-conditional
-        -Wno-deprecated-enum-enum-conversion
-        -Wno-trigraphs
-        -Wno-multichar
-        -Wno-enum-compare
+          $<$<COMPILE_LANGUAGE:CXX>:-Werror=delete-incomplete>
+          -Wno-switch
+          -Wno-deprecated-enum-compare
+          -Wno-deprecated-enum-compare-conditional
+          -Wno-deprecated-enum-enum-conversion
+          -Wno-trigraphs
+          -Wno-multichar
+          -Wno-enum-compare
     )
 elseif (CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
     target_compile_options(metaforce PRIVATE
-        /we4150 # deletion of pointer to incomplete type 'type'; no destructor called
+          /we4150 # deletion of pointer to incomplete type 'type'; no destructor called
     )
 endif ()
 
@@ -763,12 +822,12 @@ endif ()
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     if (MSVC)
         target_compile_options(metaforce PRIVATE "$<$<COMPILE_LANGUAGE:CXX>:/clang:-fcomplete-member-pointers>")
-    else()
+    else ()
         target_compile_options(metaforce PRIVATE "$<$<COMPILE_LANGUAGE:CXX>:-fcomplete-member-pointers>")
-    endif()
+    endif ()
 elseif (MSVC)
     target_compile_options(metaforce PRIVATE "$<$<COMPILE_LANGUAGE:CXX>:/we5243>")
-endif()
+endif ()
 
 # Packaging logic
 function(get_target_output_name target result_var)
@@ -799,10 +858,10 @@ set(EXTRA_TARGETS "")
 if (TARGET crashpad_handler)
     list(APPEND EXTRA_TARGETS crashpad_handler)
 endif ()
-  install(TARGETS ${BINARY_TARGETS} ${EXTRA_TARGETS} DESTINATION ${CMAKE_INSTALL_PREFIX})
+install(TARGETS ${BINARY_TARGETS} ${EXTRA_TARGETS} DESTINATION ${CMAKE_INSTALL_PREFIX})
 aurora_install_runtime_dlls(metaforce ${CMAKE_INSTALL_PREFIX})
-if (NOT APPLE AND EXISTS "${CMAKE_SOURCE_DIR}/res")
-      install(DIRECTORY ${CMAKE_SOURCE_DIR}/res DESTINATION ${CMAKE_INSTALL_PREFIX})
+if (NOT _metaforce_bundle AND NOT ANDROID)
+    install(DIRECTORY ${CMAKE_SOURCE_DIR}/res DESTINATION ${CMAKE_INSTALL_PREFIX})
 endif ()
 if (CMAKE_BUILD_TYPE STREQUAL Debug OR CMAKE_BUILD_TYPE STREQUAL RelWithDebInfo)
     set(DEBUG_FILES_LIST "")
@@ -827,7 +886,7 @@ if (CMAKE_BUILD_TYPE STREQUAL Debug OR CMAKE_BUILD_TYPE STREQUAL RelWithDebInfo)
     endforeach ()
     # This is a terrible hack to only run this on CI
     # until I turn this into a script or something
-    if(DEFINED ENV{GITHUB_ENV})
+    if (DEFINED ENV{GITHUB_ENV})
         if (WIN32)
             list(TRANSFORM DEBUG_FILES_LIST APPEND ".pdb")
             list(JOIN DEBUG_FILES_LIST " " DEBUG_FILES)
@@ -853,3 +912,6 @@ foreach (target IN LISTS BINARY_TARGETS)
         endif ()
     endforeach ()
 endforeach ()
+if (_metaforce_bundle AND CMAKE_SYSTEM_NAME STREQUAL Darwin)
+    install(CODE "execute_process(WORKING_DIRECTORY \"${CMAKE_INSTALL_PREFIX}\" COMMAND codesign --force --sign - \"$<TARGET_BUNDLE_DIR_NAME:metaforce>\" COMMAND_ERROR_IS_FATAL ANY)")
+endif ()

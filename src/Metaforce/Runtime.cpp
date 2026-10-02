@@ -507,7 +507,7 @@ bool BeginFrame() {
 void EndFrame() { aurora_end_frame(); }
 
 void RegisterIOWins(CIOWinManager& ioWinManager) {
-  ioWinManager.AddIOWin(rs_new CImGuiIOWin(), 10000, 1000000);
+  // ioWinManager.AddIOWin(rs_new CImGuiIOWin(), 10000, 1000000);
 }
 
 } // namespace metaforce
