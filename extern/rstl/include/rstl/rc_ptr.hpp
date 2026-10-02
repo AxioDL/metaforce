@@ -1,8 +1,8 @@
 #ifndef _RSTL_RC_PTR
 #define _RSTL_RC_PTR
 
-#include "types.h"
 #include "rstl/allocator.hpp"
+#include "types.h"
 namespace rstl {
 class CRefData {
 public:
@@ -58,7 +58,7 @@ public:
 #if RSTL_VERSION >= RSTL_R3IJ
   T* GetPtr() const { return const_cast< T* >(mPtr); }
 #else
-  T* GetPtr() const { return static_cast< T* >(mRefData->GetPtr()); }
+  T* GetPtr() const;
 #endif
   bool IsNull() const { return GetPtr() == nullptr; }
   template < typename U >
@@ -98,6 +98,13 @@ private:
 };
 
 template < typename T >
+#ifndef RSTL_OUTLINE_RC_PTR_GET
+inline
+#endif
+T* rc_ptr< T >::GetPtr() const {
+  return static_cast< T* >(mRefData->GetPtr());
+}
+template < typename T >
 void rc_ptr< T >::ReleaseData() {
 #if RSTL_VERSION >= RSTL_R3IJ
   if (--*mCount <= 0) {
@@ -128,6 +135,10 @@ public:
     rc_ptr< T >::Assign(ptr);
     return *this;
   }
+
+  T* operator->() const { return rc_ptr< T >::operator->(); }
+  T& operator*() const { return rc_ptr< T >::operator*(); }
+  operator bool() const { return rc_ptr< T >::operator bool(); }
 };
 
 template < typename T >

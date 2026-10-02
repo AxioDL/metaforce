@@ -131,7 +131,7 @@ public:
   void SetProjectedShadow(CProjectedShadow* shadow) { mProjectedShadow = shadow; }
 #endif
 
-  void PreRender();
+  void PreRender(); 
   bool RenderLast(const TUniqueId&);
   void ResetEscapeSequenceTimer(float);
   float GetEscapeSequenceTimer() const;
