@@ -43,8 +43,8 @@ private:
   void DoRadialFreeze(const CVector3f&, const CDamageInfo&, CStateManager& mgr);
   void ApplyFlameDamageToActor(TUniqueId id, CStateManager& mgr);
 #endif
-  void ApplyFlameDamageToActors(CStateManager& mgr, TUniqueId id, float dt);
-  void ApplyDamageToWorld(CStateManager& mgr, TUniqueId id, const CVector3f& point,
+  void ApplyFlameDamageToActors(CStateManager& mgr, const TUniqueId id, float dt);
+  void ApplyDamageToWorld(CStateManager& mgr, const TUniqueId id, const CVector3f& point,
                           const CDamageInfo& dInfo, const CMaterialFilter& filter);
 
   CTransform4f mFlameXf;

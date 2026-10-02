@@ -12,11 +12,11 @@ class CGuiWidget;
 
 class CHudBallInterface {
 public:
-  CHudBallInterface(CGuiFrame& selHud, int pbAmount, int pbCapacity, int availableBombs,
-                    bool hasBombs, bool hasPb);
-  void SetBombParams(int pbAmount, int pbCapacity, int availableBombs, bool hasBombs, bool hasPb,
-                     bool init);
-  void SetBallModeFactor(float t);
+  CHudBallInterface(CGuiFrame& selHud, const int pbAmount, const int pbCapacity,
+                    const int availableBombs, const bool hasBombs, const bool hasPb);
+  void SetBombParams(const int pbAmount, const int pbCapacity, const int availableBombs,
+                     const bool hasBombs, const bool hasPb, const bool init);
+  void SetBallModeFactor(const float t);
 
 private:
   CGuiCamera* mCamera;

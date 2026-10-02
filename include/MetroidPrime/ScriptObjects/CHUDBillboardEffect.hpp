@@ -38,8 +38,8 @@ private:
   bool mRunIndefinitely : 1l; // = false;
   float mTimeoutTimer; // = 0.f;
 
-  static int g_IndirectTexturedBillboardCount;
-  static int g_BillboardCount;
+  static int mIndirectTexturedBillboardCount;
+  static int mBillboardCount;
 
   static float CalcGenRate();
 };

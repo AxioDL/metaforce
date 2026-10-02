@@ -320,7 +320,7 @@ void CFlameThrower::ApplyFlameDamageToActor(TUniqueId id, CStateManager& mgr) {
 }
 #endif
 
-inline void CFlameThrower::ApplyDamageToWorld(CStateManager& mgr, TUniqueId id,
+inline void CFlameThrower::ApplyDamageToWorld(CStateManager& mgr, const TUniqueId id,
                                               const CVector3f& point, const CDamageInfo& dInfo,
                                               const CMaterialFilter& filter) {
   mgr.ApplyDamageToWorld(id, *this, point, dInfo, filter);

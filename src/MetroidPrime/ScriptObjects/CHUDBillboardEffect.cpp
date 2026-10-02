@@ -13,13 +13,13 @@
 
 #include "rstl/math.hpp"
 
-int CHUDBillboardEffect::g_BillboardCount = 0;
-int CHUDBillboardEffect::g_IndirectTexturedBillboardCount = 0;
+int CHUDBillboardEffect::mBillboardCount = 0;
+int CHUDBillboardEffect::mIndirectTexturedBillboardCount = 0;
 
 float CHUDBillboardEffect::CalcGenRate() {
-  float f1 = (g_BillboardCount + g_IndirectTexturedBillboardCount <= 4)
+  float f1 = (mBillboardCount + mIndirectTexturedBillboardCount <= 4)
                  ? 0.f
-                 : g_BillboardCount * 0.2f + g_IndirectTexturedBillboardCount * 0.1f;
+                 : mBillboardCount * 0.2f + mIndirectTexturedBillboardCount * 0.1f;
   return 1.f - rstl::min_val(0.8f, f1);
 }
 
@@ -52,20 +52,20 @@ CHUDBillboardEffect::CHUDBillboardEffect(
     mIsElementGen = true;
     mGenerator = rs_new CElementGen(*particle);
     if (static_cast< CElementGen& >(*mGenerator).IsIndirectTextured())
-      ++g_IndirectTexturedBillboardCount;
+      ++mIndirectTexturedBillboardCount;
   } else {
     mGenerator = rs_new CParticleElectric(TToken< CElectricDescription >(*electric));
   }
-  ++g_BillboardCount;
+  ++mBillboardCount;
   mGenerator->SetModulationColor(color);
   mGenerator->SetLocalScale(mLocalScale);
 }
 
 CHUDBillboardEffect::~CHUDBillboardEffect() {
-  --g_BillboardCount;
+  --mBillboardCount;
   if (mGenerator->Get4CharId() == 'PART')
     if (static_cast< CElementGen& >(*mGenerator).IsIndirectTextured())
-      --g_IndirectTexturedBillboardCount;
+      --mIndirectTexturedBillboardCount;
 }
 
 void CHUDBillboardEffect::AddToRenderer(const CFrustumPlanes& frustum,

@@ -62,7 +62,7 @@ public:
   bool HasAttrib(EProjectileAttrib attrib) const {
     return (mProjectileAttribs & attrib) == attrib; // maybe wrong
   }
-  TUniqueId GetOwnerId() const { return mOwnerId; }
+  const TUniqueId GetOwnerId() const { return mOwnerId; }
   EWeaponType GetType() const { return mWeaponType; }
   CMaterialFilter GetFilter() const { return mFilter; }
 
