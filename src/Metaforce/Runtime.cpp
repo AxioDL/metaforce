@@ -284,6 +284,7 @@ void ShowConsole() {
     Log.warn("Failed to open console (Windows error {})", GetLastError());
     return;
   }
+  SetConsoleOutputCP(CP_UTF8);
   FILE* stream;
   if (_fileno(stdout) < 0 || _get_osfhandle(_fileno(stdout)) < 0) {
     freopen_s(&stream, "CONOUT$", "w", stdout);

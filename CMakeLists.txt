@@ -749,6 +749,20 @@ include(extern/aurora/cmake/AuroraCopyRuntimeDLLs.cmake)
 aurora_copy_runtime_dlls(metaforce)
 borealis_configure_android_application(metaforce)
 
+if (WIN32)
+    set(_metaforce_windows_dir "${CMAKE_SOURCE_DIR}/platforms/windows")
+    set(_metaforce_windows_rc "${CMAKE_CURRENT_BINARY_DIR}/metaforce.rc")
+    configure_file("${_metaforce_windows_dir}/metaforce.rc.in" "${_metaforce_windows_rc}" @ONLY)
+    target_sources(metaforce PRIVATE "${_metaforce_windows_rc}")
+    set_source_files_properties("${_metaforce_windows_rc}" PROPERTIES
+            OBJECT_DEPENDS "${_metaforce_windows_dir}/Metaforce.ico;${_metaforce_windows_dir}/metaforce.manifest")
+    set_target_properties(metaforce PROPERTIES WIN32_EXECUTABLE TRUE)
+    if (MSVC)
+        # metaforce.rc embeds the manifest
+        target_link_options(metaforce PRIVATE /MANIFEST:NO)
+    endif ()
+endif ()
+
 if (APPLE)
     if (IOS)
         set(_metaforce_platform_dir "${CMAKE_SOURCE_DIR}/platforms/ios")
