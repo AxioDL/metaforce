@@ -395,7 +395,6 @@ void CCubeRenderer::GenerateFogVolumeRampTex() {
   for (int y = 0, yOff = 0; y < 2048; ++y, yOff += 32) {
     int tileXBase = (y % 32) * 8;
     int tileYBase = (y / 32) * 4;
-    uchar* ptr = &data[yOff];
     for (int x = 0; x < 32; ++x) {
       int tileX = tileXBase + (x & 7);
       int tileY = tileYBase + (x >> 3);
@@ -403,7 +402,7 @@ void CCubeRenderer::GenerateFogVolumeRampTex() {
       double t = static_cast< double >(tmp) / static_cast< double >(0xFFFFFF);
       double a = (-(150.0 / (t * (750.f - 0.2f) - 750.0)) - 0.2f) * 3.0 / (750.f - 0.2f);
       float cf = CMath::Clamp< float >(0.f, a, 1.f);
-      *ptr++ = CCast::ToUint8((0.5f * (cf * cf + cf)) * 255.f);
+      data[yOff + x] = CCast::ToUint8((0.5f * (cf * cf + cf)) * 255.f);
     }
   }
   mFogVolumeRamp.UnLock();
@@ -852,20 +851,20 @@ void CCubeRenderer::ActivateLightsForModel(const CAreaListItem* areaListItem,
 
     const CAABox& modelAABB = model.GetBoundingBox();
 
-    uint octreeWordCount = 0;
-    const uint* octreeWords = nullptr;
     int loadedLightCount = 0;
+    const uint* octreeWords = nullptr;
+    uint octreeWordCount = 0;
     if (areaListItem != nullptr && model.GetModelIndex() != -1) {
       octreeWords = areaListItem->mLightOctreeWords.data();
       octreeWordCount = areaListItem->mOctTree->mBitmapWordCount;
     }
 
-    const uint* curOctreeWords = octreeWords;
+    int wordOffset = 0;
     for (int i = 0; i < mDynamicLights.size() && loadedLightCount < 4;
-         ++i, curOctreeWords += octreeWordCount) {
+         ++i, wordOffset += octreeWordCount) {
       const CLight& light = mDynamicLights[i];
       if (octreeWords == nullptr ||
-          CAreaRenderOctTree::TestBit(curOctreeWords, model.GetModelIndex())) {
+          CAreaRenderOctTree::TestBit(octreeWords + wordOffset, model.GetModelIndex())) {
         bool replacedLight = false;
 
         for (int j = 0; j < loadedLightCount; ++j) {
@@ -1438,8 +1437,10 @@ static void draw_box_or_model(const CAABox& aabb, const CModel* model, const CTr
     };
     CGraphics::SetModelMatrix(CTransform4f::Identity());
 
-    float maxExtent = rstl::max_val(rstl::max_val(worldAabb.GetDepth(), worldAabb.GetHeight()),
-                                    worldAabb.GetWidth());
+    float maxExtent = rstl::max_val(
+        rstl::max_val(worldAabb.GetMaxPoint()[kDZ] - worldAabb.GetMinPoint()[kDZ],
+                      worldAabb.GetMaxPoint()[kDY] - worldAabb.GetMinPoint()[kDY]),
+        worldAabb.GetMaxPoint()[kDX] - worldAabb.GetMinPoint()[kDX]);
 
     const float sliceExtent = maxExtent * 2.f;
     for (int i = 0; i < 7; ++i) {
@@ -1882,7 +1883,7 @@ void CCubeRenderer::ReallyRenderFogVolume(const CColor& color, const CAABox& aab
         uv0MaxX = static_cast< float >(chunkW - 1) / static_cast< float >(chunkW);
         uv0MaxY = static_cast< float >(chunkH - 1) / static_cast< float >(chunkH);
 
-        GXSetTexCopyDst(static_cast< u16 >(chunkW), static_cast< u16 >(chunkH), GX_CTF_A8,
+        GXSetTexCopyDst(static_cast< u16 >(chunkW), static_cast< u16 >(chunkH), GX_TF_Z16,
                         GX_FALSE);
 
         uv0MinX = 0.5f / static_cast< float >(chunkW);
@@ -2384,6 +2385,7 @@ void CCubeRenderer::PrepareDynamicLights(const rstl::vector< CLight >& lights) {
 
 void CCubeRenderer::FindOverlappingWorldModels(rstl::vector< uint >& modelBits,
                                                const CAABox& aabb) {
+  const CAreaRenderOctTree* octTree;
   int wordCount = 0;
   for (AUTO(it, mAreaListItems.begin()); it != mAreaListItems.end(); ++it) {
     if (it->mOctTree != 0) {
@@ -2406,7 +2408,7 @@ void CCubeRenderer::FindOverlappingWorldModels(rstl::vector< uint >& modelBits,
 
   int curWord = 0;
   for (AUTO(it, mAreaListItems.begin()); it != mAreaListItems.end(); ++it) {
-    const CAreaRenderOctTree* octTree = it->mOctTree;
+    octTree = it->mOctTree;
     if (octTree == nullptr) {
       continue;
     }

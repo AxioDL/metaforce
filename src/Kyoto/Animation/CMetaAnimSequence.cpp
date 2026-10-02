@@ -18,7 +18,8 @@ CMetaAnimSequence::VGetAnimationTree(const CAnimSysContext& animSys,
   AUTO(it, mSequence.begin());
   AUTO(end, mSequence.end());
   rstl::vector< rstl::string > names;
-  names.reserve(end - it);
+  AUTO(len, end - it);
+  names.reserve(len++);
   while (it != end) {
     rstl::rc_ptr< IMetaAnim > anim = *it;
     rstl::ncrc_ptr< CAnimTreeNode > tree = anim->GetAnimationTree(animSys, orders);
