@@ -9,6 +9,9 @@ class CElectricDescription;
 
 class CPlasmaProjectile : public CBeamProjectile {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   enum EExpansionState { kES_Inactive, kES_Attack, kES_Sustain, kES_Release, kES_Done };
 
   CPlasmaProjectile(const TToken< CWeaponDescription >& wDesc, const rstl::string& name,

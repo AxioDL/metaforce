@@ -7,6 +7,9 @@
 
 class CScriptSwitch : public CEntity {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CScriptSwitch(TUniqueId uid, const rstl::string& name, const CEntityInfo& info, bool, bool, bool);
 
   DECLARE_ACCEPT;

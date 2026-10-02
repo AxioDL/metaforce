@@ -11,6 +11,9 @@
 
 class CMetroidPrimeRelay : public CEntity {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CMetroidPrimeRelay(
       TUniqueId uid, const rstl::string& name, const CEntityInfo& info, bool active,
       const CTransform4f& xf, const CVector3f& scale, const CMetroidPrimeData& parms, float f1,

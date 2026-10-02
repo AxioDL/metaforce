@@ -10,6 +10,9 @@ class CGenDescription;
 class CElementGen;
 class CScriptEffect : public CActor {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   ~CScriptEffect() override;
   DECLARE_TYPES_MATCH_OR_ACCEPT;
   void Think(float dt, CStateManager& mgr) override;

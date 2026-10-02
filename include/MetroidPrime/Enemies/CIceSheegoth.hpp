@@ -100,6 +100,9 @@ CHECK_SIZEOF(CIceSheegothData, 0x1f4)
 
 class CIceSheegoth : public CPatterned {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   enum EPathFindMode {
     kPFM_Normal,
     kPFM_Approach,

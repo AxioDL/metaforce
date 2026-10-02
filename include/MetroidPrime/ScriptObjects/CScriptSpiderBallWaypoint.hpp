@@ -5,6 +5,9 @@
 
 class CScriptSpiderBallWaypoint : public CActor {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   enum ECheckActiveWaypoint {
     kCAW_Check,
     kCAW_SkipCheck,

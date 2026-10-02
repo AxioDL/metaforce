@@ -75,6 +75,9 @@ class CMetroidData;
 
 class CMetroidBeta : public CPatterned {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CMetroidBeta(const TUniqueId uid, const rstl::string& name, const CEntityInfo& info,
                const CTransform4f& xf, const CModelData& mData, const CPatternedInfo& pInfo,
                const CActorParameters& aParms, const CMetroidBetaData& metroidData);

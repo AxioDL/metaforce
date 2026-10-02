@@ -11,6 +11,9 @@
 
 class CEnergyProjectile : public CGameProjectile {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CEnergyProjectile(const bool active, const TToken< CWeaponDescription >& desc,
                     const EWeaponType type, const CTransform4f& xf, const EMaterialTypes excludeMat,
                     const CDamageInfo& damage, const TUniqueId uid, const TAreaId aid,

@@ -10,6 +10,9 @@ private:
   float mPointSize;
 
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CScriptPointOfInterest(TUniqueId, const rstl::string&, const CEntityInfo&, const CTransform4f&, bool,
                          const CScannableParameters&, float);
   ~CScriptPointOfInterest();

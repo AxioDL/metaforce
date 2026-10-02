@@ -13,6 +13,9 @@ class CScriptCameraBlurKeyframe : public CEntity {
   float mTimeOut;
 
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CScriptCameraBlurKeyframe(TUniqueId uid, const rstl::string& name, const CEntityInfo& info,
                             CCameraBlurPass::EBlurType type, float amount, u32 unk, float timeIn,
                             float timeOut, bool active);

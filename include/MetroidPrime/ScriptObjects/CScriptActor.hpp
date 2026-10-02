@@ -11,6 +11,9 @@ class CActorParameters;
 
 class CScriptActor : public CPhysicsActor {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CScriptActor(TUniqueId uid, const rstl::string& name, const CEntityInfo& info,
                const CTransform4f& xf, const CModelData& mData, const CAABox& aabb,
                const CMaterialList& matList, float mass, float zMomentum, const CHealthInfo& hInfo,

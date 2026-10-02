@@ -33,6 +33,9 @@ CHECK_SIZEOF(CProjectileTouchResult, 0x38)
 
 class CGameProjectile : public CWeapon {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CGameProjectile(const bool active, const TToken< CWeaponDescription >&, const rstl::string& name,
                   const EWeaponType wType, const CTransform4f& xf, const EMaterialTypes excludeMat,
                   const CDamageInfo& dInfo, const TUniqueId uid, const TAreaId aid,

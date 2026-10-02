@@ -20,6 +20,9 @@ class IVisitor;
 
 class CParasite : public CWallWalker {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   class CRepulsor {
   public:
     CRepulsor(CVector3f pos, float radius) : mPos(pos), mRadius(radius) {}

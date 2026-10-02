@@ -11,6 +11,9 @@ class CGenDescription;
 
 class CMetaree : public CPatterned {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CMetaree(TUniqueId uid, const rstl::string& name, EFlavorType flavor, const CEntityInfo& info,
            const CTransform4f& xf, const CModelData& mData, const CPatternedInfo& pInfo,
            const CDamageInfo& dInfo, float f1, const CVector3f& v1, float f2, EBodyType bodyType,

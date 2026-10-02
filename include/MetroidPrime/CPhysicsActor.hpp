@@ -77,6 +77,9 @@ protected:
   static const float kGravityAccel;
 
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CPhysicsActor(TUniqueId uid, bool active, const rstl::string& name, const CEntityInfo& info,
                 const CTransform4f& xf, const CModelData& mData, const CMaterialList& matList,
                 const CAABox& aabb, const SMoverData& moverData, const CActorParameters& actParams,

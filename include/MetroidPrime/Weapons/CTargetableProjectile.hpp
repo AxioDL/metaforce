@@ -5,6 +5,9 @@
 
 class CTargetableProjectile : public CEnergyProjectile {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CTargetableProjectile(
       const TToken< CWeaponDescription >& desc, const EWeaponType type, const CTransform4f& xf,
       const EMaterialTypes materials, const CDamageInfo& damage, const CDamageInfo& damage2,

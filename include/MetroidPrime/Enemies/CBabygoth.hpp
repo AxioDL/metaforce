@@ -92,6 +92,9 @@ CHECK_SIZEOF(CBabygothData, 0x178)
 
 class CBabygoth : public CPatterned {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   enum EPathFindMode { kPFM_Normal, kPFM_Approach };
   enum EShellCrackState { kSCS_Default, kSCS_CrackOne, kSCS_CrackTwo, kSCS_Destroyed };
 

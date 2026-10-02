@@ -9,6 +9,9 @@
 
 class CScriptColorModulate : public CEntity {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   enum EBlendMode {
     kBM_Alpha,
     kBM_Additive,

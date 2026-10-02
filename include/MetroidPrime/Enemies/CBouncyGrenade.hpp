@@ -60,6 +60,9 @@ CHECK_SIZEOF(CBouncyGrenadeData, 0x3c)
 
 class CBouncyGrenade : public CPhysicsActor {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   // CEntity
   ~CBouncyGrenade() override;
   DECLARE_TYPES_MATCH_OR_ACCEPT;

@@ -10,6 +10,9 @@ class CScriptRipple : public CEntity {
   CVector3f mCenter;
 
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CScriptRipple(TUniqueId, const rstl::string&, const CEntityInfo&, const CVector3f&, bool, float);
   ~CScriptRipple();
 

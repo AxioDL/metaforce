@@ -7,6 +7,9 @@ class CRepulsor : public CActor {
   float mAffectRadius;
 
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CRepulsor(TUniqueId, bool, const rstl::string&, const CEntityInfo&, const CVector3f&, float);
 
   DECLARE_TYPES_MATCH_OR_ACCEPT;

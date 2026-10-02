@@ -9,6 +9,9 @@ class CProjectedShadow;
 
 class CScriptShadowProjector : public CActor {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CScriptShadowProjector(TUniqueId, const rstl::string&, const CEntityInfo&, const CTransform4f&,
                          bool, const CVector3f&, bool, float, float, float, float, int);
 

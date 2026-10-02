@@ -7,6 +7,9 @@
 
 class CEyeBall : public CPatterned {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CEyeBall(const TUniqueId uid, const rstl::string& name, const EFlavorType flavor,
            const CEntityInfo& info, const CTransform4f& xf, const CModelData& mData,
            const CPatternedInfo& pInfo, const float attackDelay, const float attackStartTime,

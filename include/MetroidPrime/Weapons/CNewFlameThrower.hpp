@@ -17,6 +17,9 @@ class CCollisionPrimitive;
 
 class CNewFlameThrower : public CGameProjectile {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   // CEntity
   ~CNewFlameThrower() override;
   DECLARE_TYPES_MATCH_OR_ACCEPT;

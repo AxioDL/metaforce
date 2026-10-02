@@ -14,6 +14,9 @@ class CVisorParameters;
 
 class CScriptDamageableTrigger : public CActor {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   enum ECanOrbit {
     kCO_NoOrbit,
     kCO_Orbit,

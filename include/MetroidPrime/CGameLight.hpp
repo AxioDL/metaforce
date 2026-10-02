@@ -7,6 +7,9 @@
 
 class CGameLight : public CActor {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CGameLight(const TUniqueId uid, const TAreaId aid, const bool active, const rstl::string& name,
              const CTransform4f& xf, const TUniqueId parentId, const CLight& light,
              const CAssetId sourceId, const uint priority, const float lifeTime);

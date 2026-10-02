@@ -74,6 +74,9 @@ public:
 
 class CScriptMazeNode : public CActor {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CScriptMazeNode(TUniqueId uid, const rstl::string& name, const CEntityInfo& info,
                   const CTransform4f& xf, bool active, int col, int row, int side,
                   const CVector3f& actorPos, const CVector3f& triggerPos,

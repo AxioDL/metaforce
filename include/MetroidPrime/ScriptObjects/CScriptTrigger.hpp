@@ -31,6 +31,9 @@ enum ETriggerFlags {
 
 class CScriptTrigger : public CActor {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   class CObjectTracker {
     TUniqueId mId;
 

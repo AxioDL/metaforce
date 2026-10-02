@@ -94,6 +94,9 @@ CHECK_SIZEOF(CCameraCollider, 0x54)
 
 class CBallCamera : public CGameCamera {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   enum EBallCameraState {
     kBCS_Default,
     kBCS_One,

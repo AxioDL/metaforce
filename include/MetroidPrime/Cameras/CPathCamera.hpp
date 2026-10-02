@@ -6,6 +6,9 @@
 
 class CPathCamera : public CGameCamera {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   enum EInitialSplinePosition {
     kISP_BallCamBasis,
     kISP_Negative,

@@ -8,6 +8,9 @@
 
 class CAmbientAI : public CPhysicsActor {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CAmbientAI(TUniqueId uid, const rstl::string& name, const CEntityInfo& info,
              const CTransform4f& xf, const CModelData& mData, const CAABox& aabox,
              const CMaterialList& materialList, float mass, const CHealthInfo& hInfo,

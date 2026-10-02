@@ -7,6 +7,9 @@
 
 class CEffect : public CActor {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CEffect(TUniqueId uid, const CEntityInfo& info, bool, const rstl::string& name,
           const CTransform4f& xf);
 

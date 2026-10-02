@@ -7,6 +7,9 @@
 
 class CScriptCoverPoint : public CActor {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CScriptCoverPoint(TUniqueId uid, const rstl::string& name, const CEntityInfo& info,
                     const CTransform4f& xf, bool active, uint flags, bool crouch, float horizontalAngle,
                     float verticalAngle, float coverTime);

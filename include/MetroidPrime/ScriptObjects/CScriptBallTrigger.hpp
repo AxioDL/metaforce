@@ -5,6 +5,9 @@
 
 class CScriptBallTrigger : public CScriptTrigger {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CScriptBallTrigger(TUniqueId, const rstl::string&, const CEntityInfo&, const CVector3f&,
                      const CVector3f&, bool, float, float, float, CVector3f, bool);
   ~CScriptBallTrigger();

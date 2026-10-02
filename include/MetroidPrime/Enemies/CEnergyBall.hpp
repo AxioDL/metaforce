@@ -6,6 +6,9 @@
 
 class CEnergyBall : public CPatterned {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CEnergyBall(TUniqueId uid, const rstl::string& name, const CEntityInfo& info,
               const CTransform4f& xf, const CModelData& mData, const CActorParameters& actParms,
               const CPatternedInfo& pInfo, int w1, float f1, const CDamageInfo& dInfo1,

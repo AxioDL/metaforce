@@ -14,6 +14,9 @@ class CScriptBeam : public CActor {
   TUniqueId mProjectileId;
 
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CScriptBeam(TUniqueId, const rstl::string&, const CEntityInfo&, const CTransform4f&, bool,
               const TToken< CWeaponDescription >&, const CBeamInfo&, const CDamageInfo&);
 

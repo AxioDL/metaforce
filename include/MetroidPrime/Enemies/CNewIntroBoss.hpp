@@ -12,6 +12,9 @@ class CPatternedInfo;
 
 class CNewIntroBoss : public CPatterned {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CNewIntroBoss(TUniqueId, const rstl::string&, const CEntityInfo& info, const CTransform4f& xf,
                 const CModelData& mData, const CPatternedInfo& pInfo,
                 const CActorParameters& actParms, float minTurnAngle, CAssetId projectile,

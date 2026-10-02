@@ -19,6 +19,9 @@ class CScriptCameraFilterKeyframe : public CEntity {
   CAssetId mTxtr;
 
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CScriptCameraFilterKeyframe(TUniqueId uid, const rstl::string& name, const CEntityInfo& info,
                               CCameraFilterPass::EFilterType type,
                               CCameraFilterPass::EFilterShape shape, CStateManager::ECameraFilterStage filterIdx, uint unk,

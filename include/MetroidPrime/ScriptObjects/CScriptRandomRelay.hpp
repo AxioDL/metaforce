@@ -5,6 +5,9 @@
 
 class CScriptRandomRelay : public CEntity {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CScriptRandomRelay(TUniqueId uid, const rstl::string& name, const CEntityInfo& info,
                      int sendSetSize, int sendSetVariance, bool percentSize, bool active);
   ~CScriptRandomRelay();

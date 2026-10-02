@@ -10,6 +10,9 @@
 class CStringTable;
 class CScriptHUDMemo : public CEntity {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   enum EDisplayType {
     kDT_StatusMessage,
     kDT_MessageBox,

@@ -8,6 +8,9 @@ class CElementGen;
 
 class CScriptEMPulse : public CActor {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CScriptEMPulse(TUniqueId, const rstl::string&, const CEntityInfo&, const CTransform4f&, bool,
                  float, float, float, float, float, float, float, CAssetId);
 

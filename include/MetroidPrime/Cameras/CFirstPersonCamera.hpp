@@ -5,6 +5,9 @@
 
 class CFirstPersonCamera : public CGameCamera {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CFirstPersonCamera(const TUniqueId& uid, const CTransform4f& xf, TUniqueId watchedObj,
                      float orbitCameraSpeed, float fov, float nearz, float farz, float aspect);
 

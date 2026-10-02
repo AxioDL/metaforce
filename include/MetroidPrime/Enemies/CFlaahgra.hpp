@@ -80,6 +80,9 @@ CHECK_SIZEOF(CFlaahgraData, 0x15c)
 
 class CFlaahgraRenderer : public CActor {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CFlaahgraRenderer(TUniqueId uid, TUniqueId owner, const rstl::string& name,
                     const CEntityInfo& info, const CTransform4f& xf);
 
@@ -98,6 +101,9 @@ CHECK_SIZEOF(CFlaahgraRenderer, (VERSION >= VERSION_GM8E_02 ? 0x100 : 0xf0))
 
 class CFlaahgra : public CPatterned {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CFlaahgra(TUniqueId uid, const rstl::string& name, const CEntityInfo& info,
             const CTransform4f& xf, const CAnimRes& animRes, const CPatternedInfo& pInfo,
             const CActorParameters& actParms, const CFlaahgraData& data);

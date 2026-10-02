@@ -6,6 +6,9 @@
 
 class CSustainedPlayerDamage : public CEntity {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CSustainedPlayerDamage(TUniqueId uid, const CEntityInfo& info, const bool active,
                          const rstl::string& name, const CDamageInfo& dInfo, float f1);
   DECLARE_ACCEPT;

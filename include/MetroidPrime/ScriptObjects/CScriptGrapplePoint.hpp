@@ -10,6 +10,9 @@ class CScriptGrapplePoint : public CActor {
   CGrappleParameters mParameters;
 
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CScriptGrapplePoint(TUniqueId uid, const rstl::string& name, const CEntityInfo& info,
                       const CTransform4f& transform, bool active, const CGrappleParameters& params);
   ~CScriptGrapplePoint();

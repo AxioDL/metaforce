@@ -9,6 +9,9 @@
 
 class CBeamProjectile : public CGameProjectile {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   enum EDamageType {
     kDT_None,
     kDT_Actor,

@@ -9,6 +9,9 @@
 
 class CWeapon : public CActor {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   enum EProjectileAttrib {
     kPA_None = 0,
     kPA_PartialCharge = (1 << 0),

@@ -38,6 +38,9 @@ typedef void (CPatterned::*FTryCommandCallback)(CStateManager& mgr, int arg);
 
 class CPatterned : public CAi {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   enum EPatternedAI {
     kC_AtomicAlpha = 0,
     kC_AtomicBeta = 1,

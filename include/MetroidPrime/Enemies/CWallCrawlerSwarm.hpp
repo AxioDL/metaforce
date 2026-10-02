@@ -19,6 +19,9 @@ class CGenDescription;
 
 class CWallCrawlerSwarm : public CActor {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   ~CWallCrawlerSwarm() override;
   DECLARE_TYPES_MATCH_OR_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;

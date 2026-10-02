@@ -10,6 +10,9 @@ class CElementGen;
 
 class CPowerBomb : public CWeapon {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CPowerBomb(TToken< CGenDescription > particle, TUniqueId uid, TAreaId aid,
              TUniqueId playerId, const CTransform4f& xf, const CDamageInfo& dInfo);
   ~CPowerBomb();

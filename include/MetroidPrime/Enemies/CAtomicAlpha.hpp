@@ -16,6 +16,9 @@
 
 class CAtomicAlpha : public CPatterned {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CAtomicAlpha(TUniqueId uid, const rstl::string& name, const CEntityInfo& info,
                const CTransform4f& xf, const CModelData& mData, const CActorParameters& actParms,
                const CPatternedInfo& pInfo, CAssetId bombWeapon, const CDamageInfo& bombDamage,

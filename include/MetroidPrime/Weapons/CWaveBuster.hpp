@@ -11,6 +11,9 @@ class CSwooshDescription;
 
 class CWaveBuster : public CGameProjectile {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   // CEntity
   ~CWaveBuster() override;
   DECLARE_TYPES_MATCH_OR_ACCEPT;

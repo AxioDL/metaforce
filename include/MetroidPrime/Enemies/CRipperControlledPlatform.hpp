@@ -6,6 +6,9 @@
 class CRipperControlledPlatform : public CScriptPlatform {
 
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CRipperControlledPlatform(
       TUniqueId, TUniqueId, const rstl::string&, const CEntityInfo&, const CTransform4f&,
       const CAABox&, bool, const rstl::optional_object< TLockedToken< CCollidableOBBTreeGroupContainer > >&);

@@ -13,6 +13,9 @@ class CElectricDescription;
 
 class CExplosion : public CEffect {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CExplosion(const TLockedToken< CGenDescription >& particle, TUniqueId uid, bool active,
              const CEntityInfo& info, const rstl::string& name, const CTransform4f& xf, uint flags,
              const CVector3f& scale, const CColor& color);

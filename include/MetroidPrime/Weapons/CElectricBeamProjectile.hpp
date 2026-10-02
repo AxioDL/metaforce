@@ -27,6 +27,9 @@ struct SElectricBeamInfo {
 
 class CElectricBeamProjectile : public CBeamProjectile {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CElectricBeamProjectile(const TToken< CWeaponDescription >&, EWeaponType,
                           const SElectricBeamInfo&, const CTransform4f&, EMaterialTypes,
                           const CDamageInfo&, TUniqueId, TAreaId, TUniqueId, EProjectileAttrib);

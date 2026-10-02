@@ -9,6 +9,9 @@
 
 class CWallWalker : public CPatterned {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   enum EType {
     kWT_Parasite = 0,
     kWT_Oculus = 1,
