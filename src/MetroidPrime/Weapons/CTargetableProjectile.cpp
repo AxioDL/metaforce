@@ -25,15 +25,15 @@ CTargetableProjectile::CTargetableProjectile(
 ENTITY_ACCEPT_IMPL(CTargetableProjectile)
 
 const bool CTargetableProjectile::Explode(const CVector3f& pos, const CVector3f& normal,
-                                    const EWeaponCollisionResponseTypes type, CStateManager& mgr,
-                                    const CDamageVulnerability& dVuln, const TUniqueId hitActor) {
+                                          const EWeaponCollisionResponseTypes type,
+                                          CStateManager& mgr, const CDamageVulnerability& dVuln,
+                                          const TUniqueId hitActor) {
   const bool ret = CEnergyProjectile::Explode(pos, normal, type, mgr, dVuln, hitActor);
 
   if (!GetWeaponActive()) {
     const TUniqueId projOwner = GetHitProjectileOwner();
     if (projOwner != kInvalidUniqueId && projOwner == mgr.GetPlayer()->GetUniqueId()) {
-      const CActor* act = TCastToConstPtr< CActor >(mgr.GetObjectById(GetOwnerId()));
-      if (act) {
+      if (const CActor* const act = TCastToConstPtr< CActor >(mgr.GetObjectById(GetOwnerId()))) {
         const TUniqueId uid = mgr.AllocateUniqueId();
         const CVector3f aimPosition = act->GetAimPosition(mgr, 0.f);
 
