@@ -14,6 +14,8 @@
 	<string>${MACOSX_BUNDLE_EXECUTABLE_NAME}</string>
 	<key>CFBundleIconFile</key>
 	<string>Metaforce</string>
+	<key>CFBundleIconName</key>
+	<string>Metaforce</string>
 	<key>CFBundleIdentifier</key>
 	<string>${MACOSX_BUNDLE_GUI_IDENTIFIER}</string>
 	<key>CFBundleName</key>
