@@ -9,17 +9,16 @@ Metaforce is a reverse-engineered reimplementation of the engine from Metroid Pr
 
 We want to acknowledge the passing of two exceptionally talented developers, Mark Haigh-Hutchinson and Andy O'Neil, whose work helped shape this game. We'd also like to thank former Retro developers like Zoid Kirsch and Jack Matthews for their seemingly endless talent, friendliness, and encouragement.
 
-Metaforce has seen major changes recently and is now closer to a stable build than ever before. As a result, builds may be briefly unavailable while these changes are finalized.
-
-Separately from Metaforce, a [matching decompilation](https://github.com/PrimeDecomp/prime) of Metroid Prime is currently in progress. Contributions are welcome from anyone, regardless of skill level. Progress on the decompilation directly benefits Metaforce through bug fixes, new implementations, and other improvements.
+Metaforce was recently rewritten on top of the [Metroid Prime matching decompilation](https://github.com/PrimeDecomp/prime). Builds are currently unavailable as the project stabilizes.
 
 ![Metaforce screenshot](assets/metaforce-screen1.png)
 
 ### Platform Support
-* Windows 10+ (64-bit, D3D12 / Vulkan / OpenGL)
+* Windows 10+ (64-bit, D3D12 / Vulkan / D3D11)
 * macOS 10.15+ (Metal)
-* Linux (Vulkan / OpenGL)
-    * Follow [this guide](https://github.com/lutris/docs/blob/master/InstallingDrivers.md) to set up Vulkan & appropriate drivers for your distro.
+* Linux (Vulkan)
+* Android (Vulkan & OpenGL ES)
+* iOS (Metal)
 
 ### Usage
 
@@ -37,7 +36,7 @@ Linux:
 
 * `-l`: Enable console logging
 * `--warp [worldid] [areaid]`: Warp to a specific world/area. Example: `--warp 2,2`
-* `load-save [1, 2, 3]`: Loads numbered save in Memory Card A
+* `--load-save [1, 2, 3]`: Loads numbered save in Memory Card A
 * `--lock-aspect`: Lock Metaforce to original game 4:3 aspect ratio.
 
 ### Build Prerequisites:
@@ -92,7 +91,7 @@ git submodule update --init --recursive
 
 ### Build Directions
 
-For Windows, it's recommended to use Visual Studio. See below.
+For Windows, it's recommended to use CLion or Visual Studio. See below.
 
 #### ninja (Windows/macOS/Linux)
 
@@ -102,11 +101,6 @@ You can either build Metaforce with the built in Build workflows in VSCode, CLio
 cmake --preset relwithdebinfo
 Cmake --build --preset relwithdebinfo
 ```
-
-#### CMake configure options
-- Build in debug mode (slower runtime speed, better backtraces): `-DCMAKE_BUILD_TYPE=Debug`
-- Use clang+lld (faster linking): `-DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++`
-- Optimize for current CPU (resulting binaries are not portable): `-DMETAFORCE_VECTOR_ISA=native`
 
 #### CLion (Windows/macOS/Linux)
 *(main development / debugging IDE)*
