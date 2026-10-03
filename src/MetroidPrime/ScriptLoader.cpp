@@ -2879,7 +2879,7 @@ CEntity* ScriptLoader::LoadWorldTeleporter(CStateManager& mgr, CInputStream& in,
   bool showText = propCount >= 15 ? in.ReadBool() : false;
   CAssetId fontId = propCount >= 16 ? static_cast< CAssetId >(in.ReadLong()) : kInvalidAssetId;
   CAssetId stringId = propCount >= 17 ? static_cast< CAssetId >(in.ReadLong()) : kInvalidAssetId;
-  bool fadeWhite = propCount >= 18 ? in.ReadBool() : false;
+  const bool fadeWhite = propCount >= 18 ? in.ReadBool() : false;
 
   float charFadeInTime;
   if (propCount >= 19) {
