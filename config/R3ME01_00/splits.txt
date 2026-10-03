@@ -63,6 +63,10 @@ MetroidPrime/Player/CGameOptions.cpp:
 MetroidPrime/CInputGenerator.cpp:
 	.text       start:0x800FF378 end:0x800FF5F4
 
+MetroidPrime/Player/CTrilogyOptions.cpp:
+	.text       start:0x8024A110 end:0x8024A8D0
+	.sdata      start:0x805C1AB8 end:0x805C1AC0
+
 MetroidPrime/Tweaks/CTweakPlayerControl.cpp:
 	.text       start:0x802543D8 end:0x80266F1C
 	.ctors      start:0x8046D460 end:0x8046D464

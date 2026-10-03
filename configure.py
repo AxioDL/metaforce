@@ -532,6 +532,7 @@ config.libs = [
                 "MetroidPrime/CObjectList.cpp",
             ),
             Object(NonMatching, "MetroidPrime/Player/CPlayer.cpp"),
+            Object(MatchingFor("R3ME01_00"), "MetroidPrime/Player/CTrilogyOptions.cpp"),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00"), "MetroidPrime/CAxisAngle.cpp"
             ),

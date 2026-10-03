@@ -16,6 +16,11 @@ public:
 
   CTrilogyOptions();
   CTrilogyOptions(CInputStream& in);
+  void PutTo(COutputStream& out) const;
+  void ResetControlDefaults();
+  void ResetDisplayDefaults();
+  void ResetSoundDefaults();
+  void ResetVisorDefaults();
   void SetScreenBrightness(int value);
   void SetScreenPositionX(int value);
   void SetScreenPositionY(int value);
