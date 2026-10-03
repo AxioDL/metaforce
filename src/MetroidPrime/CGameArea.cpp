@@ -1049,15 +1049,14 @@ void CGameArea::CAreaFog::Update(const float dt) {
   target[4] = mRangeTarget.GetY();
   int finished = 0;
   for (int i = 0; i < 5; ++i) {
-    const float cur = current[i];
     const float tar = target[i];
-    const float delta = tar - cur;
+    const float delta = tar - current[i];
     const float amount = step[i];
     if (CMath::AbsF(delta) <= amount) {
       result[i] = tar;
       ++finished;
     } else {
-      result[i] = cur + CMath::FastFSel(delta, amount, -amount);
+      result[i] = current[i] + CMath::FastFSel(delta, amount, -amount);
     }
   }
   if (finished == 5) {
