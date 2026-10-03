@@ -751,8 +751,9 @@ void CWallCrawlerSwarm::Think(float dt, CStateManager& mgr) {
   for (int x = 0; x < 5; ++x) {
     int rowIndex = x;
     for (int y = 0; y < 5; ++y, rowIndex += 5) {
+      CBoid* boid;
       for (int z = 0; z < 5; ++z) {
-        CBoid* boid = mPartitionedBoidLists[rowIndex + z * 25];
+        boid = mPartitionedBoidLists[rowIndex + z * 25];
         if (boid != nullptr) {
           CAreaCollisionCache cache(BoxForPosition(x, y, z, 0.5f + mBoidRadius));
           CGameCollision::BuildAreaCollisionCache(mgr, cache);
@@ -1059,7 +1060,7 @@ void CWallCrawlerSwarm::UpdateBoid(CAreaCollisionCache& cache, CStateManager& mg
 void CWallCrawlerSwarm::LaunchBoid(CBoid& boid, const CVector3f& dir) {
   const CVector3f pos = boid.GetTranslation();
   static float attackTime = 2.f * CMath::SqrtF(2.5f / CPhysicsActor::GravityConstant());
-  static float attackVelocity = 15.f / attackTime;
+  const static float attackVelocity = 15.f / attackTime;
   const float gravity = -CPhysicsActor::GravityConstant();
   const CVector3f difference = dir - pos;
   const float deltaZ = difference.GetZ();
