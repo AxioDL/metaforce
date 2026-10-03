@@ -44,6 +44,9 @@ typename iterator_traits< It >::difference_type __distance(It first, It last,
 }
 
 template < typename It >
+#if RSTL_VERSION >= 30
+inline
+#endif
 typename iterator_traits< It >::difference_type distance(It first, It last) {
   return __distance(first, last, typename iterator_traits< It >::iterator_category());
 }

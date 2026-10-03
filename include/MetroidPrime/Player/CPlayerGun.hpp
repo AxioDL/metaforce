@@ -343,6 +343,9 @@ private:
   uint x334_;
   ENextState mNextState;
   EPhazonBeamState mPhazonBeamState;
+#if VERSION >= VERSION_R3IJ_00
+  float mBigStrikeTime;
+#endif
   float mChargeBeamFactor;
   float mComboXferTimer;
   float mChargeCooldownTimer;
@@ -365,6 +368,9 @@ private:
   float mMuzzleEffectVisTimer;
   float mCooldown;
   float mDamageTimer;
+#if VERSION >= VERSION_R3IJ_00
+  float mDamageAimBlend;
+#endif
   float mDamageAmt;
   float mPhazonMorphT;
   float mMissileExitTimer;
@@ -416,6 +422,11 @@ private:
   rstl::single_ptr< CWorldShadow > mShadow;
   short mChargeRumbleHandle;
 
+#if VERSION >= VERSION_R3IJ_00
+  CVector2f mSmoothedPointer;
+  float mLeftArmAimBlend;
+  bool mFiringTransformPenetrating : 1;
+#endif
   bool mCoolingCharge : 1;
   bool mChargeEffectVisible : 1;
   bool mComboFiring : 1;
@@ -451,8 +462,14 @@ private:
   bool mPowerBombReady : 1;
   bool mInPhazonPool : 1;
   bool mActorAttached : 1;
-  // bool x835_32_unk : 1;
+#if VERSION >= VERSION_R3IJ_00
+  CVector3f mPreviousPlayerForward;
+#endif
 };
+#if VERSION >= VERSION_R3IJ_00
+CHECK_SIZEOF(CPlayerGun, 0x85c)
+#else
 CHECK_SIZEOF(CPlayerGun, 0x838)
+#endif
 
 #endif // _CPLAYERGUN

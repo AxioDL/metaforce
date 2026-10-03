@@ -75,9 +75,36 @@ MetroidPrime/HUD/CHudVisorSelect.cpp:
 MetroidPrime/CInputGenerator.cpp:
 	.text       start:0x800FF378 end:0x800FF5F4
 
+MetroidPrime/Player/CPlayer.cpp:
+	.text       start:0x8017DD68 end:0x80187FE4
+	.ctors      start:0x8046D408 end:0x8046D40C
+	.rodata     start:0x804748F0 end:0x8047492C
+	.sdata2     start:0x805C5A68 end:0x805C5BB8
+
+MetroidPrime/Player/CPlayerDynamics.cpp:
+	.text       start:0x80192C50 end:0x8019A67C
+	.ctors      start:0x8046D414 end:0x8046D418
+	.rodata     start:0x80474AE0 end:0x80474B60
+	.data       start:0x8048AD00 end:0x8048AD38
+	.sdata      start:0x805C163C end:0x805C1640 align:4
+	.sdata2     start:0x805C5CD8 end:0x805C5DE8
+
+MetroidPrime/Player/CPlayerOrbit.cpp:
+	.text       start:0x8019A67C end:0x801A03A0
+	.ctors      start:0x8046D418 end:0x8046D41C
+	.rodata     start:0x80474B60 end:0x80474B80
+	.sdata2     start:0x805C5DE8 end:0x805C5E48
+
 MetroidPrime/Player/CTrilogyOptions.cpp:
 	.text       start:0x8024A110 end:0x8024A8D0
 	.sdata      start:0x805C1AB8 end:0x805C1AC0
+
+MetroidPrime/Tweaks/CTweakPlayer.cpp:
+	.text       start:0x80253608 end:0x802543D8
+	.rodata     start:0x80478290 end:0x80478298
+	.data       start:0x8048E8C0 end:0x8048E8D0
+	.sbss       start:0x805C27B0 end:0x805C27B8
+	.sdata2     start:0x805C6ED8 end:0x805C6EE8
 
 MetroidPrime/Tweaks/CTweakPlayerControl.cpp:
 	.text       start:0x802543D8 end:0x80266F1C

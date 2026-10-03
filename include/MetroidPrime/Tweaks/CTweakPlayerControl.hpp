@@ -101,6 +101,10 @@ public:
   CControlMapper::SCommandMapping GetCommandMapping(CControlMapper::ECommands command) const;
   const CMayaSpline& GetTurnLeftResponse() const;
   const CMayaSpline& GetTurnRightResponse() const;
+  const CMayaSpline& GetTurnUpResponse() const { return mResponseCurves[2]; }
+  const CMayaSpline& GetTurnDownResponse() const { return mResponseCurves[3]; }
+  const CMayaSpline& GetLookUpResponse() const { return mResponseCurves[14]; }
+  const CMayaSpline& GetLookDownResponse() const { return mResponseCurves[15]; }
   const CMayaSpline& GetCursorUpResponse() const { return mResponseCurves[4]; }
   const CMayaSpline& GetCursorDownResponse() const { return mResponseCurves[5]; }
   const CMayaSpline& GetCursorRightResponse() const { return mResponseCurves[6]; }

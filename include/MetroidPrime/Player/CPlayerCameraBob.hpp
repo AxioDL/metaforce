@@ -107,6 +107,9 @@ private:
   float mPlayerPeakFallVel;
   float mLandingVelocity;
   float mLandingTranslation;
+#if VERSION >= VERSION_R3IJ_00
+  float mPreviousLandingTranslation;
+#endif
   float mCamVelocity;
   float mCamTranslation;
   rstl::reserved_vector< CVector3f, 4 > mWanderPoints;
@@ -118,6 +121,10 @@ private:
   float mWanderMagnitude;
   float mTargetWanderMagnitude;
 };
+#if VERSION >= VERSION_R3IJ_00
+CHECK_SIZEOF(CPlayerCameraBob, 0x10c)
+#else
 CHECK_SIZEOF(CPlayerCameraBob, 0x108)
+#endif
 
 #endif // _CPLAYERCAMERABOB

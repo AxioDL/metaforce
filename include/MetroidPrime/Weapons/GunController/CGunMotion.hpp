@@ -58,6 +58,10 @@ private:
   rstl::vector< CToken > mAnims;
   bool mAnimPlaying : 1;
 };
+#if VERSION >= VERSION_R3IJ_00
+CHECK_SIZEOF(CGunMotion, 0xb4)
+#else
 CHECK_SIZEOF(CGunMotion, 0xbc)
+#endif
 
 #endif // _CGUNMOTION

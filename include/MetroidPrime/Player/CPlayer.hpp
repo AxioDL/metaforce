@@ -72,7 +72,11 @@ public:
   bool CanOpenSelector(const CStateManager& mgr, CControlMapper::ECommands command) const;
   const CFinalInput& GetLastInput() const { return mLastInput; }
   const CControlMapper& GetControlMapper() const { return mControlMapper; }
+  const CAimingCursor& GetAimingCursor() const { return mAimingCursor; }
   bool GetPointerAimHeld() const { return mPointerAimHeld; }
+  void SetBallJump(bool enabled);
+  float GetTurnInputWarmupScale() const;
+  void UpdateTurnInputWarmup(float dt, const CStateManager& mgr);
 #endif
   class CPlayerStuckTracker {
   public:
@@ -331,7 +335,13 @@ public:
   ushort GetMaterialSoundUnderPlayer(CStateManager& mgr, const ushort* table, int length,
                                      ushort defId);
   void UpdateFootstepSounds(const CFinalInput& input, CStateManager& mgr, float dt);
+#if VERSION >= VERSION_R3IJ_00
+  float JumpInput(float dt, const CFinalInput& input, CStateManager& mgr);
+  bool IsJumpBlocked(CStateManager& mgr, const CFinalInput& input) const;
+  void InitializeJumpBlockLocations();
+#else
   float JumpInput(const CFinalInput& input, CStateManager& mgr);
+#endif
   float TurnInput(const CFinalInput& input) const;
   float StrafeInput(const CFinalInput& input) const;
   float ForwardInput(const CFinalInput& input, float turnInput) const;
@@ -358,7 +368,11 @@ public:
   void UpdateStepCameraZBias(float dt);
   void UpdateEnvironmentDamageCameraShake(float dt, CStateManager& mgr);
   void UpdatePhazonDamage(float dt, CStateManager& mgr);
+#if VERSION >= VERSION_R3IJ_00
+  void UpdateFreeLook(float dt, CStateManager& mgr);
+#else
   void UpdateFreeLook(float dt);
+#endif
   void UpdatePlayerHints(CStateManager& mgr);
   void UpdateBombJumpStuff();
   void BombJump(const CVector3f& pos, CStateManager& mgr);
@@ -374,7 +388,11 @@ public:
   bool IsUnderBetaMetroidAttack(CStateManager& mgr) const;
   void UpdateGrappleState(const CFinalInput& input, CStateManager& mgr);
   void ApplyGrappleForces(const CFinalInput& input, CStateManager& mgr, float dt);
+#if VERSION >= VERSION_R3IJ_00
+  void ComputeFreeLook(const CFinalInput& input, CStateManager& mgr);
+#else
   void ComputeFreeLook(const CFinalInput& input);
+#endif
   void UpdateOrbitInput(const CFinalInput& input, CStateManager& mgr);
   void UpdateOrbitZone(CStateManager& mgr);
   void UpdateMorphBallState(float dt, const CFinalInput& input, CStateManager& mgr);
@@ -474,8 +492,13 @@ public:
   EGrappleState GetGrappleState() const { return mGrappleState; }
   bool IsInFreeLook() const { return mInFreeLook; }
   bool IsLookButtonHeld() const { return mLookButtonHeld; }
+#if VERSION >= VERSION_R3IJ_00
+  float GetFreeLookAngleZ() const { return mFreeLookYawAngle.AsRadians(); }
+  CRelAngle GetFreeLookAngleX() const { return mFreeLookPitchAngle; }
+#else
   float GetFreeLookAngleZ() const { return mFreeLookYawAngle; }
   float GetFreeLookAngleX() const { return mFreeLookPitchAngle; }
+#endif
   float GetJumpCameraTimer() const { return mJumpCameraTimer; }
   float GetFallCameraTimer() const { return mFallCameraTimer; }
   bool GetOrbitLockAcquired() const { return mOrbitLockEstablished; }
@@ -506,11 +529,21 @@ public:
   void SetVisorSteam(float targetAlpha, float alphaInDur, float alphaOutDir, CAssetId txtr,
                      bool affectsThermal);
 
+#if VERSION >= VERSION_R3IJ_00
+  CVector3f GetDampedClampedVelocityWR(float dt) const;
+  CVector2f Compute2DMovementForce(float forwardInput, float strafeInput, float dt) const;
+  float ComputeMovementForce(int axis, float input, float velocity, float dt) const;
+#else
   CVector3f GetDampedClampedVelocityWR() const;
+#endif
   float GetAverageSpeed() const;
   float GetAcceleration() const;
   float GetGravity() const;
+#if VERSION >= VERSION_R3IJ_00
+  void CancelDash();
+#else
   void FinishSidewaysDash();
+#endif
   bool SidewaysDashAllowed(float strafeInput, float forwardInput, const CFinalInput& input,
                           CStateManager& mgr) const;
   void ComputeDash(const CFinalInput& input, float dt, CStateManager& mgr);
@@ -611,10 +644,17 @@ private:
   bool mLookButtonHeld;
   bool mLookAnalogHeld;
   float mCurFreeLookCenteredTime;
+#if VERSION >= VERSION_R3IJ_00
+  CRelAngle mFreeLookYawAngle;
+  CRelAngle mHorizFreeLookAngleVel;
+  CRelAngle mFreeLookPitchAngle;
+  CRelAngle mVertFreeLookAngleVel;
+#else
   float mFreeLookYawAngle;
   float mHorizFreeLookAngleVel;
   float mFreeLookPitchAngle;
   float mVertFreeLookAngleVel;
+#endif
   TUniqueId mAimTarget;
   CVector3f mTargetAimPosition;
   TReservedAverage< CVector3f, 10 > mAimTargetAverage;
@@ -754,14 +794,14 @@ private:
   float mTurnInputWarmupDuration;
   bool mBallJump : 1;
   bool mBallJumpFromPlatform : 1;
-  bool x1194_26_ : 1;
+  bool mAccelerationChangeActive : 1;
   bool x1194_27_ : 1;
   TUniqueId mBallJumpPlatform;
   rstl::single_ptr< CScalarInputFilter > mVerticalLookFilter;
   CRelAngle mFreeLookPitchRate;
   float mContinuousTurnTime;
   float mOrbitModeBlend;
-  rstl::multimap< unsigned long long, CVector3f > mJumpAssistLocations;
+  rstl::multimap< unsigned long long, CVector3f > mJumpBlockLocations;
 #endif
 };
 NESTED_CHECK_SIZEOF(CPlayer, CPlayerStuckTracker, 0x2e0);

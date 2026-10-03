@@ -90,10 +90,17 @@ public:
   float GetOrbitMaxTargetDistance() const { return mOrbitMaxTargetDistance; }
   float GetOrbitMaxLockDistance() const { return mOrbitMaxLockDistance; }
   float GetOrbitDistanceThreshold() const { return mOrbitDistanceThreshold; }
+#if VERSION >= VERSION_R3IJ_00
+  int GetOrbitZoneWidth(int zone) const;
+  int GetOrbitZoneHeight(int zone) const;
+  int GetOrbitZoneCentreX(int zone, const CStateManager& mgr) const;
+  int GetOrbitZoneCentreY(int zone, const CStateManager& mgr) const;
+#else
   uint GetOrbitZoneWidth(int zone) const { return mOrbitScreenBoxHalfExtentX[zone]; }
   uint GetOrbitZoneHeight(int zone) const { return mOrbitScreenBoxHalfExtentY[zone]; }
   uint GetOrbitZoneCentreX(int zone) const { return mOrbitScreenBoxCenterX[zone]; }
   uint GetOrbitZoneCentreY(int zone) const { return mOrbitScreenBoxCenterY[zone]; }
+#endif
   uint GetOrbitZoneIdealX(int zone) const { return mOrbitZoneIdealX[zone]; }
   uint GetOrbitZoneIdealY(int zone) const { return mOrbitZoneIdealY[zone]; }
   float GetOrbitNearX() const { return mOrbitNearX; }
@@ -346,6 +353,8 @@ public:
   float mGravityDamageReduction;
   float mPhazonDamageReduction;
 };
+
+CHECK_SIZEOF(CTweakPlayer, 0x30c)
 
 extern CTweakPlayer* gpTweakPlayer;
 

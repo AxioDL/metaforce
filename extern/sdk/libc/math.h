@@ -78,6 +78,7 @@ double ceil(double x);
 _MATH_INLINE float fabsf(float x) { return (float)fabs((double)x); }
 _MATH_INLINE float sinf(float x) { return (float)sin((double)x); }
 _MATH_INLINE float cosf(float x) { return (float)cos((double)x); }
+_MATH_INLINE float atanf(float x) { return (float)atan((double)x); }
 _MATH_INLINE float atan2f(float y, float x) { return (float)atan2((double)y, (double)x); }
 _MATH_INLINE float fmodf(float x, float m) { return (float)fmod((double)x, (double)m); }
 float tanf(float x);

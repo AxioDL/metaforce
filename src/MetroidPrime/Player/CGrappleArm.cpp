@@ -1,5 +1,6 @@
 #include "MetroidPrime/Player/CGrappleArm.hpp"
 
+#include "Kyoto/Animation/CAnimCharacterSet.hpp"
 #include "Kyoto/Animation/CSkinnedModel.hpp"
 #include "Kyoto/Animation/CVertexMorphEffect.hpp"
 #include "Kyoto/Audio/CSfxManager.hpp"

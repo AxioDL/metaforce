@@ -189,7 +189,18 @@ public:
     return pair< iterator, iterator >(lower_bound(key), upper_bound(key));
   }
   pair< const_iterator, const_iterator > equal_range(const T& key) const {
+#if RSTL_VERSION >= 30
+    const_iterator lower = lower_bound(key);
+    const_iterator upper = upper_bound(key);
+    return pair< const_iterator, const_iterator >(lower, upper);
+#else
     return pair< const_iterator, const_iterator >(lower_bound(key), upper_bound(key));
+#endif
+  }
+
+  int count(const T& key) const {
+    const pair< const_iterator, const_iterator > range = equal_range(key);
+    return rstl::distance(range.first, range.second);
   }
 
   iterator erase(iterator it) {

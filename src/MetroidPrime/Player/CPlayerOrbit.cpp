@@ -1,19 +1,54 @@
 #include "MetroidPrime/Player/CPlayer.hpp"
 
 #include "MetroidPrime/CStateManager.hpp"
+#include "MetroidPrime/Player/CPlayerGun.hpp"
+#include "MetroidPrime/Player/CGrappleArm.hpp"
+#include "MetroidPrime/TCastTo.hpp"
+#include "MetroidPrime/Tweaks/CTweakPlayer.hpp"
+#include "Kyoto/Math/CQuaternion.hpp"
+#include "Kyoto/Math/CRelAngle.hpp"
+#include "Kyoto/Math/CUnitVector3f.hpp"
+#include "Kyoto/Math/CMath.hpp"
+#include "math.h"
+
+#if VERSION >= VERSION_R3IJ_00
+
+void CPlayer::UpdateOrbitModeTimer(float dt) {
+  if (mOrbitState == kOS_NoOrbit) {
+    if (mOrbitModeTimer > 0.f) {
+      mOrbitModeTimer -= dt;
+    } else {
+      mOrbitModeTimer = 0.f;
+    }
+  } else {
+    mOrbitModeTimer += dt;
+    if (mOrbitModeTimer > gpTweakPlayer->GetOrbitModeTimer()) {
+      mOrbitModeTimer = gpTweakPlayer->GetOrbitModeTimer();
+    }
+  }
+  const float& blend = mOrbitModeTimer / gpTweakPlayer->GetOrbitModeTimer();
+  const float& zero = 0.f;
+  const float& one = 1.f;
+  mOrbitModeBlend = CMath::FastMin(CMath::FastMax(zero, blend), one);
+}
+
+bool CPlayer::CheckPostGrapple() const {
+  if (mMovementState != NPlayer::kMS_OnGround && mGrappleJumpTimeout > 0.f) {
+    return true;
+  }
+  return false;
+}
+
+#else
+
 #include "MetroidPrime/CControlMapper.hpp"
 #include "MetroidPrime/CGameArea.hpp"
 #include "MetroidPrime/CWorld.hpp"
 #include "MetroidPrime/CHealthInfo.hpp"
 #include "MetroidPrime/Player/CPlayerCameraBob.hpp"
-#include "MetroidPrime/Player/CPlayerGun.hpp"
-#include "MetroidPrime/Player/CGrappleArm.hpp"
 #include "MetroidPrime/CAxisAngle.hpp"
 #include "MetroidPrime/CGameCollision.hpp"
 #include "Collision/CCollidableAABox.hpp"
-#include "Kyoto/Math/CQuaternion.hpp"
-#include "Kyoto/Math/CRelAngle.hpp"
-#include "Kyoto/Math/CUnitVector3f.hpp"
 #include "MetroidPrime/Enemies/CPatterned.hpp"
 #include "MetroidPrime/Enemies/CWallCrawlerSwarm.hpp"
 #include "MetroidPrime/Enemies/CThardusRockProjectile.hpp"
@@ -24,14 +59,10 @@
 #include "Collision/CRayCastResult.hpp"
 #include "MetroidPrime/Cameras/CCameraManager.hpp"
 #include "MetroidPrime/Cameras/CFirstPersonCamera.hpp"
-#include "MetroidPrime/TCastTo.hpp"
-#include "MetroidPrime/Tweaks/CTweakPlayer.hpp"
 
 #include "Kyoto/Math/CAABox.hpp"
 #include "Kyoto/Basics/CCast.hpp"
 #include "Kyoto/Graphics/CGraphics.hpp"
-#include "Kyoto/Math/CMath.hpp"
-#include "math.h"
 
 static const CMaterialList kLineOfSightIncludeList = CMaterialList(kMT_Solid);
 static const CMaterialList kLineOfSightExcludeList =
@@ -1693,6 +1724,8 @@ void CPlayer::ApplyGrappleForces(const CFinalInput& input, CStateManager& mgr, f
       CAxisAngle(CVector3f(0.f, 0.f, 0.9f * GetAngularVelocityOR().GetVector().GetZ())));
 }
 
+#endif
+
 void CPlayer::UpdateGrappleArmTransform(const CVector3f& offset, CStateManager& mgr, float dt) {
   CTransform4f armXf = GetTransform();
   const CVector3f armPosition = GetTransform().Rotate(offset) + GetTranslation();
@@ -1715,7 +1748,7 @@ void CPlayer::UpdateGrappleArmTransform(const CVector3f& offset, CStateManager& 
           }
           if (armToTargetFlat.CanBeNormalized() && mGrappleState != kGS_Firing) {
             const CQuaternion adjustment = CQuaternion::LookAt(
-                armToTargetFlat.AsNormalized(), lookDirection, CRelAngle(2.f * M_PIF));
+                armToTargetFlat.AsNormalized(), lookDirection, CRelAngle::FromRadians(2.f * M_PIF));
             armToTarget = adjustment.Transform(armToTarget);
             if (mGrappleSwingTimer >= 0.25f * gpTweakPlayer->GetGrappleSwingPeriod() &&
                 mGrappleSwingTimer < 0.75f * gpTweakPlayer->GetGrappleSwingPeriod()) {

@@ -1,7 +1,12 @@
 #include "MetroidPrime/Tweaks/CTweakPlayer.hpp"
 
+#include "Kyoto/Basics/CCast.hpp"
+#include "Kyoto/Graphics/CGraphics.hpp"
 #include "Kyoto/Math/CMath.hpp"
 #include "Kyoto/Streams/CInputStream.hpp"
+#include "MetroidPrime/CStateManager.hpp"
+#include "MetroidPrime/Cameras/CCameraManager.hpp"
+#include "MetroidPrime/Cameras/CGameCamera.hpp"
 
 CTweakPlayer::CTweakPlayer(CInputStream& in)
 : mGrappleBeamSpeed(0.0)
@@ -135,6 +140,15 @@ CTweakPlayer::CTweakPlayer(CInputStream& in)
     mOrbitZoneIdealY[i] = in.ReadLong();
   }
 
+#if VERSION >= VERSION_R3IJ_00
+  mOrbitScreenBoxHalfExtentX[CPlayer::kZI_Scan] = mOrbitScreenBoxHalfExtentX[CPlayer::kZI_Targeting];
+  mOrbitScreenBoxHalfExtentY[CPlayer::kZI_Scan] = mOrbitScreenBoxHalfExtentY[CPlayer::kZI_Targeting];
+  mOrbitScreenBoxCenterX[CPlayer::kZI_Scan] = mOrbitScreenBoxCenterX[CPlayer::kZI_Targeting];
+  mOrbitScreenBoxCenterY[CPlayer::kZI_Scan] = mOrbitScreenBoxCenterY[CPlayer::kZI_Targeting];
+  mOrbitZoneIdealX[CPlayer::kZI_Scan] = mOrbitZoneIdealX[CPlayer::kZI_Targeting];
+  mOrbitZoneIdealY[CPlayer::kZI_Scan] = mOrbitZoneIdealY[CPlayer::kZI_Targeting];
+#endif
+
   mOrbitNearX = in.ReadFloat();
   mOrbitNearZ = in.ReadFloat();
   x1e0_ = in.ReadFloat();
@@ -200,3 +214,34 @@ CTweakPlayer::CTweakPlayer(CInputStream& in)
   mGravityDamageReduction = in.ReadFloat();
   mPhazonDamageReduction = in.ReadFloat();
 }
+
+#if VERSION >= VERSION_R3IJ_00
+int CTweakPlayer::GetOrbitZoneWidth(int zone) const {
+  return static_cast< int >(0.65f * CCast::LtoF(mOrbitScreenBoxHalfExtentX[zone]) /
+                            CGraphics::GetPixelAspectRatio());
+}
+
+int CTweakPlayer::GetOrbitZoneHeight(int zone) const {
+  return static_cast< int >(0.65f * CCast::LtoF(mOrbitScreenBoxHalfExtentY[zone]));
+}
+
+int CTweakPlayer::GetOrbitZoneCentreX(int zone, const CStateManager& mgr) const {
+  float center = CCast::LtoF(mOrbitScreenBoxCenterX[zone]);
+  const CVector3f cursor = mgr.GetCameraManager()->GetCurrentCamera(mgr).ConvertToScreenSpace(
+      mgr.GetPlayer()->GetAimingCursor().GetCursorInWorld());
+  center = cursor.GetX() * (0.5f * CCast::LtoF(CGraphics::GetViewportWidth()));
+  const float offset = 0.5f * CCast::LtoF(CGraphics::GetViewportWidth());
+  center += offset;
+  return static_cast< int >(center);
+}
+
+int CTweakPlayer::GetOrbitZoneCentreY(int zone, const CStateManager& mgr) const {
+  float center = CCast::LtoF(mOrbitScreenBoxCenterY[zone]);
+  const CVector3f cursor = mgr.GetCameraManager()->GetCurrentCamera(mgr).ConvertToScreenSpace(
+      mgr.GetPlayer()->GetAimingCursor().GetCursorInWorld());
+  center = cursor.GetY() * (0.5f * CCast::LtoF(CGraphics::GetViewportHeight()));
+  const float offset = 0.5f * CCast::LtoF(CGraphics::GetViewportHeight());
+  center += offset;
+  return static_cast< int >(center);
+}
+#endif
