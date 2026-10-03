@@ -444,11 +444,11 @@ void RenderStripWithRipples(CFluidPlaneCPURender::SHFieldSample (&heights)[45][4
           }
           case CFluidPlaneCPURender::kNM_NBT: {
 
+            float stripX = curPos.GetX();
             CFluidPlaneCPURender::SHFieldSample* topSamples = curSamples;
 
             CFluidPlaneCPURender::SHFieldSample* bottomSamples =
                 curSamples + CFluidPlaneCPURender::numSubdivisionsInTile * 45;
-            float stripX = curPos.GetX();
             for (int n = stripCount; n > 0; --n) {
               // Top vertex
               GXPosition3f32(stripX, curPos.GetY(), topSamples->height);
@@ -797,9 +797,9 @@ void ApplyRipple(const CFluidPlaneCPURender::SRippleInfo& rippleInfo,
 
   int subdivsM1 = CFluidPlaneCPURender::numSubdivisionsInTile - 1;
 
-  int fromY = (rippleInfo.mGfromY + subdivsM1) / CFluidPlaneCPURender::numSubdivisionsInTile;
   int fromX = (rippleInfo.mGfromX + subdivsM1) / CFluidPlaneCPURender::numSubdivisionsInTile;
   int toX = (rippleInfo.mGtoX + subdivsM1) / CFluidPlaneCPURender::numSubdivisionsInTile;
+  int fromY = (rippleInfo.mGfromY + subdivsM1) / CFluidPlaneCPURender::numSubdivisionsInTile;
   int toY = (rippleInfo.mGtoY + subdivsM1) / CFluidPlaneCPURender::numSubdivisionsInTile;
 
   float curY = (rip.GetCenter().GetY() - info.mGlobalMinY) -
