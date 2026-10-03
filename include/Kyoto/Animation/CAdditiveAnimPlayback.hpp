@@ -52,6 +52,8 @@ private:
   EPlaybackPhase mPhase;
   bool mNeedsFadeOut;
 };
+#if VERSION < VERSION_R3IJ_00
 CHECK_SIZEOF(CAdditiveAnimPlayback, 0x24)
+#endif
 
 #endif // _CADDITIVEANIMPLAYBACK

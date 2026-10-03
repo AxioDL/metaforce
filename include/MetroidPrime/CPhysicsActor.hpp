@@ -237,8 +237,11 @@ protected:
   float mCollisionAccuracyModifier;
   uint mNumTicksStuck;
   uint mNumTicksPartialUpdate;
-  uint x254_;
 };
+#if VERSION >= VERSION_R3IJ_00
+CHECK_SIZEOF(CPhysicsActor, 0x260)
+#else
 CHECK_SIZEOF(CPhysicsActor, (VERSION >= VERSION_GM8E_02 ? 0x268 : 0x258))
+#endif
 
 #endif // _CPHYSICSACTOR

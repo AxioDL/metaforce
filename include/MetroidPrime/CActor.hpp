@@ -73,6 +73,11 @@ public:
   virtual const CDamageVulnerability* GetDamageVulnerability() const;
   virtual const CDamageVulnerability* GetDamageVulnerability(const CVector3f&, const CVector3f&,
                                                              const CDamageInfo&) const;
+#if VERSION >= VERSION_R3IJ_00
+  virtual void NotifyDamageEvent(CStateManager&, const TUniqueId&, const TUniqueId&,
+                                 const CDamageInfo&, float, bool, const CVector3f&,
+                                 const CVector3f&);
+#endif
   virtual rstl::optional_object< CAABox > GetTouchBounds() const;
   virtual void Touch(CActor&, CStateManager&);
   virtual CVector3f GetOrbitPosition(const CStateManager&) const;
@@ -298,7 +303,14 @@ private:
   uint mDrawEnabled : 1;
   uint mDoTargetDistanceTest : 1;
   uint mTargetable : 1;
+#if VERSION >= VERSION_R3IJ_00
+  uint mHostileTarget : 1;
+#endif
 };
+#if VERSION >= VERSION_R3IJ_00
+CHECK_SIZEOF(CActor, 0xf0)
+#else
 CHECK_SIZEOF(CActor, (VERSION >= VERSION_GM8E_02 ? 0xf8 : 0xe8))
+#endif
 
 #endif // _CACTOR

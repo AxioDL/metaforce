@@ -198,6 +198,8 @@ public:
 CHECK_SIZEOF(CAudioSys, 0x1)
 NESTED_CHECK_SIZEOF(CAudioSys, CEmitterData, 0x54)
 NESTED_CHECK_SIZEOF(CAudioSys, C3DEmitterParmData, 0x2c)
+#if VERSION < VERSION_R3IJ_00
 NESTED_CHECK_SIZEOF(CAudioSys, CTrkData, 0x64)
+#endif
 
 #endif // _CAUDIOSYS

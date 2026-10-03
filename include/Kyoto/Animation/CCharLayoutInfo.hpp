@@ -24,7 +24,9 @@ private:
   CVector3f mReferenceStanceOffset;
   rstl::vector< CSegId > mConnectedParts;
 };
+#if VERSION < VERSION_R3IJ_00
 CHECK_SIZEOF(CCharLayoutNode, 0x20)
+#endif
 
 class CCharLayoutInfo {
 public:
@@ -51,6 +53,8 @@ private:
   CSegIdList mSegIdList;
   rstl::map< rstl::string, CSegId > mNameMap;
 };
+#if VERSION < VERSION_R3IJ_00
 CHECK_SIZEOF(CCharLayoutInfo, 0x2c)
+#endif
 
 #endif // _CCHARLAYOUTINFO

@@ -20,7 +20,11 @@ static inline float vector2_epsilon() { return 1.e-4f; }
 bool close_enough(const CVector2f& a, const CVector2f& b, float epsilon = vector2_epsilon());
 bool close_enough(const CVector3f& a, const CVector3f& b, float epsilon = vector3_epsilon());
 inline bool close_enough(float a, float b, float epsilon = Real32::Epsilon()) {
+#if VERSION >= VERSION_R3IJ_00
+  return fabsf(a - b) < epsilon;
+#else
   return fabs(a - b) < epsilon;
+#endif
 }
 inline bool close_enough(double a, double b, double epsilon = Double::Epsilon()) {
   return fabs(a - b) < epsilon;

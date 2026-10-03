@@ -86,7 +86,11 @@ CActor::CActor(const TUniqueId uid, const bool active, const rstl::string& name,
 , mWorldLightingDirty(false)
 , mDrawEnabled(active)
 , mDoTargetDistanceTest(true)
-, mTargetable(true) {
+, mTargetable(true)
+#if VERSION >= VERSION_R3IJ_00
+, mHostileTarget(false)
+#endif
+{
   if (!mModelData.null()) {
     if (params.GetXRay().first != 0) {
       mModelData->SetXRayModel(params.GetXRay());

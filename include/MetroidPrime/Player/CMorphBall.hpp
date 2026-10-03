@@ -338,6 +338,10 @@ private:
   float mDamageTime;
   rstl::single_ptr< CMorphBallShadow > mShadow;
 };
+#if VERSION < VERSION_R3IJ_00
 CHECK_SIZEOF(CMorphBall, 0x1e58);
+#else
+CHECK_SIZEOF(CMorphBall, 0x1e50);
+#endif
 
 #endif // _CMORPHBALL

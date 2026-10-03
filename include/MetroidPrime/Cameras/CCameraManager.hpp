@@ -151,6 +151,8 @@ private:
   bool x3b8_25_ : 1;
   float mCurFov;
 };
+#if VERSION < VERSION_R3IJ_00
 CHECK_SIZEOF(CCameraManager, 0x3c0)
+#endif
 
 #endif // _CCAMERAMANAGER

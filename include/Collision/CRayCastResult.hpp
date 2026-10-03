@@ -22,7 +22,7 @@ public:
   CRayCastResult(const EInvalid = kI_Invalid)
   : mTime(0)
   , mPoint(0.f, 0.f, 0.f)
-  , mPlane(0.f, CUnitVector3f(CVector3f(1.f, 0.f, 0.f), CUnitVector3f::kN_Yes))
+  , mPlane(0.f, CUnitVector3f(1.f, 0.f, 0.f, CUnitVector3f::kN_Yes))
   , mValid(kI_Invalid) {}
 
   float GetTime() const { return mTime; }

@@ -57,6 +57,8 @@ private:
   rstl::bit_vector< rstl::rmemory_allocator > mSaveLayers;
 };
 
+#if VERSION < VERSION_R3IJ_00
 CHECK_SIZEOF(CScriptLayerManager, 0x24)
+#endif
 
 #endif // _CSCRIPTLAYERMANAGER

@@ -256,6 +256,8 @@ private:
   static rstl::reserved_vector< CSoundPOINode, 20 > mSoundPOINodes;
   // in cpp -> rstl::reserved_vector< CInt32POINode, 16 > sInt32TransientCache;
 };
+#if VERSION < VERSION_R3IJ_00
 CHECK_SIZEOF(CAnimData, 0x434 + 0x144)
+#endif
 
 #endif // _CANIMDATA

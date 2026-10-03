@@ -36,10 +36,27 @@ public:
   CTransform4f& operator=(const CTransform4f& other);
 
   CVector3f GetTranslation() const {
+#if VERSION >= VERSION_R3ME_00
+    float x = m03;
+    float y = m13;
+    float z = m23;
+    return CVector3f(x, y, z);
+#else
     return CVector3f(m03, m13, m23);
+#endif
   }
   CVector3f GetRight() const { return CVector3f(m00, m10, m20); }
-  const CVector3f GetForward() const { return CVector3f(m01, m11, m21); }
+  const CVector3f GetForward() const {
+#if VERSION >= VERSION_R3IJ_00
+    float x, y, z;
+    z = m21;
+    y = m11;
+    x = m01;
+    return CVector3f(x, y, z);
+#else
+    return CVector3f(m01, m11, m21);
+#endif
+  }
   CVector3f GetUp() const { return CVector3f(m02, m12, m22); }
   ConstMtxPtr GetCStyleMatrix() const { return reinterpret_cast< ConstMtxPtr >(this); }
 

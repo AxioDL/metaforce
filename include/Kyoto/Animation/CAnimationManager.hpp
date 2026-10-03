@@ -22,6 +22,8 @@ private:
   CAnimSysContext mSysCtx;
 };
 
+#if VERSION < VERSION_R3IJ_00
 CHECK_SIZEOF(CAnimationManager, 0x18)
+#endif
 
 #endif // _CANIMATIONMANAGER

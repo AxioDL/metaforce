@@ -15,8 +15,21 @@ namespace rstl {
 template < typename T >
 struct reserved_vector_traits {
   typedef const T& fill_type;
+  typedef const T& push_type;
   enum { trivial_destructor = false };
   static void fill(T* dest, int count, const T& value) { uninitialized_fill_n(dest, count, value); }
+};
+
+template <>
+struct reserved_vector_traits< bool > {
+  typedef bool fill_type;
+  typedef bool push_type;
+  enum { trivial_destructor = true };
+  static void fill(bool* dest, int count, bool value) {
+    for (int i = 0; i < count; ++i, ++dest) {
+      *dest = value;
+    }
+  }
 };
 
 template <>
@@ -34,6 +47,7 @@ struct reserved_vector_traits< uchar > {
 template <>
 struct reserved_vector_traits< float > {
   typedef float fill_type;
+  typedef float push_type;
   enum { trivial_destructor = true };
   static void fill(float* dest, int count, float value) {
     for (int i = 0; i < count; ++i) {
@@ -94,9 +108,11 @@ public:
       return *this;
     }
 #if RSTL_VERSION >= RSTL_R3ME_00
-    T* ptr = data();
-    for (int i = 0; i < mCount; ++i) {
-      destroy(&ptr[i]);
+    if (!reserved_vector_traits< T >::trivial_destructor) {
+      T* ptr = data();
+      for (int i = 0; i < mCount; ++i) {
+        destroy(&ptr[i]);
+      }
     }
 #else
     clear();
@@ -127,7 +143,11 @@ public:
 #endif
   }
 
+#if RSTL_VERSION >= RSTL_R3ME_00
+  void push_back(typename reserved_vector_traits< T >::push_type in) {
+#else
   void push_back(const T& in) {
+#endif
     construct(data() + mCount, in);
     ++mCount;
   }
@@ -153,7 +173,12 @@ public:
   iterator erase(iterator it) {
     if (it >= begin() && it < end()) {
       for (iterator j = it; j < end() - 1; ++j) {
+#if RSTL_VERSION >= RSTL_R3ME_00
+        destroy(j);
+        construct(j, *(j + 1));
+#else
         *j = *(j + 1);
+#endif
       }
       destroy(end() - 1);
       --mCount;

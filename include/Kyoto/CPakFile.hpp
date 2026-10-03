@@ -84,7 +84,9 @@ private:
   rstl::vector< SResInfo > mResList;
   int mCurrentSeek;
 };
+#if VERSION < VERSION_R3IJ_00
 CHECK_SIZEOF(CPakFile, 0x88)
+#endif
 NESTED_CHECK_SIZEOF(CPakFile, SResInfo, 0xa)
 
 #endif // _CPAKFILE

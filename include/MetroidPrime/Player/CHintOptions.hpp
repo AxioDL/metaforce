@@ -57,7 +57,9 @@ private:
 
 NESTED_CHECK_SIZEOF(CHintOptions, SHintState, 0xc)
 #if VERSION >= VERSION_GM8P_00
+#if VERSION < VERSION_R3IJ_00
 CHECK_SIZEOF(CHintOptions, 0x18)
+#endif
 #else
 CHECK_SIZEOF(CHintOptions, 0x14)
 #endif

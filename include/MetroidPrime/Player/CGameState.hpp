@@ -95,7 +95,9 @@ private:
 #if VERSION == VERSION_GM8J_00
 CHECK_SIZEOF(CGameState, 0x7e0)
 #elif VERSION >= VERSION_GM8P_00
+#if VERSION < VERSION_R3IJ_00
 CHECK_SIZEOF(CGameState, 0x1e8)
+#endif
 #else
 CHECK_SIZEOF(CGameState, 0x230)
 #endif

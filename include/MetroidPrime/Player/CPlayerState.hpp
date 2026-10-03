@@ -13,6 +13,20 @@
 #include "rstl/reserved_vector.hpp"
 #include "rstl/vector.hpp"
 
+#if RSTL_VERSION >= RSTL_R3ME_00
+namespace rstl {
+template < >
+struct is_trivially_destructible< pair< CAssetId, float > > {
+  enum { value = true };
+};
+
+template < >
+inline void construct< pair< CAssetId, float > >(void* dest, const pair< CAssetId, float >& src) {
+  *static_cast< pair< CAssetId, float >* >(dest) = src;
+}
+} // namespace rstl
+#endif
+
 class CStateManager;
 
 class CPlayerState {
@@ -202,6 +216,9 @@ private:
   uint mEnabledItems;
   EBeamId mCurrentBeam;
   CHealthInfo mHealth;
+#if VERSION >= VERSION_R3IJ_00
+  float mHealthSnapshot;
+#endif
   EPlayerVisor mCurrentVisor;
   EPlayerVisor mTransitioningVisor;
   float mVisorTransitionFactor;
@@ -212,6 +229,10 @@ private:
   int mScanCompletionRateSecond;
   CStaticInterference mStaticIntf;
 };
+#if VERSION >= VERSION_R3IJ_00
+CHECK_SIZEOF(CPlayerState, 0x194)
+#else
 CHECK_SIZEOF(CPlayerState, 0x198)
+#endif
 
 #endif // _CPLAYERSTATE

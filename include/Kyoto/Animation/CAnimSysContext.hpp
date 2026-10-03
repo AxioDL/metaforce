@@ -26,6 +26,8 @@ private:
   rstl::ncrc_ptr< CRandom16 > mRandom;
   IObjectStore& mStore;
 };
+#if VERSION < VERSION_R3IJ_00
 CHECK_SIZEOF(CAnimSysContext, 0x10)
+#endif
 
 #endif // _CANIMSYSCONTEXT

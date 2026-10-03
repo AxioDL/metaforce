@@ -366,8 +366,10 @@ private:
   CGameArea* mPrev;
   int mCurChain;
 };
+#if VERSION < VERSION_R3IJ_00
 NESTED_CHECK_SIZEOF(CGameArea, CPostConstructed, 0x1140)
 CHECK_SIZEOF(CGameArea, 0x13c)
+#endif
 
 class CDummyGameArea final : public IGameArea {
   friend class CDummyWorld;
@@ -392,6 +394,8 @@ private:
   rstl::vector< u16 > mAttachedAreaIndices;
   rstl::vector< Dock > mDocks;
 };
+#if VERSION < VERSION_R3IJ_00
 CHECK_SIZEOF(CDummyGameArea, 0x64)
+#endif
 
 #endif // _CGAMEAREA

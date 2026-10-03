@@ -5,6 +5,11 @@
 #include "types.h"
 
 #include "MetroidPrime/CAnimRes.hpp"
+#if VERSION >= VERSION_R3IJ_00
+#include "MetroidPrime/CAimingCursor.hpp"
+#include "MetroidPrime/CControlMapper.hpp"
+#include "rstl/multimap.hpp"
+#endif
 #include "MetroidPrime/CPhysicsActor.hpp"
 #include "MetroidPrime/Player/CPlayerEnergyDrain.hpp"
 #include "MetroidPrime/Player/CPlayerState.hpp"
@@ -19,6 +24,7 @@ class CPlayerGun;
 class CMorphBall;
 class CPlayerCameraBob;
 class CCollidableSphere;
+class CScalarInputFilter;
 
 namespace NPlayer {
 enum EPlayerMovementState {
@@ -62,6 +68,11 @@ class CPlayer : public CPhysicsActor, public TOneStatic< CPlayer > {
   };
 
 public:
+#if VERSION >= VERSION_R3IJ_00
+  bool CanOpenSelector(const CStateManager& mgr, CControlMapper::ECommands command) const;
+  const CFinalInput& GetLastInput() const { return mLastInput; }
+  bool GetPointerAimHeld() const { return mPointerAimHeld; }
+#endif
   class CPlayerStuckTracker {
   public:
     enum EPlayerState {
@@ -229,6 +240,7 @@ public:
   float GetOrbitMaxLockDistance(const CStateManager& mgr) const;
   bool ValidateOrbitTargetIdAndPointer(TUniqueId id, CStateManager& mgr) const;
   EPlayerOrbitState GetOrbitState() const { return mOrbitState; }
+  static bool GetOrbitLockGun();
   const CVector3f& GetMovementDirection() const { return mMoveDir; }
   float GetMoveSpeed() const { return mMoveSpeed; }
   const CVector3f& GetLeaveMorphDirection() const { return mLeaveMorphDir; }
@@ -267,9 +279,15 @@ public:
   bool IsSidewaysDashing() const { return mSidewaysDashing; }
   bool GetDoneSidewaysDashing() const { return mDoneSidewaysDashing; }
   float GetMorphBallTransitionFactor() const {
+#if VERSION >= VERSION_R3IJ_00
+    return mMorphDuration == 0.f
+               ? 0.f
+               : CMath::FastMin(CMath::FastMax(0.f, mMorphTime / mMorphDuration), 1.f);
+#else
     return mMorphDuration == 0.f
                ? 0.f
                : CMath::Clamp(0.f, mMorphTime / mMorphDuration, 1.f);
+#endif
   }
   void InitialiseAnimation();
   void SetIntoBallReadyAnimation(CStateManager& mgr);
@@ -723,10 +741,35 @@ private:
   float mAttachedActorStruggle;
   int mDamageLoopSfxDelayTicks;
   float mSamusExhaustedVoiceTimer;
+#if VERSION >= VERSION_R3IJ_00
+  CControlMapper mControlMapper;
+  CAimingCursor mAimingCursor;
+  CFinalInput mLastInput;
+  float mPointerAimHoldTime;
+  float mPointerAimHoldBlend;
+  bool mPointerAimHeld : 1;
+  bool mTurnToCursor : 1;
+  float mTurnInputWarmupRemaining;
+  float mTurnInputWarmupDuration;
+  bool mBallJump : 1;
+  bool mBallJumpFromPlatform : 1;
+  bool x1194_26_ : 1;
+  bool x1194_27_ : 1;
+  TUniqueId mBallJumpPlatform;
+  rstl::single_ptr< CScalarInputFilter > mVerticalLookFilter;
+  CRelAngle mFreeLookPitchRate;
+  float mContinuousTurnTime;
+  float mOrbitModeBlend;
+  rstl::multimap< unsigned long long, CVector3f > mJumpAssistLocations;
+#endif
 };
 NESTED_CHECK_SIZEOF(CPlayer, CPlayerStuckTracker, 0x2e0);
+#if VERSION < VERSION_R3IJ_00
 CHECK_SIZEOF(CPlayer,
              (VERSION < VERSION_GM8E_02 ? 0xa38 : (VERSION == VERSION_GM8E_02 ? 0xa48 : 0xa68)))
+#else
+CHECK_SIZEOF(CPlayer, 0x11c0)
+#endif
 
 extern const bool gkAutoAim;
 extern const bool gkAutoAimAtOrbitedObject;

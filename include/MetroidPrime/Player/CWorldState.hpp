@@ -32,6 +32,8 @@ private:
   CAssetId mDesiredAreaAssetId;
   rstl::ncrc_ptr< CScriptLayerManager > mLayerState;
 };
+#if VERSION < VERSION_R3IJ_00
 CHECK_SIZEOF(CWorldState, 0x18)
+#endif
 
 #endif // _CWORLDSTATE

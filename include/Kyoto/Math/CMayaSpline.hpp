@@ -18,7 +18,8 @@ public:
     kTT_Smooth,
     kTT_Step,
     kTT_Clamped,
-    kTT_Fixed
+    kTT_Fixed,
+    kTT_Invalid = 255
   };
 
   CMayaSplineKnot(float time, float amplitude, ETangentType inTangentType,

@@ -13,6 +13,14 @@ Sections:
 	.sdata2     type:rodata align:4
 	.sbss2      type:bss align:32
 
+MetroidPrime/CAimingCursor.cpp:
+	.text       start:0x80014B8C end:0x80015EFC
+	.rodata     start:0x8046DC08 end:0x8046DC18
+	.bss        start:0x804B7900 end:0x804B7928
+	.sdata      start:0x805C0C68 end:0x805C0C80
+	.sbss       start:0x805C24B0 end:0x805C24B8
+	.sdata2     start:0x805C38D8 end:0x805C3920
+
 MetroidPrime/CArchMsgParmControllerStatus.cpp:
 	.text       start:0x8001F088 end:0x8001F0E0
 	.data       start:0x80483AA8 end:0x80483AB8
@@ -37,6 +45,10 @@ MetroidPrime/CArchMsgParmUserInput.cpp:
 	.text       start:0x8001F234 end:0x8001F50C
 	.data       start:0x80483AF8 end:0x80483B08
 
+MetroidPrime/CControlMapper.cpp:
+	.text       start:0x80075968 end:0x800773E8
+	.sdata2     start:0x805C4100 end:0x805C4120
+
 MetroidPrime/CEntity.cpp:
 	.text       start:0x8008E814 end:0x8008EE9C
 	.ctors      start:0x8046D3A4 end:0x8046D3A8
@@ -45,6 +57,15 @@ MetroidPrime/CEntity.cpp:
 
 MetroidPrime/CInputGenerator.cpp:
 	.text       start:0x800FF378 end:0x800FF5F4
+
+MetroidPrime/Tweaks/CTweakPlayerControl.cpp:
+	.text       start:0x802543D8 end:0x80266F1C
+	.ctors      start:0x8046D460 end:0x8046D464
+	.rodata     start:0x80478298 end:0x804782A0
+	.data       start:0x8048E8D0 end:0x8048E8E0
+	.bss        start:0x804D4EA8 end:0x804DCE20
+	.sbss       start:0x805C27B8 end:0x805C27C0
+	.sdata2     start:0x805C6EE8 end:0x805C6FD8
 
 MetroidPrime/Decode.cpp:
 	.text       start:0x8028B7EC end:0x8028BD64

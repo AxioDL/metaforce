@@ -105,6 +105,7 @@ public:
   }
   static float FastMin(float a, float b) { return FastFSel(a - b, b, a); }
   static float FastMax(float a, float b) { return FastFSel(a - b, a, b); }
+  static float FastLimit(float v, float h) { return FastMin(FastMax(-h, v), h); }
   // PowF__5CMathFff global
   // Rev2Deg__5CMathFf weak
   // SlowTangentR__5CMathFf global

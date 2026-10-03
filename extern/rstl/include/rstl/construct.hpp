@@ -19,6 +19,16 @@ static inline void construct(void* dest, const T& src) {
 }
 
 #if RSTL_VERSION >= RSTL_R3ME_00
+template < typename T >
+inline void construct(void* dest, T* const& src) {
+  *static_cast< T** >(dest) = src;
+}
+
+template < >
+inline void construct< bool >(void* dest, const bool& src) {
+  *static_cast< bool* >(dest) = src;
+}
+
 template < >
 inline void construct< float >(void* dest, const float& src) {
   *static_cast< float* >(dest) = src;

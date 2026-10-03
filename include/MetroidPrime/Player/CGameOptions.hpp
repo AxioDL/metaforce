@@ -42,6 +42,9 @@ public:
   static const bool skDefaultHintSystem;
   static const bool skDefaultPalFlag;
 
+  bool GetIsSwitchVisorBeamControls() const;
+  bool GetIsFireAndJumpSwapped() const;
+
   static int GetOption(EGameOption option);
   static void SetOption(EGameOption option, int value);
   static void TryRestoreDefaults(const CFinalInput& input, int category, int option, bool frontEnd);
@@ -112,6 +115,8 @@ public:
   rstl::vector< rstl::pair< CAssetId, CAssetId > > mControlTxtrMap;
 };
 
+#if VERSION < VERSION_R3IJ_00
 CHECK_SIZEOF(CGameOptions, 0x7c)
+#endif
 
 #endif // _CGAMEOPTIONS

@@ -2,6 +2,7 @@
 
 #include "Collision/CInternalCollisionStructure.hpp"
 #include "Kyoto/CDependencyGroup.hpp"
+#include "Kyoto/Input/CInputFilter.hpp"
 #include "Kyoto/SObjectTag.hpp"
 #include "MetroidPrime/CActor.hpp"
 #include "MetroidPrime/CActorParameters.hpp"
@@ -426,7 +427,28 @@ CPlayer::CPlayer(TUniqueId uid, const CTransform4f& xf, const CAABox& aabb, CAss
 , mRadarZRadiusOverride(1.f)
 , mAttachedActorStruggle(0.f)
 , mDamageLoopSfxDelayTicks(2)
-, mSamusExhaustedVoiceTimer(4.f) {
+, mSamusExhaustedVoiceTimer(4.f)
+#if VERSION >= VERSION_R3IJ_00
+, mControlMapper()
+, mAimingCursor(false, 0)
+, mLastInput(CFinalInput::NoInput(0, 1.f / 60.f))
+, mPointerAimHoldTime(0.f)
+, mPointerAimHoldBlend(0.f)
+, mPointerAimHeld(false)
+, mTurnToCursor(false)
+, mTurnInputWarmupRemaining(2.f)
+, mTurnInputWarmupDuration(2.f)
+, mBallJump(false)
+, mBallJumpFromPlatform(false)
+, x1194_26_(false)
+, x1194_27_(true)
+, mBallJumpPlatform(kInvalidUniqueId)
+, mVerticalLookFilter(rs_new CAdaptiveInputFilter(0, 4, 0, 0.1f))
+, mFreeLookPitchRate(CRelAngle::FromRadians(0.f))
+, mOrbitModeBlend(0.f)
+, mJumpAssistLocations()
+#endif
+{
   CModelData ballTransitionBeamModelData(
       CStaticRes(gpTweakPlayerRes->GetBallTransitionBeamResId(mBeam), playerScale));
   mBallTransitionBeamModel = ballTransitionBeamModelData.IsNull()
