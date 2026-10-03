@@ -380,11 +380,11 @@ void CGroundMovement::MoveGroundCollider_New(CStateManager& mgr, CPhysicsActor& 
   if (player.IsInsideFluid() && !mgr.GetPlayerState()->HasPowerUp(CPlayerState::kIT_GravitySuit)) {
     dampUnderwater = true;
   }
-  bool noJump = player.GetPlayerMovementState() != NPlayer::kMS_ApplyJump &&
-                player.GetPlayerMovementState() != NPlayer::kMS_Jump;
+  const bool noJump = player.GetPlayerMovementState() != NPlayer::kMS_ApplyJump &&
+                      player.GetPlayerMovementState() != NPlayer::kMS_Jump;
+  bool doStepDown = true;
   float stepDown = actor.GetStepDownHeight();
   float stepUp = actor.GetStepUpHeight();
-  bool doStepDown = true;
   CMaterialList materials(kMT_NoStepLogic);
   SMoveObjectResult result;
   if (!applyJump) {
