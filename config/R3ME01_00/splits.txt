@@ -60,6 +60,18 @@ MetroidPrime/Player/CGameOptions.cpp:
 	.rodata     start:0x80470008 end:0x80470040
 	.sdata2     start:0x805C4910 end:0x805C4928
 
+MetroidPrime/HUD/CHudBeamSelect.cpp:
+	.text       start:0x800E04B4 end:0x800E0F8C
+	.rodata     start:0x80470790 end:0x80470890
+	.data       start:0x80487E20 end:0x80487E30
+	.sdata2     start:0x805C4B10 end:0x805C4B40
+
+MetroidPrime/HUD/CHudVisorSelect.cpp:
+	.text       start:0x800E8EDC end:0x800E992C
+	.rodata     start:0x804710B0 end:0x804711C0
+	.data       start:0x80487F88 end:0x80487F98
+	.sdata2     start:0x805C4CD0 end:0x805C4D00
+
 MetroidPrime/CInputGenerator.cpp:
 	.text       start:0x800FF378 end:0x800FF5F4
 

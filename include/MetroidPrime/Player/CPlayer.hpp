@@ -71,6 +71,7 @@ public:
 #if VERSION >= VERSION_R3IJ_00
   bool CanOpenSelector(const CStateManager& mgr, CControlMapper::ECommands command) const;
   const CFinalInput& GetLastInput() const { return mLastInput; }
+  const CControlMapper& GetControlMapper() const { return mControlMapper; }
   bool GetPointerAimHeld() const { return mPointerAimHeld; }
 #endif
   class CPlayerStuckTracker {

@@ -16,6 +16,10 @@ private:
   short mLastPoolId;
 };
 
+#if VERSION >= VERSION_R3IJ_00
+CHECK_SIZEOF(CGuiWidgetIdDB, 0x10);
+#else
 CHECK_SIZEOF(CGuiWidgetIdDB, 0x14);
+#endif
 
 #endif // _CGUIWIDGETIDDB

@@ -155,6 +155,7 @@ public:
   void DisableItem(const EItemType type);
   void EnableItem(const EItemType type);
   const bool HasPowerUp(const EItemType type) const;
+  bool HasVisor(const EPlayerVisor visor) const;
   const uint GetPowerUp(const EItemType type);
   const int GetItemCapacity(const EItemType type) const;
   const int GetItemAmount(const EItemType type) const;

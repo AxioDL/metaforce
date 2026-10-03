@@ -1146,6 +1146,8 @@ config.libs = [
                 "MetroidPrime/HUD/CHudThreatInterface.cpp",
             ),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/HUD/CHudVisorBeamMenu.cpp"),
+            Object(NonMatching, "MetroidPrime/HUD/CHudBeamSelect.cpp"),
+            Object(NonMatching, "MetroidPrime/HUD/CHudVisorSelect.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/HUD/CHudDecoInterface.cpp"),
             Object(
                 NonMatching,

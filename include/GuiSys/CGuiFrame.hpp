@@ -64,6 +64,10 @@ private:
   int mC;
   mutable bool mLoaded : 1;
 };
+#if VERSION >= VERSION_R3IJ_00
+CHECK_SIZEOF(CGuiFrame, 0x50);
+#else
 CHECK_SIZEOF(CGuiFrame, 0x5c);
+#endif
 
 #endif // _CGUIFRAME

@@ -155,6 +155,7 @@ public:
     return mReleaseTime[command];
   }
   int GetSelectorActive() const { return mSelectorActive; }
+  ECommands GetActiveSelectorCommand() const { return mActiveSelectorCommand; }
   float GetSelectorFade() const;
   bool GetSelectorReleaseInput(ECommands command, const CFinalInput& input,
                                const CStateManager& mgr, const CPlayer& player) const;

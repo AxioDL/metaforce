@@ -33,6 +33,14 @@ public:
   };
   const SPerVisorColors& GetVisorColors(int visor) const { return mPerVisorColors[visor]; }
 
+#if VERSION >= VERSION_R3IJ_00
+  struct SPerVisorMenuColors {
+    CColor mFrame;
+    CColor x4_;
+  };
+  const SPerVisorMenuColors& GetVisorMenuColors(int visor) const { return mPerVisorMenuColors[visor]; }
+#endif
+
   ~CTweakGuiColors() override;
   CTweakGuiColors(CInputStream& in);
 
@@ -237,8 +245,15 @@ public:
   CColor mPauseItemBlue;
   /* Combat, Scan, XRay, Thermal, Ball */
   rstl::reserved_vector< SPerVisorColors, 5 > mPerVisorColors;
+#if VERSION >= VERSION_R3IJ_00
+  rstl::reserved_vector< SPerVisorMenuColors, 5 > mPerVisorMenuColors;
+#endif
 };
+#if VERSION >= VERSION_R3IJ_00
+CHECK_SIZEOF(CTweakGuiColors, 0x280)
+#else
 CHECK_SIZEOF(CTweakGuiColors, 0x254)
+#endif
 
 extern CTweakGuiColors* gpTweakGuiColors;
 
