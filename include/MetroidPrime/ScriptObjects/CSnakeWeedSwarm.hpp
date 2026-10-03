@@ -116,7 +116,7 @@ private:
   float x200_;
   float mParticleTimer;
 };
-CHECK_SIZEOF(CSnakeWeedSwarm, (VERSION >= VERSION_GM8E_02 ? 0x218 : 0x208))
+CHECK_CHILD_SIZEOF(CSnakeWeedSwarm, CActor, 0x120)
 NESTED_CHECK_SIZEOF(CSnakeWeedSwarm, CBoid, 0x24)
 
 #endif // _CSNAKEWEEDSWARM

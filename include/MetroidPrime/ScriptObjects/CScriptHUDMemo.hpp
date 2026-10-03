@@ -29,6 +29,6 @@ public:
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   DECLARE_TYPES_MATCH_OR_ACCEPT;
 };
-CHECK_SIZEOF(CScriptHUDMemo, 0x54)
+CHECK_CHILD_SIZEOF(CScriptHUDMemo, CEntity, 0x20)
 
 #endif // _CSCRIPTHUDMEMO

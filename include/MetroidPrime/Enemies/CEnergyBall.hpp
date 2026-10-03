@@ -47,6 +47,6 @@ private:
   CDamageInfo x5cc;
   float x5e8;
 };
-CHECK_SIZEOF(CEnergyBall, (VERSION >= VERSION_GM8E_02 ? 0x600 : 0x5f0))
+CHECK_CHILD_SIZEOF(CEnergyBall, CPatterned, 0x88)
 
 #endif // _CENERGYBALL

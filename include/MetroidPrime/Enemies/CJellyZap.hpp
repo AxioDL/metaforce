@@ -59,6 +59,6 @@ private:
   bool x5b8_25_ : 1;
   bool x5b8_26_ : 1;
 };
-CHECK_SIZEOF(CJellyZap, (VERSION >= VERSION_GM8E_02 ? 0x5d0 : 0x5c0))
+CHECK_CHILD_SIZEOF(CJellyZap, CPatterned, 0x58)
 
 #endif // _CJELLYZAP

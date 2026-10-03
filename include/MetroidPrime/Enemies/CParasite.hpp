@@ -175,6 +175,6 @@ private:
   bool mOculusShotAt : 1;
   bool mInJump : 1;
 };
-CHECK_SIZEOF(CParasite, (VERSION >= VERSION_GM8E_02 ? 0x758 : 0x748))
+CHECK_CHILD_SIZEOF(CParasite, CWallWalker, 0x170)
 
 #endif // _CPARASITE

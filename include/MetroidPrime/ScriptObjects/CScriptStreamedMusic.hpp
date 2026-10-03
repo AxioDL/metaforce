@@ -38,6 +38,6 @@ private:
   void sub_8020c414(CStateManager& mgr);
   void sub_8020be90();
 };
-CHECK_SIZEOF(CScriptStreamedMusic, 0x54)
+CHECK_CHILD_SIZEOF(CScriptStreamedMusic, CEntity, 0x20)
 
 #endif // _CSCRIPTSTREAMEDMUSIC

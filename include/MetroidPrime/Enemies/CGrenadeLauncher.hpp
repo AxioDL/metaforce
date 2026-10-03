@@ -122,5 +122,5 @@ private:
   bool mVisible;
   bool mFollowPlayer;
 };
-CHECK_SIZEOF(CGrenadeLauncher, (VERSION >= VERSION_GM8E_02 ? 0x410 : 0x400))
+CHECK_CHILD_SIZEOF(CGrenadeLauncher, CPhysicsActor, 0x1a8)
 #endif // _CGRENADELAUNCHER

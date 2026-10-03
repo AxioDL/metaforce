@@ -127,8 +127,6 @@ protected:
   bool mUnkPalFlag : 1;
 #endif
 };
-CHECK_SIZEOF(CGameProjectile, (VERSION >= VERSION_GM8P_00 ? 0x310
-                               : VERSION >= VERSION_GM8E_02                             ? 0x2f8
-                                                                                        : 0x2e8))
+CHECK_CHILD_SIZEOF(CGameProjectile, CWeapon, VERSION < VERSION_GM8P_00 ? 0x190 : 0x1a8)
 
 #endif // _CGAMEPROJECTILE

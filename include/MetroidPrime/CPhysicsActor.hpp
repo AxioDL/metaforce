@@ -238,10 +238,6 @@ protected:
   uint mNumTicksStuck;
   uint mNumTicksPartialUpdate;
 };
-#if VERSION >= VERSION_R3IJ_00
-CHECK_SIZEOF(CPhysicsActor, 0x260)
-#else
-CHECK_SIZEOF(CPhysicsActor, (VERSION >= VERSION_GM8E_02 ? 0x268 : 0x258))
-#endif
+CHECK_CHILD_SIZEOF(CPhysicsActor, CActor, 0x170)
 
 #endif // _CPHYSICSACTOR

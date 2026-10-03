@@ -59,6 +59,6 @@ private:
   static int sLightIdx;
 };
 
-CHECK_SIZEOF(CFireFlea, (VERSION >= VERSION_GM8E_02 ? 0xe80 : 0xe70))
+CHECK_CHILD_SIZEOF(CFireFlea, CPatterned, 0x908)
 
 #endif // _CFIREFLEA

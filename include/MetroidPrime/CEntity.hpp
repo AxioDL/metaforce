@@ -64,7 +64,7 @@ private:
   bool mScriptingBlocked : 1;
   bool mNotInArea : 1;
 };
-
-CHECK_SIZEOF(CEntity, (VERSION >= VERSION_R3IJ_00 ? 0x2c : 0x34))
+DECLARE_FULL_SIZE_FOR(CEntity, VERSION < VERSION_R3IJ_00 ? 0x34 : 0x2c)
+CHECK_SIZEOF(CEntity, CEntity_FULL_SIZE)
 
 #endif // _CENTITY

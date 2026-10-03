@@ -388,8 +388,8 @@ private:
   bool x1444_24_ : 1;
   bool x1444_25_ : 1;
 };
-CHECK_SIZEOF(CMetroidPrime, (VERSION >= VERSION_GM8E_02 ? 0x1458 : 0x1448))
-NESTED_CHECK_SIZEOF(CMetroidPrime, CMissileTarget, (VERSION >= VERSION_GM8E_02 ? 0x268 : 0x258))
+CHECK_CHILD_SIZEOF(CMetroidPrime, CPatterned, 0xee0)
+NESTED_CHECK_SIZEOF(CMetroidPrime, CMissileTarget, CPhysicsActor_FULL_SIZE)
 NESTED_CHECK_SIZEOF(CMetroidPrime, CMetroidPrimeAttackWeights, 0x3C)
 NESTED_CHECK_SIZEOF(CMetroidPrime, CVulnerabilityEntry, 0x78)
 

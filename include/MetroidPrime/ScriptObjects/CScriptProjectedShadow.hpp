@@ -33,6 +33,6 @@ private:
   uchar mPersistent : 1;
   bool mShadowInvalidated : 1;
 };
-CHECK_SIZEOF(CScriptShadowProjector, (VERSION >= VERSION_GM8E_02 ? 0x128 : 0x118))
+CHECK_CHILD_SIZEOF(CScriptShadowProjector, CActor, 0x30)
 
 #endif // _CSCRIPTPROJECTEDSHADOW

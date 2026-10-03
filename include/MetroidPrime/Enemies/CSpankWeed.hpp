@@ -67,6 +67,6 @@ private:
 
   static const SSphereJointInfo skSphereJointInfoList[];
 };
-CHECK_SIZEOF(CSpankWeed, (VERSION >= VERSION_GM8E_02 ? 0x5d0 : 0x5c0))
+CHECK_CHILD_SIZEOF(CSpankWeed, CPatterned, 0x58)
 
 #endif // _CSPANKWEED

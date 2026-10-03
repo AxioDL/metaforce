@@ -63,8 +63,6 @@ private:
 
   static const CMaterialList kCheckMaterial;
 };
-CHECK_SIZEOF(CEnergyProjectile, (VERSION >= VERSION_GM8P_00 ? 0x400
-                                 : VERSION >= VERSION_GM8E_02                             ? 0x3e8
-                                                                                          : 0x3d8));
+CHECK_CHILD_SIZEOF(CEnergyProjectile, CGameProjectile, 0xf0);
 
 #endif // _CENERGYPROJECTILE

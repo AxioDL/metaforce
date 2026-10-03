@@ -87,6 +87,6 @@ private:
   bool mAreaTrackingLoad : 1;
   TUniqueId mNextPlayerActor;
 };
-CHECK_SIZEOF(CScriptPlayerActor, (VERSION >= VERSION_GM8E_02 ? 0x368 : 0x358))
+CHECK_CHILD_SIZEOF(CScriptPlayerActor, CScriptActor, 0x70)
 
 #endif // _CSCRIPTPLAYERACTOR

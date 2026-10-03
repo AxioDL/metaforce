@@ -40,6 +40,6 @@ private:
   bool mLoadConnected : 1;
   bool mAreaPostConstructed : 1;
 };
-CHECK_SIZEOF(CScriptDock, (VERSION >= VERSION_GM8E_02 ? 0x280 : 0x270))
+CHECK_CHILD_SIZEOF(CScriptDock, CPhysicsActor, 0x18)
 
 #endif // _CSCRIPTDOCK

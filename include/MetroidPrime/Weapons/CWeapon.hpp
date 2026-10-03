@@ -89,6 +89,6 @@ protected:
   float mDamageDuration;
   float mInterferenceDuration;
 };
-CHECK_SIZEOF(CWeapon, (VERSION >= VERSION_GM8E_02 ? 0x168 : 0x158))
+CHECK_CHILD_SIZEOF(CWeapon, CActor, 0x70)
 
 #endif // _CWEAPON

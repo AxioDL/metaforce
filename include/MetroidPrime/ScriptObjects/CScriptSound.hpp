@@ -57,6 +57,6 @@ private:
   bool mProcessedThisFrame : 1;
 };
 
-CHECK_SIZEOF(CScriptSound, (VERSION >= VERSION_GM8E_02 ? 0x130 : 0x120))
+CHECK_CHILD_SIZEOF(CScriptSound, CActor, 0x38)
 
 #endif // _CSCRIPTSOUND

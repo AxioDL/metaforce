@@ -806,10 +806,9 @@ private:
 };
 NESTED_CHECK_SIZEOF(CPlayer, CPlayerStuckTracker, 0x2e0);
 #if VERSION < VERSION_R3IJ_00
-CHECK_SIZEOF(CPlayer,
-             (VERSION < VERSION_GM8E_02 ? 0xa38 : (VERSION == VERSION_GM8E_02 ? 0xa48 : 0xa68)))
+CHECK_CHILD_SIZEOF(CPlayer, CPhysicsActor, VERSION < VERSION_GM8P_00 ? 0x7e0 : 0x800)
 #else
-CHECK_SIZEOF(CPlayer, 0x11c0)
+CHECK_CHILD_SIZEOF(CPlayer, CPhysicsActor, 0xf60)
 #endif
 
 extern const bool gkAutoAim;

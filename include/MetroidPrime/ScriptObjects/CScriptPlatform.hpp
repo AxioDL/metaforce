@@ -133,6 +133,6 @@ private:
   bool mDisableXrayAlpha : 1;
   bool mXrayFog : 1;
 };
-CHECK_SIZEOF(CScriptPlatform, (VERSION >= VERSION_GM8E_02 ? 0x368 : 0x358))
+CHECK_CHILD_SIZEOF(CScriptPlatform, CPhysicsActor, 0x100)
 
 #endif // _CSCRIPTPLATFORM

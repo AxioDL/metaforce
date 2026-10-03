@@ -86,6 +86,6 @@ private:
   TUniqueId mLightId;
 };
 
-CHECK_SIZEOF(CShockWave, (VERSION >= VERSION_GM8E_02 ? 0x998 : 0x988))
+CHECK_CHILD_SIZEOF(CShockWave, CActor, 0x8a0)
 
 #endif // _CSHOCKWAVE

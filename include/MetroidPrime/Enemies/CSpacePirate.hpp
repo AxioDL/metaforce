@@ -327,6 +327,6 @@ private:
   float mHoldPositionTime;
   float mLeashTimer;
 };
-CHECK_SIZEOF(CSpacePirate, (VERSION >= VERSION_GM8E_02 ? 0x8f0 : 0x8e0))
+CHECK_CHILD_SIZEOF(CSpacePirate, CPatterned, 0x378)
 
 #endif // _CSPACEPIRATE

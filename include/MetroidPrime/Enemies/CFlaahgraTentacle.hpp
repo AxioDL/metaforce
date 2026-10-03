@@ -67,6 +67,6 @@ private:
   static const SSphereJointInfo skJointList[];
   static const char* const skpTentacleTip;
 };
-CHECK_SIZEOF(CFlaahgraTentacle, (VERSION >= VERSION_GM8E_02 ? 0x5a0 : 0x590))
+CHECK_CHILD_SIZEOF(CFlaahgraTentacle, CPatterned, 0x28)
 
 #endif // _CFLAAHGRATENTACLE

@@ -110,6 +110,6 @@ private:
   rstl::single_ptr< CElementGen > mParticleGen2;
   TReservedAverage< float, 8 > mSpeedAvg;
 };
-CHECK_SIZEOF(CScriptDebris, (VERSION >= VERSION_GM8E_02 ? 0x318 : 0x308))
+CHECK_CHILD_SIZEOF(CScriptDebris, CPhysicsActor, 0xb0)
 
 #endif // _CSCRIPTDEBRIS

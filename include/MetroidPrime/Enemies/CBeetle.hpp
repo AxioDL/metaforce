@@ -130,6 +130,6 @@ private:
   bool mCanSkid : 1;
   uchar mPad1[7];
 };
-CHECK_SIZEOF(CBeetle, (VERSION >= VERSION_GM8E_02 ? 0x850 : 0x840))
+CHECK_CHILD_SIZEOF(CBeetle, CPatterned, 0x2d8)
 
 #endif // _CBEETLE

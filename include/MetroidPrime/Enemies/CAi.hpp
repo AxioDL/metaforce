@@ -176,4 +176,6 @@ private:
   static CAiFuncMap* mFuncMap;
 };
 
+CHECK_CHILD_SIZEOF(CAi, CPhysicsActor, 0x80)
+
 #endif // _CAI

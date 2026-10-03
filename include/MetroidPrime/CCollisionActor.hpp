@@ -82,6 +82,6 @@ private:
   CVector3f mExtendedTouchBounds;
 };
 
-CHECK_SIZEOF(CCollisionActor, (VERSION >= VERSION_GM8E_02 ? 0x320 : 0x310))
+CHECK_CHILD_SIZEOF(CCollisionActor, CPhysicsActor, 0xb8)
 
 #endif // _CCOLLISIONACTOR

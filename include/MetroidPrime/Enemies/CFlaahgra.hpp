@@ -94,7 +94,7 @@ public:
 private:
   TUniqueId mOwner;
 };
-CHECK_SIZEOF(CFlaahgraRenderer, (VERSION >= VERSION_GM8E_02 ? 0x100 : 0xf0))
+CHECK_CHILD_SIZEOF(CFlaahgraRenderer, CActor, 0x8)
 
 class CFlaahgra : public CPatterned {
 public:
@@ -279,6 +279,6 @@ private:
   static const pas::ESeverity skpAttackTypeLookup[];
   static const int skpComboChain[];
 };
-CHECK_SIZEOF(CFlaahgra, (VERSION >= VERSION_GM8E_02 ? 0x8f8 : 0x8e8))
+CHECK_CHILD_SIZEOF(CFlaahgra, CPatterned, 0x380)
 
 #endif // _CFLAAHGRA

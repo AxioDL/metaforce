@@ -307,10 +307,11 @@ private:
   uint mHostileTarget : 1;
 #endif
 };
-#if VERSION >= VERSION_R3IJ_00
-CHECK_SIZEOF(CActor, 0xf0)
-#else
-CHECK_SIZEOF(CActor, (VERSION >= VERSION_GM8E_02 ? 0xf8 : 0xe8))
-#endif
+
+CHECK_CHILD_SIZEOF(
+  CActor,
+  CEntity,
+  VERSION < VERSION_GM8E_02 ? 0xb4 : 0xc4
+)
 
 #endif // _CACTOR

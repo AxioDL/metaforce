@@ -119,6 +119,6 @@ private:
   bool mInProjectileAttack : 1;
   float x758_;
 };
-CHECK_SIZEOF(CMagdolite, (VERSION >= VERSION_GM8E_02 ? 0x770 : 0x760))
+CHECK_CHILD_SIZEOF(CMagdolite, CPatterned, 0x1f8)
 
 #endif // _CMAGDOLITE

@@ -64,6 +64,6 @@ private:
   int mW5;
   rstl::reserved_vector< CMetroidPrime::CMetroidPrimeAttackWeights, 4 > mRoomParms;
 };
-CHECK_SIZEOF(CMetroidPrimeRelay, 0xDAC)
+CHECK_CHILD_SIZEOF(CMetroidPrimeRelay, CEntity, 0xd78)
 
 #endif // _CMETROIDPRIMERELAY

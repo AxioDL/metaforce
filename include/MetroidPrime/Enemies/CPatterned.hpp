@@ -499,7 +499,7 @@ protected:
   CVector3f mMoveScale;
 };
 NESTED_CHECK_SIZEOF(CPatterned, CPatternNode, 0x24)
-CHECK_SIZEOF(CPatterned, (VERSION >= VERSION_GM8E_02 ? 0x578 : 0x568))
+CHECK_CHILD_SIZEOF(CPatterned, CAi, 0x290)
 
 #ifdef HAS_TYPES_MATCH
 #define PATTERNED_CAST_TO(CLS, obj) TCastToPtr< CLS >(obj)

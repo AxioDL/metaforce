@@ -154,6 +154,6 @@ private:
   bool mEnablePlayerRepelDamping : 1;
   bool mUpdateWithoutPartitions : 1;
 };
-CHECK_SIZEOF(CFishCloud, (VERSION >= VERSION_GM8E_02 ? 0x268 : 0x258))
+CHECK_CHILD_SIZEOF(CFishCloud, CActor, 0x170)
 
 #endif // _CFISHCLOUD

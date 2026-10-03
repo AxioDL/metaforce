@@ -83,6 +83,6 @@ private:
   static const char* kEyeLocators[];
 };
 
-CHECK_SIZEOF(CPuddleSpore, (VERSION >= VERSION_GM8E_02 ? 0x628 : 0x618))
+CHECK_CHILD_SIZEOF(CPuddleSpore, CPatterned, 0xb0)
 
 #endif

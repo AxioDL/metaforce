@@ -250,6 +250,6 @@ private:
   bool mFrenzyReverse : 1;
 };
 
-CHECK_SIZEOF(CScriptGunTurret, (VERSION >= VERSION_GM8E_02 ? 0x578 : 0x568))
+CHECK_CHILD_SIZEOF(CScriptGunTurret, CPhysicsActor, 0x310)
 
 #endif // _CSCRIPTGUNTURRET

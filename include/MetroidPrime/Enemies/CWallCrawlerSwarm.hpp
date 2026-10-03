@@ -195,6 +195,6 @@ private:
   bool mModelAssetDirty : 1;
 };
 NESTED_CHECK_SIZEOF(CWallCrawlerSwarm, CBoid, 0x84)
-CHECK_SIZEOF(CWallCrawlerSwarm, (VERSION >= VERSION_GM8E_02 ? 0x578 : 0x568))
+CHECK_CHILD_SIZEOF(CWallCrawlerSwarm, CActor, 0x480)
 
 #endif // _CWALLCRAWLERSWARM

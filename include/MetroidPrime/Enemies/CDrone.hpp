@@ -181,6 +181,6 @@ private:
   bool x835_25_ : 1;
   bool x835_26_ : 1;
 };
-CHECK_SIZEOF(CDrone, (VERSION >= VERSION_GM8E_02 ? 0x848 : 0x838))
+CHECK_CHILD_SIZEOF(CDrone, CPatterned, 0x2d0)
 
 #endif // _CDRONE

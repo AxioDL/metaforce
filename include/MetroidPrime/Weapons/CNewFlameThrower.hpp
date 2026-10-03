@@ -103,8 +103,6 @@ private:
   int mNumSmokeParticlesSpawned;
   rstl::reserved_vector< TUniqueId, 4 > mLightIds;
 };
-CHECK_SIZEOF(CNewFlameThrower, (VERSION >= VERSION_GM8P_00 ? 0x3f0
-                                : VERSION >= VERSION_GM8E_02                             ? 0x3d8
-                                                                                         : 0x3c8))
+CHECK_CHILD_SIZEOF(CNewFlameThrower, CGameProjectile, 0xe0)
 
 #endif // _CNEWFLAMETHROWER
