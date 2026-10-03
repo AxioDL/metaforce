@@ -979,8 +979,8 @@ void CAutoMapper::ProcessMapPanInput(const CFinalInput& input, const CStateManag
     float speed = gpTweakAutoMapper->mCamPanUnitsPerFrame * GetBaseMapScreenCameraMoveSpeed();
     if (mState == kAMS_MapScreen) {
       const CMapWorld* mapWorld = mWorld->IGetMapWorld();
-      const CMapArea* area = mapWorld->GetMapArea(mCurAreaId.value);
-      CMapArea* transformArea = mapWorld->GetMapArea(mCurAreaId.value);
+      const CMapArea* const& area = mapWorld->GetMapArea(mCurAreaId.value);
+      CMapArea* const& transformArea = mapWorld->GetMapArea(mCurAreaId.value);
       CVector3f worldPoint = transformArea->GetAreaPostTransform(*mWorld, mCurAreaId.value) *
                              area->GetAreaCenterPoint();
       CVector3f viewPoint = worldPoint - mRenderState0.mAreaPoint;
@@ -1931,7 +1931,7 @@ float CAutoMapper::GetDesiredMiniMapCameraDistance(const CStateManager& mgr) con
   CAABox aabb = CAABox::MakeMaxInvertedBox();
   const IGameArea* area = mWorld->IGetAreaAlways(TAreaId(mCurAreaId));
   const CMapArea* mapa = mw->GetMapArea(mCurAreaId.value);
-  bool oneMiniMapArea = gpTweakAutoMapper->mShowOneMiniMapArea;
+  const bool oneMiniMapArea = gpTweakAutoMapper->mShowOneMiniMapArea;
   for (int i = -1; i < (oneMiniMapArea ? 0 : static_cast< int >(area->IGetNumAttachedAreas()));
        ++i) {
     int aid = i == -1 ? mCurAreaId.value : area->IGetAttachedAreaId(i).value;
