@@ -8,7 +8,7 @@
 #include "Metaforce/CImGuiIOWin.hpp"
 #include "Metaforce/Limiter.hpp"
 #include "Metaforce/ResourceNameDatabase.hpp"
-#include "Metaforce/UI/RuntimeConfig.hpp"
+#include "Metaforce/Settings.hpp"
 #include "Metaforce/UI/UI.hpp"
 #include "MetroidPrime/CArchitectureMessage.hpp"
 #include "MetroidPrime/CMain.hpp"
@@ -32,6 +32,7 @@
 #include <borealis/app_info.hpp>
 #include <borealis/aurora_log.h>
 #include <borealis/cli.hpp>
+#include <borealis/config.hpp>
 #include <borealis/crash.hpp>
 #include <borealis/data.hpp>
 #include <borealis/file_select.hpp>
@@ -39,6 +40,7 @@
 #include <borealis/log.hpp>
 #include <borealis/presentation.hpp>
 
+#include <SDL3/SDL_events.h>
 #include <SDL3/SDL_keycode.h>
 #include <dolphin/pad.h>
 
@@ -377,6 +379,13 @@ int Initialize(int argc, char** argv) {
   try {
     args = options.parse(argc, argv);
     standardOptions = borealis::cli::parse(args);
+    if (const auto status = borealis::config::apply_overrides(standardOptions.configOverrides);
+        !status) {
+      throw cxxopts::exceptions::parsing(status.message);
+    }
+    if (args.count("lock-aspect")) {
+      borealis::config::cli_overlay().set(GetSettings().video.lockAspectRatio, true);
+    }
     const auto windowSize = args["window-size"].as< std::vector< unsigned int > >();
     if (windowSize.size() != 2 || windowSize[0] < 320 || windowSize[1] < 240 ||
         windowSize[0] > 16384 || windowSize[1] > 16384) {
@@ -454,6 +463,10 @@ int Initialize(int argc, char** argv) {
   const auto cachePath = borealis::io::fs_path_to_string(paths.cachePath);
   Log.info("User directory: {}", userPath);
   Log.info("Cache directory: {}", cachePath);
+  borealis::config::load({
+      .path = paths.userPath / "config.json",
+      .version = 1,
+  });
 
   const auto windowSize = args["window-size"].as< std::vector< unsigned int > >();
   const AuroraConfig config{
@@ -462,6 +475,7 @@ int Initialize(int argc, char** argv) {
       .cachePath = cachePath.c_str(),
       .desiredBackend = args["backend"].as< AuroraBackend >(),
       .vsync = true,
+      .startFullscreen = GetSettings().video.fullscreen,
       .allowJoystickBackgroundEvents = true,
       .windowPosX = -1,
       .windowPosY = -1,
@@ -471,7 +485,7 @@ int Initialize(int argc, char** argv) {
       .logLevel = borealis::log::to_aurora_level(logOptions.level),
   };
   const auto auroraInfo = aurora_initialize(argc, argv, &config);
-  ConfigureDisplay(auroraInfo.window, args.count("lock-aspect") != 0);
+  ConfigureDisplay(auroraInfo.window);
 
   const auto discLocation =
       args.count("dvd") ? args["dvd"].as< std::string >() : SelectDisc(auroraInfo.window);
@@ -489,7 +503,6 @@ int Initialize(int argc, char** argv) {
     return 1;
   }
 
-  ui::GetRuntimeConfig().video.lockAspectRatio.setValue(args.count("lock-aspect") != 0);
   borealis::presentation::set_preferred_frame_rate(60.f);
   COsContext::mProgressiveMode = true;
 
@@ -507,6 +520,7 @@ int Initialize(int argc, char** argv) {
 
 void Shutdown() {
   startup.reset();
+  borealis::config::flush();
   if (sndIsInstalled()) {
     sndQuit();
   }
@@ -514,6 +528,7 @@ void Shutdown() {
   aurora_dvd_close();
   discAccess = {};
   ui::Shutdown();
+  ShutdownDisplay();
   aurora_shutdown();
   borealis::log::shutdown();
 }
@@ -534,9 +549,14 @@ bool BeginFrame() {
       return false;
     }
     if (event->type == AURORA_SDL_EVENT) {
+      if (event->sdl.type == SDL_EVENT_WILL_ENTER_BACKGROUND ||
+          event->sdl.type == SDL_EVENT_TERMINATING) {
+        borealis::config::flush();
+      }
       ui::HandleEvent(event->sdl);
     }
   }
+  borealis::config::update();
   if (!aurora_begin_frame()) {
     return false;
   }

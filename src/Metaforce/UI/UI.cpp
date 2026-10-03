@@ -1,7 +1,7 @@
 #include "Metaforce/UI/UI.hpp"
 
+#include "Metaforce/Settings.hpp"
 #include "Metaforce/UI/MenuBar.hpp"
-#include "Metaforce/UI/RuntimeConfig.hpp"
 
 #include "Kyoto/Audio/CSfxManager.hpp"
 #include "MetroidPrime/SFX/UI.h"
@@ -15,6 +15,7 @@ using borealis::ui::NavSound;
 constexpr ushort kNoSfx = 0xFFFF;
 
 bool sInitialized = false;
+borealis::config::Connection sScaleBinding;
 
 ushort nav_sound_sfx(NavSound sound) {
   switch (sound) {
@@ -48,7 +49,7 @@ ushort nav_sound_sfx(NavSound sound) {
 }
 
 void play_nav_sound(NavSound sound) {
-  if (!GetRuntimeConfig().ui.sounds) {
+  if (!GetSettings().ui.sounds) {
     return;
   }
   if (const ushort sfx = nav_sound_sfx(sound); sfx != kNoSfx) {
@@ -70,11 +71,6 @@ void load_fonts() {
 
 } // namespace
 
-RuntimeConfig& GetRuntimeConfig() {
-  static RuntimeConfig sConfig;
-  return sConfig;
-}
-
 bool Initialize() {
   if (sInitialized) {
     return true;
@@ -84,7 +80,7 @@ bool Initialize() {
   }
   load_fonts();
   borealis::ui::set_nav_sound_handler(&play_nav_sound);
-  borealis::ui::set_user_scale(GetRuntimeConfig().ui.scale);
+  sScaleBinding = GetSettings().ui.scale.observe(&borealis::ui::set_user_scale);
   borealis::ui::push_document(std::make_unique< MenuBar >(), false);
   sInitialized = true;
   return true;
@@ -94,6 +90,7 @@ void Shutdown() {
   if (!sInitialized) {
     return;
   }
+  sScaleBinding.disconnect();
   borealis::ui::shutdown();
   sInitialized = false;
 }

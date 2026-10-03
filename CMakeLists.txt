@@ -83,7 +83,7 @@ add_subdirectory(extern/musyx EXCLUDE_FROM_ALL)
 
 set(GAME_LIBS
       aurora::core aurora::gx aurora::vi aurora::pad aurora::mtx aurora::os aurora::dvd aurora::thp aurora::card aurora::main
-      borealis::cli borealis::crash borealis::data borealis::disc borealis::file_select borealis::io borealis::log borealis::presentation borealis::ui
+      borealis::cli borealis::config borealis::crash borealis::data borealis::disc borealis::file_select borealis::io borealis::log borealis::presentation borealis::ui
       musyx ZLIB::ZLIB TracyClient fmt::fmt)
 
 set(GAME_FILES
@@ -732,6 +732,7 @@ set(GAME_FILES
       src/Metaforce/CImGuiIOWin.cpp
       src/Metaforce/ResourceNameDatabase.cpp
       src/Metaforce/ScriptObjectDebug.cpp
+      src/Metaforce/Settings.cpp
       src/Metaforce/UI/MenuBar.cpp
       src/Metaforce/UI/SettingsWindow.cpp
       src/Metaforce/UI/UI.cpp
