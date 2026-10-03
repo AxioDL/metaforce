@@ -308,11 +308,11 @@ void CScriptSpindleCamera::Think(float dt, CStateManager& mgr) {
           CMath::Limit(targetHintToCamDeltaAngleVel, targetHintToCamDeltaAngleVelRange);
     }
 
+    float targetHintToCamDeltaAngle =
+        targetHintToCamDeltaAngleVel * dt * hintToCamDeltaAngleSpeedFactor;
     CVector3f camToBall = ballPos - GetTranslation();
     camToBall[kDZ] = 0.f;
 
-    float targetHintToCamDeltaAngle =
-        targetHintToCamDeltaAngleVel * dt * hintToCamDeltaAngleSpeedFactor;
     float camToBallDist = 0.f;
     if (camToBall.CanBeNormalized()) {
       camToBallDist = camToBall.Magnitude();
