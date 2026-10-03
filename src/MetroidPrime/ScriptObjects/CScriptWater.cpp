@@ -386,7 +386,7 @@ void CScriptWater::SetupGridClipping(CStateManager& mgr, int computeVerts) {
       const int tilesPerPatch = rstl::min_val(
           kMaxTilesPerPatch, static_cast< int >(42u / GetFluidPlane().GetTileSubdivisions()));
 
-      mPatchDimX = (tilesPerPatch + mGridDimX - 1) / tilesPerPatch;
+      mPatchDimX = (mGridDimX + tilesPerPatch - 1) / tilesPerPatch;
       mPatchDimY = (tilesPerPatch + mGridDimY - 1) / tilesPerPatch;
       mPatchIntersects = rs_new char[mPatchDimX * mPatchDimY];
 
