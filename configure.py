@@ -1310,8 +1310,10 @@ config.libs = [
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
                 "MetroidPrime/Player/CGameOptions.cpp",
-                extra_cflags=['-pragma "inline_max_size(131)"']
-                if version_num >= VERSIONS.index("GM8E01_02")
+                extra_cflags=["-fp_contract off"]
+                if version_num >= VERSIONS.index("R3ME01_00")
+                else ['-pragma "inline_max_size(131)"']
+                if VERSIONS.index("GM8E01_02") <= version_num < VERSIONS.index("R3IJ01_00")
                 else [],
             ),
             Object(

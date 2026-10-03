@@ -10,6 +10,7 @@
 #include "Kyoto/Audio/CAudioSys.hpp"
 #include "Kyoto/SObjectTag.hpp"
 #include "MetroidPrime/TGameTypes.hpp"
+#include "MetroidPrime/Player/CTrilogyOptions.hpp"
 
 class CInputStream;
 class CMemoryStreamOut;
@@ -32,6 +33,74 @@ enum EGameOption {
   kGO_SwapBeamControls,
   kGO_RestoreDefaults
 };
+
+#if VERSION >= VERSION_R3IJ_00
+
+namespace rstl {
+template <>
+struct is_trivially_destructible< pair< CAssetId, CAssetId > > {
+  enum { value = true };
+};
+
+template <>
+inline void construct< pair< CAssetId, CAssetId > >(void* dest,
+                                                 const pair< CAssetId, CAssetId >& src) {
+  *static_cast< pair< CAssetId, CAssetId >* >(dest) = src;
+}
+} // namespace rstl
+
+class CGameOptions {
+public:
+  CGameOptions();
+  CGameOptions(CInputStream& in);
+  ~CGameOptions() {}
+
+  void PutTo(COutputStream& out);
+  void EnsureOptions();
+  void SetScreenBrightness(int value, bool apply);
+  const float TuneScreenBrightness();
+  void SetScreenPositionX(int value, bool apply);
+  void SetScreenPositionY(int value, bool apply);
+  void SetSfxVolume(int value, bool apply);
+  void SetMusicVolume(int value, bool apply);
+  int GetHudAlphaRaw() const;
+  void SetHudAlpha(int value);
+  const float GetHudAlpha() const;
+  void SetHelmetAlpha(int value);
+  int GetHelmetAlphaRaw() const;
+  const float GetHelmetAlpha() const;
+  void SetIsHudLag(bool enabled);
+  void SetIsRedundantHintSystem(bool enabled);
+  void SetIsLockOnFreeAim(bool enabled);
+  void SetIsHudEnglish(bool enabled);
+  void SetIsControllerRumble(bool enabled);
+  void SetIsSwitchVisorBeamControls(bool enabled);
+  void SetIsFireAndJumpSwapped(bool enabled);
+  void SetNotifyAchievementEarned(bool enabled);
+  void UpdateAssetRemapList();
+  void SetControlPreset(CTrilogyOptions::EControlPreset preset);
+  int GetScreenBrightness() const;
+  int GetSfxVolume() const;
+  int GetMusicVolume() const;
+  int GetMusicVolumeAdjustedForTrilogy() const;
+  bool GetIsHudLag() const;
+  bool GetIsRedundantHintSystem() const;
+  bool GetIsLockOnFreeAim() const;
+  bool GetIsHudEnglish() const;
+  bool GetIsControllerRumble() const;
+  bool GetIsSwitchVisorBeamControls() const;
+  bool GetIsFireAndJumpSwapped() const;
+  bool GetNotifyAchievementEarned() const;
+  const rstl::vector< rstl::pair< CAssetId, CAssetId > >& GetAssetRemapList();
+  CTrilogyOptions::EControlPreset GetControlPreset() const;
+
+private:
+  rstl::reserved_vector< uchar, 64 > mPersistentData;
+  rstl::vector< rstl::pair< CAssetId, CAssetId > > mControlTxtrMap;
+};
+CHECK_SIZEOF(CGameOptions, 0x50)
+
+#else
 
 class CGameOptions {
 public:
@@ -117,6 +186,8 @@ public:
 
 #if VERSION < VERSION_R3IJ_00
 CHECK_SIZEOF(CGameOptions, 0x7c)
+#endif
+
 #endif
 
 #endif // _CGAMEOPTIONS

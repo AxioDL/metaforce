@@ -11,6 +11,261 @@
 
 #include "rstl/algorithm.hpp"
 
+#if VERSION >= VERSION_R3IJ_00
+
+#include "MetroidPrime/CMain.hpp"
+#include "MetroidPrime/CTrilogyUtil.hpp"
+#include "MetroidPrime/Player/CTrilogyState.hpp"
+#include "MetroidPrime/Tweaks/CTweakPlayerControl.hpp"
+
+static CAssetId GetControlAssetId(const char* name) {
+  return gpResourceFactory->GetResourceIdByName(name)->GetId();
+}
+
+static int AdjustVolumeForTrilogy(int volume) {
+  if (CTrilogyUtil::GetGameType() == CTrilogyUtil::kGT_Trilogy) {
+    return 0.9f * volume;
+  }
+  return volume;
+}
+
+CGameOptions::CGameOptions() : mPersistentData(uchar(0)) {}
+
+CGameOptions::CGameOptions(CInputStream& in) : mPersistentData(uchar(0)) {
+  for (int i = 0; i < mPersistentData.size(); ++i) {
+    mPersistentData[i] = in.ReadBits(8);
+  }
+}
+
+void CGameOptions::PutTo(COutputStream& out) {
+  for (int i = 0; i < mPersistentData.size(); ++i) {
+    out.WriteBits(mPersistentData[i], 8);
+  }
+}
+
+void CGameOptions::EnsureOptions() {
+  if (gpTrilogyState == nullptr) {
+    return;
+  }
+
+  SetScreenBrightness(gpTrilogyState->GetOptions().mScreenBrightness, true);
+  SetScreenPositionX(gpTrilogyState->GetOptions().mScreenPositionX, true);
+  SetScreenPositionY(gpTrilogyState->GetOptions().mScreenPositionY, true);
+  SetSfxVolume(gpTrilogyState->GetOptions().mSfxVolume, true);
+  SetMusicVolume(gpTrilogyState->GetOptions().mMusicVolume, true);
+  SetHudAlpha(gpTrilogyState->GetOptions().mHudAlpha);
+  SetHelmetAlpha(gpTrilogyState->GetOptions().mHelmetAlpha);
+  SetIsHudLag(gpTrilogyState->GetOptions().mHudLag);
+  SetIsControllerRumble(gpTrilogyState->GetOptions().mControllerRumble);
+  SetIsRedundantHintSystem(gpTrilogyState->GetOptions().mRedundantHintSystem);
+  SetIsHudEnglish(gpTrilogyState->GetOptions().mHudEnglish);
+  SetIsFireAndJumpSwapped(gpTrilogyState->GetOptions().mFireAndJumpSwapped);
+  SetIsSwitchVisorBeamControls(gpTrilogyState->GetOptions().mSwitchVisorBeamControls);
+  SetIsLockOnFreeAim(gpTrilogyState->GetOptions().mLockOnFreeAim);
+  SetControlPreset(gpTrilogyState->GetOptions().mControlPreset);
+  UpdateAssetRemapList();
+}
+
+void CGameOptions::SetScreenBrightness(int value, bool apply) {
+  gpTrilogyState->Options().SetScreenBrightness(value);
+  if (apply) {
+    CGraphics::SetBrightness(TuneScreenBrightness());
+  }
+}
+
+const float CGameOptions::TuneScreenBrightness() {
+  float brightness = (gpTrilogyState->GetOptions().mScreenBrightness - 50) / 50.f;
+  return brightness * 0.375f + 1.f;
+}
+
+void CGameOptions::SetScreenPositionX(int value, bool apply) {
+  gpTrilogyState->Options().SetScreenPositionX(value);
+  if (apply) {
+    int stretch, x, y;
+    CGraphics::GetScreenPosition(&stretch, &x, &y);
+    CGraphics::SetScreenPosition(stretch, value, y);
+  }
+}
+
+void CGameOptions::SetScreenPositionY(int value, bool apply) {
+  gpTrilogyState->Options().SetScreenPositionY(value);
+  if (apply) {
+    int stretch, x, y;
+    CGraphics::GetScreenPosition(&stretch, &x, &y);
+    CGraphics::SetScreenPosition(stretch, x, value);
+  }
+}
+
+void CGameOptions::SetSfxVolume(int value, bool apply) {
+  gpTrilogyState->Options().SetSfxVolume(value);
+  if (apply) {
+    int volume = AdjustVolumeForTrilogy(gpTrilogyState->GetOptions().mSfxVolume);
+    CAudioSys::SysSetSfxVolume(volume, 1, true, true);
+    CStreamAudioManager::SetSfxVolume(volume);
+    CMoviePlayer::SetSfxVolume(volume);
+  }
+}
+
+void CGameOptions::SetMusicVolume(int value, bool apply) {
+  gpTrilogyState->Options().SetMusicVolume(value);
+  if (apply) {
+    CStreamAudioManager::SetMusicVolume(AdjustVolumeForTrilogy(value));
+  }
+}
+
+int CGameOptions::GetHudAlphaRaw() const { return gpTrilogyState->GetOptions().mHudAlpha; }
+
+void CGameOptions::SetHudAlpha(int value) { gpTrilogyState->Options().SetHudAlpha(value); }
+
+const float CGameOptions::GetHudAlpha() const {
+  return gpTrilogyState->GetOptions().mHudAlpha * 0.003921569f;
+}
+
+void CGameOptions::SetHelmetAlpha(int value) { gpTrilogyState->Options().SetHelmetAlpha(value); }
+
+int CGameOptions::GetHelmetAlphaRaw() const { return gpTrilogyState->GetOptions().mHelmetAlpha; }
+
+const float CGameOptions::GetHelmetAlpha() const {
+  return gpTrilogyState->GetOptions().mHelmetAlpha * 0.003921569f;
+}
+
+void CGameOptions::SetIsHudLag(bool enabled) {
+  gpTrilogyState->Options().mHudLag = enabled;
+}
+
+void CGameOptions::SetIsRedundantHintSystem(bool enabled) {
+  gpTrilogyState->Options().mRedundantHintSystem = enabled;
+}
+
+void CGameOptions::SetIsLockOnFreeAim(bool enabled) {
+  gpTrilogyState->Options().mLockOnFreeAim = enabled;
+}
+
+void CGameOptions::SetIsHudEnglish(bool enabled) {
+  gpTrilogyState->Options().mHudEnglish = enabled;
+}
+
+void CGameOptions::SetIsControllerRumble(bool enabled) {
+  gpTrilogyState->Options().mControllerRumble = enabled;
+}
+
+void CGameOptions::SetIsSwitchVisorBeamControls(bool enabled) {
+  gpTrilogyState->Options().mSwitchVisorBeamControls = enabled;
+  UpdateAssetRemapList();
+}
+
+void CGameOptions::SetIsFireAndJumpSwapped(bool enabled) {
+  gpTrilogyState->Options().mFireAndJumpSwapped = enabled;
+  UpdateAssetRemapList();
+}
+
+void CGameOptions::SetNotifyAchievementEarned(bool enabled) {
+  gpTrilogyState->Options().mNotifyAchievementEarned = enabled;
+}
+
+void CGameOptions::UpdateAssetRemapList() {
+  int count = 0;
+  if (GetIsFireAndJumpSwapped()) {
+    count += 2;
+  }
+  if (GetIsSwitchVisorBeamControls()) {
+    count += 2;
+  }
+
+  mControlTxtrMap.clear();
+  mControlTxtrMap.reserve(count);
+  if (GetIsFireAndJumpSwapped()) {
+    CAssetId jump = GetControlAssetId("TXTR_Jump");
+    CAssetId fire = GetControlAssetId("TXTR_Fire");
+    mControlTxtrMap.push_back_unsafe(rstl::pair< CAssetId, CAssetId >(jump, fire));
+    mControlTxtrMap.push_back_unsafe(rstl::pair< CAssetId, CAssetId >(fire, jump));
+  }
+  if (GetIsSwitchVisorBeamControls()) {
+    CAssetId visor = GetControlAssetId("TXTR_Visor");
+    CAssetId beam = GetControlAssetId("TXTR_Beam");
+    mControlTxtrMap.push_back_unsafe(rstl::pair< CAssetId, CAssetId >(visor, beam));
+    mControlTxtrMap.push_back_unsafe(rstl::pair< CAssetId, CAssetId >(beam, visor));
+  }
+  rstl::sort_by_key(mControlTxtrMap);
+}
+
+void CGameOptions::SetControlPreset(CTrilogyOptions::EControlPreset preset) {
+  if (gpTrilogyState != nullptr) {
+    gpTrilogyState->Options().mControlPreset = preset;
+  }
+
+  int index = 13;
+  switch (preset) {
+  case CTrilogyOptions::kCP_Basic:
+    index = 12;
+    break;
+  case CTrilogyOptions::kCP_Standard:
+    index = 13;
+    break;
+  case CTrilogyOptions::kCP_Advanced:
+    index = 14;
+    break;
+  }
+  gpMain->RegisterControlTweak(index, rs_new CTweakPlayerControl(preset));
+}
+
+int CGameOptions::GetScreenBrightness() const {
+  return gpTrilogyState->GetOptions().mScreenBrightness;
+}
+
+int CGameOptions::GetSfxVolume() const { return gpTrilogyState->GetOptions().mSfxVolume; }
+
+int CGameOptions::GetMusicVolume() const { return gpTrilogyState->GetOptions().mMusicVolume; }
+
+int CGameOptions::GetMusicVolumeAdjustedForTrilogy() const {
+  return AdjustVolumeForTrilogy(GetMusicVolume());
+}
+
+bool CGameOptions::GetIsHudLag() const {
+  return gpTrilogyState->GetOptions().mHudLag;
+}
+
+bool CGameOptions::GetIsRedundantHintSystem() const {
+  return gpTrilogyState->GetOptions().mRedundantHintSystem;
+}
+
+bool CGameOptions::GetIsLockOnFreeAim() const {
+  return gpTrilogyState->GetOptions().mLockOnFreeAim;
+}
+
+bool CGameOptions::GetIsHudEnglish() const {
+  return gpTrilogyState->GetOptions().mHudEnglish;
+}
+
+bool CGameOptions::GetIsControllerRumble() const {
+  return gpTrilogyState->GetOptions().mControllerRumble;
+}
+
+bool CGameOptions::GetIsSwitchVisorBeamControls() const {
+  return gpTrilogyState->GetOptions().mSwitchVisorBeamControls;
+}
+
+bool CGameOptions::GetIsFireAndJumpSwapped() const {
+  return gpTrilogyState->GetOptions().mFireAndJumpSwapped;
+}
+
+bool CGameOptions::GetNotifyAchievementEarned() const {
+  return gpTrilogyState->GetOptions().mNotifyAchievementEarned;
+}
+
+const rstl::vector< rstl::pair< CAssetId, CAssetId > >& CGameOptions::GetAssetRemapList() {
+  return mControlTxtrMap;
+}
+
+CTrilogyOptions::EControlPreset CGameOptions::GetControlPreset() const {
+  if (gpTrilogyState != nullptr) {
+    return gpTrilogyState->GetOptions().mControlPreset;
+  }
+  return CTrilogyOptions::kDefaultControlPreset;
+}
+
+#else
+
 #include "dolphin/os.h"
 
 const bool CGameOptions::skDefaultHudLag = true;
@@ -348,3 +603,5 @@ void CGameOptions::SetControls(int controls) {
   }
   ResetControllerAssets(controls);
 }
+
+#endif

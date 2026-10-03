@@ -7,15 +7,21 @@
 
 #include "Kyoto/Alloc/CMemorySys.hpp"
 #include "Kyoto/Basics/COsContext.hpp"
-#include "Kyoto/Basics/CStopwatch.hpp"
 #include "Kyoto/CDvdRequestManager.hpp"
 #include "Kyoto/Streams/CInputStream.hpp"
 #include "Kyoto/TReservedAverage.hpp"
-#include "MetroidPrime/CGameArchitectureSupport.hpp"
-#include "MetroidPrime/CGameGlobalObjects.hpp"
 #include "MetroidPrime/TGameTypes.hpp"
 #include "MetroidPrime/Tweaks/CTweaks.hpp"
 
+#if VERSION < VERSION_R3IJ_00
+#include "Kyoto/Basics/CStopwatch.hpp"
+#include "MetroidPrime/CGameArchitectureSupport.hpp"
+#include "MetroidPrime/CGameGlobalObjects.hpp"
+#endif
+
+class CStopwatch;
+class CGameArchitectureSupport;
+class CGameGlobalObjects;
 class CMain;
 
 class CSaveRegion {
@@ -52,6 +58,8 @@ public:
   bool LoadAudio();
   void UpdateStreamedAudio();
   void RegisterResourceTweaks();
+  // Inferred name for the Trilogy control-tweak registration wrapper.
+  void RegisterControlTweak(int index, CTweakPlayerControl* tweak);
   void ResetGameState();
   static void ReloadStringTables();
   void StreamNewGameState(CInputStream& in, int saveIdx);
@@ -125,7 +133,10 @@ private:
   bool mGameFrameDrawn : 1;
   CGameArchitectureSupport* mArchSupport;
 };
+// Trilogy currently uses only the out-of-line registration interface below.
+#if VERSION < VERSION_R3IJ_00
 CHECK_SIZEOF(CMain, 0x168)
+#endif
 
 extern CMain* gpMain;
 
