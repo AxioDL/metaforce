@@ -570,7 +570,8 @@ bool CPlayer::WithinOrbitScreenEllipse(const CVector3f& screenCoords, EPlayerZon
       CCast::LtoF(gpTweakPlayer->GetOrbitZoneWidth(zone) * gpTweakPlayer->GetOrbitZoneWidth(zone));
   const float y =
       CMath::AbsF(screenCoords.GetY() - CCast::LtoF(gpTweakPlayer->GetOrbitZoneCentreY(zone)));
-  return x * x <= (1.f - y * y / heYSq) * heXSq;
+  const bool inside = x * x <= (1.f - y * y / heYSq) * heXSq;
+  return inside;
 }
 
 bool CPlayer::WithinOrbitScreenBox(const CVector3f& screenCoords, EPlayerZoneInfo zone,
