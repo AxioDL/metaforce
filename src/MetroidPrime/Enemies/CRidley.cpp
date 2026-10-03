@@ -987,11 +987,10 @@ void CRidley::PreRender(CStateManager& mgr, const CFrustumPlanes& frustum) {
     const float height =
         rstl::max_val(0.f, GetTranslation().GetZ() - xa84_.GetTranslation().GetZ());
     xccc_ = 1.f + CMath::Clamp(0.f, 0.05f * (height - 20.f), 1.f);
-    const CVector3f& max = GetRenderBoundsCached().GetMaxPoint();
     const CVector3f& min = GetRenderBoundsCached().GetMinPoint();
-    const CVector3f extents = max - min;
+    const CVector3f extents = GetRenderBoundsCached().GetMaxPoint() - min;
     const CVector3f padding = 0.5f * (xccc_ * extents - extents);
-    const CAABox bounds(min - padding, max + padding);
+    const CAABox bounds(min - padding, GetRenderBoundsCached().GetMaxPoint() + padding);
     if ((visor == CPlayerState::kPV_Combat || visor == CPlayerState::kPV_Scan) &&
         xac4_.DoBoundsOverlap(bounds) && height > -10.f) {
       xd10_->RenderShadowBuffer(mgr, *GetModelData(), GetTransform(), lastMaterial ? 1 : 0,
