@@ -1704,7 +1704,7 @@ MetroidPrime/BodyState/CABSReaction.cpp:
 	.data       start:0x803E6758 end:0x803E6778
 	.sdata2     start:0x805ACBF0 end:0x805ACC00
 
-MetroidPrime/Weapons/CIceProjectile.cpp:
+MetroidPrime/Weapons/CIceAttackProjectile.cpp:
 	.text       start:0x801F1A68 end:0x801F40C8
 	.rodata     start:0x803D2050 end:0x803D2070
 	.data       start:0x803E6778 end:0x803E67E8

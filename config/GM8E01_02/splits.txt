@@ -917,7 +917,7 @@ MetroidPrime/Weapons/GunController/CGSFidget.cpp:
 MetroidPrime/BodyState/CABSReaction.cpp:
 	.text       start:0x801F20F8 end:0x801F2280
 
-MetroidPrime/Weapons/CIceProjectile.cpp:
+MetroidPrime/Weapons/CIceAttackProjectile.cpp:
 	.text       start:0x801F2B44 end:0x801F4040
 
 MetroidPrime/Enemies/CPatternedAiFunctions.cpp:
