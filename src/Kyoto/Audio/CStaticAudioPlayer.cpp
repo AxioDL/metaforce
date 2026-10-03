@@ -154,8 +154,8 @@ void CStaticAudioPlayer::Decode(const ushort* bufIn, ushort* bufOut, int numSamp
 
   int remSamples = numSamples;
   while (remSamples != 0) {
-    int remTillLoop = mLoopEndSamp - mCurSamp;
     int rs = remSamples;
+    int remTillLoop = mLoopEndSamp - mCurSamp;
     int consumed = rstl::min_val(rs, remTillLoop);
     mCurSamp += consumed;
     remSamples -= consumed;
