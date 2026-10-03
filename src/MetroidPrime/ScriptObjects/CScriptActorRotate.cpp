@@ -96,7 +96,7 @@ void CScriptActorRotate::Think(float dt, CStateManager& mgr) {
           CTransform4f::RotateY(CRelAngle::FromDegrees(timeOffset * mRotation.GetY())) *
           CTransform4f::RotateZ(CRelAngle::FromDegrees(timeOffset * mRotation.GetZ()));
       CTransform4f localRot = it->second * xf;
-      localRot.SetTranslation(localRot.GetTranslation() + act->GetTranslation());
+      localRot.SetTranslation(act->GetTranslation() + localRot.GetTranslation());
       act->SetTransform(localRot);
 
       if (CScriptPlatform* plat = TCastToPtr< CScriptPlatform >(mgr.ObjectById(it->first))) {
