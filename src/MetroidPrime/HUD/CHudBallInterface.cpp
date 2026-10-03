@@ -36,11 +36,13 @@ CHudBallInterface::CHudBallInterface(CGuiFrame& selHud, const int pbAmount, cons
   mModel_bombicon = static_cast< CGuiModel* >(selHud.FindWidget(skPowerBombIconName));
   mBasewidget_bombdeco = selHud.FindWidget(skBombDecoName);
 
+  CGuiWidget* filled;
+  CGuiWidget* empty;
   for (int i = 0; i < 3; ++i) {
     rstl::string groupName(CBasics::Stringize("%s%d", skBombCounterBaseName, i));
     CGuiGroup* grp = static_cast< CGuiGroup* >(selHud.FindWidget(groupName));
-    CGuiWidget* filled = grp->GetWorkerWidget(1);
-    CGuiWidget* empty = grp->GetWorkerWidget(0);
+    filled = grp->GetWorkerWidget(1);
+    empty = grp->GetWorkerWidget(0);
     mGroup_bombfilled.push_back(filled);
     mGroup_bombempty.push_back(empty);
     if (filled)
