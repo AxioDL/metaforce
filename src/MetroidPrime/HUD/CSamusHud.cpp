@@ -790,10 +790,12 @@ void CSamusHud::UpdateBallMode(const CStateManager& mgr, bool init) {
   const int powerBombs = state.GetItemAmount(CPlayerState::kIT_PowerBombs);
   const int capacity = state.GetItemCapacity(CPlayerState::kIT_PowerBombs);
   const int bombs = gun.IsBombReady() ? gun.GetBombsPending() : 0;
-  bool hasBombs = state.HasPowerUp(CPlayerState::kIT_MorphBallBombs);
-  bool pbReady = gun.IsPowerBombReady() &&
-                 mgr.GetPlayer()->GetMorphballTransitionState() == CPlayer::kMS_Morphed;
-  mBallIntf->SetBombParams(powerBombs, capacity, bombs, hasBombs, pbReady, false);
+  const bool hasBombs = state.HasPowerUp(CPlayerState::kIT_MorphBallBombs);
+  mBallIntf->SetBombParams(powerBombs, capacity, bombs, hasBombs,
+                           gun.IsPowerBombReady() &&
+                               mgr.GetPlayer()->GetMorphballTransitionState() ==
+                                   CPlayer::kMS_Morphed,
+                           false);
 }
 
 void CSamusHud::OnNewInGameGuiState(EInGameGuiState state, const CStateManager& mgr) {}
