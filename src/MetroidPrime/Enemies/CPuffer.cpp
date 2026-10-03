@@ -92,7 +92,7 @@ void CPuffer::Death(CStateManager& mgr, const CVector3f& vec, EScriptObjectState
 
   mgr.ApplyDamageToWorld(
       GetUniqueId(), *this, GetTranslation(), mExplosionDamage,
-      CMaterialFilter::MakeIncludeExclude(CMaterialList(kMT_Solid), CMaterialList()));
+      CMaterialFilter::MakeIncludeExclude(CMaterialList(SolidMaterial), CMaterialList()));
 
   TUniqueId uid = mgr.AllocateUniqueId();
   CAABox aabb =
@@ -122,7 +122,7 @@ void CPuffer::Think(float dt, CStateManager& mgr) {
 }
 
 void CPuffer::UpdateJets(CStateManager& mgr) {
-  CVector3f moveVector = BodyCtrl()->GetCommandMgr().GetMoveVector();
+  const CVector3f moveVector = BodyCtrl()->GetCommandMgr().GetMoveVector();
 
   if (mGasLocators.empty()) {
     for (int i = 0; i < ARRAY_SIZE(skGasLocators); ++i) {
@@ -132,12 +132,14 @@ void CPuffer::UpdateJets(CStateManager& mgr) {
   }
 
   if (moveVector.CanBeNormalized()) {
-    CVector3f moveNorm = -moveVector.AsNormalized();
+    const CVector3f moveNorm = -moveVector.AsNormalized();
+    bool enable;
     for (int i = 0; i < ARRAY_SIZE(skGasJetLocators); ++i) {
-      CVector3f tmp = GetTransform().Rotate(mGasLocators[i]);
-      float ang = CMath::FastCosR(CAbsAngle::FromDegrees(45.f).AsRadians());
-      bool enable = CVector3f::Dot(moveNorm, tmp) > ang;
-      if (IsParticleEnabled(i) != enable) {
+      CVector3f offset = GetTransform().Rotate(GetGasLocatorPos(i));
+      const float ang = CMath::FastCosR(CAbsAngle::FromDegrees(45.f).AsRadians());
+      enable = CVector3f::Dot(moveNorm, offset) > ang;
+      const bool isEnabled = IsParticleEnabled(i);
+      if (isEnabled != enable) {
         AnimationData()->SetParticleEffectState(rstl::string_l(skGasJetLocators[i]), enable, mgr);
       }
 

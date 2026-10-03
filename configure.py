@@ -1412,7 +1412,7 @@ config.libs = [
                 "MetroidPrime/Enemies/CRidley.cpp",
                 extra_cflags=['-pragma "inline_max_total_size(10000)"'],
             ),
-            Object(NonMatching, "MetroidPrime/Enemies/CPuffer.cpp"),
+            Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/Enemies/CPuffer.cpp"),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01"),
                 "MetroidPrime/ScriptObjects/CFire.cpp",

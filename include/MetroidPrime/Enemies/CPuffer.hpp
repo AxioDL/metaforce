@@ -26,10 +26,12 @@ public:
   void Death(CStateManager&, const CVector3f&, EScriptObjectState) override;
 
   void SetParticleEnabled(const int idx, const bool enabled) {
-    mEnabledParticles =
-        enabled ? mEnabledParticles | (1 << idx) : mEnabledParticles & ~(1 << idx);
+    mEnabledParticles = enabled ? mEnabledParticles | (1 << idx) : mEnabledParticles & ~(1 << idx);
   }
-  bool IsParticleEnabled(const int idx) const { return (mEnabledParticles & (1 << idx)) != 0; }
+  const bool IsParticleEnabled(const int idx) const {
+    return (mEnabledParticles & (1 << idx)) != 0;
+  }
+  const CVector3f& GetGasLocatorPos(int idx) { return mGasLocators[idx]; }
 
 private:
   CVector3f mFace;
@@ -44,7 +46,7 @@ private:
   CAssetId mCloudSteam;
   CVector3f mMove;
   TUniqueId x5cc_;
-  int mEnabledParticles;
+  uint mEnabledParticles;
   rstl::reserved_vector< CVector3f, 14 > mGasLocators;
 
   void UpdateJets(CStateManager&);
