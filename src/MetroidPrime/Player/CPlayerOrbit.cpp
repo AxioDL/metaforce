@@ -690,8 +690,8 @@ TUniqueId CPlayer::FindBestOrbitableObject(const rstl::vector< TUniqueId >& ids,
                 }
                 bestId = act->GetUniqueId();
                 const float screenX = screenPosition.GetX() - boxLeft;
-                const float screenY = screenPosition.GetY() - boxTop;
-                const float screenYSq = screenY * screenY;
+                const float screenYSq =
+                    (screenPosition.GetY() - boxTop) * (screenPosition.GetY() - boxTop);
                 const float screenXSq = screenX * screenX;
                 minDistance = distance;
                 minScreenDistanceSq = screenXSq + screenYSq;
@@ -724,8 +724,8 @@ TUniqueId CPlayer::FindBestOrbitableObject(const rstl::vector< TUniqueId >& ids,
             if (result.IsInvalid()) {
               bestId = act->GetUniqueId();
               const float screenX = screenPosition.GetX() - boxLeft;
-              const float screenY = screenPosition.GetY() - boxTop;
-              const float screenYSq = screenY * screenY;
+              const float screenYSq =
+                  (screenPosition.GetY() - boxTop) * (screenPosition.GetY() - boxTop);
               const float screenXSq = screenX * screenX;
               minDistance = distance;
               minScreenDistanceSq = screenXSq + screenYSq;
@@ -735,8 +735,8 @@ TUniqueId CPlayer::FindBestOrbitableObject(const rstl::vector< TUniqueId >& ids,
           if (CMath::AbsF(distance - minDistance) < gpTweakPlayer->GetOrbitDistanceThreshold() ||
               mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::kPV_Scan) {
             const float screenX = screenPosition.GetX() - boxLeft;
-            const float screenY = screenPosition.GetY() - boxTop;
-            const float screenYSq = screenY * screenY;
+            const float screenYSq =
+                (screenPosition.GetY() - boxTop) * (screenPosition.GetY() - boxTop);
             const float screenXSq = screenX * screenX;
             const float screenDistanceSq = screenXSq + screenYSq;
             if (screenDistanceSq < minScreenDistanceSq) {
