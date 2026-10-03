@@ -13,11 +13,58 @@ Sections:
 	.sdata2     type:rodata align:4
 	.sbss2      type:bss align:32
 
+MetroidPrime/CArchMsgParmControllerStatus.cpp:
+	.text       start:0x8001F088 end:0x8001F0E0
+	.data       start:0x80483AA8 end:0x80483AB8
+
+MetroidPrime/CArchMsgParmInt32.cpp:
+	.text       start:0x8001F0E0 end:0x8001F134
+	.data       start:0x80483AB8 end:0x80483AC8
+
+MetroidPrime/CArchMsgParmInt32Int32VoidPtr.cpp:
+	.text       start:0x8001F134 end:0x8001F190
+	.data       start:0x80483AC8 end:0x80483AD8
+
+MetroidPrime/CArchMsgParmNull.cpp:
+	.text       start:0x8001F190 end:0x8001F1E0
+	.data       start:0x80483AD8 end:0x80483AE8
+
+MetroidPrime/CArchMsgParmReal32.cpp:
+	.text       start:0x8001F1E0 end:0x8001F234
+	.data       start:0x80483AE8 end:0x80483AF8
+
+MetroidPrime/CArchMsgParmUserInput.cpp:
+	.text       start:0x8001F234 end:0x8001F50C
+	.data       start:0x80483AF8 end:0x80483B08
+
 MetroidPrime/CEntity.cpp:
 	.text       start:0x8008E814 end:0x8008EE9C
 	.ctors      start:0x8046D3A4 end:0x8046D3A8
 	.data       start:0x804865F8 end:0x80486618
 	.bss        start:0x804BD768 end:0x804BD780
+
+MetroidPrime/CInputGenerator.cpp:
+	.text       start:0x800FF378 end:0x800FF5F4
+
+MetroidPrime/Decode.cpp:
+	.text       start:0x8028B7EC end:0x8028BD64
+	.rodata     start:0x804786F0 end:0x804786F8
+	.data       start:0x8048F1C8 end:0x8048F1D0
+
+Kyoto/Input/CControllerData.cpp:
+	.text       start:0x802E47B4 end:0x802E4B78
+	.sdata2     start:0x805C7BF8 end:0x805C7C00
+
+Kyoto/Input/CInputFilter.cpp:
+	.text       start:0x802FAE64 end:0x802FB7C8
+	.rodata     start:0x8047B670 end:0x8047B678
+	.data       start:0x80492950 end:0x80492978
+	.sdata2     start:0x805C7CF8 end:0x805C7D30
+
+Kyoto/Input/CFinalInput.cpp:
+	.text       start:0x802FB7C8 end:0x802FC254
+	.data       start:0x80492978 end:0x80492A04
+	.sdata2     start:0x805C7D40 end:0x805C7D50
 
 Kyoto/Streams/CInputStream.cpp:
 	.text       start:0x803025EC end:0x80302BA4
@@ -25,6 +72,29 @@ Kyoto/Streams/CInputStream.cpp:
 	.data       start:0x80492AB8 end:0x80492AC8
 	.bss        start:0x804E4438 end:0x804E4448
 	.sbss       start:0x805C29E0 end:0x805C29EC
+
+Kyoto/Math/CMayaSpline.cpp:
+	.text       start:0x80305B10 end:0x80307F10
+	.rodata     start:0x8047B9C0 end:0x8047B9D0
+	.sdata      start:0x805C1CE0 end:0x805C1CE8
+	.sdata2     start:0x805C7DD0 end:0x805C7E08
+
+Kyoto/Input/CWiiMotionProcessor.cpp:
+	.text       start:0x8032D774 end:0x80330D88
+	.rodata     start:0x8047BBF0 end:0x8047BC30
+	.sdata2     start:0x805C7F68 end:0x805C7FE8
+
+Kyoto/Input/CWiiInput.cpp:
+	.text       start:0x80330D88 end:0x80333F84
+	.rodata     start:0x8047BC30 end:0x8047BC40
+	.data       start:0x80493400 end:0x804935C8
+	.sbss       start:0x805C2A60 end:0x805C2A68
+	.sdata2     start:0x805C7FE8 end:0x805C8040
+
+Kyoto/Input/IController.cpp:
+	.text       start:0x80364104 end:0x80364190
+	.rodata     start:0x8047C9F8 end:0x8047CA00
+	.data       start:0x80493DA8 end:0x80493DF0
 
 Weapons/CDecalDataFactory.cpp:
 	.text       start:0x8038D638 end:0x8038E5F0

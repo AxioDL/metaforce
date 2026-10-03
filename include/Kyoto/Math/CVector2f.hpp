@@ -23,14 +23,13 @@ public:
   CVector2f& Normalize();
 
   float Magnitude() const;
+  bool IsMagnitudeSafe() const;
   float MagSquared() const;
   CVector2f AsNormalized() const;
 
   float& operator[](int idx) { return *(&mX + idx); }
 
-  const float& operator[](int idx) const {
-    return reinterpret_cast< const float* >(this)[idx];
-  }
+  const float& operator[](int idx) const { return reinterpret_cast< const float* >(this)[idx]; }
 
   static float GetAngleDiff(const CVector2f& a, const CVector2f& b);
   static float Dot(const CVector2f& a, const CVector2f& b);

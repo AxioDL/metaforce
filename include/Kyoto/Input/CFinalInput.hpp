@@ -3,6 +3,122 @@
 
 #include <types.h>
 
+#if VERSION >= VERSION_R3IJ_00
+
+#include "Kyoto/Input/CControllerData.hpp"
+
+class CFinalInput {
+public:
+  // Control names are inferred from the Trilogy mapping and motion-mask ordering.
+  enum EPhysicalControl {
+    kPC_None = 0,
+    kPC_Home = 1,
+    kPC_Minus = 2,
+    kPC_A = 3,
+    kPC_B = 4,
+    kPC_Two = 5,
+    kPC_One = 6,
+    kPC_Plus = 7,
+    kPC_DPadUp = 8,
+    kPC_DPadDown = 9,
+    kPC_DPadRight = 10,
+    kPC_DPadLeft = 11,
+    kPC_AnyDPad = 12,
+    kPC_StickUp = 13,
+    kPC_StickDiagonal2Negative = 14,
+    kPC_StickDiagonal3Positive = 15,
+    kPC_StickDown = 16,
+    kPC_StickDiagonal3Negative = 17,
+    kPC_StickDiagonal2Positive = 18,
+    kPC_StickRight = 19,
+    kPC_StickLeft = 20,
+    kPC_NunchukZ = 21,
+    kPC_NunchukC = 22,
+    kPC_NunchukRollNegative = 23,
+    kPC_NunchukRollPositive = 24,
+    kPC_NunchukPitchNegative = 25,
+    kPC_NunchukPitchPositive = 26,
+    kPC_PointerUp = 27,
+    kPC_PointerDown = 28,
+    kPC_PointerRight = 29,
+    kPC_PointerLeft = 30,
+    kPC_WiimoteRollNegative = 31,
+    kPC_WiimoteRollPositive = 32,
+    kPC_WiimotePitchNegative = 33,
+    kPC_WiimotePitchPositive = 34,
+  };
+
+  enum EMotionControl {
+    kMC_WiimoteImpulseX = 0,
+    kMC_WiimoteShakeX = 1,
+    kMC_WiimoteShakeZ = 2,
+    kMC_WiimoteGesture1 = 3,
+    kMC_WiimoteGesture0 = 4,
+    kMC_WiimoteGesture2 = 5,
+    kMC_WiimoteGesture3 = 6,
+    kMC_WiimoteMotionIntegral = 7,
+    kMC_NunchukImpulseX = 8,
+    kMC_NunchukShakeX = 9,
+    kMC_NunchukShakeZ = 10,
+    kMC_NunchukGesture1 = 11,
+    kMC_NunchukGesture0 = 12,
+    kMC_NunchukGesture2 = 13,
+    kMC_NunchukGesture3 = 14,
+    kMC_NunchukMotionIntegral = 15,
+  };
+
+  enum ESwingControl {
+    kSC_WiimoteYMinBeforeMax = 0,
+    kSC_WiimoteYMaxBeforeMin = 1,
+    kSC_WiimoteXMinBeforeMax = 2,
+    kSC_WiimoteXMaxBeforeMin = 3,
+    kSC_WiimoteZMaxBeforeMin = 4,
+    kSC_WiimoteZMinBeforeMax = 5,
+    kSC_NunchukYMinBeforeMax = 6,
+    kSC_NunchukYMaxBeforeMin = 7,
+    kSC_NunchukXMinBeforeMax = 8,
+    kSC_NunchukXMaxBeforeMin = 9,
+    kSC_NunchukZMaxBeforeMin = 10,
+    kSC_NunchukZMinBeforeMax = 11,
+  };
+
+  CFinalInput();
+  CFinalInput(int channel, float dt, const CControllerData& data, uint inputType);
+
+  static CFinalInput NoInput(int channel, float dt);
+
+  float Time() const { return mDt; }
+  void SetTime(float dt) { mDt = dt; }
+  int ControllerNumber() const { return mControllerIdx; }
+  uint GetInputType() const { return mInputType; }
+  const CControllerData& GetControllerData() const { return mControllerData; }
+
+  bool GetKnownDeviceIsPresent() const;
+  bool CheckValidControl(int control) const;
+  float GetAnalog(int control) const;
+  float GetMotionAnalog(int control) const;
+  float GetSwingAnalog(int control) const;
+  bool GetDigital(int control) const;
+  bool GetMotionDigital(int control) const;
+  bool GetSwingDigital(int control) const;
+  bool GetPressed(int control) const;
+  bool GetMotionPressed(int control) const;
+  bool GetSwingPressed(int control) const;
+  bool GetReleased(int control) const;
+  bool GetMotionReleased(int control) const;
+  bool GetSwingReleased(int control) const;
+  CVector2f GetPointerPosition() const;
+
+private:
+  float mDt;
+  int mControllerIdx;
+  uint mInputType;
+  CControllerData mControllerData;
+};
+CHECK_SIZEOF(CFinalInput, 0x218)
+
+#else
+
 #ifdef __MWERKS__
 #pragma cpp_extensions on
 #endif
@@ -16,8 +132,8 @@ class CFinalInput {
 
 public:
   CFinalInput();
-  CFinalInput(const int channel, const float dt, const CControllerGamepadData& data, const float leftDiv,
-              const float rightDiv);
+  CFinalInput(const int channel, const float dt, const CControllerGamepadData& data,
+              const float leftDiv, const float rightDiv);
   CFinalInput(int channel, float dt, const COsContext& context);
   CFinalInput(const CFinalInput& other)
   : mDt(other.mDt)
@@ -145,30 +261,48 @@ public:
 
   bool PLAUp() const { return DLAUp() && mEnableAnaLeftYP ? true : false; }
 
-  bool PLADown() const { return -kInput_AnalogOnThreshhold > mAnaLeftY && mEnableAnaLeftYP ? true : false; }
+  bool PLADown() const {
+    return -kInput_AnalogOnThreshhold > mAnaLeftY && mEnableAnaLeftYP ? true : false;
+  }
 
-  bool PLALeft() const { return -kInput_AnalogOnThreshhold > mAnaLeftX && mEnableAnaLeftXP ? true : false; }
+  bool PLALeft() const {
+    return -kInput_AnalogOnThreshhold > mAnaLeftX && mEnableAnaLeftXP ? true : false;
+  }
 
-  bool PLARight() const { return kInput_AnalogOnThreshhold < mAnaLeftX && mEnableAnaLeftXP ? true : false; }
+  bool PLARight() const {
+    return kInput_AnalogOnThreshhold < mAnaLeftX && mEnableAnaLeftXP ? true : false;
+  }
 
-  bool PRAUp() const { return kInput_AnalogOnThreshhold < mAnaRightY && mEnableAnaRightYP ? true : false; }
+  bool PRAUp() const {
+    return kInput_AnalogOnThreshhold < mAnaRightY && mEnableAnaRightYP ? true : false;
+  }
 
-  bool PRADown() const { return -kInput_AnalogOnThreshhold > mAnaRightY && mEnableAnaRightYP ? true : false; }
+  bool PRADown() const {
+    return -kInput_AnalogOnThreshhold > mAnaRightY && mEnableAnaRightYP ? true : false;
+  }
 
-  bool PRALeft() const { return -kInput_AnalogOnThreshhold > mAnaRightX && mEnableAnaRightXP ? true : false; }
+  bool PRALeft() const {
+    return -kInput_AnalogOnThreshhold > mAnaRightX && mEnableAnaRightXP ? true : false;
+  }
 
-  bool PRARight() const { return kInput_AnalogOnThreshhold < mAnaRightX && mEnableAnaRightXP ? true : false; }
+  bool PRARight() const {
+    return kInput_AnalogOnThreshhold < mAnaRightX && mEnableAnaRightXP ? true : false;
+  }
 
-  bool PLTrigger() const { return kInput_AnalogTriggerOnThreshhold < mAnaLeftTriggerP ? true : false; }
+  bool PLTrigger() const {
+    return kInput_AnalogTriggerOnThreshhold < mAnaLeftTriggerP ? true : false;
+  }
 
-  bool PRTrigger() const { return kInput_AnalogTriggerOnThreshhold < mAnaRightTriggerP ? true : false; }
+  bool PRTrigger() const {
+    return kInput_AnalogTriggerOnThreshhold < mAnaRightTriggerP ? true : false;
+  }
 
   bool PDPUp() const { return mB27_PDPUp; }
-  
+
   bool PDPDown() const { return mB29_PDPDown; }
-  
+
   bool PDPLeft() const { return mB30_PDPLeft; }
-  
+
   bool PDPRight() const { return mB28_PDPRight; }
 
   bool PA() const { return mB28_PA; }
@@ -250,6 +384,8 @@ CHECK_SIZEOF(CFinalInput, 48)
 
 #ifdef __MWERKS__
 #pragma cpp_extensions reset
+#endif
+
 #endif
 
 #endif // _CFINALINPUT

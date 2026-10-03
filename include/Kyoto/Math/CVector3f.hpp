@@ -61,9 +61,15 @@ public:
     const float rX = rhs.GetX();
     const float rY = rhs.GetY();
     const float rZ = rhs.GetZ();
+#if VERSION >= VERSION_R3IJ_00
+    float x = lY * rZ - rY * lZ;
+    float y = lZ * rX - rZ * lX;
+    float z = lX * rY - rX * lY;
+#else
     float z = lX * rY - rX * lY;
     float y = lZ * rX - rZ * lX;
     float x = lY * rZ - rY * lZ;
+#endif
     return CVector3f(x, y, z);
   }
 
@@ -107,6 +113,7 @@ public:
   }
 
   static const CVector3f& Zero() { return sZeroVector; }
+  static const CVector3f& One() { return sOneVector; }
   static const CUnitVector3f& Up();
   static const CUnitVector3f& Down();
   static const CUnitVector3f& Left();
@@ -129,6 +136,7 @@ protected:
   float mZ;
 
   static CVector3f sZeroVector;
+  static CVector3f sOneVector;
   static CUnitVector3f sUpVector;
   static CUnitVector3f sDownVector;
   static CUnitVector3f sLeftVector;
@@ -150,16 +158,28 @@ inline bool operator!=(const CVector3f& lhs, const CVector3f& rhs) {
 }
 
 inline CVector3f operator-(const CVector3f& lhs, const CVector3f& rhs) {
+#if VERSION >= VERSION_R3IJ_00
+  float x = lhs.GetX() - rhs.GetX();
+  float y = lhs.GetY() - rhs.GetY();
+  float z = lhs.GetZ() - rhs.GetZ();
+#else
   float x = lhs.mX - rhs.mX;
   float y = lhs.mY - rhs.mY;
   float z = lhs.mZ - rhs.mZ;
+#endif
   return CVector3f(x, y, z);
 }
 
 inline CVector3f operator+(const CVector3f& lhs, const CVector3f& rhs) {
+#if VERSION >= VERSION_R3IJ_00
+  float x = lhs.GetX() + rhs.GetX();
+  float y = lhs.GetY() + rhs.GetY();
+  float z = lhs.GetZ() + rhs.GetZ();
+#else
   float x = lhs.mX + rhs.mX;
   float y = lhs.mY + rhs.mY;
   float z = lhs.mZ + rhs.mZ;
+#endif
   return CVector3f(x, y, z);
 }
 

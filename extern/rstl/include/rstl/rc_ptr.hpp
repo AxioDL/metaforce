@@ -97,6 +97,7 @@ private:
 #endif
 };
 
+#if RSTL_VERSION < RSTL_R3IJ
 template < typename T >
 #ifndef RSTL_OUTLINE_RC_PTR_GET
 inline
@@ -104,6 +105,8 @@ inline
 T* rc_ptr< T >::GetPtr() const {
   return static_cast< T* >(mRefData->GetPtr());
 }
+#endif
+
 template < typename T >
 void rc_ptr< T >::ReleaseData() {
 #if RSTL_VERSION >= RSTL_R3IJ

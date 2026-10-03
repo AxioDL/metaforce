@@ -1,5 +1,289 @@
 #include "Kyoto/Input/CFinalInput.hpp"
 
+#if VERSION >= VERSION_R3IJ_00
+
+CFinalInput::CFinalInput(int channel, float dt, const CControllerData& data, uint inputType)
+: mDt(dt), mControllerIdx(channel), mInputType(inputType), mControllerData(data) {}
+
+CFinalInput::CFinalInput()
+: mDt(0.0166667f), mControllerIdx(0), mInputType(4), mControllerData() {}
+
+CFinalInput CFinalInput::NoInput(int channel, float dt) {
+  return CFinalInput(channel, dt, CControllerData(), 4);
+}
+
+bool CFinalInput::GetKnownDeviceIsPresent() const { return mInputType <= 2; }
+
+bool CFinalInput::CheckValidControl(int control) const {
+#if NONMATCHING
+  if (control < 0) {
+    return false;
+  }
+#endif
+  switch (mInputType) {
+  case 0:
+    if ((control >= kPC_Home && control <= kPC_AnyDPad) ||
+        (control >= kPC_PointerUp && control <= kPC_WiimotePitchPositive)) {
+      return true;
+    }
+    break;
+  case 1:
+    if (control <= kPC_WiimotePitchPositive) {
+      return true;
+    }
+    break;
+  case 2:
+    if ((control >= kPC_Home && control <= kPC_AnyDPad) ||
+        (control >= kPC_PointerUp && control <= kPC_WiimotePitchPositive)) {
+      return true;
+    }
+    break;
+  }
+  return false;
+}
+
+float CFinalInput::GetAnalog(int control) const {
+  if (!CheckValidControl(control)) {
+    return 0.f;
+  }
+  if (!GetKnownDeviceIsPresent()) {
+    return 0.f;
+  }
+  switch (control) {
+  case kPC_None:
+    return 0.f;
+  case kPC_Home:
+  case kPC_Minus:
+  case kPC_A:
+  case kPC_B:
+  case kPC_Two:
+  case kPC_One:
+  case kPC_Plus:
+  case kPC_DPadUp:
+  case kPC_DPadDown:
+  case kPC_DPadRight:
+  case kPC_DPadLeft:
+  case kPC_NunchukZ:
+  case kPC_NunchukC:
+    return mControllerData.GetButton(control).GetIsPressed() ? 1.f : 0.f;
+  case kPC_StickLeft: {
+    const float value = mControllerData.GetAxis(0).GetAbsoluteValue();
+    return value < 0.f ? -value : 0.f;
+  }
+  case kPC_StickRight: {
+    const float value = mControllerData.GetAxis(0).GetAbsoluteValue();
+    return value > 0.f ? value : 0.f;
+  }
+  case kPC_StickDown: {
+    const float value = mControllerData.GetAxis(1).GetAbsoluteValue();
+    return value < 0.f ? -value : 0.f;
+  }
+  case kPC_StickDiagonal3Negative: {
+    const float value = mControllerData.GetAxis(3).GetAbsoluteValue();
+    return value < 0.f ? -value : 0.f;
+  }
+  case kPC_StickDiagonal2Positive: {
+    const float value = mControllerData.GetAxis(2).GetAbsoluteValue();
+    return value > 0.f ? -value : 0.f;
+  }
+  case kPC_StickUp: {
+    const float value = mControllerData.GetAxis(1).GetAbsoluteValue();
+    return value > 0.f ? value : 0.f;
+  }
+  case kPC_StickDiagonal2Negative: {
+    const float value = mControllerData.GetAxis(2).GetAbsoluteValue();
+    return value < 0.f ? value : 0.f;
+  }
+  case kPC_StickDiagonal3Positive: {
+    const float value = mControllerData.GetAxis(3).GetAbsoluteValue();
+    return value > 0.f ? value : 0.f;
+  }
+  case kPC_NunchukRollNegative: {
+    const float value = mControllerData.GetAxis(4).GetAbsoluteValue();
+    return value < 0.f ? -value : 0.f;
+  }
+  case kPC_NunchukRollPositive: {
+    const float value = mControllerData.GetAxis(4).GetAbsoluteValue();
+    return value > 0.f ? value : 0.f;
+  }
+  case kPC_NunchukPitchNegative: {
+    const float value = mControllerData.GetAxis(5).GetAbsoluteValue();
+    return value < 0.f ? -value : 0.f;
+  }
+  case kPC_NunchukPitchPositive: {
+    const float value = mControllerData.GetAxis(5).GetAbsoluteValue();
+    return value > 0.f ? value : 0.f;
+  }
+  case kPC_PointerLeft: {
+    const float value = mControllerData.GetAxis(6).GetAbsoluteValue();
+    return value < 0.f ? -value : 0.f;
+  }
+  case kPC_PointerRight: {
+    const float value = mControllerData.GetAxis(6).GetAbsoluteValue();
+    return value > 0.f ? value : 0.f;
+  }
+  case kPC_PointerDown: {
+    const float value = mControllerData.GetAxis(7).GetAbsoluteValue();
+    return value > 0.f ? value : 0.f;
+  }
+  case kPC_PointerUp: {
+    const float value = mControllerData.GetAxis(7).GetAbsoluteValue();
+    return value < 0.f ? -value : 0.f;
+  }
+  case kPC_WiimoteRollNegative: {
+    const float value = mControllerData.GetAxis(8).GetAbsoluteValue();
+    return value < 0.f ? -value : 0.f;
+  }
+  case kPC_WiimoteRollPositive: {
+    const float value = mControllerData.GetAxis(8).GetAbsoluteValue();
+    return value > 0.f ? value : 0.f;
+  }
+  case kPC_WiimotePitchNegative: {
+    const float value = mControllerData.GetAxis(9).GetAbsoluteValue();
+    return value < 0.f ? -value : 0.f;
+  }
+  case kPC_WiimotePitchPositive: {
+    const float value = mControllerData.GetAxis(9).GetAbsoluteValue();
+    return value > 0.f ? value : 0.f;
+  }
+  default:
+    return 0.f;
+  }
+}
+
+float CFinalInput::GetMotionAnalog(int control) const {
+#if NONMATCHING
+  if (uint(control) >= 16) {
+    return 0.f;
+  }
+#endif
+  if (!GetKnownDeviceIsPresent()) {
+    return 0.f;
+  }
+  return mControllerData.GetMotionButton(control).GetIsPressed() ? 1.f : 0.f;
+}
+
+float CFinalInput::GetSwingAnalog(int control) const {
+#if NONMATCHING
+  if (uint(control) >= 12) {
+    return 0.f;
+  }
+#endif
+  if (!GetKnownDeviceIsPresent()) {
+    return 0.f;
+  }
+  return mControllerData.GetSwingButton(control).GetIsPressed() ? 1.f : 0.f;
+}
+
+bool CFinalInput::GetDigital(int control) const {
+  if (!CheckValidControl(control)) {
+    return false;
+  }
+  if (!GetKnownDeviceIsPresent()) {
+    return false;
+  }
+  return mControllerData.GetButton(control).GetIsPressed();
+}
+
+bool CFinalInput::GetMotionDigital(int control) const {
+#if NONMATCHING
+  if (uint(control) >= 16) {
+    return false;
+  }
+#endif
+  return mControllerData.GetMotionButton(control).GetIsPressed();
+}
+
+bool CFinalInput::GetSwingDigital(int control) const {
+#if NONMATCHING
+  if (uint(control) >= 12) {
+    return false;
+  }
+#endif
+  if (!GetKnownDeviceIsPresent()) {
+    return false;
+  }
+  return mControllerData.GetSwingButton(control).GetIsPressed();
+}
+
+bool CFinalInput::GetPressed(int control) const {
+  if (!CheckValidControl(control)) {
+    return false;
+  }
+  if (!GetKnownDeviceIsPresent()) {
+    return false;
+  }
+  return mControllerData.GetButton(control).GetPressEvent();
+}
+
+bool CFinalInput::GetMotionPressed(int control) const {
+#if NONMATCHING
+  if (uint(control) >= 16) {
+    return false;
+  }
+#endif
+  if (!GetKnownDeviceIsPresent()) {
+    return false;
+  }
+  return mControllerData.GetMotionButton(control).GetPressEvent();
+}
+
+bool CFinalInput::GetSwingPressed(int control) const {
+#if NONMATCHING
+  if (uint(control) >= 12) {
+    return false;
+  }
+#endif
+  if (!GetKnownDeviceIsPresent()) {
+    return false;
+  }
+  return mControllerData.GetSwingButton(control).GetPressEvent();
+}
+
+bool CFinalInput::GetReleased(int control) const {
+  if (!CheckValidControl(control)) {
+    return false;
+  }
+  if (!GetKnownDeviceIsPresent()) {
+    return false;
+  }
+  return mControllerData.GetButton(control).GetReleaseEvent();
+}
+
+bool CFinalInput::GetMotionReleased(int control) const {
+#if NONMATCHING
+  if (uint(control) >= 16) {
+    return false;
+  }
+#endif
+  if (!GetKnownDeviceIsPresent()) {
+    return false;
+  }
+  return mControllerData.GetMotionButton(control).GetReleaseEvent();
+}
+
+bool CFinalInput::GetSwingReleased(int control) const {
+#if NONMATCHING
+  if (uint(control) >= 12) {
+    return false;
+  }
+#endif
+  if (!GetKnownDeviceIsPresent()) {
+    return false;
+  }
+  return mControllerData.GetSwingButton(control).GetReleaseEvent();
+}
+
+CVector2f CFinalInput::GetPointerPosition() const {
+  if (!GetKnownDeviceIsPresent()) {
+    return CVector2f::Zero();
+  }
+  return CVector2f(mControllerData.GetAxis(6).GetAbsoluteValue(),
+                   mControllerData.GetAxis(7).GetAbsoluteValue());
+}
+
+#else
+
 #include "Kyoto/Basics/COsContext.hpp"
 #include "Kyoto/Input/CControllerGamepadData.hpp"
 #include "Kyoto/Math/CMath.hpp"
@@ -199,7 +483,8 @@ CFinalInput::CFinalInput(int channel, float dt, const COsContext& ctx)
 , mB28_PDPRight(ctx.GetOsKeyState(0x1d).JustPressed())
 , mB29_PDPDown(ctx.GetOsKeyState(0x1e).JustPressed())
 , mB30_PDPLeft(ctx.GetOsKeyState(0x1b).JustPressed())
-, mB31_PStart(ctx.GetOsKeyState(5).JustPressed()) {}
+, mB31_PStart(ctx.GetOsKeyState(5).JustPressed()) {
+}
 
 CFinalInput CFinalInput::ScaleAnalogueSticks(float leftDiv, float rightDiv) const {
   CFinalInput ret = *this;
@@ -209,3 +494,5 @@ CFinalInput CFinalInput::ScaleAnalogueSticks(float leftDiv, float rightDiv) cons
   ret.mAnaRightY = CMath::Clamp(-1.f, mAnaRightY / rightDiv, 1.f);
   return ret;
 }
+
+#endif

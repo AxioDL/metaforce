@@ -4,13 +4,17 @@
 #include "types.h"
 
 #include "rstl/RstlVersions.h"
+#include "rstl/allocator.hpp"
 #include "rstl/construct.hpp"
 #include "rstl/functional.hpp"
 #include "rstl/iterator.hpp"
-#include "rstl/allocator.hpp"
 namespace rstl {
 template < typename T, typename Alloc = rmemory_allocator >
-class list {
+class list
+#if RSTL_VERSION >= RSTL_R3IJ
+: private Alloc
+#endif
+{
 public:
   class iterator;
   class const_iterator;
@@ -22,12 +26,18 @@ public:
 
 public:
   list(const Alloc& alloc = Alloc())
-  : mAllocator(alloc)
+  :
+#if RSTL_VERSION >= RSTL_R3IJ
+      Alloc(alloc)
+#else
+      mAllocator(alloc)
+#endif
   , mStart(reinterpret_cast< node* >(&mEmpty_prev))
   , mEnd(reinterpret_cast< node* >(&mEmpty_prev))
   , mEmpty_prev(reinterpret_cast< node* >(&mEmpty_prev))
   , mEmpty_next(reinterpret_cast< node* >(&mEmpty_prev))
-  , mCount(0) {}
+  , mCount(0) {
+  }
 
   struct destroy_helper {
     destroy_helper(list* l) : mList(l), mActive(true) {}
@@ -44,7 +54,12 @@ public:
   };
 
   list(const list& other)
-  : mAllocator(other.mAllocator)
+  :
+#if RSTL_VERSION >= RSTL_R3IJ
+      Alloc(other)
+#else
+      mAllocator(other.mAllocator)
+#endif
   , mStart(reinterpret_cast< node* >(&mEmpty_prev))
   , mEnd(reinterpret_cast< node* >(&mEmpty_prev))
   , mEmpty_prev(reinterpret_cast< node* >(&mEmpty_prev))
@@ -111,7 +126,7 @@ public:
 
   node* create_node(node* prev, node* next, const T& val) {
     node* n;
-    mAllocator.allocate(n, 1);
+    Alloc::allocate(n, 1);
     new (n) node(prev, next);
     new (n->mItem) T(val);
     return n;
@@ -239,7 +254,9 @@ public:
   };
 
 private:
+#if RSTL_VERSION < RSTL_R3IJ
   Alloc mAllocator;
+#endif
   node* mStart;
   node* mEnd;
   ALIGNAS(node) node* mEmpty_prev;
@@ -248,7 +265,8 @@ private:
 };
 
 template < typename T, typename Alloc >
-inline typename list< T, Alloc >::iterator list< T, Alloc >::insert(const iterator& pos, const T& val) {
+inline typename list< T, Alloc >::iterator list< T, Alloc >::insert(const iterator& pos,
+                                                                    const T& val) {
   node* const result = do_insert_before(pos.get_node(), val);
   return iterator(result);
 }
@@ -275,7 +293,7 @@ list< T, Alloc >::~list() {
     node* next = cur->get_next();
     cur = next;
     it->get_value()->~T();
-    mAllocator.deallocate(it);
+    Alloc::deallocate(it);
   }
 }
 
@@ -288,7 +306,7 @@ typename list< T, Alloc >::node* list< T, Alloc >::do_erase(node* node) {
   node->get_prev()->set_next(node->get_next());
   node->get_next()->set_prev(node->get_prev());
   node->get_value()->~T();
-  mAllocator.deallocate(node);
+  Alloc::deallocate(node);
   mCount--;
   return result;
 }

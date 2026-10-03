@@ -51,21 +51,11 @@ public:
 #endif
 
   static TOwnerPtr GetNewDerivedObject(T* obj) {
-#if VERSION >= VERSION_R3IJ_00
-    return rstl::auto_ptr< TObjOwnerDerivedFromIObj< T > >(
-        rs_new TObjOwnerDerivedFromIObj< T >(obj));
-#else
     return rs_new TObjOwnerDerivedFromIObj< T >(obj);
-#endif
   }
 
   static TOwnerPtr GetNewDerivedObject(const rstl::auto_ptr< T >& obj) {
-#if VERSION >= VERSION_R3IJ_00
-    return rstl::auto_ptr< TObjOwnerDerivedFromIObj< T > >(
-        rs_new TObjOwnerDerivedFromIObj< T >(obj));
-#else
     return rs_new TObjOwnerDerivedFromIObj< T >(obj);
-#endif
   }
   
 private:

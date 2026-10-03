@@ -308,11 +308,17 @@ cflags_retro = [
     "-DMUSY_TARGET=MUSY_TARGET_DOLPHIN",
 ]
 
+mw_version_retro = "GC/1.3.2"
 if version_num >= VERSIONS.index("R3IJ01_00"):
+    mw_version_retro = "Wii/1.3"
     cflags_retro.extend([
         "-sdata 4",
         "-func_align 4"
     ])
+
+if version_num >= VERSIONS.index("R3ME01_00"):
+    mw_version_retro = "Wii/1.0a"
+    cflags_retro.append("-sdata2 4")
 
 # Most Retro code uses this inline limit. Objects that still need the compiler
 # default retain cflags_retro explicitly while their helper inlining is investigated.
@@ -412,7 +418,7 @@ def TrkLib(lib_name, objects):
 def RetroLib(lib_name, progress_category, objects):
     return {
         "lib": lib_name + "CW" + "D" if args.debug else "",
-        "mw_version": "GC/1.3.2" if version_num < VERSIONS.index("R3IJ01_00") else "Wii/1.3",
+        "mw_version": mw_version_retro,
         "cflags": cflags_retro_inline,
         "progress_category": progress_category,
         "objects": objects,
@@ -423,7 +429,7 @@ def RetroLib(lib_name, progress_category, objects):
 def KyotoLib(lib_name, progress_category, objects):
     return {
         "lib": lib_name + "CW" + "D" if args.debug else "",
-        "mw_version": "GC/1.3.2" if version_num < VERSIONS.index("R3IJ01_00") else "Wii/1.3",
+        "mw_version": mw_version_retro,
         "cflags": cflags_retro_inline,
         "host": False,
         "progress_category": progress_category,
@@ -581,22 +587,22 @@ config.libs = [
                 "MetroidPrime/CEntity.cpp",
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00", "R3ME01_00"),
                 "MetroidPrime/CArchMsgParmInt32.cpp",
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00", "R3ME01_00"),
                 "MetroidPrime/CArchMsgParmInt32Int32VoidPtr.cpp",
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00", "R3ME01_00"),
                 "MetroidPrime/CArchMsgParmNull.cpp",
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00", "R3ME01_00"),
                 "MetroidPrime/CArchMsgParmReal32.cpp",
             ),
-            Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "MetroidPrime/Decode.cpp"),
+            Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00", "R3ME01_00"), "MetroidPrime/Decode.cpp"),
             Object(NonMatching, "MetroidPrime/CIOWinManager.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "MetroidPrime/CIOWin.cpp"),
             Object(
@@ -611,7 +617,7 @@ config.libs = [
             ),
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00", "GM8E01_02"), "MetroidPrime/Clamp_int.cpp"),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00", "R3ME01_00"),
                 "MetroidPrime/CArchMsgParmControllerStatus.cpp",
             ),
             Object(
@@ -1937,6 +1943,13 @@ config.libs = [
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
                 "Kyoto/Math/CloseEnough.cpp",
             ),
+            Object(
+                NonMatching,
+                "Kyoto/Math/CMayaSpline.cpp",
+                extra_cflags=["-fp_contract off"]
+                if version_num >= VERSIONS.index("R3ME01_00")
+                else [],
+            ),
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "Kyoto/Math/CMatrix3f.cpp"),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00"),
@@ -2161,8 +2174,31 @@ config.libs = [
                 "Kyoto/Animation/CSegIdList.cpp",
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00", "R3ME01_00"),
                 "Kyoto/Input/CFinalInput.cpp",
+            ),
+            Object(
+                NonMatching,
+                "Kyoto/Input/CInputFilter.cpp",
+                extra_cflags=["-fp_contract off"]
+                if version_num >= VERSIONS.index("R3IJ01_00")
+                else [],
+            ),
+            Object(MatchingFor("R3ME01_00"), "Kyoto/Input/IController.cpp"),
+            Object(
+                NonMatching,
+                "Kyoto/Input/CWiiInput.cpp",
+                extra_cflags=["-fp_contract off"]
+                if version_num >= VERSIONS.index("R3ME01_00")
+                else [],
+            ),
+            Object(MatchingFor("R3ME01_00"), "Kyoto/Input/CControllerData.cpp"),
+            Object(
+                NonMatching,
+                "Kyoto/Input/CWiiMotionProcessor.cpp",
+                extra_cflags=["-fp_contract off"]
+                if version_num >= VERSIONS.index("R3ME01_00")
+                else [],
             ),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00", "GM8J01_00"),

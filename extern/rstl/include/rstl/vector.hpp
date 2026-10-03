@@ -50,7 +50,14 @@ public:
     mAllocator(alloc),
 #endif
     mCount(0), mCapacity(0), mItems(nullptr) {}
+#if RSTL_VERSION >= RSTL_R3ME_00
+  vector(int count) : mCapacity(0), mItems(0) {
+    mCount = 0;
+    reserve(count);
+  }
+#else
   vector(int count) : mCount(0), mCapacity(0), mItems(0) { reserve(count); }
+#endif
   vector(int count, const T& v) : mCount(count), mCapacity(count) {
     Alloc::allocate(mItems, mCount);
     uninitialized_fill_n(mItems, count, v);
@@ -128,6 +135,8 @@ public:
     destroy(mItems + mCount - 1);
     --mCount;
   }
+
+  void push_back_unsafe(const T& in) { rstl::construct(mItems + mCount++, in); }
 
   inline vector& operator=(const vector& other);
 

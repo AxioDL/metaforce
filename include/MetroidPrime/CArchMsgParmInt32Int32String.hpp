@@ -15,6 +15,6 @@ private:
   int mInt2;
   rstl::string mString;
 };
-CHECK_SIZEOF(CArchMsgParmInt32Int32String, 0x1c)
+CHECK_SIZEOF(CArchMsgParmInt32Int32String, (RSTL_VERSION >= RSTL_R3IJ ? 0x18 : 0x1c))
 
 #endif // _CARCHMSGPARMINT32INT32STRING

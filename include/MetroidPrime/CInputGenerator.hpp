@@ -12,6 +12,23 @@ class COsContext;
 class IController;
 class CArchitectureQueue;
 
+#if VERSION >= VERSION_R3IJ_00
+extern IController* gpController;
+
+class CInputGenerator {
+public:
+  CInputGenerator(COsContext* context, float leftDivisor, float rightDivisor);
+  bool Update(float dt, CArchitectureQueue& queue);
+  IController* GetController() const { return gpController; }
+
+private:
+  COsContext* mContext;
+  bool mConnectedControllers[4];
+  float mLeftDivisor;
+  float mRightDivisor;
+};
+CHECK_SIZEOF(CInputGenerator, 0x10)
+#else
 class CInputGenerator {
 public:
   CInputGenerator(COsContext*, float leftDiv, float rightDiv);
@@ -28,5 +45,7 @@ private:
   float mRightDiv;
 };
 CHECK_SIZEOF(CInputGenerator, 0x14)
+
+#endif
 
 #endif // _CINPUTGENERATOR

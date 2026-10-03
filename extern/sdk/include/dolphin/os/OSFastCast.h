@@ -1,6 +1,8 @@
 #ifndef _DOLPHIN_OSFASTCAST
 #define _DOLPHIN_OSFASTCAST
 
+#include <dolphin/types.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -15,6 +17,21 @@ extern "C" {
 #define OS_FASTCAST_U16 3
 #define OS_FASTCAST_S8 4
 #define OS_FASTCAST_S16 5
+// SDK conversion helpers used when the GQR fast-cast registers are initialized.
+static inline float __OSs16tof32(register const s16* value) {
+#ifdef __MWERKS__
+  register float result;
+  asm { psq_l result, 0(value), 1, OS_FASTCAST_S16 }
+  return result;
+#else
+  return *value;
+#endif
+}
+
+static inline void OSs16tof32(const s16* value, float* result) {
+  *result = __OSs16tof32(value);
+}
+
 // clang-format off
 static inline void OSInitFastCast(void) {
 #ifdef __MWERKS__
