@@ -1248,7 +1248,8 @@ config.libs = [
             Object(
                 NonMatching,
                 "MetroidPrime/Player/CGameState.cpp",
-                extra_cflags=['-pragma "inline_max_size(250)"'] if config.version == "GM8E01_02" else [],
+                extra_cflags=['-pragma "inline_max_size(250)"'] if config.version == "GM8E01_02"
+                else ['-pragma "inline_max_size(240)"'] if config.version == "GM8E01_00" else [],
             ),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01"),
