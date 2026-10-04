@@ -201,7 +201,7 @@ CPirateRagDoll::CPirateRagDoll(CStateManager& mgr, CSpacePirate* pirate, ushort 
   SetNumParticles(14);
   SetNumLengthConstraints(47);
   SetNumJointConstraints(4);
-  const CVector3f& scale = CVector3f(pirate->GetModelData()->GetScale());
+  const CVector3f& scale = CVector3f(pirate->ModelData()->GetScale());
   const CTransform4f& xf = pirate->GetTransform();
   CAnimData* animData = pirate->AnimationData();
   animData->BuildPose();

@@ -143,7 +143,7 @@ public:
   bool HasModelData() const {
     return !mModelData.null() && (GetModelData()->HasAnimation() || GetModelData()->HasNormalModel());
   }
-  CModelData* ModelData() { return mModelData.get(); }
+  CModelData* ModelData() { return &*mModelData; }
   const CModelData* GetModelData() const { return mModelData.get(); }
 
   bool HasAnimation() const { return !mModelData.null() && GetModelData()->HasAnimation(); }

@@ -111,7 +111,7 @@ CFlyingPirateRagDoll::CFlyingPirateRagDoll(CStateManager& mgr, CFlyingPirate* ac
   SetNumParticles(15);
   SetNumLengthConstraints(45);
   SetNumJointConstraints(4);
-  const CVector3f& scale = CVector3f(actor->GetModelData()->GetScale());
+  const CVector3f& scale = CVector3f(actor->ModelData()->GetScale());
   const CTransform4f& xf = actor->GetTransform();
   CAnimData* animData = actor->AnimationData();
   animData->BuildPose();

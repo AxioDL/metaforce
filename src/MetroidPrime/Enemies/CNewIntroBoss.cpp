@@ -208,7 +208,7 @@ void CNewIntroBoss::Think(float dt, CStateManager& mgr) {
   AnimationData()->PreRender();
   if (IsAlive()) {
     mBoneTracking.PreRender(mgr, *ModelData()->AnimationData(), GetTransform(),
-                                ModelData()->ScaleCopy(), *BodyCtrl());
+                            GetModelData()->ScaleCopy(), *BodyCtrl());
   }
   mCollisionManager->Update(dt, mgr, CCollisionActorManager::kUO_ObjectSpace);
 

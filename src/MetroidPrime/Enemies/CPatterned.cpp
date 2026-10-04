@@ -238,7 +238,7 @@ void CPatterned::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CState
       SetMaterialFilter(CMaterialFilter::MakeIncludeExclude(include, exclude));
     }
 
-    bool hasAnimData = ModelData() && ModelData()->HasAnimation();
+    bool hasAnimData = HasAnimation();
     if (hasAnimData && ModelData()->GetAnimationData()->GetIceModel().valid()) {
       const CAABox& baseBox = GetBaseBoundingBox();
       CVector3f extent = baseBox.GetMaxPoint() - baseBox.GetMinPoint();
