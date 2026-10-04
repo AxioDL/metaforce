@@ -1240,8 +1240,8 @@ void CAutoMapper::Draw(const CStateManager& mgr, const CTransform4f& xf, float a
           }
           CColor beaconColor(static_cast< uchar >(255), static_cast< uchar >(255),
                              static_cast< uchar >(255));
-          CGraphics::StreamColor(
-              beaconColor.WithAlphaOf(beaconAlpha * beaconColorAlpha * mapAlpha));
+          const float beaconColorAlphaScaled = beaconAlpha * beaconColorAlpha;
+          CGraphics::StreamColor(beaconColor.WithAlphaOf(beaconColorAlphaScaled * mapAlpha));
           CGraphics::StreamTexcoord(0.f, 1.f);
           CGraphics::StreamVertex(CVector3f(-4.f, -8.f, 8.f));
           CGraphics::StreamTexcoord(0.f, 0.f);

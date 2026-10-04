@@ -247,9 +247,9 @@ void CSamusHud::InitializeFrameGlueMutable(const CStateManager& mgr) {
     const int powerBombs = state.GetItemAmount(CPlayerState::kIT_PowerBombs);
     const int capacity = state.GetItemCapacity(CPlayerState::kIT_PowerBombs);
     const int bombs = ballGun.IsBombReady() ? ballGun.GetBombsPending() : 0;
-    bool hasBombs = state.HasPowerUp(CPlayerState::kIT_MorphBallBombs);
-    bool pbReady = ballGun.IsPowerBombReady() &&
-                   mgr.GetPlayer()->GetMorphballTransitionState() == CPlayer::kMS_Morphed;
+    const bool hasBombs = state.HasPowerUp(CPlayerState::kIT_MorphBallBombs);
+    const bool pbReady = ballGun.IsPowerBombReady() &&
+                         mgr.GetPlayer()->GetMorphballTransitionState() == CPlayer::kMS_Morphed;
     mBossEnergyIntf = nullptr;
     mBallIntf = rs_new CHudBallInterface(*mLoadedSelectedHud, powerBombs, capacity, bombs,
                                              pbReady, hasBombs);
@@ -736,7 +736,8 @@ void CSamusHud::UpdateEnergy(float dt, const CStateManager& mgr, bool init) {
     }
   }
   if (!mBossEnergyIntf.null()) {
-    if (const CActor* actor = TCastToConstPtr< CActor >(mgr.GetObjectById(mgr.GetBossId()))) {
+    const TUniqueId bossId = mgr.GetBossId();
+    if (const CActor* actor = TCastToConstPtr< CActor >(mgr.GetObjectById(bossId))) {
       if (const CHealthInfo* health = actor->GetHealthInfo(mgr)) {
         const float bossEnergy = CMath::CeilingF(health->GetHP());
         const float maxEnergy = mgr.GetTotalBossEnergy();
@@ -910,11 +911,11 @@ void CSamusHud::UpdateHudDynamicLights(float dt, const CStateManager& mgr) {
     const CMatrix3f& rotation = camera->GetTransform().BuildMatrix3f().GetTranspose();
     const CVector3f direction = rotation * toCamera.AsNormalized();
     const float distance = rstl::max_val(toCamera.Magnitude(), kHudLightDistanceEpsilon);
+    const float attQuadratic = gpTweakGui->GetHudLightAttMulQuadratic();
     const float falloff = rstl::min_val(
         1.f, 1.f / (gpTweakGui->GetHudLightAttMulConstant() * light.mDistC +
                     distance * (gpTweakGui->GetHudLightAttMulLinear() * light.mDistL) +
-                    distance *
-                        (distance * (gpTweakGui->GetHudLightAttMulQuadratic() * light.mDistQ))));
+                    distance * (distance * (attQuadratic * light.mDistQ))));
     widget->SetO2WTransform(CTransform4f::LookAt(CVector3f::Zero(), direction));
     const float fadedFalloff = falloff * CMath::AbsF(light.mFader);
     CColor lightColor =
