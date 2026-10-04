@@ -5,6 +5,7 @@
 #include "Collision/CCollidableAABox.hpp"
 #include "Kyoto/Audio/CSfxManager.hpp"
 #include "Kyoto/CSimplePool.hpp"
+#include "Kyoto/CDependencyGroup.hpp"
 #include "Kyoto/Text/CStringTable.hpp"
 #include "MetroidPrime/Factories/CScannableObjectInfo.hpp"
 #include "MetroidPrime/HUD/CHUDMemoParms.hpp"
@@ -14,7 +15,11 @@
 #include "MetroidPrime/SFX/IceCrack.h"
 #include "MetroidPrime/SFX/Weapons.h"
 #include "MetroidPrime/CGameCollision.hpp"
+#include "MetroidPrime/CActorLights.hpp"
+#include "MetroidPrime/CActorParameters.hpp"
+#include "MetroidPrime/CModelData.hpp"
 #include "MetroidPrime/Player/CMorphBall.hpp"
+#include "MetroidPrime/Player/CPlayerCameraBob.hpp"
 #include "MetroidPrime/Player/CGrappleArm.hpp"
 #include "WorldFormat/CMetroidAreaCollider.hpp"
 #include "Kyoto/Input/CInputFilter.hpp"
@@ -31,6 +36,7 @@
 #include "MetroidPrime/Tweaks/CTweakPlayer.hpp"
 #include "MetroidPrime/Tweaks/CTweakPlayerControl.hpp"
 #include "MetroidPrime/Tweaks/CTweakPlayerGun.hpp"
+#include "MetroidPrime/Tweaks/CTweakPlayerRes.hpp"
 #include "MetroidPrime/Tweaks/CTweaks.hpp"
 
 class CMetroidBeta;
@@ -1049,6 +1055,8 @@ const float CPlayer::skDefaultHudFadeInSpeed = 2.5f;
 static bool gUseSurfaceHack;
 static CPlayer::ESurfaceRestraints gSR_Hack;
 
+#endif
+
 CAnimRes MakePlayerAnimres(CAssetId resId, const CVector3f& scale) {
   return CAnimRes(resId, CAnimRes::kDefaultCharIdx, scale, 0, true);
 }
@@ -1128,10 +1136,17 @@ CPlayer::CPlayer(TUniqueId uid, const CTransform4f& xf, const CAABox& aabb, CAss
 , mLookButtonHeld(false)
 , mLookAnalogHeld(false)
 , mCurFreeLookCenteredTime(0.f)
+#if VERSION >= VERSION_R3IJ_00
+, mFreeLookYawAngle(CRelAngle::FromRadians(0.f))
+, mHorizFreeLookAngleVel(CRelAngle::FromRadians(0.f))
+, mFreeLookPitchAngle(CRelAngle::FromRadians(0.f))
+, mVertFreeLookAngleVel(CRelAngle::FromRadians(0.f))
+#else
 , mFreeLookYawAngle(0.f)
 , mHorizFreeLookAngleVel(0.f)
 , mFreeLookPitchAngle(0.f)
 , mVertFreeLookAngleVel(0.f)
+#endif
 , mAimTarget(kInvalidUniqueId)
 , mTargetAimPosition(CVector3f::Zero())
 , mAimTargetAverage()
@@ -1145,14 +1160,14 @@ CPlayer::CPlayer(TUniqueId uid, const CTransform4f& xf, const CAABox& aabb, CAss
 , mMoveSpeedAvg()
 , mMoveSpeed(0.f)
 , mFlatMoveSpeed(0.f)
-, mLookDir(GetTransform().GetColumn(kDY))
-, mMoveDir(GetTransform().GetColumn(kDY))
-, mLeaveMorphDir(GetTransform().GetColumn(kDY))
-, mLastPosForDirCalc(GetTransform().GetTranslation())
-, mGunDir(GetTransform().GetColumn(kDY))
+, mLookDir(GetTransform().GetForward())
+, mMoveDir(GetTransform().GetForward())
+, mLeaveMorphDir(GetTransform().GetForward())
+, mLastPosForDirCalc(GetTranslation())
+, mGunDir(GetTransform().GetForward())
 , mTimeMoving(0.f)
-, mControlDir(GetTransform().GetColumn(kDY))
-, mControlDirFlat(GetTransform().GetColumn(kDY))
+, mControlDir(GetTransform().GetForward())
+, mControlDirFlat(GetTransform().GetForward())
 , mWasDamaged(false)
 , mDamageAmt(0.f)
 , mPrevDamageAmt(0.f)
@@ -1266,7 +1281,7 @@ CPlayer::CPlayer(TUniqueId uid, const CTransform4f& xf, const CAABox& aabb, CAss
 #if VERSION >= VERSION_R3IJ_00
 , mControlMapper()
 , mAimingCursor(false, 0)
-, mLastInput(CFinalInput::NoInput(0, 1.f / 60.f))
+, mLastInput(CFinalInput::NoInput(0, 0.16f))
 , mPointerAimHoldTime(0.f)
 , mPointerAimHoldBlend(0.f)
 , mPointerAimHeld(false)
@@ -1275,13 +1290,13 @@ CPlayer::CPlayer(TUniqueId uid, const CTransform4f& xf, const CAABox& aabb, CAss
 , mTurnInputWarmupDuration(2.f)
 , mBallJump(false)
 , mBallJumpFromPlatform(false)
-, x1194_26_(false)
+, mAccelerationChangeActive(false)
 , x1194_27_(true)
 , mBallJumpPlatform(kInvalidUniqueId)
 , mVerticalLookFilter(rs_new CAdaptiveInputFilter(0, 4, 0, 0.1f))
 , mFreeLookPitchRate(CRelAngle::FromRadians(0.f))
 , mOrbitModeBlend(0.f)
-, mJumpAssistLocations()
+, mJumpBlockLocations()
 #endif
 {
   CModelData ballTransitionBeamModelData(
@@ -1296,8 +1311,7 @@ CPlayer::CPlayer(TUniqueId uid, const CTransform4f& xf, const CAABox& aabb, CAss
   mGun->SetTransform(GetTransform());
   mGun->GetGrappleArm().SetTransform(GetTransform());
   InitialiseAnimation();
-  CAABox bounds = GetModelData()->GetBounds(CTransform4f::Identity());
-  mBallTransHeight = bounds.GetMaxPoint().GetZ() - bounds.GetMinPoint().GetZ();
+  mBallTransHeight = GetModelData()->GetBounds(CTransform4f::Identity()).GetDepth();
   SetCalculateLighting(true);
   ActorLights()->SetCastShadows(true);
   mMoveDir.SetZ(0.f);
@@ -1321,7 +1335,12 @@ CPlayer::CPlayer(TUniqueId uid, const CTransform4f& xf, const CAABox& aabb, CAss
   ModelData()->SetScale(playerScale);
   mBallTransitionBeamModel->SetScale(playerScale);
   LoadAnimationTokens();
+#if VERSION >= VERSION_R3IJ_00
+  InitializeJumpBlockLocations();
+#endif
 }
+
+#if VERSION < VERSION_R3IJ_00
 
 bool CPlayer::IsMorphBallTransitioning() const {
   switch (mMorphBallState) {
@@ -3768,6 +3787,8 @@ bool CPlayer::HasTransitionBeamModel() const {
   return !mBallTransitionBeamModel.null() && !mBallTransitionBeamModel->IsNull();
 }
 
+#endif
+
 void CPlayer::LoadAnimationTokens() {
   TLockedToken< CDependencyGroup > transGroup = gpSimplePool->GetObj("BallTransition_DGRP");
   const rstl::vector< SObjectTag >& tags = transGroup->GetObjectTagVector();
@@ -3778,9 +3799,15 @@ void CPlayer::LoadAnimationTokens() {
     }
     CToken token = gpSimplePool->GetObj(*it);
     token.Lock();
+#if VERSION >= VERSION_R3IJ_00
+    mBallTransitionsRes.push_back_unsafe(token);
+#else
     mBallTransitionsRes.push_back(token);
+#endif
   }
 }
+
+#if VERSION < VERSION_R3IJ_00
 
 void CPlayer::AsyncLoadSuit(CStateManager& mgr) { mGun->AsyncLoadSuit(mgr); }
 

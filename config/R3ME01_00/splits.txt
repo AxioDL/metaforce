@@ -76,9 +76,11 @@ MetroidPrime/CInputGenerator.cpp:
 	.text       start:0x800FF378 end:0x800FF5F4
 
 MetroidPrime/Player/CPlayer.cpp:
-	.text       start:0x8017DD68 end:0x80187FE4
+	.text       start:0x8017DD30 end:0x80187FE4
 	.ctors      start:0x8046D408 end:0x8046D40C
 	.rodata     start:0x804748F0 end:0x804749E8
+	.bss        start:0x804C0C18 end:0x804C33D0 align:4
+	.sbss       start:0x805C265C end:0x805C2664 align:4
 	.sdata2     start:0x805C5A68 end:0x805C5BB8
 
 MetroidPrime/Player/CPlayerCameraBob.cpp:
