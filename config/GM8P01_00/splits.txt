@@ -472,11 +472,12 @@ MetroidPrime/CTargetReticles.cpp:
 	.ctors      start:0x803B4FC8 end:0x803B4FCC
 	.rodata     start:0x803B8948 end:0x803B8A70
 	.bss        start:0x803F43A8 end:0x803F43C8
-	.sdata      start:0x8046931C end:0x80469324
+	.sdata      start:0x8046931C end:0x80469328
 	.sdata2     start:0x8046CBD8 end:0x8046CC70
 
 MetroidPrime/CWeaponMgr.cpp:
-	.text       start:0x800BABB0 end:0x800BB18C
+	.text       start:0x800BABB0 end:0x800BB454
+	.sdata      start:0x80469328 end:0x80469330
 
 MetroidPrime/ScriptObjects/CScriptPickup.cpp:
 	.text       start:0x800BB454 end:0x800BBE50
