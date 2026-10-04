@@ -44,6 +44,9 @@ CCameraManager::CCameraManager(TUniqueId curCamera)
 , mShakeOffset(CVector3f::Zero())
 , mFluidCounter(0)
 , mFluidId(kInvalidUniqueId)
+#if VERSION == VERSION_GM8E_02 || VERSION == VERSION_GM8J_00
+, x7c_(kInvalidUniqueId)
+#endif
 , mFpCamera(nullptr)
 , mBallCamera(nullptr)
 , mRumbleId(0)
