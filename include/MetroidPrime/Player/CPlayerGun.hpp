@@ -9,6 +9,7 @@
 #include "MetroidPrime/Player/CFidget.hpp"
 #include "MetroidPrime/Player/CPlayerCameraBob.hpp"
 #include "MetroidPrime/Player/CPlayerState.hpp"
+#include "MetroidPrime/Weapons/GunController/CGunMotion.hpp"
 #include "MetroidPrime/Weapons/WeaponCommon.hpp"
 
 #include "Kyoto/Audio/CSfxHandle.hpp"
@@ -219,11 +220,24 @@ public:
     return mChargePhase == kCP_NotCharging && int(mComboAmmoIdx) != 1;
   }
   bool IsCharging() const { return mCharging; }
+#if VERSION >= VERSION_R3IJ_00
+  void SetTransform(const CTransform4f& xf);
+#else
   void SetTransform(CTransform4f xf) { mXf = xf; }
+#endif
   CTransform4f GetGunMotionTransform() const { return mGunWorldXf; }
   CGrappleArm& GrappleArm() { return *mGrappleArm.get(); }
   CGrappleArm& GetGrappleArm() const { return *mGrappleArm.get(); }
   bool IsFidgeting() const { return mNotFidgeting; }
+  bool IsMorphing() const {
+    return mMorph.GetGunState() != CGunMorph::kGS_OutWipeDone || IsWeaponStateSet(0x8);
+  }
+  bool IsStruck() const {
+    return mDamageTimer > 0.f || mGunMotion->GunController().GetGunState() == kGS_Strike;
+  }
+  bool IsInDamageReaction() const {
+    return IsStruck() || mGunMotion->GunController().GetGunState() == kGS_BigStrike;
+  }
 
   void SetActorAttached(bool attached) { mActorAttached = attached; } // name?
 
@@ -437,7 +451,7 @@ private:
   bool mInRestPose : 1;
 
   bool mNotFidgeting : 1;
-  bool x833_25_ : 1;
+  bool mBeamSelectionRequested : 1;
   bool x833_26_ : 1;
   bool x833_27_ : 1;
   bool mPhazonBeamActive : 1;

@@ -59,6 +59,10 @@ private:
   static const char* const skScaleLocator;
   static const ushort skSoundIds[];
 };
+#if VERSION >= VERSION_R3IJ_00
+CHECK_SIZEOF(CPhazonBeam, 0x270)
+#else
 CHECK_SIZEOF(CPhazonBeam, 0x27c)
+#endif
 
 #endif // _CPHAZONBEAM

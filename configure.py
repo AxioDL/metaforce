@@ -593,7 +593,9 @@ config.libs = [
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
                 "MetroidPrime/Player/CPlayerGun.cpp",
-                extra_cflags=['-pragma "inline_max_size(250)"'] if config.version == "GM8E01_02" else [],
+                extra_cflags=["-fp_contract off"]
+                if version_num >= VERSIONS.index("R3ME01_00")
+                else ['-pragma "inline_max_size(250)"'] if config.version == "GM8E01_02" else [],
             ),
             Object(NonMatching, "MetroidPrime/CStateManager.cpp"),
             Object(
@@ -835,7 +837,13 @@ config.libs = [
                 Equivalent,
                 "MetroidPrime/CMappableObject.cpp",
             ),
-            Object(EquivalentFor("GM8E01_00"), "MetroidPrime/Player/CPlayerCameraBob.cpp"),
+            Object(
+                EquivalentFor("GM8E01_00"),
+                "MetroidPrime/Player/CPlayerCameraBob.cpp",
+                extra_cflags=["-fp_contract off"]
+                if version_num >= VERSIONS.index("R3ME01_00")
+                else [],
+            ),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
                 "MetroidPrime/ScriptObjects/CScriptCameraFilterKeyframe.cpp",

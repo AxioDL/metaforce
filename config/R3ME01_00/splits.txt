@@ -81,6 +81,20 @@ MetroidPrime/Player/CPlayer.cpp:
 	.rodata     start:0x804748F0 end:0x8047492C
 	.sdata2     start:0x805C5A68 end:0x805C5BB8
 
+MetroidPrime/Player/CPlayerCameraBob.cpp:
+	.text       start:0x80187FE4 end:0x80188EF0
+	.ctors      start:0x8046D40C end:0x8046D410
+	.rodata     start:0x804749E8 end:0x80474A00
+	.sdata      start:0x805C15A8 end:0x805C15F8 align:4
+	.sbss       start:0x805C2668 end:0x805C2678 align:4
+	.sdata2     start:0x805C5BB8 end:0x805C5BE8
+
+MetroidPrime/Player/CPlayerGun.cpp:
+	.text       start:0x80189568 end:0x80192C50
+	.ctors      start:0x8046D410 end:0x8046D414
+	.rodata     start:0x80474A50 end:0x80474A8C
+	.sdata2     start:0x805C5BF8 end:0x805C5CD8
+
 MetroidPrime/Player/CPlayerDynamics.cpp:
 	.text       start:0x80192C50 end:0x8019A67C
 	.ctors      start:0x8046D414 end:0x8046D418

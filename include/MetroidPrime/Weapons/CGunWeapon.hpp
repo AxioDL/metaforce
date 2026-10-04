@@ -202,6 +202,10 @@ protected:
 
   static void PointGenerator(void*, const CVector3f*, const CVector3f*, int);
 };
+#if VERSION >= VERSION_R3IJ_00
+CHECK_SIZEOF(CGunWeapon, 0x210)
+#else
 CHECK_SIZEOF(CGunWeapon, 0x21c)
+#endif
 
 #endif // _CGUNWEAPON
