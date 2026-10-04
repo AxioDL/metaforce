@@ -17,6 +17,7 @@ static const CMaterialFilter BallTransitionCollide =
 #include "MetroidPrime/Cameras/CFirstPersonCamera.hpp"
 #include "MetroidPrime/Player/CMorphBall.hpp"
 #include "MetroidPrime/Player/CPlayerGun.hpp"
+#include "MetroidPrime/Player/CPlayerCameraBob.hpp"
 #include "MetroidPrime/ScriptObjects/CScriptPlayerHint.hpp"
 #include "Kyoto/Audio/CSfxManager.hpp"
 #include "Kyoto/Input/CFinalInput.hpp"
@@ -1538,14 +1539,27 @@ void CPlayer::CalculatePlayerControlDirection(CStateManager& mgr) {
   }
 }
 
+#endif
+
 void CPlayer::CalculateLeaveMorphBallDirection(const CFinalInput& input) {
   if (mMorphBallState != kMS_Morphed) {
     mLeaveMorphDir = mMoveDir;
   } else {
+#if VERSION >= VERSION_R3IJ_00
+    const float forward = mControlMapper.GetAnalogInput(
+        CControlMapper::kC_Forward, input, CControlMapper::kFT_Filtered);
+    const float backward = mControlMapper.GetAnalogInput(
+        CControlMapper::kC_Backward, input, CControlMapper::kFT_Filtered);
+    const float left = mControlMapper.GetAnalogInput(
+        CControlMapper::kC_BallTurnLeft, input, CControlMapper::kFT_Filtered);
+    const float right = mControlMapper.GetAnalogInput(
+        CControlMapper::kC_BallTurnRight, input, CControlMapper::kFT_Filtered);
+#else
     const float forward = ControlMapper::GetAnalogInput(ControlMapper::kC_Forward, input);
     const float backward = ControlMapper::GetAnalogInput(ControlMapper::kC_Backward, input);
     const float left = ControlMapper::GetAnalogInput(ControlMapper::kC_TurnLeft, input);
     const float right = ControlMapper::GetAnalogInput(ControlMapper::kC_TurnRight, input);
+#endif
     if (forward > 0.3f || backward > 0.3f || left > 0.3f || right > 0.3f) {
       if (GetVelocityWR().Magnitude() > 0.5f) {
         mLeaveMorphDir = mMoveDir;
@@ -1553,6 +1567,8 @@ void CPlayer::CalculateLeaveMorphBallDirection(const CFinalInput& input) {
     }
   }
 }
+
+#if VERSION < VERSION_R3IJ_00
 
 float CPlayer::GetBallMaxVelocity() const {
   return gpTweakBall->GetBallTranslationMaxSpeed(GetSurfaceRestraint());
@@ -1611,6 +1627,8 @@ const CCollisionPrimitive* CPlayer::GetCollisionPrimitive() const {
   }
 }
 
+#endif
+
 CTransform4f CPlayer::CreateTransformFromMovementDirection() const {
   CVector3f direction = mMoveDir;
   if (direction.CanBeNormalized()) {
@@ -1621,6 +1639,8 @@ CTransform4f CPlayer::CreateTransformFromMovementDirection() const {
   const CVector3f right(direction.GetY(), -direction.GetX(), 0.f);
   return CTransform4f::FromColumns(right, direction, CVector3f::Up(), GetTranslation());
 }
+
+#if VERSION < VERSION_R3IJ_00
 
 void CPlayer::BombJump(const CVector3f& position, CStateManager& mgr) {
   if (mMorphBallState == kMS_Morphed &&
@@ -1767,11 +1787,11 @@ float CPlayer::GetEyeHeight() const {
   return mEyeZBias + (mFpBounds.GetPointD().GetZ() - gpTweakPlayer->GetEyeOffset());
 }
 
-CVector3f CPlayer::GetEyePosition() const {
-  return GetTranslation() + CVector3f(0.f, 0.f, GetEyeHeight());
-}
-
 #endif
+
+CVector3f CPlayer::GetEyePosition() const {
+  return GetTransform().GetTranslation() + CVector3f(0.f, 0.f, GetEyeHeight());
+}
 
 CVector3f CPlayer::GetBallPosition() const {
   return GetTranslation() + CVector3f(0.f, 0.f, gpTweakPlayer->GetPlayerBallHalfExtent());
@@ -1956,6 +1976,8 @@ void CPlayer::AddToPlayerHintRemoveList(TUniqueId id, CStateManager& mgr) {
 
 void CPlayer::SetEyeZBias(float bias) { mEyeZBias = bias; }
 
+#endif
+
 float CPlayer::UpdateCameraBob(float dt, CStateManager& mgr) {
   float magnitude = 0.f;
   CPlayerCameraBob::ECameraBobState state;
@@ -1964,7 +1986,11 @@ float CPlayer::UpdateCameraBob(float dt, CStateManager& mgr) {
     const float forwardSpeed = CVector3f::Dot(velocity, GetTransform().GetForward());
     state = CPlayerCameraBob::kCBS_Walk;
     magnitude = CMath::AbsF(forwardSpeed / GetActualFirstPersonMaxVelocity(dt));
+#if VERSION >= VERSION_R3IJ_00
+    if (magnitude < 0.01f && !mAimingCursor.GetCursorValid()) {
+#else
     if (magnitude < 0.01f) {
+#endif
       state = CPlayerCameraBob::kCBS_WalkNoBob;
       magnitude = 0.f;
     }
@@ -1977,7 +2003,13 @@ float CPlayer::UpdateCameraBob(float dt, CStateManager& mgr) {
     const float maxMagnitude = CMath::SqrtF(strafeSpeed * strafeSpeed + maxSpeed * maxSpeed);
     magnitude = CMath::SqrtF(rightSpeed * rightSpeed + forwardSpeed * forwardSpeed) / maxMagnitude;
     magnitude *= CPlayerCameraBob::GetOrbitBobScale();
+#if VERSION >= VERSION_R3IJ_00
+    magnitude = magnitude < CPlayerCameraBob::GetMaxOrbitBobScale()
+                    ? magnitude
+                    : CPlayerCameraBob::GetMaxOrbitBobScale();
+#else
     magnitude = rstl::min_val(CPlayerCameraBob::GetMaxOrbitBobScale(), magnitude);
+#endif
     if (magnitude < 0.01f) {
       magnitude = 0.f;
     }
@@ -1994,10 +2026,12 @@ float CPlayer::UpdateCameraBob(float dt, CStateManager& mgr) {
       magnitude = 0.f;
     }
   }
+#if VERSION < VERSION_R3IJ_00
   if (mInFreeLook || mLookButtonHeld) {
     state = CPlayerCameraBob::kCBS_FreeLookNoBob;
     magnitude = 0.f;
   }
+#endif
   if (mOrbitState == kOS_Grapple) {
     state = CPlayerCameraBob::kCBS_GrappleNoBob;
     magnitude = 0.f;
@@ -2016,15 +2050,20 @@ float CPlayer::UpdateCameraBob(float dt, CStateManager& mgr) {
     magnitude = 0.f;
   }
   magnitude *= mgr.GetCameraManager()->GetCameraBobMagnitude();
+#if VERSION >= VERSION_R3IJ_00
+  magnitude *= CMath::FastMin(CMath::FastMax(0.f, 1.f - mPointerAimHoldBlend), 1.f);
+#endif
   mCameraBob->SetPlayerVelocity(velocity);
   mCameraBob->SetState(state, mgr);
   mCameraBob->SetBobMagnitude(magnitude);
-  const float timeScaleRange = 1.f - CPlayerCameraBob::GetSlowSpeedPeriodScale();
-  mCameraBob->SetBobTimeScale(timeScaleRange * magnitude +
-                                  CPlayerCameraBob::GetSlowSpeedPeriodScale());
+  const float slowScale = CPlayerCameraBob::GetSlowSpeedPeriodScale();
+  const float timeScaleRange = 1.f - slowScale;
+  mCameraBob->SetBobTimeScale(slowScale + timeScaleRange * magnitude);
   mCameraBob->Update(dt, mgr);
   return magnitude;
 }
+
+#if VERSION < VERSION_R3IJ_00
 
 void CPlayer::SetIntoBallReadyAnimation(CStateManager& mgr) {
   const CAnimPlaybackParms parms(2, -1, 1.f, true);
