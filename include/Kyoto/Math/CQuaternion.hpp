@@ -28,7 +28,7 @@ public:
   static CQuaternion ShortestRotationArc(const CVector3f&, const CVector3f&);
 
   static CQuaternion LookAt(const CUnitVector3f&, const CUnitVector3f&, const CRelAngle&);
-  static CQuaternion ClampedRotateTo(const CVector3f&, const CVector3f&, const CRelAngle&);
+  static CQuaternion ShortestRotationArcClamped(const CVector3f&, const CVector3f&, const CRelAngle&);
 
   bool IsValidQuaternion(float epsilon) const;
   static CQuaternion Slerp(const CQuaternion& a, const CQuaternion& b, float t);

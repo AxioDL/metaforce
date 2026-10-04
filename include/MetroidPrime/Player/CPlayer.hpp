@@ -40,14 +40,21 @@ class CPlayer : public CPhysicsActor, public TOneStatic< CPlayer > {
   friend class CMorphBall;
 
   struct CVisorSteam {
-    float mCurTargetAlpha;
-    float mCurAlphaInDur;
-    float mCurAlphaOutDur;
-    CAssetId mTex;
-    float mNextTargetAlpha;
-    float mNextAlphaInDur;
-    float mNextAlphaOutDur;
-    CAssetId mTxtr;
+    struct SParameters {
+      float mTargetAlpha;
+      float mAlphaInDur;
+      float mAlphaOutDur;
+      CAssetId mTexture;
+
+      SParameters(float targetAlpha, float alphaInDur, float alphaOutDur, CAssetId texture)
+      : mTargetAlpha(targetAlpha)
+      , mAlphaInDur(alphaInDur)
+      , mAlphaOutDur(alphaOutDur)
+      , mTexture(texture) {}
+    };
+
+    SParameters mCurrent;
+    SParameters mNext;
     float mAlpha;
     float mDelayTimer;
     bool mAffectsThermal;
@@ -55,11 +62,7 @@ class CPlayer : public CPhysicsActor, public TOneStatic< CPlayer > {
   public:
     CVisorSteam();
     CVisorSteam(float targetAlpha, float alphaInDur, float alphaOutDur, CAssetId tex);
-    // : x0_curTargetAlpha(targetAlpha)
-    // , x4_curAlphaInDur(alphaInDur)
-    // , x8_curAlphaOutDur(alphaOutDur)
-    // , xc_tex(tex) {}
-    CAssetId GetTextureId() const { return mTex; }
+    CAssetId GetTextureId() const { return mCurrent.mTexture; }
     void SetSteam(float targetAlpha, float alphaInDur, float alphaOutDur, CAssetId txtr,
                   bool affectsThermal);
     void Update(float dt);
@@ -71,6 +74,7 @@ public:
 #if VERSION >= VERSION_R3IJ_00
   bool CanOpenSelector(const CStateManager& mgr, CControlMapper::ECommands command) const;
   const CFinalInput& GetLastInput() const { return mLastInput; }
+  CControlMapper& ControlMapper() { return mControlMapper; }
   const CControlMapper& GetControlMapper() const { return mControlMapper; }
   const CAimingCursor& GetAimingCursor() const { return mAimingCursor; }
   bool GetPointerAimHeld() const { return mPointerAimHeld; }
@@ -268,9 +272,16 @@ public:
   void RemoveOrbitDisableSource(TUniqueId uid);
   bool CheckOrbitDisableSourceList() const;
   bool CheckOrbitDisableSourceList(const CStateManager& mgr);
+#if VERSION >= VERSION_R3IJ_00
+  bool WithinOrbitScreenEllipse(const CVector3f& screenCoords, EPlayerZoneInfo zone,
+                                const CStateManager& mgr) const;
+  bool WithinOrbitScreenBox(const CVector3f& screenCoords, EPlayerZoneInfo zone,
+                            EPlayerZoneType type, const CStateManager& mgr) const;
+#else
   bool WithinOrbitScreenEllipse(const CVector3f& screenCoords, EPlayerZoneInfo zone) const;
   bool WithinOrbitScreenBox(const CVector3f& screenCoords, EPlayerZoneInfo zone,
                             EPlayerZoneType type) const;
+#endif
   void SetAimTargetId(TUniqueId target);
   EOrbitValidationResult ValidateCurrentOrbitTargetId(CStateManager& mgr);
   EOrbitValidationResult ValidateOrbitTargetId(TUniqueId target, CStateManager& mgr) const;
@@ -387,6 +398,7 @@ public:
   void UpdateScanningState(const CFinalInput& input, CStateManager& mgr, float dt);
   bool IsUnderBetaMetroidAttack(CStateManager& mgr) const;
   void UpdateGrappleState(const CFinalInput& input, CStateManager& mgr);
+  void UpdateGrappleState(CStateManager& mgr, float dt);
   void ApplyGrappleForces(const CFinalInput& input, CStateManager& mgr, float dt);
 #if VERSION >= VERSION_R3IJ_00
   void ComputeFreeLook(const CFinalInput& input, CStateManager& mgr);
@@ -428,7 +440,7 @@ public:
   void DoThink(float dt, CStateManager& mgr);    // name?
   void DoPreThink(float dt, CStateManager& mgr); // name?
   void SetPlayerHitWallDuringMove();
-  void DoPostCameraStuff(float dt, CStateManager& mgr); // name?
+  void DoPostCameraStuff(float dt, CStateManager& mgr);
   float UpdateCameraBob(float dt, CStateManager& mgr);
   const CPlayerCameraBob* GetCameraBobObject() const { return mCameraBob.get(); }
   CPlayerCameraBob* CameraBobObject() { return mCameraBob.get(); }
@@ -456,6 +468,7 @@ public:
   void OrbitCarcass(CStateManager& mgr);
   void UpdateOrbitTarget(CStateManager& mgr);
   void UpdateOrbitOrientation(CStateManager& mgr);
+  void UpdateOrbitOrientation(CStateManager& mgr, float dt);
 
   CPlayerGun* PlayerGun() { return mGun.get(); }
   const CPlayerGun* GetPlayerGun() const { return mGun.get(); }

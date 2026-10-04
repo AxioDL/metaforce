@@ -2,11 +2,47 @@
 
 #include "Kyoto/Math/CVector3f.hpp"
 
+#if VERSION >= VERSION_R3IJ_00
+static inline double InvSqrtEstimate(double x) {
+  double estimate = __frsqrte(x);
+  const double halfX = 0.5 * x;
+  for (int i = 0; i < 2; ++i) {
+    const double square = estimate * estimate;
+    const double product = halfX * square;
+    estimate *= 1.5 - product;
+  }
+  const double square = estimate * estimate;
+  const double product = halfX * square;
+  return estimate * (1.5 - product);
+}
+
+float CMath::SqrtF(const float x) {
+  if (x > 0.f) {
+    return x * InvSqrtEstimate(x);
+  }
+  return 0.f;
+}
+
+double CMath::SqrtD(const double x) {
+  if (x > 0.0) {
+    return x * InvSqrtEstimate(x);
+  }
+  return 0.0;
+}
+
+float CMath::InvSqrtF(float x) {
+  if (x > 0.f) {
+    return InvSqrtEstimate(x);
+  }
+  return 0.f;
+}
+#else
 float CMath::SqrtF(const float x) { return sqrt(x); }
 
 double CMath::SqrtD(const double x) { return sqrt(x); }
 
 float CMath::InvSqrtF(float x) { return 1.f / sqrt(x); }
+#endif
 
 float CMath::ArcSineR(float v) { return asin(v); }
 
@@ -25,7 +61,11 @@ float CMath::SlowTangentR(float x) { return tan(x); }
 const float CMath::FloorF(float x) { return floor(x); }
 
 float CMath::CeilingF(float x) {
+#if VERSION >= VERSION_R3IJ_00
+  float tmp = floorf(x);
+#else
   float tmp = FloorF(x);
+#endif
   if (tmp == x) {
     return x;
   }
@@ -155,3 +195,52 @@ int CMath::FloorPowerOfTwo(int v) {
   const uint finalShift = ((1 - finalSig) >> 0x1f) + totalShift;
   return 1 << finalShift;
 }
+
+#if VERSION >= VERSION_R3IJ_00
+float CMath::EaseInOut(float t, EEaseTypes type, float easeInEnd, float easeOutStart,
+                      float start, float end, float slope) {
+  const float min = FastMin(start, end);
+  const float max = FastMax(start, end);
+  const float range = max - min;
+  t = FastMin(FastMax(0.f, t), 1.f);
+  easeInEnd = FastMin(FastMax(0.f, easeInEnd), 1.f);
+  easeOutStart = FastMin(FastMax(0.f, easeOutStart), 1.f);
+
+  switch (type) {
+  case kET_Sinusoidal: {
+    const float linearEndArea = easeOutStart + 2.f * easeInEnd / M_PIF - easeInEnd;
+    const float denominator = linearEndArea + 2.f * (1.f - easeOutStart) / M_PIF;
+    if (t <= easeInEnd) {
+      const float phase = (M_PIF / 2.f) * (t / easeInEnd);
+      t = (2.f * easeInEnd / M_PIF * (1.f + sinf(phase - M_PIF / 2.f))) / denominator;
+    } else if (t >= easeOutStart) {
+      const float tail = (2.f * (1.f - easeOutStart) / M_PIF) *
+          sinf((M_PIF / 2.f) * ((t - easeOutStart) / (1.f - easeOutStart)));
+      t = (easeOutStart + 2.f * easeInEnd / M_PIF - easeInEnd + tail) / denominator;
+    } else {
+      t = (t + 2.f * easeInEnd / M_PIF - easeInEnd) / denominator;
+    }
+    break;
+  }
+  case kET_Quadratic:
+    if (t <= easeInEnd) {
+      t = slope * (t * t / (2.f * easeInEnd));
+    } else if (t >= easeOutStart) {
+      const float easeInArea = 0.5f * (slope * easeInEnd);
+      const float linearArea = slope * (easeOutStart - easeInEnd);
+      const float slopeReduction = 0.5f * (slope * ((t - easeOutStart) / (1.f - easeOutStart)));
+      const float easeOutArea = (slope - slopeReduction) * (t - easeOutStart);
+      t = easeInArea + linearArea + easeOutArea;
+    } else {
+      const float easeInArea = slope * (0.5f * easeInEnd);
+      const float linearArea = slope * (t - easeInEnd);
+      t = easeInArea + linearArea;
+    }
+    break;
+  }
+
+  t = FastMin(FastMax(0.f, t), 1.f);
+  const float scaled = range * t;
+  return min + scaled;
+}
+#endif

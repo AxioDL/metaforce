@@ -21,6 +21,10 @@
 
 class CMath {
 public:
+  enum EEaseTypes { kET_Sinusoidal, kET_Quadratic };
+
+  static float EaseInOut(float t, EEaseTypes type, float easeInEnd, float easeOutStart,
+                        float start, float end, float slope);
   static float FastFmod(float x, float y) {
     int v = static_cast< int >(x * (1.f / y));
     return x - v * y;

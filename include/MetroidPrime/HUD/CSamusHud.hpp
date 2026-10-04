@@ -3,6 +3,31 @@
 
 #include "types.h"
 
+#if VERSION >= VERSION_R3IJ_00
+
+#include "rstl/string.hpp"
+
+class CStateManager;
+class CHUDMemoParms;
+
+class CSamusHud {
+public:
+  virtual ~CSamusHud();
+
+  explicit CSamusHud(const CStateManager& mgr);
+  static void ClearHudMemo();
+  static void DisplayHudMemo(const rstl::wstring& text, const CHUDMemoParms& info);
+
+private:
+  void InternalClearHudMemo();
+
+  // Partial Trilogy layout; the HUD allocation is 0xa60 bytes.
+  uchar mUnknown[0xa5c];
+};
+CHECK_SIZEOF(CSamusHud, 0xa60)
+
+#else
+
 #include "Kyoto/Audio/CSfxHandle.hpp"
 #include "Kyoto/Graphics/CColor.hpp"
 #include "Kyoto/Math/CMatrix3f.hpp"
@@ -262,5 +287,7 @@ private:
   EHudState GetDesiredHudState(const CStateManager& mgr) const;
 };
 CHECK_SIZEOF(CSamusHud, 0x8a0)
+
+#endif
 
 #endif // _CSAMUSHUD

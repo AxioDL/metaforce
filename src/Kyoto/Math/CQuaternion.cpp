@@ -73,51 +73,54 @@ CQuaternion CQuaternion::FromMatrix(const CTransform4f& matrix) {
 }
 
 CMatrix3f CQuaternion::BuildTransform() const {
-  const float x2 = 2.f * AxisX();
-  const float y2 = 2.f * AxisY();
-  const float z2 = 2.f * AxisZ();
+  float two = 2.f;
+  const float x2 = two * AxisX();
+  const float y2 = two * AxisY();
+  const float z2 = two * AxisZ();
   const float wx = w * x2;
   const float wy = w * y2;
   const float wz = w * z2;
   const float xy = x2 * AxisY();
   const float xz = x2 * AxisZ();
-  const float yz = y2 * AxisZ();
   const float xx = x2 * AxisX();
   const float yy = y2 * AxisY();
+  const float yz = y2 * AxisZ();
   const float zz = z2 * AxisZ();
   return CMatrix3f(1.f - yy - zz, xy - wz, xz + wy, xy + wz, 1.f - xx - zz, yz - wx, xz - wy,
                    yz + wx, 1.f - xx - yy);
 }
 
 CTransform4f CQuaternion::BuildTransform4f() const {
-  const float x2 = 2.f * AxisX();
-  const float y2 = 2.f * AxisY();
-  const float z2 = 2.f * AxisZ();
+  float two = 2.f;
+  const float x2 = two * AxisX();
+  const float y2 = two * AxisY();
+  const float z2 = two * AxisZ();
   const float wx = w * x2;
   const float wy = w * y2;
   const float wz = w * z2;
   const float xy = x2 * AxisY();
   const float xz = x2 * AxisZ();
-  const float yz = y2 * AxisZ();
   const float xx = x2 * AxisX();
   const float yy = y2 * AxisY();
+  const float yz = y2 * AxisZ();
   const float zz = z2 * AxisZ();
   return CTransform4f(1.f - yy - zz, xy - wz, xz + wy, 0.f, xy + wz, 1.f - xx - zz, yz - wx, 0.f,
                       xz - wy, yz + wx, 1.f - xx - yy, 0.f);
 }
 
 CTransform4f CQuaternion::BuildTransform4f(const CVector3f& translation) const {
-  const float x2 = 2.f * AxisX();
-  const float y2 = 2.f * AxisY();
-  const float z2 = 2.f * AxisZ();
+  float two = 2.f;
+  const float x2 = two * AxisX();
+  const float y2 = two * AxisY();
+  const float z2 = two * AxisZ();
   const float wx = w * x2;
   const float wy = w * y2;
   const float wz = w * z2;
   const float xy = x2 * AxisY();
   const float xz = x2 * AxisZ();
-  const float yz = y2 * AxisZ();
   const float xx = x2 * AxisX();
   const float yy = y2 * AxisY();
+  const float yz = y2 * AxisZ();
   const float zz = z2 * AxisZ();
   return CTransform4f(1.f - yy - zz, xy - wz, xz + wy, translation.GetX(), xy + wz, 1.f - xx - zz,
                       yz - wx, translation.GetY(), xz - wy, yz + wx, 1.f - xx - yy,
@@ -277,7 +280,7 @@ CQuaternion CQuaternion::YRotation(const CRelAngle& angle) { return AxisAngle(YA
 
 CQuaternion CQuaternion::ZRotation(const CRelAngle& angle) { return AxisAngle(ZAxis, angle); }
 
-CQuaternion CQuaternion::ClampedRotateTo(const CVector3f& from, const CVector3f& to,
+CQuaternion CQuaternion::ShortestRotationArcClamped(const CVector3f& from, const CVector3f& to,
                                          const CRelAngle& angle) {
   const CQuaternion arc = ShortestRotationArc(from, to);
   const float radians = angle.AsRadians();

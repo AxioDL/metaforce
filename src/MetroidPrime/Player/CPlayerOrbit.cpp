@@ -11,7 +11,21 @@
 #include "Kyoto/Math/CMath.hpp"
 #include "math.h"
 
+#include "MetroidPrime/Cameras/CCameraManager.hpp"
+
+#include "MetroidPrime/Cameras/CFirstPersonCamera.hpp"
+
+#include "MetroidPrime/CAxisAngle.hpp"
+
+#include "MetroidPrime/ScriptObjects/CScriptGrapplePoint.hpp"
+
+class CThardusRockProjectile;
+
 #if VERSION >= VERSION_R3IJ_00
+
+#include "MetroidPrime/CControlMapper.hpp"
+#include "MetroidPrime/CGameCollision.hpp"
+#include "Collision/CCollidableAABox.hpp"
 
 void CPlayer::UpdateOrbitModeTimer(float dt) {
   if (mOrbitState == kOS_NoOrbit) {
@@ -46,7 +60,6 @@ bool CPlayer::CheckPostGrapple() const {
 #include "MetroidPrime/CWorld.hpp"
 #include "MetroidPrime/CHealthInfo.hpp"
 #include "MetroidPrime/Player/CPlayerCameraBob.hpp"
-#include "MetroidPrime/CAxisAngle.hpp"
 #include "MetroidPrime/CGameCollision.hpp"
 #include "Collision/CCollidableAABox.hpp"
 #include "MetroidPrime/Enemies/CPatterned.hpp"
@@ -54,11 +67,10 @@ bool CPlayer::CheckPostGrapple() const {
 #include "MetroidPrime/Enemies/CThardusRockProjectile.hpp"
 #include "MetroidPrime/ScriptObjects/CScriptGunTurret.hpp"
 #include "MetroidPrime/ScriptObjects/CScriptDoor.hpp"
-#include "MetroidPrime/ScriptObjects/CScriptGrapplePoint.hpp"
+#endif
+
 #include "Collision/CMaterialFilter.hpp"
 #include "Collision/CRayCastResult.hpp"
-#include "MetroidPrime/Cameras/CCameraManager.hpp"
-#include "MetroidPrime/Cameras/CFirstPersonCamera.hpp"
 
 #include "Kyoto/Math/CAABox.hpp"
 #include "Kyoto/Basics/CCast.hpp"
@@ -74,6 +86,12 @@ static const CMaterialList kOccluderExcludeList =
     CMaterialList(kMT_ProjectilePassthrough, kMT_ScanPassthrough, kMT_Player);
 static const CMaterialFilter kOccluderFilter =
     CMaterialFilter::MakeIncludeExclude(kOccluderIncludeList, kOccluderExcludeList);
+#if VERSION >= VERSION_R3IJ_00
+static const CMaterialList kCharacterLineOfSightExcludeList =
+    CMaterialList(kMT_ProjectilePassthrough, kMT_ScanPassthrough, kMT_Character, kMT_Player);
+static const CMaterialFilter kCharacterLineOfSightFilter =
+    CMaterialFilter::MakeIncludeExclude(kLineOfSightIncludeList, kCharacterLineOfSightExcludeList);
+#endif
 static CAABox staticBox(CVector3f(0.f, 0.f, 0.f), CVector3f(1.f, 1.f, 1.f));
 
 static CAABox BuildNearListBox(bool cropBottom, const CTransform4f& xf, float x, float z, float y) {
@@ -87,6 +105,8 @@ bool CPlayer::ValidateOrbitTargetIdAndPointer(const TUniqueId id, CStateManager&
   }
   return TCastToConstPtr< CActor >(mgr.GetObjectById(id)) != nullptr;
 }
+
+#if VERSION < VERSION_R3IJ_00
 
 CPlayer::EOrbitValidationResult CPlayer::ValidateCurrentOrbitTargetId(CStateManager& mgr) {
   const CActor* const act = TCastToConstPtr< CActor >(mgr.GetObjectById(GetOrbitTargetId()));
@@ -164,6 +184,8 @@ CPlayer::EOrbitValidationResult CPlayer::ValidateCurrentOrbitTargetId(CStateMana
   return kOVR_OK;
 }
 
+#endif
+
 CPlayer::EOrbitValidationResult CPlayer::ValidateOrbitTargetId(const TUniqueId id,
                                                                CStateManager& mgr) const {
   if (id == kInvalidUniqueId) {
@@ -177,12 +199,19 @@ CPlayer::EOrbitValidationResult CPlayer::ValidateOrbitTargetId(const TUniqueId i
     return kOVR_PlayerNotReadyToTarget;
   }
   const CVector3f orbitPosition = act->GetOrbitPosition(mgr);
-  const CVector3f eyeToOrbit = orbitPosition - GetEyePosition();
+  const CVector3f eyePosition = GetEyePosition();
+  const CVector3f eyeToOrbit = orbitPosition - eyePosition;
   CVector3f eyeToOrbitFlat = eyeToOrbit;
   eyeToOrbitFlat.SetZ(0.f);
   if (eyeToOrbitFlat.CanBeNormalized() && eyeToOrbitFlat.Magnitude() > 1.f) {
+#if VERSION >= VERSION_R3IJ_00
+    float maxSin = 1.f;
+    const float angle = static_cast< float >(
+        asin(CMath::FastLimit(CMath::AbsF(eyeToOrbit.GetZ()) / eyeToOrbit.Magnitude(), maxSin)));
+#else
     const float angle = static_cast< float >(
         asin(CMath::Limit(CMath::AbsF(eyeToOrbit.GetZ()) / eyeToOrbit.Magnitude(), 1.f)));
+#endif
     if ((eyeToOrbit.GetZ() >= 0.f && angle >= gpTweakPlayer->GetOrbitUpperAngle()) ||
         (eyeToOrbit.GetZ() < 0.f && angle >= gpTweakPlayer->GetOrbitLowerAngle())) {
       return kOVR_ExtremeHorizonAngle;
@@ -225,6 +254,8 @@ float CPlayer::GetOrbitMaxLockDistance(const CStateManager& mgr) const {
   }
   return distance;
 }
+
+#if VERSION < VERSION_R3IJ_00
 
 void CPlayer::UpdateOrbitTarget(CStateManager& mgr) {
   if (!ValidateOrbitTargetIdAndPointer(GetOrbitTargetId(), mgr)) {
@@ -302,17 +333,47 @@ void CPlayer::UpdateOrbitTarget(CStateManager& mgr) {
   UpdateOrbitZPosition();
 }
 
-void CPlayer::UpdateOrbitOrientation(CStateManager& mgr) {
+#endif
+
+#if VERSION >= VERSION_R3IJ_00
+void CPlayer::UpdateOrbitOrientation(CStateManager& mgr, float dt)
+#else
+void CPlayer::UpdateOrbitOrientation(CStateManager& mgr)
+#endif
+{
   if (mMorphBallState != kMS_Unmorphed) {
     return;
   }
   switch (mOrbitState) {
   case kOS_NoOrbit:
+#if VERSION >= VERSION_R3IJ_00
+    if (mTurnToCursor) {
+      CVector3f playerToCursor = mAimingCursor.GetCursorOrbitPosition(mgr) - GetTranslation();
+      playerToCursor.SetZ(0.f);
+      if (playerToCursor.IsMagnitudeSafe()) {
+        playerToCursor.Normalize();
+        float maxBlend = 1.f;
+        float maxCount = 60.f;
+        const float blend = CMath::FastMin(
+            CMath::FastMax(0.f, mAimingCursor.GetCursorObjectCount() / maxCount), maxBlend);
+        const float scale = CMath::EaseInOut(blend, CMath::kET_Sinusoidal, 0.25f, 0.75f,
+                                           0.f, 1.f, 2.f);
+        const CRelAngle maxAngle = CRelAngle::FromRadians(scale * (CMath::Deg2Rad(60.f) * dt));
+        const CQuaternion rotation = CQuaternion::ShortestRotationArcClamped(
+            GetTransform().GetForward(), playerToCursor, maxAngle);
+        CTransform4f xf = rotation.BuildTransform4f() * GetTransform();
+        xf.SetTranslation(GetTranslation());
+        SetTransform(xf);
+      }
+    }
+#endif
     return;
   case kOS_OrbitPoint:
+#if VERSION < VERSION_R3IJ_00
     if (mInFreeLook) {
       return;
     }
+#endif
   case kOS_OrbitObject:
   case kOS_OrbitCarcass:
   case kOS_ForcedOrbitObject: {
@@ -329,6 +390,7 @@ void CPlayer::UpdateOrbitOrientation(CStateManager& mgr) {
     break;
   }
   case kOS_Grapple:
+    return;
   default:
     break;
   }
@@ -344,8 +406,14 @@ void CPlayer::UpdateOrbitSelection(const CFinalInput& input, CStateManager& mgr)
     mOrbitNextTargetId = kInvalidUniqueId;
     return;
   }
+#if VERSION >= VERSION_R3IJ_00
+  if (ControlMapper().GetPressInput(CControlMapper::kC_OrbitObject, input,
+                                    CControlMapper::kFT_Filtered) &&
+      mOrbitNextTargetId != kInvalidUniqueId) {
+#else
   if (ControlMapper::GetPressInput(ControlMapper::kC_OrbitObject, input) &&
       mOrbitNextTargetId != kInvalidUniqueId) {
+#endif
     SetOrbitTargetId(mOrbitNextTargetId, mgr);
     if (ValidateAimTargetId(GetOrbitTargetId(), mgr)) {
       SetAimTargetId(GetOrbitTargetId());
@@ -356,6 +424,9 @@ void CPlayer::UpdateOrbitSelection(const CFinalInput& input, CStateManager& mgr)
 }
 
 void CPlayer::ActivateOrbitSource(CStateManager& mgr) {
+#if VERSION >= VERSION_R3IJ_00
+  BreakOrbit(kOB_InvalidateTarget, mgr);
+#else
   switch (mOrbitSource) {
   case 0:
   default:
@@ -372,6 +443,7 @@ void CPlayer::ActivateOrbitSource(CStateManager& mgr) {
     }
     break;
   }
+#endif
 }
 
 void CPlayer::UpdateOrbitInput(const CFinalInput& input, CStateManager& mgr) {
@@ -385,12 +457,26 @@ void CPlayer::UpdateOrbitInput(const CFinalInput& input, CStateManager& mgr) {
   if (mOrbitState == kOS_NoOrbit) {
     SetOrbitNextTargetId(FindOrbitTargetId(mgr));
   }
+#if VERSION >= VERSION_R3IJ_00
+  if (ControlMapper().GetDigitalInput(CControlMapper::kC_OrbitClose, input,
+                                      CControlMapper::kFT_Filtered) ||
+      ControlMapper().GetDigitalInput(CControlMapper::kC_OrbitFar, input,
+                                      CControlMapper::kFT_Filtered) ||
+      ControlMapper().GetDigitalInput(CControlMapper::kC_OrbitObject, input,
+                                      CControlMapper::kFT_Filtered)) {
+#else
   if (ControlMapper::GetDigitalInput(ControlMapper::kC_OrbitClose, input) ||
       ControlMapper::GetDigitalInput(ControlMapper::kC_OrbitFar, input) ||
       ControlMapper::GetDigitalInput(ControlMapper::kC_OrbitObject, input)) {
+#endif
     switch (mOrbitState) {
     case kOS_NoOrbit:
+#if VERSION >= VERSION_R3IJ_00
+      if (ControlMapper().GetPressInput(CControlMapper::kC_OrbitObject, input,
+                                        CControlMapper::kFT_Filtered)) {
+#else
       if (ControlMapper::GetPressInput(ControlMapper::kC_OrbitObject, input)) {
+#endif
         SetOrbitTargetId(GetOrbitNextTargetId(), mgr);
         if (mOrbitTargetId != kInvalidUniqueId) {
           if (ValidateAimTargetId(GetOrbitTargetId(), mgr)) {
@@ -400,10 +486,20 @@ void CPlayer::UpdateOrbitInput(const CFinalInput& input, CStateManager& mgr) {
           UpdateOrbitPosition(gpTweakPlayer->GetOrbitNormalDistance(mOrbitType), mgr);
         }
       } else {
+#if VERSION >= VERSION_R3IJ_00
+        if (ControlMapper().GetPressInput(CControlMapper::kC_OrbitFar, input,
+                                          CControlMapper::kFT_Filtered)) {
+#else
         if (ControlMapper::GetPressInput(ControlMapper::kC_OrbitFar, input)) {
+#endif
           OrbitPoint(kOT_Far, mgr);
         }
+#if VERSION >= VERSION_R3IJ_00
+        if (ControlMapper().GetPressInput(CControlMapper::kC_OrbitClose, input,
+                                          CControlMapper::kFT_Filtered)) {
+#else
         if (ControlMapper::GetPressInput(ControlMapper::kC_OrbitClose, input)) {
+#endif
           OrbitPoint(kOT_Close, mgr);
         }
       }
@@ -435,7 +531,12 @@ void CPlayer::UpdateOrbitInput(const CFinalInput& input, CStateManager& mgr) {
       UpdateOrbitSelection(input, mgr);
       break;
     case kOS_OrbitPoint:
+#if VERSION >= VERSION_R3IJ_00
+      if (ControlMapper().GetPressInput(CControlMapper::kC_OrbitObject, input,
+                                        CControlMapper::kFT_Filtered)) {
+#else
       if (ControlMapper::GetPressInput(ControlMapper::kC_OrbitObject, input)) {
+#endif
         SetOrbitTargetId(FindOrbitTargetId(mgr), mgr);
         if (mOrbitTargetId != kInvalidUniqueId) {
           if (ValidateAimTargetId(GetOrbitTargetId(), mgr)) {
@@ -449,14 +550,26 @@ void CPlayer::UpdateOrbitInput(const CFinalInput& input, CStateManager& mgr) {
         case kOT_Default:
           break;
         case kOT_Far:
+#if VERSION >= VERSION_R3IJ_00
+          if (ControlMapper().GetDigitalInput(CControlMapper::kC_OrbitClose, input,
+                                              CControlMapper::kFT_Filtered)) {
+#else
           if (ControlMapper::GetDigitalInput(ControlMapper::kC_OrbitClose, input)) {
+#endif
             mOrbitType = kOT_Close;
             SetOrbitPosition(gpTweakPlayer->GetOrbitNormalDistance(mOrbitType), mgr);
           }
           break;
         case kOT_Close:
+#if VERSION >= VERSION_R3IJ_00
+          if (ControlMapper().GetDigitalInput(CControlMapper::kC_OrbitFar, input,
+                                              CControlMapper::kFT_Filtered) &&
+              !ControlMapper().GetDigitalInput(CControlMapper::kC_OrbitClose, input,
+                                               CControlMapper::kFT_Filtered)) {
+#else
           if (ControlMapper::GetDigitalInput(ControlMapper::kC_OrbitFar, input) &&
               !ControlMapper::GetDigitalInput(ControlMapper::kC_OrbitClose, input)) {
+#endif
             mOrbitType = kOT_Far;
             SetOrbitPosition(gpTweakPlayer->GetOrbitNormalDistance(mOrbitType), mgr);
           }
@@ -468,7 +581,12 @@ void CPlayer::UpdateOrbitInput(const CFinalInput& input, CStateManager& mgr) {
       UpdateOrbitPosition(gpTweakPlayer->GetOrbitNormalDistance(mOrbitType), mgr);
       break;
     case kOS_OrbitCarcass:
+#if VERSION >= VERSION_R3IJ_00
+      if (ControlMapper().GetPressInput(CControlMapper::kC_OrbitObject, input,
+                                        CControlMapper::kFT_Filtered)) {
+#else
       if (ControlMapper::GetPressInput(ControlMapper::kC_OrbitObject, input)) {
+#endif
         SetOrbitTargetId(FindOrbitTargetId(mgr), mgr);
         if (mOrbitTargetId != kInvalidUniqueId) {
           if (ValidateAimTargetId(GetOrbitTargetId(), mgr)) {
@@ -535,6 +653,8 @@ void CPlayer::UpdateOrbitZone(CStateManager& mgr) {
   }
 }
 
+#if VERSION < VERSION_R3IJ_00
+
 void CPlayer::UpdateOrbitModeTimer(float dt) {
   if (mOrbitState == kOS_NoOrbit && mOrbitModeTimer > 0.f) {
     mOrbitModeTimer -= dt;
@@ -542,6 +662,8 @@ void CPlayer::UpdateOrbitModeTimer(float dt) {
   }
   mOrbitModeTimer = 0.f;
 }
+
+#endif
 
 void CPlayer::UpdateOrbitPreventionTimer(float dt) {
   if (mOrbitPreventionTimer > 0.f) {
@@ -589,10 +711,28 @@ bool CPlayer::CheckOrbitDisableSourceList(const CStateManager& mgr) {
   return !mOrbitDisableList.empty();
 }
 
+#if VERSION >= VERSION_R3IJ_00
+bool CPlayer::WithinOrbitScreenEllipse(const CVector3f& screenCoords, EPlayerZoneInfo zone,
+                                     const CStateManager& mgr) const {
+#else
 bool CPlayer::WithinOrbitScreenEllipse(const CVector3f& screenCoords, EPlayerZoneInfo zone) const {
+#endif
   if (screenCoords.GetZ() >= 1.f) {
     return false;
   }
+#if VERSION >= VERSION_R3IJ_00
+  const float centerX = CCast::LtoF(gpTweakPlayer->GetOrbitZoneCentreX(zone, mgr));
+  const float x = CMath::AbsF(screenCoords.GetX() - centerX);
+  const float centerY = CCast::LtoF(gpTweakPlayer->GetOrbitZoneCentreY(zone, mgr));
+  const float y = CMath::AbsF(screenCoords.GetY() - centerY);
+  const float xSq = x * x;
+  const float ySq = y * y;
+  const float heXSq =
+      CCast::LtoF(gpTweakPlayer->GetOrbitZoneWidth(zone) * gpTweakPlayer->GetOrbitZoneWidth(zone));
+  const float heYSq =
+      CCast::LtoF(gpTweakPlayer->GetOrbitZoneHeight(zone) * gpTweakPlayer->GetOrbitZoneHeight(zone));
+  return xSq <= heXSq * (1.f - ySq / heYSq);
+#else
   const float x =
       CMath::AbsF(screenCoords.GetX() - CCast::LtoF(gpTweakPlayer->GetOrbitZoneCentreX(zone)));
   const float heYSq = CCast::LtoF(gpTweakPlayer->GetOrbitZoneHeight(zone) *
@@ -603,25 +743,49 @@ bool CPlayer::WithinOrbitScreenEllipse(const CVector3f& screenCoords, EPlayerZon
       CMath::AbsF(screenCoords.GetY() - CCast::LtoF(gpTweakPlayer->GetOrbitZoneCentreY(zone)));
   const bool inside = x * x <= (1.f - y * y / heYSq) * heXSq;
   return inside;
+#endif
 }
 
+#if VERSION >= VERSION_R3IJ_00
 bool CPlayer::WithinOrbitScreenBox(const CVector3f& screenCoords, EPlayerZoneInfo zone,
-                                   EPlayerZoneType type) const {
+                                 EPlayerZoneType type, const CStateManager& mgr) const {
+#else
+bool CPlayer::WithinOrbitScreenBox(const CVector3f& screenCoords, EPlayerZoneInfo zone,
+                                 EPlayerZoneType type) const {
+#endif
   if (screenCoords.GetZ() >= 1.f) {
     return false;
   }
   switch (type) {
-  case kZT_Box:
-    if (CMath::AbsF(screenCoords.GetX() - CCast::LtoF(gpTweakPlayer->GetOrbitZoneCentreX(zone))) <=
-            CCast::LtoF(gpTweakPlayer->GetOrbitZoneWidth(zone)) &&
-        CMath::AbsF(screenCoords.GetY() - CCast::LtoF(gpTweakPlayer->GetOrbitZoneCentreY(zone))) <=
-            CCast::LtoF(gpTweakPlayer->GetOrbitZoneHeight(zone)) &&
-        screenCoords.GetZ() < 1.f) {
-      return true;
+  case kZT_Box: {
+    const float x = screenCoords.GetX();
+#if VERSION >= VERSION_R3IJ_00
+    const float distanceX =
+        CMath::AbsF(x - CCast::LtoF(gpTweakPlayer->GetOrbitZoneCentreX(zone, mgr)));
+#else
+    const float distanceX = CMath::AbsF(x - CCast::LtoF(gpTweakPlayer->GetOrbitZoneCentreX(zone)));
+#endif
+    if (distanceX <= CCast::LtoF(gpTweakPlayer->GetOrbitZoneWidth(zone))) {
+      const float y = screenCoords.GetY();
+#if VERSION >= VERSION_R3IJ_00
+      const float distanceY =
+          CMath::AbsF(y - CCast::LtoF(gpTweakPlayer->GetOrbitZoneCentreY(zone, mgr)));
+#else
+      const float distanceY = CMath::AbsF(y - CCast::LtoF(gpTweakPlayer->GetOrbitZoneCentreY(zone)));
+#endif
+      if (distanceY <= CCast::LtoF(gpTweakPlayer->GetOrbitZoneHeight(zone)) &&
+          screenCoords.GetZ() < 1.f) {
+        return true;
+      }
     }
     break;
+  }
   case kZT_Ellipse:
+#if VERSION >= VERSION_R3IJ_00
+    return WithinOrbitScreenEllipse(screenCoords, zone, mgr);
+#else
     return WithinOrbitScreenEllipse(screenCoords, zone);
+#endif
   default:
     return true;
   }
@@ -632,16 +796,14 @@ void CPlayer::FindOrbitableObjects(const rstl::reserved_vector< TUniqueId, 1024 
                                    rstl::vector< TUniqueId >& listOut, EPlayerZoneInfo zone,
                                    EPlayerZoneType type, CStateManager& mgr,
                                    bool onScreenTest) const {
+  const CVector3f position = GetTranslation();
   const CVector3f eyePosition = GetEyePosition();
   CVector3f forward = GetTransform().GetForward();
   forward.Normalize();
   const CFirstPersonCamera* const fpCamera = mgr.GetCameraManager()->GetFirstPersonCamera();
   for (AUTO(it, nearObjects.begin()); it != nearObjects.end(); ++it) {
     const CActor* const act = TCastToConstPtr< CActor >(mgr.GetObjectById(*it));
-    if (act) {
-      if (act->GetUniqueId() == GetUniqueId()) {
-        continue;
-      }
+    if (act && act->GetUniqueId() != GetUniqueId()) {
       if (ValidateOrbitTargetId(act->GetUniqueId(), mgr) != kOVR_OK) {
         continue;
       }
@@ -653,23 +815,37 @@ void CPlayer::FindOrbitableObjects(const rstl::reserved_vector< TUniqueId, 1024 
                               2.f +
                           CCast::LtoF(CGraphics::GetViewportHeight()) / 2.f);
       bool pass = false;
+#if VERSION >= VERSION_R3IJ_00
+      if (onScreenTest && WithinOrbitScreenBox(screenPosition, zone, type, mgr)) {
+        pass = true;
+      } else if (!onScreenTest && !WithinOrbitScreenBox(screenPosition, zone, type, mgr)) {
+        pass = true;
+      }
+#else
       if (onScreenTest && WithinOrbitScreenBox(screenPosition, zone, type)) {
         pass = true;
       } else if (!onScreenTest && !WithinOrbitScreenBox(screenPosition, zone, type)) {
         pass = true;
       }
+#endif
       if (pass) {
         const CVector3f eyeToOrbit = orbitPosition - eyePosition;
         const float distance = eyeToOrbit.Magnitude();
         if (!act->GetDoTargetDistanceTest() || distance <= GetOrbitMaxTargetDistance(mgr)) {
           if (listOut.size() != listOut.capacity()) {
+#if VERSION >= VERSION_R3IJ_00
+            listOut.push_back_unsafe(act->GetUniqueId());
+#else
             listOut.push_back(act->GetUniqueId());
+#endif
           }
         }
       }
     }
   }
 }
+
+#if VERSION < VERSION_R3IJ_00
 
 TUniqueId CPlayer::FindBestOrbitableObject(const rstl::vector< TUniqueId >& ids,
                                            EPlayerZoneInfo zone, CStateManager& mgr) const {
@@ -805,6 +981,8 @@ TUniqueId CPlayer::FindBestOrbitableObject(const rstl::vector< TUniqueId >& ids,
   return bestId;
 }
 
+#endif
+
 void CPlayer::UpdateOrbitableObjects(CStateManager& mgr) {
   mOnScreenOrbitObjects.clear();
   mNearbyOrbitObjects.clear();
@@ -837,6 +1015,8 @@ void CPlayer::UpdateOrbitableObjects(CStateManager& mgr) {
 TUniqueId CPlayer::FindOrbitTargetId(CStateManager& mgr) {
   return FindBestOrbitableObject(mOnScreenOrbitObjects, mOrbitZoneMode, mgr);
 }
+
+#if VERSION < VERSION_R3IJ_00
 
 TUniqueId CPlayer::CheckEnemiesAgainstOrbitZone(const rstl::reserved_vector< TUniqueId, 1024 >& ids,
                                                 EPlayerZoneInfo zone, EPlayerZoneType type,
@@ -1124,6 +1304,8 @@ void CPlayer::UpdateOrbitZPosition() {
   }
 }
 
+#endif
+
 void CPlayer::UpdateOrbitPosition(float distance, CStateManager& mgr) {
   switch (mOrbitState) {
   case kOS_NoOrbit:
@@ -1148,10 +1330,17 @@ void CPlayer::UpdateOrbitPosition(float distance, CStateManager& mgr) {
 
 void CPlayer::SetOrbitTargetId(TUniqueId id, CStateManager& mgr) {
   if (id != kInvalidUniqueId) {
-    const CPatterned* patterned = TCastToConstPtr< CPatterned >(mgr.GetObjectById(id));
-    const CWallCrawlerSwarm* swarm = TCastToConstPtr< CWallCrawlerSwarm >(mgr.GetObjectById(id));
-    const CThardusRockProjectile* rock = PATTERNED_CAST_TO(CThardusRockProjectile, const_cast< CEntity* >(mgr.GetObjectById(id)));
-    const CScriptGunTurret* turret = TCastToConstPtr< CScriptGunTurret >(mgr.GetObjectById(id));
+    const CPatterned* const patterned = TCastToConstPtr< CPatterned >(mgr.GetObjectById(id));
+    const CWallCrawlerSwarm* const swarm =
+        TCastToConstPtr< CWallCrawlerSwarm >(mgr.GetObjectById(id));
+#ifdef HAS_TYPES_MATCH
+    const CThardusRockProjectile* const rock =
+        TCastToConstPtr< CThardusRockProjectile >(mgr.GetObjectById(id));
+#else
+    const CThardusRockProjectile* const rock =
+        PATTERNED_CAST_TO(CThardusRockProjectile, const_cast< CEntity* >(mgr.GetObjectById(id)));
+#endif
+    const CScriptGunTurret* const turret = TCastToConstPtr< CScriptGunTurret >(mgr.GetObjectById(id));
     if (patterned || swarm || rock || turret) {
       mOrbitingEnemy = true;
     } else {
@@ -1173,7 +1362,7 @@ void CPlayer::SetOrbitState(EPlayerOrbitState state, CStateManager& mgr) {
     break;
   case kOS_OrbitCarcass: {
     camera->SetLockCamera(true);
-    CVector3f playerToPoint = mOrbitPoint - GetTranslation();
+    CVector3f playerToPoint = mOrbitPoint - GetTransform().GetTranslation();
     playerToPoint.SetZ(0.f);
     if (playerToPoint.CanBeNormalized()) {
       x340_ = playerToPoint.Magnitude();
@@ -1199,6 +1388,8 @@ void CPlayer::SetOrbitState(EPlayerOrbitState state, CStateManager& mgr) {
   }
 }
 
+#if VERSION < VERSION_R3IJ_00
+
 CVector3f CPlayer::GetHUDOrbitTargetPosition() const {
   return mOrbitPoint + mCameraBob->GetCameraBobTransformation().GetTranslation();
 }
@@ -1211,11 +1402,15 @@ float CPlayer::CalculateOrbitZBasedDistance(EPlayerOrbitType type) {
   return distance;
 }
 
+#endif
+
 void CPlayer::OrbitPoint(EPlayerOrbitType type, CStateManager& mgr) {
   mOrbitType = type;
   SetOrbitState(kOS_OrbitPoint, mgr);
   SetOrbitPosition(gpTweakPlayer->GetOrbitNormalDistance(mOrbitType), mgr);
 }
+
+#if VERSION < VERSION_R3IJ_00
 
 void CPlayer::OrbitCarcass(CStateManager& mgr) {
   if (mOrbitState == kOS_OrbitObject) {
@@ -1224,11 +1419,15 @@ void CPlayer::OrbitCarcass(CStateManager& mgr) {
   }
 }
 
+#endif
+
 void CPlayer::PreventFallingCameraPitch() {
   mJumpCameraTimer = 0.f;
   mFallCameraTimer = 0.01f;
   mCancelCameraPitch = true;
 }
+
+#if VERSION < VERSION_R3IJ_00
 
 bool CPlayer::CheckPostGrapple() const {
   if (mMovementState != NPlayer::kMS_OnGround &&
@@ -1238,10 +1437,12 @@ bool CPlayer::CheckPostGrapple() const {
   return false;
 }
 
+#endif
+
 void CPlayer::TryToBreakOrbit(TUniqueId id, EOrbitBrokenType type, CStateManager& mgr) {
-  if (mOrbitState == kOS_OrbitObject || mOrbitState == kOS_Grapple ||
-      mOrbitState == kOS_ForcedOrbitObject) {
-    if (id == mOrbitTargetId) {
+  if (GetOrbitState() == kOS_OrbitObject || GetOrbitState() == kOS_Grapple ||
+      GetOrbitState() == kOS_ForcedOrbitObject) {
+    if (id == GetOrbitTargetId()) {
       BreakOrbit(type, mgr);
     }
   }
@@ -1249,6 +1450,9 @@ void CPlayer::TryToBreakOrbit(TUniqueId id, EOrbitBrokenType type, CStateManager
 
 void CPlayer::BreakOrbit(EOrbitBrokenType type, CStateManager& mgr) {
   mOrbitBrokenType = type;
+#if VERSION >= VERSION_R3IJ_00
+  SetOrbitState(kOS_NoOrbit, mgr);
+#else
   switch (type) {
   case kOB_ActivateOrbitSource:
     ActivateOrbitSource(mgr);
@@ -1262,21 +1466,33 @@ void CPlayer::BreakOrbit(EOrbitBrokenType type, CStateManager& mgr) {
     SetOrbitState(kOS_NoOrbit, mgr);
     break;
   }
+#endif
 }
 
 void CPlayer::BreakGrapple(EOrbitBrokenType type, CStateManager& mgr) {
   mJumpCameraTimer = 0.f;
   mFallCameraTimer = 0.f;
+#if VERSION >= VERSION_R3IJ_00
+  if (mGrappleState == kGS_Swinging) {
+#else
   if (static_cast< int >(gpTweakPlayer->GetGrappleJumpMode()) == 2 &&
       mGrappleState == kGS_Swinging) {
+#endif
     ApplyGrappleJump(mgr);
     PreventFallingCameraPitch();
+#if VERSION >= VERSION_R3IJ_00
+    mGrappleJumpTimeout = gpTweakPlayer->GetGrappleReleaseTime();
+#endif
   }
   BreakOrbit(type, mgr);
   mGrappleState = kGS_None;
   AddMaterial(kMT_GroundCollider, mgr);
   mGun->GrappleArm().SetAnimState(CGrappleArm::kAS_OutOfGrapple);
+#if VERSION >= VERSION_R3IJ_00
+  if (!CheckPostGrapple()) {
+#else
   if (!CheckPostGrapple() && mGrappleState != kGS_JumpOff) {
+#endif
     DrawGun(mgr);
   }
 }
@@ -1304,20 +1520,108 @@ void CPlayer::ApplyGrappleJump(CStateManager& mgr) {
   if (mGrappleSwingTimer < 0.5f * gpTweakPlayer->GetGrappleSwingPeriod()) {
     swingAxis *= -1.f;
   }
-  const CVector3f pointToPlayer = GetTranslation() - point->GetTranslation();
+  const CVector3f pointToPlayer =
+      GetTransform().GetTranslation() - point->GetTransform().GetTranslation();
   const CVector3f cross = CVector3f::Cross(pointToPlayer.AsNormalized(), swingAxis);
   CVector3f pointToPlayerFlat = pointToPlayer;
   pointToPlayerFlat.SetZ(0.f);
   float dot = 1.f;
   if (pointToPlayerFlat.CanBeNormalized() && cross.CanBeNormalized()) {
+    float maxCosAngle = 1.f;
     float cosAngle =
         CMath::AbsF(CVector3f::Dot(cross.AsNormalized(), pointToPlayerFlat.AsNormalized()));
+#if VERSION >= VERSION_R3IJ_00
+    cosAngle = CMath::FastMin(CMath::FastMax(-maxCosAngle, cosAngle), maxCosAngle);
+#else
     cosAngle = CMath::Limit(cosAngle, 1.f);
+#endif
     dot = cosAngle;
   }
   const CVector3f force = dot * (10000.f * (gpTweakPlayer->GetGrappleJumpForce() * cross));
   ApplyForceWR(force, CAxisAngle::Identity());
 }
+
+#if VERSION >= VERSION_R3IJ_00
+
+void CPlayer::UpdateGrappleState(CStateManager& mgr, float dt) {
+  if (!mgr.GetPlayerState()->HasPowerUp(CPlayerState::kIT_GrappleBeam)) {
+    return;
+  }
+  const float& zero = 0.f;
+  const float& time = mGrappleJumpTimeout - dt;
+  mGrappleJumpTimeout = CMath::FastMax(zero, time);
+  if (mMorphBallState == kMS_Morphed ||
+      mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::kPV_Scan ||
+      mgr.GetPlayerState()->GetTransitioningVisor() == CPlayerState::kPV_Scan) {
+    return;
+  }
+  if (GetOrbitTargetId() == kInvalidUniqueId) {
+    mGrappleState = kGS_None;
+    AddMaterial(kMT_GroundCollider, mgr);
+    return;
+  }
+
+  const CScriptGrapplePoint* point =
+      TCastToConstPtr< CScriptGrapplePoint >(mgr.GetObjectById(GetOrbitTargetId()));
+  if (point) {
+    const CVector3f position = GetTranslation();
+    const CVector3f eyePosition = GetEyePosition();
+    CVector3f playerToPoint = point->GetTransform().GetTranslation() - eyePosition;
+    CVector3f playerToPointFlat = playerToPoint;
+    playerToPointFlat.SetZ(0.f);
+    if (playerToPoint.CanBeNormalized() && playerToPointFlat.CanBeNormalized() &&
+        playerToPointFlat.Magnitude() > 2.f) {
+      if (mOrbitState == kOS_OrbitObject && playerToPoint.CanBeNormalized()) {
+        const CRayCastResult result =
+            mgr.RayStaticIntersection(eyePosition, playerToPoint.AsNormalized(),
+                                      playerToPoint.Magnitude(), kLineOfSightFilter);
+        if (result.IsInvalid()) {
+          HolsterGun(mgr);
+          switch (mGrappleState) {
+          case kGS_Swinging:
+          case kGS_Firing:
+            switch (mGun->GrappleArm().GetAnimState()) {
+            case CGrappleArm::kAS_IntoGrappleIdle:
+              mGun->GrappleArm().SetAnimState(CGrappleArm::kAS_FireGrapple);
+              break;
+            case CGrappleArm::kAS_Connected:
+              BeginGrapple(playerToPoint, mgr);
+              break;
+            default:
+              break;
+            }
+            break;
+          case kGS_None:
+            mGrappleState = kGS_Firing;
+            mGun->GrappleArm().Activate(true);
+            break;
+          default:
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  if (mOrbitState == kOS_Grapple) {
+    if (!point) {
+      BreakGrapple(kOB_Default, mgr);
+      return;
+    }
+    const CVector3f position = GetTranslation();
+    const CVector3f eyePosition = GetEyePosition();
+    const CVector3f playerToPoint = point->GetTransform().GetTranslation() - eyePosition;
+    if (playerToPoint.CanBeNormalized()) {
+      const CRayCastResult result = mgr.RayStaticIntersection(
+          eyePosition, playerToPoint.AsNormalized(), playerToPoint.Magnitude(), kLineOfSightFilter);
+      if (result.IsValid()) {
+        BreakGrapple(kOB_LostGrappleLineOfSight, mgr);
+      }
+    }
+  }
+}
+
+#else
 
 void CPlayer::UpdateGrappleState(const CFinalInput& input, CStateManager& mgr) {
   if (!mgr.GetPlayerState()->HasPowerUp(CPlayerState::kIT_GrappleBeam) ||
@@ -1524,13 +1828,14 @@ void CPlayer::UpdateGrappleState(const CFinalInput& input, CStateManager& mgr) {
   }
 }
 
+#endif
+
 bool CPlayer::ValidateFPPosition(CVector3f position, CStateManager& mgr) {
   TEntityList nearList;
   const CMaterialFilter solidFilter = CMaterialFilter::MakeInclude(CMaterialList(kMT_Solid));
-  const CVector3f margin(1.f, 1.f, 1.f);
   mgr.BuildColliderList(nearList, *this,
-                        CAABox(mFpBounds.GetMinPoint() - margin + position,
-                               mFpBounds.GetMaxPoint() + margin + position));
+                        CAABox(mFpBounds.GetMinPoint() - CVector3f(1.f, 1.f, 1.f) + position,
+                               mFpBounds.GetMaxPoint() + CVector3f(1.f, 1.f, 1.f) + position));
   const CAABox& baseBounds = GetBaseBoundingBox();
   const CCollidableAABox collisionBounds(
       CAABox(baseBounds.GetMinPoint() + position, baseBounds.GetMaxPoint() + position),
@@ -1543,11 +1848,12 @@ bool CPlayer::ValidateFPPosition(CVector3f position, CStateManager& mgr) {
 }
 
 void CPlayer::ApplyGrappleForces(const CFinalInput& input, CStateManager& mgr, float dt) {
-  const CVector3f playerPosition = GetTranslation();
+  CVector3f playerPosition = GetTranslation();
   if (const CScriptGrapplePoint* point =
           TCastToConstPtr< CScriptGrapplePoint >(mgr.GetObjectById(GetOrbitTargetId()))) {
+    const CGrappleParameters& parameters = point->GetGrappleParameters();
     const CVector3f pointPosition = point->GetTranslation();
-    switch (mGrappleState) {
+    switch (GetGrappleState()) {
     case kGS_Pull: {
       const CVector3f swingLow =
           pointPosition + CVector3f(0.f, 0.f, -gpTweakPlayer->GetGrappleSwingLength());
@@ -1557,8 +1863,13 @@ void CPlayer::ApplyGrappleForces(const CFinalInput& input, CStateManager& mgr, f
         if (playerToSwingLow.CanBeNormalized()) {
           const float distanceToLow = playerToSwingLow.Magnitude();
           playerToSwingLow.Normalize();
+#if VERSION >= VERSION_R3IJ_00
+          const float timeToLow =
+              CMath::FastLimit(distanceToLow / gpTweakPlayer->GetGrapplePullSpeedProportion(), 1.f);
+#else
           const float timeToLow =
               CMath::Limit(distanceToLow / gpTweakPlayer->GetGrapplePullSpeedProportion(), 1.f);
+#endif
           const float pullSpeed = timeToLow * (gpTweakPlayer->GetGrapplePullSpeedMax() -
                                                gpTweakPlayer->GetGrapplePullSpeedMin()) +
                                   gpTweakPlayer->GetGrapplePullSpeedMin();
@@ -1568,26 +1879,31 @@ void CPlayer::ApplyGrappleForces(const CFinalInput& input, CStateManager& mgr, f
             mGrappleState = kGS_Swinging;
             mGrappleSwingTimer = 0.25f * gpTweakPlayer->GetGrappleSwingPeriod();
             mGrappleJumpTimeout = 0.f;
-            mAligningGrappleSwingTurn = point->GetGrappleParameters().GetLockSwingTurn();
+            mAligningGrappleSwingTurn = parameters.GetLockSwingTurn();
           } else {
             const CMotionState& motion = PredictMotion(dt);
             CVector3f lookDirectionFlat = GetTransform().GetForward();
             CVector3f newPlayerToPoint =
                 pointPosition - (GetTranslation() + motion.GetTranslation());
-            lookDirectionFlat.SetZ(0.f);
+            lookDirectionFlat[kDZ] = 0.f;
             if (lookDirectionFlat.CanBeNormalized()) {
               lookDirectionFlat.Normalize();
             }
-            newPlayerToPoint.SetZ(0.f);
+            newPlayerToPoint[kDZ] = 0.f;
             if (newPlayerToPoint.CanBeNormalized()) {
               newPlayerToPoint.Normalize();
               float cosAngle = CVector3f::Dot(lookDirectionFlat, newPlayerToPoint);
+#if VERSION >= VERSION_R3IJ_00
+              cosAngle = CMath::FastLimit(cosAngle, 1.f);
+              const double lookToPointAngle = acosf(cosAngle);
+#else
               cosAngle = CMath::Limit(cosAngle, 1.f);
               const double lookToPointAngle = acos(cosAngle);
+#endif
               if (lookToPointAngle > 0.001f) {
                 float deltaAngle = dt * gpTweakPlayer->GetGrappleLookCenterSpeed();
                 if (lookToPointAngle >= deltaAngle) {
-                  CVector3f leftDirection(lookDirectionFlat.GetY(), -lookDirectionFlat.GetX(), 0.f);
+                  CVector3f leftDirection(lookDirectionFlat[1], -lookDirectionFlat[0], 0.f);
                   if (leftDirection.CanBeNormalized()) {
                     leftDirection.Normalize();
                   }
@@ -1596,7 +1912,7 @@ void CPlayer::ApplyGrappleForces(const CFinalInput& input, CStateManager& mgr, f
                   }
                   RotateToOR(
                       CQuaternion::AxisAngle(CUnitVector3f(0.f, 0.f, 1.f, CUnitVector3f::kN_Yes),
-                                             CRelAngle(deltaAngle)),
+                                             CRelAngle::FromRadians(deltaAngle)),
                       dt);
                 } else if (fabs(lookToPointAngle - M_PI) > 0.001f) {
                   RotateToOR(CQuaternion::ShortestRotationArc(lookDirectionFlat, newPlayerToPoint),
@@ -1622,10 +1938,29 @@ void CPlayer::ApplyGrappleForces(const CFinalInput& input, CStateManager& mgr, f
         turnAngleSpeed *= -1.f;
       }
       const CVector3f pointToPlayer = playerPosition - pointPosition;
+#if VERSION >= VERSION_R3IJ_00
+      const float pointToPlayerZProjection =
+          CMath::FastLimit(CMath::AbsF(pointToPlayer.GetZ() / pointToPlayer.Magnitude()), 1.f);
+#else
       const float pointToPlayerZProjection =
           CMath::Limit(CMath::AbsF(pointToPlayer.GetZ() / pointToPlayer.Magnitude()), 1.f);
+#endif
       bool enableTurn = false;
-      if (!point->GetGrappleParameters().GetLockSwingTurn()) {
+      if (!parameters.GetLockSwingTurn()) {
+#if VERSION >= VERSION_R3IJ_00
+        if (ControlMapper().GetAnalogInput(CControlMapper::kC_StrafeLeft, input,
+                                           CControlMapper::kFT_Filtered) > 0.05f) {
+          enableTurn = true;
+          turnAngleSpeed *= -ControlMapper().GetAnalogInput(CControlMapper::kC_StrafeLeft, input,
+                                                            CControlMapper::kFT_Filtered);
+        }
+        if (ControlMapper().GetAnalogInput(CControlMapper::kC_StrafeRight, input,
+                                           CControlMapper::kFT_Filtered) > 0.05f) {
+          enableTurn = true;
+          turnAngleSpeed *= ControlMapper().GetAnalogInput(CControlMapper::kC_StrafeRight, input,
+                                                           CControlMapper::kFT_Filtered);
+        }
+#else
         if (ControlMapper::GetAnalogInput(ControlMapper::kC_TurnLeft, input) > 0.05f) {
           enableTurn = true;
           turnAngleSpeed *= -ControlMapper::GetAnalogInput(ControlMapper::kC_TurnLeft, input);
@@ -1634,6 +1969,7 @@ void CPlayer::ApplyGrappleForces(const CFinalInput& input, CStateManager& mgr, f
           enableTurn = true;
           turnAngleSpeed *= ControlMapper::GetAnalogInput(ControlMapper::kC_TurnRight, input);
         }
+#endif
       } else if (mAligningGrappleSwingTurn) {
         enableTurn = true;
       }
@@ -1648,13 +1984,22 @@ void CPlayer::ApplyGrappleForces(const CFinalInput& input, CStateManager& mgr, f
       float swingCos =
           cosf(2.f * M_PIF * (mGrappleSwingTimer / gpTweakPlayer->GetGrappleSwingPeriod()) +
                M_PIF / 2.f);
+#if VERSION >= VERSION_R3IJ_00
+      swingCos = CMath::FastLimit(swingCos, 1.f);
+#else
       swingCos = CMath::Limit(swingCos, 1.f);
+#endif
       const float pullSpeed = CMath::AbsF(swingCos) * gpTweakPlayer->GetGrapplePullSpeedMin();
       CVector3f pullVector = pullSpeed * CVector3f::Cross(pointToPlayer.AsNormalized(), swingAxis);
       const float lengthError = pointToPlayer.Magnitude() - gpTweakPlayer->GetGrappleSwingLength();
+#if VERSION >= VERSION_R3IJ_00
+      const float lengthScale =
+          CMath::FastLimit(lengthError / gpTweakPlayer->GetGrappleSwingLength(), 1.f);
+#else
       const float lengthScale =
           CMath::Limit(lengthError / gpTweakPlayer->GetGrappleSwingLength(), 1.f);
-      pullVector += pointToPlayerZProjection * (-32.f * (lengthScale * pointToPlayer));
+#endif
+      pullVector += pointToPlayerZProjection * (-32.f * (pointToPlayer * lengthScale));
       const CVector3f backupVelocity = GetVelocityWR();
       SetVelocityWR(pullVector);
       const CTransform4f backupTransform = GetTransform();
@@ -1662,30 +2007,34 @@ void CPlayer::ApplyGrappleForces(const CFinalInput& input, CStateManager& mgr, f
       const CVector3f translation = GetTranslation();
       if (ValidateFPPosition(translation + predictedMotion.GetTranslation(), mgr)) {
         if (enableTurn) {
-          CQuaternion turnRotation = CQuaternion::ZRotation(CRelAngle(turnAngleSpeed * dt));
-          if (point->GetGrappleParameters().GetLockSwingTurn() &&
-              mAligningGrappleSwingTurn) {
+          CQuaternion turnRotation =
+              CQuaternion::ZRotation(CRelAngle::FromRadians(turnAngleSpeed * dt));
+          if (parameters.GetLockSwingTurn() && mAligningGrappleSwingTurn) {
             CVector3f playerDirection = GetTransform().GetForward();
             CVector3f pointDirection = point->GetTransform().GetForward().AsNormalized();
             float playerPointProjection =
                 CVector3f::Dot(playerDirection.AsNormalized(), pointDirection);
+#if VERSION >= VERSION_R3IJ_00
+            playerPointProjection = CMath::FastLimit(playerPointProjection, 1.f);
+#else
             playerPointProjection = CMath::Limit(playerPointProjection, 1.f);
+#endif
             if (CMath::AbsF(playerPointProjection) == 1.f) {
               mAligningGrappleSwingTurn = false;
             }
             if (playerPointProjection < 0.f) {
-              playerPointProjection = -playerPointProjection;
               pointDirection = -pointDirection;
+              playerPointProjection = -playerPointProjection;
             }
             float turnAngle = acosf(playerPointProjection);
-            playerDirection.SetZ(0.f);
+            playerDirection[kDZ] = 0.f;
             turnAngle *= dt;
             turnRotation = CQuaternion::LookAt(playerDirection.AsNormalized(), pointDirection,
-                                               CRelAngle(turnAngle));
+                                               CRelAngle::FromRadians(turnAngle));
           }
           if (pointToPlayer.MagSquared() > 0.2f * 0.2f) {
-            const CVector3f pointAtPlayerHeight(pointPosition.GetX(), pointPosition.GetY(),
-                                                playerPosition.GetZ());
+            CVector3f pointAtPlayerHeight = pointPosition;
+            pointAtPlayerHeight[kDZ] = playerPosition[kDZ];
             const CVector3f pointToPlayerFlat = playerPosition - pointAtPlayerHeight;
             const CVector3f playerToGrapplePlane =
                 pointAtPlayerHeight + turnRotation.Transform(pointToPlayerFlat) - playerPosition;
@@ -1696,8 +2045,7 @@ void CPlayer::ApplyGrappleForces(const CFinalInput& input, CStateManager& mgr, f
           const CVector3f backupSwingAxis = mGrappleSwingAxis;
           mGrappleSwingAxis = turnRotation.Transform(mGrappleSwingAxis);
           mGrappleSwingAxis.Normalize();
-          const CVector3f swingForward(-mGrappleSwingAxis.GetY(), mGrappleSwingAxis.GetX(),
-                                       0.f);
+          const CVector3f swingForward(-mGrappleSwingAxis[kDY], mGrappleSwingAxis[kDX], 0.f);
           SetTransform(CTransform4f::FromColumns(mGrappleSwingAxis, swingForward,
                                                  CVector3f(0.f, 0.f, 1.f), GetTranslation()));
           SetVelocityWR(pullVector);
@@ -1712,10 +2060,12 @@ void CPlayer::ApplyGrappleForces(const CFinalInput& input, CStateManager& mgr, f
       }
       break;
     }
+#if VERSION < VERSION_R3IJ_00
     case kGS_JumpOff: {
       ApplyForceOR(CVector3f(0.f, 0.f, GetGravity() * GetMass()), CAxisAngle::Identity());
       break;
     }
+#endif
     default:
       break;
     }
@@ -1723,8 +2073,6 @@ void CPlayer::ApplyGrappleForces(const CFinalInput& input, CStateManager& mgr, f
   SetAngularVelocityOR(
       CAxisAngle(CVector3f(0.f, 0.f, 0.9f * GetAngularVelocityOR().GetVector().GetZ())));
 }
-
-#endif
 
 void CPlayer::UpdateGrappleArmTransform(const CVector3f& offset, CStateManager& mgr, float dt) {
   CTransform4f armXf = GetTransform();

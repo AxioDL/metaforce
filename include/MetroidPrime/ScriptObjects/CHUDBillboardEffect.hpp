@@ -3,7 +3,7 @@
 
 #include "MetroidPrime/CEffect.hpp"
 
-class CGenDescription ;
+class CGenDescription;
 class CElectricDescription;
 class CParticleGen;
 
@@ -43,5 +43,9 @@ private:
 
   static float CalcGenRate();
 };
+
+#if VERSION >= VERSION_R3IJ_00
+CHECK_SIZEOF(CHUDBillboardEffect, 0x118)
+#endif
 
 #endif // _CHUDBILLBOARDEFFECT

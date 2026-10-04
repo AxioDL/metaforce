@@ -38,7 +38,7 @@ static CTransform4f LookAt(const CVector3f& a, const CVector3f& b, const CRelAng
     return CTransform4f::Identity();
   }
   if (dot > -0.99981f) {
-    return CQuaternion::ClampedRotateTo(a, b, angle).BuildTransform4f();
+    return CQuaternion::ShortestRotationArcClamped(a, b, angle).BuildTransform4f();
   }
   if (!(a == CVector3f::Right()) && !(b == CVector3f::Right())) {
     return CQuaternion::AxisAngle(CUnitVector3f(CVector3f::Cross(a, CVector3f::Right())), angle)

@@ -77,7 +77,7 @@ void CWallWalker::OrientToSurfaceNormal(const CVector3f& normal, float clampAngl
   if (dot < -0.999f) {
     return;
   }
-  const CQuaternion rotation = CQuaternion::ClampedRotateTo(GetTransform().GetUp(), normal,
+  const CQuaternion rotation = CQuaternion::ShortestRotationArcClamped(GetTransform().GetUp(), normal,
                                                             CRelAngle::FromDegrees(clampAngle));
   const CQuaternion localRotation(rotation.GetScalar(),
                                   GetTransform().TransposeRotate(rotation.GetVector()));

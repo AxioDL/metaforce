@@ -384,6 +384,6 @@ private:
   rstl::single_ptr< SFailsafeState > mFailsafeState;
   rstl::single_ptr< SUnknown > x480_;
 };
-CHECK_CHILD_SIZEOF(CBallCamera, CGameCamera, 0x300)
+CHECK_CHILD_SIZEOF(CBallCamera, CGameCamera, VERSION >= VERSION_R3IJ_00 ? 0x2e8 : 0x300)
 
 #endif // _CBALLCAMERA
