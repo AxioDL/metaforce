@@ -540,9 +540,9 @@ config.libs = [
             ),
             Object(MatchingFor("R3ME01_00"), "MetroidPrime/Player/CTrilogyOptions.cpp"),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00"), "MetroidPrime/CAxisAngle.cpp"
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00", "GM8E01_02"), "MetroidPrime/CAxisAngle.cpp"
             ),
-            Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/CEulerAngles.cpp"),
+            Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02"), "MetroidPrime/CEulerAngles.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00", "GM8E01_02"),
                    "MetroidPrime/CMatrix3f_Ext.cpp"),
             Object(
@@ -786,7 +786,7 @@ config.libs = [
                 MatchingFor("GM8E01_00", "GM8E01_01"),
                 "MetroidPrime/ScriptObjects/CScriptPickup.cpp",
             ),
-            Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/CDamageInfo.cpp"),
+            Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02"), "MetroidPrime/CDamageInfo.cpp"),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00"),
                 "MetroidPrime/CMemoryDrawEnum.cpp",
@@ -885,7 +885,7 @@ config.libs = [
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/CDamageVulnerability.cpp"),
             Object(EquivalentFor("GM8E01_00"), "MetroidPrime/CActorLights.cpp"),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00", "GM8E01_02"),
                 "MetroidPrime/Enemies/CPatternedInfo.cpp",
             ),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/CSimpleShadow.cpp"),
@@ -925,9 +925,9 @@ config.libs = [
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00", "GM8J01_00", "GM8E01_02"),
                 "MetroidPrime/CPhysicsState.cpp"
             ),
-            Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "MetroidPrime/CRipple.cpp"),
+            Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00", "GM8E01_02"), "MetroidPrime/CRipple.cpp"),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00", "GM8E01_02"),
                 "MetroidPrime/CFluidUVMotion.cpp",
                 extra_cflags=['-pragma "inline_max_size(250)"'],
             ),
@@ -1116,7 +1116,7 @@ config.libs = [
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
                 "MetroidPrime/ScriptObjects/CScriptRipple.cpp",
             ),
-            Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/CBoneTracking.cpp"),
+            Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02"), "MetroidPrime/CBoneTracking.cpp"),
             Object(MatchingFor("GM8P01_00", "GM8E01_02"), "MetroidPrime/Player/CFaceplateDecoration.cpp"),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
@@ -1158,7 +1158,7 @@ config.libs = [
             ),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/HUD/CHudEnergyInterface.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/HUD/CHudFreeLookInterface.cpp"),
-            Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/HUD/CHudHelmetInterface.cpp"),
+            Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02"), "MetroidPrime/HUD/CHudHelmetInterface.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/HUD/CHudMissileInterface.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/HUD/CHudRadarInterface.cpp"),
             Object(
@@ -1194,7 +1194,7 @@ config.libs = [
                 MatchingFor("GM8E01_00", "GM8E01_01"),
                 "MetroidPrime/ScriptObjects/CScriptPlayerActor.cpp",
             ),
-            Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/Tweaks/CTweakPlayerRes.cpp"),
+            Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02"), "MetroidPrime/Tweaks/CTweakPlayerRes.cpp"),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
                 "MetroidPrime/Enemies/CBurstFire.cpp",
@@ -1224,7 +1224,7 @@ config.libs = [
                 cflags=[*cflags_retro, "-inline auto"],
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00", "GM8E01_02"),
                 "MetroidPrime/PathFinding/CPathFindSpline.cpp",
             ),
             Object(
@@ -1294,7 +1294,7 @@ config.libs = [
                 MatchingFor("GM8E01_00", "GM8E01_01"),
                 "MetroidPrime/ScriptObjects/CScriptAiJumpPoint.cpp",
             ),
-            Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/CMessageScreen.cpp"),
+            Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02"), "MetroidPrime/CMessageScreen.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/Enemies/CFlaahgraTentacle.cpp"),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
@@ -1352,7 +1352,7 @@ config.libs = [
             ),
             Object(NonMatching, "MetroidPrime/ScriptObjects/CScriptGunTurret.cpp"),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02"),
                 "MetroidPrime/Weapons/CProjectileInfo.cpp",
             ),
             Object(
@@ -1370,11 +1370,11 @@ config.libs = [
                 "MetroidPrime/ScriptObjects/CScriptCameraPitchVolume.cpp",
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/RumbleFxTable.cpp"
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02"), "MetroidPrime/RumbleFxTable.cpp"
             ),
             Object(NonMatching, "MetroidPrime/Enemies/CElitePirate.cpp"),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/CRumbleManager.cpp"
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02"), "MetroidPrime/CRumbleManager.cpp"
             ),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01"),
@@ -1510,7 +1510,7 @@ config.libs = [
                 "MetroidPrime/Enemies/CPoisonProjectile.cpp",
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00", "GM8E01_02"),
                 "MetroidPrime/Enemies/SPositionHistory.cpp",
             ),
             Object(Equivalent, "dummy.c"),
@@ -1578,7 +1578,7 @@ config.libs = [
             ),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "Weapons/CDecal.cpp"),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "Weapons/CWeaponDescription.cpp"
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00", "GM8E01_02"), "Weapons/CWeaponDescription.cpp"
             ),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00", "GM8E01_02"), "Weapons/CDecalDescription.cpp"
@@ -1633,9 +1633,9 @@ config.libs = [
             ),
             Object(NonMatching, "GuiSys/CGuiTextSupport.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "GuiSys/CGuiWidget.cpp"),
-            Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "GuiSys/CGuiWidgetIdDB.cpp"),
+            Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00", "GM8E01_02"), "GuiSys/CGuiWidgetIdDB.cpp"),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "GuiSys/CGuiWidgetDrawParms.cpp"
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00", "GM8E01_02"), "GuiSys/CGuiWidgetDrawParms.cpp"
             ),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
@@ -1643,7 +1643,7 @@ config.libs = [
             ),
             Object(EquivalentFor("GM8E01_00"), "GuiSys/CAuiImagePane.cpp"),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00", "GM8E01_02"),
                 "GuiSys/CRepeatState.cpp",
             ),
         ],
@@ -1667,7 +1667,7 @@ config.libs = [
                 cflags=cflags_retro,
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "Collision/InternalColliders.cpp"
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00", "GM8E01_02"), "Collision/InternalColliders.cpp"
             ),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
@@ -1684,7 +1684,7 @@ config.libs = [
                 extra_cflags=['-pragma "inline_max_size(250)"'] if config.version == "GM8E01_02" else [],
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00", "GM8E01_02"),
                 "Collision/CMaterialFilter.cpp",
             ),
             Object(
@@ -1724,7 +1724,7 @@ config.libs = [
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00", "GM8E01_02"), "Kyoto/Animation/CAnimation.cpp"
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00", "GM8E01_02"),
                 "Kyoto/Animation/CAnimationManager.cpp",
             ),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "Kyoto/Animation/CAnimationSet.cpp"),
@@ -1765,11 +1765,11 @@ config.libs = [
             ),
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "Kyoto/Animation/CMetaTransTrans.cpp"),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00", "GM8E01_02"),
                 "Kyoto/Animation/CPASAnimInfo.cpp",
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00", "GM8E01_02"),
                 "Kyoto/Animation/CPASAnimParm.cpp",
             ),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "Kyoto/Animation/CPASAnimState.cpp"),
@@ -1779,7 +1779,7 @@ config.libs = [
                 "Kyoto/Animation/CPASParmInfo.cpp",
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "Kyoto/Animation/CPrimitive.cpp"
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00", "GM8E01_02"), "Kyoto/Animation/CPrimitive.cpp"
             ),
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "Kyoto/Animation/CSequenceHelper.cpp",
                    extra_cflags=(
@@ -1809,7 +1809,7 @@ config.libs = [
                 ),
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00", "GM8E01_02"),
                 "Kyoto/Animation/CAdvancementDeltas.cpp",
             ),
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "Kyoto/Animation/CAnimMathUtils.cpp"),
@@ -1849,7 +1849,7 @@ config.libs = [
                 "Kyoto/Animation/CAnimTreeTweenBase.cpp",
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00", "GM8E01_02"),
                 "Kyoto/Animation/CBoolPOINode.cpp",
             ),
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "Kyoto/Animation/CCharAnimMemoryMetrics.cpp"),
@@ -1866,7 +1866,7 @@ config.libs = [
             ),
             Object(Matching, "Kyoto/Animation/CHierarchyPoseBuilder.cpp"),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00", "GM8E01_02"),
                 "Kyoto/Animation/CInt32POINode.cpp",
             ),
             Object(
@@ -1874,11 +1874,11 @@ config.libs = [
                 "Kyoto/Animation/CMultiFormatAnimReader.CPP",
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00", "GM8E01_02"),
                 "Kyoto/Animation/CParticlePOINode.cpp",
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "Kyoto/Animation/CPOINode.cpp"
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00", "GM8E01_02"), "Kyoto/Animation/CPOINode.cpp"
             ),
             Object(EquivalentFor("GM8E01_00"), "Kyoto/Animation/CSegStatementSet.cpp"),
             Object(
@@ -1950,13 +1950,13 @@ config.libs = [
                 MatchingFor("GM8E01_00", "GM8E01_01"), "Kyoto/Text/CTextInstruction.cpp"
             ),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "Kyoto/Text/CTextParser.cpp"),
-            Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "Kyoto/Text/CWordBreakTables.cpp"),
+            Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00", "GM8E01_02"), "Kyoto/Text/CWordBreakTables.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "Kyoto/Text/CWordInstruction.cpp"),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
                 "Kyoto/Text/CBlockInstruction.cpp",
             ),
-            Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "Kyoto/Text/CFont.cpp"),
+            Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00", "GM8E01_02"), "Kyoto/Text/CFont.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02", "GM8P01_00"), "Kyoto/Graphics/CLight.cpp"),
             Object(EquivalentFor("GM8E01_00"), "Kyoto/Graphics/CCubeModel.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "Kyoto/Graphics/CGX.cpp"),
@@ -1982,7 +1982,7 @@ config.libs = [
                 "Kyoto/Graphics/DolphinCTexture.cpp",
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00", "GM8E01_02"),
                 "Kyoto/Math/CloseEnough.cpp",
             ),
             Object(
@@ -2006,25 +2006,25 @@ config.libs = [
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "Kyoto/CRandom16.cpp"),
             Object(NonMatching, "Kyoto/Math/CTransform4f.cpp"),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00", "GM8E01_02"),
                 "Kyoto/Math/CUnitVector3f.cpp",
             ),
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "Kyoto/Math/CVector2f.cpp"),
-            Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00", "GM8J01_00"),
+            Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00", "GM8J01_00", "GM8E01_02"),
                    "Kyoto/Math/CVector2i.cpp"),
-            Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "Kyoto/Math/CVector3d.cpp"),
+            Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00", "GM8E01_02"), "Kyoto/Math/CVector3d.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "Kyoto/Math/CVector3f.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00", "GM8E01_02"),
                    "Kyoto/Math/CVector3i.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "Kyoto/Math/RMathUtils.cpp"),
-            Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00", "GM8J01_00"), "Kyoto/CCrc32.cpp"),
+            Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00", "GM8J01_00", "GM8E01_02"), "Kyoto/CCrc32.cpp"),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00"), "Kyoto/Alloc/CCircularBuffer.cpp"
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00", "GM8E01_02"), "Kyoto/Alloc/CCircularBuffer.cpp"
             ),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "Kyoto/Alloc/CMemory.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "Kyoto/Alloc/IAllocator.cpp"),
             Object(NonMatching, "Kyoto/PVS/CPVSVisOctree.cpp"),
-            Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "Kyoto/PVS/CPVSVisSet.cpp"),
+            Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00", "GM8E01_02"), "Kyoto/PVS/CPVSVisSet.cpp"),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
                 "Kyoto/Particles/CColorElement.cpp",
@@ -2169,7 +2169,7 @@ config.libs = [
                 "zlib-1.1.3/infcodes.c",
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00", "GM8E01_02"),
                 "zlib-1.1.3/inffast.c",
             ),
             Object(
@@ -2204,7 +2204,7 @@ config.libs = [
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "Kyoto/Math/CFrustumPlanes.cpp"),
             Object(NonMatching, "Kyoto/Graphics/CCubeMaterial.cpp"),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00", "GM8J01_00"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00", "GM8J01_00", "GM8E01_02"),
                 "Kyoto/Graphics/CCubeSurface.cpp",
             ),
             Object(
@@ -2266,7 +2266,7 @@ config.libs = [
                 "Kyoto/Alloc/CMediumAllocPool.cpp",
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00", "GM8E01_02"),
                 "Kyoto/Alloc/CSmallAllocPool.cpp",
             ),
             Object(
@@ -2295,7 +2295,7 @@ config.libs = [
                 "Kyoto/Particles/CEmitterElement.cpp",
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00", "GM8E01_02"),
                 "Kyoto/Particles/CEffectComponent.cpp",
             ),
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00"),
@@ -2353,20 +2353,20 @@ config.libs = [
                 "Kyoto/Animation/CHalfTransition.cpp",
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00", "GM8E01_02"),
                 "Kyoto/Particles/CElectricDescription.cpp"
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00", "GM8J01_00"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00", "GM8J01_00", "GM8E01_02"),
                 "Kyoto/Particles/CSwooshDescription.cpp",
             ),
-            Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8J01_00"),
+            Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8J01_00", "GM8E01_02"),
                    "Kyoto/Particles/CGenDescription.cpp"),
             Object(NonMatching, "Kyoto/CPakFile.cpp"),
             Object(NonMatching, "Kyoto/Animation/CPoseAsTransformsVariableSize.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "Kyoto/Input/CRumbleVoice.cpp"),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00", "GM8E01_02"),
                 "Kyoto/Input/RumbleAdsr.cpp",
             ),
             Object(
@@ -2375,7 +2375,7 @@ config.libs = [
             ),
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "Kyoto/Audio/CDSPStream.cpp"),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8E01_02"),
                 "Kyoto/Audio/g721.cpp",
             ),
             Object(NonMatching, "Kyoto/Audio/CStaticAudioPlayer.cpp"),
@@ -2493,7 +2493,7 @@ config.libs = [
                 "dolphin/gx/GXMisc.c",
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00", "GM8E01_02"),
                 "dolphin/gx/GXGeometry.c",
             ),
             Object(
@@ -2510,11 +2510,11 @@ config.libs = [
                 "dolphin/gx/GXTexture.c",
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00", "GM8E01_02"),
                 "dolphin/gx/GXBump.c",
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00", "GM8E01_02"),
                 "dolphin/gx/GXTev.c",
             ),
             Object(
@@ -2527,11 +2527,11 @@ config.libs = [
                 "dolphin/gx/GXStubs.c",
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00", "GM8E01_02"),
                 "dolphin/gx/GXDisplayList.c",
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00", "GM8E01_02"),
                 "dolphin/gx/GXTransform.c",
                 extra_cflags=["-fp_contract off"],
             ),
