@@ -122,7 +122,9 @@ MetroidPrime/Factories/CCharacterFactory.cpp:
 	.text       start:0x80031F88 end:0x80034B38
 
 MetroidPrime/Factories/CAssetFactory.cpp:
-	.text       start:0x80034DBC end:0x80034F40
+	.text       start:0x80034B38 end:0x800350F0
+	.rodata     start:0x803CDE40 end:0x803CDE48
+	.data       start:0x803DAD48 end:0x803DAD78
 
 MetroidPrime/Tweaks/CTweakPlayer.cpp:
 	.text       start:0x800350F0 end:0x80035C74
@@ -299,7 +301,11 @@ MetroidPrime/Enemies/CPatterned.cpp:
 	.sdata2     start:0x805AB6D0 end:0x805AB748
 
 MetroidPrime/ScriptObjects/CScriptDoor.cpp:
-	.text       start:0x8007E574 end:0x8007F7A0
+	.text       start:0x8007E574 end:0x8007FB68
+	.data       start:0x803DBB38 end:0x803DBC40
+	.sdata      start:0x805A8070 end:0x805A8090
+	.sbss       start:0x805A9EE0 end:0x805A9EE8
+	.sdata2     start:0x805AB748 end:0x805AB760
 
 MetroidPrime/Enemies/CStateMachine.cpp:
 	.text       start:0x8007FB68 end:0x80080714
@@ -482,6 +488,9 @@ MetroidPrime/ScriptObjects/CScriptDock.cpp:
 
 MetroidPrime/ScriptObjects/CScriptCameraHint.cpp:
 	.text       start:0x800C4C10 end:0x800C5800
+	.data       start:0x803E0748 end:0x803E07C0
+	.sdata      start:0x805A8318 end:0x805A8320
+	.sdata2     start:0x805ABC00 end:0x805ABC08
 
 MetroidPrime/ScriptLoader.cpp:
 	.text       start:0x800C5800 end:0x800DAFB4
@@ -737,7 +746,11 @@ MetroidPrime/ScriptObjects/CScriptCoverPoint.cpp:
 MetroidPrime/Cameras/CPathCamera.cpp:
 	.text       start:0x8012E100 end:0x8012F0F0
 	.ctors      start:0x803CC2F4 end:0x803CC2F8
-	.sdata2     start:0x805AC698 end:0x805AC6A8
+	.data       start:0x803E1D28 end:0x803E1DA0
+	.bss        start:0x8046D798 end:0x8046D7B0
+	.sdata      start:0x805A8738 end:0x805A8750
+	.sbss       start:0x805AA000 end:0x805AA010
+	.sdata2     start:0x805AC688 end:0x805AC6A8
 
 MetroidPrime/CFluidPlane.cpp:
 	.text       start:0x8012F0F0 end:0x8012F87C
@@ -1075,6 +1088,8 @@ MetroidPrime/Player/CFaceplateDecoration.cpp:
 
 MetroidPrime/BodyState/CBSCover.cpp:
 	.text       start:0x801764BC end:0x80176CC0
+	.data       start:0x803E4F08 end:0x803E4F40
+	.sdata2     start:0x805ACF80 end:0x805ACF90
 
 MetroidPrime/ScriptObjects/CScriptBallTrigger.cpp:
 	.text       start:0x80176CC0 end:0x80177310
@@ -1478,7 +1493,10 @@ MetroidPrime/CMapUniverse.cpp:
 
 MetroidPrime/Enemies/CThardusRockProjectile.cpp:
 	.text       start:0x80203F50 end:0x80206584
+	.rodata     start:0x803D3650 end:0x803D3690
+	.data       start:0x803E7CA0 end:0x803E7F70
 	.sdata      start:0x805A8F98 end:0x805A8FC8
+	.sdata2     start:0x805ADE58 end:0x805ADEA0
 
 MetroidPrime/CInventoryScreen.cpp:
 	.text       start:0x80206584 end:0x80207E74
@@ -1648,7 +1666,8 @@ MetroidPrime/Enemies/CSnakeWeedSwarm.cpp:
 
 MetroidPrime/Cameras/CBallCameraFailsafeState.cpp:
 	.text       start:0x8023EE94 end:0x8023FBC0
-	.sdata2     start:0x805AE598 end:0x805AE5A8
+	.sdata      start:0x805A92D8 end:0x805A9300
+	.sdata2     start:0x805AE580 end:0x805AE5A8
 
 MetroidPrime/Enemies/CScriptContraption.cpp:
 	.text       start:0x8023FBC0 end:0x80240490
