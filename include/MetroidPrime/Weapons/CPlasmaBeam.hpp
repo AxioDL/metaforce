@@ -48,6 +48,10 @@ private:
   void ReInitVariables();
   void SetWorldLighting(CStateManager& mgr, TAreaId aid, float speed, float target);
 };
+#if VERSION >= VERSION_R3IJ_00
+CHECK_SIZEOF(CPlasmaBeam, 0x234)
+#else
 CHECK_SIZEOF(CPlasmaBeam, 0x240)
+#endif
 
 #endif // _CPLASMABEAM

@@ -39,6 +39,10 @@ private:
 
   void ReInitVariables();
 };
+#if VERSION >= VERSION_R3IJ_00
+CHECK_SIZEOF(CPowerBeam, 0x23c)
+#else
 CHECK_SIZEOF(CPowerBeam, 0x248)
+#endif
 
 #endif // _CPOWERBEAM

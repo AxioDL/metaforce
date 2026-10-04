@@ -42,6 +42,10 @@ private:
 
   void ReInitVariables();
 };
+#if VERSION >= VERSION_R3IJ_00
+CHECK_SIZEOF(CWaveBeam, 0x250)
+#else
 CHECK_SIZEOF(CWaveBeam, 0x25c)
+#endif
 
 #endif // _CWAVEBEAM

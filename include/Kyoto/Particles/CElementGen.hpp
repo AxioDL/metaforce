@@ -243,7 +243,11 @@ private:
   static bool sSubtractBlend;
   static bool sMoveRedToAlphaBuffer;
 };
+#if VERSION >= VERSION_R3IJ_00
+CHECK_SIZEOF(CElementGen, 0x328)
+#else
 CHECK_SIZEOF(CElementGen, 0x340)
+#endif
 
 #pragma cpp_extensions reset
 

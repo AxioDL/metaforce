@@ -129,10 +129,11 @@ public:
   // Fake?
   CVector3f ToVector3f() const { return CVector3f(GetRed(), GetGreen(), GetBlue()); }
 
-  static const CColor& Black();
 #if VERSION >= VERSION_R3IJ_00
+  static const CColor& Black() { return sBlackColor; }
   static const CColor& White() { return sWhiteColor; }
 #else
+  static const CColor& Black();
   static const CColor& White();
 #endif
   static const CColor& Grey();

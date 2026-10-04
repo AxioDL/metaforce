@@ -10,8 +10,8 @@ const CColor CColor::sYellowColor(0xFFFF00FF);
 const CColor CColor::sPurpleColor(0xA000FFFF);
 const CColor CColor::sOrangeColor(0xFF7000FF);
 
-const CColor& CColor::Black() { return sBlackColor; }
 #if VERSION < VERSION_R3IJ_00
+const CColor& CColor::Black() { return sBlackColor; }
 const CColor& CColor::White() { return sWhiteColor; }
 #endif
 const CColor& CColor::Grey() { return sGreyColor; }
