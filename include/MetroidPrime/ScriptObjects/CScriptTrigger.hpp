@@ -92,6 +92,6 @@ private:
   void DeactivatePlayer(CStateManager&);
 };
 
-CHECK_CHILD_SIZEOF(CScriptTrigger, CActor, 0x68)
+CHECK_CHILD_SIZEOF(CScriptTrigger, CActor, VERSION >= VERSION_R3IJ_00 ? 0x60 : 0x68)
 
 #endif // _CSCRIPTTRIGGER

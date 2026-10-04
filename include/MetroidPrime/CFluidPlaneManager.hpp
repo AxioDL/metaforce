@@ -229,6 +229,6 @@ private:
   mutable bool x120_;
   mutable bool x121_;
 };
-CHECK_SIZEOF(CFluidPlaneManager, 0x124);
+CHECK_SIZEOF(CFluidPlaneManager, VERSION >= VERSION_R3IJ_00 ? 0x120 : 0x124);
 
 #endif // _CFLUIDPLANEMANAGER

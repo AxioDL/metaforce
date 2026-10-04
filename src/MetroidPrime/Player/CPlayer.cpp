@@ -10,6 +10,7 @@
 #include "MetroidPrime/HUD/CHUDMemoParms.hpp"
 #include "MetroidPrime/HUD/CSamusHud.hpp"
 #include "MetroidPrime/ScriptObjects/CHUDBillboardEffect.hpp"
+#include "MetroidPrime/ScriptObjects/CScriptWater.hpp"
 #include "MetroidPrime/SFX/IceCrack.h"
 #include "MetroidPrime/SFX/Weapons.h"
 #include "MetroidPrime/CGameCollision.hpp"
@@ -1971,8 +1972,6 @@ void CPlayer::SetVisorSteam(float targetAlpha, float alphaInDur, float alphaOutD
   mVisorSteam.SetSteam(targetAlpha, alphaInDur, alphaOutDur, txtr, affectsThermal);
 }
 
-#if VERSION < VERSION_R3IJ_00
-
 const CScriptWater* CPlayer::GetVisorRunoffEffect(const CStateManager& mgr) const {
   const CScriptWater* water = nullptr;
   if (InFluidId() != kInvalidUniqueId) {
@@ -2014,6 +2013,8 @@ void CPlayer::SetMorphBallState(EPlayerMorphBallState state, CStateManager& mgr)
     break;
   }
 }
+
+#if VERSION < VERSION_R3IJ_00
 
 void CPlayer::SetSpawnedMorphBallState(EPlayerMorphBallState state, CStateManager& mgr) {
   mSpawnedMorphBallState = state;

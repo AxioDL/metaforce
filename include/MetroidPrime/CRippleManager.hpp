@@ -30,6 +30,6 @@ public:
   void SetAlpha(float a) { mAlpha = a; }
   float GetAlpha() const { return mAlpha; }
 };
-CHECK_SIZEOF(CRippleManager, 0x18)
+CHECK_SIZEOF(CRippleManager, VERSION >= VERSION_R3IJ_00 ? 0x14 : 0x18)
 
 #endif // _CRIPPLEMANAGER
