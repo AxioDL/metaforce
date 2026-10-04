@@ -119,6 +119,7 @@ public:
   void ProcessNormalState(int, int, CStateManager&, float);
   bool ExitMissile();
   void UpdateNormalShotCycle(float, CStateManager&);
+  void FirePrimary(float, CStateManager&);
   void FireSecondary(float, CStateManager&);
   void DropBomb(CPlayerGun::EBWeapon, CStateManager&);
   void ActivateCombo(CStateManager&);
@@ -159,6 +160,9 @@ public:
   void EnterFreeLook(CStateManager&);
   void EnterFidget(CStateManager&);
   void UpdateLeftArmTransform(const CModelData&, const CStateManager&);
+  void UpdateTransform(float dt, const CStateManager& mgr);
+  void UpdatePenetration(const CStateManager&);
+  void AdjustFiringTransformForPenetration(const CStateManager&, CTransform4f&) const;
   void ReturnArmAndGunToDefault(CStateManager&, bool);
   void UpdateAuxWeapons(float, const CTransform4f&, CStateManager&);
   void CancelLockOn();

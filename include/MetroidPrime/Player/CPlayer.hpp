@@ -522,6 +522,7 @@ public:
   TUniqueId GetRidingPlatformId() const { return mRidingPlatform; }
   void SetCameraState(EPlayerCameraState state, CStateManager& mgr);
   EGunHolsterState GetGunHolsterState() const { return mGunHolsterState; }
+  float GetGunHolsterFraction() const;
   NPlayer::EPlayerMovementState GetPlayerMovementState() const { return mMovementState; }
   float GetTimeSinceJump() const { return mTimeSinceJump; }
   void SetTimeSinceJump(float v) { mTimeSinceJump = v; }

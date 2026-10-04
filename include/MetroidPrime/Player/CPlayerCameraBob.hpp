@@ -58,6 +58,12 @@ public:
                    float bobPeriod = kCameraBobPeriod);
 
   CVector3f GetCameraBobTranslation() const { return mCameraBobTransform.GetTranslation(); }
+  ECameraBobState GetState() const { return mCurState; }
+#if VERSION >= VERSION_R3IJ_00
+  CVector3f GetPreviousLandingTranslation() const {
+    return CVector3f(0.f, 0.f, mPreviousLandingTranslation);
+  }
+#endif
   const CTransform4f& GetViewWanderTransform() const;
   CVector3f GetHelmetBobTranslation() const;
   CTransform4f GetGunBobTransformation() const;

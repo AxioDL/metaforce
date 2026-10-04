@@ -57,6 +57,24 @@ static const SVisorToItemMapping skVisorToItemMapping[] = {
     {CPlayerState::kIT_ThermalVisor, CPlayerState::kPV_Thermal, CControlMapper::kC_ThermalVisor},
 };
 
+float CPlayer::GetGunHolsterFraction() const {
+  switch (mGunHolsterState) {
+  case kGH_Drawn:
+    return 0.f;
+  case kGH_Holstered:
+    return 1.f;
+  case kGH_Drawing:
+    return mGunHolsterRemTime / 0.45f;
+  case kGH_Holstering: {
+    const float time = mMorphBallState == kMS_Morphing ? 0.1f : gpTweakPlayerGun->mGunHolsterTime;
+    return 1.f - mGunHolsterRemTime / time;
+  }
+  default:
+    break;
+  }
+  return 0.f;
+}
+
 void CPlayer::UpdateGunTransform(const CVector3f& gunPos, CStateManager& mgr) {
   CTransform4f xf = GetTransform();
   const CVector3f eyeOffset(0.f, 0.f, GetEyeHeight());

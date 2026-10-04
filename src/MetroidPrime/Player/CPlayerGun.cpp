@@ -4,13 +4,44 @@
 
 #if VERSION >= VERSION_R3IJ_00
 
+#include "Collision/CRayCastResult.hpp"
+#include "Kyoto/Audio/CSfxManager.hpp"
+#include "Kyoto/Math/CRelAngle.hpp"
+#include "Kyoto/Math/CUnitVector3f.hpp"
+#include "MetroidPrime/CAnimData.hpp"
 #include "MetroidPrime/CStateManager.hpp"
+#include "MetroidPrime/Cameras/CCameraManager.hpp"
+#include "MetroidPrime/Cameras/CFirstPersonCamera.hpp"
+#include "MetroidPrime/Cameras/CGameCamera.hpp"
 #include "MetroidPrime/Player/CGameState.hpp"
-#include "MetroidPrime/Player/CPlayer.hpp"
 #include "MetroidPrime/Player/CGrappleArm.hpp"
+#include "MetroidPrime/Player/CPlayer.hpp"
+#include "MetroidPrime/SFX/Weapons.h"
+#include "MetroidPrime/Tweaks/CTweakPlayerGun.hpp"
 #include "MetroidPrime/Weapons/CAuxWeapon.hpp"
 #include "MetroidPrime/Weapons/CGunWeapon.hpp"
 #include "MetroidPrime/Weapons/CPhazonBeam.hpp"
+
+float CPlayerGun::kTractorBeamFactor = 0.35f / CPlayerState::GetMissileComboChargeFactor();
+CVector3f CPlayerGun::kScaleVector(2.f, 2.f, 2.f);
+float CPlayerGun::CMotionState::gGunExtendDistance = 0.125f;
+
+static CColor kArmColor(0.75f, 0.5f, 0.f, 1.f);
+static CMaterialFilter sAimFilter = CMaterialFilter::MakeIncludeExclude(
+    CMaterialList(kMT_Solid), CMaterialList(kMT_ProjectilePassthrough));
+static const float kChargeSpeed = 1.f / CPlayerState::GetMissileComboChargeFactor();
+static const float kChargeStart = 0.025f / CPlayerState::GetMissileComboChargeFactor();
+static const float kChargeFxStart = 1.f / CPlayerState::GetMissileComboChargeFactor();
+
+static const CModelFlags kThermalFlags[4] = {
+    CModelFlags::Normal(),
+    CModelFlags::AlphaBlended(CColor(u8(0), u8(0), u8(0), u8(128))),
+    CModelFlags::Normal(),
+    CModelFlags::Normal(),
+};
+
+static const CModelFlags kHandThermalFlag = CModelFlags::Additive(CColor::White());
+static const CModelFlags kHandHoloFlag = CModelFlags::ColorModulate(kArmColor);
 
 struct SBeamToItemMapping {
   CControlMapper::ECommands mCommand;
@@ -27,7 +58,150 @@ static const SBeamToItemMapping skBeamToItemMapping[] = {
     {CControlMapper::kC_PlasmaBeam, CPlayerState::kIT_PlasmaBeam, CPlayerState::kBI_Plasma},
 };
 
-void CPlayerGun::SetTransform(const CTransform4f& xf) { mXf = xf; }
+static const CPlayerState::EItemType skItemArr[2] = {
+    CPlayerState::kIT_Invalid,
+    CPlayerState::kIT_Missiles,
+};
+
+static const ushort mItemEmptySound[2] = {
+    CSfxManager::kInternalInvalidSfxId,
+    SFXsam_a_mislemp_00,
+};
+
+static const ushort mIntoBeamSound[4] = {
+    CSfxManager::kInternalInvalidSfxId,
+    SFXsam_b_iceswitch_00,
+    SFXsam_b_wavswitch_00,
+    SFXsam_b_plaswitch_00,
+};
+
+static const ushort mFromBeamSound[4] = {
+    CSfxManager::kInternalInvalidSfxId,
+    SFXsam_b_iceswitch_01,
+    SFXsam_b_wavswitch_01,
+    SFXsam_b_plaswitch_01,
+};
+
+static bool GetOrbitGunLock() { return false; }
+
+static inline float ClampGunAim(float min, float val, float max) {
+  return CMath::FastMin(CMath::FastMax(min, val), max);
+}
+
+static inline float SmoothGunAim(float t) { return t * ((3.f - 2.f * t) * t); }
+
+void CPlayerGun::GetLctrWithShake(CTransform4f& xfOut, const CModelData& modelData,
+                                  const rstl::string& locatorName, bool shake, bool dynamic) {
+  xfOut = dynamic ? modelData.GetScaledLocatorTransformDynamic(locatorName, nullptr)
+                  : modelData.GetScaledLocatorTransform(locatorName);
+
+  if (mCharging && shake) {
+    xfOut.AddTranslation(CVector3f(mShakeX, 0.f, mShakeZ));
+  }
+}
+
+void CPlayerGun::UpdateTransform(float dt, const CStateManager& mgr) {
+  const CPlayer& player = *mgr.GetPlayer();
+  CQuaternion rotation = CQuaternion::NoRotation();
+  if (CVector3f::Dot(player.GetTransform().GetForward(), mPreviousPlayerForward) < 0.999999f) {
+    rotation = CQuaternion::LookAt(CUnitVector3f(mPreviousPlayerForward),
+                                   CUnitVector3f(player.GetTransform().GetForward()),
+                                   CRelAngle::FromDegrees(360.f));
+  }
+  CVector3f previousGunPosition = mGunWorldXf.GetTranslation();
+  CVector3f playerToGun = previousGunPosition - player.GetTranslation();
+  previousGunPosition += rotation.Transform(playerToGun);
+  mGunWorldXf = CTransform4f::LookAt(
+      previousGunPosition, previousGunPosition + rotation.Transform(mGunWorldXf.GetForward()));
+  mPreviousPlayerForward = player.GetTransform().GetForward();
+
+  CTransform4f bobXf = player.GetCameraBobObject()->GetGunBobTransformation();
+  CVector3f gunPosition = gpTweakPlayerGun->GetGunPosition() + bobXf.GetTranslation();
+  const CTransform4f& playerXf = player.GetTransform();
+  const CTransform4f& cameraXf = mgr.GetCameraManager()->GetFirstPersonCamera()->GetTransform();
+  const bool walkNoBob =
+      player.GetCameraBobObject()->GetState() == CPlayerCameraBob::kCBS_WalkNoBob;
+  CTransform4f gunXf = cameraXf;
+  CVector3f aimDirection = cameraXf.GetForward();
+
+  if (player.GetMorphballTransitionState() == CPlayer::kMS_Morphing ||
+      mgr.GetCameraManager()->IsInCinematicCamera()) {
+    gunPosition = cameraXf * gunPosition;
+  } else {
+    CVector3f gunOffset = gunPosition;
+    CVector2f pointer = player.GetAimingCursor().GetCursor2D();
+    if (walkNoBob) {
+      pointer = CVector2f::Zero();
+    }
+    CVector2f pointerDelta = pointer - mSmoothedPointer;
+    if (pointerDelta.IsMagnitudeSafe()) {
+      float step = 0.75f * dt;
+      if (pointerDelta.Magnitude() < 0.1f) {
+        step *= pointerDelta.Magnitude() / 0.1f;
+      }
+      pointer = mSmoothedPointer + pointerDelta.AsNormalized() * step;
+    }
+    mSmoothedPointer = pointer;
+
+    float up = ClampGunAim(0.f, mSmoothedPointer.GetY(), 1.f);
+    float left = ClampGunAim(0.f, -mSmoothedPointer.GetX(), 1.f);
+    const bool lockGun = GetOrbitGunLock();
+    if (lockGun && player.GetOrbitState() == CPlayer::kOS_OrbitObject) {
+      left = up = 0.f;
+    }
+    const float xOffset = 0.2f * left;
+    left *= ClampGunAim(-1.f, 1.f + 2.f * mSmoothedPointer.GetY(), 1.f);
+    const float leftZOffset = 0.5f * (-0.15f * left);
+    const float yOffset = 0.45f * up;
+    const float upZOffset = -0.35f * up;
+    gunOffset[kDX] += xOffset;
+    gunOffset[kDY] += yOffset;
+    gunOffset[kDZ] += upZOffset + leftZOffset;
+    const float pullBack = -0.65f * (up > left ? up : left);
+
+    CVector3f landingOffset = player.GetCameraBobObject()->GetPreviousLandingTranslation() * 1.1f;
+    CVector3f origin = player.GetEyePosition() + landingOffset + cameraXf.Rotate(gunOffset);
+    if (!lockGun || player.GetOrbitState() != CPlayer::kOS_OrbitObject) {
+      CVector3f target = player.GetAimingCursor().GetCursorInWorld();
+      CVector3f cameraToTarget = target - cameraXf.GetTranslation();
+      if (cameraToTarget.Magnitude() < 3.f) {
+        target = cameraXf.GetTranslation() + 3.f * cameraToTarget.AsNormalized();
+      }
+      const float holster = CMath::FastMax(player.GetGunHolsterFraction(), mDamageAimBlend);
+      static const CVector3f holsterOffset(0.f, 1.f, -0.8f);
+      const CVector3f holsterPosition = cameraXf * holsterOffset;
+      target = CVector3f::Lerp(target, player.GetTranslation() + player.GetTransform().GetForward(),
+                               holster);
+      aimDirection = target - origin;
+      aimDirection.Normalize();
+      CVector3f previousDirection = mGunWorldXf.GetForward();
+      const bool aimForward =
+          walkNoBob && CMath::IsEpsilon(player.GetFreeLookAngleX().AsDegrees(), 0.f, 2.f);
+      if (aimForward) {
+        aimDirection = playerXf.GetForward();
+      }
+      CUnitVector3f from(previousDirection);
+      CUnitVector3f to(aimDirection);
+      CVector3f direction = to;
+      if (CVector3f::Cross(from, to).CanBeNormalized()) {
+        CRelAngle angle =
+            CRelAngle::FromRadians(CVector3f::GetAngleDiff(previousDirection, aimDirection));
+        CRelAngle step =
+            CRelAngle::FromDegrees((360.f * dt) * CMath::FastMin(angle.AsDegrees() / 20.f, 1.f));
+        CRelAngle turn =
+            CRelAngle::FromRadians(CMath::FastMin(angle.AsRadians(), step.AsRadians()));
+        direction = CVector3f::Slerp(from, to, turn);
+      }
+      gunXf = CTransform4f::LookAt(origin, origin + direction, cameraXf.GetUp());
+      gunPosition = origin + gunXf.Rotate(CVector3f(0.f, pullBack + 0.2f * SmoothGunAim(holster),
+                                                    -(0.2f * SmoothGunAim(holster))));
+    } else {
+      gunPosition = origin + gunXf.Rotate(CVector3f(0.f, pullBack, 0.f));
+    }
+  }
+  gunXf.SetTranslation(gunPosition);
+  mGunWorldXf = gunXf;
+}
 
 void CPlayerGun::ProcessInput(const CFinalInput& input, CStateManager& mgr) {
   const CPlayer& player = *mgr.GetPlayer();
@@ -60,28 +234,174 @@ void CPlayerGun::ProcessInput(const CFinalInput& input, CStateManager& mgr) {
       HandleWeaponChange(input, mgr);
     }
     mFireButtonStates = player.GetControlMapper().GetDigitalInput(
-        CControlMapper::kC_FireOrBomb, input, CControlMapper::kFT_Filtered) ? 1 : 0;
-    mFireButtonStates |= player.GetControlMapper().GetDigitalInput(
-        CControlMapper::kC_MissileOrPowerBomb, input, CControlMapper::kFT_Filtered) ? 2 : 0;
+                            CControlMapper::kC_FireOrBomb, input, CControlMapper::kFT_Filtered)
+                            ? 1
+                            : 0;
+    mFireButtonStates |=
+        player.GetControlMapper().GetDigitalInput(CControlMapper::kC_MissileOrPowerBomb, input,
+                                                  CControlMapper::kFT_Filtered)
+            ? 2
+            : 0;
     break;
   case CPlayer::kMS_Morphed:
     if (gpGameState->GameOptions().GetIsFireAndJumpSwapped()) {
       mFireButtonStates = player.GetControlMapper().GetDigitalInput(
-          CControlMapper::kC_JumpOrBoost, input, CControlMapper::kFT_Filtered) ? 1 : 0;
+                              CControlMapper::kC_JumpOrBoost, input, CControlMapper::kFT_Filtered)
+                              ? 1
+                              : 0;
     } else {
       mFireButtonStates = player.GetControlMapper().GetDigitalInput(
-          CControlMapper::kC_FireOrBomb, input, CControlMapper::kFT_Filtered) ? 1 : 0;
+                              CControlMapper::kC_FireOrBomb, input, CControlMapper::kFT_Filtered)
+                              ? 1
+                              : 0;
     }
-    mFireButtonStates |= player.GetControlMapper().GetDigitalInput(
-        CControlMapper::kC_MissileOrPowerBomb, input, CControlMapper::kFT_Filtered) ? 2 : 0;
+    mFireButtonStates |=
+        player.GetControlMapper().GetDigitalInput(CControlMapper::kC_MissileOrPowerBomb, input,
+                                                  CControlMapper::kFT_Filtered)
+            ? 2
+            : 0;
     break;
   }
+}
+
+bool CPlayerGun::ExitMissile() {
+  if (!IsWeaponStateSet(0x1)) {
+    if (!IsWeaponStateSet(0x10) && mNextState != kNS_ExitMissile) {
+      mNextState = kNS_ExitMissile;
+      PlayAnim(NWeaponTypes::kGAT_FromMissile, false);
+    }
+    return false;
+  }
+  return true;
+}
+
+void CPlayerGun::FirePrimary(float dt, CStateManager& mgr) {
+  if (!ExitMissile() || mgr.GetCameraManager()->IsInCinematicCamera()) {
+    return;
+  }
+  bool showChargeFx = mPhazonBeamActive;
+  if (!mPhazonBeamActive && mEquippedBeamId == CPlayerState::kBI_Plasma) {
+    showChargeFx = true;
+  }
+  mChargeEffectVisible = !showChargeFx || mChargePhase != kCP_NotCharging;
+  ++mRapidFireShots;
+
+  const uint targetHoming = mCurrentBeam->GetVelocityInfo().GetTargetHoming(int(mChargeState));
+  CTransform4f xf = GetGunMotionTransform() * mBeamLocalXf;
+  AdjustFiringTransformForPenetration(mgr, xf);
+  xf = CTransform4f::LookAt(xf.GetTranslation(),
+                            mgr.GetPlayer()->GetAimingCursor().GetCursorInWorld());
+  xf.AddTranslation(mgr.GetCameraManager()->GetGlobalCameraTranslation(mgr));
+  mMuzzleEffectVisTimer = 0.0625f;
+  const float chargeFactor1 = 0.1f + 0.9f * mChargeBeamFactor;
+  const float chargeFactor2 = 0.5f + 0.5f * mChargeBeamFactor;
+  TUniqueId targetId;
+  if (targetHoming) {
+    targetId = GetTargetId(mgr);
+  } else {
+    targetId = kInvalidUniqueId;
+  }
+  mCurrentBeam->Fire(mUnderwater, dt, CPlayerState::EChargeStage(mChargeState), xf, mgr, targetId,
+                     chargeFactor1, chargeFactor2);
+  mgr.InformListeners(GetGunMotionTransform().GetTranslation(), kLNT_PlayerFire);
+}
+
+void CPlayerGun::FireSecondary(float dt, CStateManager& mgr) {
+  if (mgr.GetCameraManager()->IsInCinematicCamera()) {
+    return;
+  }
+
+  CPlayerState* playerState = mgr.PlayerState();
+  if (playerState->GetTransitioningVisor() == CPlayerState::kPV_Scan ||
+      playerState->GetCurrentVisor() == CPlayerState::kPV_Scan) {
+    return;
+  }
+  if (mInPhazonBeam || int(mComboAmmoIdx) == 0 ||
+      playerState->HasPowerUp(skItemArr[mComboAmmoIdx]) != true || !IsWeaponStateSet(0x4)) {
+    NWeaponTypes::play_sfx(SFXsam_b_malfxn_00, mUnderwater, false, 0x4a);
+    return;
+  }
+
+  bool fired = false;
+  switch (int(mComboAmmoIdx)) {
+  case 1: {
+    mRemainingMissiles = playerState->GetItemAmount(CPlayerState::kIT_Missiles);
+    if (mgr.GetWeaponIdCount(mPlayerId, kWT_Missile) < 3 && int(mRemainingMissiles) != 0) {
+      playerState->DecrPickUp(CPlayerState::kIT_Missiles,
+                              mComboFiring ? playerState->GetMissileCostForAltAttack() : 1);
+      fired = true;
+    }
+
+    if (int(mRemainingMissiles) > 5) {
+      mRemainingMissiles = 5;
+    } else {
+      mRemainingMissiles -= 1;
+    }
+    break;
+  }
+  default:
+    break;
+  }
+
+  if (fired) {
+    TUniqueId targetId = GetTargetId(mgr);
+    if (mComboFiring && targetId == kInvalidUniqueId && mEquippedBeamId == CPlayerState::kBI_Wave) {
+      targetId = mgr.GetPlayer()->GetAimTargetId();
+    }
+
+    CTransform4f xf(mPointBlankWorldSurface ? mElbowWorldXf
+                                            : GetGunMotionTransform() * mBeamLocalXf);
+    xf = CTransform4f::LookAt(xf.GetTranslation(),
+                              mgr.GetPlayer()->GetAimingCursor().GetCursorInWorld());
+
+    xf.AddTranslation(mgr.GetCameraManager()->GetGlobalCameraTranslation(mgr));
+    mAuxWeapon->Fire(dt, mUnderwater, CPlayerState::EBeamId(mEquippedBeamId),
+                     CPlayerState::EChargeStage(mChargeState), xf, mgr, mCurrentBeam->GetType(),
+                     targetId);
+
+    mgr.InformListeners(GetGunMotionTransform().GetTranslation(), kLNT_PlayerFire);
+
+    mMissileExitTimer = 7.f;
+    if (mComboFiring != true) {
+      PlayAnim(NWeaponTypes::kGAT_MissileShoot, false);
+      mNextState = int(mRemainingMissiles) > 0 ? kNS_MissileReload : kNS_MissileShotDone;
+      DisableWeaponState(0x4);
+    }
+  } else {
+    NWeaponTypes::play_sfx(mItemEmptySound[mComboAmmoIdx], mUnderwater, false, 0x4a);
+  }
+}
+
+void CPlayerGun::ResetCharge(CStateManager& mgr, bool resetBeam) {
+  if (mChargePhase != kCP_NotCharging) {
+    StopChargeSound(mgr);
+  }
+
+  if (!IsWeaponStateSet(0x8) && !IsWeaponStateSet(0x10)) {
+    bool doResetBeam =
+        mgr.GetPlayer()->GetMorphballTransitionState() == CPlayer::kMS_Morphed || resetBeam;
+    if (mChargeAnimStarted || doResetBeam)
+      PlayAnim(NWeaponTypes::kGAT_BasePosition, false);
+    if (doResetBeam)
+      mCurrentBeam->EnableSecondaryFx(CGunWeapon::kSFT_None);
+    if (!IsWeaponStateSet(0x2) || mChargeState != kCS_Normal) {
+      ResetToBeam();
+    }
+  }
+
+  mChargePhase = kCP_NotCharging;
+  mChargeState = kCS_Normal;
+  mCurrentAuxBeam = mEquippedBeamId;
+  mCanShowAuxMuzzleEffect = true;
+  mChargeAnimStarted = false;
+  mComboFiring = false;
+  mComboXferTimer = 0.f;
 }
 
 void CPlayerGun::HandleWeaponChange(const CFinalInput& input, CStateManager& mgr) {
   mBeamSelectionRequested = false;
   if (mgr.GetPlayer()->GetControlMapper().GetPressInput(CControlMapper::kC_Morph, input,
-                                                     CControlMapper::kFT_Filtered)) {
+                                                        CControlMapper::kFT_Filtered)) {
     StopContinuousBeam(mgr, true);
   }
   if (!IsWeaponStateSet(0x8)) {
@@ -100,7 +420,7 @@ void CPlayerGun::HandleBeamChange(const CFinalInput& input, CStateManager& mgr) 
   CPlayerState::EItemType item = CPlayerState::kIT_Invalid;
 
   if (player.GetControlMapper().GetTapInput(CControlMapper::kC_BeamMenu, input,
-                                          CControlMapper::kFT_Filtered) &&
+                                            CControlMapper::kFT_Filtered) &&
       player.CanOpenSelector(mgr, CControlMapper::kC_BeamMenu)) {
     beam = CPlayerState::kBI_Power;
     item = CPlayerState::kIT_PowerBeam;
@@ -108,9 +428,9 @@ void CPlayerGun::HandleBeamChange(const CFinalInput& input, CStateManager& mgr) 
     for (uint i = 0; i < 5; ++i) {
       if (playerState.HasPowerUp(skBeamToItemMapping[i].mItem) &&
           player.GetControlMapper().GetDigitalInput(skBeamToItemMapping[i].mCommand, input,
-                                                   CControlMapper::kFT_Filtered) &&
-          player.GetControlMapper().GetSelectorReleaseInput(CControlMapper::kC_BeamMenu, input,
-                                                           mgr, *mgr.GetPlayer())) {
+                                                    CControlMapper::kFT_Filtered) &&
+          player.GetControlMapper().GetSelectorReleaseInput(CControlMapper::kC_BeamMenu, input, mgr,
+                                                            *mgr.GetPlayer())) {
         beam = skBeamToItemMapping[i].mBeam;
         item = skBeamToItemMapping[i].mItem;
       }
@@ -186,35 +506,213 @@ void CPlayerGun::HandlePhazonBeamChange(CStateManager& mgr) {
   }
 }
 
-void CPlayerGun::ResetCharge(CStateManager& mgr, bool resetBeam) {
-  if (mChargePhase != kCP_NotCharging) {
-    StopChargeSound(mgr);
-  }
+TUniqueId CPlayerGun::GetTargetId(CStateManager& mgr) {
+  TUniqueId ret = mgr.GetPlayer()->GetOrbitTargetId();
+  if (mComboFiring && ret == kInvalidUniqueId && mEquippedBeamId == CPlayerState::kBI_Wave)
+    ret = mgr.GetPlayer()->GetOrbitNextTargetId();
 
-  if (!IsWeaponStateSet(0x8) && !IsWeaponStateSet(0x10)) {
-    bool doResetBeam =
-        mgr.GetPlayer()->GetMorphballTransitionState() == CPlayer::kMS_Morphed || resetBeam;
-    if (mChargeAnimStarted || doResetBeam)
-      PlayAnim(NWeaponTypes::kGAT_BasePosition, false);
-    if (doResetBeam)
-      mCurrentBeam->EnableSecondaryFx(CGunWeapon::kSFT_None);
-    if (!IsWeaponStateSet(0x2) || mChargeState != kCS_Normal) {
-      ResetToBeam();
+  if (ret != kInvalidUniqueId) {
+    CActor* act = TCastToPtr< CActor >(const_cast< CEntity* >(mgr.GetObjectById(ret)));
+    if (act != nullptr) {
+      const bool hasTarget = act->GetMaterialList().HasMaterial(kMT_Target);
+      if (hasTarget != true) {
+        ret = kInvalidUniqueId;
+      }
     }
   }
 
-  mChargePhase = kCP_NotCharging;
-  mChargeState = kCS_Normal;
-  mCurrentAuxBeam = mEquippedBeamId;
-  mCanShowAuxMuzzleEffect = true;
-  mChargeAnimStarted = false;
-  mComboFiring = false;
-  mComboXferTimer = 0.f;
+  return ret;
+}
+
+void CPlayerGun::ResetIdle(CStateManager& mgr) {
+  CFidget::EState fidgetState = mFidget.GetState();
+  mGunMotionSpeedMult = 1.f;
+  mCamBob.SetState(CPlayerCameraBob::kCBS_GunFireNoBob, mgr);
+  if (fidgetState != CFidget::kS_NoFidget) {
+    if (fidgetState == CFidget::kS_Loading) {
+      UnLoadFidget();
+    }
+    ReturnArmAndGunToDefault(mgr, true);
+  }
+  mFidget.ResetAll();
+  ReturnToRestPose();
+  if (mIdleState != kIS_NotIdle)
+    mIdleState = kIS_NotIdle;
+  if (!mGrappleArm->GetActive())
+    mAnimPlaying = false;
+}
+
+void CPlayerGun::UpdateGunIdle(bool inStrikeCooldown, float camBobT, float dt, CStateManager& mgr) {
+  CPlayer& player = *mgr.Player();
+  const CAimingCursor& cursor = player.GetAimingCursor();
+
+  if (player.IsInFreeLook() && !mLockedOn && !mGrappleArm->IsGrappling() &&
+      mFidget.GetState() != CFidget::kS_HolsterBeam &&
+      player.GetGunHolsterState() == CPlayer::kGH_Drawn && !mInBigStrike &&
+      cursor.GetCursorValid() && cursor.GetCursor2D().Magnitude() < 0.4f &&
+      !(cursor.GetRaycastResult().IsValid() && cursor.GetRaycastResult().GetTime() < 5.f) &&
+      player.GetPlayerMovementState() == NPlayer::kMS_OnGround &&
+      player.GetVelocityWR().Magnitude() < 1.f && !mgr.GetCameraManager()->IsInCinematicCamera()) {
+    mLeftArmAimBlend += 2.f * dt;
+    mLeftArmAimBlend = CMath::FastMin(mLeftArmAimBlend, 1.f);
+    if (!IsWeaponStateSet(0x8)) {
+      if (mInFreeLook != true && !mAnimPlaying) {
+        if (mEnterFreeLookDelayTimer < 3.25f)
+          mEnterFreeLookDelayTimer += dt;
+        if (mEnterFreeLookDelayTimer >= 3.25f && !mGrappleArm->IsSuitLoading()) {
+          EnterFreeLook(mgr);
+          mInFreeLook = true;
+        }
+      } else {
+        mEnterFreeLookDelayTimer = 0.f;
+        if (mAnimPlaying)
+          ResetIdle(mgr);
+      }
+    }
+  } else {
+    mLeftArmAimBlend -= 3.f * dt;
+    mLeftArmAimBlend = CMath::FastMax(0.f, mLeftArmAimBlend);
+    if (mInFreeLook) {
+      if (!IsWeaponStateSet(0x10)) {
+        mGunMotion->ReturnToDefault(mgr, mInBigStrike);
+        mGrappleArm->ReturnToDefault(mgr, 0.f, false);
+      }
+      mInFreeLook = false;
+    }
+    mEnterFreeLookDelayTimer = 0.f;
+    const CPlayerState& playerState = *mgr.GetPlayerState();
+    const bool moving = camBobT > 0.01f;
+    const bool firing = (mFireButtonStates & 0x3) ? true : false;
+    mNotFidgeting = player.GetMorphballTransitionState() == CPlayer::kMS_Morphed ||
+                    player.GetSurfaceRestraint() == CPlayer::kSR_Water ||
+                    playerState.GetCurrentVisor() == CPlayerState::kPV_Scan || firing ||
+                    mChargePhase != kCP_NotCharging || mLockedOn || IsWeaponStateSet(0x8) ||
+                    mGunStrikeCoolTimer > 0.f ||
+                    player.GetPlayerMovementState() != NPlayer::kMS_OnGround ||
+                    player.IsInFreeLook() || player.GetFreeLookStickState() ||
+                    player.GetOrbitState() != CPlayer::kOS_NoOrbit ||
+                    CMath::AbsF(player.GetAngularVelocityOR().GetAngle()) > 0.1f || moving ||
+                    mgr.GetCameraManager()->IsInCinematicCamera() ||
+                    player.GetGunHolsterState() != CPlayer::kGH_Drawn ||
+                    player.GetGrappleState() != CPlayer::kGS_None || mInBigStrike ||
+                    player.GetAimingCursor().GetCursorValid() || mInPhazonBeam;
+    if (mNotFidgeting) {
+      if (!mInBigStrike) {
+        bool doWander = moving && !firing;
+        if (doWander) {
+          mGunMotionSpeedMult = 1.f;
+          x374_ = 0.f;
+          if (mGunStrikeCoolTimer <= 0.f && mIdleWanderDelayTimer <= 0.f) {
+            mIdleWanderDelayTimer = 8.f;
+            mGunMotion->PlayPasAnim(SamusGun::kAS_Wander, mgr, 0.f, false);
+            mIdleState = kIS_Wander;
+            mCamBob.SetState(CPlayerCameraBob::kCBS_Walk, mgr);
+          }
+          mIdleWanderDelayTimer -= dt;
+          x360_ += dt;
+        }
+        if (!doWander || mAnimPlaying)
+          ResetIdle(mgr);
+      } else if (mDamageTimer > 0.f) {
+        mDamageTimer -= dt;
+        if (mDamageTimer > 0.2f) {
+          mDamageAimBlend += dt / 0.2f;
+          mDamageAimBlend = CMath::FastMin(mDamageAimBlend, 1.f);
+        } else {
+          mDamageAimBlend = mDamageTimer / 0.2f;
+        }
+      } else {
+        mDamageAimBlend = 0.f;
+        mInBigStrike = false;
+        if (mGunMotionInFidgetBasePosition != true) {
+          mDamageTimer = 0.f;
+          mGunMotionInFidgetBasePosition = true;
+          mGunMotion->BasePosition(true);
+        } else if (!mGunMotion->GetModelData().GetAnimationData()->IsAnimTimeRemaining(
+                       0.001f, rstl::string_l("Whole Body"))) {
+          mInBigStrike = false;
+          mGunMotionInFidgetBasePosition = false;
+        }
+      }
+    } else {
+      switch (mFidget.Update(mLastFireButtonStates, camBobT > 0.01f, inStrikeCooldown, dt, mgr)) {
+      case CFidget::kS_NoFidget:
+        if (mIdleState != kIS_Idle) {
+          mGunMotion->PlayPasAnim(SamusGun::kAS_Idle, mgr, 0.f, false);
+          mIdleState = kIS_Idle;
+        }
+        mCamBob.SetState(CPlayerCameraBob::kCBS_WalkNoBob, mgr);
+        break;
+      case CFidget::kS_MinorFidget:
+      case CFidget::kS_MajorFidget:
+      case CFidget::kS_HolsterBeam:
+        if (mIdleState != kIS_NotIdle) {
+          mGunMotion->BasePosition(false);
+          mIdleState = kIS_NotIdle;
+        }
+        AsyncLoadFidget(mgr);
+        break;
+      case CFidget::kS_Loading:
+        if (IsFidgetLoaded())
+          EnterFidget(mgr);
+        break;
+      case CFidget::kS_StillMinorFidget:
+      case CFidget::kS_StillMajorFidget: {
+        mCamBob.SetState(CPlayerCameraBob::kCBS_Walk, mgr);
+        mNotFidgeting = false;
+        mAnimPlaying =
+            mGunMotionFidgeting
+                ? mGunMotion->IsAnimPlaying()
+                : mCurrentBeam->GetSolidModelData().GetAnimationData()->IsAnimTimeRemaining(
+                      0.001f, rstl::string_l("Whole Body"));
+        if (!mAnimPlaying) {
+          mFidget.ResetMinor();
+          ReturnToRestPose();
+        }
+        break;
+      }
+      default:
+        break;
+      }
+    }
+    mCamBob.Update(dt, mgr);
+  }
 }
 
 void CPlayerGun::DamageRumble(const CVector3f& location, float damage, const CStateManager&) {
   mDamageAmt = damage;
   mDamageLocation = location;
+}
+
+void CPlayerGun::UpdateLeftArmTransform(const CModelData& modelData, const CStateManager& mgr) {
+  CVector3f elbowOffset(-0.9f, -0.4f, 0.4f);
+  CTransform4f& auxXf = mGrappleArm->AuxTransform();
+  if (mAnimPlaying) {
+    auxXf = CTransform4f::Identity();
+  } else {
+    GetLctrWithShake(auxXf, modelData, rstl::string_l("elbow"), true, false);
+  }
+  const CVector3f elbowPos = auxXf * elbowOffset;
+  auxXf.SetTranslation(elbowPos);
+
+  EGunState state = mGrappleArm->GunController()->GetGunState();
+  bool aimAtCursor = false;
+  if (state != kGS_BigStrike && state != kGS_Strike) {
+    aimAtCursor = true;
+  }
+  if (!aimAtCursor) {
+    mGrappleArm->SetTransform(mXf);
+  } else {
+    CVector3f forward = mXf.GetForward();
+    CVector3f direction =
+        (mgr.GetPlayer()->GetAimingCursor().GetCursorInWorld() - mXf.GetTranslation())
+            .AsNormalized();
+    CVector3f aimDirection = CVector3f::Lerp(forward, direction, mLeftArmAimBlend);
+    mGrappleArm->SetTransform(
+        CTransform4f::LookAt(mXf.GetTranslation(), mXf.GetTranslation() + aimDirection));
+  }
+  mXf = CTransform4f::LookAt(mXf.GetTranslation(),
+                             mgr.GetPlayer()->GetAimingCursor().GetCursorInWorld());
 }
 
 void CPlayerGun::CancelLockOn() {
@@ -227,6 +725,52 @@ void CPlayerGun::CancelLockOn() {
   }
 }
 
+void CPlayerGun::UpdatePenetration(const CStateManager& mgr) {
+  CVector3f eyePosition = mgr.GetPlayer()->GetEyePosition();
+  CTransform4f muzzleXf = mGunWorldXf * mBeamLocalXf;
+  const CVector3f muzzlePosition = muzzleXf.GetTranslation();
+  CVector3f direction = muzzlePosition - eyePosition;
+  TUniqueId hitId = kInvalidUniqueId;
+  TEntityList nearList;
+  static const CMaterialFilter filter = CMaterialFilter::MakeIncludeExclude(
+      CMaterialList(kMT_Solid), CMaterialList(kMT_ProjectilePassthrough, kMT_Player));
+  mgr.BuildNearList(nearList, eyePosition, direction.AsNormalized(),
+                    CVector3f::Dot(direction, direction), filter, nullptr);
+  const CRayCastResult result =
+      mgr.RayWorldIntersection(hitId, eyePosition, direction.AsNormalized(),
+                               CVector3f::Dot(direction, direction), filter, nearList);
+  if (result.IsValid()) {
+    mFiringTransformPenetrating = true;
+  } else {
+    mFiringTransformPenetrating = false;
+  }
+}
+
+void CPlayerGun::AdjustFiringTransformForPenetration(const CStateManager& mgr,
+                                                     CTransform4f& xf) const {
+  if (mFiringTransformPenetrating) {
+    CVector3f target = mgr.GetPlayer()->GetAimingCursor().GetCursorInWorld();
+    CTransform4f cameraXf = mgr.GetCameraManager()->GetCurrentCamera(mgr).GetTransform();
+    CVector3f direction = target - cameraXf.GetTranslation();
+    direction.Normalize();
+
+    static const CMaterialList include(kMT_Solid, kMT_Character);
+    static const CMaterialList exclude(kMT_ProjectilePassthrough, kMT_Player);
+    static const CMaterialFilter filter = CMaterialFilter::MakeIncludeExclude(include, exclude);
+    TUniqueId hitId = kInvalidUniqueId;
+    TEntityList nearList;
+    const CRayCastResult result = mgr.RayWorldIntersection(hitId, cameraXf.GetTranslation(),
+                                                           direction, 3.f, filter, nearList);
+    if (result.IsValid()) {
+      target = result.GetPoint();
+    }
+
+    CVector3f origin = xf.GetTranslation() - 3.f * xf.GetForward();
+    xf = CTransform4f::LookAt(origin, target);
+  }
+}
+
+void CPlayerGun::SetTransform(const CTransform4f& xf) { mXf = xf; }
 #else
 
 #include "Kyoto/Math/CTransform4f.hpp"
