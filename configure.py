@@ -1434,7 +1434,7 @@ config.libs = [
                 MatchingFor("GM8E01_00", "GM8E01_01"),
                 "MetroidPrime/ScriptObjects/CScriptBeam.cpp",
             ),
-            Object(NonMatching, "MetroidPrime/Enemies/CMetroidPrimeStage2.cpp"),
+            Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/Enemies/CMetroidPrimeStage2.cpp"),
             Object(NonMatching, "MetroidPrime/Enemies/CMetroidPrimeRelay.cpp"),
             Object(
                 NonMatching,

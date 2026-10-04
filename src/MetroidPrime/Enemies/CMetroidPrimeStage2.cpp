@@ -137,7 +137,7 @@ void CMetroidPrimeStage2::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId ui
           mCurDamageRemTime <= 0.f) {
         mgr.ApplyDamage(
             GetUniqueId(), mgr.GetPlayer()->GetUniqueId(), GetUniqueId(), GetContactDamage(),
-            CMaterialFilter::MakeIncludeExclude(CMaterialList(kMT_Solid), CMaterialList()),
+            CMaterialFilter::MakeIncludeExclude(CMaterialList(SolidMaterial), CMaterialList()),
             CVector3f::Zero());
         mCurDamageRemTime = mDamageWaitTime;
       }
@@ -168,7 +168,7 @@ void CMetroidPrimeStage2::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId ui
       mgr.ApplyDamage(
           uid, mLockOnTargetCollider, projectile->GetOwnerId(),
           projectile->GetCurrentDamageInfo(),
-          CMaterialFilter::MakeIncludeExclude(CMaterialList(kMT_Solid), CMaterialList()),
+          CMaterialFilter::MakeIncludeExclude(CMaterialList(SolidMaterial), CMaterialList()),
           CVector3f::Zero());
     }
     break;
