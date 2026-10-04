@@ -338,7 +338,8 @@ void CEnvFxManager::CreateNewParticles(EEnvFxType type) {
     maxParticleCount = (type == kEFX_UnderwaterFlake) ? 0x1fd6 : 0;
 
   maxParticleCount /= 64;
-  int cellParticleCount = static_cast< int >(mFxDensity * maxParticleCount);
+  const float particleCount = mFxDensity * maxParticleCount;
+  const int cellParticleCount = static_cast< int >(particleCount);
 
   static uint newParticlesSeed = 0;
   CRandom16 random(newParticlesSeed);

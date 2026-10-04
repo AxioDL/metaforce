@@ -825,7 +825,8 @@ void CCubeMaterial::EnsureViewDepStateCached(const CCubeSurface* surface) {
   memcpy(&texMtx, &texMtx2, sizeof(Mtx));
   texMtx[0][0] = xScale * right.GetX();
   texMtx[0][1] = xScale * right.GetY();
-  texMtx[0][3] = -CVector3f::Dot(modelPoint, right) * xScale + 0.5f;
+  const float rightDist = CVector3f::Dot(modelPoint, right);
+  texMtx[0][3] = -rightDist * xScale + 0.5f;
   texMtx[1][2] = yScale;
   texMtx[1][3] = -playerPoint.GetZ() * yScale;
   CGX::LoadTexMtxImm(texMtx, GX_TEXMTX7, GX_MTX3x4);
