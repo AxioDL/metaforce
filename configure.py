@@ -286,7 +286,7 @@ cflags_retro = [
     "-maxerrors 1",
     "-nosyspath",
     "-RTTI off",
-    "-fp_contract on",
+    "-fp_contract on" if version_num < VERSIONS.index("R3IJ01_00") else "-fp_contract off",
     "-str reuse",
     "-i include",
     "-i extern/sdk/include",
@@ -519,9 +519,6 @@ config.libs = [
             Object(
                 NonMatching,
                 "MetroidPrime/CAimingCursor.cpp",
-                extra_cflags=["-fp_contract off"]
-                if version_num >= VERSIONS.index("R3ME01_00")
-                else [],
             ),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8J01_00"), "MetroidPrime/CControlMapper.cpp"
@@ -534,9 +531,6 @@ config.libs = [
             Object(
                 NonMatching,
                 "MetroidPrime/Player/CPlayer.cpp",
-                extra_cflags=["-fp_contract off"]
-                if version_num >= VERSIONS.index("R3ME01_00")
-                else [],
             ),
             Object(MatchingFor("R3ME01_00"), "MetroidPrime/Player/CTrilogyOptions.cpp"),
             Object(
@@ -593,9 +587,7 @@ config.libs = [
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
                 "MetroidPrime/Player/CPlayerGun.cpp",
-                extra_cflags=["-fp_contract off"]
-                if version_num >= VERSIONS.index("R3ME01_00")
-                else ['-pragma "inline_max_size(250)"'] if config.version == "GM8E01_02" else [],
+                extra_cflags=['-pragma "inline_max_size(250)"'] if config.version == "GM8E01_02" else [],
             ),
             Object(NonMatching, "MetroidPrime/CStateManager.cpp"),
             Object(
@@ -654,9 +646,6 @@ config.libs = [
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
                 "MetroidPrime/Tweaks/CTweakPlayerControl.cpp",
-                extra_cflags=["-fp_contract off"]
-                if version_num >= VERSIONS.index("R3ME01_00")
-                else [],
             ),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
@@ -840,9 +829,6 @@ config.libs = [
             Object(
                 EquivalentFor("GM8E01_00"),
                 "MetroidPrime/Player/CPlayerCameraBob.cpp",
-                extra_cflags=["-fp_contract off"]
-                if version_num >= VERSIONS.index("R3ME01_00")
-                else [],
             ),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
@@ -1130,9 +1116,6 @@ config.libs = [
             Object(
                 NonMatching,
                 "MetroidPrime/Player/CPlayerOrbit.cpp",
-                extra_cflags=["-fp_contract off"]
-                if version_num >= VERSIONS.index("R3ME01_00")
-                else [],
             ),
             Object(EquivalentFor("GM8E01_00"), "MetroidPrime/CGameCollision.cpp"),
             Object(
@@ -1334,9 +1317,7 @@ config.libs = [
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
                 "MetroidPrime/Player/CGameOptions.cpp",
-                extra_cflags=["-fp_contract off"]
-                if version_num >= VERSIONS.index("R3ME01_00")
-                else ['-pragma "inline_max_size(131)"']
+                extra_cflags=['-pragma "inline_max_size(131)"']
                 if VERSIONS.index("GM8E01_02") <= version_num < VERSIONS.index("R3IJ01_00")
                 else [],
             ),
@@ -1469,9 +1450,6 @@ config.libs = [
             Object(
                 NonMatching,
                 "MetroidPrime/Player/CPlayerDynamics.cpp",
-                extra_cflags=["-fp_contract off"]
-                if version_num >= VERSIONS.index("R3ME01_00")
-                else [],
             ),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01"),
@@ -1988,9 +1966,6 @@ config.libs = [
             Object(
                 NonMatching,
                 "Kyoto/Math/CMayaSpline.cpp",
-                extra_cflags=["-fp_contract off"]
-                if version_num >= VERSIONS.index("R3ME01_00")
-                else [],
             ),
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "Kyoto/Math/CMatrix3f.cpp"),
             Object(
@@ -2222,25 +2197,16 @@ config.libs = [
             Object(
                 NonMatching,
                 "Kyoto/Input/CInputFilter.cpp",
-                extra_cflags=["-fp_contract off"]
-                if version_num >= VERSIONS.index("R3IJ01_00")
-                else [],
             ),
             Object(MatchingFor("R3ME01_00"), "Kyoto/Input/IController.cpp"),
             Object(
                 NonMatching,
                 "Kyoto/Input/CWiiInput.cpp",
-                extra_cflags=["-fp_contract off"]
-                if version_num >= VERSIONS.index("R3ME01_00")
-                else [],
             ),
             Object(MatchingFor("R3ME01_00"), "Kyoto/Input/CControllerData.cpp"),
             Object(
                 NonMatching,
                 "Kyoto/Input/CWiiMotionProcessor.cpp",
-                extra_cflags=["-fp_contract off"]
-                if version_num >= VERSIONS.index("R3ME01_00")
-                else [],
             ),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00", "GM8J01_00"),

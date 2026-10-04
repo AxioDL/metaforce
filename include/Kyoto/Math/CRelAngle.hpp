@@ -10,7 +10,7 @@ public:
   CRelAngle(float rad) : mAngle(rad) {}
   float AsDegrees() const { return mAngle * (180.f / M_PIF); }
   float AsRadians() const { return mAngle; }
-  // ArcCosine__9CRelAngleFf weak
+  static CRelAngle ArcCosine(float v) { return FromRadians(acosf(v)); }
 
   CRelAngle& operator+=(const CRelAngle& v) {
     mAngle += v.mAngle;

@@ -1,5 +1,8 @@
 #include "Kyoto/Math/CQuaternion.hpp"
 
+#if VERSION >= VERSION_R3IJ_00
+#include "Kyoto/Basics/CCast.hpp"
+#endif
 #include "Kyoto/Math/CRelAngle.hpp"
 #include "Kyoto/Math/CUnitVector3f.hpp"
 #include "Kyoto/Math/CloseEnough.hpp"
@@ -130,18 +133,31 @@ CTransform4f CQuaternion::BuildTransform4f(const CVector3f& translation) const {
 CQuaternion CQuaternion::Slerp(const CQuaternion& a, const CQuaternion& b, float t) {
   const float product = Dot(a, b);
   const float dot = product > 1.f ? 1.f : product < -1.f ? -1.f : product;
+#if VERSION >= VERSION_R3IJ_00
+  const double angle = acosf(dot);
+#else
   const double angle = acos(dot);
+#endif
   const double sineAngle = sin(angle);
   if (sineAngle == 0.0 && dot > 0.f) {
     return a;
   }
 
+#if VERSION >= VERSION_R3IJ_00
+  const float aScale = CCast::ToReal32(sin(angle * (1.f - t)));
+  const float bScale = CCast::ToReal32(sin(angle * t));
+  const double scale = 1.0 / sineAngle;
+  const float vectorScale = scale;
+  return CQuaternion(CCast::ToReal32(scale * (aScale * a.GetScalar() + bScale * b.GetScalar())),
+                     vectorScale * (aScale * a.GetVector() + bScale * b.GetVector()));
+#else
   const float aScale = sin(angle * (1.f - t));
   const float bScale = sin(angle * t);
   const double scale = 1.0 / sineAngle;
   const float vectorScale = scale;
   return CQuaternion(scale * (aScale * a.w + bScale * b.w),
                      vectorScale * (aScale * a.imaginary + bScale * b.imaginary));
+#endif
 }
 
 CQuaternion CQuaternion::ShortestRotationArc(const CVector3f& from, const CVector3f& to) {
@@ -219,16 +235,26 @@ CQuaternion CQuaternion::LookAt(const CUnitVector3f& source, const CUnitVector3f
 }
 
 CQuaternion CQuaternion::SlerpLocal(const CQuaternion& from, const CQuaternion& to, float t) {
-  return Dot(from, to) >= 0.f ? Slerp(from, to, t) : Slerp(from, to.BuildEquivalent(), t);
+  return to.LocalTo(from) ? Slerp(from, to, t) : Slerp(from, to.BuildEquivalent(), t);
 }
 
 CRelAngle CQuaternion::AngleFrom(const CQuaternion& other) const {
+#if VERSION >= VERSION_R3IJ_00
+  const CRelAngle angle =
+      CRelAngle::ArcCosine(rstl::min_val(rstl::max_val(Dot(*this, other), -1.f), 1.f));
+  return angle;
+#else
   return CRelAngle::FromRadians(
       CMath::ArcCosineR(rstl::min_val(rstl::max_val(Dot(*this, other), -1.f), 1.f)));
+#endif
 }
 
 CQuaternion CQuaternion::BuildEquivalent() const {
+#if VERSION >= VERSION_R3IJ_00
+  const double angle = 2.f * acosf(rstl::max_val(rstl::min_val(GetScalar(), 1.f), -1.f));
+#else
   const double angle = 2.0 * acos(rstl::max_val(rstl::min_val(GetScalar(), 1.f), -1.f));
+#endif
   const double equivalentAngle = angle + 2.0 * M_PI;
   if (close_enough(angle, 0.0, 1.e-7)) {
     return CQuaternion(-1.f, CVector3f::Zero());
@@ -238,12 +264,16 @@ CQuaternion CQuaternion::BuildEquivalent() const {
 }
 
 CQuaternion CQuaternion::BuildNormalized() const {
-  const float scale = CMath::InvSqrtF(w * w + imaginary.MagSquared());
-  return CQuaternion(scale * w, scale * imaginary);
+  const float scale = CMath::InvSqrtF(w * w + CVector3f::Dot(imaginary, imaginary));
+  return CQuaternion(scale * GetScalar(), scale * GetVector());
 }
 
 CQuaternion CQuaternion::AxisAngle(const CUnitVector3f& axis, const CRelAngle& angle) {
+#if VERSION >= VERSION_R3IJ_00
+  float w = cos(angle.AsRadians() / 2.f);
+#else
   double w = cos(angle.AsRadians() / 2.f);
+#endif
   CVector3f vec = axis * sine(angle / 2.f);
   return CQuaternion(w, vec);
 }
@@ -270,6 +300,7 @@ CQuaternion CQuaternion::operator*(const CQuaternion& rhs) const {
   const float leftScalar = GetScalar();
   const float rightScalar = rhs.GetScalar();
   const float scalar = leftScalar * rightScalar - CVector3f::Dot(leftVector, rightVector);
+
   return CQuaternion(scalar, leftScalar * rightVector + rightScalar * leftVector +
                                  CVector3f::Cross(leftVector, rightVector));
 }
@@ -281,7 +312,7 @@ CQuaternion CQuaternion::YRotation(const CRelAngle& angle) { return AxisAngle(YA
 CQuaternion CQuaternion::ZRotation(const CRelAngle& angle) { return AxisAngle(ZAxis, angle); }
 
 CQuaternion CQuaternion::ShortestRotationArcClamped(const CVector3f& from, const CVector3f& to,
-                                         const CRelAngle& angle) {
+                                                    const CRelAngle& angle) {
   const CQuaternion arc = ShortestRotationArc(from, to);
   const float radians = angle.AsRadians();
   if (radians >= 2.f * acosf(arc.GetScalar())) {
