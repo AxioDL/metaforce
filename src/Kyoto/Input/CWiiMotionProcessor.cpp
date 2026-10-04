@@ -201,17 +201,15 @@ void CWiiMotionProcessor::SPairedSample::UpdateDeviceSample(CVectorBiquadFilter&
 
 CVector3f CWiiMotionProcessor::GetAcceleration(const WPADFSStatus& status, int device) {
   if (device == 0) {
-    float x = status.accX;
-    float y = status.accY;
-    float z = status.accZ;
-    float scale = 1.f / 512.f;
-    return CVector3f(scale * x, scale * y, scale * z);
+    const float x = (1.f / 512.f) * status.accX;
+    const float y = (1.f / 512.f) * status.accY;
+    const float z = (1.f / 512.f) * status.accZ;
+    return CVector3f(x, y, z);
   }
-  float x = status.fsAccX;
-  float y = status.fsAccY;
-  float z = status.fsAccZ;
-  float scale = 1.f / 512.f;
-  return CVector3f(scale * x, scale * y, scale * z);
+  const float x = (1.f / 512.f) * status.fsAccX;
+  const float y = (1.f / 512.f) * status.fsAccY;
+  const float z = (1.f / 512.f) * status.fsAccZ;
+  return CVector3f(x, y, z);
 }
 
 void CWiiMotionProcessor::UpdateAverage() {
@@ -392,15 +390,15 @@ void CMotionDeviceTracker::Update(const WPADFSStatus& status, const CVector3f& g
   }
   if (mFullAngleMode == 1) {
     const float z = mNormalizedAcceleration.GetZ();
-    float magnitude =
-        sqrtf(mNormalizedAcceleration.GetX() * mNormalizedAcceleration.GetX() + z * z);
+    const float& x = mNormalizedAcceleration.GetX();
+    float magnitude = sqrtf(x * x + z * z);
     if (CMath::IsEpsilon(magnitude, 0.f, 0.00001f)) {
       magnitude = 1.f;
     }
     if (mNormalizedAcceleration.GetX() >= 0.f) {
+      const float& ratio = mNormalizedAcceleration.GetX() / magnitude;
       const float& limit = 1.f;
-      mRoll = static_cast< float >(
-          asin(CMath::FastLimit(mNormalizedAcceleration.GetX() / magnitude, limit)));
+      mRoll = static_cast< float >(asin(CMath::FastLimit(ratio, limit)));
     } else {
       const float& limit = 1.f;
       mRoll = -static_cast< float >(
