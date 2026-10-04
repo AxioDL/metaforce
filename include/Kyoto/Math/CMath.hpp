@@ -27,7 +27,11 @@ public:
                         float start, float end, float slope);
   static float FastFmod(float x, float y) {
     int v = static_cast< int >(x * (1.f / y));
+#if VERSION >= VERSION_R3IJ_00
+    return x - static_cast< float >(v * y);
+#else
     return x - v * y;
+#endif
   }
   template < typename T >
   static const T& Clamp(const T& min, const T& val, const T& max);

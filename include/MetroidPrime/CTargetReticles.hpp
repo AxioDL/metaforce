@@ -73,10 +73,17 @@ class CCompoundTargetReticle {
 public:
   struct SOuterItemInfo {
     TCachedToken< CModel > mModel;
+#if VERSION >= VERSION_R3IJ_00
+    CAbsAngle mOffshootBaseAngle;
+    CAbsAngle mRotAng;
+    CAbsAngle mBaseAngle;
+    CRelAngle mOffshootAngleDelta;
+#else
     float mOffshootBaseAngle;
     float mRotAng;
     float mBaseAngle;
     float mOffshootAngleDelta;
+#endif
 
     explicit SOuterItemInfo(const char* modelName);
   };

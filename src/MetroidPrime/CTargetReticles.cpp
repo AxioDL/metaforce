@@ -267,10 +267,18 @@ void CCompoundTargetReticle::UpdateScanTargetReticle(float dt, const CStateManag
 
 CCompoundTargetReticle::SOuterItemInfo::SOuterItemInfo(const char* modelName)
 : mModel(gpSimplePool->GetObj(modelName))
+#if VERSION >= VERSION_R3IJ_00
+, mOffshootBaseAngle(CAbsAngle::FromRadians(0.f))
+, mRotAng(CAbsAngle::FromRadians(0.f))
+, mBaseAngle(CAbsAngle::FromRadians(0.f))
+, mOffshootAngleDelta(CRelAngle::FromRadians(0.f))
+#else
 , mOffshootBaseAngle(CAbsAngle::FromRadians(0.f).AsRadians())
 , mRotAng(CAbsAngle::FromRadians(0.f).AsRadians())
 , mBaseAngle(CAbsAngle::FromRadians(0.f).AsRadians())
-, mOffshootAngleDelta(CRelAngle::FromRadians(0.f).AsRadians()) {}
+, mOffshootAngleDelta(CRelAngle::FromRadians(0.f).AsRadians())
+#endif
+{}
 
 CCompoundTargetReticle::CCompoundTargetReticle(const CStateManager& mgr)
 : mLeadingOrientation(
@@ -974,14 +982,8 @@ void CCompoundTargetReticle::Update(float dt, const CStateManager& mgr) {
   if (extreme) {
     t = 1.f;
   } else {
-#if VERSION >= VERSION_R3IJ_00
-    float lagSpeed = gpTweakTargeting->mAngularLagSpeed;
-    const float step = lagSpeed * dt / angleDeg;
-    t = step < 1.f ? step : 1.f;
-#else
     float lagSpeed = gpTweakTargeting->mAngularLagSpeed;
     t = rstl::min_val(1.f, lagSpeed * dt / angleDeg);
-#endif
   }
   mLaggingOrientation =
       t == 1.f ? mLeadingOrientation
@@ -1125,16 +1127,6 @@ void CCompoundTargetReticle::Update(float dt, const CStateManager& mgr) {
   if (fullyCharged != mFullyCharged) {
     mFullyCharged = fullyCharged;
   }
-#if VERSION >= VERSION_R3IJ_00
-  if (mFullyCharged) {
-    const float duration = gpTweakTargeting->mFullChargeFadeDuration;
-    const float time = mFullChargeFadeTimer + dt / duration;
-    mFullChargeFadeTimer = time < duration ? time : duration;
-  } else {
-    const float time = mFullChargeFadeTimer - dt / gpTweakTargeting->mFullChargeFadeDuration;
-    mFullChargeFadeTimer = 0.f < time ? time : 0.f;
-  }
-#else
   if (mFullyCharged) {
     mFullChargeFadeTimer = rstl::min_val(
         gpTweakTargeting->mFullChargeFadeDuration,
@@ -1143,7 +1135,6 @@ void CCompoundTargetReticle::Update(float dt, const CStateManager& mgr) {
     mFullChargeFadeTimer = rstl::max_val(
         0.f, mFullChargeFadeTimer - dt / gpTweakTargeting->mFullChargeFadeDuration);
   }
-#endif
 
   // 6. Missile active state
   bool missileActive = mgr.GetPlayer()->GetPlayerGun()->GetMissileMode() == CPlayerGun::kMM_Active;
@@ -1169,21 +1160,22 @@ void CCompoundTargetReticle::Update(float dt, const CStateManager& mgr) {
       SOuterItemInfo& icon = mOuterBeamIconSquares[i];
       const CAbsAngle baseAngle =
           CAbsAngle::FromRadians(gpTweakTargeting->mOuterBeamSquareAngles[beam][i]);
-      CRelAngle offshootAngleDelta = CRelAngle::FromRadians(baseAngle.AsRadians() - icon.mRotAng);
+      CRelAngle offshootAngleDelta =
+          CRelAngle::FromRadians(baseAngle.AsRadians() - icon.mRotAng.AsRadians());
       if (i % 2 == 1) {
         offshootAngleDelta = offshootAngleDelta.AsRadians() > 0.f
                                  ? CRelAngle::FromRadians(-1.f * (M_2PIF - offshootAngleDelta.AsRadians()))
                                  : CRelAngle::FromRadians(M_2PIF + offshootAngleDelta.AsRadians());
       }
       icon.mOffshootBaseAngle = icon.mRotAng;
-      icon.mOffshootAngleDelta = offshootAngleDelta.AsRadians();
-      icon.mBaseAngle = baseAngle.AsRadians();
+      icon.mOffshootAngleDelta = offshootAngleDelta;
+      icon.mBaseAngle = baseAngle;
     }
 
     const CAbsAngle chargeBaseAngle = CAbsAngle::FromRadians(gpTweakTargeting->mChargeGaugeAngles[beam]);
     bool odd = rand() % 2 == 1;
     CRelAngle chargeOffshootAngleDelta =
-        CRelAngle::FromRadians(chargeBaseAngle.AsRadians() - mChargeGauge.mRotAng);
+        CRelAngle::FromRadians(chargeBaseAngle.AsRadians() - mChargeGauge.mRotAng.AsRadians());
     if (odd) {
       chargeOffshootAngleDelta =
           chargeOffshootAngleDelta.AsRadians() > 0.f
@@ -1191,8 +1183,8 @@ void CCompoundTargetReticle::Update(float dt, const CStateManager& mgr) {
               : CRelAngle::FromRadians(M_2PIF + chargeOffshootAngleDelta.AsRadians());
     }
     mChargeGauge.mOffshootBaseAngle = mChargeGauge.mRotAng;
-    mChargeGauge.mOffshootAngleDelta = chargeOffshootAngleDelta.AsRadians();
-    mChargeGauge.mBaseAngle = chargeBaseAngle.AsRadians();
+    mChargeGauge.mOffshootAngleDelta = chargeOffshootAngleDelta;
+    mChargeGauge.mBaseAngle = chargeBaseAngle;
     mBeam = beam;
     mLockonTimer = 0.f;
   }
@@ -1270,12 +1262,7 @@ void CCompoundTargetReticle::Update(float dt, const CStateManager& mgr) {
     if (gpId != mGrapplePoint0) {
       float tmp;
       if (gpId == mGrapplePoint1) {
-#if VERSION >= VERSION_R3IJ_00
-        const float previousTime = mGrapplePoint1T;
-        tmp = FLT_EPSILON < previousTime ? previousTime : FLT_EPSILON;
-#else
         tmp = rstl::max_val(gkEpsilon, mGrapplePoint1T);
-#endif
       } else {
         tmp = FLT_EPSILON;
       }
@@ -1294,19 +1281,6 @@ void CCompoundTargetReticle::Update(float dt, const CStateManager& mgr) {
   }
 
   // 11. Grapple point interpolation timers
-#if VERSION >= VERSION_R3IJ_00
-  if (mGrapplePoint0T > 0.f) {
-    const float time = mGrapplePoint0T + dt / 0.5f;
-    mGrapplePoint0T = time < 1.f ? time : 1.f;
-  }
-  if (mGrapplePoint1T > 0.f) {
-    const float time = mGrapplePoint1T - dt / 0.5f;
-    mGrapplePoint1T = 0.f < time ? time : 0.f;
-    if (mGrapplePoint1T == 0.f) {
-      mGrapplePoint1 = kInvalidUniqueId;
-    }
-  }
-#else
   if (mGrapplePoint0T > 0.f) {
     mGrapplePoint0T = rstl::min_val(1.f, mGrapplePoint0T + dt / 0.5f);
   }
@@ -1316,7 +1290,6 @@ void CCompoundTargetReticle::Update(float dt, const CStateManager& mgr) {
       mGrapplePoint1 = kInvalidUniqueId;
     }
   }
-#endif
 
   // 12. Xray/seeker angle updates
   mXrayRetAngle = CMath::ClampRadians(
@@ -1385,8 +1358,8 @@ void CCompoundTargetReticle::UpdateCurrLockOnGroup(float dt, const CStateManager
     if (mMissileBracketTimer < 0.f) {
       mMissileBracketTimer = rstl::min_val(mMissileBracketTimer + dt, 0.f);
     } else {
-      mMissileBracketTimer = rstl::min_val(mMissileBracketTimer + dt,
-                                               gpTweakTargeting->mMissileBracketDuration);
+      mMissileBracketTimer =
+          rstl::min_val(mMissileBracketTimer + dt, gpTweakTargeting->mMissileBracketDuration);
     }
   }
 
@@ -1402,6 +1375,17 @@ void CCompoundTargetReticle::UpdateCurrLockOnGroup(float dt, const CStateManager
       float offshoot = offshoot_func(mOvershootOffsetHalf, mPremultOvershootOffset,
                                      1.f - mChargeGaugeOvershootTimer /
                                                gpTweakTargeting->mChargeGaugeOvershootDuration);
+#if VERSION >= VERSION_R3IJ_00
+      for (int i = 0; i < 9; ++i) {
+        SOuterItemInfo& item = mOuterBeamIconSquares[i];
+        const float angleDelta = offshoot * item.mOffshootAngleDelta.AsRadians();
+        const float baseAngle = item.mOffshootBaseAngle.AsRadians();
+        item.mRotAng = CAbsAngle::FromRadians(angleDelta + baseAngle);
+      }
+      const float angleDelta = offshoot * mChargeGauge.mOffshootAngleDelta.AsRadians();
+      const float baseAngle = mChargeGauge.mOffshootBaseAngle.AsRadians();
+      mChargeGauge.mRotAng = CAbsAngle::FromRadians(baseAngle + angleDelta);
+#else
       for (int i = 0; i < 9; ++i) {
         SOuterItemInfo& item = mOuterBeamIconSquares[i];
         float angleDelta = offshoot * item.mOffshootAngleDelta;
@@ -1409,6 +1393,7 @@ void CCompoundTargetReticle::UpdateCurrLockOnGroup(float dt, const CStateManager
       }
       mChargeGauge.mRotAng = CMath::ClampRadians(
           mChargeGauge.mOffshootBaseAngle + offshoot * mChargeGauge.mOffshootAngleDelta);
+#endif
     }
   }
 
@@ -1424,7 +1409,13 @@ void CCompoundTargetReticle::UpdateCurrLockOnGroup(float dt, const CStateManager
     mMissileBracketScaleTimer = rstl::max_val(0.f, mMissileBracketScaleTimer - dt);
   }
 #if VERSION >= VERSION_R3IJ_00
+  bool hasScanTarget = false;
+  const CPlayer& scanPlayer = *mgr.GetPlayer();
   if (mPrevState == kRS_Scan && mResolvedScanTargetId != kInvalidUniqueId) {
+    hasScanTarget = true;
+  }
+
+  if (hasScanTarget) {
     const float blend = mScanTargetBlend + dt / gpTweakTargeting->x360_;
     mScanTargetBlend = blend < 1.f ? blend : 1.f;
   } else {
@@ -1432,7 +1423,7 @@ void CCompoundTargetReticle::UpdateCurrLockOnGroup(float dt, const CStateManager
     mScanTargetBlend = 0.f < blend ? blend : 0.f;
   }
 
-  if (player->GetScanningObjectId() != kInvalidUniqueId) {
+  if (scanPlayer.GetScanningObjectId() != kInvalidUniqueId) {
     const float blend = x214_ - static_cast< float >(4.f * dt);
     x214_ = 0.f < blend ? blend : 0.f;
   } else {
@@ -1440,7 +1431,6 @@ void CCompoundTargetReticle::UpdateCurrLockOnGroup(float dt, const CStateManager
     x214_ = blend < 1.f ? blend : 1.f;
   }
 #endif
-
 }
 
 void CCompoundTargetReticle::UpdateNextLockOnGroup(float dt, const CStateManager& mgr) {
@@ -1493,12 +1483,7 @@ void CCompoundTargetReticle::UpdateNextLockOnGroup(float dt, const CStateManager
   if (mNextGroupTimer > 0.f) {
     UpdateTargetParameters(mNextGroupA, mgr);
     UpdateTargetParameters(mNextGroupB, mgr);
-#if VERSION >= VERSION_R3IJ_00
-    const float time = mNextGroupTimer - dt;
-    mNextGroupTimer = 0.f < time ? time : 0.f;
-#else
     mNextGroupTimer = rstl::max_val(0.f, mNextGroupTimer - dt);
-#endif
     CTargetReticleRenderState::InterpolateWithClamp(mNextGroupA, mNextGroupInterp,
                                                     mNextGroupB,
                                                     1.f - mNextGroupTimer / mNextGroupDur);
@@ -1508,28 +1493,18 @@ void CCompoundTargetReticle::UpdateNextLockOnGroup(float dt, const CStateManager
 }
 
 void CCompoundTargetReticle::UpdateOrbitZoneGroup(float dt, const CStateManager& mgr) {
+  if (mTargetId == kInvalidUniqueId && mNextTargetId != kInvalidUniqueId) {
 #if VERSION >= VERSION_R3IJ_00
-  if (mTargetId == kInvalidUniqueId && mNextTargetId != kInvalidUniqueId) {
-    const float value = mUnk + static_cast< float >(2.f * dt);
-    mUnk = 1.f < value ? 1.f : value;
-  } else {
-    const float value = mUnk - static_cast< float >(2.f * dt);
-    mUnk = value < 0.f ? 0.f : value;
-  }
-
-  if (mgr.GetPlayer()->IsCrosshairsOpen() &&
-      mgr.GetPlayerState()->GetCurrentVisor() != CPlayerState::kPV_Scan) {
-    const float value = mCrosshairsScale + dt / gpTweakTargeting->mCrosshairsScaleDur;
-    mCrosshairsScale = 1.f < value ? 1.f : value;
-  } else {
-    const float value = mCrosshairsScale - dt / gpTweakTargeting->mCrosshairsScaleDur;
-    mCrosshairsScale = value < 0.f ? 0.f : value;
-  }
+    mUnk = rstl::min_val(mUnk + static_cast< float >(2.f * dt), 1.f);
 #else
-  if (mTargetId == kInvalidUniqueId && mNextTargetId != kInvalidUniqueId) {
     mUnk = rstl::min_val(2.f * dt + mUnk, 1.f);
+#endif
   } else {
+#if VERSION >= VERSION_R3IJ_00
+    mUnk = rstl::max_val(mUnk - static_cast< float >(2.f * dt), 0.f);
+#else
     mUnk = rstl::max_val(mUnk - 2.f * dt, 0.f);
+#endif
   }
 
   if (mgr.GetPlayer()->IsCrosshairsOpen() &&
@@ -1540,7 +1515,6 @@ void CCompoundTargetReticle::UpdateOrbitZoneGroup(float dt, const CStateManager&
     mCrosshairsScale =
         rstl::max_val(mCrosshairsScale - dt / gpTweakTargeting->mCrosshairsScaleDur, 0.f);
   }
-#endif
 }
 
 void CCompoundTargetReticle::Draw(const CStateManager& mgr, bool hideLockon) const {
@@ -2207,17 +2181,17 @@ float CCompoundTargetReticle::CalculateRadiusWorld(const CActor& actor,
   case 0: {
     const float height = max.GetY() - min.GetY();
     const float depth = max.GetZ() - min.GetZ();
-    const float yz = height < depth ? height : depth;
+    const float yz = rstl::min_val(depth, height);
     const float width = max.GetX() - min.GetX();
-    radius = (yz < width ? yz : width) * 0.5f;
+    radius = rstl::min_val(width, yz) * 0.5f;
     break;
   }
   case 1: {
     const float height = max.GetY() - min.GetY();
     const float depth = max.GetZ() - min.GetZ();
-    const float yz = depth < height ? height : depth;
+    const float yz = rstl::max_val(depth, height);
     const float width = max.GetX() - min.GetX();
-    radius = (width < yz ? yz : width) * 0.5f;
+    radius = rstl::max_val(width, yz) * 0.5f;
     break;
   }
   default: {
@@ -2652,14 +2626,11 @@ void COrbitPointMarker::Update(float dt, const CStateManager& mgr) {
 
 #if VERSION >= VERSION_R3IJ_00
   if (IsInterpolating()) {
-    const float time = mInterpTimer - dt;
-    mInterpTimer = 0.f < time ? time : 0.f;
-  }
 #else
   if (mInterpTimer > 0.f) {
+#endif
     mInterpTimer = rstl::max_val(0.f, mInterpTimer - dt);
   }
-#endif
 
   if (!mCamRelZPos) {
     CVector3f orbitPos = player->GetHUDOrbitTargetPosition();
