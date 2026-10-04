@@ -243,7 +243,7 @@ void CWiiInput::ApplyPointerDistanceScale(int channel) {
   const float scale = mPointerMinScale + (mPointerMaxScale - mPointerMinScale) *
                                                  CMath::FastMin(CMath::FastMax(0.f, distance), 1.f);
   mStatus[channel].pos.x =
-      CMath::FastMin(CMath::FastMax(-1.f, mStatus[channel].pos.x * scale), 1.f);
+      CMath::FastLimit(mStatus[channel].pos.x * scale, 1.f);
 }
 
 void CWiiInput::UpdatePointerState(int channel) {
@@ -421,11 +421,11 @@ void CWiiInput::UpdateAnalogInput(float threshold, int channel, int axis,
       if (!mMotionProcessors[channel].null()) {
         value =
             mMotionProcessors[channel]->GetNunchukTracker().GetWrappedRoll() / (M_PIF / 2.f);
-        value = CMath::FastMin(CMath::FastMax(-2.f, value), 2.f);
+        value = CMath::FastLimit(value, 2.f);
       }
     } else if (axis == 5 && !mMotionProcessors[channel].null()) {
       value = mMotionProcessors[channel]->GetNunchukTracker().GetWrappedPitch() / (M_PIF / 2.f);
-      value = CMath::FastMin(CMath::FastMax(-2.f, value), 2.f);
+      value = CMath::FastLimit(value, 2.f);
     }
   case kDT_Classic:
   case kDT_Wiimote:
@@ -437,11 +437,11 @@ void CWiiInput::UpdateAnalogInput(float threshold, int channel, int axis,
       if (!mMotionProcessors[channel].null()) {
         value =
             mMotionProcessors[channel]->GetWiimoteTracker().GetWrappedRoll() / (M_PIF / 2.f);
-        value = CMath::FastMin(CMath::FastMax(-2.f, value), 2.f);
+        value = CMath::FastLimit(value, 2.f);
       }
     } else if (axis == 9 && !mMotionProcessors[channel].null()) {
       value = mMotionProcessors[channel]->GetWiimoteTracker().GetWrappedPitch() / (M_PIF / 2.f);
-      value = CMath::FastMin(CMath::FastMax(-2.f, value), 2.f);
+      value = CMath::FastLimit(value, 2.f);
     }
     break;
   }

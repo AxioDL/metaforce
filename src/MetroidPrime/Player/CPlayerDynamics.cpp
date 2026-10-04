@@ -132,7 +132,7 @@ CVector3f CPlayer::GetDampedClampedVelocityWR(float dt) const {
       localVelocity[kDY] = flatVelocity[1];
     }
   } else {
-    localVelocity.SetY(CMath::FastMin(CMath::FastMax(-maxSpeed, localVelocity.GetY()), maxSpeed));
+    localVelocity.SetY(CMath::FastLimit(localVelocity[kDY], maxSpeed));
   }
   if (mMovementState == NPlayer::kMS_OnGround) {
     localVelocity.SetZ(0.f);
@@ -216,8 +216,9 @@ static void NormalizeMovementInput(float& forwardInput, float& strafeInput) {
 
 static CQuaternion ComputeDashRotation(float distance, float radius, float dt, bool dashing) {
   const float angle = 2.f * atanf((0.5f * distance) / radius);
-  const float& maxAngle = (M_PIF / 180.f) * (dashing ? 180.f : 120.f) * dt;
-  const float limitedAngle = CMath::FastMin(CMath::FastMax(-maxAngle, angle), maxAngle);
+  const float maxRate = (M_PIF / 180.f) * (dashing ? 180.f : 120.f);
+  const float& maxAngle = maxRate * dt;
+  const float limitedAngle = CMath::FastLimit(angle, maxAngle);
   return CQuaternion::ZRotation(CRelAngle::FromRadians(limitedAngle));
 }
 
@@ -271,8 +272,7 @@ void CPlayer::ComputeDash(const CFinalInput& input, float dt, CStateManager& mgr
         strafeVelocity = dt * (mDashSpeedMultiplier * skDashStrafeDistances[restraint]);
       } else {
         const float& maxBlend = 1.f;
-        float blend = CMath::FastMin(
-            CMath::FastMax(-maxBlend, mDashTimer / mStrafeDashBlendDuration), maxBlend);
+        float blend = CMath::FastLimit(mDashTimer / mStrafeDashBlendDuration, maxBlend);
         blend = 1.f - blend;
         const float dashDifference =
             skDashStrafeDistances[GetSurfaceRestraint()] - skStrafeDistances[GetSurfaceRestraint()];
@@ -292,7 +292,7 @@ void CPlayer::ComputeDash(const CFinalInput& input, float dt, CStateManager& mgr
   }
   const float& limit = maxAngle * dt;
   const CRelAngle& limitedAngle =
-      CRelAngle::FromRadians(CMath::FastMin(CMath::FastMax(-limit, angle), limit));
+      CRelAngle::FromRadians(CMath::FastLimit(angle, limit));
   const CQuaternion rotation =
       CQuaternion::AxisAngle(CUnitVector3f(0.f, 0.f, 1.f, CUnitVector3f::kN_Yes), limitedAngle);
   useOrbitToPlayer = rotation.Transform(orbitToPlayer);
@@ -334,7 +334,7 @@ void CPlayer::ComputeDash(const CFinalInput& input, float dt, CStateManager& mgr
       const float acceleration = dt * GetAcceleration();
       const float& maxBlend = 1.f;
       const float accelerationBlend =
-          CMath::FastMin(CMath::FastMax(-maxBlend, deltaMagnitude / acceleration), maxBlend);
+          CMath::FastLimit(deltaMagnitude / acceleration, maxBlend);
       newVelocity =
           GetVelocityWR() + accelerationBlend * (acceleration * (velocityDelta / deltaMagnitude));
       if (!GetPlayerIsSlidingOnWall()) {
@@ -380,7 +380,7 @@ float CPlayer::ComputeMovementForce(int axis, float input, float velocity, float
   if (!close_enough(0.f, input)) {
     const float targetSpeed = input * (maxSpeed - minSpeed) + (input > 0.f ? minSpeed : -minSpeed);
     float scale = (targetSpeed - velocity) / maxSpeed;
-    force = acceleration * CMath::FastMin(CMath::FastMax(-1.f, scale), 1.f);
+    force = acceleration * CMath::FastLimit(scale, 1.f);
   }
   return force;
 }
@@ -497,9 +497,8 @@ float CPlayer::ForwardInput(const CFinalInput& input, float turnInput) const {
 
   if (!(forward < 0.001f)) {
     const float& maxInput = 1.f;
-    const float minInput = -maxInput;
     const float& scaled = forward / 0.8f;
-    forward = CMath::FastMin(CMath::FastMax(minInput, scaled), maxInput);
+    forward = CMath::FastLimit(scaled, maxInput);
     if (CMath::AbsF(atan2f(CMath::AbsF(turnInput), forward)) < 50.f * (M_PIF / 180.f)) {
       const CVector3f stick(CMath::AbsF(turnInput), forward, 0.f);
       if (stick.CanBeNormalized()) {
@@ -509,9 +508,8 @@ float CPlayer::ForwardInput(const CFinalInput& input, float turnInput) const {
   }
   if (!(backward < 0.001f)) {
     const float& maxInput = 1.f;
-    const float minInput = -maxInput;
     const float& scaled = backward / 0.8f;
-    backward = CMath::FastMin(CMath::FastMax(minInput, scaled), maxInput);
+    backward = CMath::FastLimit(scaled, maxInput);
     if (CMath::AbsF(atan2f(CMath::AbsF(turnInput), backward)) < 50.f * (M_PIF / 180.f)) {
       const CVector3f stick(CMath::AbsF(turnInput), backward, 0.f);
       if (stick.CanBeNormalized()) {
@@ -521,10 +519,8 @@ float CPlayer::ForwardInput(const CFinalInput& input, float turnInput) const {
   }
 
   const float& maxInput = 1.f;
-  const float minInput = -maxInput;
-  return CMath::FastMin(
-      CMath::FastMax(minInput, forward - backward * gpTweakPlayer->GetBackwardsForceMultiplier()),
-      maxInput);
+  return CMath::FastLimit(forward - backward * gpTweakPlayer->GetBackwardsForceMultiplier(),
+                         maxInput);
 }
 
 float CPlayer::StrafeInput(const CFinalInput& input) const {
@@ -564,8 +560,7 @@ float CPlayer::TurnInput(const CFinalInput& input) const {
   }
 
   const float& maxInput = 1.f;
-  turn *=
-      CMath::FastMin(CMath::FastMax(-maxInput, 1.f - mControlMapper.GetSelectorFade()), maxInput);
+  turn *= CMath::FastLimit(1.f - mControlMapper.GetSelectorFade(), maxInput);
   if (!mPointerAimHeld) {
     const float pitch = GetFreeLookAngleX().AsDegrees();
     if (pitch > 0.f) {

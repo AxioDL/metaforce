@@ -80,7 +80,9 @@ void CControlMapper::UpdateSelector(ECommands command, const CFinalInput& input,
 float CControlMapper::GetSelectorFade() const {
   float result = 0.f;
   if (mSelectorFadeTime > 0.f) {
-    result = CMath::FastMin(CMath::FastMax(0.f, mSelectorFadeTime / 0.5f), 1.f);
+    const float& minFade = 0.f;
+    const float& maxFade = 1.f;
+    result = CMath::FastMin(CMath::FastMax(minFade, mSelectorFadeTime / 0.5f), maxFade);
   }
   return result;
 }
@@ -228,8 +230,8 @@ float CControlMapper::GetAnalogInput(ECommands command, const CFinalInput& input
 
 bool CControlMapper::TestVirtualMenu(ECommands command, const CVector2f& pointer) const {
   float limit = 1.f;
-  CVector2f position(CMath::FastMin(CMath::FastMax(-limit, pointer.GetX()), limit),
-                     CMath::FastMin(CMath::FastMax(-limit, pointer.GetY()), limit));
+  CVector2f position(CMath::FastLimit(pointer.GetX(), limit),
+                     CMath::FastLimit(pointer.GetY(), limit));
   float halfWidth = 320.f;
   float halfHeight = 224.f;
   position[0] *= halfWidth;

@@ -75,7 +75,7 @@ void CPlayer::UpdateGunTransform(const CVector3f& gunPos, CStateManager& mgr) {
   switch (mGunHolsterState) {
   case kGH_Drawing: {
     float maxLift = 1.f;
-    float liftAngle = CMath::FastMin(CMath::FastMax(-maxLift, mGunHolsterRemTime / 0.45f), maxLift);
+    float liftAngle = CMath::FastLimit(mGunHolsterRemTime / 0.45f, maxLift);
     if (liftAngle > 0.01f) {
       CQuaternion quat = CQuaternion::AxisAngle(
           rightDir, CRelAngle::FromRadians(-liftAngle * gpTweakPlayerGun->mFixedVerticalAim));
@@ -93,12 +93,10 @@ void CPlayer::UpdateGunTransform(const CVector3f& gunPos, CStateManager& mgr) {
   }
   case kGH_Holstering: {
     float maxLift = 1.f;
-    float liftAngle = 1.f - CMath::FastMin(
-                                CMath::FastMax(-maxLift, mGunHolsterRemTime /
-                                                            gpTweakPlayerGun->mGunHolsterTime),
-                                maxLift);
+    float liftAngle = 1.f - CMath::FastLimit(mGunHolsterRemTime /
+                                                            gpTweakPlayerGun->mGunHolsterTime, maxLift);
     if (mMorphBallState == kMS_Morphing) {
-      liftAngle = 1.f - CMath::FastMin(CMath::FastMax(-maxLift, mGunHolsterRemTime / 0.1f), maxLift);
+      liftAngle = 1.f - CMath::FastLimit(mGunHolsterRemTime / 0.1f, maxLift);
     }
     if (liftAngle > 0.01f) {
       CQuaternion quat = CQuaternion::AxisAngle(
@@ -301,7 +299,7 @@ void CPlayer::ProcessInput(const CFinalInput& input, CStateManager& mgr) {
 
   if (mPointerAimHeld) {
     mPointerAimHoldTime =
-        CMath::FastMin(CMath::FastMax(-1.f, mPointerAimHoldTime + input.Time()), 1.f);
+        CMath::FastLimit(mPointerAimHoldTime + input.Time(), 1.f);
   } else {
     mPointerAimHoldTime =
         CMath::FastMin(CMath::FastMax(0.f, mPointerAimHoldTime - input.Time()), 1.f);
@@ -598,8 +596,7 @@ CVector3f CPlayer::CalculateLeftStickEdgePosition(float strafeInput, float forwa
 
   const float angle = atanf(fabsf(forwardInput) / fabsf(strafeInput));
   const float& maxFraction = 1.f;
-  const float fraction = CMath::FastMin(
-      CMath::FastMax(-maxFraction, angle / (M_PIF / 4.f)), maxFraction);
+  const float fraction = CMath::FastLimit(angle / (M_PIF / 4.f), maxFraction);
   return side + fraction * (corner - side);
 }
 
@@ -785,16 +782,14 @@ void CPlayer::ComputeFreeLook(const CFinalInput& input, CStateManager& mgr) {
                                                   gpTweakPlayer->GetHorizontalFreeLookAngleVel());
   if (lookUp > 0.f) {
     const float& maxLook = 1.f;
-    const float minLook = -maxLook;
     mVertFreeLookAngleVel =
         CRelAngle::FromDegrees(gpTweakPlayerControlCurrent->GetLookUpResponse().EvaluateAt(
-            CMath::FastMin(CMath::FastMax(minLook, lookUp), maxLook)));
+            CMath::FastLimit(lookUp, maxLook)));
   } else if (lookDown > 0.f) {
     const float& maxLook = 1.f;
-    const float minLook = -maxLook;
     mVertFreeLookAngleVel =
         CRelAngle::FromDegrees(gpTweakPlayerControlCurrent->GetLookDownResponse().EvaluateAt(
-            CMath::FastMin(CMath::FastMax(minLook, lookDown), maxLook)));
+            CMath::FastLimit(lookDown, maxLook)));
   } else {
     mVertFreeLookAngleVel = CRelAngle::FromRadians(0.f);
   }

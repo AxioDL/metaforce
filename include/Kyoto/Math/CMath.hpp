@@ -107,9 +107,23 @@ public:
   static bool IsEpsilon(float x, float y, float epsilon) {
     return AbsF(x - y) < epsilon;
   }
-  static float FastMin(float a, float b) { return FastFSel(a - b, b, a); }
-  static float FastMax(float a, float b) { return FastFSel(a - b, a, b); }
-  static float FastLimit(float v, float h) { return FastMin(FastMax(-h, v), h); }
+  static float FastMin(float a, float b) {
+    float diff = a - b;
+    return FastFSel(diff, b, a);
+  }
+
+  static float FastMax(float a, float b) {
+    a = FastFSel(a - b, a, b);
+    return a;
+  }
+
+  static float FastLimit(float v, float h) {
+    float low = -h;
+    float diff = low - v;
+    float limited = FastFSel(diff, low, v);
+    return FastFSel(limited - h, h, limited);
+  }
+
   // PowF__5CMathFff global
   // Rev2Deg__5CMathFf weak
   // SlowTangentR__5CMathFf global

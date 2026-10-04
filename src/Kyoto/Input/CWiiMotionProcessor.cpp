@@ -365,11 +365,11 @@ void CMotionDeviceTracker::Update(const WPADFSStatus& status, const CVector3f& g
   {
     const float& limit = 1.f;
     mNormalizedAcceleration.SetX(
-        CMath::FastMin(CMath::FastMax(-limit, mNormalizedAcceleration.GetX()), limit));
+        CMath::FastLimit(mNormalizedAcceleration.GetX(), limit));
     mNormalizedAcceleration.SetY(
-        CMath::FastMin(CMath::FastMax(-limit, mNormalizedAcceleration.GetY()), limit));
+        CMath::FastLimit(mNormalizedAcceleration.GetY(), limit));
     mNormalizedAcceleration.SetZ(
-        CMath::FastMin(CMath::FastMax(-limit, mNormalizedAcceleration.GetZ()), limit));
+        CMath::FastLimit(mNormalizedAcceleration.GetZ(), limit));
   }
   switch (mDevice) {
   case 0:
@@ -399,12 +399,12 @@ void CMotionDeviceTracker::Update(const WPADFSStatus& status, const CVector3f& g
     }
     if (mNormalizedAcceleration.GetX() >= 0.f) {
       const float& limit = 1.f;
-      mRoll = static_cast< float >(asin(CMath::FastMin(
-          CMath::FastMax(-limit, mNormalizedAcceleration.GetX() / magnitude), limit)));
+      mRoll = static_cast< float >(
+          asin(CMath::FastLimit(mNormalizedAcceleration.GetX() / magnitude, limit)));
     } else {
       const float& limit = 1.f;
-      mRoll = -static_cast< float >(asin(CMath::FastMin(
-          CMath::FastMax(-limit, -mNormalizedAcceleration.GetX() / magnitude), limit)));
+      mRoll = -static_cast< float >(
+          asin(CMath::FastLimit(-mNormalizedAcceleration.GetX() / magnitude, limit)));
     }
     if (mDevice == 1) {
       mRoll = Filter(8, mRoll);
@@ -472,7 +472,7 @@ void CMotionDeviceTracker::Update(const WPADFSStatus& status, const CVector3f& g
     {
       const float& limit = 1.f;
       mNormalizedAcceleration.SetX(
-          CMath::FastMin(CMath::FastMax(-limit, mNormalizedAcceleration.GetX()), limit));
+          CMath::FastLimit(mNormalizedAcceleration.GetX(), limit));
     }
     float roll;
     if (mNormalizedAcceleration.GetX() >= 0.f) {
@@ -488,7 +488,7 @@ void CMotionDeviceTracker::Update(const WPADFSStatus& status, const CVector3f& g
     {
       const float& limit = 1.f;
       mNormalizedAcceleration.SetY(
-          CMath::FastMin(CMath::FastMax(-limit, mNormalizedAcceleration.GetY()), limit));
+          CMath::FastLimit(mNormalizedAcceleration.GetY(), limit));
     }
     float pitch;
     if (mNormalizedAcceleration.GetY() >= 0.f) {
@@ -573,9 +573,9 @@ uint CWiiMotionProcessor::UpdateDirectionalGestures(CMotionDeviceTracker& tracke
     acceleration = ApplyAccelerationDeadzone(acceleration, mNunchukGravityUnits, 50.f);
     acceleration = NormalizeAcceleration(acceleration, mNunchukGravityUnits);
     const float& limit = 1.f;
-    acceleration.SetX(CMath::FastMin(CMath::FastMax(-limit, acceleration.GetX()), limit));
-    acceleration.SetY(CMath::FastMin(CMath::FastMax(-limit, acceleration.GetY()), limit));
-    acceleration.SetZ(CMath::FastMin(CMath::FastMax(-limit, acceleration.GetZ()), limit));
+    acceleration.SetX(CMath::FastLimit(acceleration.GetX(), limit));
+    acceleration.SetY(CMath::FastLimit(acceleration.GetY(), limit));
+    acceleration.SetZ(CMath::FastLimit(acceleration.GetZ(), limit));
     tracker.NegativeZ().Update(acceleration, dt);
     tracker.PositiveZ().Update(acceleration, dt);
     tracker.NegativeX().Update(acceleration, dt);
@@ -596,9 +596,9 @@ uint CWiiMotionProcessor::UpdateDirectionalGestures(CMotionDeviceTracker& tracke
     CVector3f acceleration(status.accX, status.accY, status.accZ);
     acceleration = ApplyAccelerationDeadzone(acceleration, mWiimoteGravityUnits, 90.f);
     const float& limit = 1.f;
-    acceleration.SetX(CMath::FastMin(CMath::FastMax(-limit, acceleration.GetX()), limit));
-    acceleration.SetY(CMath::FastMin(CMath::FastMax(-limit, acceleration.GetY()), limit));
-    acceleration.SetZ(CMath::FastMin(CMath::FastMax(-limit, acceleration.GetZ()), limit));
+    acceleration.SetX(CMath::FastLimit(acceleration.GetX(), limit));
+    acceleration.SetY(CMath::FastLimit(acceleration.GetY(), limit));
+    acceleration.SetZ(CMath::FastLimit(acceleration.GetZ(), limit));
     tracker.NegativeZ().Update(acceleration, dt);
     tracker.PositiveZ().Update(acceleration, dt);
     tracker.NegativeX().Update(acceleration, dt);

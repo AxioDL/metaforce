@@ -1531,7 +1531,7 @@ void CPlayer::ApplyGrappleJump(CStateManager& mgr) {
     float cosAngle =
         CMath::AbsF(CVector3f::Dot(cross.AsNormalized(), pointToPlayerFlat.AsNormalized()));
 #if VERSION >= VERSION_R3IJ_00
-    cosAngle = CMath::FastMin(CMath::FastMax(-maxCosAngle, cosAngle), maxCosAngle);
+    cosAngle = CMath::FastLimit(cosAngle, maxCosAngle);
 #else
     cosAngle = CMath::Limit(cosAngle, 1.f);
 #endif
