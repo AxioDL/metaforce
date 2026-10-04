@@ -121,6 +121,15 @@ MetroidPrime/Player/CPlayerVisor.cpp:
 	.sbss       start:0x805C2698 end:0x805C26A8
 	.sdata2     start:0x805C5E88 end:0x805C5F40
 
+MetroidPrime/CTargetReticles.cpp:
+	.text       start:0x80234C7C end:0x8023C750
+	.ctors      start:0x8046D454 end:0x8046D458
+	.rodata     start:0x80477A38 end:0x80477C50
+	.data       start:0x8048DE10 end:0x8048DE20
+	.bss        start:0x804D4DE0 end:0x804D4E00
+	.sbss       start:0x805C2758 end:0x805C275C align:4
+	.sdata2     start:0x805C6C80 end:0x805C6D10
+
 MetroidPrime/Player/CTrilogyOptions.cpp:
 	.text       start:0x8024A110 end:0x8024A8D0
 	.sdata      start:0x805C1AB8 end:0x805C1AC0

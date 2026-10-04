@@ -45,6 +45,7 @@ public:
   float Determinant() const;
   CMatrix3f Inverse() const;
   CMatrix3f GetTranspose() const { return CMatrix3f(m00, m10, m20, m01, m11, m21, m02, m12, m22); }
+  CVector3f TransposeMultiply(const CVector3f& vec) const;
   void AddScaledMatrix(const CMatrix3f& mat, float scale);
 
   // TODO: names/check

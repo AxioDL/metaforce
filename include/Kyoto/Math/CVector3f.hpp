@@ -47,11 +47,19 @@ public:
   static float GetAngleDiff(const CVector3f& a, const CVector3f& b);
   bool IsEqu(const CVector3f& other, float epsilon = FLT_EPSILON) const;
   static CVector3f Lerp(const CVector3f& a, const CVector3f& b, float v) {
+#if VERSION >= VERSION_R3IJ_00
+    float inv = 1.f - v;
+    float x = static_cast< float >(a.mX * inv) + static_cast< float >(b.mX * v);
+    float y = static_cast< float >(a.mY * inv) + static_cast< float >(b.mY * v);
+    float z = static_cast< float >(a.mZ * inv) + static_cast< float >(b.mZ * v);
+    return CVector3f(x, y, z);
+#else
     float inv = 1.f - v;
     float x = a.mX * inv + b.mX * v;
     float y = a.mY * inv + b.mY * v;
     float z = a.mZ * inv + b.mZ * v;
     return CVector3f(x, y, z);
+#endif
   }
   inline float MagSquared() const { return GetX() * GetX() + GetY() * GetY() + GetZ() * GetZ(); }
   static CVector3f Cross(const CVector3f& lhs, const CVector3f& rhs) {
@@ -62,9 +70,9 @@ public:
     const float rY = rhs.GetY();
     const float rZ = rhs.GetZ();
 #if VERSION >= VERSION_R3IJ_00
-    float x = lY * rZ - rY * lZ;
-    float y = lZ * rX - rZ * lX;
-    float z = lX * rY - rX * lY;
+    float x = static_cast< float >(lY * rZ) - static_cast< float >(rY * lZ);
+    float y = static_cast< float >(lZ * rX) - static_cast< float >(rZ * lX);
+    float z = static_cast< float >(lX * rY) - static_cast< float >(rX * lY);
 #else
     float z = lX * rY - rX * lY;
     float y = lZ * rX - rZ * lX;
@@ -109,7 +117,13 @@ public:
   CVector2f ToVec2f() const { return CVector2f(mX, mY); }
 
   static const float Dot(const CVector3f& a, const CVector3f& b) {
+#if VERSION >= VERSION_R3IJ_00
+    return static_cast< float >(a.GetX() * b.GetX()) +
+           static_cast< float >(a.GetY() * b.GetY()) +
+           static_cast< float >(a.GetZ() * b.GetZ());
+#else
     return (a.GetX() * b.GetX()) + (a.GetY() * b.GetY()) + (a.GetZ() * b.GetZ());
+#endif
   }
 
   static const CVector3f& Zero() { return sZeroVector; }

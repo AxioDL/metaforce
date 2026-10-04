@@ -1388,11 +1388,11 @@ void CPlayer::SetOrbitState(EPlayerOrbitState state, CStateManager& mgr) {
   }
 }
 
-#if VERSION < VERSION_R3IJ_00
-
 CVector3f CPlayer::GetHUDOrbitTargetPosition() const {
   return mOrbitPoint + mCameraBob->GetCameraBobTransformation().GetTranslation();
 }
+
+#if VERSION < VERSION_R3IJ_00
 
 float CPlayer::CalculateOrbitZBasedDistance(EPlayerOrbitType type) {
   static const float maxScale = 4.f;

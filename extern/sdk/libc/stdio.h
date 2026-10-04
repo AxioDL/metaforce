@@ -120,6 +120,7 @@ enum __ReadProcActions { __GetChar, __UngetChar, __CheckForError };
 
 int puts(const char* s);
 int printf(const char*, ...);
+int snprintf(char* s, size_t n, const char* format, ...);
 size_t sprintf(char* s, const char* format, ...);
 size_t vprintf(const char* format, va_list arg);
 size_t vsprintf(char* s, const char* format, va_list arg);

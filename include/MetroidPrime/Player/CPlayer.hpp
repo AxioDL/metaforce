@@ -77,6 +77,7 @@ public:
   CControlMapper& ControlMapper() { return mControlMapper; }
   const CControlMapper& GetControlMapper() const { return mControlMapper; }
   const CAimingCursor& GetAimingCursor() const { return mAimingCursor; }
+  float GetOrbitModeBlend() const { return mOrbitModeBlend; }
   bool GetPointerAimHeld() const { return mPointerAimHeld; }
   void SetBallJump(bool enabled);
   float GetTurnInputWarmupScale() const;

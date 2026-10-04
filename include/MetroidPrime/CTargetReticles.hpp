@@ -7,7 +7,9 @@
 #include "MetroidPrime/Player/CPlayerState.hpp"
 
 #include "Kyoto/Graphics/CColor.hpp"
+#include "Kyoto/Math/CAbsAngle.hpp"
 #include "Kyoto/Math/CQuaternion.hpp"
+#include "Kyoto/Math/CRelAngle.hpp"
 #include "Kyoto/Math/CVector3f.hpp"
 #include "Kyoto/TToken.hpp"
 
@@ -26,6 +28,10 @@ enum EReticleState {
   kRS_XRay,
   kRS_Thermal,
   kRS_Four,
+#if VERSION >= VERSION_R3IJ_00
+  kRS_Selector,
+  kRS_Six,
+#endif
   kRS_Unspecified,
 };
 
@@ -81,6 +87,25 @@ public:
   bool CheckLoadComplete();
   EReticleState GetDesiredReticleState(const CStateManager& mgr) const;
   void Update(float dt, const CStateManager& mgr);
+#if VERSION >= VERSION_R3IJ_00
+  void UpdateOffScreenReticle(float dt, const CStateManager& mgr);
+  void DrawOffScreenReticle(const CMatrix3f& rot, const CStateManager& mgr) const;
+  void UpdateOrbitLockPosition(float dt, const CStateManager& mgr);
+  bool IsHostileTarget(TUniqueId id, const CStateManager& mgr) const;
+  void UpdateCombatAimingReticle(float dt, const CStateManager& mgr);
+  void DrawCombatAimingReticle(const CMatrix3f& rot, const CStateManager& mgr) const;
+  static bool IsActiveGrappleTarget(TUniqueId id, const CStateManager& mgr);
+  void UpdateNextLockOnGroupRS5(float dt, const CStateManager& mgr);
+  void UpdateCurrLockOnGroupRS5(float dt, const CStateManager& mgr);
+  void DrawNextLockOnGroupRS5(const CMatrix3f& rot, const CStateManager& mgr) const;
+  void DrawCurrLockOnGroupRS5(const CMatrix3f& rot, const CStateManager& mgr) const;
+  TUniqueId ResolveScanTarget(const CStateManager& mgr, TUniqueId id) const;
+  void UpdateScanTargetBounds(const CStateManager& mgr);
+  void UpdateScanTargetReticle(float dt, const CStateManager& mgr);
+  void DrawScanTargetReticle(const CMatrix3f& rot, const CStateManager& mgr) const;
+  float CalculateOrbitZoneReticleDistance(const CStateManager& mgr) const;
+  CVector3f ClampToScreenCircle(CVector3f position, const CStateManager& mgr, float radius) const;
+#endif
   void UpdateCurrLockOnGroup(float dt, const CStateManager& mgr);
   void UpdateNextLockOnGroup(float dt, const CStateManager& mgr);
   void UpdateOrbitZoneGroup(float dt, const CStateManager& mgr);
@@ -88,13 +113,19 @@ public:
   void DrawGrappleGroup(const CMatrix3f& rot, const CStateManager& mgr, bool hideLockon) const;
   void DrawGrapplePoint(const CScriptGrapplePoint& point, float t, const CStateManager& mgr,
                         const CMatrix3f& rot, bool zEqual) const;
+#if VERSION < VERSION_R3IJ_00
   void DrawCurrLockOnGroup(const CMatrix3f& rot, const CStateManager& mgr) const;
   void DrawNextLockOnGroup(const CMatrix3f& rot, const CStateManager& mgr) const;
+#endif
   void DrawOrbitZoneGroup(const CMatrix3f& rot, const CStateManager& mgr) const;
   void UpdateTargetParameters(CTargetReticleRenderState& state, const CStateManager& mgr);
   float CalculateRadiusWorld(const CActor& actor, const CStateManager& mgr) const;
   CVector3f CalculatePositionWorld(const CActor& actor, const CStateManager& mgr) const;
+#if VERSION >= VERSION_R3IJ_00
+  CVector3f CalculateOrbitZoneReticlePosition(const CStateManager& mgr, float distance) const;
+#else
   CVector3f CalculateOrbitZoneReticlePosition(const CStateManager& mgr, bool lag) const;
+#endif
   static bool IsGrappleTarget(TUniqueId id, const CStateManager& mgr);
   static float CalculateClampedScale(CVector3f pos, float scale, float clampMin,
                                      float clampMax, const CStateManager& mgr);
@@ -171,48 +202,48 @@ private:
   CVector3f mCursorPlanePosition;
   float x24c_;
   float mAimingScale;
-  CColor mAimingCenterColor;
-  float mAimingCenterAlpha;
   CColor mAimingArmColor;
   float mAimingArmAlpha;
+  CColor mAimingCenterColor;
+  float mAimingCenterAlpha;
   float mCursorTargetColorBlend;
-  CVector3f x268_;
-  float mCursorDistanceScaleA;
-  float mCursorDistanceScaleB;
-  TUniqueId x27c_;
-  CVector3f x280_;
-  float x28c_;
-  CVector3f x290_;
-  CColor x29c_;
-  float x2a0_;
-  CVector3f x2a4_;
+  CVector3f mAimingArmOffset;
+  float mAimingArmLengthScale;
+  float mAimingCenterScale;
+  TUniqueId mNextReticleTargetId;
+  CVector3f mNextReticlePosition;
+  CRelAngle mNextReticleAngle;
+  CVector3f mNextReticleScale;
+  CColor mNextReticleColor;
+  float mNextReticleAlpha;
+  CVector3f mNextReticleArmOffset;
   float x2b0_;
-  CVector3f x2b4_;
-  CVector3f x2c0_;
-  bool x2cc_;
-  float x2d0_;
-  float x2d4_;
-  CVector3f x2d8_;
-  CVector3f x2e4_;
-  TUniqueId x2f0_;
-  CVector3f x2f4_;
-  CColor x300_;
-  float x304_;
-  CColor x308_;
-  float x30c_;
+  CVector3f mNextReticleTargetPosition;
+  CVector3f mNextReticleWorldPosition;
+  bool mNextReticleInterpolating;
+  float mNextReticleInterpDuration;
+  float mNextReticleInterpTime;
+  CVector3f mNextReticleDestPosition;
+  CVector3f mNextReticleFromPosition;
+  TUniqueId mCurrReticleTargetId;
+  CVector3f mCurrReticlePosition;
+  CColor mCurrReticleArmColor;
+  float mCurrReticleArmAlpha;
+  CColor mCurrReticleDetailColor;
+  float mCurrReticleDetailAlpha;
   float x310_;
   float x314_;
   CVector3f x318_;
-  float x324_;
-  CVector3f x328_;
-  float x334_;
-  float x338_;
-  float x33c_;
-  float x340_;
-  float x344_;
-  float x348_;
-  bool x34c_;
-  float x350_;
+  float mCurrReticleLockTime;
+  CVector3f mCurrReticleBaseScale;
+  float mCurrReticleBracketAlpha;
+  CRelAngle mCurrReticleBracketAngle;
+  CAbsAngle mCurrReticleBracketHeading;
+  float mCurrReticleTechTime;
+  CRelAngle mCurrReticleTechAngle;
+  CAbsAngle mCurrReticleTechHeading;
+  bool mCurrReticleAimHeld;
+  float mCurrReticleReleaseAlpha;
   CVector3f x354_;
   CVector3f x360_;
   CColor x36c_;
@@ -222,27 +253,27 @@ private:
   float x37c_;
   float x380_;
   float mOffScreenBlinkTime;
-  int mOffScreenFrameCount;
-  TCachedToken< CModel > mCombatAimingCenter;
-  TCachedToken< CModel > mCombatAimingArm;
-  TCachedToken< CModel > mOrbitLockArm;
-  TCachedToken< CModel > mOrbitLockTech;
-  TCachedToken< CModel > mOrbitLockBrackets;
-  TCachedToken< CModel > mOrbitLockBase;
-  TCachedToken< CModel > mOffScreen;
+  uint mOffScreenFrameCount;
+  TLockedToken< CModel > mCombatAimingCenter;
+  TLockedToken< CModel > mCombatAimingArm;
+  TLockedToken< CModel > mOrbitLockArm;
+  TLockedToken< CModel > mOrbitLockTech;
+  TLockedToken< CModel > mOrbitLockBrackets;
+  TLockedToken< CModel > mOrbitLockBase;
+  TLockedToken< CModel > mOffScreen;
   TCachedToken< CModel > mScanReticleRing;
   TCachedToken< CModel > mScanReticleBracket;
   TCachedToken< CModel > mScanReticleProgress;
-  float x404_;
-  float x408_;
-  float x40c_;
-  CVector3f x410_;
+  float mScanTargetBlend;
+  float mScanTargetInterpFactor;
+  float mScanningBlend;
+  CVector3f mScanTargetFromPosition;
   CVector3f mScanTargetPosition;
-  CVector3f x428_;
+  CVector3f mScanTargetFromExtent;
   CVector3f mScanTargetExtent;
   rstl::reserved_vector< TUniqueId, 8 > mScanTargets;
-  TUniqueId x454_;
-  TUniqueId x456_;
+  TUniqueId mScanOrbitTargetId;
+  TUniqueId mResolvedScanTargetId;
 #else
   bool mBeamShot;
   bool mMissileShot;
@@ -262,7 +293,9 @@ public:
 
   bool CheckLoadComplete();
   void Update(float dt, const CStateManager& mgr);
+#if VERSION < VERSION_R3IJ_00
   void Draw(const CStateManager& mgr) const;
+#endif
   void ResetInterpolationTimer(float time);
   bool IsInterpolating() const { return mInterpTimer > 0.f; }
 

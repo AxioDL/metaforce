@@ -136,11 +136,17 @@ public:
   static const CColor& White();
 #endif
   static const CColor& Grey();
+#if VERSION >= VERSION_R3IJ_00
+  static const CColor& Red() { return sRedColor; }
+  static const CColor& Green() { return sGreenColor; }
+  static const CColor& Purple() { return sPurpleColor; }
+#else
   static const CColor& Red();
   static const CColor& Green();
+  static const CColor& Purple();
+#endif
   static const CColor& Blue();
   static const CColor& Yellow();
-  static const CColor& Purple();
   static const CColor& Orange();
 
 private:

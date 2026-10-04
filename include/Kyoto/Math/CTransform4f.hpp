@@ -37,9 +37,10 @@ public:
 
   CVector3f GetTranslation() const {
 #if VERSION >= VERSION_R3ME_00
-    float x = m03;
-    float y = m13;
-    float z = m23;
+    float x, y, z;
+    z = m23;
+    y = m13;
+    x = m03;
     return CVector3f(x, y, z);
 #else
     return CVector3f(m03, m13, m23);
@@ -165,9 +166,15 @@ public:
   void SetRotation(const CMatrix3f& rotation);
   void SetRotation(const CTransform4f& rotation);
   CVector3f TransposeMultiply(const CVector3f& in) const {
+#if VERSION >= VERSION_R3IJ_00
+    float z = in.GetZ();
+    float y = in.GetY();
+    float x = in.GetX();
+#else
     float x = in.GetX();
     float y = in.GetY();
     float z = in.GetZ();
+#endif
     return TransposeRotate(CVector3f(x - m03, y - m13, z - m23));
   }
   CVector3f TransposeRotate(const CVector3f& in) const;

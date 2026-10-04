@@ -6,6 +6,12 @@
 #include "rstl/pointer_iterator.hpp"
 
 namespace rstl {
+template < typename I1, typename I2 >
+pair< I1, I2 > mismatch(I1 first, I1 last, I2 second) {
+  for (; first != last && *first == *second; ++first, ++second) {}
+  return pair< I1, I2 >(first, second);
+}
+
 template < typename It, typename T >
 int count(It first, It last, const T& val) {
   int result = 0;

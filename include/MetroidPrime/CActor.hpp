@@ -196,6 +196,9 @@ public:
   uchar GetTargetableVisorFlags() const { return mTargetableVisorFlags; }
   bool GetDoTargetDistanceTest() const { return mDoTargetDistanceTest; }
   bool GetTargetable() const { return mTargetable; }
+#if VERSION >= VERSION_R3IJ_00
+  bool GetHostileTarget() const { return mHostileTarget; }
+#endif
 
   void SetTransformDirty(bool b) { mNotInSortedLists = b; }
   void SetTransformDirtySpare(bool b) { mTransformDirty = b; }
