@@ -452,8 +452,8 @@ void CScriptSpindleCamera::Think(float dt, CStateManager& mgr) {
     newLookDelta = lookAheadPos - newCamPos;
 
     if ((mFlags & 0x1) != 0) {
-      newLookDelta = CVector3f(hintPos.GetX() - newCamPos.GetX(), hintPos.GetY() - newCamPos.GetY(),
-                               newLookDelta.GetZ());
+      const float lookDeltaY = hintPos.GetY() - newCamPos.GetY();
+      newLookDelta = CVector3f(hintPos.GetX() - newCamPos.GetX(), lookDeltaY, newLookDelta.GetZ());
     }
 
     if ((mFlags & 0x2) != 0) {

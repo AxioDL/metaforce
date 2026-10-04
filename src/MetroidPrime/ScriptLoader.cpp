@@ -873,6 +873,7 @@ CEntity* ScriptLoader::LoadPickup(CStateManager& mgr, CInputStream& in, int prop
   float possibility = in.Get< float >();
   float lifeTime = in.Get< float >();
   float fadeInTime = in.Get< float >();
+  bool negativeExtent;
   CAssetId staticModel = in.Get< CAssetId >();
   CAnimationParameters aParms = LoadAnimationParameters(in);
   CActorParameters actParms = LoadActorParameters(in);
@@ -888,7 +889,6 @@ CEntity* ScriptLoader::LoadPickup(CStateManager& mgr, CInputStream& in, int prop
   const CTransform4f& xf = head.mActorHead.mTransform;
   CAABox aabb = GetCollisionBox(mgr, info.GetAreaId(), extent, offset);
 
-  bool negativeExtent;
   if (extent.GetX() < 0.f)
     negativeExtent = true;
   else if (extent.GetY() < 0.f)

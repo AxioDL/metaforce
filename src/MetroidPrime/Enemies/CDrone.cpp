@@ -1397,7 +1397,8 @@ void CDrone::Attack(CStateManager& mgr, EStateMsg msg, float) {
     mAttackOver = false;
     const CVector3f aim = mgr.GetPlayer()->GetAimPosition(mgr, 0.f);
     const CTransform4f& xf = GetTransform();
-    const CVector3f direction = (aim - GetTranslation()).AsNormalized();
+    const CVector3f& toAim = aim - GetTranslation();
+    const CVector3f direction = toAim.AsNormalized();
     const CVector3f& forward = xf.GetForward();
     const CVector3f target =
         CVector3f::Dot(direction, forward) < 0.8f ? GetTranslation() + 10.f * xf.GetForward() : aim;

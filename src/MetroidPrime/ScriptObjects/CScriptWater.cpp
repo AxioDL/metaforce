@@ -387,14 +387,15 @@ void CScriptWater::SetupGridClipping(CStateManager& mgr, int computeVerts) {
           kMaxTilesPerPatch, static_cast< int >(42u / GetFluidPlane().GetTileSubdivisions()));
 
       mPatchDimX = (mGridDimX + tilesPerPatch - 1) / tilesPerPatch;
-      mPatchDimY = (tilesPerPatch + mGridDimY - 1) / tilesPerPatch;
+      mPatchDimY = (mGridDimY + tilesPerPatch - 1) / tilesPerPatch;
       mPatchIntersects = rs_new char[mPatchDimX * mPatchDimY];
 
       int curTileY = 0;
       int patchIdx = 0;
+      int patchJ;
       for (; patchIdx < mPatchDimY; ++patchIdx) {
         int curTileX = 0;
-        int patchJ = 0;
+        patchJ = 0;
         char* const patchRow = mPatchIntersects.get() + patchIdx * mPatchDimX;
         for (; patchJ < mPatchDimX; ++patchJ) {
           bool allClear = true;

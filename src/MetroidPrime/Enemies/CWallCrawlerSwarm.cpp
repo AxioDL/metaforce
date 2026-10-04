@@ -572,6 +572,7 @@ CColor CWallCrawlerSwarm::SoftwareLight(const CStateManager& mgr, const CAABox& 
 void CWallCrawlerSwarm::Render(const CStateManager& mgr) const {
   uint drawMask = ~0;
   const bool enableLighting = mEnableLighting;
+  int rowIndex;
   const bool useSoftwareLight = mUseSoftwareLight;
   if (!enableLighting) {
     CGraphics::DisableAllLights();
@@ -588,7 +589,7 @@ void CWallCrawlerSwarm::Render(const CStateManager& mgr) const {
                    GX_SRC_REG, static_cast< GXLightID >(lights), lights ? GX_DF_CLAMP : GX_DF_NONE,
                    lights ? GX_AF_SPOT : GX_AF_NONE);
   for (int x = 0; x < 5; ++x) {
-    int rowIndex = x;
+    rowIndex = x;
     for (int y = 0; y < 5; ++y, rowIndex += 5) {
       for (int z = 0; z < 5; ++z) {
         const int index = rowIndex + z * 25;

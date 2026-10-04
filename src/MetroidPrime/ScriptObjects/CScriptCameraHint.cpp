@@ -171,7 +171,8 @@ void CScriptCameraHint::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid,
           followerToThisFlat = act->GetTransform().GetColumn(kDY);
         }
         CVector3f pos = act->GetTranslation();
-        pos.SetZ(mOrigXf.GetTranslation().GetZ());
+        const float origZ = mOrigXf.GetTranslation().GetZ();
+        pos.SetZ(origZ);
         SetTransform(CTransform4f::LookAt(pos, pos + followerToThisFlat));
       }
     }

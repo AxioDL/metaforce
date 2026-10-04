@@ -508,13 +508,13 @@ float CCameraSpline::FindClosestLengthOnSpline(float time, CVector3f p) const {
     backwardDir.Normalize();
 
     const CVector3f thisToPoint(p.GetX() - thisPosX, p.GetY() - thisPosY, p.GetZ() - thisPosZ);
-    const float projA = CVector3f::Dot(thisToPoint, forwardDir);
     const CVector3f delta(deltaX, deltaY, deltaZ);
+    const float projA = CVector3f::Dot(thisToPoint, forwardDir);
     const float dotA = CVector3f::Dot(forwardDir, delta.AsNormalized());
 
     const CVector3f nextToPoint(p.GetX() - nextPosX, p.GetY() - nextPosY, p.GetZ() - nextPosZ);
-    const float projB = CVector3f::Dot(nextToPoint, backwardDir);
     const CVector3f revDelta(revDeltaX, revDeltaY, revDeltaZ);
+    const float projB = CVector3f::Dot(nextToPoint, backwardDir);
     const float dotB = CVector3f::Dot(backwardDir, revDelta.AsNormalized());
 
     float t = (projA / dotA) / ((projA / dotA) + (projB / dotB));
