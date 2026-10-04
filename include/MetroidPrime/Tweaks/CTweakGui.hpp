@@ -361,7 +361,11 @@ public:
   float x364_;
 };
 
+#if VERSION >= VERSION_R3IJ_00
+CHECK_SIZEOF(CTweakGui, 0x33C)
+#else
 CHECK_SIZEOF(CTweakGui, 0x368)
+#endif
 
 extern CTweakGui* gpTweakGui;
 

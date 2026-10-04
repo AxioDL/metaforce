@@ -253,7 +253,11 @@ private:
 
   static CCubeRenderer* sRenderer;
 };
-CHECK_SIZEOF(CCubeRenderer, 0x31C);
+#if VERSION >= VERSION_R3IJ_00
+CHECK_SIZEOF(CCubeRenderer, 0x308)
+#else
+CHECK_SIZEOF(CCubeRenderer, 0x31C)
+#endif
 
 extern CCubeRenderer* gpRender;
 

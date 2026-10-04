@@ -219,6 +219,7 @@ public:
                              bool useAcoustics = false, const short prio = kMedPriority,
                              const bool looped = false, const int areaId = kAllAreas);
   static void SfxStop(CSfxHandle handle);
+  static void SfxStop(ESfxChannels channel, CSfxHandle handle);
   static void SfxVolume(CSfxHandle handle, uchar volume);
   static void SfxSpan(CSfxHandle, uchar);
 

@@ -429,9 +429,11 @@ CTransform4f CCameraManager::GetCurrentCameraTransform(const CStateManager& mgr)
   return GetCurrentCamera(mgr).GetTransform() * CTransform4f::Translate(mShakeOffset);
 }
 
+#if VERSION < VERSION_R3IJ_00
 CVector3f CCameraManager::GetGlobalCameraTranslation(const CStateManager& mgr) const {
   return GetCurrentCamera(mgr).GetTransform().Rotate(mShakeOffset);
 }
+#endif
 
 bool CCameraManager::IsInCinematicCamera() const { return !mCineCameras.empty(); }
 

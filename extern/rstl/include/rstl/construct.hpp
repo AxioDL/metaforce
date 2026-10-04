@@ -19,6 +19,16 @@ static inline void construct(void* dest, const T& src) {
 }
 
 #if RSTL_VERSION >= RSTL_R3ME_00
+template < >
+inline void construct< uint >(void* dest, const uint& src) {
+  *static_cast< uint* >(dest) = src;
+}
+
+template < >
+struct is_trivially_destructible< uint > {
+  enum { value = true };
+};
+
 template < typename T >
 inline void construct(void* dest, T* const& src) {
   *static_cast< T** >(dest) = src;

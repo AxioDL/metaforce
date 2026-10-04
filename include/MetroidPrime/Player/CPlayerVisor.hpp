@@ -15,6 +15,7 @@
 #include "rstl/reserved_vector.hpp"
 
 class CModel;
+class CRelAngle;
 class CStateManager;
 class CTargetingManager;
 class CTexture;
@@ -22,11 +23,21 @@ class CTexture;
 class CPlayerVisor {
   struct SScanObjectIndicatorInfo {
     SScanObjectIndicatorInfo(TUniqueId id, float timer, float inRangeTimer)
-    : mObjId(id), mTimer(timer), mInRangeTimer(inRangeTimer), mInBox(false) {}
+    : mObjId(id)
+    , mTimer(timer)
+    , mInRangeTimer(inRangeTimer)
+#if VERSION >= VERSION_R3IJ_00
+    , mInBoxInterp(0.f)
+#endif
+    , mInBox(false) {
+    }
 
     TUniqueId mObjId;
     float mTimer;
     float mInRangeTimer;
+#if VERSION >= VERSION_R3IJ_00
+    float mInBoxInterp;
+#endif
     bool mInBox;
   };
 
@@ -47,6 +58,13 @@ public:
   float GetDesiredViewportScaleY(const CStateManager& mgr) const;
 
 private:
+#if VERSION >= VERSION_R3IJ_00
+  static void DrawScanFrameArc(float centerX, float centerY, float innerRadius, float outerRadius,
+                               int startAngle, int endAngle, int angleOffset, const CColor& color,
+                               const CVector2f* vertices);
+  static CVector2f InterpolateScanFrameVertex(float blend, float squareRadius,
+                                              const CRelAngle& angle);
+#endif
   void BeginTransitionOut();
   void FinishTransitionOut(const CStateManager& mgr);
   void BeginTransitionIn(const CStateManager& mgr);
@@ -99,7 +117,16 @@ private:
   TCachedToken< CTexture > mXrayPalette;
   float mScanFrameColorInterp;
   float mScanFrameColorImpulseInterp;
+#if VERSION >= VERSION_R3IJ_00
+  mutable float mScanFrameShapeBlend;
+  mutable CVector2f mCursorScreenPosition;
+  float mScanFrameAnimationTime;
+#endif
 };
+#if VERSION >= VERSION_R3IJ_00
+CHECK_SIZEOF(CPlayerVisor, 0x664)
+#else
 CHECK_SIZEOF(CPlayerVisor, 0x554)
+#endif
 
 #endif // _CPLAYERVISOR

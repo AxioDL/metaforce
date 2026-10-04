@@ -4,6 +4,9 @@
 #include "MetroidPrime/Tweaks/ITweakObject.hpp"
 
 #include "Kyoto/Graphics/CColor.hpp"
+#if VERSION >= VERSION_R3IJ_00
+#include "Kyoto/Math/CMayaSpline.hpp"
+#endif
 #include "Kyoto/Math/CVector3f.hpp"
 #include "Kyoto/TOneStatic.hpp"
 
@@ -132,9 +135,70 @@ public:
   float mScanTargetClampMin;
   float mScanTargetClampMax;
   float mAngularLagSpeed;
+#if VERSION >= VERSION_R3IJ_00
+  float x220_;
+  CColor x224_;
+  float x228_;
+  CColor x22c_;
+  float x230_;
+  CColor x234_;
+  uint x238_; // Unidentified storage; no constructor initialization observed.
+  CVector3f x23c_;
+  CMayaSpline x248_;
+  CMayaSpline x288_;
+  float x2c8_;
+  float x2cc_;
+  CColor x2d0_;
+  float x2d4_;
+  CColor x2d8_;
+  float x2dc_;
+  CVector3f x2e0_;
+  float x2ec_;
+  float x2f0_;
+  float x2f4_;
+  float x2f8_;
+  float x2fc_;
+  float x300_;
+  CColor x304_;
+  float x308_;
+  CColor x30c_;
+  float x310_;
+  float x314_;
+  float x318_;
+  float x31c_;
+  CColor x320_;
+  float x324_;
+  CColor x328_;
+  float x32c_;
+  float x330_;
+  float x334_;
+  float x338_;
+  float x33c_;
+  float x340_;
+  float x344_;
+  float x348_;
+  float x34c_;
+  float x350_;
+  float x354_;
+  float x358_;
+  float x35c_;
+  float x360_;
+  float x364_;
+  CColor x368_;
+  CColor x36c_;
+  CColor x370_;
+  CColor x374_;
+  CColor x378_;
+  CColor x37c_;
+  CColor x380_;
+#endif
 };
 
+#if VERSION >= VERSION_R3IJ_00
+CHECK_SIZEOF(CTweakTargeting, 0x384)
+#else
 CHECK_SIZEOF(CTweakTargeting, 0x228)
+#endif
 
 extern CTweakTargeting* gpTweakTargeting;
 

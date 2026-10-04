@@ -184,6 +184,12 @@ public:
   }
   const int GetLogScans() const { return mScanCompletionRateFirst; }
   const int GetTotalLogScans() const { return mScanCompletionRateSecond; }
+  int GetScanPercent() const {
+    if (mScanCompletionRateSecond > 0) {
+      return mScanCompletionRateFirst * 100 / mScanCompletionRateSecond;
+    }
+    return 0;
+  }
 
   CHealthInfo* HealthInfo() { return &mHealth; }
   const CHealthInfo& GetHealthInfo() const { return mHealth; }

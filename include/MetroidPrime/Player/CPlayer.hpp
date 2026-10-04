@@ -424,7 +424,7 @@ public:
   EPlayerScanState GetPlayerScanState() const { return mScanState; }
   float GetThreatOverride() const { return mThreatOverride; }
   void UpdateSlideShowUnlocking(CStateManager& mgr); // name?
-  bool ValidateScanning(const CFinalInput& input, CStateManager& mgr) const;
+  bool ValidateScanning(const CFinalInput& input, CStateManager& mgr);
   float GetTransitionAlpha(const CVector3f& camPos, float zNear) const;
   void TakeDamage(bool significant, const CVector3f& location, float damage, EWeaponType type,
                   CStateManager& mgr);

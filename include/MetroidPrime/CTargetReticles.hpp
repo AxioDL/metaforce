@@ -6,11 +6,13 @@
 #include "MetroidPrime/TGameTypes.hpp"
 #include "MetroidPrime/Player/CPlayerState.hpp"
 
+#include "Kyoto/Graphics/CColor.hpp"
 #include "Kyoto/Math/CQuaternion.hpp"
 #include "Kyoto/Math/CVector3f.hpp"
 #include "Kyoto/TToken.hpp"
 
 #include "rstl/vector.hpp"
+#include "rstl/reserved_vector.hpp"
 
 class CActor;
 class CMatrix3f;
@@ -156,12 +158,103 @@ private:
   float mUnk;
   float mLockFireTimer;
   float mFullChargeFadeTimer;
+#if VERSION >= VERSION_R3IJ_00
+  float x214_;
+  bool mBeamShot : 1;
+  bool mMissileShot : 1;
+  bool mFullyCharged : 1;
+  float mOrbitPresenceAlpha;
+  float x220_;
+  float mOrbitTransientAlpha;
+  CVector3f mCursorWorldPosition;
+  CVector3f mOrbitTargetPosition;
+  CVector3f mCursorPlanePosition;
+  float x24c_;
+  float mAimingScale;
+  CColor mAimingCenterColor;
+  float mAimingCenterAlpha;
+  CColor mAimingArmColor;
+  float mAimingArmAlpha;
+  float mCursorTargetColorBlend;
+  CVector3f x268_;
+  float mCursorDistanceScaleA;
+  float mCursorDistanceScaleB;
+  TUniqueId x27c_;
+  CVector3f x280_;
+  float x28c_;
+  CVector3f x290_;
+  CColor x29c_;
+  float x2a0_;
+  CVector3f x2a4_;
+  float x2b0_;
+  CVector3f x2b4_;
+  CVector3f x2c0_;
+  bool x2cc_;
+  float x2d0_;
+  float x2d4_;
+  CVector3f x2d8_;
+  CVector3f x2e4_;
+  TUniqueId x2f0_;
+  CVector3f x2f4_;
+  CColor x300_;
+  float x304_;
+  CColor x308_;
+  float x30c_;
+  float x310_;
+  float x314_;
+  CVector3f x318_;
+  float x324_;
+  CVector3f x328_;
+  float x334_;
+  float x338_;
+  float x33c_;
+  float x340_;
+  float x344_;
+  float x348_;
+  bool x34c_;
+  float x350_;
+  CVector3f x354_;
+  CVector3f x360_;
+  CColor x36c_;
+  float x370_;
+  float x374_;
+  float x378_;
+  float x37c_;
+  float x380_;
+  float mOffScreenBlinkTime;
+  int mOffScreenFrameCount;
+  TCachedToken< CModel > mCombatAimingCenter;
+  TCachedToken< CModel > mCombatAimingArm;
+  TCachedToken< CModel > mOrbitLockArm;
+  TCachedToken< CModel > mOrbitLockTech;
+  TCachedToken< CModel > mOrbitLockBrackets;
+  TCachedToken< CModel > mOrbitLockBase;
+  TCachedToken< CModel > mOffScreen;
+  TCachedToken< CModel > mScanReticleRing;
+  TCachedToken< CModel > mScanReticleBracket;
+  TCachedToken< CModel > mScanReticleProgress;
+  float x404_;
+  float x408_;
+  float x40c_;
+  CVector3f x410_;
+  CVector3f mScanTargetPosition;
+  CVector3f x428_;
+  CVector3f mScanTargetExtent;
+  rstl::reserved_vector< TUniqueId, 8 > mScanTargets;
+  TUniqueId x454_;
+  TUniqueId x456_;
+#else
   bool mBeamShot;
   bool mMissileShot;
   bool mFullyCharged;
+#endif
 };
 
+#if VERSION >= VERSION_R3IJ_00
+CHECK_SIZEOF(CCompoundTargetReticle, 0x458)
+#else
 CHECK_SIZEOF(CCompoundTargetReticle, 0x21C)
+#endif
 
 class COrbitPointMarker {
 public:
@@ -204,6 +297,10 @@ private:
   COrbitPointMarker mOrbitPointMarker;
 };
 
+#if VERSION >= VERSION_R3IJ_00
+CHECK_SIZEOF(CTargetingManager, 0x48C)
+#else
 CHECK_SIZEOF(CTargetingManager, 0x250)
+#endif
 
 #endif // _CTARGETRETICLES

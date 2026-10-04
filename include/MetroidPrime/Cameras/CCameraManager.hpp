@@ -5,6 +5,7 @@
 
 #include "MetroidPrime/CGameArea.hpp"
 #include "MetroidPrime/Cameras/CCameraShakeData.hpp"
+#include "MetroidPrime/Cameras/CGameCamera.hpp"
 #include "MetroidPrime/TGameTypes.hpp"
 
 #include "Kyoto/Math/CVector3f.hpp"
@@ -70,7 +71,13 @@ public:
   int AddCameraShaker(const CCameraShakeData& data, bool sfx);
   void RemoveCameraShaker(int id);
   CTransform4f GetCurrentCameraTransform(const CStateManager& mgr) const;
+#if VERSION >= VERSION_R3IJ_00
+  CVector3f GetGlobalCameraTranslation(const CStateManager& mgr) const {
+    return GetCurrentCamera(mgr).GetTransform().Rotate(mShakeOffset);
+  }
+#else
   CVector3f GetGlobalCameraTranslation(const CStateManager& mgr) const;
+#endif
   bool IsInFPCamera() const;
   bool IsInterpolationCameraActive() const;
   bool ShouldBypassInterpolationCamera() const;

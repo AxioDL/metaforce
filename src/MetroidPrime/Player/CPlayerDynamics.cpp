@@ -1,7 +1,23 @@
 #include "MetroidPrime/Player/CPlayer.hpp"
 
+#include "Collision/CMaterialFilter.hpp"
+
+static const CMaterialList BallTransitionInclude = CMaterialList(kMT_Solid);
+static const CMaterialList BallTransitionExclude =
+    CMaterialList(kMT_ProjectilePassthrough, kMT_Player, kMT_Character, kMT_CameraPassthrough);
+static const CMaterialFilter BallTransitionCollide =
+    CMaterialFilter::MakeIncludeExclude(BallTransitionInclude, BallTransitionExclude);
+
 #if VERSION >= VERSION_R3IJ_00
 
+#include "MetroidPrime/CModelData.hpp"
+#include "MetroidPrime/CAnimPlaybackParms.hpp"
+#include "MetroidPrime/Cameras/CCameraManager.hpp"
+#include "MetroidPrime/Cameras/CBallCamera.hpp"
+#include "MetroidPrime/Cameras/CFirstPersonCamera.hpp"
+#include "MetroidPrime/Player/CMorphBall.hpp"
+#include "MetroidPrime/Player/CPlayerGun.hpp"
+#include "MetroidPrime/ScriptObjects/CScriptPlayerHint.hpp"
 #include "Kyoto/Audio/CSfxManager.hpp"
 #include "Kyoto/Input/CFinalInput.hpp"
 #include "Kyoto/Math/CMath.hpp"
@@ -756,12 +772,6 @@ float CPlayer::GetEyeHeight() const {
 #include "rstl/algorithm.hpp"
 
 static const float skTransitionFilterTime = .95f;
-
-static const CMaterialList BallTransitionInclude = CMaterialList(kMT_Solid);
-static const CMaterialList BallTransitionExclude =
-    CMaterialList(kMT_ProjectilePassthrough, kMT_Player, kMT_Character, kMT_CameraPassthrough);
-static const CMaterialFilter BallTransitionCollide =
-    CMaterialFilter::MakeIncludeExclude(BallTransitionInclude, BallTransitionExclude);
 
 static const float skStrafeDistances[] = {11.8f, 11.8f, 11.8f, 5.f, 6.f, 5.f, 5.f, 6.f};
 static const float skDashStrafeDistances[] = {11.8f, 30.f, 22.6f, 10.f, 10.f, 10.f, 10.f, 10.f};
@@ -1548,14 +1558,22 @@ float CPlayer::GetBallMaxVelocity() const {
   return gpTweakBall->GetBallTranslationMaxSpeed(GetSurfaceRestraint());
 }
 
+#endif
+
 float CPlayer::GetActualFirstPersonMaxVelocity(float dt) const {
+#if VERSION >= VERSION_R3IJ_00
+  const float friction =
+      60.f * (dt * gpTweakPlayer->GetPlayerTranslationFriction(GetSurfaceRestraint()));
+#else
   const float friction = gpTweakPlayer->GetPlayerTranslationFriction(GetSurfaceRestraint());
+#endif
   const float frictionForce = friction * GetMass();
   const float maxSpeed = gpTweakPlayer->GetPlayerTranslationMaxSpeed(GetSurfaceRestraint());
   const float acceleration = gpTweakPlayer->GetMaxTranslationalAcceleration(GetSurfaceRestraint());
   return -(frictionForce * maxSpeed / (acceleration * dt) - maxSpeed - friction);
 }
 
+#if VERSION < VERSION_R3IJ_00
 float CPlayer::GetActualBallMaxVelocity(float dt) const {
   const float friction = gpTweakBall->GetBallTranslationFriction(GetSurfaceRestraint());
   const float frictionForce = friction * GetMass();
@@ -1753,10 +1771,13 @@ CVector3f CPlayer::GetEyePosition() const {
   return GetTranslation() + CVector3f(0.f, 0.f, GetEyeHeight());
 }
 
+#endif
+
 CVector3f CPlayer::GetBallPosition() const {
   return GetTranslation() + CVector3f(0.f, 0.f, gpTweakPlayer->GetPlayerBallHalfExtent());
 }
 
+#if VERSION < VERSION_R3IJ_00
 void CPlayer::ResetPlayerHintState(CStateManager& mgr) {
   x9c4_26_ = true;
   mCanEnterMorphBall = true;
@@ -2013,26 +2034,29 @@ void CPlayer::SetIntoBallReadyAnimation(CStateManager& mgr) {
   AnimationData()->SetIsAnimating(false);
 }
 
+#endif
+
 int CPlayer::ChoseTransitionToAnimation(float dt, CStateManager& mgr) const {
   if (mMovementState == NPlayer::kMS_ApplyJump) {
     return 3;
   }
-  const CVector3f localVelocity = GetTransform().TransposeRotate(GetVelocityWR());
-  const CVector2f flat(localVelocity.GetX(), localVelocity.GetY());
-  const CVector3f flatVelocity(flat.GetX(), flat.GetY(), 0.f);
+  const CVector3f flatVelocity(GetTransform().TransposeRotate(GetVelocityWR()).DropZ(), 0.f);
   const float speed = flatVelocity.Magnitude();
   if (speed > 1.f) {
     float velocityAngle = atan2f(-flatVelocity.GetX(), flatVelocity.GetY());
-    float twoPi = 2.f * M_PIF;
-    float reciprocalTwoPi = 1.f / (2.f * M_PIF);
+    const float twoPi = 2.f * M_PIF;
     if (velocityAngle > twoPi) {
+      float reciprocalTwoPi = 1.f / (2.f * M_PIF);
       float turns = static_cast< int >(velocityAngle * reciprocalTwoPi);
-      velocityAngle -= turns * twoPi;
+      float turnRadians = 2.f * M_PIF;
+      velocityAngle -= turns * turnRadians;
     } else if (velocityAngle < 0.f) {
+      float reciprocalTwoPi = 1.f / (2.f * M_PIF);
       float turns = static_cast< int >(velocityAngle * reciprocalTwoPi);
-      velocityAngle = twoPi + (velocityAngle - turns * twoPi);
+      float turnRadians = 2.f * M_PIF;
+      velocityAngle = twoPi + (velocityAngle - turns * turnRadians);
     }
-    const float angle = CRelAngle(velocityAngle).AsDegrees();
+    const float angle = CMath::Rad2Deg(velocityAngle);
     const float maxSpeed = GetActualFirstPersonMaxVelocity(dt);
     if (angle < 45.f || angle > 315.f) {
       if (speed < .5f * maxSpeed) {
@@ -2047,8 +2071,7 @@ int CPlayer::ChoseTransitionToAnimation(float dt, CStateManager& mgr) const {
 
 int CPlayer::GetNextBallTransitionAnim(float dt, bool& loop, CStateManager& mgr) {
   int anim = 12;
-  const CVector2f flat(GetVelocityWR().GetX(), GetVelocityWR().GetY());
-  const CVector3f velocity(flat.GetX(), flat.GetY(), 0.f);
+  const CVector3f velocity(GetVelocityWR().DropZ(), 0.f);
   loop = false;
   if (velocity.CanBeNormalized()) {
     const float speed = velocity.Magnitude();
@@ -2074,8 +2097,7 @@ void CPlayer::TransitionToMorphBallState(float dt, CStateManager& mgr) {
   mTransitionVel = GetVelocityWR().Magnitude();
   if (HasAnimation()) {
     CAnimData& animData = *AnimationData();
-    const CAnimPlaybackParms& parms = CAnimPlaybackParms(mBallTransitionAnim, -1, 1.f, true);
-    animData.SetAnimation(parms, false);
+    animData.SetAnimation(CAnimPlaybackParms(mBallTransitionAnim, -1, 1.f, true), false);
     animData.SetAnimDir(CAnimData::kAD_Forward);
   }
   ModelData()->EnableLooping(false);
@@ -2115,31 +2137,35 @@ void CPlayer::TransitionToMorphBallState(float dt, CStateManager& mgr) {
 
 void CPlayer::TransitionFromMorphBallState(float dt, CStateManager& mgr) {
   mBallTransitionAnim = 14;
-  const CVector2f flatVelocity(GetVelocityWR().GetX(), GetVelocityWR().GetY());
-  mTransitionVel = flatVelocity.Magnitude();
+  mTransitionVel = GetVelocityWR().DropZ().Magnitude();
   if (mTransitionVel < 1.f) {
     mBallTransitionAnim = 5;
   }
   if (mMovementState != NPlayer::kMS_OnGround) {
+    const CVector3f offset(0.f, 0.f, -7.f);
     const CVector3f ballPos = GetBallPosition();
-    if (mgr.RayCollideWorld(ballPos, ballPos + CVector3f(0.f, 0.f, -7.f), BallTransitionCollide,
-                            this)) {
+    if (mgr.RayCollideWorld(ballPos, ballPos + offset, BallTransitionCollide, this)) {
       mBallTransitionAnim = 7;
     }
   }
   if (HasAnimation()) {
     CAnimData& animData = *AnimationData();
-    const CAnimPlaybackParms& parms = CAnimPlaybackParms(mBallTransitionAnim, -1, 1.f, true);
-    animData.SetAnimation(parms, false);
+    animData.SetAnimation(CAnimPlaybackParms(mBallTransitionAnim, -1, 1.f, true), false);
     animData.SetAnimDir(CAnimData::kAD_Forward);
   }
   ModelData()->EnableLooping(false);
   ModelData()->Touch(mgr, 0);
   SetMorphBallState(kMS_Unmorphing, mgr);
   mMorphball->LeaveMorphBallState(mgr);
+#if VERSION >= VERSION_R3IJ_00
+  CCameraManager* cameraManager = mgr.CameraManager();
+  CBallCamera* ballCamera = cameraManager->BallCamera();
+  cameraManager->SetPlayerCamera(mgr, cameraManager->GetFirstPersonCamera()->GetUniqueId());
+#else
   CBallCamera* ballCamera = mgr.CameraManager()->BallCamera();
   mgr.CameraManager()->SetPlayerCamera(
       mgr, TUniqueId(mgr.GetCameraManager()->GetFirstPersonCamera()->GetUniqueId()));
+#endif
   CVector3f camToPlayer = GetTranslation() - ballCamera->GetTranslation();
   camToPlayer.SetZ(0.f);
   if (camToPlayer.CanBeNormalized()) {
@@ -2173,7 +2199,11 @@ void CPlayer::TransitionFromMorphBallState(float dt, CStateManager& mgr) {
         }
       }
     }
+#if VERSION >= VERSION_R3IJ_00
+    if (acosf(CMath::FastLimit(CVector3f::Dot(camToPlayer, direction), 1.f)) < M_PIF / 1.2f ||
+#else
     if (acosf(CMath::Limit(CVector3f::Dot(camToPlayer, direction), 1.f)) < M_PIF / 1.2f ||
+#endif
         mOutOfBallLookAtHintActor) {
       SetTransform(CTransform4f::LookAt(GetTranslation(), CVector3f(GetTranslation() + direction)));
     } else {
@@ -2222,6 +2252,7 @@ void CPlayer::TransitionFromMorphBallState(float dt, CStateManager& mgr) {
   }
 }
 
+#if VERSION < VERSION_R3IJ_00
 void CPlayer::ActivateMorphBallCamera(CStateManager& mgr) {
   SetCameraState(kCS_Ball, mgr);
   mgr.CameraManager()->BallCamera()->SetState(CBallCamera::kBCS_Default, mgr);

@@ -100,7 +100,8 @@ MetroidPrime/Player/CPlayerDynamics.cpp:
 	.ctors      start:0x8046D414 end:0x8046D418
 	.rodata     start:0x80474AE0 end:0x80474B60
 	.data       start:0x8048AD00 end:0x8048AD38
-	.sdata      start:0x805C163C end:0x805C1640 align:4
+	.bss        start:0x804C3478 end:0x804C34A0
+	.sdata      start:0x805C1628 end:0x805C1640 align:4
 	.sdata2     start:0x805C5CD8 end:0x805C5DE8
 
 MetroidPrime/Player/CPlayerOrbit.cpp:
@@ -110,6 +111,13 @@ MetroidPrime/Player/CPlayerOrbit.cpp:
 	.bss        start:0x804C34A0 end:0x804C3528
 	.sdata      start:0x805C1640 end:0x805C1688
 	.sdata2     start:0x805C5DE8 end:0x805C5E48
+
+MetroidPrime/Player/CPlayerVisor.cpp:
+	.text       start:0x801A227C end:0x801A63C0
+	.rodata     start:0x80474C58 end:0x80474DA0
+	.bss        start:0x804C3528 end:0x804C3538
+	.sbss       start:0x805C2698 end:0x805C26A8
+	.sdata2     start:0x805C5E88 end:0x805C5F40
 
 MetroidPrime/Player/CTrilogyOptions.cpp:
 	.text       start:0x8024A110 end:0x8024A8D0

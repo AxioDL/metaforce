@@ -45,7 +45,17 @@ public:
     return CVector3f(m03, m13, m23);
 #endif
   }
-  CVector3f GetRight() const { return CVector3f(m00, m10, m20); }
+  CVector3f GetRight() const {
+#if VERSION >= VERSION_R3IJ_00
+    float x, y, z;
+    z = m20;
+    y = m10;
+    x = m00;
+    return CVector3f(x, y, z);
+#else
+    return CVector3f(m00, m10, m20);
+#endif
+  }
   const CVector3f GetForward() const {
 #if VERSION >= VERSION_R3IJ_00
     float x, y, z;
@@ -57,7 +67,17 @@ public:
     return CVector3f(m01, m11, m21);
 #endif
   }
-  CVector3f GetUp() const { return CVector3f(m02, m12, m22); }
+  CVector3f GetUp() const {
+#if VERSION >= VERSION_R3IJ_00
+    float x, y, z;
+    z = m22;
+    y = m12;
+    x = m02;
+    return CVector3f(x, y, z);
+#else
+    return CVector3f(m02, m12, m22);
+#endif
+  }
   ConstMtxPtr GetCStyleMatrix() const { return reinterpret_cast< ConstMtxPtr >(this); }
 
   CMatrix3f BuildMatrix3f() const;
