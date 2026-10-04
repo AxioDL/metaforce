@@ -19,22 +19,20 @@ public:
                    const CHealthInfo& health, const CDamageVulnerability& vulnerability,
                    const CMaterialList& matList, CAssetId fsm, const CActorParameters& actParams,
                    const CModelData& phazonModel, int w1);
+  ~CDestroyableRock() override;
 
   DECLARE_TYPES_MATCH_OR_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
   void PreRender(CStateManager& mgr, const CFrustumPlanes& frustum) override;
   void Render(const CStateManager& mgr) const override;
-  bool CanRenderUnsorted(const CStateManager&) const override { return true; }
-  CVector3f GetAimPosition(const CStateManager&, float) const override { return GetTranslation(); }
-  CVector3f GetOrbitPosition(const CStateManager&) const override { return GetTranslation(); }
+  bool CanRenderUnsorted(const CStateManager&) const override;
+  CVector3f GetAimPosition(const CStateManager&, float) const override;
+  CVector3f GetOrbitPosition(const CStateManager&) const override;
   rstl::optional_object< CAABox > GetTouchBounds() const override;
-  void Death(CStateManager&, const CVector3f&, EScriptObjectState) override { mIsCold = true; }
+  void Death(CStateManager&, const CVector3f&, EScriptObjectState) override;
   void KnockBack(const CVector3f&, CStateManager&, const CDamageInfo&, float, bool,
-                 const bool) override {}
-  void TakeDamage(const CVector3f&, float) override {
-    x324_ = 1.f;
-    x328_ = 2.f;
-  }
+                 const bool) override;
+  void TakeDamage(const CVector3f&, float) override;
   float GetDamageFlashTimer() const { return x324_; }
   void UsePhazonModel();
   void SetThermalMag(float mag) { mThermalMag = mag; }
@@ -66,7 +64,7 @@ public:
   void PreRender(CStateManager& mgr, const CFrustumPlanes& frustum) override;
   void Render(const CStateManager& mgr) const override;
   bool CanRenderUnsorted(const CStateManager&) const override { return false; }
-  void Touch(CActor&, CStateManager&) override {}
+  void Touch(CActor&, CStateManager&) override;
   CVector3f GetOrbitPosition(const CStateManager& mgr) const override;
   CVector3f GetAimPosition(const CStateManager& mgr, float dt) const override;
   CAABox GetSortingBounds(const CStateManager& mgr) const override;
