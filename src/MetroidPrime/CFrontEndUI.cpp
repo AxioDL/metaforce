@@ -2966,7 +2966,11 @@ void CFrontEndUI::StartAttractMovie() {
   }
   SetCurrentMovie(kMM_Stopped);
   const char* name = GetNextAttractMovieFileName();
+#if TARGET_PC
+  mAttractMovie = rstl::auto_ptr< CMoviePlayer >(rs_new CMoviePlayer(name, 0.f, false, true));
+#else
   mAttractMovie = rstl::auto_ptr< CMoviePlayer >(rs_new CMoviePlayer(name, 0.f, false, false));
+#endif
   mCurMoviePtr = mAttractMovie.get();
 }
 
