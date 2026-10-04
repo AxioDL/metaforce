@@ -321,7 +321,7 @@ float CMayaSpline::EvaluateAt(float time) const {
   const float amplitude = EvaluateAtUnclamped(time);
   switch (mClampMode) {
   case kCM_Clamp:
-    return CMath::FastMin(CMath::FastMax(mMinAmplitude, amplitude), mMaxAmplitude);
+    return CMath::FastClamp(mMinAmplitude, amplitude, mMaxAmplitude);
   case kCM_Wrap: {
     const float range = mMaxAmplitude - mMinAmplitude;
     if (range > 0.f) {

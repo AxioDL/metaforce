@@ -202,9 +202,9 @@ float CMath::EaseInOut(float t, EEaseTypes type, float easeInEnd, float easeOutS
   const float min = FastMin(start, end);
   const float max = FastMax(start, end);
   const float range = max - min;
-  t = FastMin(FastMax(0.f, t), 1.f);
-  easeInEnd = FastMin(FastMax(0.f, easeInEnd), 1.f);
-  easeOutStart = FastMin(FastMax(0.f, easeOutStart), 1.f);
+  t = FastClamp(0.f, t, 1.f);
+  easeInEnd = FastClamp(0.f, easeInEnd, 1.f);
+  easeOutStart = FastClamp(0.f, easeOutStart, 1.f);
 
   switch (type) {
   case kET_Sinusoidal: {
@@ -239,7 +239,7 @@ float CMath::EaseInOut(float t, EEaseTypes type, float easeInEnd, float easeOutS
     break;
   }
 
-  t = FastMin(FastMax(0.f, t), 1.f);
+  t = FastClamp(0.f, t, 1.f);
   const float scaled = range * t;
   return min + scaled;
 }

@@ -111,14 +111,17 @@ public:
   static bool IsEpsilon(float x, float y, float epsilon) {
     return AbsF(x - y) < epsilon;
   }
-  static float FastMin(float a, float b) {
-    float diff = a - b;
-    return FastFSel(diff, b, a);
-  }
+  static float FastMin(float a, float b) { return FastFSel(a - b, b, a); }
 
   static float FastMax(float a, float b) {
     a = FastFSel(a - b, a, b);
     return a;
+  }
+
+  static float FastClamp(float min, float val, float max) {
+    min = FastMax(min, val);
+    float diff = min - max;
+    return FastFSel(diff, max, min);
   }
 
   static float FastLimit(float v, float h) {

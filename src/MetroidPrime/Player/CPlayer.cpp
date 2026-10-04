@@ -319,10 +319,9 @@ void CPlayer::ProcessInput(const CFinalInput& input, CStateManager& mgr) {
     mPointerAimHoldTime =
         CMath::FastLimit(mPointerAimHoldTime + input.Time(), 1.f);
   } else {
-    mPointerAimHoldTime =
-        CMath::FastMin(CMath::FastMax(0.f, mPointerAimHoldTime - input.Time()), 1.f);
+    mPointerAimHoldTime = CMath::FastClamp(0.f, mPointerAimHoldTime - input.Time(), 1.f);
   }
-  mPointerAimHoldBlend = CMath::FastMin(CMath::FastMax(0.f, mPointerAimHoldTime), 1.f);
+  mPointerAimHoldBlend = CMath::FastClamp(0.f, mPointerAimHoldTime, 1.f);
 
   if (GetFrozenState()) {
     UpdateFrozenState(input, mgr);
@@ -734,27 +733,24 @@ void CPlayer::UpdateFreeLook(float dt, CStateManager& mgr) {
 
   const float& maxPitchScale = 1.f;
   const CRelAngle pitchDelta = mVertFreeLookAngleVel - mFreeLookPitchAngle;
-  const float pitchDamp = CMath::FastMin(
-      CMath::FastMax(0.f, fabsf(pitchDelta.AsRadians() / 0.5235988f)), maxPitchScale);
-  const float pitchScale = CMath::FastMin(
-      CMath::FastMax(0.f, 0.5f * (1.f + sinf(1.5f * M_PIF + M_PIF * pitchDamp))), maxPitchScale);
+  const float pitchDamp =
+      CMath::FastClamp(0.f, fabsf(pitchDelta.AsRadians() / 0.5235988f), maxPitchScale);
+  const float pitchScale =
+      CMath::FastClamp(0.f, 0.5f * (1.f + sinf(1.5f * M_PIF + M_PIF * pitchDamp)), maxPitchScale);
   const CRelAngle lookSpeed = CRelAngle::FromRadians(1.25f * gpTweakPlayer->GetFreeLookSpeed());
   const CRelAngle targetRate = lookSpeed * pitchScale;
   CRelAngle acceleration = CRelAngle::FromDegrees(400.f);
-  const float accelerationScale =
-      CMath::FastMin(CMath::FastMax(0.3f, fabsf(pitchDelta.AsDegrees()) / 60.f), 1.f);
+  const float accelerationScale = CMath::FastClamp(0.3f, fabsf(pitchDelta.AsDegrees()) / 60.f, 1.f);
   acceleration *= accelerationScale;
   const CRelAngle rateDelta = targetRate - mFreeLookPitchRate;
   if (rateDelta.AsDegrees() > 0.f) {
-    mFreeLookPitchRate = CRelAngle::FromDegrees(
-        CMath::FastMin(CMath::FastMax(-targetRate.AsDegrees(), mFreeLookPitchRate.AsDegrees() +
-                                                                   dt * acceleration.AsDegrees()),
-                       targetRate.AsDegrees()));
+    mFreeLookPitchRate = CRelAngle::FromDegrees(CMath::FastClamp(
+        -targetRate.AsDegrees(), mFreeLookPitchRate.AsDegrees() + dt * acceleration.AsDegrees(),
+        targetRate.AsDegrees()));
   } else {
-    mFreeLookPitchRate = CRelAngle::FromDegrees(
-        CMath::FastMin(CMath::FastMax(-targetRate.AsDegrees(), mFreeLookPitchRate.AsDegrees() -
-                                                                   dt * acceleration.AsDegrees()),
-                       targetRate.AsDegrees()));
+    mFreeLookPitchRate = CRelAngle::FromDegrees(CMath::FastClamp(
+        -targetRate.AsDegrees(), mFreeLookPitchRate.AsDegrees() - dt * acceleration.AsDegrees(),
+        targetRate.AsDegrees()));
   }
   if (0.f <= pitchDelta.AsRadians()) {
     mFreeLookPitchAngle += mFreeLookPitchRate * dt;
@@ -765,9 +761,8 @@ void CPlayer::UpdateFreeLook(float dt, CStateManager& mgr) {
   const CRelAngle yawDelta = mHorizFreeLookAngleVel - mFreeLookYawAngle;
   const CRelAngle yawStep =
       lookSpeed *
-      CMath::FastMin(CMath::FastMax(0.f, fabsf(yawDelta.AsRadians() /
-                                               gpTweakPlayer->GetHorizontalFreeLookAngleVel())),
-                     1.f);
+      CMath::FastClamp(
+          0.f, fabsf(yawDelta.AsRadians() / gpTweakPlayer->GetHorizontalFreeLookAngleVel()), 1.f);
   if (0.f <= yawDelta.AsRadians()) {
     mFreeLookYawAngle += yawStep;
   } else {
@@ -827,9 +822,8 @@ void CPlayer::ComputeFreeLook(const CFinalInput& input, CStateManager& mgr) {
 float CPlayer::GetTurnInputWarmupScale() const {
   const float& minScale = 0.f;
   const float& maxScale = 1.f;
-  return CMath::FastMin(
-      CMath::FastMax(minScale, 1.f - mTurnInputWarmupRemaining / mTurnInputWarmupDuration),
-      maxScale);
+  return CMath::FastClamp(minScale, 1.f - mTurnInputWarmupRemaining / mTurnInputWarmupDuration,
+                          maxScale);
 }
 
 void CPlayer::UpdateTurnInputWarmup(float dt, const CStateManager& mgr) {

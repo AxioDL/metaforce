@@ -428,7 +428,7 @@ void CMotionDeviceTracker::Update(const WPADFSStatus& status, const CVector3f& g
     const float pitchZ = mNormalizedAcceleration.GetZ();
     magnitude = sqrtf(pitchZ * pitchZ +
                       mNormalizedAcceleration.GetY() * mNormalizedAcceleration.GetY());
-    magnitude = CMath::FastMin(CMath::FastMax(0.f, magnitude), 1.f);
+    magnitude = CMath::FastClamp(0.f, magnitude, 1.f);
     if (CMath::IsEpsilon(magnitude, 0.f, 0.00001f)) {
       magnitude = 1.f;
     }

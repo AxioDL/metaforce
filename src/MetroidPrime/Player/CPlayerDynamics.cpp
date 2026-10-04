@@ -125,8 +125,7 @@ CVector3f CPlayer::GetDampedClampedVelocityWR(float dt) const {
       const float speed = flatVelocity.Magnitude();
       const float& zero = 0.f;
       const float& damped = speed - friction;
-      const float nonnegative = CMath::FastMax(zero, damped);
-      const float clampedSpeed = CMath::FastMin(nonnegative, maxSpeed);
+      const float clampedSpeed = CMath::FastClamp(zero, damped, maxSpeed);
       flatVelocity *= clampedSpeed / speed;
       localVelocity[kDX] = flatVelocity[0];
       localVelocity[kDY] = flatVelocity[1];
@@ -394,7 +393,7 @@ void CPlayer::ComputeMovement(const CFinalInput& input, CStateManager& mgr, floa
     } else {
       mContinuousTurnTime += input.Time();
     }
-    turnInput *= CMath::FastMin(CMath::FastMax(0.f, mContinuousTurnTime / 0.5f), 1.f);
+    turnInput *= CMath::FastClamp(0.f, mContinuousTurnTime / 0.5f, 1.f);
   }
   float forwardInput = ForwardInput(input, turnInput);
   float strafeInput = StrafeInput(input);
@@ -427,10 +426,10 @@ void CPlayer::ComputeMovement(const CFinalInput& input, CStateManager& mgr, floa
       (turnInput * gpTweakPlayer->GetPlayerRotationMaxSpeed(GetSurfaceRestraint()));
   const float angularVelocityDelta =
       desiredAngularVelocity - GetAngularVelocityOR().GetVector().GetZ();
-  const float turnFraction = CMath::FastMin(
-      CMath::FastMax(0.f, CMath::AbsF(angularVelocityDelta) /
-                              (turnSpeedMultiplier *
-                               gpTweakPlayer->GetPlayerRotationMaxSpeed(GetSurfaceRestraint()))),
+  const float turnFraction = CMath::FastClamp(
+      0.f,
+      CMath::AbsF(angularVelocityDelta) /
+          (turnSpeedMultiplier * gpTweakPlayer->GetPlayerRotationMaxSpeed(GetSurfaceRestraint())),
       1.f);
   if (angularVelocityDelta < 0.f) {
     turnInput = turnFraction * -gpTweakPlayer->GetMaxRotationalAcceleration(GetSurfaceRestraint());
@@ -575,7 +574,7 @@ float CPlayer::TurnInput(const CFinalInput& input) const {
     const float& fade = lostFrames / 120.f;
     const float& zero = 0.f;
     const float& one = 1.f;
-    turn *= one - CMath::FastMin(CMath::FastMax(zero, fade), one);
+    turn *= one - CMath::FastClamp(zero, fade, one);
   }
   turn *= GetTurnInputWarmupScale();
   return turn;
@@ -2046,7 +2045,7 @@ float CPlayer::UpdateCameraBob(float dt, CStateManager& mgr) {
   }
   magnitude *= mgr.GetCameraManager()->GetCameraBobMagnitude();
 #if VERSION >= VERSION_R3IJ_00
-  magnitude *= CMath::FastMin(CMath::FastMax(0.f, 1.f - mPointerAimHoldBlend), 1.f);
+  magnitude *= CMath::FastClamp(0.f, 1.f - mPointerAimHoldBlend, 1.f);
 #endif
   mCameraBob->SetPlayerVelocity(velocity);
   mCameraBob->SetState(state, mgr);

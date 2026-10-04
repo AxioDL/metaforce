@@ -84,10 +84,6 @@ static const ushort mFromBeamSound[4] = {
 
 static bool GetOrbitGunLock() { return false; }
 
-static inline float ClampGunAim(float min, float val, float max) {
-  return CMath::FastMin(CMath::FastMax(min, val), max);
-}
-
 static inline float SmoothGunAim(float t) { return t * ((3.f - 2.f * t) * t); }
 
 void CPlayerGun::GetLctrWithShake(CTransform4f& xfOut, const CModelData& modelData,
@@ -143,14 +139,14 @@ void CPlayerGun::UpdateTransform(float dt, const CStateManager& mgr) {
     }
     mSmoothedPointer = pointer;
 
-    float up = ClampGunAim(0.f, mSmoothedPointer.GetY(), 1.f);
-    float left = ClampGunAim(0.f, -mSmoothedPointer.GetX(), 1.f);
+    float up = CMath::FastClamp(0.f, mSmoothedPointer.GetY(), 1.f);
+    float left = CMath::FastClamp(0.f, -mSmoothedPointer.GetX(), 1.f);
     const bool lockGun = GetOrbitGunLock();
     if (lockGun && player.GetOrbitState() == CPlayer::kOS_OrbitObject) {
       left = up = 0.f;
     }
     const float xOffset = 0.2f * left;
-    left *= ClampGunAim(-1.f, 1.f + 2.f * mSmoothedPointer.GetY(), 1.f);
+    left *= CMath::FastClamp(-1.f, 1.f + 2.f * mSmoothedPointer.GetY(), 1.f);
     const float leftZOffset = 0.5f * (-0.15f * left);
     const float yOffset = 0.45f * up;
     const float upZOffset = -0.35f * up;

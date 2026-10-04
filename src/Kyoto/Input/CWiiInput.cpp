@@ -240,8 +240,8 @@ CVector2f CWiiInput::GetPointerPosition(int channel) const {
 void CWiiInput::ApplyPointerDistanceScale(int channel) {
   const float distance = (mInput[channel].mPointerDistance - mPointerMinDistance) /
                          (mPointerMaxDistance - mPointerMinDistance);
-  const float scale = mPointerMinScale + (mPointerMaxScale - mPointerMinScale) *
-                                                 CMath::FastMin(CMath::FastMax(0.f, distance), 1.f);
+  const float scale = mPointerMinScale +
+                      (mPointerMaxScale - mPointerMinScale) * CMath::FastClamp(0.f, distance, 1.f);
   mStatus[channel].pos.x =
       CMath::FastLimit(mStatus[channel].pos.x * scale, 1.f);
 }
@@ -308,8 +308,7 @@ void CWiiInput::UpdatePointerState(int channel) {
       }
       mStatus[channel].pos.x = mPointerFilterX[channel]->Filter(mStatus[channel].pos.x);
       mStatus[channel].pos.y = mPointerFilterY[channel]->Filter(mStatus[channel].pos.y);
-      const float blend =
-          CMath::FastMin(CMath::FastMax(0.f, mPointerReacquireFrames[channel] / 10.f), 1.f);
+      const float blend = CMath::FastClamp(0.f, mPointerReacquireFrames[channel] / 10.f, 1.f);
       input.mPointerPosition[0] =
           (1.f - blend) * input.mPointerPosition.GetX() + blend * mStatus[channel].pos.x;
       input.mPointerPosition[1] =
@@ -389,8 +388,7 @@ void CWiiInput::UpdateAnalogInput(float threshold, int channel, int axis,
       CVector2f stick(mStatus[channel].ex_status.fs.stick.x,
                       mStatus[channel].ex_status.fs.stick.y);
       if (stick.IsMagnitudeSafe()) {
-        const float magnitude =
-            CMath::FastMin(CMath::FastMax(0.f, stick.Magnitude() / 0.707f), 1.f);
+        const float magnitude = CMath::FastClamp(0.f, stick.Magnitude() / 0.707f, 1.f);
         stick = stick.AsNormalized() * magnitude;
       }
       value = stick.GetX();
@@ -398,8 +396,7 @@ void CWiiInput::UpdateAnalogInput(float threshold, int channel, int axis,
       CVector2f stick(mStatus[channel].ex_status.fs.stick.x,
                       mStatus[channel].ex_status.fs.stick.y);
       if (stick.IsMagnitudeSafe()) {
-        const float magnitude =
-            CMath::FastMin(CMath::FastMax(0.f, stick.Magnitude() / 0.707f), 1.f);
+        const float magnitude = CMath::FastClamp(0.f, stick.Magnitude() / 0.707f, 1.f);
         stick = stick.AsNormalized() * magnitude;
       }
       value = stick.GetY();
@@ -408,14 +405,14 @@ void CWiiInput::UpdateAnalogInput(float threshold, int channel, int axis,
                             mStatus[channel].ex_status.fs.stick.y);
       if (stick.IsMagnitudeSafe()) {
         value = CVector2f::Dot(stick, CVector2f(1.f, -1.f).AsNormalized()) / 1.4142135f / 0.707f;
-        value = CMath::FastMin(CMath::FastMax(0.f, value), 1.f);
+        value = CMath::FastClamp(0.f, value, 1.f);
       }
     } else if (axis == 3) {
       const CVector2f stick(mStatus[channel].ex_status.fs.stick.x,
                             mStatus[channel].ex_status.fs.stick.y);
       if (stick.IsMagnitudeSafe()) {
         value = CVector2f::Dot(stick, CVector2f(1.f, 1.f).AsNormalized()) / 1.4142135f / 0.707f;
-        value = CMath::FastMin(CMath::FastMax(0.f, value), 1.f);
+        value = CMath::FastClamp(0.f, value, 1.f);
       }
     } else if (axis == 4) {
       if (!mMotionProcessors[channel].null()) {

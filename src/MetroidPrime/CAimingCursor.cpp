@@ -62,7 +62,7 @@ void CAimingCursor::UpdateAlpha(const CFinalInput& input, float dt, const CState
         float t = (31.f - time) / 15.f;
         time = t * ((3.f - 2.f * t) * t);
       }
-      alpha = CMath::FastMin(CMath::FastMax(0.f, time), 1.f);
+      alpha = CMath::FastClamp(0.f, time, 1.f);
     } else {
       alpha = 1.f;
     }
@@ -71,10 +71,8 @@ void CAimingCursor::UpdateAlpha(const CFinalInput& input, float dt, const CState
     alpha = 0.f;
     break;
   case CControllerData::kPS_Reacquiring:
-    alpha = CMath::FastMin(
-        CMath::FastMax(
-            0.f, static_cast< int >(input.GetControllerData().GetPointerValidFrameCount()) / 30.f),
-        1.f);
+    alpha = CMath::FastClamp(
+        0.f, static_cast< int >(input.GetControllerData().GetPointerValidFrameCount()) / 30.f, 1.f);
     break;
   }
 
@@ -82,7 +80,7 @@ void CAimingCursor::UpdateAlpha(const CFinalInput& input, float dt, const CState
     mCursorFade = 1.f;
     alpha = 0.f;
   }
-  alpha *= 1.f - CMath::FastMin(CMath::FastMax(0.f, mCursorFade), 1.f);
+  alpha *= 1.f - CMath::FastClamp(0.f, mCursorFade, 1.f);
   mCursorAlpha = alpha;
 }
 
@@ -189,13 +187,11 @@ void CAimingCursor::Update(const CFinalInput& input, float dt, CStateManager& mg
   if (mCursorLockTimer > 0.f) {
     mCursorLockTimer += dt;
     if (mCursorLockTimer < 0.5f) {
-      const float scale =
-          CMath::FastMin(CMath::FastMax(0.f, (0.2f - mCursorLockTimer) / 0.2f), 1.f);
+      const float scale = CMath::FastClamp(0.f, (0.2f - mCursorLockTimer) / 0.2f, 1.f);
       cursor.SetX(cursor.GetX() * scale);
       cursor.SetZ(cursor.GetZ() * scale);
     } else if (mCursorLockTimer < 0.6f) {
-      const float scale =
-          CMath::FastMin(CMath::FastMax(0.f, (mCursorLockTimer - 0.5f) / (0.6f - 0.5f)), 1.f);
+      const float scale = CMath::FastClamp(0.f, (mCursorLockTimer - 0.5f) / (0.6f - 0.5f), 1.f);
       cursor.SetX(cursor.GetX() * scale);
       cursor.SetZ(cursor.GetZ() * scale);
     } else {
@@ -203,7 +199,7 @@ void CAimingCursor::Update(const CFinalInput& input, float dt, CStateManager& mg
     }
   }
   if (mCursorObjectCount != 0 && mCursorObjectCount < 60) {
-    cursor *= 1.f - CMath::FastMin(CMath::FastMax(0.f, mCursorObjectCount / 60.f), 1.f);
+    cursor *= 1.f - CMath::FastClamp(0.f, mCursorObjectCount / 60.f, 1.f);
   }
   mCursor2D[0] = cursor.GetX();
   mCursor2D[1] = cursor.GetZ();
@@ -264,7 +260,7 @@ void CAimingCursor::Update(const CFinalInput& input, float dt, CStateManager& mg
   } else if (mgr.GetDeferredStateTransition() == kSMT_InGame) {
     mCursorFade -= dt;
   }
-  mCursorFade = CMath::FastMin(CMath::FastMax(0.f, mCursorFade), 1.f);
+  mCursorFade = CMath::FastClamp(0.f, mCursorFade, 1.f);
   UpdateAlpha(input, dt, mgr);
   UpdateValidity(input, dt, mgr);
 }

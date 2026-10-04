@@ -497,11 +497,11 @@ void CCompoundTargetReticle::DrawOffScreenReticle(const CMatrix3f& rot,
     if (mOffScreenBlinkTime > 1.5f) {
       float rampTime = 0.5f;
       const float& t = (mOffScreenBlinkTime - 1.5f) / rampTime;
-      alpha = 1.f - CMath::FastMin(CMath::FastMax(0.f, t), 1.f);
+      alpha = 1.f - CMath::FastClamp(0.f, t, 1.f);
     } else {
       float rampTime = 0.5f;
       const float& t = mOffScreenBlinkTime / rampTime;
-      alpha = CMath::FastMin(CMath::FastMax(0.f, t), 1.f);
+      alpha = CMath::FastClamp(0.f, t, 1.f);
     }
     alpha *= gpTweakTargeting->x35c_;
     gpRender->SetModelMatrix(xf);
@@ -731,23 +731,17 @@ void CCompoundTargetReticle::UpdateCurrLockOnGroupRS5(float dt, const CStateMana
   const float colorDuration = gpTweakTargeting->x318_;
   const float visibilityDuration = gpTweakTargeting->x31c_;
   if (hasTarget) {
-    const float colorTime = CMath::FastMax(0.f, x37c_ + dt);
-    const float visibilityTime = CMath::FastMax(0.f, x380_ + dt);
-    x37c_ = CMath::FastMin(colorTime, colorDuration);
-    x380_ = CMath::FastMin(visibilityTime, visibilityDuration);
+    x37c_ = CMath::FastClamp(0.f, x37c_ + dt, colorDuration);
+    x380_ = CMath::FastClamp(0.f, x380_ + dt, visibilityDuration);
   } else if (aimHeld) {
-    const float colorTime = CMath::FastMax(0.f, x37c_ - dt);
-    const float visibilityTime = CMath::FastMax(0.f, x380_ + dt);
-    x37c_ = CMath::FastMin(colorTime, colorDuration);
-    x380_ = CMath::FastMin(visibilityTime, visibilityDuration);
+    x37c_ = CMath::FastClamp(0.f, x37c_ - dt, colorDuration);
+    x380_ = CMath::FastClamp(0.f, x380_ + dt, visibilityDuration);
     if (!mCurrReticleAimHeld && player.GetMorphballTransitionState() == CPlayer::kMS_Unmorphed) {
       mgr.GetCameraManager()->IsInCinematicCamera();
     }
   } else {
-    const float colorTime = CMath::FastMax(0.f, x37c_ - dt);
-    const float visibilityTime = CMath::FastMax(0.f, x380_ - dt);
-    x37c_ = CMath::FastMin(colorTime, colorDuration);
-    x380_ = CMath::FastMin(visibilityTime, visibilityDuration);
+    x37c_ = CMath::FastClamp(0.f, x37c_ - dt, colorDuration);
+    x380_ = CMath::FastClamp(0.f, x380_ - dt, visibilityDuration);
     if ((mCurrReticleAimHeld || hadTarget) &&
         player.GetMorphballTransitionState() == CPlayer::kMS_Unmorphed) {
       mgr.GetCameraManager()->IsInCinematicCamera();
@@ -760,8 +754,8 @@ void CCompoundTargetReticle::UpdateCurrLockOnGroupRS5(float dt, const CStateMana
   const float releaseStep = releaseDuration > 0.f ? dt * (releaseMax / releaseDuration) : 1.f;
   const float colorT = x37c_ / colorDuration;
   const float visibilityT = x380_ / visibilityDuration;
-  mCurrReticleReleaseAlpha = CMath::FastMin(
-      CMath::FastMax(0.f, mCurrReticleReleaseAlpha - releaseStep), releaseMax);
+  mCurrReticleReleaseAlpha =
+      CMath::FastClamp(0.f, mCurrReticleReleaseAlpha - releaseStep, releaseMax);
   x36c_ = CColor::Lerp(idleColor, lockedColor, colorT);
   x378_ = visibilityT;
   float zero = 0.f;
@@ -771,13 +765,13 @@ void CCompoundTargetReticle::UpdateCurrLockOnGroupRS5(float dt, const CStateMana
           static_cast< float >(visibilityT * maxVisibility);
 
   const float lockTime = mCurrReticleLockTime;
-  const float scaleT = CMath::FastMin(CMath::FastMax(
-      0.f, (lockTime - gpTweakTargeting->x330_) / gpTweakTargeting->x334_), 1.f);
+  const float scaleT =
+      CMath::FastClamp(0.f, (lockTime - gpTweakTargeting->x330_) / gpTweakTargeting->x334_, 1.f);
   const float startScale = gpTweakTargeting->x338_;
   const CVector3f fromScale(startScale, startScale, startScale);
   mCurrReticleBaseScale = CVector3f::Lerp(fromScale, mNextReticleScale, scaleT);
-  const float bracketsT = CMath::FastMin(CMath::FastMax(
-      0.f, (lockTime - gpTweakTargeting->x33c_) / gpTweakTargeting->x340_), 1.f);
+  const float bracketsT =
+      CMath::FastClamp(0.f, (lockTime - gpTweakTargeting->x33c_) / gpTweakTargeting->x340_, 1.f);
   mCurrReticleDetailColor = gpTweakTargeting->x328_;
   mCurrReticleDetailAlpha = gpTweakTargeting->x32c_;
   mCurrReticleBracketAlpha = static_cast< float >((1.f - bracketsT) * zero) +
@@ -798,7 +792,7 @@ void CCompoundTargetReticle::UpdateCurrLockOnGroupRS5(float dt, const CStateMana
   mCurrReticleBracketHeading = heading;
 
   const float techT = (mCurrReticleLockTime - gpTweakTargeting->x344_) / gpTweakTargeting->x348_;
-  mCurrReticleTechTime = CMath::FastMin(CMath::FastMax(0.f, static_cast< float >(techT * 0.5f)), 0.496f);
+  mCurrReticleTechTime = CMath::FastClamp(0.f, static_cast< float >(techT * 0.5f), 0.496f);
   if (techT >= 1.f) {
     mCurrReticleTechAngle += CRelAngle::FromDegrees(gpTweakTargeting->x34c_ * dt);
   } else {
@@ -817,8 +811,8 @@ void CCompoundTargetReticle::UpdateCurrLockOnGroupRS5(float dt, const CStateMana
     const float step = gpTweakTargeting->x2fc_ > 0.f
                            ? dt * (maxAlpha / gpTweakTargeting->x2fc_) : 1.f;
     if (mCurrReticleLockTime >= gpTweakTargeting->x2f8_) {
-      mCurrReticleArmAlpha = CMath::FastMin(
-          CMath::FastMax(gpTweakTargeting->x300_, mCurrReticleArmAlpha - step), maxAlpha);
+      mCurrReticleArmAlpha =
+          CMath::FastClamp(gpTweakTargeting->x300_, mCurrReticleArmAlpha - step, maxAlpha);
     } else {
       mCurrReticleArmAlpha = maxAlpha;
     }
@@ -864,15 +858,14 @@ void CCompoundTargetReticle::UpdateNextLockOnGroupRS5(float dt, const CStateMana
   }
 
   if (target == kInvalidUniqueId) {
-    mNextReticleAlpha = CMath::FastMin(CMath::FastMax(0.f, mNextReticleAlpha - alphaStep), maxAlpha);
+    mNextReticleAlpha = CMath::FastClamp(0.f, mNextReticleAlpha - alphaStep, maxAlpha);
   } else {
-    mNextReticleAlpha = CMath::FastMin(CMath::FastMax(0.f, mNextReticleAlpha + alphaStep), maxAlpha);
+    mNextReticleAlpha = CMath::FastClamp(0.f, mNextReticleAlpha + alphaStep, maxAlpha);
   }
 
   if (mNextReticleInterpolating && mNextReticleInterpDuration > 0.f) {
     const float& duration = mNextReticleInterpDuration;
-    mNextReticleInterpTime = CMath::FastMin(
-        CMath::FastMax(0.f, mNextReticleInterpTime + dt), duration);
+    mNextReticleInterpTime = CMath::FastClamp(0.f, mNextReticleInterpTime + dt, duration);
     if (mNextReticleInterpTime < mNextReticleInterpDuration) {
       const CVector3f fromDirection = (mNextReticleFromPosition - cameraPosition).AsNormalized();
       const float fromDistance =
@@ -911,8 +904,8 @@ void CCompoundTargetReticle::UpdateCombatAimingReticle(float dt, const CStateMan
   const float scaleB = scaleCurveB.EvaluateAt(distance);
   const float deltaA = CMath::FastLimit(scaleA - mAimingArmLengthScale, 1.f / 45.f);
   const float deltaB = CMath::FastLimit(scaleB - mAimingCenterScale, 1.f / 45.f);
-  mAimingArmLengthScale = CMath::FastMin(CMath::FastMax(0.f, mAimingArmLengthScale + deltaA), 1.f);
-  mAimingCenterScale = CMath::FastMin(CMath::FastMax(0.f, mAimingCenterScale + deltaB), 1.f);
+  mAimingArmLengthScale = CMath::FastClamp(0.f, mAimingArmLengthScale + deltaA, 1.f);
+  mAimingCenterScale = CMath::FastClamp(0.f, mAimingCenterScale + deltaB, 1.f);
 
   CColor armColor = gpTweakTargeting->x224_;
   CColor targetArmColor = gpTweakTargeting->x22c_;
@@ -941,16 +934,16 @@ void CCompoundTargetReticle::UpdateCombatAimingReticle(float dt, const CStateMan
   const TUniqueId target = cursor.GetCursorObjectId();
   const CActor* actor = TCastToConstPtr< CActor >(mgr.GetObjectById(target));
   if (actor && actor->GetActive() && IsHostileTarget(target, mgr)) {
-    mCursorTargetColorBlend = CMath::FastMin(CMath::FastMax(0.f, mCursorTargetColorBlend + step), 1.f);
+    mCursorTargetColorBlend = CMath::FastClamp(0.f, mCursorTargetColorBlend + step, 1.f);
   } else {
-    mCursorTargetColorBlend = CMath::FastMin(CMath::FastMax(0.f, mCursorTargetColorBlend - step), 1.f);
+    mCursorTargetColorBlend = CMath::FastClamp(0.f, mCursorTargetColorBlend - step, 1.f);
   }
   mAimingArmColor = CColor::Lerp(armColor, targetArmColor, mCursorTargetColorBlend);
   const float alphaA = (1.f - mCursorTargetColorBlend) * armAlpha;
   const float alphaB = mCursorTargetColorBlend * targetArmAlpha;
   const float armBlendAlpha = alphaA + alphaB;
   const float alpha = CMath::FastMin(cursor.GetCursorAlpha(), armBlendAlpha);
-  mAimingArmAlpha = CMath::FastMin(CMath::FastMax(0.f, alpha), 1.f);
+  mAimingArmAlpha = CMath::FastClamp(0.f, alpha, 1.f);
   mAimingCenterColor = CColor::Lerp(centerColor, targetCenterColor, mCursorTargetColorBlend);
   mAimingCenterAlpha = cursor.GetCursorAlpha();
 
@@ -2427,7 +2420,7 @@ float CCompoundTargetReticle::CalculateClampedScale(CVector3f pos, float scale, 
 #endif
 #if VERSION >= VERSION_R3IJ_00
   pixelScale *= 640.f;
-  return scale * (CMath::FastMin(CMath::FastMax(clampMin, pixelScale), clampMax) / pixelScale);
+  return scale * (CMath::FastClamp(clampMin, pixelScale, clampMax) / pixelScale);
 #else
   pixelScale *= static_cast< float >(CGraphics::GetViewport().mWidth);
   return scale * (CMath::Clamp(clampMin, pixelScale, clampMax) / pixelScale);

@@ -82,7 +82,7 @@ float CControlMapper::GetSelectorFade() const {
   if (mSelectorFadeTime > 0.f) {
     const float& minFade = 0.f;
     const float& maxFade = 1.f;
-    result = CMath::FastMin(CMath::FastMax(minFade, mSelectorFadeTime / 0.5f), maxFade);
+    result = CMath::FastClamp(minFade, mSelectorFadeTime / 0.5f, maxFade);
   }
   return result;
 }

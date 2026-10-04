@@ -43,7 +43,7 @@ void CPlayer::UpdateOrbitModeTimer(float dt) {
   const float& blend = mOrbitModeTimer / gpTweakPlayer->GetOrbitModeTimer();
   const float& zero = 0.f;
   const float& one = 1.f;
-  mOrbitModeBlend = CMath::FastMin(CMath::FastMax(zero, blend), one);
+  mOrbitModeBlend = CMath::FastClamp(zero, blend, one);
 }
 
 bool CPlayer::CheckPostGrapple() const {
@@ -354,8 +354,8 @@ void CPlayer::UpdateOrbitOrientation(CStateManager& mgr)
         playerToCursor.Normalize();
         float maxBlend = 1.f;
         float maxCount = 60.f;
-        const float blend = CMath::FastMin(
-            CMath::FastMax(0.f, mAimingCursor.GetCursorObjectCount() / maxCount), maxBlend);
+        const float blend =
+            CMath::FastClamp(0.f, mAimingCursor.GetCursorObjectCount() / maxCount, maxBlend);
         const float scale = CMath::EaseInOut(blend, CMath::kET_Sinusoidal, 0.25f, 0.75f,
                                            0.f, 1.f, 2.f);
         const CRelAngle maxAngle = CRelAngle::FromRadians(scale * (CMath::Deg2Rad(60.f) * dt));
