@@ -286,7 +286,6 @@ cflags_retro = [
     "-maxerrors 1",
     "-nosyspath",
     "-RTTI off",
-    "-fp_contract on" if version_num < VERSIONS.index("R3IJ01_00") else "-fp_contract off",
     "-str reuse",
     "-i include",
     "-i extern/sdk/include",
@@ -300,8 +299,6 @@ cflags_retro = [
     "-use_lmw_stmw on",
     "-str reuse,pool,readonly",
     "-gccinc",
-    "-inline deferred" if version_num < VERSIONS.index("R3IJ01_00") else "-inline noauto,nobottomup,level=8",
-    "-common on" if version_num < VERSIONS.index("R3IJ01_00") else "-common off",
     "-i extern/musyx/include",
     "-i extern/rstl/include",
     # "-sym on",
@@ -310,15 +307,20 @@ cflags_retro = [
 
 mw_version_retro = "GC/1.3.2"
 if version_num >= VERSIONS.index("R3IJ01_00"):
-    mw_version_retro = "Wii/1.3"
+    mw_version_retro = "Wii/1.0a"
     cflags_retro.extend([
         "-sdata 4",
-        "-func_align 4"
+        "-sdata2 4",
+        "-func_align 4",
+        "-inline noauto,nobottomup,level=8",
+        "-common off",
     ])
-
-if version_num >= VERSIONS.index("R3ME01_00"):
-    mw_version_retro = "Wii/1.0a"
-    cflags_retro.append("-sdata2 4")
+else:
+    cflags_retro.extend([
+        "-fp_contract on",
+        "-inline deferred",
+        "-common on",
+    ])
 
 # Most Retro code uses this inline limit. Objects that still need the compiler
 # default retain cflags_retro explicitly while their helper inlining is investigated.
