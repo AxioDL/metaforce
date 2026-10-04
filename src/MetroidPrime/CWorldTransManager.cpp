@@ -34,6 +34,7 @@
 #if defined(TARGET_PC)
 #include "Metaforce/Display.hpp"
 #include "dolphin/gx/GXAurora.h"
+#include "dolphin/gx/GXExtra.h"
 #endif
 
 #include "rstl/list.hpp"
@@ -61,6 +62,9 @@ struct CWorldTransManager::SModelDatas {
   bool mDissolveStarted;
 
   explicit SModelDatas(const CAnimRes& samusRes);
+#if defined(TARGET_PC)
+  ~SModelDatas();
+#endif
 };
 NESTED_CHECK_SIZEOF(CWorldTransManager, SModelDatas, 0x1e0)
 
@@ -99,6 +103,15 @@ CWorldTransManager::SModelDatas::SModelDatas(const CAnimRes& samusRes) : mSamusR
 , mDissolveStarted(false) {
   mLights.reserve(8);
 }
+
+#if defined(TARGET_PC)
+CWorldTransManager::SModelDatas::~SModelDatas() {
+  if (uchar* buffer = mDissolveTextureBuffer.release()) {
+    GXDestroyCopyTex(buffer);
+    CFrameDelayedKiller::ScheduleDeletion(CFrameDelayedKiller::kWhichFrame_NextFrame, buffer);
+  }
+}
+#endif
 
 void CWorldTransManager::DisableTransition() {
   mTransType = kTT_Disabled;
