@@ -199,7 +199,7 @@ void CEyeBall::Active(CStateManager& mgr, EStateMsg msg, float arg) {
 
 void CEyeBall::PreRender(CStateManager& mgr, const CFrustumPlanes& frustum) {
   CPatterned::PreRender(mgr, frustum);
-  mBoneTracking.PreRender(mgr, *AnimationData(), GetTransform(), ModelData()->GetScale(),
+  mBoneTracking.PreRender(mgr, *AnimationData(), GetTransform(), GetModelScale(),
                           *BodyCtrl());
 }
 
@@ -223,7 +223,7 @@ void CEyeBall::Think(float dt, CStateManager& mgr) {
     mBoneTracking.Update(dt);
     AnimationData()->PreRender();
     // PreRenderBoneTracking(mgr, ModelData()->GetScale(), *BodyCtrl());
-    mBoneTracking.PreRender(mgr, *AnimationData(), GetTransform(), ModelData()->GetScale(),
+    mBoneTracking.PreRender(mgr, *AnimationData(), GetTransform(), GetModelScale(),
                             *BodyCtrl());
   } else {
     mBoneTracking.SetActive(false);
