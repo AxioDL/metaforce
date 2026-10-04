@@ -10,10 +10,10 @@
 
 #include "rstl/math.hpp"
 
-const CQuaternion CQuaternion::sNoRotation = CQuaternion(1.f, CVector3f(0.f, 0.f, 0.f));
-static const CUnitVector3f XAxis(1.f, 0.f, 0.f);
-static const CUnitVector3f YAxis(0.f, 1.f, 0.f);
-static const CUnitVector3f ZAxis(0.f, 0.f, 1.f);
+const CQuaternion CQuaternion::sNoRotation = CQuaternion(1.f, 0.f, 0.f, 0.f);
+static const CUnitVector3f XAxis(CVector3f(1.f, 0.f, 0.f), CUnitVector3f::kN_No);
+static const CUnitVector3f YAxis(CVector3f(0.f, 1.f, 0.f), CUnitVector3f::kN_No);
+static const CUnitVector3f ZAxis(CVector3f(0.f, 0.f, 1.f), CUnitVector3f::kN_No);
 
 CQuaternion::CQuaternion(CInputStream& in) : w(in.ReadFloat()), imaginary(in) {}
 
@@ -39,26 +39,26 @@ CQuaternion CQuaternion::FromMatrixRows(const CVector3f& row0, const CVector3f& 
   if (axis == 0) {
     const float size = 2.f * CMath::SqrtF(row0.GetX() - row1.GetY() - row2.GetZ() + 1.f);
     const float scale = 1.f / size;
-    const float qw = scale * (row2.GetY() - row1.GetZ());
     const float qx = size / 4.f;
     const float qy = scale * (row0.GetY() + row1.GetX());
     const float qz = scale * (row0.GetZ() + row2.GetX());
+    const float qw = scale * (row2.GetY() - row1.GetZ());
     return CQuaternion(qw, qx, qy, qz);
   } else if (axis == 1) {
     const float size = 2.f * CMath::SqrtF(row1.GetY() - row2.GetZ() - row0.GetX() + 1.f);
     const float scale = 1.f / size;
-    const float qw = scale * (row0.GetZ() - row2.GetX());
     const float qy = size / 4.f;
     const float qz = scale * (row1.GetZ() + row2.GetY());
     const float qx = scale * (row1.GetX() + row0.GetY());
+    const float qw = scale * (row0.GetZ() - row2.GetX());
     return CQuaternion(qw, qx, qy, qz);
   } else {
     const float size = 2.f * CMath::SqrtF(row2.GetZ() - row0.GetX() - row1.GetY() + 1.f);
     const float scale = 1.f / size;
-    const float qw = scale * (row1.GetX() - row0.GetY());
+    const float qz = size / 4.f;
     const float qx = scale * (row2.GetX() + row0.GetZ());
     const float qy = scale * (row2.GetY() + row1.GetZ());
-    const float qz = size / 4.f;
+    const float qw = scale * (row1.GetX() - row0.GetY());
     return CQuaternion(qw, qx, qy, qz);
   }
 }
@@ -170,7 +170,11 @@ CQuaternion CQuaternion::ShortestRotationArc(const CVector3f& from, const CVecto
     toUnit.Normalize();
   }
   const CVector3f cross = CVector3f::Cross(fromUnit, toUnit);
+#if VERSION >= VERSION_R3IJ_00
+  if (CVector3f::Dot(cross, cross) < 0.001f) {
+#else
   if (cross.MagSquared() < 0.001f) {
+#endif
     if (CVector3f::Dot(fromUnit, toUnit) > 0.f) {
       return NoRotation();
     }
@@ -180,9 +184,17 @@ CQuaternion CQuaternion::ShortestRotationArc(const CVector3f& from, const CVecto
     return NoRotation();
   }
 
+#if VERSION >= VERSION_R3IJ_00
+  const float size =
+      CMath::SqrtF((1.f + CMath::FastLimit(CVector3f::Dot(fromUnit, toUnit), 1.f)) * 2.f);
+  const CVector3f scaled = (1.f / size) * cross;
+  const CQuaternion result = CQuaternion(0.5f * size, scaled);
+  return result;
+#else
   const float size =
       CMath::SqrtF((1.f + CMath::Clamp(-1.f, CVector3f::Dot(fromUnit, toUnit), 1.f)) * 2.f);
   return CQuaternion(0.5f * size, (1.f / size) * cross);
+#endif
 }
 
 static inline float normalize_angle(float value) {
@@ -204,9 +216,15 @@ CQuaternion CQuaternion::LookAt(const CUnitVector3f& source, const CUnitVector3f
   destNoZ.SetZ(0.f);
   sourceNoZ.SetZ(0.f);
   CQuaternion yaw = NoRotation();
+#if VERSION >= VERSION_R3IJ_00
+  CVector3f horizontal(1.f, 0.f, 0.f);
+  const float sourceMag = CVector3f::Dot(sourceNoZ, sourceNoZ);
+  const float destMag = CVector3f::Dot(destNoZ, destNoZ);
+#else
   const float sourceMag = sourceNoZ.MagSquared();
   const float destMag = destNoZ.MagSquared();
   CVector3f horizontal(1.f, 0.f, 0.f);
+#endif
   if (sourceMag > 0.0001f && destMag > 0.0001f) {
     sourceNoZ.Normalize();
     destNoZ.Normalize();

@@ -62,15 +62,13 @@ public:
     const float rY = rhs.GetY();
     const float rZ = rhs.GetZ();
 #if VERSION >= VERSION_R3IJ_00
-    float x = lY * rZ - rY * lZ;
-    float y = lZ * rX - rZ * lX;
-    float z = lX * rY - rX * lY;
+    return CVector3f(lY * rZ - rY * lZ, lZ * rX - rZ * lX, lX * rY - rX * lY);
 #else
     float z = lX * rY - rX * lY;
     float y = lZ * rX - rZ * lX;
     float x = lY * rZ - rY * lZ;
-#endif
     return CVector3f(x, y, z);
+#endif
   }
 
   float& operator[](EDimX dim) { return mX; }
