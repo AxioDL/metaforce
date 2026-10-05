@@ -1361,7 +1361,7 @@ config.libs = [
                 "MetroidPrime/Enemies/CBouncyGrenade.cpp",
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02"),
                 "MetroidPrime/Enemies/CGrenadeLauncher.cpp",
             ),
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02"), "MetroidPrime/Weapons/CShockWave.cpp"),
@@ -1392,10 +1392,10 @@ config.libs = [
                 "MetroidPrime/ScriptObjects/CScriptMemoryRelay.cpp",
             ),
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02"), "MetroidPrime/CPauseScreenFrame.cpp"),
-            Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/Enemies/CAtomicAlpha.cpp"),
+            Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02"), "MetroidPrime/Enemies/CAtomicAlpha.cpp"),
             Object(EquivalentFor("GM8E01_00"), "MetroidPrime/CLogBookScreen.cpp"),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/CGBASupport.cpp"
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02"), "MetroidPrime/CGBASupport.cpp"
             ),
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02"), "MetroidPrime/CMemoryCard.cpp"),
             Object(
@@ -1735,7 +1735,7 @@ config.libs = [
                 "Kyoto/Animation/CMetaTransFactory.cpp",
             ),
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02"), "Kyoto/Animation/CMetaTransMetaAnim.cpp"),
-            Object(MatchingFor("GM8E01_00", "GM8E01_01"), "Kyoto/Animation/CMetaTransPhaseTrans.cpp"),
+            Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02"), "Kyoto/Animation/CMetaTransPhaseTrans.cpp"),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00", "GM8E01_02"),
                 "Kyoto/Animation/CMetaTransSnap.cpp",
@@ -1826,7 +1826,7 @@ config.libs = [
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00", "GM8E01_02"),
                 "Kyoto/Animation/CAnimTreeTimeScale.cpp",
             ),
-            Object(MatchingFor("GM8E01_00", "GM8E01_01"), "Kyoto/Animation/CAnimTreeTransition.cpp"),
+            Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02"), "Kyoto/Animation/CAnimTreeTransition.cpp"),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00", "GM8E01_02"),
                 "Kyoto/Animation/CAnimTreeTweenBase.cpp",

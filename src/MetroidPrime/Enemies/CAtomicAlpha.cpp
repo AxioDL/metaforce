@@ -161,17 +161,20 @@ void CAtomicAlpha::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node
 
   bool skip = false;
   switch (type) {
-  case kUE_Projectile:
-    const CTransform4f lctrXf = GetLctrTransform(node.GetLocatorName());
-    const CVector3f origin = lctrXf.GetTranslation();
-    const CTransform4f xf = CTransform4f::LookAt(origin, origin + CVector3f::Down());
-    LaunchProjectile(xf, mgr, 4, CWeapon::kPA_None, false, rstl::optional_object_null(),
-                     CSfxManager::kInternalInvalidSfxId, false, CVector3f(1.f, 1.f, 1.f));
+  case kUE_Projectile: {
+    if (VERSION < VERSION_GM8E_02 || GetCurrentAreaId() == mgr.GetWorld()->GetCurrentAreaId()) {
+      const CTransform4f lctrXf = GetLctrTransform(node.GetLocatorName());
+      const CVector3f origin = lctrXf.GetTranslation();
+      const CTransform4f xf = CTransform4f::LookAt(origin, origin + CVector3f::Down());
+      LaunchProjectile(xf, mgr, 4, CWeapon::kPA_None, false, rstl::optional_object_null(),
+                       CSfxManager::kInternalInvalidSfxId, false, CVector3f(1.f, 1.f, 1.f));
+    }
     mBombTime = 0.f;
     mBombLocators[mCurBomb].mScaleTime = 0.f;
     mCurBomb = (mCurBomb + 1) % mBombLocators.size();
     skip = true;
     break;
+  }
   }
 
   if (!skip) {

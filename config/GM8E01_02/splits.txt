@@ -1651,8 +1651,13 @@ MetroidPrime/Enemies/CBouncyGrenade.cpp:
 	.sdata2     start:0x805AE418 end:0x805AE430
 
 MetroidPrime/Enemies/CGrenadeLauncher.cpp:
-	.text       start:0x8022FF2C end:0x80231584
-	.sdata2     start:0x805AE460 end:0x805AE468
+	.text       start:0x8022FF1C end:0x80231F04
+	.ctors      start:0x803CC360 end:0x803CC364
+	.rodata     start:0x803D44D0 end:0x803D4528
+	.data       start:0x803E9018 end:0x803E9110
+	.sdata      start:0x805A9238 end:0x805A9278
+	.sbss       start:0x805AA188 end:0x805AA190
+	.sdata2     start:0x805AE430 end:0x805AE488
 
 MetroidPrime/Weapons/CShockWave.cpp:
 	.text       start:0x80231F04 end:0x80233050
@@ -1727,7 +1732,9 @@ MetroidPrime/CPauseScreenFrame.cpp:
 	.sdata2     start:0x805AE5F0 end:0x805AE620
 
 MetroidPrime/Enemies/CAtomicAlpha.cpp:
-	.text       start:0x802455C0 end:0x80246300
+	.text       start:0x80245464 end:0x80246300
+	.rodata     start:0x803D57F0 end:0x803D5820
+	.data       start:0x803E9968 end:0x803E9C38
 	.sdata      start:0x805A9330 end:0x805A9338
 	.sdata2     start:0x805AE620 end:0x805AE638
 
@@ -1738,7 +1745,11 @@ MetroidPrime/CLogBookScreen.cpp:
 
 MetroidPrime/CGBASupport.cpp:
 	.text       start:0x80248EA4 end:0x802496AC
+	.rodata     start:0x803D5828 end:0x803D5840
+	.data       start:0x803E9CD8 end:0x803E9D00
 	.sdata      start:0x805A9348 end:0x805A9350
+	.sbss       start:0x805AA1B0 end:0x805AA1B8
+	.sdata2     start:0x805AE658 end:0x805AE668
 
 MetroidPrime/CMemoryCard.cpp:
 	.text       start:0x802496AC end:0x8024BC6C
@@ -2408,6 +2419,8 @@ Kyoto/Animation/CMetaTransMetaAnim.cpp:
 
 Kyoto/Animation/CMetaTransPhaseTrans.cpp:
 	.text       start:0x802E2C6C end:0x802E355C
+	.rodata     start:0x803D7E58 end:0x803D7E60
+	.data       start:0x803EDDC0 end:0x803EDDD8
 	.sdata      start:0x805A97B8 end:0x805A97C8
 	.sdata2     start:0x805AF398 end:0x805AF3A0
 
@@ -2549,6 +2562,8 @@ Kyoto/Animation/CAnimTreeTimeScale.cpp:
 
 Kyoto/Animation/CAnimTreeTransition.cpp:
 	.text       start:0x802F63F8 end:0x802F7424
+	.rodata     start:0x803D7ED0 end:0x803D7EE0
+	.data       start:0x803EE338 end:0x803EE3B8
 	.sdata      start:0x805A9858 end:0x805A9860
 	.sdata2     start:0x805AF490 end:0x805AF4A0
 
