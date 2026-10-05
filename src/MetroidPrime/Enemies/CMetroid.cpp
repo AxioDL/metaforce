@@ -224,7 +224,7 @@ void CMetroid::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMa
                                              CDamageVulnerability::kRD_No)) {
       ApplyGrowth(projectile->GetCurrentDamageInfo().GetDamage(), mgr);
     }
-#if VERSION >= VERSION_GM8E_02
+#if VERSION >= VERSION_GM8P_00
     else if (const CBomb* bomb = TCastToConstPtr< CBomb >(mgr.GetObjectById(uid))) {
       ApplyGrowth(bomb->GetCurrentDamageInfo().GetDamage(), mgr);
     }

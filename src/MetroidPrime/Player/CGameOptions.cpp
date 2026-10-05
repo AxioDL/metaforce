@@ -311,7 +311,7 @@ CGameOptions::CGameOptions()
 , mRumble(skDefaultRumble)
 , mSwapBeamsControls(skDefaultSwapBeamsControls)
 , mHintSystem(skDefaultHintSystem)
-#if VERSION >= VERSION_GM8E_02
+#if VERSION >= VERSION_GM8P_00
 , mPalExclusive(false)
 #endif
 {
@@ -334,7 +334,7 @@ CGameOptions::CGameOptions(CInputStream& in)
 , mRumble(skDefaultRumble)
 , mSwapBeamsControls(skDefaultSwapBeamsControls)
 , mHintSystem(skDefaultHintSystem)
-#if VERSION >= VERSION_GM8E_02
+#if VERSION >= VERSION_GM8P_00
 , mPalExclusive(false)
 #endif
 {
@@ -346,6 +346,9 @@ CGameOptions::CGameOptions(CInputStream& in)
   mScreenBrightness = in.ReadBits(CalculateBits(8));
   mScreenXOffset = in.ReadBits(CalculateBits(0x3c)) - 0x1e;
   mScreenYOffset = in.ReadBits(CalculateBits(0x3c)) - 0x1e;
+#if VERSION == VERSION_GM8E_02 || VERSION == VERSION_GM8J_00
+  mScreenYOffset = CMath::Clamp(-19, mScreenYOffset, 19);
+#endif
   mScreenStretch = in.ReadBits(CalculateBits(0x14)) - 10;
   mSfxVol = in.ReadBits(CalculateBits(0x7f));
   mMusicVol = in.ReadBits(CalculateBits(0x7f));
@@ -357,7 +360,7 @@ CGameOptions::CGameOptions(CInputStream& in)
   mInvertY = in.ReadPackedBool();
   mRumble = in.ReadPackedBool();
   mSwapBeamsControls = in.ReadPackedBool();
-#if VERSION >= VERSION_GM8E_02
+#if VERSION >= VERSION_GM8P_00
   mPalExclusive = in.ReadPackedBool();
 #endif
 
@@ -384,7 +387,7 @@ void CGameOptions::PutTo(COutputStream& out) {
   out.WriteBits(mInvertY != false, 1);
   out.WriteBits(mRumble != false, 1);
   out.WriteBits(mSwapBeamsControls != false, 1);
-#if VERSION >= VERSION_GM8E_02
+#if VERSION >= VERSION_GM8P_00
   out.WriteBits(mPalExclusive != false, 1);
 #endif
 }
@@ -404,7 +407,7 @@ void CGameOptions::ResetToDefaults() {
   mRumble = skDefaultRumble;
   mSwapBeamsControls = skDefaultSwapBeamsControls;
   mHintSystem = skDefaultHintSystem;
-#if VERSION >= VERSION_GM8E_02
+#if VERSION >= VERSION_GM8P_00
   mPalExclusive = false;
 #endif
   InitSoundMode();
@@ -419,7 +422,7 @@ void CGameOptions::EnsureOptions() {
   SetSfxVolume(mSfxVol, true);
   SetMusicVolume(mMusicVol, true);
   SetSurroundMode(CAudioSys::ESurroundModes(mSoundMode), true);
-#if VERSION >= VERSION_GM8E_02
+#if VERSION >= VERSION_GM8P_00
   SetHudAlpha(mHudAlpha);
 #endif
   SetHelmetAlpha(mHelmetAlpha);
@@ -428,7 +431,7 @@ void CGameOptions::EnsureOptions() {
   SetIsRumbleEnabled(mRumble);
   SetIsHintSystemEnabled(mHintSystem);
   ToggleControls(mSwapBeamsControls);
-#if VERSION >= VERSION_GM8E_02
+#if VERSION >= VERSION_GM8P_00
   fn_80200564(mPalExclusive);
 #endif
 }
@@ -455,7 +458,11 @@ void CGameOptions::SetScreenPositionX(int position, bool apply) {
 }
 
 void CGameOptions::SetScreenPositionY(int position, bool apply) {
+#if VERSION == VERSION_GM8E_02 || VERSION == VERSION_GM8J_00
+  mScreenYOffset = CMath::Clamp(-19, position, 19);
+#else
   mScreenYOffset = CMath::Clamp(-30, position, 30);
+#endif
   if (apply) {
     int a, b, c;
     CGraphics::GetScreenPosition(&a, &b, &c);
@@ -506,7 +513,7 @@ void CGameOptions::SetHudAlpha(int hudAlpha) {
 
 const float CGameOptions::GetHudAlpha() const { return mHudAlpha * 0.003921569f; }
 
-#if VERSION >= VERSION_GM8E_02
+#if VERSION >= VERSION_GM8P_00
 
 void CGameOptions::SetHelmetAlpha(const int alpha) { mHelmetAlpha = alpha; }
 

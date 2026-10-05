@@ -21,7 +21,11 @@ MetroidPrime/main.cpp:
 	.sdata2     start:0x805AADF0 end:0x805AAE10
 
 MetroidPrime/Cameras/CCameraManager.cpp:
-	.text       start:0x80009208 end:0x8000B864
+	.text       start:0x80009208 end:0x8000CA44
+	.rodata     start:0x803CD0E8 end:0x803CD0F0
+	.data       start:0x803D9F68 end:0x803D9F78
+	.sdata      start:0x805A7C50 end:0x805A7C70
+	.sdata2     start:0x805AAE48 end:0x805AAE88
 
 MetroidPrime/CControlMapper.cpp:
 	.text       start:0x8000CA44 end:0x8000E3A0
@@ -733,8 +737,11 @@ MetroidPrime/CRippleManager.cpp:
 	.sdata2     start:0x805AC520 end:0x805AC528
 
 MetroidPrime/Player/CGrappleArm.cpp:
-	.text       start:0x80120544 end:0x80120CFC
-	.sdata2     start:0x805AC588 end:0x805AC590
+	.text       start:0x8011DC70 end:0x80120CFC
+	.rodata     start:0x803D03E0 end:0x803D04F8
+	.data       start:0x803E1770 end:0x803E17C0
+	.sdata      start:0x805A86C0 end:0x805A86D8
+	.sdata2     start:0x805AC528 end:0x805AC590
 
 MetroidPrime/Enemies/CSpacePirate.cpp:
 	.text       start:0x80120CFC end:0x8012DAEC
@@ -1054,7 +1061,8 @@ MetroidPrime/Enemies/CDrone.cpp:
 	.text       start:0x8015F93C end:0x80168350
 
 MetroidPrime/CMapWorldInfo.cpp:
-	.text       start:0x80169728 end:0x80169BA0
+	.text       start:0x801683F8 end:0x8016A100
+	.rodata     start:0x803D14E8 end:0x803D14F0
 	.sdata      start:0x805A89D0 end:0x805A89D8
 
 MetroidPrime/Factories/CScannableObjectInfo.cpp:
@@ -1064,8 +1072,14 @@ MetroidPrime/Factories/CScannableObjectInfo.cpp:
 	.sdata2     start:0x805ACE48 end:0x805ACE50
 
 MetroidPrime/Enemies/CMetroid.cpp:
-	.text       start:0x8016A79C end:0x80172A90
+	.text       start:0x8016A79C end:0x80173280
+	.ctors      start:0x803CC318 end:0x803CC31C
+	.rodata     start:0x803D1598 end:0x803D16E0
+	.data       start:0x803E4B98 end:0x803E4E68
 	.bss        start:0x80572CE4 end:0x8057308C align:4 common
+	.sdata      start:0x805A89D8 end:0x805A8A68
+	.sbss       start:0x805AA088 end:0x805AA098
+	.sdata2     start:0x805ACE50 end:0x805ACEF0
 
 MetroidPrime/Player/CScanDisplay.cpp:
 	.text       start:0x80173280 end:0x801752F4
@@ -1298,6 +1312,9 @@ MetroidPrime/Weapons/CAuxWeapon.cpp:
 
 MetroidPrime/Weapons/CGunWeapon.cpp:
 	.text       start:0x801BA454 end:0x801BDC98
+	.rodata     start:0x803D2810 end:0x803D2AB0
+	.data       start:0x803E6370 end:0x803E63B8
+	.sdata2     start:0x805AD7A8 end:0x805AD7D8
 
 MetroidPrime/ScriptObjects/CScriptAreaAttributes.cpp:
 	.text       start:0x801BDC98 end:0x801BDEEC
@@ -1538,6 +1555,8 @@ MetroidPrime/CRagDoll.cpp:
 
 MetroidPrime/Player/CGameOptions.cpp:
 	.text       start:0x8020F210 end:0x802104D8
+	.sdata      start:0x805A9068 end:0x805A9100
+	.sdata2     start:0x805AE000 end:0x805AE028
 
 MetroidPrime/ScriptObjects/CRepulsor.cpp:
 	.text       start:0x802104D8 end:0x802106A4
@@ -1689,6 +1708,10 @@ MetroidPrime/ScriptObjects/CScriptMemoryRelay.cpp:
 
 MetroidPrime/CPauseScreenFrame.cpp:
 	.text       start:0x80242388 end:0x80245464
+	.rodata     start:0x803D5488 end:0x803D57F0
+	.data       start:0x803E97C8 end:0x803E9968
+	.sdata      start:0x805A9320 end:0x805A9330
+	.sdata2     start:0x805AE5F0 end:0x805AE620
 
 MetroidPrime/Enemies/CAtomicAlpha.cpp:
 	.text       start:0x802455C0 end:0x80246300
@@ -2416,9 +2439,13 @@ Kyoto/Audio/CSfxHandle.cpp:
 Kyoto/Audio/CSfxManager.cpp:
 	.text       start:0x802E82D8 end:0x802EBF4C
 	.ctors      start:0x803CC3C4 end:0x803CC3C8
+	.rodata     start:0x803D7E88 end:0x803D7E90
+	.data       start:0x803EDE28 end:0x803EDF60
+	.bss        start:0x8047AC20 end:0x8047AC50
 	.bss        start:0x805A0DC8 end:0x805A6448 align:4 common
 	.sdata      start:0x805A97F8 end:0x805A9810
-	.sdata2     start:0x805AF3E8 end:0x805AF410
+	.sbss       start:0x805AA360 end:0x805AA380
+	.sdata2     start:0x805AF3E0 end:0x805AF410
 
 Kyoto/Animation/CAdvancementDeltas.cpp:
 	.text       start:0x802EBF4C end:0x802EC10C
@@ -2536,6 +2563,9 @@ Kyoto/Animation/CSegStatementSet.cpp:
 
 Kyoto/Animation/CTimeScaleFunctions.cpp:
 	.text       start:0x802FE12C end:0x802FE6CC
+	.rodata     start:0x803D7F10 end:0x803D7F18
+	.data       start:0x803EE4E8 end:0x803EE520
+	.sdata2     start:0x805AF500 end:0x805AF518
 
 Kyoto/Animation/IAnimReader.cpp:
 	.text       start:0x802FE6CC end:0x802FE96C

@@ -1246,7 +1246,7 @@ void CGraphics::SetDepthRange(float near, float far) {
 }
 
 static inline GXTevStageID get_texture_unit(const ERglTevStage stage) {
-#if VERSION >= VERSION_GM8E_02
+#if VERSION >= VERSION_GM8P_00
   return static_cast< GXTevStageID >(stage);
 #else
   if (stage == kTS_Stage0) {

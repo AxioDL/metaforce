@@ -216,7 +216,7 @@ void CHudThreatInterface::Update(float dt) {
       status = fraction > gpTweakGui->GetThreatWarningFraction() ? kTS_Warning : kTS_Normal;
     }
     if (status != mThreatStatus) {
-#if VERSION < VERSION_GM8E_02
+#if VERSION < VERSION_GM8P_00
       const rstl::wstring text =
           status == kTS_Warning  ? rstl::wstring_l(gpStringTable->GetString(10))
           : status == kTS_Damage ? rstl::wstring_l(gpStringTable->GetString(11))

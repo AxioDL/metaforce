@@ -111,15 +111,26 @@ void CQuitGameScreen::FinishedLoading() {
           *this, &CQuitGameScreen::DoSelectionChange));
 #if VERSION >= VERSION_GM8P_00
   mTextpane_title = static_cast< CGuiTextPane* >(mLoadedFrame->FindWidget("textpane_title"));
-  mTextpane_title->TextSupport().SetText(
-      rstl::wstring_l(gpStringTable->GetString(skQuitTitles[mType])));
+  int titleStr = skQuitTitles[mType];
+#if VERSION == VERSION_GM8E_02 || VERSION == VERSION_GM8J_00
+  if (mType == 1 && gpGameState->GetCardSerial() == 0) {
+    titleStr = 28;
+  }
+#endif
+  mTextpane_title->TextSupport().SetText(rstl::wstring_l(gpStringTable->GetString(titleStr)));
   mTextpane_yes = static_cast< CGuiTextPane* >(mLoadedFrame->FindWidget("textpane_yes"));
   mTextpane_yes->TextSupport().SetText(rstl::wstring_l(gpStringTable->GetString(22)));
   mTextpane_no = static_cast< CGuiTextPane* >(mLoadedFrame->FindWidget("textpane_no"));
   mTextpane_no->TextSupport().SetText(rstl::wstring_l(gpStringTable->GetString(23)));
 #else
   CGuiTextPane* title = static_cast< CGuiTextPane* >(mLoadedFrame->FindWidget("textpane_title"));
-  title->TextSupport().SetText(rstl::wstring_l(gpStringTable->GetString(skQuitTitles[mType])));
+  int titleStr = skQuitTitles[mType];
+#if VERSION == VERSION_GM8E_02 || VERSION == VERSION_GM8J_00
+  if (mType == 1 && gpGameState->GetCardSerial() == 0) {
+    titleStr = 28;
+  }
+#endif
+  title->TextSupport().SetText(rstl::wstring_l(gpStringTable->GetString(titleStr)));
   CGuiTextPane* yes = static_cast< CGuiTextPane* >(mLoadedFrame->FindWidget("textpane_yes"));
   yes->TextSupport().SetText(rstl::wstring_l(gpStringTable->GetString(22)));
   CGuiTextPane* no = static_cast< CGuiTextPane* >(mLoadedFrame->FindWidget("textpane_no"));
@@ -168,7 +179,11 @@ static const SGameOption skVisorOptions[] = {
 static const SGameOption skDisplayOptions[] = {
     {kGO_ScreenBrightness, 25, 0.f, 8.f, 1.f, kOT_Float},
     {kGO_ScreenOffsetX, 26, -30.f, 30.f, 1.f, kOT_Float},
+#if VERSION == VERSION_GM8E_02 || VERSION == VERSION_GM8J_00
+    {kGO_ScreenOffsetY, 27, -19.f, 19.f, 1.f, kOT_Float},
+#else
     {kGO_ScreenOffsetY, 27, -30.f, 30.f, 1.f, kOT_Float},
+#endif
     {kGO_ScreenStretch, 28, -10.f, 10.f, 1.f, kOT_Float},
     {kGO_RestoreDefaults, 35, 0.f, 1.f, 1.f, kOT_RestoreDefaults},
 };
@@ -295,7 +310,7 @@ void CGameOptions::TryRestoreDefaults(const CFinalInput& input, int category, in
     CGameOptions& options = gpGameState->GameOptions();
     switch (category) {
     case 0:
-#if VERSION >= VERSION_GM8E_02
+#if VERSION >= VERSION_GM8P_00
       options.SetHudAlpha(255);
 #else
       options.mHudAlpha = 255;
@@ -303,7 +318,7 @@ void CGameOptions::TryRestoreDefaults(const CFinalInput& input, int category, in
       options.SetHelmetAlpha(255);
       options.SetHUDLag(skDefaultHudLag);
       options.SetIsHintSystemEnabled(skDefaultHintSystem);
-#if VERSION >= VERSION_GM8E_02
+#if VERSION >= VERSION_GM8P_00
       options.fn_80200564(skDefaultPalFlag);
 #endif
       break;

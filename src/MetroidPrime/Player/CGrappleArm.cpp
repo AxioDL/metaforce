@@ -398,6 +398,13 @@ void CGrappleArm::Activate(bool active) {
 }
 
 void CGrappleArm::SetAnimState(EArmState state) {
+#if VERSION == VERSION_GM8E_02 || VERSION == VERSION_GM8J_00
+  if (!mGrappleArmModel) {
+    mAnimState = kAS_Done;
+    mIsGrappling = false;
+    return;
+  }
+#endif
   if (mAnimState == state) {
     return;
   }

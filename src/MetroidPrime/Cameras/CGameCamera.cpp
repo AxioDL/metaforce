@@ -576,7 +576,11 @@ void CGameCamera::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStat
     mgr.CameraManager()->SetInsideFluid(true, uid);
     return;
   case kSM_RemoveSplashInhabitant:
+#if VERSION == VERSION_GM8E_02 || VERSION == VERSION_GM8J_00
+    mgr.CameraManager()->SetInsideFluid(false, uid);
+#else
     mgr.CameraManager()->SetInsideFluid(false, kInvalidUniqueId);
+#endif
     return;
   default:
     CActor::AcceptScriptMsg(msg, uid, mgr);

@@ -31,7 +31,7 @@ CHECK_SIZEOF(CIntegerTimeAndRemainder, 0xc)
 
 class CTimeRemainderAndFraction : public CIntegerTimeAndRemainder {
 public:
-#if VERSION >= VERSION_GM8E_02
+#if VERSION >= VERSION_GM8P_00
   CTimeRemainderAndFraction(const CCharAnimTime& time, const CCharAnimTime& interval);
 #else
   CTimeRemainderAndFraction(const CCharAnimTime& time, const CCharAnimTime& interval)

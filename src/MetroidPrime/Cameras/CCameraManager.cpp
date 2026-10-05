@@ -19,7 +19,7 @@
 #include "MetroidPrime/Tweaks/CTweakGame.hpp"
 #include "MetroidPrime/Tweaks/CTweakPlayer.hpp"
 #include "MetroidPrime/Weapons/CWeapon.hpp"
-#if VERSION >= VERSION_GM8E_02
+#if VERSION >= VERSION_GM8P_00
 #include "MetroidPrime/Enemies/CEnergyBall.hpp"
 #endif
 
@@ -70,7 +70,7 @@ CCameraManager::CCameraManager(TUniqueId curCamera)
                            CVector3f(1.f, 0.f, 0.f), CVector3f(0.f, 0.f, 1.f), 50.f, 50.f, 1000.f,
                            1, CAudioSys::kMaxVolume);
   sAspectRatio =
-#if VERSION >= VERSION_GM8E_02
+#if VERSION >= VERSION_GM8P_00
       CGraphics::GetPixelAspectRatio() *
 #endif
       (static_cast< float >(CGraphics::GetViewport().mWidth) / CGraphics::GetViewport().mHeight);
@@ -294,12 +294,45 @@ void CCameraManager::Update(float dt, CStateManager& mgr) {
 }
 
 void CCameraManager::SetInsideFluid(bool isInside, TUniqueId fluidId) {
+#if VERSION == VERSION_GM8E_02 || VERSION == VERSION_GM8J_00
+  if (isInside) {
+    bool found = false;
+    for (int i = 0; i < 4; ++i) {
+      if (x7c_[i] == fluidId) {
+        found = true;
+        break;
+      }
+    }
+    if (!found) {
+      for (int i = 3; i > 0; --i) {
+        x7c_[i] = x7c_[i - 1];
+      }
+      x7c_[0] = fluidId;
+      if (mFluidCounter < 4) {
+        ++mFluidCounter;
+      }
+    }
+  } else {
+    for (int i = 0; i < 4; ++i) {
+      if (x7c_[i] == fluidId) {
+        --mFluidCounter;
+        for (int j = i + 1; j < 4; ++j) {
+          x7c_[j - 1] = x7c_[j];
+        }
+        x7c_[3] = kInvalidUniqueId;
+        break;
+      }
+    }
+  }
+  mFluidId = x7c_[0];
+#else
   if (isInside) {
     ++mFluidCounter;
     mFluidId = fluidId;
   } else {
     --mFluidCounter;
   }
+#endif
 }
 
 void CCameraManager::ProcessInput(const CFinalInput& input, CStateManager& mgr) {
@@ -365,7 +398,7 @@ void CCameraManager::EnterCinematic(CStateManager& mgr) {
           mgr.DeleteObjectRequest(weapon->GetUniqueId());
         }
       }
-#if VERSION >= VERSION_GM8E_02
+#if VERSION >= VERSION_GM8P_00
       else if (CEnergyBall* ball = TCastToPtr< CEnergyBall >(objList[idx])) {
         if (ball->GetActive()) {
           mgr.DeleteObjectRequest(ball->GetUniqueId());
