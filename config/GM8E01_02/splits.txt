@@ -256,6 +256,9 @@ MetroidPrime/CAnimationDatabaseGame.cpp:
 
 MetroidPrime/CTransitionDatabaseGame.cpp:
 	.text       start:0x8006E6C0 end:0x8006FED8
+	.rodata     start:0x803CE348 end:0x803CE350
+	.data       start:0x803DB400 end:0x803DB410
+	.sbss       start:0x805A9E90 end:0x805A9EA0
 
 MetroidPrime/Tweaks/CTweakPlayerControl.cpp:
 	.text       start:0x8006FED8 end:0x800701A8
@@ -601,8 +604,12 @@ MetroidPrime/Cameras/CCameraFilter.cpp:
 MetroidPrime/Player/CMorphBall.cpp:
 	.text       start:0x800EDD70 end:0x800FABA8
 	.ctors      start:0x803CC2DC end:0x803CC2E0
+	.rodata     start:0x803CF9D0 end:0x803CFEB8
+	.bss        start:0x8046D570 end:0x8046D598
 	.bss        start:0x8056E574 end:0x8056E5F8 align:4 common
-	.sdata2     start:0x805AC110 end:0x805AC118
+	.sdata      start:0x805A8468 end:0x805A8530
+	.sbss       start:0x805A9F88 end:0x805A9FA0
+	.sdata2     start:0x805ABF30 end:0x805AC118
 
 MetroidPrime/ScriptObjects/CScriptDamageableTrigger.cpp:
 	.text       start:0x800FABE0 end:0x800FBE58
@@ -2323,6 +2330,8 @@ Kyoto/Animation/CAnimCharacterSet.cpp:
 
 Kyoto/Animation/CAnimTreeLoopIn.cpp:
 	.text       start:0x802D914C end:0x802DB584
+	.rodata     start:0x803D7DF8 end:0x803D7E00
+	.data       start:0x803EDBF8 end:0x803EDC70
 	.sdata2     start:0x805AF380 end:0x805AF388
 
 Kyoto/Animation/CAnimTreeSequence.cpp:
@@ -2416,7 +2425,9 @@ Kyoto/Animation/CPrimitive.cpp:
 
 Kyoto/Animation/CSequenceHelper.cpp:
 	.text       start:0x802E63D8 end:0x802E7874
+	.rodata     start:0x803D7E78 end:0x803D7E88
 	.sdata      start:0x805A97E0 end:0x805A97F0
+	.sdata2     start:0x805AF3D0 end:0x805AF3E0
 
 Kyoto/Animation/CTransition.cpp:
 	.text       start:0x802E7874 end:0x802E78FC
@@ -2895,7 +2906,9 @@ Kyoto/Math/CSphere.cpp:
 Kyoto/Math/CAABox.cpp:
 	.text       start:0x80337C2C end:0x8033901C
 	.ctors      start:0x803CC3FC end:0x803CC400
+	.data       start:0x803EF330 end:0x803EF380
 	.bss        start:0x805A77D4 end:0x805A781C align:4 common
+	.sdata2     start:0x805AF970 end:0x805AF988
 	.sbss2      start:0x805B0588 end:0x805B0590
 
 Kyoto/CFactoryMgr.cpp:
