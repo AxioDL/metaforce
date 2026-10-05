@@ -5,8 +5,8 @@
 
 CAnimTreeTransition::CAnimTreeTransition(const bool b1, const rstl::ncrc_ptr< CAnimTreeNode >& a,
                                          const rstl::ncrc_ptr< CAnimTreeNode >& b,
-                                         const CCharAnimTime& transDur, const bool runA, const int flags,
-                                         const rstl::string& name)
+                                         const CCharAnimTime& transDur, const bool runA,
+                                         const int flags, const rstl::string& name)
 : CAnimTreeTweenBase(b1, a, b, flags, name)
 , mTransDur(transDur)
 , mTimeInTrans(0.f)
@@ -19,8 +19,9 @@ CAnimTreeTransition::CAnimTreeTransition(const bool b1, const rstl::ncrc_ptr< CA
 CAnimTreeTransition::CAnimTreeTransition(const bool b1, const rstl::ncrc_ptr< CAnimTreeNode >& a,
                                          const rstl::ncrc_ptr< CAnimTreeNode >& b,
                                          const CCharAnimTime& transDur,
-                                         const CCharAnimTime& timeInTrans, bool runA, bool loopA,
-                                         int flags, const rstl::string& name, bool initialized)
+                                         const CCharAnimTime& timeInTrans, const bool runA,
+                                         const bool loopA, const int flags,
+                                         const rstl::string& name, const bool initialized)
 : CAnimTreeTweenBase(b1, a, b, flags, name)
 , mTransDur(transDur)
 , mTimeInTrans(timeInTrans)
@@ -52,6 +53,7 @@ CAnimTreeTransition::VReverseSimplified() {
   return CAnimTreeTweenBase::VReverseSimplified();
 }
 
+#pragma sym on
 rstl::pair< CCharAnimTime, CAdvancementDeltas >
 CAnimTreeTransition::AdvanceViewForTransitionalPeriod(const CCharAnimTime& time) {
   IncAdvancementDepth();
@@ -111,9 +113,9 @@ CAdvancementResults CAnimTreeTransition::VAdvanceView(const CCharAnimTime& time)
 }
 
 rstl::ownership_transfer< IAnimReader > CAnimTreeTransition::VClone() const {
-  return rs_new CAnimTreeTransition(CharacterSpaceBlend(), Cast(mA->Clone()),
-                                    Cast(mB->Clone()), mTransDur, mTimeInTrans, mRunA,
-                                    mLoopA, GetBlendRoot(), mName, mInitialized);
+  return rs_new CAnimTreeTransition(CharacterSpaceBlend(), Cast(mA->Clone()), Cast(mB->Clone()),
+                                    mTransDur, mTimeInTrans, mRunA, mLoopA, GetBlendRoot(), mName,
+                                    mInitialized);
 }
 
 float CAnimTreeTransition::VGetBlendingWeight() const {
@@ -150,7 +152,3 @@ rstl::rc_ptr< CAnimTreeNode > CAnimTreeTransition::VGetBestUnblendedChild() cons
     return right;
   return child;
 }
-
-const int CAnimTreeTweenBase::kBlendRoot_Offset = 1;
-
-const int CAnimTreeTweenBase::kBlendRoot_Rotation = 2;

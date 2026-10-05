@@ -2518,14 +2518,14 @@ Kyoto/Animation/CAnimTreeTimeScale.cpp:
 Kyoto/Animation/CAnimTreeTransition.cpp:
 	.text       start:0x802F63F8 end:0x802F7424
 	.sdata      start:0x805A9858 end:0x805A9860
-	.sdata2     start:0x805AF490 end:0x805AF4A8
+	.sdata2     start:0x805AF490 end:0x805AF4A0
 
 Kyoto/Animation/CAnimTreeTweenBase.cpp:
 	.text       start:0x802F7424 end:0x802F8504
 	.rodata     start:0x803D7EE0 end:0x803D7EE8
 	.data       start:0x803EE3B8 end:0x803EE438
 	.sbss       start:0x805AA3A0 end:0x805AA3B8
-	.sdata2     start:0x805AF4A8 end:0x805AF4C0
+	.sdata2     start:0x805AF4A0 end:0x805AF4C0
 
 Kyoto/Animation/CBoolPOINode.cpp:
 	.text       start:0x802F8504 end:0x802F85F8

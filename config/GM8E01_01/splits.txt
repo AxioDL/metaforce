@@ -2903,14 +2903,14 @@ Kyoto/Animation/CAnimTreeTransition.cpp:
 	.rodata     start:0x803D6FF0 end:0x803D7000
 	.data       start:0x803ED500 end:0x803ED580
 	.sdata      start:0x805A89A8 end:0x805A89B0
-	.sdata2     start:0x805AE5A8 end:0x805AE5C0
+	.sdata2     start:0x805AE5A8 end:0x805AE5B8
 
 Kyoto/Animation/CAnimTreeTweenBase.cpp:
 	.text       start:0x802F6AB4 end:0x802F7B94
 	.rodata     start:0x803D7000 end:0x803D7008
 	.data       start:0x803ED580 end:0x803ED600
 	.sbss       start:0x805A94E0 end:0x805A94F8
-	.sdata2     start:0x805AE5C0 end:0x805AE5D8
+	.sdata2     start:0x805AE5B8 end:0x805AE5D8
 
 Kyoto/Animation/CBoolPOINode.cpp:
 	.text       start:0x802F7B94 end:0x802F7C88
