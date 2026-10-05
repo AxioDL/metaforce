@@ -726,6 +726,7 @@ set(GAME_FILES
       src/Metaforce/CImGuiIOWin.cpp
       src/Metaforce/CModelSectionReader.cpp
       src/Metaforce/Display.cpp
+      src/Metaforce/Input.cpp
       src/Metaforce/MapData.cpp
       src/Metaforce/PathData.cpp
       src/Metaforce/ResourceNameDatabase.cpp
@@ -733,6 +734,9 @@ set(GAME_FILES
       src/Metaforce/ScriptObjectDebug.cpp
       src/Metaforce/Settings.cpp
       src/Metaforce/Stubs.cpp
+      src/Metaforce/UI/BindingModal.cpp
+      src/Metaforce/UI/ControllerConfigWindow.cpp
+      src/Metaforce/UI/DeviceDropdown.cpp
       src/Metaforce/UI/MenuBar.cpp
       src/Metaforce/UI/SettingsWindow.cpp
       src/Metaforce/UI/UI.cpp

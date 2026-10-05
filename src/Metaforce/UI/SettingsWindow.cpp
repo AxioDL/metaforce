@@ -1,6 +1,8 @@
 #include "Metaforce/UI/SettingsWindow.hpp"
 
 #include "Metaforce/Settings.hpp"
+#include "Metaforce/UI/ControllerConfigWindow.hpp"
+#include "Metaforce/UI/DeviceDropdown.hpp"
 
 #include <borealis/ui/bool_button.hpp>
 #include <borealis/ui/config.hpp>
@@ -17,8 +19,10 @@
 
 #include <dolphin/vi.h>
 
-#include <algorithm>
 #include <array>
+#include <memory>
+#include <utility>
+#include <vector>
 
 namespace metaforce::ui {
 using namespace borealis::ui;
@@ -84,6 +88,18 @@ void config_choice_select(Pane& leftPane, Pane& rightPane, Var< int >& var, Rml:
         }
         pane.add_rml(helpText);
       });
+}
+
+void add_input_tab(Window& window, Pane& left, Pane& right) {
+  left.register_control(left.add_child< DeviceDropdown >(), right, [](Pane& pane) {
+    pane.add_text("Change the input device used for gameplay.");
+  });
+
+  left.register_control(left.add_button({.text = "Configure Controls"}).on_pressed([&window] {
+    window.push(std::make_unique< ControllerConfigWindow >());
+  }), right, [](Pane& pane) {
+    pane.add_text("Customize bindings, deadzones and trigger thresholds.");
+  });
 }
 
 void add_demo_tab(Window& window, Pane& leftPane, Pane& rightPane) {
@@ -295,6 +311,12 @@ SettingsWindow::SettingsWindow() {
     add_setting< BoolButton >(leftPane, rightPane,
                               bind(video.lockAspectRatio, {.key = "Lock 4:3 Aspect Ratio"}),
                               "Lock the game's aspect ratio to the original.");
+  });
+
+  add_tab("Input", [this](Rml::Element* content) {
+    auto& leftPane = add_child< Pane >(content, Pane::Type::Controlled);
+    auto& rightPane = add_child< Pane >(content, Pane::Type::Uncontrolled);
+    add_input_tab(*this, leftPane, rightPane);
   });
 
   add_tab("Interface", [this](Rml::Element* content) {
