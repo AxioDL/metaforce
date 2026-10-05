@@ -720,19 +720,19 @@ set(GAME_FILES
       extern/rstl/src/rstl/rstl_allocator.cpp
       extern/rstl/src/rstl/RstlExtras.cpp
       extern/rstl/src/rstl/rstl_strings.cpp
-      src/Metaforce/ARAMToken.cpp
       src/Metaforce/Alloc.cpp
+      src/Metaforce/ARAMToken.cpp
       src/Metaforce/Audio.cpp
-      src/Metaforce/Display.cpp
+      src/Metaforce/CImGuiIOWin.cpp
       src/Metaforce/CModelSectionReader.cpp
+      src/Metaforce/Display.cpp
       src/Metaforce/MapData.cpp
       src/Metaforce/PathData.cpp
-      src/Metaforce/Runtime.cpp
-      src/Metaforce/Stubs.cpp
-      src/Metaforce/CImGuiIOWin.cpp
       src/Metaforce/ResourceNameDatabase.cpp
+      src/Metaforce/Runtime.cpp
       src/Metaforce/ScriptObjectDebug.cpp
       src/Metaforce/Settings.cpp
+      src/Metaforce/Stubs.cpp
       src/Metaforce/UI/MenuBar.cpp
       src/Metaforce/UI/SettingsWindow.cpp
       src/Metaforce/UI/UI.cpp
