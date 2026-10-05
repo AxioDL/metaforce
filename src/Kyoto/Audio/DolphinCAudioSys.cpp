@@ -686,6 +686,10 @@ void CAudioSys::SetStereoMode(const bool mode) {
   }
 }
 
+#if VERSION == VERSION_GM8E_02 || VERSION == VERSION_GM8J_00
+CAudioSys::ESurroundModes CAudioSys::GetSurroundMode() { return mSurroundMode; }
+
+#endif
 void CAudioSys::SetSurroundMode(const ESurroundModes mode) {
   switch (mode) {
   case kSM_Mono:

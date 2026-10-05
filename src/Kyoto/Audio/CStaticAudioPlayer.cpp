@@ -141,6 +141,24 @@ void CStaticAudioPlayer::DoMix() {
   OSRestoreInterrupts(cookie);
 }
 
+#if VERSION == VERSION_GM8E_02 || VERSION == VERSION_GM8J_00
+void MixStereoToMono(short* buf, int numSamples) {
+  for (int i = 0; i < numSamples * 2; i += 2) {
+    int avg = (buf[i] + buf[i + 1]) / 2;
+    short sample;
+    if (avg < -0x8000) {
+      sample = -0x8000;
+    } else if (avg > 0x7fff) {
+      sample = 0x7fff;
+    } else {
+      sample = avg;
+    }
+    buf[i] = sample;
+    buf[i + 1] = sample;
+  }
+}
+
+#endif
 void CStaticAudioPlayer::Decode(const ushort* bufIn, ushort* bufOut, int numSamples) {
   int curSamp = mCurSamp / 2;
   int loopEndSamp = mLoopEndSamp / 2;
@@ -151,6 +169,11 @@ void CStaticAudioPlayer::Decode(const ushort* bufIn, ushort* bufOut, int numSamp
   int halfLen = mRsfLength / 2;
   DecodeMonoAndMix(const_cast< ushort* >(bufIn + 1), bufOut + 1, numSamples, curSamp + halfLen,
                    loopEndSamp + halfLen, loopStartSamp + halfLen, mVolume, mRightState);
+#if VERSION == VERSION_GM8E_02 || VERSION == VERSION_GM8J_00
+  if (CAudioSys::GetSurroundMode() == CAudioSys::kSM_Mono) {
+    MixStereoToMono(reinterpret_cast< short* >(bufOut), numSamples);
+  }
+#endif
 
   int remSamples = numSamples;
   while (remSamples != 0) {

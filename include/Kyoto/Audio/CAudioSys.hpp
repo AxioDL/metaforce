@@ -124,7 +124,11 @@ public:
 
   static void SetStereoMode(const bool mode);
   static void SetSurroundMode(const ESurroundModes mode);
+#if VERSION == VERSION_GM8E_02 || VERSION == VERSION_GM8J_00
+  static ESurroundModes GetSurroundMode();
+#else
   static ESurroundModes GetSurroundMode() { return mSurroundMode; }
+#endif
   static void TrkSetSampleRate(ETRKSampleRate);
 
   static short GetDefaultVolumeScale();
