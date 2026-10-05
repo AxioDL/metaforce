@@ -68,7 +68,11 @@ MetroidPrime/CArchMsgParmUserInput.cpp:
 MetroidPrime/CFrontEndUI.cpp:
 	.text       start:0x8001BDCC end:0x800232C4
 	.ctors      start:0x803CC294 end:0x803CC298
-	.sdata2     start:0x805AB098 end:0x805AB0E0
+	.rodata     start:0x803CD600 end:0x803CDB60
+	.data       start:0x803DA8E0 end:0x803DA9E8
+	.sdata      start:0x805A7D58 end:0x805A7DA0
+	.sbss       start:0x805A9D50 end:0x805A9D58
+	.sdata2     start:0x805AB068 end:0x805AB0E0
 
 MetroidPrime/CInputGenerator.cpp:
 	.text       start:0x800232C4 end:0x80023810
@@ -1792,7 +1796,10 @@ MetroidPrime/Enemies/CSeedling.cpp:
 	.sdata2     start:0x805AE8B0 end:0x805AE8C0
 
 MetroidPrime/CGameHintInfo.cpp:
-	.text       start:0x80267EF8 end:0x802683D0
+	.text       start:0x80267A1C end:0x80268EAC
+	.rodata     start:0x803D6480 end:0x803D6488
+	.data       start:0x803EB1A0 end:0x803EB1B0
+	.sdata      start:0x805A9490 end:0x805A9498
 	.sdata2     start:0x805AE8C0 end:0x805AE8E0
 
 MetroidPrime/Enemies/CWallWalker.cpp:

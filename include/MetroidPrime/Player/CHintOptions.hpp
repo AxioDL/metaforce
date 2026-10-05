@@ -31,7 +31,7 @@ public:
   void InitializeMemoryState();
 
   void SetHintNextTime();
-#if VERSION >= VERSION_GM8P_00
+#if VERSION >= VERSION_GM8E_02
   void EnsureHintNextTime();
 #endif
   void Update(float dt, const CStateManager& mgr);
