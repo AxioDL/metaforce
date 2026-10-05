@@ -5,7 +5,7 @@
 
 CAnimTreeTransition::CAnimTreeTransition(const bool b1, const rstl::ncrc_ptr< CAnimTreeNode >& a,
                                          const rstl::ncrc_ptr< CAnimTreeNode >& b,
-                                         const CCharAnimTime& transDur, bool runA, int flags,
+                                         const CCharAnimTime& transDur, const bool runA, const int flags,
                                          const rstl::string& name)
 : CAnimTreeTweenBase(b1, a, b, flags, name)
 , mTransDur(transDur)
