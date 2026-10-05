@@ -2865,7 +2865,8 @@ Kyoto/CResFactory.cpp:
 
 Kyoto/CResLoader.cpp:
 	.text       start:0x80323560 end:0x80324D94
-	.sbss2      start:0x80471740 end:0x8047174C
+	.rodata     start:0x803C2EB0 end:0x803C2EC0
+	.sbss2      start:0x80471740 end:0x80471758
 
 rstl/rstl_map.cpp:
 	.text       start:0x80324D94 end:0x80325480

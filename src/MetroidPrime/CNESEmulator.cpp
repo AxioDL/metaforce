@@ -321,8 +321,15 @@ void CNESEmulator::Draw(const CColor& color, bool enableFiltering) {
   }
 
   GXSetCullMode(GX_CULL_BACK);
+#if VERSION >= VERSION_GM8E_02
+  int vpLeft, vpTop, vpWidth, vpHeight;
+  CGraphics::GetViewport(vpLeft, vpTop, vpWidth, vpHeight);
+#endif
   GXSetViewport(0.f, 0.f, 640.f, 480.f, 0.1f, 100.f);
   sNesModule->draw(mWork, mState);
+#if VERSION >= VERSION_GM8E_02
+  CGraphics::SetViewport(vpLeft, vpTop, vpWidth, vpHeight);
+#endif
   sNesModule->drawInit(mWork);
   GXSetClipMode(GX_CLIP_ENABLE);
   GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);

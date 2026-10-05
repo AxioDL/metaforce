@@ -1215,6 +1215,9 @@ MetroidPrime/HUD/CHudRadarInterface.cpp:
 
 MetroidPrime/HUD/CHudThreatInterface.cpp:
 	.text       start:0x801932BC end:0x80193F9C
+	.rodata     start:0x803D1E20 end:0x803D1EF8
+	.data       start:0x803E5568 end:0x803E5588
+	.sdata      start:0x805A8BB8 end:0x805A8BE0
 	.sdata2     start:0x805AD390 end:0x805AD3E0
 
 MetroidPrime/HUD/CHudVisorBeamMenu.cpp:
@@ -1528,6 +1531,9 @@ MetroidPrime/Enemies/CThardusRockProjectile.cpp:
 
 MetroidPrime/CInventoryScreen.cpp:
 	.text       start:0x80206584 end:0x80207E74
+	.rodata     start:0x803D3690 end:0x803D37E0
+	.data       start:0x803E7F70 end:0x803E8098
+	.sdata      start:0x805A8FC8 end:0x805A8FD8
 	.sdata2     start:0x805ADEA0 end:0x805ADEC8
 
 MetroidPrime/CVisorFlare.cpp:
@@ -1806,8 +1812,13 @@ MetroidPrime/CPauseScreenBlur.cpp:
 MetroidPrime/Enemies/CTryclops.cpp:
 	.text       start:0x8025E48C end:0x80261958
 	.ctors      start:0x803CC374 end:0x803CC378
+	.rodata     start:0x803D6318 end:0x803D6338
+	.data       start:0x803EAAD0 end:0x803EADD0
+	.bss        start:0x8046ED08 end:0x8046ED20
 	.bss        start:0x80573694 end:0x80573714 align:4 common
-	.sdata      start:0x805A9438 end:0x805A9458
+	.sdata      start:0x805A9430 end:0x805A9458
+	.sbss       start:0x805AA1C0 end:0x805AA1C8
+	.sdata2     start:0x805AE808 end:0x805AE850
 
 MetroidPrime/Weapons/CNewFlameThrower.cpp:
 	.text       start:0x80261958 end:0x80265894
@@ -1875,7 +1886,10 @@ MetroidPrime/ScriptObjects/CScriptBeam.cpp:
 MetroidPrime/Enemies/CMetroidPrimeStage2.cpp:
 	.text       start:0x8027D468 end:0x80280DD4
 	.ctors      start:0x803CC384 end:0x803CC388
-	.sdata2     start:0x805AEB08 end:0x805AEB60
+	.rodata     start:0x803D6940 end:0x803D6998
+	.data       start:0x803EC208 end:0x803EC650
+	.sdata      start:0x805A9530 end:0x805A9578
+	.sdata2     start:0x805AEAE8 end:0x805AEB60
 
 MetroidPrime/Enemies/CMetroidPrimeRelay.cpp:
 	.text       start:0x80280DD4 end:0x802826DC
@@ -1907,6 +1921,10 @@ MetroidPrime/Enemies/CScriptPhazonPool.cpp:
 
 MetroidPrime/CNESEmulator.cpp:
 	.text       start:0x802944E4 end:0x80295760
+	.rodata     start:0x803D6C40 end:0x803D6C70
+	.data       start:0x803ECC68 end:0x803ECC88
+	.sbss       start:0x805AA200 end:0x805AA208
+	.sdata2     start:0x805AED28 end:0x805AED78
 
 MetroidPrime/Enemies/CPhazonHealingNodule.cpp:
 	.text       start:0x80295760 end:0x80296550
@@ -2007,6 +2025,9 @@ WorldFormat/CAreaBspTree.cpp:
 
 WorldFormat/CAreaOctTree.cpp:
 	.text       start:0x802A338C end:0x802A3AB8
+	.rodata     start:0x803D70E0 end:0x803D70E8
+	.data       start:0x803ED420 end:0x803ED440
+	.sdata2     start:0x805AEF28 end:0x805AEF30
 
 WorldFormat/CMetroidAreaCollider.cpp:
 	.text       start:0x802A3AB8 end:0x802A8018
@@ -2919,6 +2940,8 @@ Kyoto/CResFactory.cpp:
 
 Kyoto/CResLoader.cpp:
 	.text       start:0x8033B700 end:0x8033D078
+	.rodata     start:0x803D8AF8 end:0x803D8B08
+	.sbss2      start:0x805B0590 end:0x805B05A8
 
 rstl/rstl_map.cpp:
 	.text       start:0x8033D078 end:0x8033D764
@@ -3121,6 +3144,7 @@ Kyoto/Animation/DolphinCSkinRules.cpp:
 
 Kyoto/Animation/DolphinCVirtualBone.cpp:
 	.text       start:0x80355298 end:0x80355D70
+	.sdata2     start:0x805AFA88 end:0x805AFA90
 
 Kyoto/Graphics/DolphinCModel.cpp:
 	.text       start:0x80355D70 end:0x80357150

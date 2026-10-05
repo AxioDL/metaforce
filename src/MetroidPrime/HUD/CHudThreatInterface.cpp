@@ -56,13 +56,13 @@ rstl::pair< CVector3f, CVector3f > CHudThreatInterface::XRayThreatBarCoordFunc(f
 
 CHudThreatInterface::CHudThreatInterface(
   CGuiFrame& hud,
-#if VERSION >= VERSION_GM8E_02
+#if VERSION >= VERSION_GM8P_00
   StringTableHolder* stringTable,
 #endif
   EHudType type,
   float distance
 )
-#if VERSION >= VERSION_GM8E_02
+#if VERSION >= VERSION_GM8P_00
 : mStringTable(stringTable),
 #else
 :
@@ -116,7 +116,7 @@ CHudThreatInterface::CHudThreatInterface(
   }
 }
 
-#if VERSION >= VERSION_GM8E_02
+#if VERSION >= VERSION_GM8P_00
 CHudThreatInterface::~CHudThreatInterface() {}
 #endif
 
@@ -264,7 +264,7 @@ void CHudThreatInterface::Update(float dt) {
 }
 
 
-#if VERSION >= VERSION_GM8E_02
+#if VERSION >= VERSION_GM8P_00
 
 void CHudThreatInterface::ReinitializeStrings() {
   mTextpane_threatwarning->TextSupport().SetText(BuildWarningString(mThreatStatus));

@@ -206,7 +206,7 @@ void CSamusHud::InitializeFrameGlueMutable(const CStateManager& mgr) {
     if (mThreatIntf.null()) {
       mThreatIntf = rs_new CHudThreatInterface(
         *mLoadedSelectedHud,
-#if VERSION >= VERSION_GM8E_02
+#if VERSION >= VERSION_GM8P_00
         nullptr, // TODO
 #endif
         kHT_Combat,
@@ -288,7 +288,7 @@ void CSamusHud::InitializeFrameGlueMutable(const CStateManager& mgr) {
                                    tanksFilled, mEnergyLow, kHT_XRay);
     mThreatIntf = rs_new CHudThreatInterface(
       *mLoadedSelectedHud,
-#if VERSION >= VERSION_GM8E_02
+#if VERSION >= VERSION_GM8P_00
       nullptr, // TODO
 #endif
       kHT_XRay,
@@ -313,7 +313,7 @@ void CSamusHud::InitializeFrameGlueMutable(const CStateManager& mgr) {
                                    tanksFilled, mEnergyLow, kHT_Thermal);
     mThreatIntf = rs_new CHudThreatInterface(
       *mLoadedSelectedHud,
-#if VERSION >= VERSION_GM8E_02
+#if VERSION >= VERSION_GM8P_00
       nullptr, // TODO
 #endif
       kHT_Thermal,
