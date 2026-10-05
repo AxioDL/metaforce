@@ -781,7 +781,7 @@ config.libs = [
                 "MetroidPrime/CMemoryDrawEnum.cpp",
             ),
             Object(NonMatching, "MetroidPrime/ScriptObjects/CScriptDock.cpp"),
-            Object(EquivalentFor("GM8E01_00") or MatchingFor("GM8E01_02"),
+            Object(MatchingFor("GM8E01_00", "GM8E01_02"),
                    "MetroidPrime/ScriptObjects/CScriptCameraHint.cpp"),
             Object(NonMatching, "MetroidPrime/ScriptLoader.cpp"),
             Object(NonMatching, "MetroidPrime/CSamusDoll.cpp"),
