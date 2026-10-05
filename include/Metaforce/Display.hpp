@@ -17,8 +17,8 @@ constexpr float DisplayAspectScale(uint width, uint height, uint logicalWidth, u
   return scale > 1.f ? scale : 1.f;
 }
 
-void ConfigureDisplay(SDL_Window* window, bool originalAspect);
-void SetDisplayAspectLocked(bool originalAspect);
+void ConfigureDisplay(SDL_Window* window);
+void ShutdownDisplay();
 void UpdateDisplayPolicy();
 void UpdateDisplayAspect();
 float GetDisplayAspectScale();

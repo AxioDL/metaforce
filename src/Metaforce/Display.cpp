@@ -1,9 +1,11 @@
 #include "Metaforce/Display.hpp"
 
 #include "Kyoto/Graphics/CGraphics.hpp"
+#include "Metaforce/Settings.hpp"
 
 #include <SDL3/SDL_video.h>
 #include <dolphin/gx/GXAurora.h>
+#include <dolphin/vi.h>
 
 #include <cmath>
 
@@ -13,25 +15,35 @@ SDL_Window* sWindow = nullptr;
 bool sLockAspect = false;
 float sAspectScale = 1.f;
 AuroraViewportPolicy sViewportPolicy = AURORA_VIEWPORT_FIT;
+borealis::config::Connection sFullscreenBinding;
+borealis::config::Connection sLockAspectBinding;
 
 void LogicalSize(unsigned int& width, unsigned int& height) {
   const auto& mode = CGraphics::GetRenderMode();
   width = mode.fbWidth ? mode.fbWidth : 640;
   height = mode.efbHeight ? mode.efbHeight : 448;
 }
-} // namespace
-
-void ConfigureDisplay(SDL_Window* window, bool originalAspect) {
-  sWindow = window;
-  sLockAspect = originalAspect;
-  sAspectScale = 1.f;
-  AuroraSetViewportPolicy(sViewportPolicy);
-  UpdateDisplayPolicy();
-}
 
 void SetDisplayAspectLocked(bool originalAspect) {
   sLockAspect = originalAspect;
   UpdateDisplayPolicy();
+}
+} // namespace
+
+void ConfigureDisplay(SDL_Window* window) {
+  sWindow = window;
+  sAspectScale = 1.f;
+  AuroraSetViewportPolicy(sViewportPolicy);
+  auto& video = GetSettings().video;
+  sFullscreenBinding =
+      video.fullscreen.on_change([](bool fullscreen) { VISetWindowFullscreen(fullscreen); });
+  sLockAspectBinding = video.lockAspectRatio.observe(SetDisplayAspectLocked);
+}
+
+void ShutdownDisplay() {
+  sFullscreenBinding.disconnect();
+  sLockAspectBinding.disconnect();
+  sWindow = nullptr;
 }
 
 void UpdateDisplayPolicy() {

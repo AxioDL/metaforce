@@ -1,9 +1,9 @@
 #include "Metaforce/UI/SettingsWindow.hpp"
 
-#include "Metaforce/Display.hpp"
-#include "Metaforce/UI/RuntimeConfig.hpp"
+#include "Metaforce/Settings.hpp"
 
 #include <borealis/ui/bool_button.hpp>
+#include <borealis/ui/config.hpp>
 #include <borealis/ui/context_menu.hpp>
 #include <borealis/ui/dropdown_button.hpp>
 #include <borealis/ui/icon_button.hpp>
@@ -51,87 +51,35 @@ constexpr std::array kLogbookEntries = {
     "Meta Ridley",      "Metroid Prime",
 };
 
-struct ConfigBoolProps {
-  Rml::String key;
-  Rml::String icon;
-  Rml::String helpText;
-  std::function< void(bool) > onChange;
-  std::function< bool() > isDisabled;
-};
-
-SelectButton& config_bool_select(Pane& leftPane, Pane& rightPane, RuntimeVar< bool >& var,
-                                 ConfigBoolProps props) {
-  auto& button = leftPane.add_child< BoolButton >(BoolButton::Props{
-      .key = std::move(props.key),
-      .icon = std::move(props.icon),
-      .getValue = [&var] { return var.getValue(); },
-      .setValue =
-          [&var, callback = std::move(props.onChange)](bool value) {
-            if (value == var.getValue()) {
-              return;
-            }
-            var.setValue(value);
-            if (callback) {
-              callback(value);
-            }
-          },
-      .isDisabled = std::move(props.isDisabled),
-      .isModified = [&var] { return var.getValue() != var.getDefaultValue(); },
-  });
-  leftPane.register_control(button, rightPane, [helpText = std::move(props.helpText)](Pane& pane) {
+// Adds a control whose help text fills the next pane while it's focused.
+template < typename Control, typename Props >
+Control& add_setting(Pane& leftPane, Pane& rightPane, Props props, Rml::String helpText) {
+  auto& control = leftPane.add_child< Control >(std::move(props));
+  leftPane.register_control(control, rightPane, [helpText = std::move(helpText)](Pane& pane) {
     pane.clear();
     pane.add_rml(helpText);
   });
-  return button;
-}
-
-SelectButton& config_int_select(Pane& leftPane, Pane& rightPane, RuntimeVar< int >& var,
-                                Rml::String key, Rml::String helpText, int min, int max,
-                                int step = 5, std::function< bool() > isDisabled = {},
-                                std::function< void(int) > onChange = {}, std::string suffix = "") {
-  auto& button = leftPane.add_child< NumberButton >(NumberButton::Props{
-      .key = std::move(key),
-      .getValue = [&var] { return var.getValue(); },
-      .setValue =
-          [&var, min, max, callback = std::move(onChange)](int value) {
-            const int clampedValue = std::clamp(value, min, max);
-            var.setValue(clampedValue);
-            if (callback) {
-              callback(clampedValue);
-            }
-          },
-      .isDisabled = std::move(isDisabled),
-      .isModified = [&var] { return var.getValue() != var.getDefaultValue(); },
-      .min = min,
-      .max = max,
-      .step = step,
-      .suffix = suffix,
-  });
-  leftPane.register_control(button, rightPane, [helpText = std::move(helpText)](Pane& pane) {
-    pane.clear();
-    pane.add_text(helpText);
-  });
-  return button;
+  return control;
 }
 
 template < size_t N >
-void config_choice_select(Pane& leftPane, Pane& rightPane, RuntimeVar< int >& var, Rml::String key,
+void config_choice_select(Pane& leftPane, Pane& rightPane, Var< int >& var, Rml::String key,
                           const std::array< const char*, N >& names, Rml::String helpText) {
   leftPane.register_control(
       leftPane.add_select_button({
           .key = std::move(key),
-          .getValue = [&var, &names] { return Rml::String{names[var.getValue()]}; },
-          .isModified = [&var] { return var.getValue() != var.getDefaultValue(); },
+          .getValue = [&var, &names] { return Rml::String{names[var.get()]}; },
+          .isModified = [&var] { return var.modified(); },
       }),
       rightPane, [&var, &names, helpText = std::move(helpText)](Pane& pane) {
         for (int i = 0; i < static_cast< int >(names.size()); ++i) {
           pane.add_button({
                               .text = names[i],
-                              .isSelected = [&var, i] { return var.getValue() == i; },
+                              .isSelected = [&var, i] { return var.get() == i; },
                           })
               .on_pressed([&var, i] {
                 play_nav_sound(NavSound::ItemChange);
-                var.setValue(i);
+                var.set(i);
               });
         }
         pane.add_rml(helpText);
@@ -139,62 +87,46 @@ void config_choice_select(Pane& leftPane, Pane& rightPane, RuntimeVar< int >& va
 }
 
 void add_demo_tab(Window& window, Pane& leftPane, Pane& rightPane) {
-  auto& demo = GetRuntimeConfig().demo;
+  auto& demo = GetSettings().demo;
 
   leftPane.add_section("Toggles");
-  config_bool_select(leftPane, rightPane, demo.scanVisor,
-                     {
-                         .key = "Scan Visor",
-                         .helpText = "A BoolButton. Confirm, Left and Right flip the value."
-                                     "<br/><br/>A dot marks values that differ from the default.",
-                     });
-  config_bool_select(leftPane, rightPane, demo.hintSystem,
-                     {
-                         .key = "Hint System",
-                         .helpText = "Disabled while the Scan Visor is off, to show a control that "
-                                     "tracks another value.",
-                         .isDisabled = [&demo] { return !demo.scanVisor.getValue(); },
-                     });
-  config_bool_select(leftPane, rightPane, demo.hardMode,
-                     {
-                         .key = "Hard Mode",
-                         .icon = "warning",
-                         .helpText =
-                             "A BoolButton with an icon.<br/><br/><icon class=\"warning\"/> "
-                             "Icons draw from Material Symbols.",
-                     });
+  add_setting< BoolButton >(leftPane, rightPane, bind(demo.scanVisor, {.key = "Scan Visor"}),
+                            "A BoolButton. Confirm, Left and Right flip the value."
+                            "<br/><br/>A dot marks values that differ from the default.");
+  add_setting< BoolButton >(
+      leftPane, rightPane,
+      bind(demo.hintSystem,
+           {.key = "Hint System", .isDisabled = [&demo] { return !demo.scanVisor.get(); }}),
+      "Disabled while the Scan Visor is off, to show a control that tracks another value.");
+  add_setting< BoolButton >(leftPane, rightPane,
+                            bind(demo.hardMode, {.key = "Hard Mode", .icon = "warning"}),
+                            "A BoolButton with an icon.<br/><br/><icon class=\"warning\"/> "
+                            "Icons draw from Material Symbols.");
 
   leftPane.add_section("Values");
-  config_int_select(leftPane, rightPane, demo.energyTanks, "Energy Tanks",
-                    "A NumberButton. Left and Right step through the range; Confirm types a "
-                    "value.",
-                    0, 14, 1);
-  config_int_select(leftPane, rightPane, demo.visorOpacity, "Visor Opacity",
-                    "A NumberButton with a suffix and a larger step.", 0, 100, 5, {}, {}, "%");
-  leftPane.register_control(
-      leftPane.add_child< StringButton >(StringButton::Props{
-          .key = "Save Name",
-          .getValue = [&demo] { return demo.saveName.getValue(); },
-          .setValue = [&demo](Rml::String value) { demo.saveName.setValue(std::move(value)); },
-          .isModified =
-              [&demo] { return demo.saveName.getValue() != demo.saveName.getDefaultValue(); },
-          .maxLength = 16,
-      }),
-      rightPane, [](Pane& pane) {
-        pane.add_rml("A StringButton. Confirm starts editing; Confirm or Escape stops.");
-      });
-  leftPane.register_control(
-      leftPane.add_child< DropdownButton >(DropdownButton::Props{
-          .key = "Suit",
-          .options = {{kSuitNames[0]}, {kSuitNames[1]}, {kSuitNames[2]}, {kSuitNames[3], false}},
-          .getValue = [&demo] { return demo.suit.getValue(); },
-          .setValue = [&demo](int value) { demo.suit.setValue(value); },
-          .isModified = [&demo] { return demo.suit.getValue() != demo.suit.getDefaultValue(); },
-      }),
-      rightPane, [](Pane& pane) {
-        pane.add_rml("A DropdownButton. Its options open in a context menu; unavailable options "
-                     "stay visible but disabled.");
-      });
+  add_setting< NumberButton >(leftPane, rightPane,
+                              bind(demo.energyTanks, {.key = "Energy Tanks", .step = 1}),
+                              "A NumberButton. Left and Right step through the range; Confirm "
+                              "types a value.");
+  add_setting< NumberButton >(
+      leftPane, rightPane,
+      bind(demo.visorOpacity, {.key = "Visor Opacity", .step = 5, .suffix = "%"}),
+      "A NumberButton with a suffix and a larger step.");
+  add_setting< StringButton >(leftPane, rightPane,
+                              bind(demo.saveName, {.key = "Save Name", .maxLength = 16}),
+                              "A StringButton. Confirm starts editing; Confirm or Escape stops.");
+  add_setting< DropdownButton >(
+      leftPane, rightPane,
+      bind_dropdown(demo.suit,
+                    {
+                        .key = "Suit",
+                        .options = {{kSuitNames[0]},
+                                    {kSuitNames[1]},
+                                    {kSuitNames[2]},
+                                    {kSuitNames[3], false}},
+                    }),
+      "A DropdownButton. Its options open in a context menu; unavailable options stay visible "
+      "but disabled.");
   config_choice_select(leftPane, rightPane, demo.beam, "Beam", kBeamNames,
                        "<br/>A SelectButton whose options fill the next pane.");
 
@@ -208,10 +140,10 @@ void add_demo_tab(Window& window, Pane& leftPane, Pane& rightPane) {
                               .isSelected = [&demo, bit] { return (demo.upgrades & bit) != 0; },
                           })
               .on_pressed([&demo, bit] {
-                const uint32_t upgrades = demo.upgrades.getValue() ^ bit;
+                const uint32_t upgrades = demo.upgrades.get() ^ bit;
                 play_nav_sound((upgrades & bit) != 0 ? NavSound::ItemEnable
                                                      : NavSound::ItemDisable);
-                demo.upgrades.setValue(upgrades);
+                demo.upgrades.set(upgrades);
               });
         }
       });
@@ -226,7 +158,7 @@ void add_demo_tab(Window& window, Pane& leftPane, Pane& rightPane) {
             .onPressed =
                 [&demo](uint64_t key) {
                   play_nav_sound(NavSound::ItemChange);
-                  demo.logbookEntry.setValue(static_cast< int >(key));
+                  demo.logbookEntry.set(static_cast< int >(key));
                 },
             .isSelected =
                 [&demo](uint64_t key) { return demo.logbookEntry == static_cast< int >(key); },
@@ -347,48 +279,37 @@ SettingsWindow::SettingsWindow() {
   add_tab("Video", [this](Rml::Element* content) {
     auto& leftPane = add_child< Pane >(content, Pane::Type::Controlled);
     auto& rightPane = add_child< Pane >(content, Pane::Type::Uncontrolled);
-    auto& video = GetRuntimeConfig().video;
+    auto& video = GetSettings().video;
 
     leftPane.add_section("Display");
-    config_bool_select(leftPane, rightPane, video.fullscreen,
-                       {
-                           .key = "Fullscreen",
-                           .helpText = "Fill the display with the game.",
-                           .onChange = [](bool value) { VISetWindowFullscreen(value); },
-                       });
+    add_setting< BoolButton >(leftPane, rightPane, bind(video.fullscreen, {.key = "Fullscreen"}),
+                              "Fill the display with the game.");
     leftPane.register_control(leftPane.add_button("Restore Default Window Size").on_pressed([] {
       play_nav_sound(NavSound::ItemChange);
-      GetRuntimeConfig().video.fullscreen.setValue(false);
+      GetSettings().video.fullscreen.reset();
       VISetWindowFullscreen(false);
       VISetWindowSize(1280, 720);
       VICenterWindow();
     }),
                               rightPane, [](Pane& pane) { pane.clear(); });
-    config_bool_select(leftPane, rightPane, video.lockAspectRatio,
-                       {
-                           .key = "Lock 4:3 Aspect Ratio",
-                           .helpText = "Lock the game's aspect ratio to the original.",
-                           .onChange = [](bool value) { SetDisplayAspectLocked(value); },
-                       });
+    add_setting< BoolButton >(leftPane, rightPane,
+                              bind(video.lockAspectRatio, {.key = "Lock 4:3 Aspect Ratio"}),
+                              "Lock the game's aspect ratio to the original.");
   });
 
   add_tab("Interface", [this](Rml::Element* content) {
     auto& leftPane = add_child< Pane >(content, Pane::Type::Controlled);
     auto& rightPane = add_child< Pane >(content, Pane::Type::Uncontrolled);
-    auto& ui = GetRuntimeConfig().ui;
+    auto& ui = GetSettings().ui;
 
     leftPane.add_section("Metaforce");
-    config_int_select(
-        leftPane, rightPane, ui.scale, "UI Scale",
-        "Scales the Metaforce interface relative to the display's DPI scale. Has no "
-        "effect on the game's HUD and menus.",
-        50, 200, 25, {}, [](int value) { set_user_scale(value); }, "%");
-    config_bool_select(leftPane, rightPane, ui.sounds,
-                       {
-                           .key = "Interface Sounds",
-                           .helpText = "Play the game's menu sounds while navigating the Metaforce "
-                                       "interface.",
-                       });
+    add_setting< NumberButton >(
+        leftPane, rightPane, bind(ui.scale, {.key = "UI Scale", .step = 25, .suffix = "%"}),
+        "Scales the Metaforce interface relative to the display's DPI scale. Has no effect on "
+        "the game's HUD and menus.");
+    add_setting< BoolButton >(
+        leftPane, rightPane, bind(ui.sounds, {.key = "Interface Sounds"}),
+        "Play the game's menu sounds while navigating the Metaforce interface.");
   });
 
   add_tab("Demo", [this](Rml::Element* content) {
