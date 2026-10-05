@@ -51,7 +51,7 @@ void InitializeAudio(u8 voices, u8 music, u8 sfx, u32 flags) {
   bool opened = !disabled && sndPCOpenAudio(&preferredConfig, &selected);
   if (!opened) {
     if (!selected.mixRate) {
-      selected.mixRate = 48000;
+      selected.mixRate = 32000;
     }
     if (!selected.channels) {
       selected.channels = 2;
