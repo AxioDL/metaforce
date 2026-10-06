@@ -2132,6 +2132,9 @@ MetaRender/CCubeRenderer.cpp:
 	.ctors      start:0x803CC3A0 end:0x803CC3A4
 	.sbss2      start:0x805B0570 end:0x805B0580
 
+GuiSys/CAuiMain.cpp:
+	.text       start:0x802C1610 end:0x802C1614
+
 GuiSys/CAuiMeter.cpp:
 	.text       start:0x802C1614 end:0x802C1E60
 	.rodata     start:0x803D7938 end:0x803D7940
@@ -2500,6 +2503,9 @@ Kyoto/Animation/CAnimMathUtils.cpp:
 	.text       start:0x802EC10C end:0x802EC448
 	.sdata2     start:0x805AF420 end:0x805AF438
 
+Kyoto/Animation/CAnimPerSegmentData.cpp:
+	.text       start:0x802EC448 end:0x802EC540
+
 Kyoto/Animation/CAnimPOIData.cpp:
 	.text       start:0x802EC540 end:0x802ED154
 	.rodata     start:0x803D7E90 end:0x803D7E98
@@ -2595,6 +2601,9 @@ Kyoto/Animation/CFBStreamedCompression.cpp:
 	.text       start:0x802FC374 end:0x802FCDA8
 	.rodata     start:0x803D7EF8 end:0x803D7F00
 	.sdata2     start:0x805AF4E0 end:0x805AF4F8
+
+Kyoto/Animation/CMultiFormatAnimReader.CPP:
+	.text       start:0x802FD8F8 end:0x802FD8F8
 
 Kyoto/Animation/CInt32POINode.cpp:
 	.text       start:0x802FD8F8 end:0x802FDA04
