@@ -4,6 +4,7 @@
 #include "types.h"
 #include "Kyoto/Basics/CBasics.hpp"
 
+#include "rstl/pair.hpp"
 #include "stddef.h"
 
 class COutputStream;
@@ -84,6 +85,12 @@ private:
 template < typename T >
 inline void coutput_stream_helper(const T& t, COutputStream& out) {
   t.PutTo(out);
+}
+
+template < typename L, typename R >
+inline void coutput_stream_helper(const rstl::pair< L, R >& t, COutputStream& out) {
+  out.Put(t.first);
+  out.Put(t.second);
 }
 
 template <>

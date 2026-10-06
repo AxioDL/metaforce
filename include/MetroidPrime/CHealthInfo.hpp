@@ -4,6 +4,8 @@
 #include "types.h"
 
 class CInputStream;
+class COutputStream;
+
 class CHealthInfo {
 public:
   CHealthInfo(float hp, float resist) : mHealth(hp), mKnockbackResistance(resist) {}
@@ -13,6 +15,8 @@ public:
   void SetKnockbackResistance(float resist) { mKnockbackResistance = resist; }
   float GetHP() const { return mHealth; }
   float GetKnockBackResistance() const { return mKnockbackResistance; }
+
+  void PutTo(COutputStream& stream) const;
 
 private:
   float mHealth;

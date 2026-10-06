@@ -9,6 +9,7 @@
 #include "Kyoto/Math/CMath.hpp"
 #include "Kyoto/Streams/CInputStream.hpp"
 #include "Kyoto/Streams/COutputStream.hpp"
+#include "Kyoto//Basics/RAssertDolphin.hpp"
 
 #include "rstl/algorithm.hpp"
 #include "rstl/math.hpp"
@@ -71,12 +72,29 @@ CPlayerState::CPlayerState()
 , mCurrentSuit(kPS_Power)
 , mPowerups(CPowerUp(0, 0))
 , mScanTimes()
+#if VERSION > VERSION_GM8EAB_00
 , mScanCompletionRateFirst(0)
 , mScanCompletionRateSecond(0)
+#endif
 , mStaticIntf(5) {}
 
 CPlayerState::CPlayerState(CInputStream& stream)
 : mAlive(true)
+
+#if VERSION == VERSION_GM8EAB_00
+, mEnabledItems(stream.ReadLong())
+, mCurrentBeam(static_cast<EBeamId>(stream.ReadLong()))
+, mHealth(stream)
+, mCurrentVisor(static_cast<EPlayerVisor>(stream.ReadLong()))
+, mTransitioningVisor(mCurrentVisor)
+, mVisorTransitionFactor(kMaxVisorTransitionFactor)
+, mCurrentSuit(kPS_Power)
+, mUnknown(3)
+, mPowerups(stream)
+, mScanTimes(stream)
+, mStaticIntf(5) 
+{}
+#else
 , mFiringComboBeam(false)
 , mFusion(false)
 , mEnabledItems(0)
@@ -132,8 +150,17 @@ CPlayerState::CPlayerState(CInputStream& stream)
   mScanCompletionRateFirst = uint(stream.ReadBits(GetBitCount(0x100u)));
   mScanCompletionRateSecond = uint(stream.ReadBits(GetBitCount(0x100u)));
 }
+#endif
 
 void CPlayerState::PutTo(COutputStream& stream) {
+#if VERSION == VERSION_GM8EAB_00
+  stream.Put(mEnabledItems);
+  stream.Put(static_cast<const int>(mCurrentBeam));
+  mHealth.PutTo(stream);
+  stream.Put(static_cast<const int>(mCurrentVisor));
+  mPowerups.PutTo(stream);
+  mScanTimes.PutTo(stream);
+#else
   stream.WriteBits(mEnabledItems, 32);
 
   const float realHP = mHealth.GetHP();
@@ -163,6 +190,7 @@ void CPlayerState::PutTo(COutputStream& stream) {
 
   stream.WriteBits(mScanCompletionRateFirst, GetBitCount(0x100));
   stream.WriteBits(mScanCompletionRateSecond, GetBitCount(0x100));
+#endif
 }
 
 void CPlayerState::SetPowerUp(CPlayerState::EItemType type, int capacity) {
@@ -170,10 +198,40 @@ void CPlayerState::SetPowerUp(CPlayerState::EItemType type, int capacity) {
   InitializePowerUp(type, capacity);
 }
 
+// Named AddPowerUp for demo
 void CPlayerState::InitializePowerUp(CPlayerState::EItemType type, int capacity) {
   if (type < kIT_PowerBeam || type > kIT_Max - 1)
     return;
 
+#if VERSION == VERSION_GM8EAB_00
+  if (capacity < 0) {
+    rs_debugger_printf("invalid powerup, taking power away is bad, type %i, value %i\n", type, capacity);
+  } else {
+    CPowerUp& pup = mPowerups[uint(type)];
+    int newCapacity = capacity + pup.mCapacity;
+    if (newCapacity > kPowerUpMax[uint(type)]) {
+      newCapacity = kPowerUpMax[uint(type)];
+    }
+    pup.mCapacity = newCapacity;
+    
+    if (type >= kIT_PowerSuit && type <= kIT_PhazonSuit) {
+      switch (type) {
+      case kIT_PowerSuit:
+        mCurrentSuit = kPS_Power;
+        break;
+      case kIT_GravitySuit:
+        mCurrentSuit = kPS_Gravity;
+        break;
+      case kIT_VariaSuit:
+        mCurrentSuit = kPS_Varia;
+        break;
+      case kIT_PhazonSuit:
+        mCurrentSuit = kPS_Phazon;
+        break;
+      }
+    }
+  }
+#else
   CPowerUp& pup = mPowerups[uint(type)];
   pup.mCapacity = CMath::Clamp(0, capacity + pup.mCapacity, kPowerUpMax[uint(type)]);
   pup.mAmount = rstl::min_val(pup.mAmount, pup.mCapacity);
@@ -187,8 +245,12 @@ void CPlayerState::InitializePowerUp(CPlayerState::EItemType type, int capacity)
     else
       mCurrentSuit = kPS_Power;
   }
+#endif
 }
 
+#if VERSION == VERSION_GM8EAB_00
+inline
+#endif
 const float CPlayerState::CalculateHealth() {
   return (kEnergyTankCapacity * mPowerups[kIT_EnergyTanks].mAmount) + kBaseHealthCapacity;
 }
@@ -203,13 +265,25 @@ void CPlayerState::IncrPickUp(EItemType type, int amount) {
     return;
   }
 
-  if (0 <= amount) {
+#if VERSION == VERSION_GM8EAB_00
+  if (amount < 0) {
+    rs_debugger_printf("invalid pickup, taking pickups away is bad, type %i, value %i\n", type, amount);
+  }
+  else
+#else
+  if (0 <= amount) 
+#endif
+{
     switch (type) {
     case kIT_Missiles:
     case kIT_PowerBombs:
     case kIT_ChargeBeam:
     case kIT_SpaceJumpBoots:
     case kIT_EnergyTanks:
+#if VERSION == VERSION_GM8EAB_00
+    case kIT_SuperMissile:
+    case kIT_UnknownItem1:
+#else
     case kIT_Truth:
     case kIT_Strength:
     case kIT_Elder:
@@ -221,7 +295,9 @@ void CPlayerState::IncrPickUp(EItemType type, int amount) {
     case kIT_Sun:
     case kIT_World:
     case kIT_Spirit:
-    case kIT_Newborn: {
+    case kIT_Newborn:
+#endif
+{
       mPowerups[type].Add(amount);
       break;
     }
@@ -269,6 +345,9 @@ const int CPlayerState::GetItemAmount(const CPlayerState::EItemType type) const 
   case kIT_Flamethrower:
   case kIT_EnergyTanks:
   case kIT_Missiles:
+#if VERSION == VERSION_GM8EAB_00
+  case kIT_UnknownItem1:
+#else
   case kIT_Truth:
   case kIT_Strength:
   case kIT_Elder:
@@ -281,6 +360,7 @@ const int CPlayerState::GetItemAmount(const CPlayerState::EItemType type) const 
   case kIT_World:
   case kIT_Spirit:
   case kIT_Newborn:
+#endif
     return mPowerups[uint(type)].mAmount;
   default:
     break;
@@ -293,7 +373,23 @@ const int CPlayerState::GetItemCapacity(const CPlayerState::EItemType type) cons
   if (type < 0 || kIT_Max - 1 < type) {
     return 0;
   }
+
+#if VERSION == VERSION_GM8EAB_00
+  switch (type) {
+  case kIT_SpaceJumpBoots:
+  case kIT_PowerBombs:
+  case kIT_Flamethrower:
+  case kIT_EnergyTanks:
+  case kIT_Missiles:
+  case kIT_UnknownItem1:
+    return mPowerups[uint(type)].mCapacity;
+  default:
+    break;
+  }
+  return 0;
+#else
   return mPowerups[uint(type)].mCapacity;
+#endif
 }
 
 const bool CPlayerState::HasPowerUp(const CPlayerState::EItemType type) const {
@@ -375,12 +471,14 @@ void CPlayerState::InitializeScanTimes() {
   if (mScanTimes.size())
     return;
 
+  #if VERSION > VERSION_GM8EAB_00
   const rstl::vector< CMemoryCard::ScanState >& scanStates = gpMemoryCard->GetScanStates();
   mScanTimes.reserve(scanStates.size());
   for (rstl::vector< CMemoryCard::ScanState >::const_iterator it = scanStates.begin();
        it != scanStates.end(); ++it) {
     mScanTimes.push_back(rstl::pair< CAssetId, float >(it->first, 0.f));
   }
+  #endif
 }
 
 const float CPlayerState::GetScanTime(const CAssetId res) const {

@@ -1,0 +1,1824 @@
+Sections:
+	.init       type:code align:32
+	extab       type:rodata align:32
+	extabindex  type:rodata align:32
+	.text       type:code align:32
+	.ctors      type:rodata align:32
+	.dtors      type:rodata align:32
+	.rodata     type:rodata align:32
+	.data       type:data align:32
+	.bss        type:bss align:32
+	.sdata      type:data align:32
+	.sbss       type:bss align:32
+	.sdata2     type:rodata align:32
+	.sbss2      type:bss align:32
+
+MetroidPrime/Cameras/CCameraManager.cpp:
+	.text       start:0x8000A0F4 end:0x8000A188
+
+MetroidPrime/CControlMapper.cpp:
+	.text       start:0x8000AB08 end:0x8000B128
+	.sdata2     start:0x805363D0 end:0x805363D8
+
+MetroidPrime/CObjectList.cpp:
+	.text       start:0x8000E7F4 end:0x8000E9D0
+
+MetroidPrime/Player/CPlayer.cpp:
+	.text       start:0x8000EAE4 end:0x8001D584
+	.ctors      start:0x80321248 end:0x8032124C
+	.rodata     start:0x80321B20 end:0x80321CE8
+	.data       start:0x8033FF50 end:0x80340088
+	.bss        start:0x8035A938 end:0x8035D188 align:4
+	.sdata      start:0x80533E70 end:0x80533F00
+	.sbss       start:0x80535498 end:0x805354C8
+	.sdata2     start:0x80536418 end:0x80536420
+	.sdata2     start:0x80536420 end:0x80536580
+
+MetroidPrime/CAxisAngle.cpp:
+	.text       start:0x8001D584 end:0x8001D724
+	.ctors      start:0x8032124C end:0x80321250
+
+MetroidPrime/CEulerAngles.cpp:
+	.text       start:0x8001D724 end:0x8001D960
+
+MetroidPrime/CArchMsgParmUserInput.cpp:
+	.text       start:0x8001D9DC end:0x8001DA80
+
+MetroidPrime/CInputGenerator.cpp:
+	.text       start:0x80021DE8 end:0x80022570
+
+MetroidPrime/CMainFlow.cpp:
+	.text       start:0x80022570 end:0x80022AB4
+
+MetroidPrime/CMFGame.cpp:
+	.text       start:0x80022C3C end:0x8002335C
+
+MetroidPrime/CAnimData.cpp:
+	.text       start:0x800251AC end:0x8002E120
+	.ctors      start:0x80321254 end:0x80321258
+	.rodata     start:0x80322420 end:0x80322478
+	.data       start:0x80340328 end:0x80340368
+	.bss        start:0x8035E010 end:0x8035E050 align:4
+	.sdata      start:0x80533F48 end:0x80533F68
+	.sbss       start:0x805354D0 end:0x805354D8
+	.sdata2     start:0x80536720 end:0x80536740
+
+MetroidPrime/Factories/CCharacterFactory.cpp:
+	.text       start:0x8002E18C end:0x8002E460
+
+MetroidPrime/Factories/CAssetFactory.cpp:
+	.text       start:0x80030D6C end:0x80031364
+
+MetroidPrime/Player/CPlayerGun.cpp:
+	.text       start:0x80036808 end:0x8003F8E0
+	.ctors      start:0x80321258 end:0x8032125C
+	.rodata     start:0x80322538 end:0x80322600
+	.data       start:0x80340548 end:0x803405A8
+	.bss        start:0x8035F210 end:0x8035F230 align:4
+	.sdata      start:0x80533F90 end:0x80533FC8
+	.sbss       start:0x80535568 end:0x80535580 align:4
+	.sdata2     start:0x805367BC end:0x805368A0 align:4
+
+MetroidPrime/CStateManager.cpp:
+	.text       start:0x8003FCB8 end:0x8004BCCC
+	.bss        start:0x8035FE70 end:0x803702A0 align:4
+	.sbss       start:0x80535598 end:0x805355A0 align:4
+
+MetroidPrime/CEntity.cpp:
+	.text       start:0x8004BCCC end:0x8004C204
+	.ctors      start:0x8032125C end:0x80321260
+	.rodata     start:0x80322808 end:0x80322810
+	.data       start:0x803405A8 end:0x803405D0
+
+MetroidPrime/CArchMsgParmInt32.cpp:
+	.text       start:0x8004C204 end:0x8004C280
+
+MetroidPrime/CIOWin.cpp:
+	.text       start:0x8004E81C end:0x8004E8C4
+
+MetroidPrime/CActor.cpp:
+	.text       start:0x8004E8C4 end:0x800515CC
+	.rodata     start:0x80322858 end:0x80322890
+	.data       start:0x80340630 end:0x803406C0
+	.sdata      start:0x80533FF8 end:0x80534008
+	.sdata2     start:0x80536960 end:0x805369B0
+
+MetroidPrime/Tweaks/CTweakParticle.cpp:
+	.text       start:0x80054174 end:0x8005428C
+
+MetroidPrime/CArchMsgParmControllerStatus.cpp:
+	.text       start:0x80054314 end:0x80054338
+
+MetroidPrime/CGameArea.cpp:
+	.text       start:0x80055EA0 end:0x800560F4
+
+MetroidPrime/HUD/CSamusHud.cpp:
+	.text       start:0x8005AC78 end:0x800632D4
+	.ctors      start:0x80321264 end:0x80321268
+	.rodata     start:0x80322C20 end:0x80322E80
+	.data       start:0x803409A8 end:0x80340A80
+	.bss        start:0x803702B0 end:0x803702C8 align:4
+	.sdata      start:0x80534020 end:0x8053409C
+	.sbss       start:0x805355A8 end:0x805355B0
+	.sdata2     start:0x80536A08 end:0x80536AC8 align:4
+
+MetroidPrime/CAnimationDatabaseGame.cpp:
+	.text       start:0x800632D4 end:0x80063C28
+
+MetroidPrime/CTransitionDatabaseGame.cpp:
+	.text       start:0x80063C28 end:0x80063DF4
+
+MetroidPrime/Tweaks/CTweakPlayerControl.cpp:
+	.text       start:0x80065C70 end:0x80065F40
+
+MetroidPrime/ScriptObjects/CScriptTrigger.cpp:
+	.text       start:0x800684A8 end:0x80068A94
+
+MetroidPrime/ScriptObjects/CScriptWaypoint.cpp:
+	.text       start:0x80069410 end:0x80069498
+	.sdata2     start:0x80536B58 end:0x80536B60
+
+MetroidPrime/Enemies/CPatterned.cpp:
+	.text       start:0x80069908 end:0x8006F270
+	.ctors      start:0x80321268 end:0x8032126C
+	.rodata     start:0x80322F18 end:0x80322F80
+	.data       start:0x80340CF8 end:0x80341070
+	.bss        start:0x803702C8 end:0x803702D8 align:4
+	.sdata      start:0x805340C0 end:0x80534118
+	.sbss       start:0x805355D0 end:0x805355F0
+	.sdata2     start:0x80536B64 end:0x80536BB8 align:4
+
+MetroidPrime/ScriptObjects/CScriptSpiderBallAttractionSurface.cpp:
+	.text       start:0x8006F2EC end:0x8006F324
+
+MetroidPrime/Enemies/CStateMachine.cpp:
+	.text       start:0x80070560 end:0x80070B38
+
+MetroidPrime/CMapArea.cpp:
+	.text       start:0x80071330 end:0x80071DE4
+	.sdata2     start:0x80536BD0 end:0x80536BF0
+
+MetroidPrime/Cameras/CBallCamera.cpp:
+	.text       start:0x80071DE4 end:0x8007A050
+	.ctors      start:0x8032126C end:0x80321270
+	.rodata     start:0x80322FB8 end:0x80322FD0
+	.data       start:0x80341138 end:0x803411D8
+	.bss        start:0x803702D8 end:0x803702F0
+	.sdata      start:0x80534140 end:0x805341A8
+	.sbss       start:0x805355F8 end:0x80535608
+	.sdata2     start:0x80536BF0 end:0x80536CD0
+
+MetroidPrime/Player/CPlayerState.cpp:
+	.text       start:0x8007E438 end:0x8007F674
+	.rodata     start:0x80322FF0 end:0x80323110
+	.data       start:0x80341320 end:0x80341430
+	.sdata      start:0x805341F0 end:0x805341F8
+	.sdata2     start:0x80536D40 end:0x80536D68
+
+MetroidPrime/ScriptObjects/CScriptTimer.cpp:
+	.text       start:0x8007FA48 end:0x8007FAE8
+
+MetroidPrime/CAutoMapper.cpp:
+	.text       start:0x80082284 end:0x8008AD78
+	.rodata     start:0x80323118 end:0x803232C8
+	.data       start:0x803414F0 end:0x80341500
+	.sdata      start:0x805341F8 end:0x80534228
+	.sdata2     start:0x80536D88 end:0x80536E38
+
+MetroidPrime/ScriptObjects/CScriptCounter.cpp:
+	.text       start:0x8008B024 end:0x8008B0B0
+
+MetroidPrime/CMapWorld.cpp:
+	.text       start:0x8008B0B0 end:0x8008BEB0
+	.sdata2     start:0x80536E38 end:0x80536E58
+
+MetroidPrime/Enemies/CAi.cpp:
+	.text       start:0x80090A40 end:0x80090E94
+
+MetroidPrime/ScriptObjects/CScriptSound.cpp:
+	.text       start:0x800A1FE4 end:0x800A2374
+	.sdata2     start:0x80536E88 end:0x80536E90
+
+MetroidPrime/ScriptObjects/CScriptVisorFlare.cpp:
+	.text       start:0x800A36EC end:0x800A3724
+
+MetroidPrime/ScriptObjects/CScriptPlatform.cpp:
+	.text       start:0x800A6668 end:0x800A66F4
+
+MetroidPrime/UserNames.cpp:
+	.text       start:0x800A6C70 end:0x800A6C80
+
+MetroidPrime/ScriptObjects/CScriptGenerator.cpp:
+	.text       start:0x800A6C80 end:0x800A77A0
+
+MetroidPrime/CParticleDatabase.cpp:
+	.text       start:0x800AA328 end:0x800AB074
+
+MetroidPrime/Tweaks/CTweakGunRes.cpp:
+	.text       start:0x800AEBAC end:0x800AF504
+
+MetroidPrime/CTargetReticles.cpp:
+	.text       start:0x800B0024 end:0x800B0408
+	.sdata2     start:0x80536F58 end:0x80536F60
+
+MetroidPrime/CWeaponMgr.cpp:
+	.text       start:0x800B490C end:0x800B4ECC
+
+MetroidPrime/ScriptLoader.cpp:
+	.text       start:0x800B78BC end:0x800C8D3C
+	.rodata     start:0x80323D7C end:0x803260A0 align:4
+	.sdata      start:0x80534318 end:0x80534328
+	.sdata2     start:0x80537028 end:0x80537088
+
+MetroidPrime/ScriptObjects/CScriptSpindleCamera.cpp:
+	.text       start:0x800CD928 end:0x800CD960
+
+MetroidPrime/ScriptObjects/CScriptSpawnPoint.cpp:
+	.text       start:0x800CDA54 end:0x800CDBDC
+
+MetroidPrime/ScriptObjects/CScriptRandomRelay.cpp:
+	.text       start:0x800CE190 end:0x800CE234
+
+MetroidPrime/Enemies/CBeetle.cpp:
+	.text       start:0x800D19FC end:0x800D1A88
+
+MetroidPrime/CMappableObject.cpp:
+	.text       start:0x800D29A4 end:0x800D2AF0
+	.sdata2     start:0x805371B0 end:0x805371B8
+
+MetroidPrime/Player/CPlayerCameraBob.cpp:
+	.text       start:0x800D3C24 end:0x800D4268
+	.sdata      start:0x80534388 end:0x805343C0
+	.sdata2     start:0x805371E8 end:0x80537200
+
+MetroidPrime/ScriptObjects/CScriptCameraBlurKeyframe.cpp:
+	.text       start:0x800D4770 end:0x800D4818
+
+MetroidPrime/Cameras/CCameraFilter.cpp:
+	.text       start:0x800D4818 end:0x800D7780
+	.ctors      start:0x8032128C end:0x80321290
+	.sdata      start:0x805343D8 end:0x805343E0
+
+MetroidPrime/Player/CMorphBall.cpp:
+	.text       start:0x800D7780 end:0x800E11F8
+	.rodata     start:0x80326508 end:0x803265E0
+	.bss        start:0x803703C0 end:0x803703D8 align:4
+	.sdata      start:0x805343E8 end:0x80534490
+	.sbss       start:0x80535680 end:0x80535688
+	.sdata2     start:0x805372C0 end:0x80537460
+
+MetroidPrime/ScriptObjects/CScriptMazeNode.cpp:
+	.text       start:0x800E6048 end:0x800E6080
+
+MetroidPrime/ScriptObjects/CScriptWater.cpp:
+	.text       start:0x800E699C end:0x800E6ADC
+
+MetroidPrime/CActorLights.cpp:
+	.text       start:0x800E91D4 end:0x800E9360
+
+MetroidPrime/CSimpleShadow.cpp:
+	.text       start:0x800EAE04 end:0x800EAFF0
+
+MetroidPrime/Enemies/CWarWasp.cpp:
+	.text       start:0x800F1D68 end:0x800F1E4C
+
+MetroidPrime/CWorldShadow.cpp:
+	.text       start:0x800F310C end:0x800F3B68
+
+MetroidPrime/Player/CPlayerVisor.cpp:
+	.text       start:0x800F53E0 end:0x800F56A4
+	.sdata      start:0x805345B0 end:0x805345D0
+	.sdata2     start:0x805376B8 end:0x805376C0
+
+MetroidPrime/CModelData.cpp:
+	.text       start:0x800F64E4 end:0x800F6B6C
+
+MetroidPrime/CDecalManager.cpp:
+	.text       start:0x800F7A8C end:0x800F87F8
+	.ctors      start:0x80321298 end:0x8032129C
+
+MetroidPrime/ScriptObjects/CScriptSpiderBallWaypoint.cpp:
+	.text       start:0x800F9040 end:0x800F943C
+
+MetroidPrime/TGameTypes.cpp:
+	.text       start:0x800FB77C end:0x800FB7B4
+
+MetroidPrime/CPhysicsActor.cpp:
+	.text       start:0x800FCB60 end:0x800FD17C
+	.sdata      start:0x805345E8 end:0x805345F0
+	.sdata2     start:0x80537750 end:0x80537758
+
+MetroidPrime/CPhysicsState.cpp:
+	.text       start:0x800FDB9C end:0x800FDC88
+
+MetroidPrime/Player/CGrappleArm.cpp:
+	.text       start:0x800FE688 end:0x800FE784
+
+MetroidPrime/Enemies/CSpacePirate.cpp:
+	.text       start:0x801014E0 end:0x8010BFDC
+	.ctors      start:0x803212A0 end:0x803212A4
+	.rodata     start:0x80326A88 end:0x803274A0
+	.data       start:0x803487B8 end:0x80348C28
+	.bss        start:0x80370410 end:0x803705A8
+	.sdata      start:0x80534600 end:0x80534658
+	.sdata2     start:0x80537818 end:0x805378C8
+
+MetroidPrime/ScriptObjects/CScriptRoomAcoustics.cpp:
+	.text       start:0x8010C3C0 end:0x8010C3F8
+
+MetroidPrime/ScriptObjects/CScriptCameraPitchVolume.cpp:
+	.text       start:0x8010C6BC end:0x8010C6F4
+
+MetroidPrime/Cameras/CGameCamera.cpp:
+	.text       start:0x8010F2E4 end:0x8010F4AC
+
+MetroidPrime/Cameras/CPathCamera.cpp:
+	.text       start:0x8010F4AC end:0x8010F524
+	.ctors      start:0x803212A4 end:0x803212A8
+
+MetroidPrime/CFluidPlaneManager.cpp:
+	.text       start:0x8010F9D8 end:0x8010FCF4
+	.sdata2     start:0x80537908 end:0x80537910
+
+MetroidPrime/Enemies/CFlickerBat.cpp:
+	.text       start:0x80110DCC end:0x80110E5C
+
+MetroidPrime/Enemies/CMetroidPrimeRelay.cpp:
+	.text       start:0x801117F4 end:0x8011182C
+
+MetroidPrime/BodyState/CBodyStateCmdMgr.cpp:
+	.text       start:0x801119AC end:0x80111D30
+	.sdata2     start:0x80537960 end:0x80537970
+
+MetroidPrime/BodyState/CBodyStateInfo.cpp:
+	.text       start:0x80113EBC end:0x80113F58
+
+MetroidPrime/BodyState/CBSDie.cpp:
+	.text       start:0x80115948 end:0x80115974
+
+MetroidPrime/BodyState/CBSGetup.cpp:
+	.text       start:0x80115EC4 end:0x80116238
+	.sdata2     start:0x805379C0 end:0x805379C8
+
+MetroidPrime/BodyState/CBSKnockBack.cpp:
+	.text       start:0x80116238 end:0x80116808
+	.sdata2     start:0x805379C8 end:0x805379F8
+
+MetroidPrime/BodyState/CBSTurn.cpp:
+	.text       start:0x80118D08 end:0x80119868
+	.sdata2     start:0x80537A30 end:0x80537A40
+
+MetroidPrime/BodyState/CBodyController.cpp:
+	.text       start:0x80119DE8 end:0x80119F54
+
+MetroidPrime/BodyState/CBSLoopReaction.cpp:
+	.text       start:0x8011B7C4 end:0x8011C17C
+	.sdata2     start:0x80537A70 end:0x80537A78
+
+MetroidPrime/CSteeringBehaviors.cpp:
+	.text       start:0x8011C17C end:0x8011E4DC
+	.sdata2     start:0x80537AE8 end:0x80537AF0
+
+MetroidPrime/BodyState/CBSSlide.cpp:
+	.text       start:0x80121C60 end:0x801220E8
+	.sdata2     start:0x80537BA8 end:0x80537BD0
+
+MetroidPrime/BodyState/CBSHurled.cpp:
+	.text       start:0x80122154 end:0x801221DC
+	.sdata2     start:0x80537BD0 end:0x80537BE0
+
+MetroidPrime/CSortedLists.cpp:
+	.text       start:0x80126AD4 end:0x801281A8
+	.sdata2     start:0x80537C70 end:0x80537C78
+
+MetroidPrime/BodyState/CBSScripted.cpp:
+	.text       start:0x8012A5F0 end:0x8012A7DC
+	.sdata2     start:0x80537CB0 end:0x80537CB8
+
+MetroidPrime/ScriptObjects/CScriptDockAreaChange.cpp:
+	.text       start:0x8012DEE8 end:0x8012DF50
+
+MetroidPrime/Player/CFidget.cpp:
+	.text       start:0x80131BFC end:0x80131CA0
+
+MetroidPrime/Enemies/CParasite.cpp:
+	.text       start:0x80138C44 end:0x80138D24
+
+MetroidPrime/Enemies/CWallWalker.cpp:
+	.text       start:0x8013A2EC end:0x8013A508
+
+MetroidPrime/ScriptObjects/CScriptCameraHint.cpp:
+	.text       start:0x8013AA54 end:0x8013AA8C
+
+MetroidPrime/Player/CSamusFaceReflection.cpp:
+	.text       start:0x8013B4D8 end:0x8013BB60
+	.ctors      start:0x803212BC end:0x803212C0
+
+MetroidPrime/ScriptObjects/CScriptGrapplePoint.cpp:
+	.text       start:0x8013CAF0 end:0x8013CB28
+
+MetroidPrime/ScriptObjects/CScriptPointOfInterest.cpp:
+	.text       start:0x8013E57C end:0x8013E618
+
+MetroidPrime/Enemies/CDrone.cpp:
+	.text       start:0x8013E7FC end:0x801461A0
+	.rodata     start:0x803278A0 end:0x80327EA8 align:4
+	.data       start:0x8034BB20 end:0x8034BEF0
+	.bss        start:0x80370668 end:0x80370720 align:4
+	.sdata      start:0x80534800 end:0x80534860
+	.sbss       start:0x80535728 end:0x80535730
+	.sdata2     start:0x80537F48 end:0x80538010 align:4
+
+MetroidPrime/CMapWorldInfo.cpp:
+	.text       start:0x801461A0 end:0x80146488
+
+MetroidPrime/Enemies/CMetroid.cpp:
+	.text       start:0x801479FC end:0x8014E3C8
+	.ctors      start:0x803212C4 end:0x803212C8
+	.rodata     start:0x80327F18 end:0x80327F68
+	.data       start:0x8034BF00 end:0x8034C260
+	.sdata      start:0x80534868 end:0x805348D8
+	.sdata2     start:0x80538028 end:0x805380A0
+
+MetroidPrime/Player/CScanDisplay.cpp:
+	.text       start:0x80150528 end:0x801509C8
+	.sdata2     start:0x805380A0 end:0x805380A8
+
+MetroidPrime/CBoneTracking.cpp:
+	.text       start:0x801534FC end:0x80153D40
+
+MetroidPrime/Player/CFaceplateDecoration.cpp:
+	.text       start:0x80153F44 end:0x80153F58
+
+MetroidPrime/BodyState/CBSCover.cpp:
+	.text       start:0x80154D9C end:0x80154DE0
+
+MetroidPrime/Player/CPlayerOrbit.cpp:
+	.text       start:0x8015E198 end:0x8015E40C
+	.ctors      start:0x803212CC end:0x803212D0
+	.sdata2     start:0x80538210 end:0x80538220
+
+MetroidPrime/CGameCollision.cpp:
+	.text       start:0x80160ED0 end:0x80162C54
+	.sdata2     start:0x805382A8 end:0x805382B0
+
+MetroidPrime/CAABoxFilter.cpp:
+	.text       start:0x80163280 end:0x80163418
+
+MetroidPrime/CGroundMovement.cpp:
+	.text       start:0x80163620 end:0x80165658
+
+MetroidPrime/ScriptObjects/CScriptEMPulse.cpp:
+	.text       start:0x8016B7D8 end:0x8016B914
+
+MetroidPrime/HUD/CHudRadarInterface.cpp:
+	.text       start:0x8017091C end:0x80170A00
+	.rodata     start:0x80328B40 end:0x80328B50
+	.sdata2     start:0x805384A8 end:0x805384B0
+
+MetroidPrime/CFluidPlaneCPU.cpp:
+	.text       start:0x8017D2F0 end:0x8017D57C
+	.sdata2     start:0x80538638 end:0x80538640
+
+MetroidPrime/CFluidPlaneDoor.cpp:
+	.text       start:0x8017DFBC end:0x8017E034
+
+MetroidPrime/Enemies/CSnakeWeedSwarm.cpp:
+	.text       start:0x8017FED8 end:0x8017FF10
+
+MetroidPrime/ScriptObjects/CRepulsor.cpp:
+	.text       start:0x80185E7C end:0x80185EB4
+
+MetroidPrime/CCollisionActorManager.cpp:
+	.text       start:0x80186DA8 end:0x80188504
+
+MetroidPrime/Enemies/CBurstFire.cpp:
+	.text       start:0x8018A78C end:0x8018A864
+	.sdata2     start:0x80538770 end:0x80538780
+
+MetroidPrime/Player/CPlayerEnergyDrain.cpp:
+	.text       start:0x8018FF90 end:0x801900D4
+
+MetroidPrime/Weapons/CIceImpact.cpp:
+	.text       start:0x80192A78 end:0x801930E8
+
+MetroidPrime/GameObjectLists.cpp:
+	.text       start:0x801930E8 end:0x80193544
+
+MetroidPrime/Weapons/CAuxWeapon.cpp:
+	.text       start:0x80193760 end:0x80193EC4
+
+MetroidPrime/Weapons/CGunWeapon.cpp:
+	.text       start:0x80194C28 end:0x80195520
+	.sdata2     start:0x80538870 end:0x80538878
+
+MetroidPrime/Player/CStaticInterference.cpp:
+	.text       start:0x801995F0 end:0x80199880
+	.sdata2     start:0x80538900 end:0x80538908
+
+MetroidPrime/PathFinding/CPathFindRegion.cpp:
+	.text       start:0x8019E008 end:0x8019F1D0
+
+MetroidPrime/PathFinding/CPathFindArea.cpp:
+	.text       start:0x8019F858 end:0x801A05A8
+	.sdata2     start:0x80538978 end:0x80538988
+
+MetroidPrime/Weapons/GunController/CGSFreeLook.cpp:
+	.text       start:0x801A1A9C end:0x801A1E90
+
+MetroidPrime/Weapons/GunController/CGSComboFire.cpp:
+	.text       start:0x801A1E90 end:0x801A227C
+
+MetroidPrime/ScriptObjects/CFishCloud.cpp:
+	.text       start:0x801A33B4 end:0x801A37C0
+	.sdata2     start:0x805389E8 end:0x805389F0
+
+MetroidPrime/CHealthInfo.cpp:
+	.text       start:0x801A6974 end:0x801A69CC
+
+MetroidPrime/Weapons/GunController/CGunMotion.cpp:
+	.text       start:0x801AA07C end:0x801AA7F8
+	.sdata2     start:0x80538A88 end:0x80538A90
+
+MetroidPrime/ScriptObjects/CScriptPlayerStateChange.cpp:
+	.text       start:0x801AB580 end:0x801AB600
+
+MetroidPrime/Enemies/CThardus.cpp:
+	.text       start:0x801AC3F8 end:0x801B12F0
+	.ctors      start:0x803212E4 end:0x803212E8
+	.rodata     start:0x80329FA8 end:0x8032A410
+	.data       start:0x8034E328 end:0x8034E8D8
+	.sdata      start:0x80534BF0 end:0x80534C20
+	.sdata2     start:0x80538AC0 end:0x80538B30
+
+MetroidPrime/CActorModelParticles.cpp:
+	.text       start:0x801B1B6C end:0x801B2238
+
+MetroidPrime/Enemies/CWallCrawlerSwarm.cpp:
+	.text       start:0x801B3684 end:0x801BA484
+	.rodata     start:0x8032A468 end:0x8032A490
+	.data       start:0x8034E8D8 end:0x8034E988
+	.bss        start:0x80373DA0 end:0x80373DD0 align:4
+	.sdata      start:0x80534C30 end:0x80534C58
+	.sbss       start:0x805357C8 end:0x805357E0
+	.sdata2     start:0x80538B50 end:0x80538BE0
+	.sbss2      start:0x8053A7B8 end:0x8053A7C0
+
+MetroidPrime/ScriptObjects/CScriptPickup.cpp:
+	.text       start:0x801BA6A8 end:0x801BA6E0
+
+MetroidPrime/Weapons/GunController/CGSFidget.cpp:
+	.text       start:0x801BBC48 end:0x801BC0BC
+	.sdata2     start:0x80538C00 end:0x80538C08
+
+MetroidPrime/Weapons/CIceAttackProjectile.cpp:
+	.text       start:0x801BC400 end:0x801BE410
+	.sdata      start:0x80534C80 end:0x80534C88
+
+MetroidPrime/Enemies/CPatternedAiFunctions.cpp:
+	.text       start:0x801BF0D8 end:0x801BF364
+
+MetroidPrime/ScriptObjects/CScriptColorModulate.cpp:
+	.text       start:0x801C9470 end:0x801C95B4
+	.sdata      start:0x80534CE8 end:0x80534CF0
+
+MetroidPrime/CMapUniverse.cpp:
+	.text       start:0x801CA574 end:0x801CA694
+
+MetroidPrime/CVisorFlare.cpp:
+	.text       start:0x801CD884 end:0x801CD8EC
+
+MetroidPrime/ScriptObjects/CScriptMidi.cpp:
+	.text       start:0x801CF960 end:0x801CFDAC
+
+MetroidPrime/CRagDoll.cpp:
+	.text       start:0x801D0CF4 end:0x801D1BD4
+
+MetroidPrime/Enemies/CTeamAiMgr.cpp:
+	.text       start:0x801D9BE8 end:0x801D9C20
+
+MetroidPrime/ScriptObjects/CScriptGunTurret.cpp:
+	.text       start:0x801DB29C end:0x801DB398
+	.ctors      start:0x803212F0 end:0x803212F4
+
+MetroidPrime/CInGameTweakManager.cpp:
+	.text       start:0x801DCD18 end:0x801DCEA0
+
+MetroidPrime/Enemies/CBabygoth.cpp:
+	.text       start:0x801DE460 end:0x801E3188
+	.rodata     start:0x8032B908 end:0x8032BA00
+	.data       start:0x8034F8F8 end:0x8034FC68
+	.sdata      start:0x80534DD8 end:0x80534E08
+	.sbss       start:0x80535810 end:0x80535818
+	.sdata2     start:0x80538FF8 end:0x80539060
+
+MetroidPrime/CIkChain.cpp:
+	.text       start:0x801E3D30 end:0x801E499C
+	.sdata2     start:0x80539088 end:0x80539098
+
+MetroidPrime/ScriptObjects/CScriptPlayerHint.cpp:
+	.text       start:0x801E4C8C end:0x801E4CC4
+
+MetroidPrime/Enemies/CElitePirate.cpp:
+	.text       start:0x801E573C end:0x801E966C
+	.ctors      start:0x803212FC end:0x80321300
+	.rodata     start:0x8032BA40 end:0x8032BC48
+	.data       start:0x8034FFD8 end:0x80350348
+	.sdata      start:0x80534E38 end:0x80534E58
+	.sdata2     start:0x80539140 end:0x805391A8
+
+WorldFormat/CAreaOctTree_Tests.cpp:
+	.text       start:0x801EB210 end:0x801EB4B4
+	.sdata2     start:0x805391B8 end:0x805391D8
+
+WorldFormat/CCollisionSurface.cpp:
+	.text       start:0x801EB4B4 end:0x801EB65C
+
+WorldFormat/CMetroidModelInstance.cpp:
+	.text       start:0x801EB65C end:0x801EB800
+
+WorldFormat/CAreaOctTree.cpp:
+	.text       start:0x801EC7D4 end:0x801ECF00
+
+WorldFormat/CMetroidAreaCollider.cpp:
+	.text       start:0x801ECF00 end:0x801F1404
+
+WorldFormat/CWorldLight.cpp:
+	.text       start:0x801F1404 end:0x801F1694
+	.sdata2     start:0x80539230 end:0x80539250
+
+WorldFormat/COBBTree.cpp:
+	.text       start:0x801F181C end:0x801F24DC
+
+WorldFormat/CCollidableOBBTree.cpp:
+	.text       start:0x801F3808 end:0x801F4FC0
+
+WorldFormat/CCollidableOBBTreeGroup.cpp:
+	.text       start:0x801F7278 end:0x801F761C
+
+Weapons/CCollisionResponseData.cpp:
+	.text       start:0x801FB014 end:0x801FC524
+
+Weapons/CDecalDataFactory.cpp:
+	.text       start:0x801FC5FC end:0x801FD700
+
+Weapons/CDecal.cpp:
+	.text       start:0x801FD700 end:0x801FE774
+	.ctors      start:0x80321308 end:0x8032130C
+	.sdata2     start:0x805392F8 end:0x80539310
+
+Weapons/CDecalDescription.cpp:
+	.text       start:0x801FEB48 end:0x801FEBD8
+
+MetaRender/CCubeRenderer.cpp:
+	.text       start:0x801FEBD8 end:0x80207064
+	.ctors      start:0x8032130C end:0x80321310
+	.rodata     start:0x8032C0F8 end:0x8032C450
+	.data       start:0x80350608 end:0x80350708
+	.bss        start:0x80373FA0 end:0x803DF1E0 align:4
+	.sdata      start:0x80534EB8 end:0x80534F08
+	.sbss       start:0x80535858 end:0x805358A0
+	.sdata2     start:0x80539310 end:0x805393D8
+
+GuiSys/CGuiFeeHelper.cpp:
+	.text       start:0x8020D7FC end:0x8020E14C
+	.ctors      start:0x80321310 end:0x80321314
+
+GuiSys/CGuiObject.cpp:
+	.text       start:0x80214B40 end:0x80215660
+	.data       start:0x80350DE0 end:0x80350DF8
+	.sdata2     start:0x805394B0 end:0x805394C0
+
+GuiSys/CGuiSys.cpp:
+	.text       start:0x80217E50 end:0x80219BE0
+	.rodata     start:0x8032C508 end:0x8032C510
+	.sbss       start:0x805358C0 end:0x805358C8
+
+GuiSys/CGuiWidget.cpp:
+	.text       start:0x80221AF0 end:0x80222AE4
+
+GuiSys/CAuiEnergyBarT01.cpp:
+	.text       start:0x80225208 end:0x80225F0C
+	.rodata     start:0x8032C600 end:0x8032C614
+	.data       start:0x803512A8 end:0x80351328
+	.sdata      start:0x80534FB8 end:0x80534FC0
+	.sdata2     start:0x80539564 end:0x805395B8 align:4
+
+Collision/CCollidableAABox.cpp:
+	.text       start:0x802277E0 end:0x802283AC
+	.ctors      start:0x8032131C end:0x80321320
+	.rodata     start:0x8032C638 end:0x8032C64C
+	.data       start:0x803513B0 end:0x803513D8
+	.bss        start:0x803DF1F0 end:0x803DF238 align:4
+	.sdata      start:0x80534FC8 end:0x80534FD0
+	.sdata2     start:0x805395E0 end:0x805395F8
+
+Collision/CCollidableCollisionSurface.cpp:
+	.text       start:0x802283AC end:0x802283D0
+
+Collision/CCollisionInfo.cpp:
+	.text       start:0x802284F8 end:0x80228960
+
+Collision/InternalColliders.cpp:
+	.text       start:0x80228960 end:0x80228AC4
+
+Collision/CCollisionPrimitive.cpp:
+	.text       start:0x80228AC4 end:0x8022A048
+	.ctors      start:0x80321320 end:0x80321324
+	.sbss       start:0x805358D0 end:0x805358F8
+
+Collision/CMaterialList.cpp:
+	.text       start:0x8022A048 end:0x8022A134
+
+Collision/CollisionUtil.cpp:
+	.text       start:0x8022A134 end:0x8022E118
+	.ctors      start:0x80321324 end:0x80321328
+	.rodata     start:0x8032C6A0 end:0x8032C6E0
+	.bss        start:0x803DF268 end:0x803DF2B0 align:4
+	.sdata2     start:0x80539600 end:0x80539688
+
+Collision/CCollidableSphere.cpp:
+	.text       start:0x8022E118 end:0x8022F5FC
+	.ctors      start:0x80321328 end:0x8032132C
+	.rodata     start:0x8032C6E0 end:0x8032C6F2
+	.bss        start:0x803DF2B0 end:0x803DF2F8 align:4
+	.sdata      start:0x80534FD8 end:0x80534FE0
+	.sdata2     start:0x80539688 end:0x80539690
+
+Collision/CMaterialFilter.cpp:
+	.text       start:0x8022F5FC end:0x8022F744
+	.ctors      start:0x8032132C end:0x80321330
+	.bss        start:0x8052A810 end:0x8052A828
+
+Collision/COBBox.cpp:
+	.text       start:0x8022F744 end:0x80230254
+	.sdata2     start:0x80539698 end:0x805396A8
+
+Collision/CMRay.cpp:
+	.text       start:0x80230254 end:0x8023041C
+
+Kyoto/Basics/CBasics.cpp:
+	.text       start:0x8023041C end:0x802304D0
+
+Kyoto/Basics/CStopwatch.cpp:
+	.text       start:0x802304D0 end:0x802305D0
+	.ctors      start:0x80321330 end:0x80321334
+	.bss        start:0x8052A828 end:0x8052A840
+
+Kyoto/Basics/CBasicsDolphin.cpp:
+	.text       start:0x802305D0 end:0x80230640
+
+Kyoto/Alloc/CCallStackDolphin.cpp:
+	.text       start:0x80230640 end:0x8023065C
+	.rodata     start:0x8032C6F8 end:0x8032C708
+
+Kyoto/Basics/COsContextDolphin.cpp:
+	.text       start:0x8023065C end:0x802308F8
+
+Kyoto/Basics/CSWDataDolphin.cpp:
+	.text       start:0x802308F8 end:0x802309E4
+	.sdata2     start:0x805396C0 end:0x805396C8
+
+Kyoto/Animation/CAnimationManager.cpp:
+	.text       start:0x80230A90 end:0x80230BD8
+
+Kyoto/Animation/CAnimTreeLoopIn.cpp:
+	.text       start:0x80232AE0 end:0x802354C0
+
+Kyoto/Animation/CAnimTreeSequence.cpp:
+	.text       start:0x802354C0 end:0x80238810
+
+Kyoto/Animation/CMetaAnimBlend.cpp:
+	.text       start:0x8023A808 end:0x8023B10C
+
+Kyoto/Animation/CMetaAnimPhaseBlend.cpp:
+	.text       start:0x8023B37C end:0x8023BDB4
+	.sdata      start:0x80534FF0 end:0x80535000
+	.sdata2     start:0x805396E0 end:0x805396E8
+
+Kyoto/Animation/CMetaAnimPlay.cpp:
+	.text       start:0x8023BDB4 end:0x8023C3A4
+	.rodata     start:0x8032C7E0 end:0x8032C7E8
+	.data       start:0x80351600 end:0x80351620
+
+Kyoto/Animation/CMetaAnimRandom.cpp:
+	.text       start:0x8023C3A4 end:0x8023CC94
+	.rodata     start:0x8032C7E8 end:0x8032C7F0
+	.data       start:0x80351620 end:0x80351640
+
+Kyoto/Animation/CMetaAnimSequence.cpp:
+	.text       start:0x8023CC94 end:0x8023D450
+	.rodata     start:0x8032C7F0 end:0x8032C7F8
+	.data       start:0x80351640 end:0x80351660
+
+Kyoto/Animation/CMetaTransFactory.cpp:
+	.text       start:0x8023D450 end:0x8023D640
+	.rodata     start:0x8032C7F8 end:0x8032C800
+
+Kyoto/Animation/CMetaTransMetaAnim.cpp:
+	.text       start:0x8023D640 end:0x8023D980
+	.rodata     start:0x8032C800 end:0x8032C808
+	.data       start:0x80351660 end:0x80351678
+
+Kyoto/Animation/CMetaTransPhaseTrans.cpp:
+	.text       start:0x8023D980 end:0x8023E400
+	.rodata     start:0x8032C808 end:0x8032C810
+	.data       start:0x80351678 end:0x80351690
+	.sdata      start:0x80535008 end:0x80535018
+	.sdata2     start:0x805396E8 end:0x805396F0
+
+Kyoto/Animation/CMetaTransTrans.cpp:
+	.text       start:0x8023E484 end:0x8023E7C0
+	.rodata     start:0x8032C810 end:0x8032C818
+	.data       start:0x803516A8 end:0x803516C0
+
+Kyoto/Animation/CPASAnimInfo.cpp:
+	.text       start:0x8023E7C0 end:0x8023E8C4
+
+Kyoto/Animation/CPASAnimParm.cpp:
+	.text       start:0x8023E8C4 end:0x8023EA28
+
+Kyoto/Animation/CPASAnimState.cpp:
+	.text       start:0x8023EA28 end:0x80240418
+	.rodata     start:0x8032C818 end:0x8032C820
+	.sdata      start:0x80535018 end:0x80535020
+	.sdata2     start:0x805396F0 end:0x80539718
+
+Kyoto/Animation/CPASDatabase.cpp:
+	.text       start:0x80240418 end:0x802410C8
+	.rodata     start:0x8032C820 end:0x8032C828
+	.sdata      start:0x80535020 end:0x80535030
+
+Kyoto/Animation/CPrimitive.cpp:
+	.text       start:0x80241240 end:0x80241320
+
+Kyoto/Animation/CSequenceHelper.cpp:
+	.text       start:0x80241320 end:0x80242AC0
+	.rodata     start:0x8032C828 end:0x8032C838
+	.sdata      start:0x80535030 end:0x80535040
+	.sdata2     start:0x80539720 end:0x8053972C
+
+Kyoto/Animation/CTransitionManager.cpp:
+	.text       start:0x80242B88 end:0x80242BC8
+
+Kyoto/Animation/CTreeUtils.cpp:
+	.text       start:0x80242BC8 end:0x80242DE0
+
+Kyoto/Animation/IMetaAnim.cpp:
+	.text       start:0x80242DE0 end:0x80243640
+	.data       start:0x803516C0 end:0x803516E0
+	.sdata      start:0x80535040 end:0x80535048
+
+Kyoto/Audio/CSfxHandle.cpp:
+	.text       start:0x802436C0 end:0x802436DC
+	.sbss       start:0x80535978 end:0x80535980
+
+Kyoto/Audio/CSfxManager.cpp:
+	.text       start:0x802436E8 end:0x802467DC
+	.ctors      start:0x80321334 end:0x80321338
+	.rodata     start:0x8032C838 end:0x8032C8B8
+	.data       start:0x803516E0 end:0x803517E8
+	.bss        start:0x8052ED78 end:0x80532980 align:4
+	.sdata      start:0x80535048 end:0x80535050
+	.sbss       start:0x80535980 end:0x80535998
+	.sdata2     start:0x8053973C end:0x80539758 align:4
+
+Kyoto/Animation/CAdvancementDeltas.cpp:
+	.text       start:0x802467DC end:0x8024699C
+
+Kyoto/Animation/CAnimMathUtils.cpp:
+	.text       start:0x8024699C end:0x80246CD8
+	.sdata2     start:0x80539768 end:0x80539780
+
+Kyoto/Animation/CAnimPOIData.cpp:
+	.text       start:0x80246DD0 end:0x802479E4
+	.rodata     start:0x8032C8B8 end:0x8032C8C0
+	.data       start:0x803517E8 end:0x803517F8
+	.sbss       start:0x80535998 end:0x805359B8
+
+Kyoto/Animation/CAnimSource.cpp:
+	.text       start:0x802479E4 end:0x80249640
+
+Kyoto/Animation/CAnimSourceReader.cpp:
+	.text       start:0x80249640 end:0x8024B03C
+	.rodata     start:0x8032C8C8 end:0x8032C8D0
+	.data       start:0x803517F8 end:0x803518A8
+	.sdata      start:0x80535058 end:0x80535060
+	.sdata2     start:0x805397A8 end:0x805397B0
+
+Kyoto/Animation/CAnimSourceReaderBase.cpp:
+	.text       start:0x8024B03C end:0x8024CEB4
+	.sdata      start:0x80535070 end:0x80535078
+
+Kyoto/Animation/CAnimTreeBlend.cpp:
+	.text       start:0x8024D504 end:0x8024DE64
+	.rodata     start:0x8032C8E0 end:0x8032C8E8
+	.data       start:0x80351978 end:0x803519F8
+	.sdata2     start:0x805397B8 end:0x805397C0
+
+Kyoto/Animation/CAnimTreeDoubleChild.cpp:
+	.text       start:0x8024DF74 end:0x8024F6F0
+	.data       start:0x803519F8 end:0x80351A68
+	.sdata      start:0x80535078 end:0x80535088
+	.sdata2     start:0x805397C0 end:0x805397D0
+
+Kyoto/Animation/CAnimTreeTimeScale.cpp:
+	.text       start:0x8024FC50 end:0x8025192C
+	.rodata     start:0x8032C8F0 end:0x8032C8F8
+	.data       start:0x80351B48 end:0x80351BB8
+	.sdata      start:0x80535088 end:0x80535098
+
+Kyoto/Animation/CAnimTreeTransition.cpp:
+	.text       start:0x8025192C end:0x80252CCC
+	.rodata     start:0x8032C8F8 end:0x8032C908
+	.data       start:0x80351BB8 end:0x80351C38
+	.sdata      start:0x80535098 end:0x805350A0
+	.sdata2     start:0x805397D8 end:0x805397E8
+
+Kyoto/Animation/CAnimTreeTweenBase.cpp:
+	.text       start:0x80252CCC end:0x80254244
+	.data       start:0x80351C38 end:0x80351CB8
+	.sbss       start:0x805359B8 end:0x805359BC
+	.sdata2     start:0x805397E8 end:0x80539800
+
+Kyoto/Animation/CBoolPOINode.cpp:
+	.text       start:0x80254244 end:0x80254348
+
+Kyoto/Animation/CCharAnimMemoryMetrics.cpp:
+	.text       start:0x80254348 end:0x80254368
+	.sbss       start:0x805359D0 end:0x805359D4
+
+Kyoto/Animation/CCharLayoutInfo.cpp:
+	.text       start:0x80254368 end:0x80255984
+	.rodata     start:0x8032C910 end:0x8032C918
+	.data       start:0x80351CB8 end:0x80351CC8
+
+Kyoto/Animation/CFBStreamedAnimReader.cpp:
+	.text       start:0x80255984 end:0x802584B0
+	.rodata     start:0x8032C918 end:0x8032C920
+	.data       start:0x80351CC8 end:0x80351D50
+	.sdata      start:0x805350A8 end:0x805350C0
+	.sdata2     start:0x80539800 end:0x80539820
+
+Kyoto/Animation/CFBStreamedCompression.cpp:
+	.text       start:0x802584B0 end:0x80258F04
+	.rodata     start:0x8032C920 end:0x8032C928
+	.sdata2     start:0x80539820 end:0x80539838
+
+Kyoto/Animation/CInt32POINode.cpp:
+	.text       start:0x8025994C end:0x80259A58
+
+Kyoto/Animation/CParticlePOINode.cpp:
+	.text       start:0x80259A58 end:0x80259B4C
+
+Kyoto/Animation/CPOINode.cpp:
+	.text       start:0x80259B4C end:0x80259D6C
+
+Kyoto/Animation/CSegStatementSet.cpp:
+	.text       start:0x80259D6C end:0x8025A19C
+	.rodata     start:0x8032C928 end:0x8032C930
+	.data       start:0x80351D50 end:0x80351D68
+	.sdata      start:0x805350C0 end:0x805350C4
+
+Kyoto/Animation/CTimeScaleFunctions.cpp:
+	.text       start:0x8025A19C end:0x8025A78C
+
+Kyoto/Animation/IAnimReader.cpp:
+	.text       start:0x8025A78C end:0x8025AA2C
+	.data       start:0x80351DA0 end:0x80351E00
+
+Kyoto/Animation/CAllFormatsAnimSource.cpp:
+	.text       start:0x8025AA2C end:0x8025B164
+	.rodata     start:0x8032C938 end:0x8032C940
+	.data       start:0x80351E00 end:0x80351E10
+	.sdata2     start:0x80539858 end:0x80539860
+
+Kyoto/Text/CColorInstruction.cpp:
+	.text       start:0x8025B3F0 end:0x8025B420
+
+Kyoto/Text/CLineInstruction.cpp:
+	.text       start:0x8025C4A0 end:0x8025C4D8
+
+Kyoto/Text/CTextInstruction.cpp:
+	.text       start:0x80261394 end:0x802615CC
+
+Kyoto/Text/CTextParser.cpp:
+	.text       start:0x802615CC end:0x80262800
+
+Kyoto/Text/CWordBreakTables.cpp:
+	.text       start:0x80262C94 end:0x80262DBC
+
+Kyoto/Text/CBlockInstruction.cpp:
+	.text       start:0x8026326C end:0x802632A4
+
+Kyoto/Text/CFont.cpp:
+	.text       start:0x802634E0 end:0x80263504
+
+Kyoto/Graphics/CLight.cpp:
+	.text       start:0x802638B0 end:0x80263E8C
+
+Kyoto/Graphics/CCubeModel.cpp:
+	.text       start:0x80264000 end:0x80265108
+
+Kyoto/Graphics/CGX.cpp:
+	.text       start:0x8026520C end:0x802658DC
+	.sdata2     start:0x805398C8 end:0x805398D8
+
+Kyoto/Graphics/CTevCombiners.cpp:
+	.text       start:0x80266308 end:0x80266758
+	.ctors      start:0x80321340 end:0x80321344
+
+Kyoto/Graphics/DolphinCGraphics.cpp:
+	.text       start:0x80267220 end:0x802687A4
+
+Kyoto/Graphics/DolphinCPalette.cpp:
+	.text       start:0x8026B3F0 end:0x8026B604
+
+Kyoto/Graphics/DolphinCTexture.cpp:
+	.text       start:0x8026B604 end:0x8026BA90
+	.sdata2     start:0x80539968 end:0x80539978
+
+Kyoto/Math/CMatrix3f.cpp:
+	.text       start:0x8026D484 end:0x8026DBAC
+	.ctors      start:0x8032134C end:0x80321350
+	.sdata2     start:0x80539980 end:0x80539988
+
+Kyoto/Math/CMatrix4f.cpp:
+	.text       start:0x8026DBAC end:0x8026DE74
+	.ctors      start:0x80321350 end:0x80321354
+	.sdata2     start:0x80539988 end:0x80539990
+
+Kyoto/Math/CNUQuaternion.cpp:
+	.text       start:0x8026DE74 end:0x8026E4AC
+
+Kyoto/Math/CQuaternion.cpp:
+	.text       start:0x8026EAA8 end:0x8026F844
+	.ctors      start:0x80321354 end:0x80321358
+	.sdata      start:0x80535108 end:0x80535110
+	.sdata2     start:0x805399C0 end:0x805399C8
+
+Kyoto/CRandom16.cpp:
+	.text       start:0x8026F844 end:0x8026FAB8
+	.sdata2     start:0x805399F8 end:0x80539A00
+
+Kyoto/Math/CTransform4f.cpp:
+	.text       start:0x8026FF80 end:0x80271080
+	.ctors      start:0x80321358 end:0x8032135C
+	.sdata2     start:0x80539A00 end:0x80539A08
+
+Kyoto/Math/CVector2f.cpp:
+	.text       start:0x80271080 end:0x80271420
+	.ctors      start:0x8032135C end:0x80321360
+	.sdata2     start:0x80539A10 end:0x80539A20
+
+Kyoto/Math/CVector2i.cpp:
+	.text       start:0x80271420 end:0x802714CC
+
+Kyoto/Math/CVector3d.cpp:
+	.text       start:0x802714CC end:0x80271724
+	.sdata2     start:0x80539A20 end:0x80539A28
+
+Kyoto/Math/CVector3f.cpp:
+	.text       start:0x80271724 end:0x80271CF8
+	.ctors      start:0x80321360 end:0x80321364
+	.sdata2     start:0x80539A28 end:0x80539A38
+
+Kyoto/Math/RMathUtils.cpp:
+	.text       start:0x80271CF8 end:0x8027233C
+	.sdata2     start:0x80539A70 end:0x80539AE0
+
+Kyoto/CCrc32.cpp:
+	.text       start:0x8027260C end:0x802726DC
+
+Kyoto/Alloc/CCircularBuffer.cpp:
+	.text       start:0x802726DC end:0x80272894
+
+Kyoto/Alloc/IAllocator.cpp:
+	.text       start:0x802730A0 end:0x80273180
+	.data       start:0x80352268 end:0x803522A8
+
+Kyoto/Particles/CColorElement.cpp:
+	.text       start:0x8027420C end:0x8027432C
+
+Kyoto/Particles/CIntElement.cpp:
+	.text       start:0x8027ECA4 end:0x8027EDE8
+	.sdata2     start:0x80539B60 end:0x80539B68
+
+Kyoto/Particles/CParticleDataFactory.cpp:
+	.text       start:0x80284444 end:0x80284894
+
+Kyoto/Particles/CParticleGen.cpp:
+	.text       start:0x80288C14 end:0x80288CC0
+
+Kyoto/Particles/CParticleGlobals.cpp:
+	.text       start:0x80288CC0 end:0x80288DC8
+	.sdata2     start:0x80539B90 end:0x80539B98
+
+Kyoto/Particles/CParticleSwoosh.cpp:
+	.text       start:0x8028D8D4 end:0x8028DA94
+	.sdata2     start:0x80539B98 end:0x80539BB0
+
+Kyoto/Particles/CParticleSwooshDataFactory.cpp:
+	.text       start:0x8028DBD4 end:0x8028E194
+
+Kyoto/Particles/CRealElement.cpp:
+	.text       start:0x8028E61C end:0x8028E724
+
+Kyoto/Particles/CSpawnSystemKeyframeData.cpp:
+	.text       start:0x80290A30 end:0x80290BAC
+
+Kyoto/Particles/CVectorElement.cpp:
+	.text       start:0x80292448 end:0x802925C8
+	.sdata2     start:0x80539C28 end:0x80539C30
+
+Kyoto/Math/CPlane.cpp:
+	.text       start:0x8029512C end:0x802952E8
+	.sdata2     start:0x80539C50 end:0x80539C58
+
+Kyoto/Math/CAABox.cpp:
+	.text       start:0x802953A0 end:0x802964E4
+	.ctors      start:0x8032136C end:0x80321370
+
+Kyoto/CResLoader.cpp:
+	.text       start:0x80298BB0 end:0x8029A18C
+	.rodata     start:0x8033D6E8 end:0x8033D6F8
+	.sbss2      start:0x8053A7D8 end:0x8053A7E8
+
+rstl/rstl_map.cpp:
+	.text       start:0x8029A228 end:0x8029A914
+
+rstl/RstlExtras.cpp:
+	.text       start:0x8029BF5C end:0x8029C3C0
+
+Kyoto/Streams/CInputStream.cpp:
+	.text       start:0x8029C988 end:0x8029CBE8
+
+Kyoto/Streams/CMemoryInStream.cpp:
+	.text       start:0x8029CD7C end:0x8029CE08
+
+Kyoto/Streams/COutputStream.cpp:
+	.text       start:0x8029CF74 end:0x8029D21C
+
+Kyoto/Streams/CZipInputStream.cpp:
+	.text       start:0x8029D21C end:0x8029D45C
+
+Kyoto/CObjectReference.cpp:
+	.text       start:0x8029D524 end:0x8029DAD0
+
+Kyoto/CToken.cpp:
+	.text       start:0x8029E934 end:0x8029EC74
+	.rodata     start:0x8033D7B8 end:0x8033D7C0
+
+Kyoto/IObj.cpp:
+	.text       start:0x8029EC74 end:0x8029ED90
+	.ctors      start:0x80321378 end:0x8032137C
+
+zlib-1.1.3/adler32.c:
+	.text       start:0x8029ED90 end:0x8029EF14
+
+zlib-1.1.3/infblock.c:
+	.text       start:0x8029EF14 end:0x802A0044
+
+zlib-1.1.3/infcodes.c:
+	.text       start:0x802A0044 end:0x802A0A34
+
+zlib-1.1.3/inffast.c:
+	.text       start:0x802A0A34 end:0x802A0FCC
+
+zlib-1.1.3/inflate.c:
+	.text       start:0x802A0FCC end:0x802A1830
+
+zlib-1.1.3/inftrees.c:
+	.text       start:0x802A1830 end:0x802A207C
+	.sdata      start:0x805351C0 end:0x805351C8
+
+zlib-1.1.3/infutil.c:
+	.text       start:0x802A207C end:0x802A21FC
+
+Kyoto/CARAMManager.cpp:
+	.text       start:0x802A2258 end:0x802A2CC0
+	.ctors      start:0x8032137C end:0x80321380
+	.rodata     start:0x8033DC68 end:0x8033DCB8
+	.bss        start:0x80533D3C end:0x80533D54 align:4
+	.sdata      start:0x805351C8 end:0x805351D0
+	.sbss       start:0x80535BA8 end:0x80535BC8
+	.sdata2     start:0x80539C88 end:0x80539C90
+
+Kyoto/Math/CFrustumPlanes.cpp:
+	.text       start:0x802A2CC0 end:0x802A325C
+
+Kyoto/Graphics/CCubeMaterial.cpp:
+	.text       start:0x802A4C20 end:0x802A4F88
+	.bss        start:0x80533D54 end:0x80533D60 align:4
+	.sdata      start:0x805351D0 end:0x805351E0
+	.sdata2     start:0x80539CD0 end:0x80539CD8
+
+Kyoto/Graphics/CCubeSurface.cpp:
+	.text       start:0x802A5B28 end:0x802A5BAC
+	.ctors      start:0x80321384 end:0x80321388
+	.bss        start:0x80533D60 end:0x80533D6C align:4
+	.sdata2     start:0x80539CF8 end:0x80539D00
+
+Kyoto/Animation/CCharAnimTime.cpp:
+	.text       start:0x802A5BAC end:0x802A6610
+	.sdata      start:0x805351E0 end:0x80535200
+	.sdata2     start:0x80539D00 end:0x80539D04 align:4
+
+Kyoto/Animation/CSegIdList.cpp:
+	.text       start:0x802A6610 end:0x802A6650
+
+Kyoto/Input/CFinalInput.cpp:
+	.text       start:0x802A67C0 end:0x802A78A0
+
+Kyoto/Graphics/CColor.cpp:
+	.text       start:0x802A78A0 end:0x802A7940
+	.ctors      start:0x80321388 end:0x8032138C
+	.sbss       start:0x80535BF0 end:0x80535C18
+
+Kyoto/Audio/DolphinCAudioSys.cpp:
+	.text       start:0x802A8444 end:0x802ABFA0
+	.ctors      start:0x8032138C end:0x80321390
+	.rodata     start:0x8033DF78 end:0x8033E0E8
+	.bss        start:0x80533D6C end:0x80533D7C align:4
+	.sdata      start:0x80535240 end:0x80535250
+	.sbss       start:0x80535C18 end:0x80535C48
+	.sdata2     start:0x80539D24 end:0x80539D30 align:4
+
+Kyoto/Input/DolphinIController.cpp:
+	.text       start:0x802AC950 end:0x802AC9FC
+	.sdata2     start:0x80539D30 end:0x80539D40
+
+Kyoto/Input/CDolphinController.cpp:
+	.text       start:0x802ACA80 end:0x802ACF88
+	.sdata2     start:0x80539D60 end:0x80539D68
+
+Kyoto/DolphinCDvdFile.cpp:
+	.text       start:0x802AD260 end:0x802AD4FC
+
+Kyoto/Alloc/CSmallAllocPool.cpp:
+	.text       start:0x802AE848 end:0x802AEB5C
+
+Kyoto/Alloc/CGameAllocator.cpp:
+	.text       start:0x802AEB5C end:0x802B0484
+	.data       start:0x80353EE8 end:0x80353F28
+
+Kyoto/Animation/DolphinCSkinnedModel.cpp:
+	.text       start:0x802B0484 end:0x802B179C
+	.ctors      start:0x80321390 end:0x80321394
+	.rodata     start:0x8033E818 end:0x8033E8A8
+	.data       start:0x80353F28 end:0x80353F38
+	.sbss       start:0x80535C70 end:0x80535C88
+
+Kyoto/Animation/DolphinCVirtualBone.cpp:
+	.text       start:0x802B2A38 end:0x802B33C4
+	.sdata2     start:0x80539D80 end:0x80539D84 align:4
+
+Kyoto/Graphics/DolphinCModel.cpp:
+	.text       start:0x802B33DC end:0x802B370C
+
+Kyoto/Particles/CEffectComponent.cpp:
+	.text       start:0x802B5034 end:0x802B5120
+
+Kyoto/Particles/CParticleData.cpp:
+	.text       start:0x802B5120 end:0x802B51C0
+
+Kyoto/Animation/CVertexMorphEffect.cpp:
+	.text       start:0x802B51FC end:0x802B56C0
+	.rodata     start:0x8033E8D0 end:0x8033E8D8
+	.sdata2     start:0x80539D98 end:0x80539DB0
+
+Kyoto/CTimeProvider.cpp:
+	.text       start:0x802B602C end:0x802B6104
+	.sbss       start:0x80535CE0 end:0x80535CE8
+
+Kyoto/CARAMToken.cpp:
+	.text       start:0x802B6104 end:0x802B6800
+	.rodata     start:0x8033E8E0 end:0x8033E8E8
+	.bss        start:0x80533D7C end:0x80533D98 align:4
+
+Kyoto/Audio/CMidiManager.cpp:
+	.text       start:0x802B6800 end:0x802B7164
+	.ctors      start:0x80321394 end:0x80321398
+	.rodata     start:0x8033E8E8 end:0x8033E8F0
+	.data       start:0x80353FC0 end:0x80353FD0
+	.bss        start:0x80533D98 end:0x80533DC0 align:4
+
+Kyoto/Text/CFontImageDef.cpp:
+	.text       start:0x802B7164 end:0x802B7388
+	.rodata     start:0x8033E8F0 end:0x8033E8F8
+	.sdata2     start:0x80539DB8 end:0x80539DC0
+
+Kyoto/Text/CImageInstruction.cpp:
+	.text       start:0x802B7388 end:0x802B76CC
+	.data       start:0x80353FD0 end:0x80353FE8
+
+Kyoto/Text/CTextRenderBuffer.cpp:
+	.text       start:0x802B76CC end:0x802B8E48
+	.rodata     start:0x8033E8F8 end:0x8033E918
+	.sdata2     start:0x80539DC8 end:0x80539DD8
+
+Kyoto/Audio/g721.cpp:
+	.text       start:0x802B8E48 end:0x802B97C4
+
+Kyoto/Graphics/CCubeMoviePlayer.cpp:
+	.text       start:0x802BAFF0 end:0x802BBA40
+	.sdata2     start:0x80539DD8 end:0x80539DF0
+
+Kyoto/Animation/CAdditiveAnimPlayback.cpp:
+	.text       start:0x802BBD38 end:0x802BC08C
+	.sdata2     start:0x80539E08 end:0x80539E10
+
+Kyoto/Particles/CParticleElectricDataFactory.cpp:
+	.text       start:0x802BC08C end:0x802BC904
+
+Kyoto/Particles/CParticleElectric.cpp:
+	.text       start:0x802BE0C4 end:0x802BE354
+	.sdata2     start:0x80539E28 end:0x80539E30
+
+Kyoto/Graphics/DolphinCColor.cpp:
+	.text       start:0x802C0380 end:0x802C07F4
+	.sdata      start:0x80535298 end:0x805352A8
+	.sdata2     start:0x80539E60 end:0x80539E70
+
+Kyoto/CDependencyGroup.cpp:
+	.text       start:0x802C07F4 end:0x802C0C5C
+	.rodata     start:0x8033EB08 end:0x8033EB10
+	.data       start:0x803540F8 end:0x80354108
+
+Kyoto/Audio/CStreamAudioManager.cpp:
+	.text       start:0x802C0D4C end:0x802C135C
+	.ctors      start:0x8032139C end:0x803213A0
+	.rodata     start:0x8033EB10 end:0x8033EB18
+	.bss        start:0x80533DF0 end:0x80533E10 align:4
+	.sdata      start:0x805352A8 end:0x805352B8
+	.sbss       start:0x80535D18 end:0x80535D20
+	.sdata2     start:0x80539E70 end:0x80539E98
+
+Kyoto/Particles/CSwooshDescription.cpp:
+	.text       start:0x802C1710 end:0x802C1A50
+
+Kyoto/CPakFile.cpp:
+	.text       start:0x802C1E90 end:0x802C32B0
+	.rodata     start:0x8033EBD8 end:0x8033EC50
+	.sdata      start:0x805352B8 end:0x805352C0
+
+Kyoto/Animation/CPoseAsTransformsVariableSize.cpp:
+	.text       start:0x802C32B0 end:0x802C3680
+	.rodata     start:0x8033EC50 end:0x8033EC58
+	.sdata      start:0x805352C0 end:0x805352C8
+
+Kyoto/Input/RumbleAdsr.cpp:
+	.text       start:0x802C3C10 end:0x802C3D18
+
+dolphin/ai.c:
+	.text       start:0x802C45D4 end:0x802C4DBC
+
+dolphin/ar/ar.c:
+	.text       start:0x802C4E00 end:0x802C4FCC
+
+dolphin/ar/arq.c:
+	.text       start:0x802C5A24 end:0x802C5DB8
+
+dolphin/db.c:
+	.text       start:0x802C5E68 end:0x802C5F54
+	.data       start:0x80354108 end:0x80354120
+
+dolphin/dsp/dsp.c:
+	.text       start:0x802C5F54 end:0x802C6160
+
+dolphin/dsp/dsp_debug.c:
+	.text       start:0x802C6160 end:0x802C61B0
+
+dolphin/dsp/dsp_task.c:
+	.text       start:0x802C61B0 end:0x802C6A34
+
+dolphin/dvd/dvdlow.c:
+	.text       start:0x802C6A34 end:0x802C7888
+
+dolphin/dvd/dvdfs.c:
+	.text       start:0x802C7888 end:0x802C7E74
+	.sdata      start:0x805352D8 end:0x805352E0
+
+runtime/float.c:
+	.sdata      start:0x805353C8 end:0x805353E0
+
+dolphin/dvd/dvd.c:
+	.text       start:0x802C98D0 end:0x802CA868
+
+dolphin/dvd/dvdqueue.c:
+	.text       start:0x802CADC0 end:0x802CAFB8
+
+dolphin/dvd/dvderror.c:
+	.text       start:0x802CAFB8 end:0x802CB150
+
+dolphin/dvd/fstload.c:
+	.text       start:0x802CB150 end:0x802CB390
+
+dolphin/gx/GXInit.c:
+	.text       start:0x802CB390 end:0x802CC480
+
+dolphin/gx/GXFifo.c:
+	.text       start:0x802CC92C end:0x802CC9C4
+
+dolphin/gx/GXAttr.c:
+	.text       start:0x802CCF38 end:0x802CE0E4
+
+dolphin/gx/GXMisc.c:
+	.text       start:0x802CE15C end:0x802CE5EC
+
+dolphin/gx/GXGeometry.c:
+	.text       start:0x802CE5EC end:0x802CE9CC
+
+dolphin/gx/GXFrameBuf.c:
+	.text       start:0x802CE9CC end:0x802CF580
+
+dolphin/gx/GXTexture.c:
+	.text       start:0x802CFDB8 end:0x802D0EC0
+	.sdata2     start:0x80539F20 end:0x80539F40
+
+dolphin/gx/GXBump.c:
+	.text       start:0x802D0EC0 end:0x802D152C
+
+dolphin/gx/GXTev.c:
+	.text       start:0x802D152C end:0x802D1F64
+
+dolphin/gx/GXPixel.c:
+	.text       start:0x802D1F64 end:0x802D26AC
+	.sdata2     start:0x80539F70 end:0x80539F78
+
+dolphin/gx/GXDisplayList.c:
+	.text       start:0x802D26B0 end:0x802D2720
+
+dolphin/gx/GXTransform.c:
+	.text       start:0x802D2BF0 end:0x802D2C9C
+
+dolphin/gx/GXPerf.c:
+	.text       start:0x802D2C9C end:0x802D3544
+
+dolphin/mtx/mtx.c:
+	.text       start:0x802D3544 end:0x802D3670
+	.sdata2     start:0x80539F88 end:0x80539F90
+
+dolphin/mtx/mtxvec.c:
+	.text       start:0x802D3860 end:0x802D3908
+
+dolphin/mtx/mtx44.c:
+	.text       start:0x802D3908 end:0x802D3A3C
+	.sdata2     start:0x80539F90 end:0x80539FA0
+
+dolphin/mtx/psmtx.c:
+	.text       start:0x802D3A3C end:0x802D3A88
+
+dolphin/os/OS.c:
+	.text       start:0x802D3A88 end:0x802D3C14
+
+dolphin/os/OSAlarm.c:
+	.text       start:0x802D443C end:0x802D4A40
+
+dolphin/os/OSAudioSystem.c:
+	.text       start:0x802D4E00 end:0x802D5094
+
+dolphin/os/OSCache.c:
+	.text       start:0x802D5094 end:0x802D5808
+
+dolphin/os/OSContext.c:
+	.text       start:0x802D5C1C end:0x802D5FB4
+
+dolphin/os/OSFont.c:
+	.text       start:0x802D637C end:0x802D63D4
+
+dolphin/os/OSInterrupt.c:
+	.text       start:0x802D63D4 end:0x802D6C40
+
+dolphin/os/OSLink.c:
+	.text       start:0x802D6C40 end:0x802D6C58
+
+dolphin/os/OSMemory.c:
+	.text       start:0x802D6C58 end:0x802D6FFC
+
+dolphin/os/OSMutex.c:
+	.text       start:0x802D6FFC end:0x802D706C
+
+dolphin/os/OSReset.c:
+	.text       start:0x802D7278 end:0x802D765C
+
+dolphin/os/OSResetSW.c:
+	.text       start:0x802D765C end:0x802D79E8
+
+dolphin/os/OSRtc.c:
+	.text       start:0x802D79E8 end:0x802D8414
+
+dolphin/os/OSSync.c:
+	.text       start:0x802D8414 end:0x802D8498
+
+dolphin/os/OSThread.c:
+	.text       start:0x802D8AC0 end:0x802D92D0
+
+dolphin/os/OSTime.c:
+	.text       start:0x802D92D0 end:0x802D9354
+
+dolphin/pad/PadClamp.c:
+	.text       start:0x802D93E8 end:0x802D9620
+
+dolphin/pad/pad.c:
+	.text       start:0x802D9620 end:0x802DB0FC
+
+dolphin/vi.c:
+	.text       start:0x802DC710 end:0x802DCABC
+
+runtime/__va_arg.c:
+	.text       start:0x802DD858 end:0x802DD920
+
+runtime/global_destructor_chain.c:
+	.text       start:0x802DD920 end:0x802DD980
+	.dtors      start:0x803213C8 end:0x803213CC
+
+runtime/CPlusLibPPC.cpp:
+	.text       start:0x802DD980 end:0x802DD9B0
+
+runtime/NMWException.cpp:
+	extab       start:0x80005620 end:0x80005640
+	extabindex  start:0x80005E20 end:0x80005E38
+	.text       start:0x802DD9B0 end:0x802DDB20
+
+runtime/ptmf.c:
+	.text       start:0x802DDCD8 end:0x802DDD30
+
+runtime/runtime.c:
+	.text       start:0x802DDD30 end:0x802DE428
+
+runtime/Gecko_ExceptionPPC.cpp:
+	.text       start:0x802DE4A4 end:0x802DE50C
+
+runtime/abort_exit.c:
+	.text       start:0x802DE67C end:0x802DE748
+
+runtime/alloc.c:
+	.text       start:0x802DF230 end:0x802DF40C
+
+runtime/ansi_files.c:
+	.text       start:0x802DF644 end:0x802DF74C
+
+runtime/ansi_fp.c:
+	.text       start:0x802DF74C end:0x802E12F8
+	.sdata2     start:0x80539FA0 end:0x80539FD0
+
+runtime/arith.c:
+	.text       start:0x802E2CD0 end:0x802E2CE0
+
+runtime/buffer_io.c:
+	.text       start:0x802E2CE0 end:0x802E2DD8
+
+runtime/direct_io.c:
+	.text       start:0x802E2DFC end:0x802E3128
+
+runtime/file_io.c:
+	.text       start:0x802E3128 end:0x802E3260
+
+runtime/FILE_POS.c:
+	.text       start:0x802E343C end:0x802E36E8
+
+runtime/mem.c:
+	.text       start:0x802E3A0C end:0x802E3B7C
+
+runtime/mem_funcs.c:
+	.text       start:0x802E3B7C end:0x802E3E4C
+
+runtime/misc_io.c:
+	.text       start:0x802E3E4C end:0x802E3E5C
+
+runtime/printf.c:
+	.text       start:0x802E3E5C end:0x802E5E84
+	.sdata2     start:0x80539FD8 end:0x80539FE0
+
+runtime/rand.c:
+	.text       start:0x802E5FF8 end:0x802E6018
+
+runtime/sscanf.c:
+	.text       start:0x802E60DC end:0x802E616C
+
+runtime/string.c:
+	.text       start:0x802E7060 end:0x802E7310
+
+runtime/strtold.c:
+	.text       start:0x802E7310 end:0x802E83A8
+	.sdata2     start:0x80539FE8 end:0x80539FF0
+
+runtime/uart_console_io.c:
+	.text       start:0x802E8B34 end:0x802E8BF8
+
+runtime/wchar_io.c:
+	.text       start:0x802E8BF8 end:0x802E8C80
+
+runtime/e_acos.c:
+	.text       start:0x802E8C80 end:0x802E8F90
+	.sdata2     start:0x80539FF8 end:0x8053A088
+
+runtime/e_asin.c:
+	.text       start:0x802E8F90 end:0x802E91F4
+	.sdata2     start:0x8053A088 end:0x8053A120
+
+runtime/e_atan2.c:
+	.text       start:0x802E91F4 end:0x802E9484
+	.sdata2     start:0x8053A120 end:0x8053A178
+
+runtime/e_fmod.c:
+	.text       start:0x802E96A8 end:0x802E99E4
+
+runtime/e_log.c:
+	.text       start:0x802E99E4 end:0x802E9C60
+	.sdata2     start:0x8053A1F0 end:0x8053A270
+
+runtime/e_rem_pio2.c:
+	.text       start:0x802EA514 end:0x802EA8B4
+	.sdata2     start:0x8053A380 end:0x8053A3D8
+
+runtime/k_cos.c:
+	.text       start:0x802EA8B4 end:0x802EA9A8
+	.sdata2     start:0x8053A3D8 end:0x8053A420
+
+runtime/k_rem_pio2.c:
+	.text       start:0x802EA9A8 end:0x802EB7FC
+	.sdata2     start:0x8053A420 end:0x8053A460
+
+runtime/k_sin.c:
+	.text       start:0x802EB7FC end:0x802EB89C
+	.sdata2     start:0x8053A460 end:0x8053A498
+
+runtime/k_tan.c:
+	.text       start:0x802EB89C end:0x802EBAB0
+	.sdata2     start:0x8053A498 end:0x8053A4D0
+
+runtime/s_atan.c:
+	.text       start:0x802EBAB0 end:0x802EBCC8
+	.sdata2     start:0x8053A4D0 end:0x8053A4F8
+
+runtime/s_copysign.c:
+	.text       start:0x802EBCC8 end:0x802EBCF0
+
+runtime/s_cos.c:
+	.text       start:0x802EBCF0 end:0x802EBDC4
+	.sdata2     start:0x8053A4F8 end:0x8053A500
+
+runtime/s_floor.c:
+	.text       start:0x802EBDC4 end:0x802EBF0C
+	.sdata2     start:0x8053A500 end:0x8053A510
+
+runtime/s_frexp.c:
+	.text       start:0x802EBF0C end:0x802EBF98
+	.sdata2     start:0x8053A510 end:0x8053A518
+
+runtime/s_ldexp.c:
+	.text       start:0x802EBF98 end:0x802EC15C
+	.sdata2     start:0x8053A518 end:0x8053A540
+
+runtime/s_modf.c:
+	.text       start:0x802EC15C end:0x802EC258
+
+runtime/s_nextafter.c:
+	.text       start:0x802EC258 end:0x802EC3DC
+
+runtime/s_sin.c:
+	.text       start:0x802EC3DC end:0x802EC4B4
+	.sdata2     start:0x8053A540 end:0x8053A548
+
+runtime/s_tan.c:
+	.text       start:0x802EC4B4 end:0x802EC52C
+	.sdata2     start:0x8053A548 end:0x8053A550
+
+runtime/w_acos.c:
+	.text       start:0x802EC52C end:0x802EC54C
+
+runtime/w_asin.c:
+	.text       start:0x802EC54C end:0x802EC56C
+
+runtime/w_atan2.c:
+	.text       start:0x802EC56C end:0x802EC58C
+
+runtime/w_log.c:
+	.text       start:0x802EC5CC end:0x802EC5EC
+
+runtime/w_pow.c:
+	.text       start:0x802EC5EC end:0x802EC60C
+
+musyx/runtime/synthdata.c:
+	extab       start:0x80005828 end:0x800058D8
+	extabindex  start:0x800060FC end:0x80006204
+	.text       start:0x802F41F8 end:0x802F5FC0
+
+musyx/runtime/synthmacros.c:
+	.text       start:0x802F946C end:0x802F9510
+
+musyx/runtime/synthvoice.c:
+	extab       start:0x800059B0 end:0x800059C8
+	extabindex  start:0x80006348 end:0x8000636C
+	.text       start:0x802F9C94 end:0x802FA8E4
+
+musyx/runtime/synth_ac.c:
+	extab       start:0x800059E8 end:0x800059F0
+	extabindex  start:0x8000639C end:0x800063A8
+	.text       start:0x802FB398 end:0x802FB4C4
+	.sdata2     start:0x8053A5F0 end:0x8053A5F8
+
+musyx/runtime/synth_vsamples.c:
+	extab       start:0x80005A20 end:0x80005A40
+	extabindex  start:0x800063F0 end:0x80006420
+	.text       start:0x802FBB70 end:0x802FC2D8
+
+musyx/runtime/snd_math.c:
+	.text       start:0x80302E18 end:0x803031D8
+
+musyx/runtime/snd_service.c:
+	extab       start:0x80005C08 end:0x80005C10
+	extabindex  start:0x800066CC end:0x800066D8
+	.text       start:0x80304DB0 end:0x80304E58
+
+musyx/runtime/hw_memory.c:
+	extab       start:0x80005D58 end:0x80005D68
+	extabindex  start:0x800068C4 end:0x800068DC
+	.text       start:0x80306A60 end:0x80306AB4
+
+musyx/runtime/CheapReverb/creverb.c:
+	.text       start:0x80307188 end:0x8030753C
+	.sdata2     start:0x8053A710 end:0x8053A718
+
+musyx/runtime/StdReverb/reverb.c:
+	extab       start:0x80005DD8 end:0x80005DE0
+	extabindex  start:0x80006984 end:0x80006990
+	.text       start:0x80307E1C end:0x803085B0
+	.sdata2     start:0x8053A748 end:0x8053A758
+
+musyx/runtime/Chorus/chorus_fx.c:
+	extab       start:0x80005E00 end:0x80005E08
+	extabindex  start:0x800069C0 end:0x800069CC
+	.text       start:0x80308AC8 end:0x803091B8
+	.sdata2     start:0x8053A760 end:0x8053A768
+
+dolphin/dtk.c:
+	.text       start:0x803101A0 end:0x80310AFC
+
+dolphin/card/CARDBios.c:
+	.text       start:0x80310B44 end:0x80311980
+
+dolphin/card/CARDUnlock.c:
+	.text       start:0x80311E2C end:0x8031308C
+
+dolphin/card/CARDRdwr.c:
+	.text       start:0x8031308C end:0x8031330C
+
+dolphin/card/CARDBlock.c:
+	.text       start:0x8031330C end:0x80313674
+
+dolphin/card/CARDDir.c:
+	.text       start:0x80313674 end:0x803138D8
+
+dolphin/card/CARDCheck.c:
+	.text       start:0x803138D8 end:0x8031425C
+
+dolphin/card/CARDMount.c:
+	.text       start:0x80314A60 end:0x80314BA8
+
+dolphin/card/CARDFormat.c:
+	.text       start:0x80314BA8 end:0x80315398
+
+dolphin/card/CARDOpen.c:
+	.text       start:0x80315398 end:0x80315694
+
+dolphin/card/CARDCreate.c:
+	.text       start:0x80315694 end:0x803159E4
+
+dolphin/card/CARDRead.c:
+	.text       start:0x80315A2C end:0x80315E5C
+
+dolphin/card/CARDWrite.c:
+	.text       start:0x80315EA4 end:0x803161D8
+
+dolphin/card/CARDStat.c:
+	.text       start:0x80316220 end:0x80316544
+
+dolphin/si/SIBios.c:
+	.text       start:0x80316544 end:0x80317C24
+
+dolphin/si/SISamplingRate.c:
+	.text       start:0x80317C24 end:0x80317D2C
+
+dolphin/exi/EXIUart.c:
+	.text       start:0x80319544 end:0x803197B4
+
+dolphin/thp/THPDec.c:
+	.text       start:0x803197B4 end:0x80320CF4
+	.rodata     start:0x8033F558 end:0x8033F5E8
+	.sbss       start:0x80536260 end:0x80536378 align:32
+	.sdata2     start:0x8053A768 end:0x8053A784
+
+dolphin/thp/THPAudio.c:
+	.text       start:0x80320CF4 end:0x80321224
+
+dolphin/os/__start.c:
+	.init       start:0x80003100 end:0x80003354
+
+dolphin/os/__ppc_eabi_init.cpp:
+	.init       start:0x80003354 end:0x800033A8
+
+runtime/__mem.c:
+	.init       start:0x800033D8 end:0x800034E0

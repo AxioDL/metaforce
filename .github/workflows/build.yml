@@ -14,7 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        version: [GM8E01_00, GM8E01_01, GM8E01_48, GM8P01_00, GM8J01_00, GM8E01_02, R3IJ01_00, R3ME01_00, R3MP01_00]
+        version: [GM8EAB_00, GM8E01_00, GM8E01_01, GM8E01_48, GM8P01_00, GM8J01_00, GM8E01_02, R3IJ01_00, R3ME01_00, R3MP01_00]
 
     steps:
     # Checkout the repository

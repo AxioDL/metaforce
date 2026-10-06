@@ -679,7 +679,9 @@ void CStateManager::DeleteObjectRequest(TUniqueId uid) {
   backIt->push_back(uid);
 
   ent->AcceptScriptMsg(kSM_Deleted, kInvalidUniqueId, *this);
+#if VERSION > VERSION_GM8EAB_00
   ent->mScriptingBlocked = true;
+#endif
 
   if (CActor* actor = TCastToPtr< CActor >(ent)) {
     mSortedListManager->Remove(actor);
@@ -1905,9 +1907,11 @@ void CStateManager::FreeScriptObjects(TAreaId aid) {
     for (int i = areaObjList->GetFirstObjectIndex(); i != -1;
          i = areaObjList->GetNextObjectIndex(i)) {
       CEntity* ent = (*areaObjList)[i];
+#if VERSION > VERSION_GM8EAB_00
       if (ent != nullptr && !ent->mNotInArea) {
         DeleteObjectRequest(ent->GetUniqueId());
       }
+#endif
     }
   }
 }
