@@ -2454,7 +2454,7 @@ config.libs = [
         "gx",
         [
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8E01_02", "GM8P01_00"),
                 "dolphin/gx/GXInit.c",
             ),
             Object(
@@ -2462,11 +2462,11 @@ config.libs = [
                 "dolphin/gx/GXFifo.c",
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8E01_02", "GM8P01_00"),
                 "dolphin/gx/GXAttr.c",
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8E01_02", "GM8P01_00"),
                 "dolphin/gx/GXMisc.c",
             ),
             Object(
@@ -2495,7 +2495,7 @@ config.libs = [
                 "dolphin/gx/GXTev.c",
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8E01_02"),
                 "dolphin/gx/GXPixel.c",
                 extra_cflags=["-fp_contract off"],
             ),

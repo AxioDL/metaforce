@@ -1,3 +1,6 @@
+#include "GameVersions.h"
+
+#include "dolphin/ai.h"
 #include "dolphin/dvd.h"
 #include "dolphin/os.h"
 #include "dolphin/os/OSBootInfo.h"
@@ -48,6 +51,90 @@ asm void Run(void *entrypoint) {
 
 static void Callback(s32 result, DVDCommandBlock *block) { Prepared = TRUE; }
 
+#if VERSION >= VERSION_GM8E_02
+extern BOOL __OSIsGcam;
+extern void DVDResume(void);
+extern BOOL DVDReadAbsAsyncPrio(DVDCommandBlock *block, void *addr, s32 length, s32 offset,
+                                DVDCBCallback callback, s32 prio);
+
+static BOOL IsStreamEnabled(void) {
+  if (DVDGetCurrentDiskID()->streaming) {
+    return TRUE;
+  }
+  return FALSE;
+}
+
+void __OSReboot(u32 resetCode, u32 bootDol) {
+  OSContext exceptionContext;
+  DVDCommandBlock dvdCmd;
+  DVDCommandBlock dvdCmd2;
+  DVDCommandBlock dvdCmd3;
+  u32 numBytes;
+  u32 offset;
+  OSTime start;
+
+  OSDisableInterrupts();
+  UNK_HOT_RESET2 = 0;
+  UNK_HOT_RESET1 = 0;
+  OS_REBOOT_BOOL = 1;
+  BOOT_REGION_START = (u32)SaveStart;
+  BOOT_REGION_END = (u32)SaveEnd;
+  OSClearContext(&exceptionContext);
+  OSSetCurrentContext(&exceptionContext);
+  DVDInit();
+  DVDSetAutoInvalidation(TRUE);
+  DVDResume();
+  Prepared = FALSE;
+  __DVDPrepareResetAsync(Callback);
+
+  __OSMaskInterrupts(~0x1F);
+  __OSUnmaskInterrupts(0x400);
+  OSEnableInterrupts();
+
+  start = OSGetTime();
+  while (Prepared != TRUE) {
+    if (!DVDCheckDisk() || OSGetTime() - start > OSSecondsToTicks(1)) {
+      __OSDoHotReset(UNK_HOT_RESET2);
+    }
+  }
+
+  if (!__OSIsGcam && IsStreamEnabled()) {
+    AISetStreamVolLeft(0);
+    AISetStreamVolRight(0);
+    DVDCancelStreamAsync(&dvdCmd, NULL);
+    start = OSGetTime();
+    while (DVDGetCommandBlockStatus(&dvdCmd)) {
+      if (!DVDCheckDisk() || OSGetTime() - start > OSSecondsToTicks(1)) {
+        __OSDoHotReset(UNK_HOT_RESET2);
+      }
+    }
+    AISetStreamPlayState(0);
+  }
+
+  DVDReadAbsAsyncPrio(&dvdCmd2, &Header, 32, 0x2440, NULL, 0);
+  start = OSGetTime();
+  while (DVDGetCommandBlockStatus(&dvdCmd2)) {
+    if (!DVDCheckDisk() || OSGetTime() - start > OSSecondsToTicks(1)) {
+      __OSDoHotReset(UNK_HOT_RESET2);
+    }
+  }
+
+  offset = Header.size + 0x20;
+  numBytes = OSRoundUp32B(Header.rebootSize);
+  DVDReadAbsAsyncPrio(&dvdCmd3, (void *)OS_BOOTROM_ADDR, numBytes, offset + 0x2440, NULL, 0);
+  start = OSGetTime();
+  while (DVDGetCommandBlockStatus(&dvdCmd3)) {
+    if (!DVDCheckDisk() || OSGetTime() - start > OSSecondsToTicks(1)) {
+      __OSDoHotReset(UNK_HOT_RESET2);
+    }
+  }
+
+  ICInvalidateRange((void *)OS_BOOTROM_ADDR, numBytes);
+  OSDisableInterrupts();
+  ICFlashInvalidate();
+  Run((void *)OS_BOOTROM_ADDR);
+}
+#else
 static inline void ReadApploader(void *addr, long length, long offset) {
   DVDCommandBlock block;
 
@@ -114,6 +201,7 @@ void __OSReboot(u32 resetCode, u32 bootDol) {
   ICFlashInvalidate();
   Run((void *)OS_BOOTROM_ADDR);
 }
+#endif
 
 void OSSetSaveRegion(void *start, void *end) {
   SaveStart = start;
