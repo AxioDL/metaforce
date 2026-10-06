@@ -49,16 +49,9 @@ void BindingModal::show() {
   Modal::show();
   element()->Show(Rml::ModalFlag::Modal, Rml::FocusFlag::Document, Rml::ScrollFlag::None);
 
-  if (mInputLayer != kInvalidLayerId) {
-    return;
+  if (!mCapturing) {
+    CaptureNextInput();
   }
-
-  mInputLayer = register_layer({.label = "Binding Modal",
-                                .priority = kRmlUiLayerPriority + 1,
-                                .onEvent = [](const InputEvent&, void*) { return EventResult::Consume; },
-                                .capturesSource = [](const InputSource&, void*) { return true; }});
-
-  CaptureNextInput();
 }
 
 void BindingModal::hide(bool close) {
@@ -154,10 +147,6 @@ void BindingModal::StopCapture() {
   if (mCapturing) {
     aurora::binding::cancel_capture();
     mCapturing = false;
-  }
-  if (mInputLayer != kInvalidLayerId) {
-    unregister_layer(mInputLayer);
-    mInputLayer = kInvalidLayerId;
   }
 }
 

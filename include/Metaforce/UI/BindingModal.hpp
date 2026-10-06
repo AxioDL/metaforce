@@ -38,7 +38,6 @@ private:
   BindingTarget mTarget;
   uint32_t mDeviceSource;
   bool mCapturing = false;
-  aurora::input::LayerId mInputLayer = aurora::input::kInvalidLayerId;
 };
 
 } // namespace metaforce::ui
