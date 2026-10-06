@@ -988,7 +988,10 @@ config.libs = [
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00", "GM8E01_02"),
                 "MetroidPrime/BodyState/CBSLoopAttack.cpp",
             ),
-            Object(MatchingFor("GM8E01_02"), "MetroidPrime/Weapons/CTargetableProjectile.cpp"),
+            Object(
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02"),
+                "MetroidPrime/Weapons/CTargetableProjectile.cpp",
+            ),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00", "GM8E01_02"),
                 "MetroidPrime/BodyState/CBSLoopReaction.cpp",
