@@ -7,7 +7,7 @@
 
 class CIntegerTimeAndRemainder {
 public:
-#if VERSION >= VERSION_GM8E_02
+#if VERSION >= VERSION_GM8P_00
   CIntegerTimeAndRemainder(const CCharAnimTime& time, const CCharAnimTime& interval);
 #else
   CIntegerTimeAndRemainder(const CCharAnimTime& time, const CCharAnimTime& interval)

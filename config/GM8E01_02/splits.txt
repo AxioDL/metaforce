@@ -744,7 +744,7 @@ MetroidPrime/CRippleManager.cpp:
 	.sdata2     start:0x805AC520 end:0x805AC528
 
 MetroidPrime/Player/CGrappleArm.cpp:
-	.text       start:0x8011DC70 end:0x80120CFC
+	.text       start:0x8011DBC4 end:0x80120CFC
 	.rodata     start:0x803D03E0 end:0x803D04F8
 	.data       start:0x803E1770 end:0x803E17C0
 	.sdata      start:0x805A86C0 end:0x805A86D8

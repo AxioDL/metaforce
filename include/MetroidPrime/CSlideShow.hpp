@@ -31,6 +31,15 @@ public:
   static uint SlideShowGalleryFlags();
 
 private:
+  enum EPhase {
+    kP_WaitForPaks,
+    kP_LoadGalleryDeps,
+    kP_LoadGalleryAssets,
+    kP_BuildGalleries,
+    kP_LoadAudio,
+    kP_Running,
+  };
+
 #if VERSION >= VERSION_GM8P_00
   struct SGalleryData {
     int mGallery;
@@ -129,7 +138,7 @@ private:
   void SetZoomSfx(bool active);
   void SetPanSfx(bool active);
 
-  int mPhase;
+  EPhase mPhase;
   rstl::vector< TToken< CDependencyGroup > > mGalleryTXTRDeps;
   rstl::vector< SGalleryData > mGalleries;
   rstl::single_ptr< TToken< CModel > > mGalleryBorder;

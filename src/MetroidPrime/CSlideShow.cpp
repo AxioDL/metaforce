@@ -116,7 +116,7 @@ static void DrawTexture(const rstl::auto_ptr< TToken< CTexture > >& token,
 
 CSlideShow::CSlideShow()
 : CIOWin(rstl::string_l("SlideShow"))
-, mPhase(0)
+, mPhase(kP_WaitForPaks)
 , mGalleryBorder(nullptr)
 , x3c_(0)
 , mTotalSlides(0)
@@ -339,13 +339,13 @@ CIOWin::EMessageReturn CSlideShow::OnMessage(const CArchitectureMessage& msg,
     }
     const float dt = MakeMsg::GetParmTimerTick(msg).GetReal();
     switch (mPhase) {
-    case 0:
+    case kP_WaitForPaks:
       if (!gpResourceFactory->GetResLoader().AreAllPaksLoaded()) {
         gpResourceFactory->GetResLoader().AsyncIdlePakLoading();
         break;
       }
-      mPhase = 1;
-    case 1:
+      mPhase = kP_LoadGalleryDeps;
+    case kP_LoadGalleryDeps:
       if (mGalleryTXTRDeps.empty()) {
         mGalleryTXTRDeps.reserve(5);
         for (int i = 1;; ++i) {
@@ -361,8 +361,8 @@ CIOWin::EMessageReturn CSlideShow::OnMessage(const CArchitectureMessage& msg,
         break;
       }
 #if VERSION >= VERSION_GM8P_00
-      mPhase = 2;
-    case 2: {
+      mPhase = kP_LoadGalleryAssets;
+    case kP_LoadGalleryAssets: {
       if (mGalleryBorder.null()) {
         const SObjectTag* tag = gpResourceFactory->GetResourceIdByName(skGalleryBorder);
         mGalleryBorder = rs_new TToken< CModel >(gpSimplePool->GetObj(*tag));
@@ -377,25 +377,25 @@ CIOWin::EMessageReturn CSlideShow::OnMessage(const CArchitectureMessage& msg,
       for (int i = 0; i < count; ++i) {
         mGalleryLabels.push_back(rstl::wstring(mGalleryNames->GetString(i)));
       }
-      mPhase = 4;
+      mPhase = kP_LoadAudio;
     }
-    case 3:
+    case kP_BuildGalleries:
       BuildGalleryLists(SlideShowGalleryFlags());
       for (int i = 0; i < mGalleries.size(); ++i) {
         mTotalSlides += mGalleries[i].mSlides.size();
       }
       AdvanceSlide(true);
-      mPhase = 4;
+      mPhase = kP_LoadAudio;
 #else
-      mPhase = 3;
-    case 3:
+      mPhase = kP_BuildGalleries;
+    case kP_BuildGalleries:
       BuildGalleryLists(SlideShowGalleryFlags());
       for (int i = 0; i < mGalleries.size(); ++i) {
         mTotalSlides += mGalleries[i].second.size();
       }
       AdvanceSlide(true);
-      mPhase = 2;
-    case 2:
+      mPhase = kP_LoadGalleryAssets;
+    case kP_LoadGalleryAssets:
       if (mGalleryTags.size() != mGalleries.size()) {
         mGalleryTags.reserve(mGalleries.size());
         for (int i = 0; i < mGalleries.size(); ++i) {
@@ -422,9 +422,9 @@ CIOWin::EMessageReturn CSlideShow::OnMessage(const CArchitectureMessage& msg,
           break;
         }
       }
-      mPhase = 4;
+      mPhase = kP_LoadAudio;
 #endif
-    case 4:
+    case kP_LoadAudio:
       if (mAudio.null()) {
         mAudio = rs_new CStaticAudioPlayer(rstl::string_l(skAudioFile), 0x65af0, 0x1e1db0);
       }
@@ -433,8 +433,8 @@ CIOWin::EMessageReturn CSlideShow::OnMessage(const CArchitectureMessage& msg,
       }
       UpdateMusicVolume(gpTweakSlideShow->GetMusicFadeTime());
       mAudio->StartMixOut();
-      mPhase = 5;
-    case 5: {
+      mPhase = kP_Running;
+    case kP_Running: {
       if (mIntroFade || mOutroFade) {
         mFadeTimer = rstl::max_val(0.f, mFadeTimer - dt);
         if (mFadeTimer <= 0.f) {
@@ -501,7 +501,7 @@ CIOWin::EMessageReturn CSlideShow::OnMessage(const CArchitectureMessage& msg,
 }
 
 void CSlideShow::Draw() const {
-  if (mPhase == 5) {
+  if (mPhase == kP_Running) {
     if (mSlideA.IsReady()) {
       mSlideA.Draw();
     }
@@ -597,7 +597,11 @@ CAssetId UpdatePersistentScanPercent(int previous, int current, int total) {
 }
 
 CIOWin::EMessageReturn CSlideShow::ProcessUserInput(const CFinalInput& input) {
+#if VERSION == VERSION_GM8E_02
+  if (!mDisableInput && mPhase == kP_Running) {
+#else
   if (!mDisableInput) {
+#endif
     if (IsControlsAnimating()) {
       UpdateControlsText(input);
     }

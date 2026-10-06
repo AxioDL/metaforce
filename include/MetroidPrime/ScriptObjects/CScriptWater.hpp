@@ -53,6 +53,9 @@ public:
   CAABox GetSortingBounds(const CStateManager&) const override;
 
   bool CanRippleAtPoint(const CVector3f&) const;
+#if VERSION >= VERSION_GM8E_02
+  void RemoveSplashInhabitants(CStateManager&);
+#endif
   void UpdateSplashInhabitants(CStateManager&);
   void SetupGrid(bool recomputeClipping);
   void SetupGridClipping(CStateManager&, int computeVerts);

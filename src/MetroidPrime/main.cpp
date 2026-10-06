@@ -347,8 +347,10 @@ void InitializeApplicationUI(CGuiSys&);
 
 void InfiniteLoopAlarm(OSAlarm* alarm, OSContext* context) {
   if (sInfiniteLoopTime >= 10.f) {
-#if VERSION >= VERSION_GM8P_00
+#if VERSION >= VERSION_GM8E_02
     OSCancelAlarm(alarm);
+#endif
+#if VERSION >= VERSION_GM8P_00
     rs_debugger_printf("SKIP4INFINITE LOOP");
 #else
     rs_debugger_printf("INFINITE LOOP");
@@ -643,8 +645,30 @@ bool CMain::CheckTerminate() { return false; }
 bool CMain::CheckReset() {
   const BOOL resetButton = OSGetResetButtonState();
   const CControllerGamepadData& pad = gpController->GetGamepadData(0);
+#if VERSION == VERSION_GM8E_02 || VERSION == VERSION_GM8J_00
+  bool resetCombo = true;
+  for (int i = 0; i <= kBU_R && resetCombo; ++i) {
+    const bool pressed = pad.GetButton(static_cast< EButton >(i)).GetIsPressed();
+    switch (i) {
+    case kBU_B:
+    case kBU_X:
+    case kBU_Start:
+      if (!pressed) {
+        resetCombo = false;
+      }
+      break;
+    default:
+      if (pressed) {
+        resetCombo = false;
+      }
+      break;
+    }
+  }
+  if (resetCombo) {
+#else
   if (pad.GetButton(kBU_B).GetIsPressed() && pad.GetButton(kBU_X).GetIsPressed() &&
       pad.GetButton(kBU_Start).GetIsPressed()) {
+#endif
     if (mResetInputDelay >= 0.5f) {
       mSoftResetHoldTime += FRAME_PERIOD;
       if (mSoftResetHoldTime > 0.5f) {
@@ -699,12 +723,12 @@ bool CMain::CheckReset() {
     if (mManageCard) {
       OSResetSystem(OS_RESET_HOTRESET, 0, TRUE);
     } else if (DVDCheckDisk()) {
-#if VERSION < VERSION_GM8P_00 || VERSION >= VERSION_GM8J_00
+#if VERSION < VERSION_GM8E_02 || VERSION >= VERSION_GM8J_00
       DVDCancelAll();
       DVDCommandBlock block;
       DVDCancelStream(&block);
 #endif
-#if VERSION >= VERSION_GM8P_00 && VERSION < VERSION_GM8J_00
+#if VERSION >= VERSION_GM8E_02 && VERSION < VERSION_GM8J_00
       AISetStreamPlayState(0);
       if (CAudioSys::mInitialized) {
         sndQuit();

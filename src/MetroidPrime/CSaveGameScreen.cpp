@@ -348,6 +348,9 @@ CIOWin::EMessageReturn CSaveGameScreen::Update(float dt) {
       ResetCardDriver();
       mNeedsDriverReset = false;
     } else {
+#if VERSION == VERSION_GM8E_02 || VERSION == VERSION_GM8J_00
+      mSerial = mCardDriver->GetCardSerial();
+#endif
       mIowRet = CIOWin::kMR_Exit;
     }
   } else if (state == kS_CardCheckDone && mUiType != kUIT_NotOriginalCard) {
@@ -575,7 +578,9 @@ void CSaveGameScreen::DoAdvance(CGuiTableGroup* caller) {
 
   case kUIT_NotOriginalCard:
     if (userSel == 1) {
+#if VERSION != VERSION_GM8E_02 && VERSION != VERSION_GM8J_00
       mSerial = mCardDriver->GetCardSerial();
+#endif
       mUiType = kUIT_Empty;
       mCardDriver->IndexFiles();
       sfx = mNavConfirmSfx;

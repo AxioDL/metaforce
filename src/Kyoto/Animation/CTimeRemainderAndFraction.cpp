@@ -1,6 +1,6 @@
 #include "Kyoto/Animation/CTimeRemainderAndFraction.hpp"
 
-#if VERSION >= VERSION_GM8E_02
+#if VERSION >= VERSION_GM8P_00
 CIntegerTimeAndRemainder::CIntegerTimeAndRemainder(const CCharAnimTime& time,
                                                    const CCharAnimTime& interval)
 : mRealTime(time.GetSeconds())

@@ -739,6 +739,7 @@ float CPlayer::GetEyeHeight() const {
 #include "MetroidPrime/Cameras/CBallCamera.hpp"
 #include "MetroidPrime/Cameras/CFirstPersonCamera.hpp"
 #include "MetroidPrime/Player/CMorphBall.hpp"
+#include "MetroidPrime/Player/CGrappleArm.hpp"
 #include "MetroidPrime/Player/CPlayerGun.hpp"
 #include "MetroidPrime/CStateManager.hpp"
 #include "MetroidPrime/CControlMapper.hpp"
@@ -871,6 +872,12 @@ void CPlayer::UpdateStepCameraZBias(float dt) {
 
 bool CPlayer::SidewaysDashAllowed(float strafeInput, float forwardInput, const CFinalInput& input,
                                   CStateManager& mgr) const {
+#if VERSION == VERSION_GM8E_02 || VERSION == VERSION_GM8J_00
+  if (mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::kPV_Scan ||
+      mgr.GetPlayerState()->GetTransitioningVisor() == CPlayerState::kPV_Scan) {
+    return false;
+  }
+#endif
   if (mSlidingOnWall || mHitWall || mOrbitState != kOS_OrbitObject) {
     return false;
   }
@@ -1721,6 +1728,11 @@ void CPlayer::Teleport(const CTransform4f& transform, CStateManager& mgr,
   }
   ForceGunOrientation(GetTransform(), mgr);
   BreakOrbit(kOB_Respawn, mgr);
+#if VERSION == VERSION_GM8E_02 || VERSION == VERSION_GM8J_00
+  if (mMorphBallState == kMS_Unmorphed) {
+    mGun->GrappleArm().Reset();
+  }
+#endif
 }
 
 bool CPlayer::CheckSubmerged() const {

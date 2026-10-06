@@ -2572,7 +2572,7 @@ void CPlayer::SetFrozenState(CStateManager& stateMgr, CAssetId steamTxtr, const 
     }
 
     if (showMsg) {
-#if VERSION >= VERSION_R3IJ_00
+#if VERSION >= VERSION_R3IJ_00 || VERSION == VERSION_GM8E_02 || VERSION == VERSION_GM8J_00
       int msgIdx = mMorphBallState == kMS_Morphed || mMorphBallState == kMS_Morphing ? 20 : 19;
 #else
       int msgIdx = mMorphBallState != kMS_Morphed ? 19 : 20;
@@ -2629,6 +2629,15 @@ void CPlayer::BreakFrozenState(CStateManager& stateMgr) {
 }
 
 void CPlayer::UpdateFrozenState(const CFinalInput& input, CStateManager& mgr) {
+#if VERSION == VERSION_GM8E_02
+  if (mFrozenTimeout - input.Time() > 0.f) {
+    SetVisorSteam(0.7f, 0.3f / 0.7f, 1.f / 14.f, mSteamTextureId, false);
+  } else {
+    BreakFrozenState(mgr);
+    return;
+  }
+  mFrozenTimeout -= input.Time();
+#else
   mFrozenTimeout -= input.Time();
   if (mFrozenTimeout > 0.f) {
     SetVisorSteam(0.7f, 0.3f / 0.7f, 1.f / 14.f, mSteamTextureId, false);
@@ -2636,6 +2645,7 @@ void CPlayer::UpdateFrozenState(const CFinalInput& input, CStateManager& mgr) {
     BreakFrozenState(mgr);
     return;
   }
+#endif
   if (mMovementState == NPlayer::kMS_OnGround ||
       mMovementState == NPlayer::kMS_FallingMorphed) {
     Stop();
@@ -2825,7 +2835,9 @@ void CPlayer::ProcessInput(const CFinalInput& input, CStateManager& mgr) {
     }
   }
 
+#if VERSION != VERSION_GM8E_02 && VERSION != VERSION_GM8J_00
   UpdateCameraState(mgr);
+#endif
   UpdateMorphBallState(dt, input, mgr);
   UpdateCameraTimers(dt, input);
   UpdateFootstepSounds(input, mgr, dt);
@@ -3977,6 +3989,9 @@ void CPlayer::SetPlayerHitWallDuringMove() {
 }
 
 void CPlayer::DoPostCameraStuff(float dt, CStateManager& mgr) {
+#if VERSION == VERSION_GM8E_02 || VERSION == VERSION_GM8J_00
+  UpdateCameraState(mgr);
+#endif
   UpdateArmAndGunTransforms(dt, mgr);
 
   float grappleSwingT;

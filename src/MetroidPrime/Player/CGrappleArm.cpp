@@ -719,3 +719,16 @@ void CGrappleArm::DisconnectGrappleBeam() {
   mBeamActive = false;
   GrappleBeamDisconnected();
 }
+
+#if VERSION == VERSION_GM8E_02 || VERSION == VERSION_GM8J_00
+void CGrappleArm::Reset() {
+  if (mGrappleArmModel) {
+    const CAnimPlaybackParms parms(41, -1, 1.f, true);
+    mGrappleArmModel->AnimationData()->SetAnimation(parms, true);
+  }
+  DisconnectGrappleBeam();
+  mAnimState = kAS_Done;
+  mIsGrappling = false;
+  mActive = false;
+}
+#endif

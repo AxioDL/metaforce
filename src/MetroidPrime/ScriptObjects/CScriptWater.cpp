@@ -560,6 +560,11 @@ void CScriptWater::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
       mAlphaOut = true;
     }
     break;
+#if VERSION >= VERSION_GM8E_02
+  case kSM_Deleted:
+    RemoveSplashInhabitants(mgr);
+    break;
+#endif
   default:
     break;
   }
@@ -656,6 +661,26 @@ void CScriptWater::Think(float dt, CStateManager& mgr) {
 
   SetupGridClipping(mgr, 4);
 }
+
+#if VERSION >= VERSION_GM8E_02
+void CScriptWater::RemoveSplashInhabitants(CStateManager& mgr) {
+  CEntity* curCam = &mgr.CameraManager()->CurrentCamera(mgr);
+  if (curCam != NULL && mCamSubmerged) {
+    mgr.DeliverScriptMsg(curCam, GetUniqueId(), kSM_RemoveSplashInhabitant);
+  }
+  rstl::list< rstl::pair< TUniqueId, bool > >::iterator it = mWaterInhabitants.begin();
+  while (it != mWaterInhabitants.end()) {
+    rstl::list< rstl::pair< TUniqueId, bool > >::iterator next = it;
+    ++next;
+    CActor* const act = TCastToPtr< CActor >(mgr.ObjectById(it->first));
+    if (act != NULL) {
+      act->AcceptScriptMsg(kSM_RemoveSplashInhabitant, GetUniqueId(), mgr);
+      mWaterInhabitants.erase(it);
+    }
+    it = next;
+  }
+}
+#endif
 
 void CScriptWater::UpdateSplashInhabitants(CStateManager& mgr) {
   rstl::list< rstl::pair< TUniqueId, bool > >::iterator it = mWaterInhabitants.begin();

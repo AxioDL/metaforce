@@ -66,6 +66,12 @@ void CErrorOutputWindow::UpdateWindow() {
     errMsg = L"The Disc Cover is open.\nIf you want to continue the game,\nplease close the Disc "
              L"Cover.";
     break;
+#if VERSION == VERSION_GM8E_02
+  case 4:
+  case 6:
+    errMsg = L"Please insert the\nMetroid Prime Game Disc.";
+    break;
+#else
   case 4:
     errMsg = L"Please insert the\nMetroid Prime Game Disc.";
     break;
@@ -73,6 +79,7 @@ void CErrorOutputWindow::UpdateWindow() {
     errMsg = L"This is not the\nMetroid Prime Game Disc.\n \nPlease insert the\nMetroid Prime "
              L"Game Disc.";
     break;
+#endif
   case -1:
     errMsg = L"An error has occurred. Turn the\npower off and refer to the\nNintendo "
              L"GameCube\nInstruction Booklet\nfor further instructions.";

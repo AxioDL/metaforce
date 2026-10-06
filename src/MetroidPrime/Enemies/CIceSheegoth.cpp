@@ -262,27 +262,32 @@ void CIceSheegoth::AcceptScriptMsg(EScriptObjectMessage msg, const TUniqueId uid
     }
     break;
   case kSM_Damage:
-    if (const CCollisionActor* actor = TCastToPtr< CCollisionActor >(mgr.ObjectById(uid))) {
-      const TUniqueId touched = actor->GetLastTouchedObject();
-      if (const CWeapon* weapon = TCastToConstPtr< CWeapon >(mgr.GetObjectById(touched))) {
-        if (uid == mIceShardsCollider && !xb28_27_) {
-          AbsorbEnergy(weapon->GetCurrentDamageInfo().GetDamage(), mgr);
-          if (!xae8_.get() || xae8_->IsSystemDeletable()) {
-            xae8_ = rs_new CElementGen(xadc_);
-          }
-        } else {
-          TakeDamage(CVector3f::Zero(), 0.f);
-          if (IsGillCollisionActor(*actor)) {
-            x97c_ = 0.2f;
-            x980_ = weapon->GetTransform().GetForward();
+#if VERSION == VERSION_GM8E_02 || VERSION == VERSION_GM8J_00
+    if (HealthInfo(mgr)->GetHP() > 0.f)
+#endif
+    {
+      if (const CCollisionActor* actor = TCastToPtr< CCollisionActor >(mgr.ObjectById(uid))) {
+        const TUniqueId touched = actor->GetLastTouchedObject();
+        if (const CWeapon* weapon = TCastToConstPtr< CWeapon >(mgr.GetObjectById(touched))) {
+          if (uid == mIceShardsCollider && !xb28_27_) {
+            AbsorbEnergy(weapon->GetCurrentDamageInfo().GetDamage(), mgr);
+            if (!xae8_.get() || xae8_->IsSystemDeletable()) {
+              xae8_ = rs_new CElementGen(xadc_);
+            }
+          } else {
+            TakeDamage(CVector3f::Zero(), 0.f);
+            if (IsGillCollisionActor(*actor)) {
+              x97c_ = 0.2f;
+              x980_ = weapon->GetTransform().GetForward();
+            }
           }
         }
+        mShotAt = true;
+        mInterestTimer = 0.f;
+        mgr.InformListeners(GetTranslation(), kLNT_PlayerFire);
+      } else {
+        ReDirectDamage(mgr, uid);
       }
-      mShotAt = true;
-      mInterestTimer = 0.f;
-      mgr.InformListeners(GetTranslation(), kLNT_PlayerFire);
-    } else {
-      ReDirectDamage(mgr, uid);
     }
     break;
   case kSM_InvulnDamage:
