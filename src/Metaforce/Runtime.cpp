@@ -5,7 +5,7 @@
 #include "Kyoto/Basics/COsContext.hpp"
 #include "Kyoto/CResFactory.hpp"
 #include "Kyoto/CSimplePool.hpp"
-#include "Metaforce/CImGuiIOWin.hpp"
+#include "Metaforce/Input.hpp"
 #include "Metaforce/Limiter.hpp"
 #include "Metaforce/ResourceNameDatabase.hpp"
 #include "Metaforce/Settings.hpp"
@@ -41,7 +41,6 @@
 #include <borealis/presentation.hpp>
 
 #include <SDL3/SDL_events.h>
-#include <SDL3/SDL_keycode.h>
 #include <dolphin/pad.h>
 
 #if defined(_WIN32)
@@ -297,33 +296,6 @@ void ShowConsole() {
 }
 #endif
 
-void LoadDefaultKeyBindings() {
-  u32 bindingCount = 0;
-  if (PADGetKeyButtonBindings(PAD_CHAN0, &bindingCount) != nullptr) {
-    return;
-  }
-
-  PADKeyButtonBinding buttons[PAD_BUTTON_COUNT] = {
-      {SDL_SCANCODE_SPACE, PAD_BUTTON_A},      {SDL_SCANCODE_LSHIFT, PAD_BUTTON_B},
-      {SDL_SCANCODE_F, PAD_BUTTON_X},          {SDL_SCANCODE_R, PAD_BUTTON_Y},
-      {SDL_SCANCODE_RETURN, PAD_BUTTON_START}, {SDL_SCANCODE_TAB, PAD_TRIGGER_Z},
-      {SDL_SCANCODE_Q, PAD_TRIGGER_L},         {SDL_SCANCODE_E, PAD_TRIGGER_R},
-      {SDL_SCANCODE_UP, PAD_BUTTON_UP},        {SDL_SCANCODE_DOWN, PAD_BUTTON_DOWN},
-      {SDL_SCANCODE_LEFT, PAD_BUTTON_LEFT},    {SDL_SCANCODE_RIGHT, PAD_BUTTON_RIGHT},
-  };
-  PADKeyAxisBinding axes[PAD_AXIS_COUNT] = {
-      {SDL_SCANCODE_D, PAD_AXIS_LEFT_X_POS, 1},  {SDL_SCANCODE_A, PAD_AXIS_LEFT_X_NEG, 1},
-      {SDL_SCANCODE_W, PAD_AXIS_LEFT_Y_POS, 1},  {SDL_SCANCODE_S, PAD_AXIS_LEFT_Y_NEG, 1},
-      {SDL_SCANCODE_L, PAD_AXIS_RIGHT_X_POS, 1}, {SDL_SCANCODE_J, PAD_AXIS_RIGHT_X_NEG, 1},
-      {SDL_SCANCODE_I, PAD_AXIS_RIGHT_Y_POS, 1}, {SDL_SCANCODE_K, PAD_AXIS_RIGHT_Y_NEG, 1},
-      {SDL_SCANCODE_Q, PAD_AXIS_TRIGGER_L, 0},   {SDL_SCANCODE_E, PAD_AXIS_TRIGGER_R, 0},
-  };
-
-  PADSetKeyButtonBindings(PAD_CHAN0, buttons);
-  PADSetKeyAxisBindings(PAD_CHAN0, axes);
-  PADSetKeyboardActive(PAD_CHAN0, TRUE);
-}
-
 // TODO: temp until we get a prelaunch
 std::string SelectDisc(SDL_Window* window) {
   auto result = std::make_shared< std::optional< borealis::file_select::Result > >();
@@ -506,12 +478,11 @@ int Initialize(int argc, char** argv) {
   borealis::presentation::set_preferred_frame_rate(60.f);
   COsContext::mProgressiveMode = true;
 
-  if (!PADInit()) {
-    Log.error("PADInit() failed");
+  if (!input::Initialize()) {
+    Log.error("Failed to initialize input");
     Shutdown();
     return 1;
   }
-  LoadDefaultKeyBindings();
   if (!ui::Initialize()) {
     Log.warn("Failed to initialize the Metaforce interface");
   }
@@ -528,6 +499,7 @@ void Shutdown() {
   aurora_dvd_close();
   discAccess = {};
   ui::Shutdown();
+  input::Shutdown();
   ShutdownDisplay();
   aurora_shutdown();
   borealis::log::shutdown();
@@ -556,6 +528,7 @@ bool BeginFrame() {
       ui::HandleEvent(event->sdl);
     }
   }
+  input::Update();
   borealis::config::update();
   if (!aurora_begin_frame()) {
     return false;
