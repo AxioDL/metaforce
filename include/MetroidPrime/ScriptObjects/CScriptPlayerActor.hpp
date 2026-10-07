@@ -12,6 +12,7 @@
 #include "rstl/single_ptr.hpp"
 
 class CModel;
+class CProjectedShadow;
 class CTexture;
 class CSkinnedModel;
 class CSkinRules;
@@ -39,6 +40,7 @@ public:
   void TouchModels(const CStateManager& mgr) const;
 
 private:
+  CTransform4f GetGunTransform() const;
   int GetSuitCharIdx(const CStateManager& mgr, CPlayerState::EPlayerSuit suit) const;
   int GetNextSuitCharIdx(const CStateManager& mgr) const;
   void LoadSuit(int charIdx);
@@ -73,6 +75,9 @@ private:
   rstl::single_ptr< TToken< CSkinRules > > mSuitSkin;
   rstl::optional_object< TLockedToken< CSkinnedModel > > mBackupModelData;
   rstl::optional_object< TCachedToken< CTexture > > mPhazonIndirectTexture;
+#if VERSION >= VERSION_GM8P_00
+  rstl::single_ptr< CProjectedShadow > mProjectedShadow;
+#endif
   int mDeallocateBackupCountdown;
   float mPhazonOffsetAngle;
   uint mFlags;
@@ -87,6 +92,6 @@ private:
   bool mAreaTrackingLoad : 1;
   TUniqueId mNextPlayerActor;
 };
-CHECK_CHILD_SIZEOF(CScriptPlayerActor, CScriptActor, 0x70)
+CHECK_CHILD_SIZEOF(CScriptPlayerActor, CScriptActor, VERSION >= VERSION_GM8P_00 ? 0x78 : 0x70)
 
 #endif // _CSCRIPTPLAYERACTOR

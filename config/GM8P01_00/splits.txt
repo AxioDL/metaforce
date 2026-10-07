@@ -1239,7 +1239,9 @@ MetroidPrime/ScriptObjects/CScriptPlayerActor.cpp:
 	.text       start:0x8019DF8C end:0x8019FF48
 	.rodata     start:0x803BBF20 end:0x803BBF48
 	.data       start:0x803CE180 end:0x803CE298
-	.sdata2     start:0x8046E714 end:0x8046E750
+	.sdata      start:0x80469D08 end:0x80469D10
+	.sdata2     start:0x8046E710 end:0x8046E750
+	.sbss2      start:0x804716E8 end:0x804716F8
 
 MetroidPrime/Tweaks/CTweakPlayerRes.cpp:
 	.text       start:0x8019FF48 end:0x801A0F08

@@ -722,7 +722,12 @@ MetroidPrime/CCollisionActor.cpp:
 	.text       start:0x8019EAB4 end:0x8019EF10
 
 MetroidPrime/ScriptObjects/CScriptPlayerActor.cpp:
-	.text       start:0x801A0DA8 end:0x801A1144
+	.text       start:0x8019F374 end:0x801A137C
+	.rodata     start:0x803BD8D0 end:0x803BD8F8
+	.data       start:0x803CF120 end:0x803CF238
+	.sdata      start:0x80590CC0 end:0x80590CC8
+	.sdata2     start:0x80595788 end:0x805957C8
+	.sbss2      start:0x805987C8 end:0x805987D8
 
 MetroidPrime/Tweaks/CTweakPlayerRes.cpp:
 	.text       start:0x801A13CC end:0x801A1B58

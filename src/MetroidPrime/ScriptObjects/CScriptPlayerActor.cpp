@@ -7,6 +7,7 @@
 #include "MetroidPrime/CEnvFxManager.hpp"
 #include "MetroidPrime/CGameArea.hpp"
 #include "MetroidPrime/CMain.hpp"
+#include "MetroidPrime/CProjectedShadow.hpp"
 #include "MetroidPrime/CStateManager.hpp"
 #include "MetroidPrime/CWorld.hpp"
 #include "MetroidPrime/Cameras/CCameraManager.hpp"
@@ -48,6 +49,9 @@ CScriptPlayerActor::CScriptPlayerActor(TUniqueId uid, const rstl::string& name,
 , mSuitSkin(nullptr)
 , mBackupModelData(rstl::optional_object_null())
 , mPhazonIndirectTexture(rstl::optional_object_null())
+#if VERSION >= VERSION_GM8P_00
+, mProjectedShadow(nullptr)
+#endif
 , mDeallocateBackupCountdown(0)
 , mPhazonOffsetAngle(0.f)
 , mFlags(flags)
@@ -152,6 +156,12 @@ void CScriptPlayerActor::Think(float dt, CStateManager& mgr) {
     mSuit = playerState.GetCurrentSuitRaw();
     LoadSuit(GetSuitCharIdx(mgr, mSuit));
   }
+#if VERSION >= VERSION_GM8J_00
+  if (!mSuitModelLoading && mLoadedCharIdx == 3 && (mFlags & 1)) {
+    LoadSuit(GetNextSuitCharIdx(mgr));
+    mEnableLoading = true;
+  }
+#endif
   if (mEnableLoading) {
     if (!(mFlags & 1)) {
       int charIdx = GetSuitCharIdx(mgr, playerState.GetCurrentSuitRaw());
@@ -202,6 +212,10 @@ void CScriptPlayerActor::Think(float dt, CStateManager& mgr) {
   CScriptActor::Think(dt, mgr);
 }
 
+CTransform4f CScriptPlayerActor::GetGunTransform() const {
+  return GetTransform() * GetModelData()->GetScaledLocatorTransform(rstl::string_l(kGunLocator));
+}
+
 void CScriptPlayerActor::Render(const CStateManager& mgr) const {
   const bool phazonSuit = mSuitRes.GetCharacterNodeId() == 3;
   if (phazonSuit) {
@@ -209,10 +223,14 @@ void CScriptPlayerActor::Render(const CStateManager& mgr) const {
   }
   CPhysicsActor::Render(mgr);
   if (HasGunModelData() && HasModelData()) {
+#if VERSION >= VERSION_GM8P_00
+    mBeamModelData->Render(mgr, GetGunTransform(), GetActorLights(),
+#else
     const CTransform4f locator =
         GetModelData()->GetScaledLocatorTransform(rstl::string_l(kGunLocator));
     const CTransform4f modelXf = GetTransform() * locator;
     mBeamModelData->Render(mgr, modelXf, GetActorLights(),
+#endif
                                CModelFlags::AlphaBlended(GetModelFlags().GetColorRef().GetAlpha())
                                    .DepthCompareUpdate(true, true));
   }
@@ -425,6 +443,15 @@ void CScriptPlayerActor::PreRender(CStateManager& mgr, const CFrustumPlanes& fru
     gpRender->AllocatePhazonSuitMaskTexture();
   }
   CScriptActor::PreRender(mgr, frustum);
+#if VERSION >= VERSION_GM8P_00
+  if (!mProjectedShadow.null() && HasModelData() && HasGunModelData()) {
+    const CModelData* models[] = {GetModelData(), mBeamModelData.get()};
+    const CTransform4f gunTransform = GetGunTransform();
+    const CTransform4f* transforms[] = {&GetTransform(), &gunTransform};
+    mProjectedShadow->RenderShadowBuffer(mgr, 2, models, transforms, 0,
+                                        CVector3f::Zero(), 1.f, 20.f);
+  }
+#endif
 }
 
 void CScriptPlayerActor::SetActive(const bool active) {
@@ -439,8 +466,17 @@ void CScriptPlayerActor::SetupEnvFx(CStateManager& mgr, bool set) {
         envFx->GetRainMagnitude()) {
       mgr.ActorModelParticles()->AddRainSplashGenerator(*this, mgr, 250, 10, 1.2f);
     }
+#if VERSION >= VERSION_GM8P_00
+    if (!(mFlags & 0x20)) {
+      mProjectedShadow = rs_new CProjectedShadow(128, 128, 1);
+      mProjectedShadow->SetOpacity(0.5f);
+    }
+#endif
   } else {
     mgr.ActorModelParticles()->RemoveRainSplashGenerator(*this);
+#if VERSION >= VERSION_GM8P_00
+    mProjectedShadow = nullptr;
+#endif
   }
 }
 
