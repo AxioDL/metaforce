@@ -416,8 +416,10 @@ typename T::iterator inline find_by_key_nc(
 
 template < typename T >
 inline void sort_by_key(T& container) {
-  less< typename select1st< typename T::value_type >::value_type > cmp;
-  sort_by_key(container, cmp);
+  sort(container.begin(), container.end(),
+       pair_sorter_finder< typename T::value_type,
+                           less< typename select1st< typename T::value_type >::value_type > >(
+           less< typename select1st< typename T::value_type >::value_type >()));
 }
 
 template < typename T, class Cmp >
