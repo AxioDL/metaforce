@@ -1548,9 +1548,11 @@ MetroidPrime/Enemies/CFlaahgraPlants.cpp:
 	.sdata2     start:0x80596090 end:0x805960A0
 
 MetroidPrime/CWorldTransManager.cpp:
-	.text       start:0x801FC758 end:0x801FCC00
-	.rodata     start:0x803BEB40 end:0x803BEB58
-	.sdata      start:0x80591028 end:0x80591038
+	.text       start:0x801FB6E8 end:0x801FE624
+	.rodata     start:0x803BEB40 end:0x803BEB78
+	.sdata      start:0x80591018 end:0x80591050
+	.sbss       start:0x80592158 end:0x80592160
+	.sdata2     start:0x805960A0 end:0x80596140
 
 MetroidPrime/ScriptObjects/CScriptMidi.cpp:
 	.text       start:0x801FE624 end:0x801FEACC

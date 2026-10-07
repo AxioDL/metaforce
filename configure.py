@@ -1311,7 +1311,10 @@ config.libs = [
                 MatchingFor(*NTSC_GC_VERSIONS),
                 "MetroidPrime/Enemies/CFlaahgraPlants.cpp",
             ),
-            Object(MatchingFor(*NTSC_GC_VERSIONS), "MetroidPrime/CWorldTransManager.cpp"),
+            Object(
+                MatchingFor(*NTSC_GC_VERSIONS, "GM8P01_00", "GM8J01_00"),
+                "MetroidPrime/CWorldTransManager.cpp",
+            ),
             Object(NonMatching, "MetroidPrime/ScriptObjects/CScriptMidi.cpp"),
             Object(
                 NonMatching,

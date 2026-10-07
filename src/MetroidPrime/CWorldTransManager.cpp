@@ -2,6 +2,8 @@
 
 #include "GuiSys/CGuiTextSupport.hpp"
 #include "Kyoto/CFrameDelayedKiller.hpp"
+#include "Kyoto/CDvdFile.hpp"
+#include "Kyoto/Audio/CStreamAudioManager.hpp"
 #include "MetaRender/CCubeRenderer.hpp"
 #include "Kyoto/Audio/CSfxManager.hpp"
 #include "Kyoto/Graphics/CLight.hpp"
@@ -32,6 +34,7 @@
 #include "dolphin/os.h"
 
 #include "rstl/list.hpp"
+#include "rstl/StringExtras.hpp"
 
 struct CWorldTransManager::SModelDatas {
   CAnimRes mSamusRes;
@@ -62,6 +65,9 @@ NESTED_CHECK_SIZEOF(CWorldTransManager, SModelDatas, 0x1e0)
 CWorldTransManager::CWorldTransManager() : mCurTime(0.f)
 , mModelData(nullptr)
 , mTextData(nullptr)
+#if VERSION >= VERSION_GM8P_00
+, mSecondaryTextData(nullptr)
+#endif
 , mRandom(99)
 , mSfx(1189)
 , mVolume(127)
@@ -82,7 +88,11 @@ CWorldTransManager::SModelDatas::SModelDatas(const CAnimRes& samusRes) : mSamusR
 , mPlatformModelData(CModelData::CModelDataNull())
 , mBgModelData(CModelData::CModelDataNull())
 , mGunXf(CTransform4f::Identity())
+#if VERSION == VERSION_GM8P_00
+, mDissolveTextureBuffer(rs_new uchar[CGraphics::GetSpareBufferSize() * 2])
+#else
 , mDissolveTextureBuffer(rs_new uchar[0x8c000])
+#endif
 , mShakeResult(0.f, 0.f)
 , mShakeDelta(0.f, 0.f)
 , mRandTimeout(0.f)
@@ -99,6 +109,9 @@ void CWorldTransManager::DisableTransition() {
   mTransType = kTT_Disabled;
   mModelData = nullptr;
   mTextData = nullptr;
+#if VERSION >= VERSION_GM8P_00
+  mSecondaryTextData = nullptr;
+#endif
   mGoingUp = false;
 }
 
@@ -164,6 +177,9 @@ void CWorldTransManager::EnableTransition(const CAnimRes& samusRes, CAssetId pla
   mGoingUp = goingUp;
   mModelData = rs_new SModelDatas(samusRes);
   mTextData = nullptr;
+#if VERSION >= VERSION_GM8P_00
+  mSecondaryTextData = nullptr;
+#endif
   mRandom.SetSeed(99);
   mModelData->mSamusModelData = CModelData(samusRes);
   mModelData->mSamusModelData.AnimationData()->SetAnimation(
@@ -466,6 +482,14 @@ void CWorldTransManager::SetSfx(ushort sfx, uchar volume, uchar panning) {
   mPanning = panning;
 }
 
+static CVector2i GetViewportSize() {
+#if VERSION >= VERSION_GM8J_00
+  return CVector2i(640, 448);
+#else
+  return CVector2i(CGraphics::GetViewportWidth(), CGraphics::GetViewportHeight());
+#endif
+}
+
 void CWorldTransManager::EnableTransition(int fontId, int stringId, int stringIdx, const bool fadeWhite,
                                         float chFadeTime, float chFadeRate, float textStartTime) {
   mStrIdx = stringIdx;
@@ -484,12 +508,66 @@ void CWorldTransManager::EnableTransition(int fontId, int stringId, int stringId
   StartTransition();
 }
 
+#if VERSION >= VERSION_GM8P_00
+void CWorldTransManager::EnableTransition(
+    int fontId, int stringId, int stringIdx, const bool fadeWhite, const rstl::string& audioFile,
+    int volume, bool showSecondaryText, float chFadeTime, float chFadeRate, float textStartTime,
+    float textEndDelay, float secondaryTextStartTime, float secondaryTextFadeDuration) {
+  mAudioFile = audioFile;
+  mStrIdx = stringIdx;
+  mShowSecondaryText = showSecondaryText;
+  mTextStartTime = textStartTime;
+  mTextEndDelay = textEndDelay;
+  mSecondaryTextStartTime = secondaryTextStartTime;
+  mSecondaryTextFadeDuration = rstl::max_val(0.0001f, secondaryTextFadeDuration);
+  mVolume = volume;
+  mStopSoon = false;
+  mTransType = kTT_Text;
+  mModelData = nullptr;
+  mFadeWhite = fadeWhite;
+
+  const CVector2i viewport = GetViewportSize();
+  mTextData = rs_new CGuiTextSupport(
+      fontId, viewport.GetX(), viewport.GetY(),
+      CGuiTextProperties(true, true, kJustification_Center, kVerticalJustification_Center),
+      CColor::White(), CColor::Black(), CColor::White(), gpSimplePool);
+  mTextData->SetTypeWriteEffectOptions(true, chFadeTime, chFadeRate);
+  mTextData->SetText(rstl::wstring_l(L""));
+  if (mShowSecondaryText) {
+    mSecondaryTextData = rs_new CGuiTextSupport(
+        fontId, viewport.GetX(), 120,
+        CGuiTextProperties(true, true, kJustification_Center, kVerticalJustification_Center),
+        CColor::White(), CColor::Black(), CColor::White(), gpSimplePool);
+    mSecondaryTextData->SetText(rstl::wstring_l(L""));
+    mSecondaryTextData->SetGeometryColor(CColor::Black());
+  }
+  mStrTable = TToken< CStringTable >(gpSimplePool->GetObj(SObjectTag('STRG', stringId)));
+  mStrTable->Lock();
+  StartTransition();
+}
+#endif
+
 void CWorldTransManager::UpdateText(float dt) {
   if (mTextDirty) {
     TToken< CStringTable > strTable = *mStrTable;
     if (strTable.IsLoaded()) {
-      if (mStrIdx < strTable->GetStringCount())
-        mTextData->SetText(strTable->GetString(mStrIdx));
+      if (mStrIdx < strTable->GetStringCount()) {
+        const rstl::wstring text = strTable->GetString(mStrIdx);
+        mTextData->SetText(text);
+#if VERSION >= VERSION_GM8P_00
+        if (mShowSecondaryText) {
+          mSecondaryTextData->SetText(strTable->GetString(mStrIdx + 1));
+        }
+#endif
+      }
+#if VERSION >= VERSION_GM8P_00
+      const int audioFileComparison =
+          CStringExtras::CompareCaseInsensitive(mAudioFile, rstl::string_l("UseStringTable"));
+      if (audioFileComparison == 0 && mStrIdx + 1 < strTable->GetStringCount()) {
+        const rstl::wstring audioFile = strTable->GetString(mStrIdx + 1);
+        mAudioFile = CStringExtras::ConvertToANSI(audioFile);
+      }
+#endif
       mSfxInterval = 0.f;
       mTextDirty = false;
     } else if (mCurTime >= mTextStartTime) {
@@ -497,7 +575,24 @@ void CWorldTransManager::UpdateText(float dt) {
     }
   }
   if (mCurTime >= mTextStartTime) {
+#if VERSION >= VERSION_GM8P_00
+    if (mAudioFile.length() != 0 && CDvdFile::FileExists(mAudioFile.c_str())) {
+      CStreamAudioManager::PlaySoftwareAudio(CStreamAudioManager::kSC_Default, mAudioFile, 0.f, 0.f,
+                                            mVolume, false);
+      mAudioFile = rstl::string_l("");
+    }
+#endif
     mTextData->Update(dt);
+#if VERSION >= VERSION_GM8P_00
+    if (mShowSecondaryText) {
+      const float alpha = rstl::min_val(
+          1.f, rstl::max_val(0.f, mCurTime - mTextStartTime - mSecondaryTextStartTime) /
+                   mSecondaryTextFadeDuration);
+      mSecondaryTextData->SetGeometryColor(
+          CColor::White().WithAlphaModulatedBy(0.75f * (alpha * alpha)));
+      mSecondaryTextData->Update(dt);
+    }
+#endif
     const float printed = mTextData->GetNumCharactersPrinted();
     const float charsPerSfx = gpTweakGui->GetWorldTransManagerCharsPerSfx();
     if (printed >= mSfxInterval + charsPerSfx) {
@@ -506,21 +601,53 @@ void CWorldTransManager::UpdateText(float dt) {
     }
   }
   if (mStopSoon) {
+#if VERSION >= VERSION_GM8P_00
+    bool advanceStopTimer = false;
+    if (mTextEndDelay + (1.f + mTextData->GetTotalAnimationTime()) < mTextData->GetCurTime()) {
+      advanceStopTimer = true;
+      if (mCurTime - mStopTime > 1.f)
+        mTransitionFinished = true;
+    }
+    if (!advanceStopTimer) {
+      mStopTime = mCurTime;
+    }
+#else
     if (1.f + mTextData->GetTotalAnimationTime() < mTextData->GetCurTime()) {
       if (mCurTime - mStopTime > 1.f)
         mTransitionFinished = true;
     } else {
       mStopTime = mCurTime;
     }
+#endif
   }
 }
+
 void CWorldTransManager::DrawText() const {
   gpRender->SetViewportOrtho(false, -4096.f, 4096.f);
+#if VERSION >= VERSION_GM8P_00
+  gpRender->SetModelMatrix(CTransform4f::Translate(0.f, 0.f, GetViewportSize().GetY()));
+#else
   gpRender->SetModelMatrix(CTransform4f::Translate(0.f, 0.f, 448.f));
+#endif
   CGraphics::SetCullMode(kCM_None);
   gpRender->SetDepthReadWrite(false, false);
   gpRender->SetBlendMode_AdditiveAlpha();
   mTextData->Render();
+#if VERSION >= VERSION_GM8P_00
+  if (mShowSecondaryText) {
+#if VERSION >= VERSION_GM8J_00
+    const CVector2i viewport = GetViewportSize();
+    const float scale = 0.8f;
+    CTransform4f xf = CTransform4f::Scale(scale);
+    xf = CTransform4f::Translate(0.5f * (1.f - scale) * viewport.GetX(), 0.f, 120.f) * xf;
+#else
+    CTransform4f xf = CTransform4f::Scale(1.f);
+    xf = CTransform4f::Translate(0.f, 0.f, 120.f) * xf;
+#endif
+    gpRender->SetModelMatrix(xf);
+    mSecondaryTextData->Render();
+  }
+#endif
 
   float filterAlpha = 0.f;
   if (mCurTime < 1.f)
