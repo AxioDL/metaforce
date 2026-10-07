@@ -1808,8 +1808,12 @@ config.libs = [
             ),
             Object(MatchingFor("GM8EAB_00", *NTSC_GC_VERSIONS, "GM8P01_00", "GM8J01_00"),
                    "Kyoto/Animation/CAnimMathUtils.cpp"),
+
             Object(MatchingFor("GM8EAB_00", "GM8E01_00", "GM8E01_01", "GM8E01_02"), "Kyoto/Animation/CAnimPerSegmentData.cpp"),
-            Object(MatchingFor("GM8EAB_00", *NTSC_GC_VERSIONS), "Kyoto/Animation/CAnimPOIData.cpp"),
+            Object(
+                MatchingFor("GM8EAB_00", *NTSC_GC_VERSIONS, "GM8P01_00", "GM8J01_00"),
+                "Kyoto/Animation/CAnimPOIData.cpp",
+            ),
             Object(MatchingFor(*NTSC_GC_VERSIONS), "Kyoto/Animation/CAnimSource.cpp"),
             Object(MatchingFor(*NTSC_GC_VERSIONS, "GM8P01_00", "GM8J01_00"),
                    "Kyoto/Animation/CAnimSourceReader.cpp"),

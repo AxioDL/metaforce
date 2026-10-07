@@ -17,7 +17,10 @@ public:
   , mMaxDist(maxDist) {}
 
   CSoundPOINode(CInputStream& in)
-  : CPOINode(in), mSfxId(in.ReadInt32()), mFalloff(in.ReadFloat()), mMaxDist(in.ReadFloat()) {}
+  : CPOINode(in)
+  , mSfxId(in.ReadInt32())
+  , mFalloff(in.Get< float >())
+  , mMaxDist(in.Get< float >()) {}
 
   uint GetSoundId() const { return mSfxId; }
   float GetFallOff() const { return mFalloff; }
