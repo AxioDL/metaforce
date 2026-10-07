@@ -797,7 +797,7 @@ config.libs = [
                 "MetroidPrime/Weapons/CPlasmaBeam.cpp",
             ),
             Object(
-                MatchingFor(*NTSC_GC_VERSIONS),
+                MatchingFor(*NTSC_GC_VERSIONS, "GM8J01_00"),
                 "MetroidPrime/Weapons/CPowerBeam.cpp",
             ),
             Object(MatchingFor(*NTSC_GC_VERSIONS), "MetroidPrime/Weapons/CWaveBeam.cpp"),
@@ -878,7 +878,7 @@ config.libs = [
             ),
             Object(MatchingFor("GM8EAB_00", *NTSC_GC_VERSIONS), "MetroidPrime/CSimpleShadow.cpp"),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02", "GM8J01_00"),
                 "MetroidPrime/CActorParameters.cpp",
             ),
             Object(NonMatching, "MetroidPrime/CInGameGuiManager.cpp"),
@@ -913,7 +913,7 @@ config.libs = [
                 MatchingFor("GM8EAB_00", *NTSC_GC_VERSIONS, "GM8P01_00", "GM8J01_00"),
                 "MetroidPrime/CPhysicsState.cpp"
             ),
-            Object(MatchingFor(*NTSC_GC_VERSIONS, "GM8P01_00"), "MetroidPrime/CRipple.cpp"),
+            Object(MatchingFor(*NTSC_GC_VERSIONS, "GM8P01_00", "GM8J01_00"), "MetroidPrime/CRipple.cpp"),
             Object(
                 MatchingFor(*NTSC_GC_VERSIONS, "GM8P01_00", "GM8J01_00"),
                 "MetroidPrime/CFluidUVMotion.cpp",
@@ -1103,7 +1103,7 @@ config.libs = [
                 "MetroidPrime/ScriptObjects/CScriptSteam.cpp",
             ),
             Object(
-                MatchingFor(*NTSC_GC_VERSIONS, "GM8P01_00"),
+                MatchingFor(*NTSC_GC_VERSIONS, "GM8P01_00", "GM8J01_00"),
                 "MetroidPrime/ScriptObjects/CScriptRipple.cpp",
             ),
             Object(MatchingFor(*NTSC_GC_VERSIONS), "MetroidPrime/CBoneTracking.cpp"),
@@ -1147,7 +1147,7 @@ config.libs = [
             Object(MatchingFor(*NTSC_GC_VERSIONS), "MetroidPrime/HUD/CHudFreeLookInterface.cpp"),
             Object(MatchingFor(*NTSC_GC_VERSIONS), "MetroidPrime/HUD/CHudHelmetInterface.cpp"),
             Object(MatchingFor(*NTSC_GC_VERSIONS), "MetroidPrime/HUD/CHudMissileInterface.cpp"),
-            Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02"), "MetroidPrime/HUD/CHudRadarInterface.cpp"),
+            Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02", "GM8J01_00"), "MetroidPrime/HUD/CHudRadarInterface.cpp"),
             Object(
                 MatchingFor(*NTSC_GC_VERSIONS),
                 "MetroidPrime/HUD/CHudThreatInterface.cpp",
@@ -1482,7 +1482,7 @@ config.libs = [
                 MatchingFor(*NTSC_GC_VERSIONS, "GM8J01_00"), "MetroidPrime/CPreFrontEnd.cpp"
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02"), "MetroidPrime/CGameCubeDoll.cpp"
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02", "GM8J01_00"), "MetroidPrime/CGameCubeDoll.cpp"
             ),
             Object(
                 NonMatching, "MetroidPrime/ScriptObjects/CScriptProjectedShadow.cpp"
@@ -2336,7 +2336,7 @@ config.libs = [
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02", "GM8P01_00", "GM8J01_00"),
                    "Kyoto/Audio/CDSPStreamManager.cpp"),
             Object(
-                MatchingFor(*NTSC_GC_VERSIONS),
+                MatchingFor(*NTSC_GC_VERSIONS, "GM8J01_00"),
                 "Kyoto/CDependencyGroup.cpp",
             ),
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02", "GM8P01_00", "GM8J01_00"),
@@ -2357,7 +2357,7 @@ config.libs = [
                    "Kyoto/Particles/CGenDescription.cpp"),
             Object(NonMatching, "Kyoto/CPakFile.cpp"),
             Object(NonMatching, "Kyoto/Animation/CPoseAsTransformsVariableSize.cpp"),
-            Object(MatchingFor(*NTSC_GC_VERSIONS, "GM8P01_00"), "Kyoto/Input/CRumbleVoice.cpp"),
+            Object(MatchingFor(*NTSC_GC_VERSIONS, "GM8P01_00", "GM8J01_00"), "Kyoto/Input/CRumbleVoice.cpp"),
             Object(
                 MatchingFor(*NTSC_GC_VERSIONS, "GM8P01_00", "GM8J01_00"),
                 "Kyoto/Input/RumbleAdsr.cpp",
@@ -2945,7 +2945,7 @@ config.libs = [
                 "musyx/runtime/synth_ac.c",
             ),
             Object(
-                MatchingFor(*NTSC_GC_VERSIONS, "GM8P01_00"),
+                MatchingFor(*NTSC_GC_VERSIONS, "GM8P01_00", "GM8J01_00"),
                 "musyx/runtime/synth_adsr.c",
             ),
             Object(
@@ -2953,7 +2953,7 @@ config.libs = [
                 "musyx/runtime/synth_vsamples.c",
             ),
             Object(
-                MatchingFor(*NTSC_GC_VERSIONS, "GM8P01_00"),
+                MatchingFor(*NTSC_GC_VERSIONS, "GM8P01_00", "GM8J01_00"),
                 "musyx/runtime/synth_dbtab.c",
             ),
             Object(
@@ -2961,11 +2961,11 @@ config.libs = [
                 "musyx/runtime/s_data.c",
             ),
             Object(
-                MatchingFor(*NTSC_GC_VERSIONS, "GM8P01_00"),
+                MatchingFor(*NTSC_GC_VERSIONS, "GM8P01_00", "GM8J01_00"),
                 "musyx/runtime/hw_dspctrl.c",
             ),
             Object(
-                MatchingFor(*NTSC_GC_VERSIONS, "GM8P01_00"),
+                MatchingFor(*NTSC_GC_VERSIONS, "GM8P01_00", "GM8J01_00"),
                 "musyx/runtime/hw_volconv.c",
             ),
             Object(
