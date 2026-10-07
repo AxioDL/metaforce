@@ -2325,6 +2325,9 @@ config.libs = [
             Object(
                 MatchingFor(*NTSC_GC_VERSIONS),
                 "Kyoto/Text/CTextRenderBuffer.cpp",
+                extra_cflags=["-inline", "level=4"]
+                if config.version in ["GM8P01_00", "GM8J01_00"]
+                else [],
             ),
             Object(NonMatching, "Kyoto/Graphics/CCubeMoviePlayer.cpp"),
             Object(

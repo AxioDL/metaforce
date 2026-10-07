@@ -41,9 +41,18 @@ public:
 
 #if VERSION >= VERSION_GM8P_00
   struct SFontPalette {
-    int x0_;
-    uint x4_;
-    uint x8_;
+    SFontPalette(EFontMode mode, const rstl::auto_ptr< CGraphicsPalette >& palette0,
+                 const rstl::auto_ptr< CGraphicsPalette >& palette1,
+                 const rstl::auto_ptr< CGraphicsPalette >& palette2,
+                 const rstl::auto_ptr< CGraphicsPalette >& palette3)
+    : mMode(mode)
+    , mPalette0(palette0)
+    , mPalette1(palette1)
+    , mPalette2(palette2)
+    , mPalette3(palette3) {}
+
+    EFontMode mMode;
+    uint mColors[2];
     rstl::auto_ptr< CGraphicsPalette > mPalette0;
     rstl::auto_ptr< CGraphicsPalette > mPalette1;
     rstl::auto_ptr< CGraphicsPalette > mPalette2;
@@ -53,8 +62,13 @@ public:
 
   CTextRenderBuffer(EMode mode);
 
+#if VERSION >= VERSION_GM8P_00
+  int GetNextAvailablePalette() const;
+  int GetMatchingPaletteIndex(EFontMode mode, const CGraphicsPalette& palette) const;
+#else
   CGraphicsPalette* GetNextAvailablePalette() const;
   int GetMatchingPaletteIndex(const CGraphicsPalette& palette) const;
+#endif
   void AddFontChange(const TToken< CRasterFont >& font);
 #if VERSION >= VERSION_GM8P_00
   void AddPaletteChange(const CGraphicsPalette& palette, EFontMode mode);
@@ -71,11 +85,18 @@ public:
   int GetNumPrimitives() const { return mPrimOffsets.size(); }
   Primitive GetPrimitive(int index) const;
   void SetPrimitive(const Primitive& prim, int index);
+#if VERSION >= VERSION_GM8P_00
+  const rstl::pair< CVector2i, CVector2i >& AccumulateTextBounds();
+#else
   rstl::pair< CVector2i, CVector2i > AccumulateTextBounds();
+#endif
   bool HasSpaceAvailable(const CVector2i& origin, const CVector2i& extent);
 
 private:
   void VerifyBuffer();
+#if VERSION >= VERSION_GM8P_00
+  void RecalculateTextBounds() const;
+#endif
 
   EMode mMode;
   rstl::vector< TToken< CRasterFont > > mFonts;
@@ -95,9 +116,8 @@ private:
 #endif
   mutable int mNextPalette;
 #if VERSION >= VERSION_GM8P_00
-  CVector2i xb58_;
-  CVector2i xb60_;
-  bool xb68_;
+  mutable rstl::pair< CVector2i, CVector2i > mBounds;
+  mutable bool mBoundsDirty;
 #endif
 };
 

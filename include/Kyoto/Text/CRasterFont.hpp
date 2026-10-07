@@ -87,6 +87,13 @@ public:
   int GetCellHeight() const { return mCellHeight; }
   int GetBaseLine() const { return mBaseline; }
   int GetKernStart() const { return mKernStart; }
+  int GetLayer() const {
+#if VERSION >= VERSION_GM8P_00
+    return mLayer;
+#else
+    return 0;
+#endif
+  }
 
 private:
   short mA;

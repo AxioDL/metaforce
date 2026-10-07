@@ -80,6 +80,7 @@ public:
   uchar GetBlueu8() const { return mB; }
   uchar GetAlphau8() const { return mA; }
   ushort ToRGB5A3() const;
+  static CColor FromRGB5A3(uint color);
 #ifdef __MWERKS__
   uint GetColor_u32() const { return mRgba; }
 #else
