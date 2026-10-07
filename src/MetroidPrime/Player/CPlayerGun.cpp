@@ -13,6 +13,7 @@
 #include "Kyoto/Particles/CElementGen.hpp"
 #include "Kyoto/Particles/CGenDescription.hpp"
 #include "Kyoto/SObjectTag.hpp"
+#include "Kyoto/Text/CStringTable.hpp"
 #include "MetroidPrime/CAnimData.hpp"
 #include "MetroidPrime/CAnimRes.hpp"
 #include "MetroidPrime/CGameLight.hpp"
@@ -23,9 +24,12 @@
 #include "MetroidPrime/Cameras/CCameraManager.hpp"
 #include "MetroidPrime/Cameras/CFirstPersonCamera.hpp"
 #include "MetroidPrime/Cameras/CGameCamera.hpp"
+#include "MetroidPrime/HUD/CHUDMemoParms.hpp"
+#include "MetroidPrime/HUD/CSamusHud.hpp"
 #include "MetroidPrime/Player/CGameState.hpp"
 #include "MetroidPrime/Player/CGrappleArm.hpp"
 #include "MetroidPrime/Player/CPlayer.hpp"
+#include "MetroidPrime/SFX/PhazonGun.h"
 #include "MetroidPrime/SFX/Weapons.h"
 #include "MetroidPrime/Tweaks/CTweakGunRes.hpp"
 #include "MetroidPrime/Tweaks/CTweakPlayerGun.hpp"
@@ -1112,6 +1116,64 @@ void CPlayerGun::ResetCharge(CStateManager& mgr, bool resetBeam) {
   mComboXferTimer = 0.f;
 }
 
+void CPlayerGun::ResetBeamParams(CStateManager& mgr, const CPlayerState& playerState,
+                                 bool playSelectionSfx) {
+  StopContinuousBeam(mgr, true);
+  if (playerState.ItemEnabled(CPlayerState::kIT_ChargeBeam)) {
+    ResetCharge(mgr, false);
+  }
+  const CAnimPlaybackParms parms(mHandAnimId[size_t(mNextBeamId)], -1, 1.f, true);
+  mRightHandModel.AnimationData()->SetAnimation(parms, false);
+  Reset(mgr, false);
+  if (playSelectionSfx) {
+    CSfxManager::SfxStart(SFXsam_b_wpnswitch_00, 0x7f, 0x40, true, CSfxManager::kMaxPriority, false,
+                          CSfxManager::kAllAreas);
+  }
+  mLastFireButtonStates &= ~0x1;
+  mCurrentAuxBeam = mEquippedBeamId;
+  mCanShowAuxMuzzleEffect = true;
+}
+
+void CPlayerGun::ChangeWeapon(const CPlayerState& playerState, CStateManager& mgr) {
+  if (mOutgoingBeam != nullptr && mOutgoingBeam != mCurrentBeam)
+    mOutgoingBeam->Unload(mgr);
+
+  mLoadingBeam = mSelectableBeams[mNextBeamId];
+  if (mLoadingBeam != nullptr && mLoadingBeam != mCurrentBeam) {
+    mLoadingBeam->Load(mgr, false);
+    mAuxWeapon->Load(mNextBeamId, mgr);
+  }
+
+  mCurrentBeam->EnableFx(false);
+  mRequestImmediateRecharge = mChargePhase != kCP_NotCharging;
+  ResetBeamParams(mgr, playerState, true);
+  mMorph.StartWipe(CGunMorph::kD_In);
+}
+
+void CPlayerGun::StartPhazonBeamTransition(bool active, CStateManager& mgr,
+                                           CPlayerState& playerState) {
+  if (mPhazonBeamActive == active) {
+    return;
+  }
+
+  mSelectableBeams[mEquippedBeamId]->Unload(mgr);
+  mSelectableBeams[mEquippedBeamId] = active ? mPhazonBeam.get() : mNextBeam;
+  ResetBeamParams(mgr, playerState, false);
+  mCurrentBeam = mSelectableBeams[mEquippedBeamId];
+  mPhazonBeamActive = active;
+  SetPhazonBeamFeedback(active);
+  mCurrentBeam->mRainSplashGenerator = mRainSplashGenerator.get();
+  mCurrentBeam->EnableFx(true);
+  mCurrentBeam->mDrawHologram = false;
+  PlayAnim(NWeaponTypes::kGAT_ToBeam, false);
+  if (mInFreeLook) {
+    EnterFreeLook(mgr);
+  } else if (mRequestReturnToDefault) {
+    ReturnArmAndGunToDefault(mgr, false);
+  }
+  mRequestReturnToDefault = false;
+}
+
 void CPlayerGun::HandleWeaponChange(const CFinalInput& input, CStateManager& mgr) {
   mBeamSelectionRequested = false;
   if (mgr.GetPlayer()->GetControlMapper().GetPressInput(CControlMapper::kC_Morph, input,
@@ -1635,6 +1697,14 @@ void CPlayerGun::CancelCharge(CStateManager& mgr, bool withEffect) {
   SetGunLightActive(false, mgr);
 }
 
+void CPlayerGun::EnterFreeLook(CStateManager& mgr) {
+  if (!mRequestReturnToDefault)
+    mGunMotion->PlayPasAnim(SamusGun::kAS_FreeLook, mgr, 0.f, false);
+
+  const int setId = mGunMotion->GetFreeLookSetId();
+  mGrappleArm->EnterFreeLook(mInPhazonBeam ? 1 : mEquippedBeamId, setId, mgr);
+}
+
 void CPlayerGun::UpdateLeftArmTransform(const CModelData& modelData, const CStateManager& mgr) {
   CVector3f elbowOffset(-0.9f, -0.4f, 0.4f);
   CTransform4f& auxXf = mGrappleArm->AuxTransform();
@@ -1664,6 +1734,16 @@ void CPlayerGun::UpdateLeftArmTransform(const CModelData& modelData, const CStat
   }
   mXf = CTransform4f::LookAt(mXf.GetTranslation(),
                              mgr.GetPlayer()->GetAimingCursor().GetCursorInWorld());
+}
+
+void CPlayerGun::ReturnArmAndGunToDefault(CStateManager& mgr, bool returnToDefault) {
+  if (returnToDefault || !mInFreeLook) {
+    mGunMotion->ReturnToDefault(mgr, false);
+    mGrappleArm->ReturnToDefault(mgr, 0.f, false);
+  }
+  if (!mGunMotionFidgeting)
+    mCurrentBeam->ReturnToDefault(mgr);
+  mGunMotionFidgeting = false;
 }
 
 void CPlayerGun::CancelLockOn() {
@@ -1747,6 +1827,163 @@ void CPlayerGun::LoadHandAnimTokens() {
     animData.GetAnimationPrimitives(parms, prims);
   }
   CAnimData::PrimitiveSetToTokenVector(prims, mHandAnimTokens, true);
+}
+
+void CPlayerGun::ProcessPhazonGunMorph(float dt, CStateManager& mgr) {
+  if (mPhazonBeamMorphing) {
+    if (mIntoPhazonBeam) {
+      mPhazonMorphT += 15.f * dt;
+      if (mPhazonMorphT > 1.f) {
+        mPhazonMorphT = 1.f;
+      }
+    } else {
+      mPhazonMorphT -= 2.f * dt;
+      if (mPhazonMorphT < 0.f) {
+        mPhazonBeamMorphing = false;
+        mPhazonMorphT = 0.f;
+      }
+    }
+  }
+
+  switch (mPhazonBeamState) {
+  case kPBS_Entering:
+    if (mPhazonBeam.get() != nullptr) {
+      mPhazonBeam->Update(dt, mgr);
+      if (mPhazonBeam->IsLoaded()) {
+        StartPhazonBeamTransition(true, mgr, *mgr.PlayerState());
+        SetPhazonBeamMorph(false);
+        mPhazonBeamState = kPBS_Active;
+        mNextState = kNS_SetupBeam;
+      }
+    }
+    break;
+  case kPBS_Exiting:
+    if (mNextBeam != nullptr) {
+      mNextBeam->Update(dt, mgr);
+      if (mNextBeam->IsLoaded()) {
+        mInPhazonBeam = false;
+        StartPhazonBeamTransition(false, mgr, *mgr.PlayerState());
+        SetPhazonBeamMorph(false);
+        mPhazonBeamState = kPBS_Inactive;
+        mNextState = kNS_SetupBeam;
+      }
+    }
+    break;
+  default:
+    break;
+  }
+}
+
+void CPlayerGun::ProcessGunMorph(float dt, CStateManager& mgr) {
+  const CGunMorph::EGunState gunState = mMorph.GetGunState();
+  const bool isUnmorphed = mgr.GetPlayer()->GetMorphballTransitionState() == CPlayer::kMS_Unmorphed;
+  CPlayerState* playerState = mgr.PlayerState();
+
+  switch (gunState) {
+  case CGunMorph::kGS_InWipeDone:
+    if (mEquippedBeamId != mNextBeamId && mLoadingBeam != nullptr) {
+      if (!isUnmorphed) {
+        mLoadingBeam->Touch(mgr);
+      }
+      if (mLoadingBeam->IsLoaded() && mAuxWeapon->IsLoaded()) {
+        mOutgoingBeam = mLoadingBeam != mCurrentBeam ? mCurrentBeam : nullptr;
+        mLoadingBeam = nullptr;
+        mEquippedBeamId = mNextBeamId;
+        mCurrentAuxBeam = mNextBeamId;
+        mCanShowAuxMuzzleEffect = true;
+        mCurrentBeam = mSelectableBeams[GetPrimaryDestWeaponId()];
+        mNextBeam = mCurrentBeam;
+        mMorph.SetWeaponChanged();
+        playerState->SetCurrentBeam(mNextBeamId);
+      }
+    }
+    break;
+  case CGunMorph::kGS_InWipe:
+  case CGunMorph::kGS_OutWipe:
+    mHoloTransitionGen->SetGlobalScale(kScaleVector);
+    mHoloTransitionGen->SetGlobalTranslation(CVector3f(0.f, mMorph.GetYLerp(), 0.f));
+    mHoloTransitionGen->Update(dt);
+    break;
+  default:
+    break;
+  }
+
+  switch (mMorph.Update(0.2f, 1.292392f, dt)) {
+  case CGunMorph::kME_InWipeDone:
+    CSfxManager::SfxStart(SFXsam_b_wpnswitch_01, 0x7f, 0x40, true, CSfxManager::kMaxPriority, false,
+                          CSfxManager::kAllAreas);
+    break;
+  case CGunMorph::kME_OutWipeDone:
+    if (mOutgoingBeam != nullptr) {
+      if (mOutgoingBeam != mCurrentBeam) {
+        mOutgoingBeam->Unload(mgr);
+        mOutgoingBeam = nullptr;
+      }
+    }
+    if (isUnmorphed) {
+      const ushort* const intoBeamSounds = mIntoBeamSound;
+      const short pan = 0x4a;
+      NWeaponTypes::play_sfx(intoBeamSounds[mEquippedBeamId], mUnderwater, false, pan);
+    }
+    mCurrentBeam->mRainSplashGenerator = mRainSplashGenerator.get();
+    mCurrentBeam->EnableFx(true);
+    PlayAnim(NWeaponTypes::kGAT_ToBeam, false);
+    if (mInFreeLook) {
+      EnterFreeLook(mgr);
+    } else if (mRequestReturnToDefault) {
+      ReturnArmAndGunToDefault(mgr, false);
+    }
+    if (mRequestImmediateRecharge || (mLastFireButtonStates & 0x1) != 0) {
+      if (playerState->GetCurrentVisor() != CPlayerState::kPV_Scan) {
+        mChargePhase = kCP_ChargeRequested;
+      }
+      mRequestImmediateRecharge = false;
+    }
+    mRequestReturnToDefault = false;
+    mNextState = kNS_SetupBeam;
+    break;
+  default:
+    break;
+  }
+}
+
+void CPlayerGun::ReturnToRestPose() {
+  if (mInRestPose == true) {
+    return;
+  }
+
+  if (IsWeaponStateSet(0x1)) {
+    PlayAnim(NWeaponTypes::kGAT_BasePosition, false);
+  } else if (IsWeaponStateSet(0x4)) {
+    PlayAnim(NWeaponTypes::kGAT_ToMissile, false);
+  }
+
+  mInRestPose = true;
+}
+
+void CPlayerGun::SetPhazonBeamFeedback(bool active) {
+  const bool fadeOut = !active;
+  CSamusHud::DisplayHudMemo(rstl::wstring_l(gpStringTable->GetString(21)),
+                            CHUDMemoParms(5.f, true, fadeOut, false));
+
+  if (CSfxManager::IsPlaying(mPhazonBeamSfx)) {
+    CSfxManager::SfxStop(mPhazonBeamSfx);
+  }
+
+  mPhazonBeamSfx.Clear();
+  if (active) {
+    mPhazonBeamSfx = NWeaponTypes::play_sfx(SFXsam_a_phazup_lp_00, mUnderwater, false, 0x4a);
+  }
+}
+
+bool CPlayerGun::IsUpperRightArmVisible() const {
+  bool visible = !mInBigStrike || mBigStrikeTime <= 0.35f;
+  if (visible && mGrappleArm->GetActive() &&
+      mGrappleArm->GetAnimState() >= CGrappleArm::kAS_FireGrapple &&
+      mGrappleArm->GetAnimState() <= CGrappleArm::kAS_Seven) {
+    visible = false;
+  }
+  return visible;
 }
 
 void CPlayerGun::UpdatePenetration(const CStateManager& mgr) {

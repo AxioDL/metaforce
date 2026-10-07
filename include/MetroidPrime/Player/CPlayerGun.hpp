@@ -107,6 +107,7 @@ public:
   void PreRender(CStateManager&, const CFrustumPlanes&, const CVector3f&);
   void TouchModel(const CStateManager&) const;
   CVector3f ConvertToScreenSpace(const CVector3f& pos, const CGameCamera&) const;
+  bool IsUpperRightArmVisible() const;
   void DrawArm(const CStateManager&, const CVector3f&, const CModelFlags&) const;
   void Render(const CStateManager&, const CVector3f&, const CModelFlags&) const;
   void GetLctrWithShake(CTransform4f& xfOut, const CModelData&, const rstl::string&, bool, bool);
