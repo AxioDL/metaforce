@@ -13,7 +13,7 @@ public:
 
   void Stop(CStateManager& mgr, float fadeTime);
   void Play(CStateManager& mgr, float fadeTime);
-  DECLARE_TYPES_MATCH_OR_ACCEPT;
+  DECLARE_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) override;
 
 private:

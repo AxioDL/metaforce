@@ -12,7 +12,7 @@ public:
 
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   void Think(float, CStateManager&) override;
-  DECLARE_TYPES_MATCH_OR_ACCEPT;
+  DECLARE_ACCEPT;
 
 private:
   bool x150_;

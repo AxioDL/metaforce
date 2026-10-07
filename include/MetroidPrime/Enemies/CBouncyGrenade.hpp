@@ -62,7 +62,7 @@ class CBouncyGrenade : public CPhysicsActor {
 public:
   // CEntity
   ~CBouncyGrenade() override;
-  DECLARE_TYPES_MATCH_OR_ACCEPT;
+  DECLARE_ACCEPT;
   void Think(float dt, CStateManager& mgr) override;
 
   // CActor

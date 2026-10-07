@@ -67,7 +67,7 @@ public:
 private:
   class CFlash : public CActor {
   public:
-    DECLARE_TYPES_MATCH_OR_ACCEPT;
+    DECLARE_ACCEPT;
     void Think(float dt, CStateManager& mgr) override;
     void PreRender(CStateManager& mgr, const CFrustumPlanes& frustum) override;
     void AddToRenderer(const CFrustumPlanes& frustum, const CStateManager& mgr) const override;

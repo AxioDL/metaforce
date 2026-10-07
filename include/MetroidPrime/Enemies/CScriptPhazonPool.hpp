@@ -23,7 +23,7 @@ public:
   ~CScriptPhazonPool() override;
 
   // CEntity
-  DECLARE_TYPES_MATCH_OR_ACCEPT;
+  DECLARE_ACCEPT;
   void Think(float dt, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
 

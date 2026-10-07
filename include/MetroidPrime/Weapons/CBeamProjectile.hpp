@@ -21,7 +21,7 @@ public:
                   EProjectileAttrib attribs, bool growingBeam);
 
   // CEntity
-  DECLARE_TYPES_MATCH_OR_ACCEPT;
+  DECLARE_ACCEPT;
   ~CBeamProjectile() override;
 
   // CActor
