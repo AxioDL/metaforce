@@ -2249,7 +2249,7 @@ Kyoto/Animation/CAnimationManager.cpp:
 	.text       start:0x802C2920 end:0x802C2A68
 
 Kyoto/Animation/CAnimationSet.cpp:
-	.text       start:0x802C2A68 end:0x802C3BCC
+	.text       start:0x802C2A68 end:0x802C3C10
 	.sbss       start:0x8046B378 end:0x8046B398
 	.sdata2     start:0x804704F0 end:0x804704F8
 
