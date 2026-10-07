@@ -2647,7 +2647,7 @@ Kyoto/Text/CPushStateInstruction.cpp:
 	.data       start:0x803D64A8 end:0x803D64C8
 
 Kyoto/Text/CRasterFont.cpp:
-	.text       start:0x802EA9D0 end:0x802EC1B8
+	.text       start:0x802EA9D0 end:0x802EC548
 	.rodata     start:0x803C32C8 end:0x803C32E8
 	.sdata2     start:0x80597778 end:0x80597780
 

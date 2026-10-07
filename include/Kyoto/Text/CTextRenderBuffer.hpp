@@ -5,6 +5,7 @@
 #include "Kyoto/Math/CVector2i.hpp"
 #include "Kyoto/TToken.hpp"
 #include "Kyoto/Text/CFontImageDef.hpp"
+#include "Kyoto/Text/CRasterFont.hpp"
 #include "Kyoto/Text/CTextColor.hpp"
 
 #include "rstl/pair.hpp"
@@ -55,7 +56,11 @@ public:
   CGraphicsPalette* GetNextAvailablePalette() const;
   int GetMatchingPaletteIndex(const CGraphicsPalette& palette) const;
   void AddFontChange(const TToken< CRasterFont >& font);
+#if VERSION >= VERSION_GM8P_00
+  void AddPaletteChange(const CGraphicsPalette& palette, EFontMode mode);
+#else
   void AddPaletteChange(const CGraphicsPalette& palette);
+#endif
   void AddCharacter(const CVector2i&, short chr, uint color);
   void AddImage(const CVector2i& offset, const CFontImageDef& image);
 

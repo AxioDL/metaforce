@@ -13,6 +13,13 @@ public:
   ETextDirection GetTextDirection() const { return mDirection; }
   void SetPaletteEntry(int idx, uint color) { mColors[idx] = color; }
   uint GetPaletteEntry(int idx) const { return mColors[idx]; }
+  int GetExtraCharacterSpacing() const {
+#if VERSION >= VERSION_GM8P_00
+    return mExtraCharacterSpacing;
+#else
+    return 0;
+#endif
+  }
 
 private:
   ETextDirection mDirection;
