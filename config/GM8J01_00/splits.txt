@@ -2535,7 +2535,7 @@ Kyoto/Animation/CAnimTreeTransition.cpp:
 	.text       start:0x802E089C end:0x802E17B8
 	.rodata     start:0x803C3278 end:0x803C3288
 	.data       start:0x803D6110 end:0x803D6190
-	.sdata      start:0x80591860 end:0x80591864
+	.sdata      start:0x80591860 end:0x80591868
 	.sdata2     start:0x805976E0 end:0x805976F0
 
 Kyoto/Animation/CAnimTreeTweenBase.cpp:

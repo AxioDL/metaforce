@@ -53,7 +53,6 @@ CAnimTreeTransition::VReverseSimplified() {
   return CAnimTreeTweenBase::VReverseSimplified();
 }
 
-#pragma sym on
 rstl::pair< CCharAnimTime, CAdvancementDeltas >
 CAnimTreeTransition::AdvanceViewForTransitionalPeriod(const CCharAnimTime& time) {
   IncAdvancementDepth();
@@ -77,9 +76,9 @@ CAnimTreeTransition::AdvanceViewForTransitionalPeriod(const CCharAnimTime& time)
   const CAdvancementDeltas& rightDeltas = res.GetRightAdvancementDeltas();
   if (GetBlendRoot() & kBlendRoot_Offset)
     return rstl::pair< CCharAnimTime, CAdvancementDeltas >(
-        res.GetTrueAdvancement(),
+        trueAdvancement,
         CAdvancementDeltas::Interpolate(leftDeltas, rightDeltas, oldWeight, newWeight));
-  return rstl::pair< CCharAnimTime, CAdvancementDeltas >(res.GetTrueAdvancement(), rightDeltas);
+  return rstl::pair< CCharAnimTime, CAdvancementDeltas >(trueAdvancement, rightDeltas);
 }
 
 CAdvancementResults CAnimTreeTransition::VAdvanceView(const CCharAnimTime& time) {
