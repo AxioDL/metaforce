@@ -15,7 +15,7 @@ struct InputDevice {
   bool operator==(const InputDevice&) const = default;
 };
 
-void Initialize();
+bool Initialize();
 void Shutdown();
 void Update();
 
@@ -27,7 +27,6 @@ bool HasAxis(const PADAxisMapping& mapping);
 bool KeyboardSelected();
 SDL_Gamepad* SelectedGamepad();
 
-void ResetKeyboardBindings();
 void ResetBindings();
 
 template < typename Mapping >

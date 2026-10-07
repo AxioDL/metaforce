@@ -4,7 +4,6 @@
 #include <SDL3/SDL_scancode.h>
 
 #include <algorithm>
-#include <array>
 #include <limits>
 
 namespace metaforce::input {
@@ -12,39 +11,46 @@ namespace {
 bool sInitialized = false;
 uint32_t sDeviceSource = std::numeric_limits< uint32_t >::max();
 
-constexpr std::array< PADKeyButtonBinding, PAD_BUTTON_COUNT > kDefaultKeyButtons{{
-    {SDL_SCANCODE_SPACE, PAD_BUTTON_A},
-    {SDL_SCANCODE_LSHIFT, PAD_BUTTON_B},
-    {SDL_SCANCODE_F, PAD_BUTTON_X},
-    {SDL_SCANCODE_R, PAD_BUTTON_Y},
-    {SDL_SCANCODE_TAB, PAD_TRIGGER_Z},
-    {SDL_SCANCODE_RETURN, PAD_BUTTON_START},
-    {SDL_SCANCODE_UP, PAD_BUTTON_UP},
-    {SDL_SCANCODE_DOWN, PAD_BUTTON_DOWN},
-    {SDL_SCANCODE_LEFT, PAD_BUTTON_LEFT},
-    {SDL_SCANCODE_RIGHT, PAD_BUTTON_RIGHT},
-    {SDL_SCANCODE_Q, PAD_TRIGGER_L},
-    {SDL_SCANCODE_E, PAD_TRIGGER_R},
-}};
-
-constexpr std::array< PADKeyAxisBinding, PAD_AXIS_COUNT > kDefaultKeyAxes{{
-    {SDL_SCANCODE_W, PAD_AXIS_LEFT_Y_POS, 1},
-    {SDL_SCANCODE_S, PAD_AXIS_LEFT_Y_NEG, 1},
-    {SDL_SCANCODE_A, PAD_AXIS_LEFT_X_NEG, 1},
-    {SDL_SCANCODE_D, PAD_AXIS_LEFT_X_POS, 1},
-    {SDL_SCANCODE_I, PAD_AXIS_RIGHT_Y_POS, 1},
-    {SDL_SCANCODE_K, PAD_AXIS_RIGHT_Y_NEG, 1},
-    {SDL_SCANCODE_J, PAD_AXIS_RIGHT_X_NEG, 1},
-    {SDL_SCANCODE_L, PAD_AXIS_RIGHT_X_POS, 1},
-    {SDL_SCANCODE_Q, PAD_AXIS_TRIGGER_L, 1},
-    {SDL_SCANCODE_E, PAD_AXIS_TRIGGER_R, 1},
-}};
+constexpr PADDefaultKeyBindings kDefaultKeyBindings{
+    .buttons =
+        {
+            {SDL_SCANCODE_SPACE, PAD_BUTTON_A},
+            {SDL_SCANCODE_LSHIFT, PAD_BUTTON_B},
+            {SDL_SCANCODE_F, PAD_BUTTON_X},
+            {SDL_SCANCODE_R, PAD_BUTTON_Y},
+            {SDL_SCANCODE_TAB, PAD_TRIGGER_Z},
+            {SDL_SCANCODE_RETURN, PAD_BUTTON_START},
+            {SDL_SCANCODE_UP, PAD_BUTTON_UP},
+            {SDL_SCANCODE_DOWN, PAD_BUTTON_DOWN},
+            {SDL_SCANCODE_LEFT, PAD_BUTTON_LEFT},
+            {SDL_SCANCODE_RIGHT, PAD_BUTTON_RIGHT},
+            {SDL_SCANCODE_Q, PAD_TRIGGER_L},
+            {SDL_SCANCODE_E, PAD_TRIGGER_R},
+        },
+    .axes =
+        {
+            {SDL_SCANCODE_W, PAD_AXIS_LEFT_Y_POS, 1},
+            {SDL_SCANCODE_S, PAD_AXIS_LEFT_Y_NEG, 1},
+            {SDL_SCANCODE_A, PAD_AXIS_LEFT_X_NEG, 1},
+            {SDL_SCANCODE_D, PAD_AXIS_LEFT_X_POS, 1},
+            {SDL_SCANCODE_I, PAD_AXIS_RIGHT_Y_POS, 1},
+            {SDL_SCANCODE_K, PAD_AXIS_RIGHT_Y_NEG, 1},
+            {SDL_SCANCODE_J, PAD_AXIS_RIGHT_X_NEG, 1},
+            {SDL_SCANCODE_L, PAD_AXIS_RIGHT_X_POS, 1},
+            {SDL_SCANCODE_Q, PAD_AXIS_TRIGGER_L, 1},
+            {SDL_SCANCODE_E, PAD_AXIS_TRIGGER_R, 1},
+        },
+};
 
 } // namespace
 
-void Initialize() {
+bool Initialize() {
+  if (!PADSetDefaultKeyBindings(0, &kDefaultKeyBindings) || !PADInit()) {
+    return false;
+  }
   sInitialized = true;
   Update();
+  return true;
 }
 
 void Shutdown() {
@@ -72,7 +78,6 @@ void Update() {
     // I want trigger emulation to be implicit, so make sure this is on
     if (auto* zones = PADGetDeadZones(0); zones && !zones->emulateTriggers) {
       zones->emulateTriggers = true;
-      PADSerializeMappings();
     }
   }
 }
@@ -107,10 +112,11 @@ void SelectDevice(uint32_t source) {
   if (source != 0) {
     for (u32 i = 0; i < PADCount(); ++i) {
       if (auto* gamepad = PADGetSDLGamepadForIndex(i);
-          gamepad && SDL_GetGamepadID(gamepad) == source) {
+          gamepad && SDL_GetGamepadID(gamepad) == source)
+      {
         index = int(i);
         break;
-          }
+      }
     }
     if (index < 0) {
       return;
@@ -140,18 +146,9 @@ SDL_Gamepad* SelectedGamepad() {
   return PADGetSDLGamepadForIndex(u32(index));
 }
 
-// TODO: Maybe PAD should handle keyboard binding init/resetting,
-// while ports merely supply the desired defaults? Think about this more.
-void ResetKeyboardBindings() {
-  auto buttons = kDefaultKeyButtons;
-  auto axes = kDefaultKeyAxes;
-  PADSetKeyButtonBindings(0, buttons.data());
-  PADSetKeyAxisBindings(0, axes.data());
-}
-
 void ResetBindings() {
   if (KeyboardSelected()) {
-    ResetKeyboardBindings();
+    PADRestoreDefaultKeyBindings(0);
   } else {
     u32 count = 0;
     (void)PADGetButtonMappings(0, &count);

@@ -19,7 +19,6 @@
 
 #include <cstdio>
 #include <cstdlib>
-#include <filesystem>
 #include <limits>
 #include <memory>
 #include <optional>
@@ -323,25 +322,6 @@ std::string SelectDisc(SDL_Window* window) {
   }
   return (*result)->locations.front();
 }
-
-bool KeyboardBindingsEmpty() {
-  u32 count = 0;
-  if (const auto* buttons = PADGetKeyButtonBindings(0, &count)) {
-    for (u32 i = 0; i < count; ++i) {
-      if (buttons[i].scancode != PAD_KEY_INVALID) {
-        return false;
-      }
-    }
-  }
-  if (const auto* axes = PADGetKeyAxisBindings(0, &count)) {
-    for (u32 i = 0; i < count; ++i) {
-      if (axes[i].scancode != PAD_KEY_INVALID) {
-        return false;
-      }
-    }
-  }
-  return true;
-}
 } // namespace
 
 int Initialize(int argc, char** argv) {
@@ -498,21 +478,10 @@ int Initialize(int argc, char** argv) {
   borealis::presentation::set_preferred_frame_rate(60.f);
   COsContext::mProgressiveMode = true;
 
-  if (!PADInit()) {
-    Log.error("PADInit() failed");
+  if (!input::Initialize()) {
+    Log.error("Failed to initialize input");
     Shutdown();
     return 1;
-  }
-  PADSetKeyboardActive(0, TRUE);
-  std::error_code error;
-  const bool savedKeyboard = std::filesystem::exists(paths.userPath / "keyboard_bindings.dat", error);
-  const bool configureKeyboard = !savedKeyboard && !error && KeyboardBindingsEmpty();
-  if (configureKeyboard) {
-    input::ResetKeyboardBindings();
-  }
-  input::Initialize();
-  if (configureKeyboard) {
-    PADSerializeMappings();
   }
   if (!ui::Initialize()) {
     Log.warn("Failed to initialize the Metaforce interface");
