@@ -3042,7 +3042,11 @@ Kyoto/Audio/DolphinCAudioSys.cpp:
 Kyoto/DolphinCMemoryCardSys.cpp:
 	.text       start:0x803359AC end:0x80337E48
 	.ctors      start:0x803B5128 end:0x803B512C
+	.rodata     start:0x803C3690 end:0x803C3698
+	.bss        start:0x80402048 end:0x80402060
 	.bss        start:0x8046887C end:0x804688AC align:4 common
+	.sdata      start:0x8046AA88 end:0x8046AA98
+	.sbss       start:0x8046B700 end:0x8046B708
 
 Kyoto/Input/DolphinIController.cpp:
 	.text       start:0x80337E48 end:0x80337EF4

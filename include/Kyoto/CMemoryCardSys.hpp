@@ -13,6 +13,11 @@
 #include "rstl/reserved_vector.hpp"
 #include "rstl/string.hpp"
 
+#if VERSION < VERSION_GM8P_00
+typedef rstl::vector< uchar, rstl::aligned_allocator > TCardFileBuffer;
+#endif
+typedef rstl::vector< char, rstl::aligned_allocator > TCardWorkArea;
+
 class CTexture;
 
 // Dolphin SDK result codes, with Retro's CRC mismatch extension.
@@ -70,9 +75,37 @@ public:
       Icon(CAssetId id, int speed, CSimplePool& pool);
     };
 
-    enum EStatus { kS_Standby, kS_Transferring, kS_Done };
+    enum EStatus {
+      kS_Standby,
+      kS_Transferring,
+      kS_Done,
+      kS_ReadingFirstBlock,
+      kS_ReadingSecondBlock,
+      kS_WritingHeader,
+      kS_WritingBlock,
+      kS_WritingBothBlocks,
+      kS_SettingStatus
+    };
 
+    struct SSaveBlock {
+      uint mSequence;
+      bool mCorrupted;
+      rstl::vector< uchar, rstl::aligned_allocator > mData;
+
+      SSaveBlock();
+      void Check();
+    };
+
+#if VERSION >= VERSION_GM8P_00
+    int mBlockCount;
+    int mBlockSize;
+    int mWriteBlock;
+    uint mSequence;
+#endif
     EStatus mStatus;
+#if VERSION >= VERSION_GM8P_00
+    bool mWriteBothBlocks;
+#endif
     CARDFileInfo mFileInfo;
     rstl::string mFileName;
     rstl::string mComment;
@@ -80,12 +113,24 @@ public:
     CAssetId mBannerTex;
     rstl::optional_object< TLockedToken< CTexture > > mBannerTok;
     rstl::reserved_vector< Icon, 8 > mIconToks;
+#if VERSION >= VERSION_GM8P_00
+    rstl::vector< uchar, rstl::aligned_allocator > mHeaderBuffer;
+    rstl::reserved_vector< SSaveBlock, 2 > mSaveBlocks;
+#endif
     rstl::vector< u8 > mSaveBuffer;
-    rstl::vector< u8, rstl::aligned_allocator > mCardBuffer;
+#if VERSION >= VERSION_GM8P_00
+    rstl::vector< u8 > mCardBuffer;
+#else
+    TCardFileBuffer mCardBuffer;
+#endif
 
   public:
     CCardFileInfo(EMemoryCardPort port, const rstl::string& name);
+#if VERSION >= VERSION_GM8P_00
+    ~CCardFileInfo();
+#else
     ~CCardFileInfo() {}
+#endif
 
     void SetComment(const rstl::string& name);
     void LockBannerToken(CAssetId bannerTxtr, CSimplePool& sp);
@@ -93,7 +138,14 @@ public:
 
     ECardResult PumpCardTransfer();
     ECardResult CreateFile();
+    ECardResult Open();
+    ECardResult StartRead();
+    ECardResult TryFileRead();
+    ECardResult FileRead();
+    ECardResult FinishRead();
+    ECardResult CheckHeader();
     ECardResult WriteFile();
+    ECardResult WriteBlock(int index);
     ECardResult CloseFile();
     ECardResult GetStatus(CardStat& stat);
     EMemoryCardPort GetCardPort();
@@ -101,6 +153,10 @@ public:
     uint CalculateBannerDataSize();
     uint CalculateTotalDataSize();
     void BuildCardBuffer();
+    void BuildHeader();
+    void BuildSaveBlock();
+    int GetTotalBlockCount();
+    void ResetBannerAndIcons();
     void WriteBannerData(COutputStream& out);
     void WriteIconData(COutputStream& out);
 
@@ -117,6 +173,7 @@ public:
 
   static ECardResult GetResultCode(int);
   static ECardResult MountCard(EMemoryCardPort port);
+  static ECardResult MountCardSync(EMemoryCardPort port);
   static ECardResult CheckCard(EMemoryCardPort port);
   static ECardResult GetStatus(EMemoryCardPort port, int fileNo, CardStat& statOut);
   static ECardResult SetStatus(EMemoryCardPort port, int fileNo, const CardStat& stat);
@@ -129,7 +186,7 @@ public:
   static ECardResult UnmountCard(EMemoryCardPort);
   static ECardResult Rename(EMemoryCardPort, const rstl::string&, const rstl::string&);
   static ECardResult GetNumFreeBytes(EMemoryCardPort port, uint& freeBytes, uint& freeFiles);
-  static rstl::vector< char, rstl::aligned_allocator >& WorkAreaVector(EMemoryCardPort port);
+  static TCardWorkArea& WorkAreaVector(EMemoryCardPort port);
   static char* AllocCardWorkArea(EMemoryCardPort port);
   static void FreeCardWorkArea(EMemoryCardPort port);
   inline void Initialize();
@@ -137,11 +194,11 @@ public:
 private:
   static bool mIsInitialized;
   static bool mIsCardSysExists;
-  static rstl::vector< char, rstl::aligned_allocator > mWorkAreaA;
-  static rstl::vector< char, rstl::aligned_allocator > mWorkAreaB;
+  static TCardWorkArea mWorkAreaA;
+  static TCardWorkArea mWorkAreaB;
 };
 
-NESTED_CHECK_SIZEOF(CMemoryCardSys, CCardFileInfo, 0x114)
+NESTED_CHECK_SIZEOF(CMemoryCardSys, CCardFileInfo, VERSION >= VERSION_GM8P_00 ? 0x16c : 0x114)
 
 struct SMemoryCardFileInfo {
   CARDFileInfo mFileInfo;

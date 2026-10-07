@@ -2245,7 +2245,7 @@ config.libs = [
             ),
             Object(NonMatching, "Kyoto/Audio/DolphinCAudioGroupSet.cpp"),
             Object(EquivalentFor("GM8E01_00"), "Kyoto/Audio/DolphinCAudioSys.cpp"),
-            Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02"), "Kyoto/DolphinCMemoryCardSys.cpp"),
+            Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02", "GM8P01_00", "GM8J01_00"), "Kyoto/DolphinCMemoryCardSys.cpp"),
             Object(
                 MatchingFor(*NTSC_GC_VERSIONS, "GM8P01_00", "GM8J01_00"),
                 "Kyoto/Input/DolphinIController.cpp",
