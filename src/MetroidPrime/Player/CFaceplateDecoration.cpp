@@ -26,7 +26,7 @@ void CFaceplateDecoration::Update(float dt, const CStateManager& mgr) {
 
 void CFaceplateDecoration::Draw(const CStateManager& stateMgr) const {
   if (mTex.valid() && mTex->IsLoaded()) {
-    CTexture* texture = TToken< CTexture >(*mTex).GetT();
+    CTexture* texture = *TLockedToken< CTexture >(*mTex);
     float alpha = stateMgr.GetPlayer()->GetVisorSteamAlpha();
     if (!close_enough(alpha, 0.f)) {
       CCameraFilterPass::DrawFilter(CCameraFilterPass::kFT_Blend,
