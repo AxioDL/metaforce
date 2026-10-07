@@ -25,7 +25,7 @@ popup {
     border-bottom-width: var(--border-width);
     border-bottom-color: var(--panel-border);
     backdrop-filter: var(--panel-backdrop);
-    box-shadow: var(--panel-glow);
+    filter: drop-shadow(var(--panel-glow-alt));
     decorator: var(--panel-scanlines);
     transform: translateY(var(--toolbar-hidden-offset));
     transition: transform 0.2s cubic-in-out;

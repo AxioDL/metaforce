@@ -99,5 +99,6 @@ body {
     --panel-backdrop: blur(6dp) glass(22dp 28dp 0.35 rgba(var(--color-accent-rgb), 6%) 0.85);
     --panel-border: rgba(var(--color-accent-rgb), 50%);
     --panel-glow: rgba(var(--color-accent-rgb), 16%) 0 0 28dp 2dp;
+    --panel-glow-alt: rgba(var(--color-accent-rgb), 16%) 0dp 2dp 14dp;
     --panel-scanlines: repeating-linear-gradient(180deg, rgba(var(--color-accent-rgb), 3%) 0dp, rgba(var(--color-accent-rgb), 3%) 1dp, rgba(var(--color-accent-rgb), 0%) 1dp, rgba(var(--color-accent-rgb), 0%) 3dp);
 }
