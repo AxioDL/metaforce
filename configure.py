@@ -1756,8 +1756,14 @@ config.libs = [
                 MatchingFor("GM8EAB_00", *NTSC_GC_VERSIONS, "GM8P01_00", "GM8J01_00"),
                 "Kyoto/Animation/CPASAnimParm.cpp",
             ),
-            Object(MatchingFor(*NTSC_GC_VERSIONS), "Kyoto/Animation/CPASAnimState.cpp"),
-            Object(MatchingFor(*NTSC_GC_VERSIONS), "Kyoto/Animation/CPASDatabase.cpp"),
+            Object(
+                MatchingFor(*NTSC_GC_VERSIONS, "GM8P01_00", "GM8J01_00"),
+                "Kyoto/Animation/CPASAnimState.cpp",
+            ),
+            Object(
+                MatchingFor(*NTSC_GC_VERSIONS, "GM8P01_00", "GM8J01_00"),
+                "Kyoto/Animation/CPASDatabase.cpp",
+            ),
             Object(
                 MatchingFor(*NTSC_GC_VERSIONS, "GM8P01_00", "GM8J01_00"),
                 "Kyoto/Animation/CPASParmInfo.cpp",

@@ -18,7 +18,8 @@ CPASAnimState::CPASAnimState(CInputStream& in) : mId(pas::kAS_Invalid) {
   mSelectionCache.reserve(animCount);
 
   for (uint i = 0; i < parmCount; i++) {
-    mParms.push_back(CPASParmInfo(in));
+    const CPASParmInfo info(in);
+    mParms.push_back(info);
   }
 
   rstl::reserved_vector< CPASAnimParm::UParmValue, 8 > parms;
