@@ -246,9 +246,6 @@ private:
   uint mEnabledItems;
   EBeamId mCurrentBeam;
   CHealthInfo mHealth;
-#if VERSION >= VERSION_R3IJ_00
-  float mHealthSnapshot;
-#endif
   EPlayerVisor mCurrentVisor;
   EPlayerVisor mTransitioningVisor;
   float mVisorTransitionFactor;

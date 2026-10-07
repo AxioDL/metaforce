@@ -63,9 +63,6 @@ CPlayerState::CPlayerState()
 , mEnabledItems(0)
 , mCurrentBeam(kBI_Power)
 , mHealth(kBaseHealthCapacity, kDefaultKnockbackResistance)
-#if VERSION >= VERSION_R3IJ_00
-, mHealthSnapshot(kBaseHealthCapacity)
-#endif
 , mCurrentVisor(kPV_Combat)
 , mTransitioningVisor(mCurrentVisor)
 , mVisorTransitionFactor(kMaxVisorTransitionFactor)
@@ -100,9 +97,6 @@ CPlayerState::CPlayerState(CInputStream& stream)
 , mEnabledItems(0)
 , mCurrentBeam(kBI_Power)
 , mHealth(kBaseHealthCapacity, kDefaultKnockbackResistance)
-#if VERSION >= VERSION_R3IJ_00
-, mHealthSnapshot(kBaseHealthCapacity)
-#endif
 , mCurrentVisor(kPV_Combat)
 , mTransitioningVisor(mCurrentVisor)
 , mVisorTransitionFactor(kMaxVisorTransitionFactor)
@@ -115,11 +109,7 @@ CPlayerState::CPlayerState(CInputStream& stream)
   mEnabledItems = uint(stream.ReadBits(32));
 
   const uint integralHP = uint(stream.ReadBits(32));
-  mHealth.SetHP(*(float*)(&integralHP));
-  mHealth.SetKnockbackResistance(kDefaultKnockbackResistance);
-#if VERSION >= VERSION_R3IJ_00
-  mHealthSnapshot = mHealth.GetHP();
-#endif
+  mHealth = CHealthInfo(*(float*)(&integralHP), kDefaultKnockbackResistance);
 
   mCurrentBeam = EBeamId(stream.ReadBits(GetBitCount(5)));
   mCurrentSuit = EPlayerSuit(stream.ReadBits(GetBitCount(4)));

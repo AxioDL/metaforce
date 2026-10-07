@@ -72,6 +72,6 @@ public:
   CAssetId mParticle2;
   uint mIceShatterSfx;
 };
-CHECK_SIZEOF(CPatternedInfo, 0x138)
+CHECK_SIZEOF(CPatternedInfo, VERSION >= VERSION_R3IJ_00 ? 0x13c : 0x138)
 
 #endif // _CPATTERNEDINFO

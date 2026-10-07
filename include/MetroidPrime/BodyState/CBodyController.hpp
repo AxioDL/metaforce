@@ -95,6 +95,10 @@ private:
   float mTimeElectrocuting;
   float mRestrictedFlyerMoveSpeed;
 };
+#if VERSION >= VERSION_R3IJ_00
+CHECK_SIZEOF(CBodyController, 0x330)
+#else
 CHECK_SIZEOF(CBodyController, 0x334)
+#endif
 
 #endif // _CBODYCONTROLLER

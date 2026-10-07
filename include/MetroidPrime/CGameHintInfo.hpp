@@ -56,8 +56,8 @@ private:
   rstl::vector< CGameHint > mHints;
 };
 
-CHECK_SIZEOF(CGameHintInfo, 0x10)
+CHECK_SIZEOF(CGameHintInfo, VERSION >= VERSION_R3IJ_00 ? 0xc : 0x10)
 NESTED_CHECK_SIZEOF(CGameHintInfo, SHintLocation, 0x10)
-NESTED_CHECK_SIZEOF(CGameHintInfo, CGameHint, 0x30)
+NESTED_CHECK_SIZEOF(CGameHintInfo, CGameHint, VERSION >= VERSION_R3IJ_00 ? 0x28 : 0x30)
 
 #endif // _CGAMEHINTINFO

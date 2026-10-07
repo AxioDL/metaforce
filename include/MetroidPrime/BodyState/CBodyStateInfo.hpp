@@ -56,6 +56,10 @@ private:
   CBodyState* SetupRestrictedBodyStates(int stateId, CActor& actor);
   CBodyState* SetupBiPedalBodyStates(int stateId, CActor& actor);
 };
+#if VERSION >= VERSION_R3IJ_00
+CHECK_SIZEOF(CBodyStateInfo, 0x34)
+#else
 CHECK_SIZEOF(CBodyStateInfo, 0x38)
+#endif
 
 #endif // _CBODYSTATEINFO
