@@ -7,6 +7,9 @@
 
 class CScriptMidi : public CEntity {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CScriptMidi(TUniqueId id, const CEntityInfo& info, const rstl::string& name, bool active,
               CAssetId csng, float, float, int);
   ~CScriptMidi() override;

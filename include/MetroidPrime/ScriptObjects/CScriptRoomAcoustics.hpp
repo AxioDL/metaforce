@@ -69,6 +69,9 @@ struct EffectDelayInfo {
 
 class CScriptRoomAcoustics : public CEntity {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CScriptRoomAcoustics(TUniqueId uid, const rstl::string& name, const CEntityInfo& info,
                        bool active, uint volScale, bool revHi, bool revHiDis, float revHiColoration,
                        float revHiMix, float revHiTime, float revHiDamping, float revHiPreDelay,

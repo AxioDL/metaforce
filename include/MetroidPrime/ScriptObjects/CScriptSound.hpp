@@ -5,6 +5,9 @@
 
 class CScriptSound : public CActor {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CScriptSound(TUniqueId uid, const rstl::string& name, const CEntityInfo& info,
                const CTransform4f& xf, ushort soundId, bool active, float maxDist, float distComp,
                float startDelay, uint minVol, uint vol, uint w3, uint prio, uint pan, uint w6,

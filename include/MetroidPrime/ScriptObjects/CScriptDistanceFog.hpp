@@ -22,6 +22,9 @@ class CScriptDistanceFog : public CEntity {
   bool mNonZero;
 
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CScriptDistanceFog(TUniqueId, const rstl::string&, const CEntityInfo&, ERglFogMode, const CColor&,
                      const CVector2f&, float, CVector2f, const bool, const bool, float, float,
                      float, float);

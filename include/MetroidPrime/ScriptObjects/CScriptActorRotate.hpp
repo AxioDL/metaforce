@@ -10,6 +10,9 @@ class CScriptPlatform;
 
 class CScriptActorRotate : public CEntity {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CScriptActorRotate(TUniqueId, const rstl::string&, const CEntityInfo&, const CVector3f&,
                      float, bool, bool, bool);
   ~CScriptActorRotate();

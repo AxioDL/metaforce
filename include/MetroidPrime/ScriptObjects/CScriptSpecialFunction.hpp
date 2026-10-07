@@ -15,6 +15,9 @@
 
 class CScriptSpecialFunction : public CActor {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   enum ESpecialFunction {
     kSF_What = 0,
     kSF_PlayerFollowLocator = 1,

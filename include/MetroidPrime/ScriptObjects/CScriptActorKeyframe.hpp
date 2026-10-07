@@ -6,6 +6,9 @@
 class CScriptActorKeyframe : public CEntity {
 
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CScriptActorKeyframe(TUniqueId uid, const rstl::string& name, const CEntityInfo& info, int animId,
                        bool looping, float lifetime, bool isPassive, int fadeOut, bool active,
                        float totalPlayback);

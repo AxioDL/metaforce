@@ -21,6 +21,9 @@ class CMetroid : public CPatterned {
   static const CColor skGammaYellowColorMod;
 
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CMetroid(const TUniqueId uid, const rstl::string& name, const EFlavorType flavor,
            const CEntityInfo& info, const CTransform4f& xf, const CModelData& mData,
            const CPatternedInfo& pInfo, const CActorParameters& aParms,

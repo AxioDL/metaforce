@@ -21,6 +21,9 @@ class CFlyingPirate : public CPatterned {
   friend class CFlyingPirateRagDoll;
 
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   class CFlyingPirateData {
     friend class CFlyingPirate;
 

@@ -17,6 +17,9 @@ class CWeaponDescription;
 
 class CScriptContraption : public CScriptActor {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   struct SFlameThrower {
     TUniqueId id;
     rstl::string name;

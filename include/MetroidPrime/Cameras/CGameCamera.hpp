@@ -12,6 +12,9 @@ class CFinalInput;
 
 class CGameCamera : public CActor {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CGameCamera(const TUniqueId uid, const bool active, const rstl::string& name,
               const CEntityInfo& info, const CTransform4f& xf, const float fov, const float nearZ,
               const float farZ, const float aspect, const TUniqueId watchedId,

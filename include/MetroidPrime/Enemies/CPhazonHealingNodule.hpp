@@ -16,6 +16,9 @@ class CElectricDescription;
 
 class CPhazonHealingNodule : public CPatterned {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CPhazonHealingNodule(TUniqueId uid, const rstl::string& name, const CEntityInfo& info,
                        const CTransform4f& xf, const CModelData& mData,
                        const CActorParameters& actParams, const CPatternedInfo& pInfo,

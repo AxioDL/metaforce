@@ -5,6 +5,9 @@
 
 class CScriptDock : public CPhysicsActor {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CScriptDock(TUniqueId uid, const rstl::string& name, const CEntityInfo& info,
               const CVector3f& position, const CVector3f& extent, int dock, TAreaId area,
               bool active, int dockReferenceCount, const bool loadConnected);

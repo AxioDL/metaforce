@@ -14,6 +14,9 @@ class CCollisionActorManager;
 
 class CDestroyableRock : public CAi {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CDestroyableRock(TUniqueId id, bool active, const rstl::string& name, const CEntityInfo& info,
                    const CTransform4f& xf, const CModelData& modelData, float mass,
                    const CHealthInfo& health, const CDamageVulnerability& vulnerability,
@@ -60,6 +63,9 @@ CHECK_SIZEOF(CDestroyableRock, (VERSION >= VERSION_GM8E_02 ? 0x358 : 0x348))
 
 class CThardus : public CPatterned {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   DECLARE_TYPES_MATCH_OR_ACCEPT;
   void Think(float dt, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;

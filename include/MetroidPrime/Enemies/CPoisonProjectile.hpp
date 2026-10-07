@@ -34,6 +34,9 @@ class CPoisonProjectile : public CEnergyProjectile {
   CPoisonInfo mAuxData;
 
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CPoisonProjectile(const bool active, const TToken< CWeaponDescription >& desc,
                     const EWeaponType type, const CTransform4f& xf, const EMaterialTypes materials,
                     const CDamageInfo& damage, const TUniqueId uid, const TAreaId aid,

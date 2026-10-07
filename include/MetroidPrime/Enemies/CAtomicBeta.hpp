@@ -17,6 +17,9 @@ class CWeaponDescription;
 
 class CAtomicBeta : public CPatterned {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CAtomicBeta(TUniqueId uid, const rstl::string& name, const CEntityInfo& info,
               const CTransform4f& xf, CModelData mData, const CActorParameters& actParms,
               const CPatternedInfo& pInfo, CAssetId electricId, CAssetId weaponId,

@@ -11,6 +11,9 @@ class CThardusRockProjectile : public CPatterned {
   friend class CThardus;
 
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   enum EProjectileState { kPS_Zero, kPS_One, kPS_Two, kPS_Three };
   enum EModifyMaterial {
     kMM_Add,

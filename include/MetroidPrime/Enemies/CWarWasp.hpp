@@ -16,6 +16,9 @@
 
 class CWarWasp : public CPatterned {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   // CEntity
   ~CWarWasp() override;
   DECLARE_TYPES_MATCH_OR_ACCEPT;

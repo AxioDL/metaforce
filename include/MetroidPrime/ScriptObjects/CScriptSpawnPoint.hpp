@@ -14,6 +14,9 @@ class CScriptSpawnPoint : public CEntity {
   bool mMorphed : 1;
 
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CScriptSpawnPoint(TUniqueId, const rstl::string& name, const CEntityInfo& info,
                     const CTransform4f& xf,
                     const rstl::reserved_vector< int, int(CPlayerState::kIT_Max) >& itemCounts,

@@ -8,6 +8,9 @@
 
 class CScriptCameraPitchVolume : public CActor {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CScriptCameraPitchVolume(TUniqueId, bool, const rstl::string&, const CEntityInfo&,
                            const CVector3f&, const CTransform4f&, const CRelAngle&,
                            const CRelAngle&, float);

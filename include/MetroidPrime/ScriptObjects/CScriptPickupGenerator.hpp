@@ -5,6 +5,9 @@
 
 class CScriptPickupGenerator : public CEntity {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CScriptPickupGenerator(TUniqueId, const rstl::string&, const CEntityInfo&, const CVector3f&,
                          float, bool);
   ~CScriptPickupGenerator();

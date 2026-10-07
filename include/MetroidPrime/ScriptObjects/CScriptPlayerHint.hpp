@@ -5,6 +5,9 @@
 
 class CScriptPlayerHint : public CActor {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CScriptPlayerHint(TUniqueId uid, const rstl::string& name, const CEntityInfo& info,
                     const CTransform4f& xf, bool active, int priority, int overrideFlags);
   ~CScriptPlayerHint();

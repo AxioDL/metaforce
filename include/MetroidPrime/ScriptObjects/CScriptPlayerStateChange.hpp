@@ -5,6 +5,9 @@
 
 class CScriptPlayerStateChange : public CEntity {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   enum EControl { kC_Unfiltered, kC_Filtered };
   enum EControlCommandOption { kCCO_Unfiltered, kCCO_Filtered };
 

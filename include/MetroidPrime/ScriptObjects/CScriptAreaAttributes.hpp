@@ -16,6 +16,9 @@ class CScriptAreaAttributes : public CEntity {
   EPhazonType mPhazon;
 
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CScriptAreaAttributes(TUniqueId uid, const CEntityInfo& info, bool showSkybox, EEnvFxType fxType,
                         float envFxDensity, float thermalHeat, float xrayFogDistance,
                         float worldLightingLevel, CAssetId skybox, EPhazonType phazonType);

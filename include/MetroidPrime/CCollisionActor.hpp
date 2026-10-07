@@ -16,6 +16,9 @@ class CCollidableSphere;
 
 class CCollisionActor : public CPhysicsActor {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   enum EPrimitiveType {
     kPT_OBBTreeGroup,
     kPT_AABox,

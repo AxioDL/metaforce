@@ -83,6 +83,9 @@ enum EAttackType {
 
 class CTeamAiMgr : public CEntity {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   class CUnknown {
     friend class CTeamAiMgr;
 

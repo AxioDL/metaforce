@@ -24,6 +24,9 @@ class CScriptPickup : public CPhysicsActor {
   bool mEnableTractorTest : 1;
 
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CScriptPickup(TUniqueId uid, const rstl::string& name, const CEntityInfo& info,
                 const CTransform4f& xf, const CModelData& mData, const CActorParameters& aParams,
                 const CAABox& aabb, CPlayerState::EItemType itemType, int amount, int capacity,

@@ -103,6 +103,9 @@ CHECK_SIZEOF(CScriptGunTurretData, 0xa4)
 
 class CScriptGunTurret : public CPhysicsActor {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   enum ETurretComponent {
     kTC_Base,
     kTC_Gun,

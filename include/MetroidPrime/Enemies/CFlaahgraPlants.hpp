@@ -12,6 +12,9 @@ class CGenDescription;
 
 class CFlaahgraPlants : public CActor {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CFlaahgraPlants(const TToken< CGenDescription >&, const CActorParameters&, TUniqueId, TAreaId,
                   TUniqueId, const CTransform4f&, const CDamageInfo&, const CVector3f&);
 

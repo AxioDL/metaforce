@@ -7,8 +7,14 @@
 
 class CFireFlea : public CPatterned {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   class CDeathCameraEffect : public CEntity {
   public:
+#if TARGET_PC
+    void DrawInspectorPanel() override;
+#endif
     ~CDeathCameraEffect() {}
     void PreThink(float, CStateManager& mgr) override;
     void Think(float, CStateManager& mgr) override;

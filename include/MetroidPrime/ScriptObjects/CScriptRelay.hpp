@@ -8,6 +8,9 @@ class CScriptRelay : public CEntity {
   int mSendCount;
 
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CScriptRelay(TUniqueId, const rstl::string&, const CEntityInfo&, bool);
   
   void UpdateObjectRef(CStateManager& stateMgr);

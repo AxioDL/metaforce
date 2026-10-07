@@ -27,6 +27,9 @@ class CVector3f;
 
 class CScriptWater : public CScriptTrigger {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CScriptWater(CStateManager&, TUniqueId, const rstl::string&, const CEntityInfo&, const CVector3f&,
                const CAABox&, const CDamageInfo&, const CVector3f&, uint, bool, bool, uint, uint,
                uint, uint, uint, uint, uint, const CVector3f&, float, float, float, bool,

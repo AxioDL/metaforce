@@ -8,6 +8,9 @@ class CWeaponDescription;
 class CElementGen;
 class CBloodFlower : public CPatterned {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CBloodFlower(const TUniqueId uid, const rstl::string& name, const CEntityInfo& info,
                const CTransform4f& xf, const CModelData& mData, const CPatternedInfo& pInfo,
                const CAssetId podEffectDescId, const CAssetId projectileDescId,

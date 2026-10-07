@@ -10,6 +10,9 @@ class CFishCloudModifier : public CActor {
   bool mSwirl;
 
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CFishCloudModifier(TUniqueId uid, bool active, const rstl::string& name, const CEntityInfo& info,
                      const CVector3f& pos, bool isRepulsor, bool swirl, float radius,
                      float priority);

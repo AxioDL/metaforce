@@ -9,6 +9,9 @@ class CRipper : public CPatterned {
   static const uint skNumProperties;
 
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   static uint GetNumProperties() { return skNumProperties; }
   CRipper(TUniqueId uid, const rstl::string& name, EFlavorType type, const CEntityInfo& info,
           const CTransform4f& transform, const CModelData& modelData,

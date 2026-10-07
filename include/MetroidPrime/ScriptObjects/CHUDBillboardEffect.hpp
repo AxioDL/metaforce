@@ -9,6 +9,9 @@ class CParticleGen;
 
 class CHUDBillboardEffect : public CEffect {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CHUDBillboardEffect(const rstl::optional_object< TToken< CGenDescription > >& particle,
                       const rstl::optional_object< TToken< CElectricDescription > >& electric,
                       TUniqueId uid, bool active, const rstl::string& name, float dist,

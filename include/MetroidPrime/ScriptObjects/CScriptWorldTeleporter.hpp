@@ -9,6 +9,9 @@
 
 class CScriptWorldTeleporter : public CEntity {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CScriptWorldTeleporter(TUniqueId uid, const rstl::string& name, const CEntityInfo& info,
                          bool active, CAssetId worldId, CAssetId areaId);
   CScriptWorldTeleporter(TUniqueId uid, const rstl::string& name, const CEntityInfo& info,

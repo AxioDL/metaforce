@@ -7,6 +7,9 @@
 
 class CScriptDebugCameraWaypoint : public CActor {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CScriptDebugCameraWaypoint(TUniqueId uid, const rstl::string& name, const CEntityInfo& info,
                              const CTransform4f& xf, uint value);
   ~CScriptDebugCameraWaypoint() override;

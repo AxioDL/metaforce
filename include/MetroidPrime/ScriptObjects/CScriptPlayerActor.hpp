@@ -18,6 +18,9 @@ class CSkinRules;
 
 class CScriptPlayerActor : public CScriptActor {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   CScriptPlayerActor(TUniqueId uid, const rstl::string& name, const CEntityInfo& info,
                      const CTransform4f& xf, const CAnimRes& animRes, const CModelData& mData,
                      const CAABox& aabb, bool setBoundingBox, const CMaterialList& matList,

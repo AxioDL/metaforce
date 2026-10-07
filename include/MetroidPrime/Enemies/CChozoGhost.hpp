@@ -16,6 +16,9 @@ class CGenDescription;
 
 class CChozoGhost : public CPatterned {
 public:
+#if TARGET_PC
+  void DrawInspectorPanel() override;
+#endif
   enum EBehaveType {
     kBT_Lurk,
     kBT_Taunt,
