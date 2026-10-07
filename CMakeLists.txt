@@ -759,15 +759,21 @@ if (WIN32)
     set(METAFORCE_WINDOWS_ICON "${_metaforce_windows_dir}/Metaforce.ico")
     set(METAFORCE_WINDOWS_MANIFEST "${_metaforce_windows_dir}/metaforce.manifest")
     set(_metaforce_windows_rc "${CMAKE_CURRENT_BINARY_DIR}/metaforce.rc")
+    if (MSVC)
+        # metaforce.rc embeds the manifest, so disable the linker-generated one
+        set(METAFORCE_WINDOWS_RC_MANIFEST "1 RT_MANIFEST \"${METAFORCE_WINDOWS_MANIFEST}\"")
+        target_link_options(metaforce PRIVATE /MANIFEST:NO)
+    else ()
+        # CMake's Windows-Clang link rule hardcodes /MANIFEST:EMBED, so let the
+        # linker merge the manifest instead of embedding it from the .rc
+        set(METAFORCE_WINDOWS_RC_MANIFEST "")
+        target_sources(metaforce PRIVATE "${METAFORCE_WINDOWS_MANIFEST}")
+    endif ()
     configure_file("${_metaforce_windows_dir}/metaforce.rc.in" "${_metaforce_windows_rc}" @ONLY)
     target_sources(metaforce PRIVATE "${_metaforce_windows_rc}")
     set_source_files_properties("${_metaforce_windows_rc}" PROPERTIES
             OBJECT_DEPENDS "${METAFORCE_WINDOWS_ICON};${METAFORCE_WINDOWS_MANIFEST}")
     set_target_properties(metaforce PROPERTIES WIN32_EXECUTABLE TRUE)
-    if (MSVC)
-        # metaforce.rc embeds the manifest
-        target_link_options(metaforce PRIVATE /MANIFEST:NO)
-    endif ()
 endif ()
 
 if (APPLE)
