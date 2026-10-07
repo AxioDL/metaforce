@@ -248,7 +248,7 @@ public:
   void SetEnableRender(bool v) { mEnableRender = v; }
 
 #if TARGET_PC
-  void DrawInspectorPanel();
+  void DrawInspectorPanel() override;
 #endif
 protected:
   void SetDrawEnabled(bool v) { mDrawEnabled = v; }
