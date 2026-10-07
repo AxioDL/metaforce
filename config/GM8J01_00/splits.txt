@@ -2958,10 +2958,13 @@ rstl/rstl_strings.cpp:
 	.ctors      start:0x803B6E84 end:0x803B6E88
 	.sbss       start:0x805925B0 end:0x805925C0
 
-rstl/RstlExtras.cpp:
-	.text       start:0x80328BC8 end:0x803292EC
-	.ctors      start:0x803B6E88 end:0x803B6E8C
+rstl/CStringExtras.cpp:
+	.text       start:0x80328BC8 end:0x80329264
 	.rodata     start:0x803C3E70 end:0x803C3E80
+
+rstl/RstlExtras.cpp:
+	.text       start:0x80329264 end:0x803292EC
+	.ctors      start:0x803B6E88 end:0x803B6E8C
 	.bss        start:0x804A8F90 end:0x804A8FA0
 	.sbss       start:0x805925C0 end:0x805925C8
 

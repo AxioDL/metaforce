@@ -12370,10 +12370,10 @@ internal_allocate__Q24rstl66basic_string<c,Q24rstl14char_traits<c>,Q24rstl17rmem
 range_iterator__Q24rstl66basic_string<c,Q24rstl14char_traits<c>,Q24rstl17rmemory_allocator>CFii = .text:0x803281FC; // type:function size:0xCC
 position_iterator__Q24rstl66basic_string<c,Q24rstl14char_traits<c>,Q24rstl17rmemory_allocator>CFi = .text:0x803282C8; // type:function size:0x44
 PutTo__Q24rstl66basic_string<c,Q24rstl14char_traits<c>,Q24rstl17rmemory_allocator>CFR13COutputStream = .text:0x8032830C; // type:function size:0xA8
-append__Q24rstl66basic_string<c,Q24rstl14char_traits<c>,Q24rstl17rmemory_allocator>FPCci = .text:0x803283B4; // type:function size:0x140
+fn_803283B4 = .text:0x803283B4; // type:function size:0x140
 assign__Q24rstl66basic_string<c,Q24rstl14char_traits<c>,Q24rstl17rmemory_allocator>FRCQ24rstl66basic_string<c,Q24rstl14char_traits<c>,Q24rstl17rmemory_allocator> = .text:0x803284F4; // type:function size:0x8C
-fn_80328580 = .text:0x80328580; // type:function size:0xFC
-fn_8032867C = .text:0x8032867C; // type:function size:0x154
+append__Q24rstl66basic_string<c,Q24rstl14char_traits<c>,Q24rstl17rmemory_allocator>Fic = .text:0x80328580; // type:function size:0xFC
+append__Q24rstl66basic_string<c,Q24rstl14char_traits<c>,Q24rstl17rmemory_allocator>FPCci = .text:0x8032867C; // type:function size:0x154
 append__Q24rstl66basic_string<c,Q24rstl14char_traits<c>,Q24rstl17rmemory_allocator>FRCQ24rstl66basic_string<c,Q24rstl14char_traits<c>,Q24rstl17rmemory_allocator> = .text:0x803287D0; // type:function size:0x128
 __ct__Q24rstl66basic_string<c,Q24rstl14char_traits<c>,Q24rstl17rmemory_allocator>FRCQ24rstl66basic_string<c,Q24rstl14char_traits<c>,Q24rstl17rmemory_allocator> = .text:0x803288F8; // type:function size:0x34
 __ct__Q24rstl66basic_string<c,Q24rstl14char_traits<c>,Q24rstl17rmemory_allocator>FPCciRCQ24rstl17rmemory_allocator = .text:0x8032892C; // type:function size:0x164

@@ -2979,10 +2979,13 @@ rstl/rstl_strings.cpp:
 	.ctors      start:0x803B5108 end:0x803B510C
 	.sbss       start:0x8046B618 end:0x8046B628
 
-rstl/RstlExtras.cpp:
-	.text       start:0x80326CF4 end:0x80327418
-	.ctors      start:0x803B510C end:0x803B5110
+rstl/CStringExtras.cpp:
+	.text       start:0x80326CF4 end:0x80327390
 	.rodata     start:0x803C2EC8 end:0x803C2ED8
+
+rstl/RstlExtras.cpp:
+	.text       start:0x80327390 end:0x80327418
+	.ctors      start:0x803B510C end:0x803B5110
 	.bss        start:0x80401FD8 end:0x80401FE8
 	.sbss       start:0x8046B628 end:0x8046B630
 

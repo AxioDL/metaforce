@@ -3352,10 +3352,13 @@ rstl/rstl_strings.cpp:
 	.rodata     start:0x803D7A48 end:0x803D7A50
 	.sbss       start:0x805A94D8 end:0x805A94E8
 
-rstl/RstlExtras.cpp:
-	.text       start:0x8033E430 end:0x8033EC28
-	.ctors      start:0x803CB344 end:0x803CB348
+rstl/CStringExtras.cpp:
+	.text       start:0x8033E430 end:0x8033EBA0
 	.rodata     start:0x803D7A50 end:0x803D7A68
+
+rstl/RstlExtras.cpp:
+	.text       start:0x8033EBA0 end:0x8033EC28
+	.ctors      start:0x803CB344 end:0x803CB348
 	.bss        start:0x804BFF30 end:0x804BFF40
 	.sbss       start:0x805A94E8 end:0x805A94F0
 
