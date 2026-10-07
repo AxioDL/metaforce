@@ -1461,6 +1461,7 @@ MetroidPrime/Enemies/CThardus.cpp:
 
 MetroidPrime/CActorModelParticles.cpp:
 	.text       start:0x801D6ACC end:0x801DA79C
+	.rodata     start:0x803BE298 end:0x803BE320
 	.sdata      start:0x80590E70 end:0x80590E80
 	.sdata2     start:0x80595CE8 end:0x80595D08
 
