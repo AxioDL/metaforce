@@ -812,12 +812,16 @@ CVector3f CPlayer::GetDampedClampedVelocityWR() const {
   return GetTransform().Rotate(localVelocity);
 }
 
+#endif
+
 float CPlayer::GetAverageSpeed() const {
   if (mMoveSpeedAvg.GetAverage()) {
     return *mMoveSpeedAvg.GetAverage();
   }
   return mMoveSpeed;
 }
+
+#if VERSION < VERSION_R3IJ_00
 
 float CPlayer::GetAcceleration() const {
   if (mCurAcceleration >= mAccelerationTable.size()) {
@@ -837,9 +841,9 @@ float CPlayer::GetGravity() const {
   return gpTweakPlayer->GetNormalGravAccel();
 }
 
-float CPlayer::GetWeight() const { return GetMass() * -GetGravity(); }
-
 #endif
+
+float CPlayer::GetWeight() const { return GetMass() * -GetGravity(); }
 
 void CPlayer::UpdateBombJumpStuff() {
 #if VERSION >= VERSION_R3IJ_00
@@ -1609,13 +1613,9 @@ void CPlayer::CalculateLeaveMorphBallDirection(const CFinalInput& input) {
   }
 }
 
-#if VERSION < VERSION_R3IJ_00
-
 float CPlayer::GetBallMaxVelocity() const {
   return gpTweakBall->GetBallTranslationMaxSpeed(GetSurfaceRestraint());
 }
-
-#endif
 
 float CPlayer::GetActualFirstPersonMaxVelocity(float dt) const {
 #if VERSION >= VERSION_R3IJ_00
@@ -1630,7 +1630,6 @@ float CPlayer::GetActualFirstPersonMaxVelocity(float dt) const {
   return -(frictionForce * maxSpeed / (acceleration * dt) - maxSpeed - friction);
 }
 
-#if VERSION < VERSION_R3IJ_00
 float CPlayer::GetActualBallMaxVelocity(float dt) const {
   const float friction = gpTweakBall->GetBallTranslationFriction(GetSurfaceRestraint());
   const float frictionForce = friction * GetMass();
@@ -1655,7 +1654,7 @@ const CCollidableSphere* CPlayer::GetCollidableSphere() const {
 }
 
 const CCollisionPrimitive* CPlayer::GetCollisionPrimitive() const {
-  switch (mMorphBallState) {
+  switch (GetMorphballTransitionState()) {
   case kMS_Morphed:
     return GetCollidableSphere();
   case kMS_Unmorphed:
@@ -1667,8 +1666,6 @@ const CCollisionPrimitive* CPlayer::GetCollisionPrimitive() const {
     return CPhysicsActor::GetCollisionPrimitive();
   }
 }
-
-#endif
 
 CTransform4f CPlayer::CreateTransformFromMovementDirection() const {
   CVector3f direction = mMoveDir;
@@ -1891,8 +1888,6 @@ void CPlayer::UpdateSubmerged(const CStateManager& mgr) {
   }
 }
 
-#if VERSION < VERSION_R3IJ_00
-
 float CPlayer::GetStepDownHeight() const {
   if (mMovementState == NPlayer::kMS_Jump) {
     return -1.f;
@@ -1909,6 +1904,8 @@ float CPlayer::GetStepUpHeight() const {
   }
   return CPhysicsActor::GetStepUpHeight();
 }
+
+#if VERSION < VERSION_R3IJ_00
 
 float CPlayer::GetUnbiasedEyeHeight() const {
   return mFpBounds.GetPointD().GetZ() - gpTweakPlayer->GetEyeOffset();
