@@ -917,10 +917,8 @@ const bool CStateManager::MemoryAllocatorAllocationFailedCallback(const void* ob
 
 bool CStateManager::SwapOutAllPossibleMemory() {
   CFrameDelayedKiller::StallAndFlushAllAllocations();
-#if !defined(TARGET_PC)
   CARAMManager::WaitForAllDMAsToComplete();
   CARAMToken::UpdateAllDMAs();
-#endif
   return true;
 }
 
