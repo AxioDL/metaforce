@@ -138,6 +138,9 @@ private:
   void ShakePlayer(CStateManager& mgr, float intensity);
   void AddParticleEffect(CStateManager& mgr, const CVector3f& pos, CAssetId particle);
   static const char* const skHeadRockNameStr;
+  static const float skMinAttackTime;
+  static const float skThermalFlashFadeInTime;
+  static const float skThermalFlashFadeOutTime;
 
   bool IsEnraged() const;
   void BeginFlash(CStateManager& mgr, const CActor& actor);

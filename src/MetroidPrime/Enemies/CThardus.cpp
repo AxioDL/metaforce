@@ -37,9 +37,9 @@
 #include <float.h>
 
 const char* const CThardus::skHeadRockNameStr = "Neck_1";
-static const float skMinAttackTime = 0.75f;
-static const float skThermalFlashFadeInTime = 0.25f;
-static const float skThermalFlashFadeOutTime = 2.f;
+const float CThardus::skMinAttackTime = 0.75f;
+const float CThardus::skThermalFlashFadeInTime = 0.25f;
+const float CThardus::skThermalFlashFadeOutTime = 2.f;
 
 const char* const CThardus::skDamageableRockJointNameList[7] = {
     "R_knee", "R_forearm", "L_elbow", "L_hip", "R_collar_BigRock_SDK", "collar_rock4_SDK", "Neck_1",
@@ -669,10 +669,10 @@ void CThardus::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EU
   case kUE_AlignTargetPos:
     SetThardusState(kTS_Patrol, mgr);
     break;
-  case kUE_Delete:
+  case kUE_LoopedSoundStop:
     CPatterned::DoUserAnimEvent(mgr, node, type, dt);
     break;
-  case kUE_LoopedSoundStop:
+  case kUE_Delete:
     CPatterned::DoUserAnimEvent(mgr, node, type, dt);
     break;
   case kUE_BeginAction:
