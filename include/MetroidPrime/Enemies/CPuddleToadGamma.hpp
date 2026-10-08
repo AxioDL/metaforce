@@ -22,7 +22,9 @@ public:
                    const CDamageInfo& dInfo2, const CAssetId dcln);
 
   // CEntity
+#if VERSION < VERSION_GM8P_00
   ~CPuddleToadGamma() override;
+#endif
   DECLARE_TYPES_MATCH_OR_ACCEPT;
   void Think(float dt, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;

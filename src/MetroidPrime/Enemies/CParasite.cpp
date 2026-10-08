@@ -985,6 +985,10 @@ void CParasite::MassiveDeath(CStateManager& mgr) { CPatterned::MassiveDeath(mgr)
 
 void CParasite::MassiveFrozenDeath(CStateManager& mgr) { CPatterned::MassiveFrozenDeath(mgr); }
 
+#if VERSION < VERSION_GM8P_00
 bool CParasite::IsOnGround() const { return mOnGround; }
+#endif
 
+#if VERSION < VERSION_GM8P_00
 CParasite::~CParasite() {}
+#endif

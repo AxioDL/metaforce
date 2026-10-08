@@ -30,7 +30,9 @@ public:
              float f9);
 
   // CEntity
+#if VERSION < VERSION_GM8P_00
   ~CMagdolite() override;
+#endif
   DECLARE_TYPES_MATCH_OR_ACCEPT;
   void Think(float dt, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;

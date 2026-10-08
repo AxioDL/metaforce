@@ -58,4 +58,6 @@ rstl::optional_object< CAABox > CScriptAiJumpPoint::GetTouchBounds() const {
   return mTouchBounds;
 }
 
+#if VERSION < VERSION_GM8P_00
 CScriptAiJumpPoint::~CScriptAiJumpPoint() {}
+#endif

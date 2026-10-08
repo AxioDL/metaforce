@@ -28,8 +28,8 @@ public:
 
   // CEntity
   ~CWallWalker() override {}
-  DECLARE_TYPES_MATCH;
   void PreThink(float dt, CStateManager& mgr) override;
+  DECLARE_TYPES_MATCH;
   void Think(float dt, CStateManager& mgr) override;
 
   // CActor

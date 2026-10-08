@@ -19,8 +19,8 @@ class CSpacePirate : public CPatterned {
 
 public:
   ~CSpacePirate() override {}
-  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void Think(float dt, CStateManager& mgr) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) override;
   void PreRender(CStateManager& mgr, const CFrustumPlanes& frustum) override;
   void Render(const CStateManager& mgr) const override;

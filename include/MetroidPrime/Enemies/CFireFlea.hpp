@@ -32,8 +32,8 @@ public:
             const CTransform4f& xf, const CModelData& mData, const CActorParameters& actParams,
             const CPatternedInfo& pInfo, float f1);
 
-  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void Think(float dt, CStateManager& mgr) override;
 
   bool HearShot(CStateManager& mgr, float arg) override;

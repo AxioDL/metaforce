@@ -1842,7 +1842,9 @@ CProjectileInfo* CMetroidPrime::ProjectileInfo() {
 
 void CMetroidPrime::Touch(CActor& actor, CStateManager& mgr) {}
 
+#if VERSION < VERSION_GM8P_00
 CMetroidPrime::~CMetroidPrime() {}
+#endif
 
 void CMetroidPrime::InActive(CStateManager& mgr, EStateMsg msg, float arg) {
   switch (msg) {

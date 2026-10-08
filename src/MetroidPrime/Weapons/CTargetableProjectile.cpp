@@ -79,6 +79,8 @@ void CTargetableProjectile::ResolveCollisionWithActor(const CRayCastResult& res,
   CEnergyProjectile::ResolveCollisionWithActor(res, act, mgr);
 }
 
+#if VERSION < VERSION_GM8P_00
 CEnergyProjectile::~CEnergyProjectile() {}
+#endif
 
 CTargetableProjectile::~CTargetableProjectile() {}

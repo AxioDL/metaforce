@@ -900,4 +900,6 @@ void CFishCloud::RenderParticles() const {
   }
 }
 
+#if VERSION < VERSION_GM8P_00
 CFishCloud::~CFishCloud() {}
+#endif

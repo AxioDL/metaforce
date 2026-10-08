@@ -22,8 +22,8 @@ public:
                          const rstl::vector< CModelData >& mDataVec, const CAssetId stateMachine,
                          const float);
 
-  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void Think(float dt, CStateManager& mgr) override;
 
   void GetUp(CStateManager& mgr, EStateMsg msg, float arg) override;

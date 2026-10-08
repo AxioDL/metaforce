@@ -19,7 +19,9 @@ public:
                    const CHealthInfo& health, const CDamageVulnerability& vulnerability,
                    const CMaterialList& matList, CAssetId fsm, const CActorParameters& actParams,
                    const CModelData& phazonModel, int w1);
+#if VERSION < VERSION_GM8P_00
   ~CDestroyableRock() override;
+#endif
 
   DECLARE_TYPES_MATCH_OR_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
@@ -58,8 +60,8 @@ CHECK_CHILD_SIZEOF(CDestroyableRock, CAi, 0x70)
 
 class CThardus : public CPatterned {
 public:
-  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void Think(float dt, CStateManager& mgr) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
   void PreRender(CStateManager& mgr, const CFrustumPlanes& frustum) override;
   void Render(const CStateManager& mgr) const override;

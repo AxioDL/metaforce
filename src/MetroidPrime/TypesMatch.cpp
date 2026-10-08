@@ -98,6 +98,9 @@
 #include "MetroidPrime/Enemies/CTryclops.hpp"
 #include "MetroidPrime/Enemies/CWarWasp.hpp"
 
+#include "MetroidPrime/CCollisionActorManager.hpp"
+#include "WorldFormat/COBBTree.hpp"
+
 #define ID_CEntity 0
 #define ID_CActor 1
 #define ID_CGameCamera 2
@@ -381,6 +384,9 @@ CAST_TO_PTR_IMPL(CScriptPlayerHint)
 CAST_TO_PTR_IMPL(CScriptRoomAcoustics)
 CAST_TO_PTR_IMPL(CScriptSound)
 CAST_TO_PTR_IMPL(CScriptSpawnPoint)
+#if VERSION == VERSION_GM8J_00
+CAST_TO_PTR_IMPL(CScriptSpecialFunction)
+#endif
 CAST_TO_PTR_IMPL(CScriptSpiderBallAttractionSurface)
 CAST_TO_PTR_IMPL(CScriptSpiderBallWaypoint)
 CAST_TO_PTR_IMPL(CScriptTargetingPoint)

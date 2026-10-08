@@ -1908,7 +1908,6 @@ MetroidPrime/Player/CPlayerDynamics.cpp:
 MetroidPrime/ScriptObjects/CScriptMazeNode.cpp:
 	.text       start:0x80275BC4 end:0x80277CA8
 	.rodata     start:0x803C0E68 end:0x803C0E80
-	.data       start:0x803D3060 end:0x803D30D0
 	.bss        start:0x8043479C end:0x80434C4C align:4 common
 	.sdata2     start:0x8046FDA0 end:0x8046FDA8
 

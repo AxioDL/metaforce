@@ -10,8 +10,8 @@ public:
                        bool looping, float lifetime, bool isPassive, int fadeOut, bool active,
                        float totalPlayback);
 
-  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void Think(float, CStateManager&) override;
   void UpdateEntity(TUniqueId, CStateManager&);
   bool IsPassive() const { return mIsPassive; }

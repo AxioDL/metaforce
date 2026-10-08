@@ -511,4 +511,6 @@ void CSnakeWeedSwarm::AddRetreatParticles(const CVector3f& pos) {
   }
 }
 
+#if VERSION < VERSION_GM8P_00
 CSnakeWeedSwarm::~CSnakeWeedSwarm() {}
+#endif

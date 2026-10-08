@@ -424,7 +424,7 @@ MetroidPrime/Enemies/CAi.cpp:
 	.sbss       start:0x80591F28 end:0x80591F34
 
 MetroidPrime/TypesMatch.cpp:
-	.text       start:0x800A803C end:0x800A88C8
+	.text       start:0x800A5958 end:0x800AA634
 	.data       start:0x803C8258 end:0x803CA6D8
 
 MetroidPrime/ScriptObjects/CScriptSound.cpp:
@@ -1900,7 +1900,6 @@ MetroidPrime/Player/CPlayerDynamics.cpp:
 MetroidPrime/ScriptObjects/CScriptMazeNode.cpp:
 	.text       start:0x80277980 end:0x80279A64
 	.rodata     start:0x803C1DF8 end:0x803C1E10
-	.data       start:0x803D3FF0 end:0x803D4060
 	.bss        start:0x8055B75C end:0x8055BC0C align:4 common
 	.sdata2     start:0x80596E60 end:0x80596E68
 

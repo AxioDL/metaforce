@@ -46,7 +46,9 @@ public:
             float iceZoomerJointHP, const CActorParameters& aParams);
 
   // CEntity
+#if VERSION < VERSION_GM8P_00
   ~CParasite() override;
+#endif
   DECLARE_TYPES_MATCH_OR_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
   void PreThink(float dt, CStateManager& mgr) override;
@@ -64,7 +66,11 @@ public:
 
   // CPatterned
   void Death(CStateManager& mgr, const CVector3f& direction, EScriptObjectState state) override;
+#if VERSION < VERSION_GM8P_00
   bool IsOnGround() const override;
+#else
+  bool IsOnGround() const override { return mOnGround; }
+#endif
   void ThinkAboutMove(float dt) override;
   CDamageInfo GetContactDamage() const override;
   void MassiveDeath(CStateManager& mgr) override;

@@ -10,4 +10,6 @@ CScriptDebugCameraWaypoint::CScriptDebugCameraWaypoint(TUniqueId uid, const rstl
 
 ENTITY_ACCEPT_IMPL(CScriptDebugCameraWaypoint)
 
+#if VERSION < VERSION_GM8P_00
 CScriptDebugCameraWaypoint::~CScriptDebugCameraWaypoint() {}
+#endif

@@ -214,11 +214,15 @@ void CCollisionActor::SetSphereRadius(float radius) {
   }
 }
 
+#if VERSION < VERSION_GM8P_00
 EWeaponCollisionResponseTypes CCollisionActor::GetCollisionResponseType(const CVector3f&,
                                                                         const CVector3f&,
                                                                         const CWeaponMode&,
                                                                         int) const {
   return mResponseType;
 }
+#endif
 
+#if VERSION < VERSION_GM8P_00
 CCollisionActor::~CCollisionActor() {}
+#endif

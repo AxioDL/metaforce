@@ -77,8 +77,8 @@ public:
   float GetFloatingGravityConstant() const { return skFloatingGravityConstant; }
 
   // CEntity
-  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
 
   // CActor
   void AddToRenderer(const CFrustumPlanes& frustum, const CStateManager& mgr) const override;

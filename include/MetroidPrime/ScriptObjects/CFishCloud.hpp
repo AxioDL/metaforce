@@ -13,7 +13,9 @@
 
 class CFishCloud : public CActor {
 public:
+#if VERSION < VERSION_GM8P_00
   ~CFishCloud();
+#endif
   DECLARE_TYPES_MATCH_OR_ACCEPT;
   void Think(float dt, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) override;

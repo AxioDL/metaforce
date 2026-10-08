@@ -78,7 +78,9 @@ const CVector3f CThardus::skThardusRayCastOffset(0.f, 0.f, 10.f);
 const CHealthInfo CThardus::skCollisionActorHealthInfo(1000000.f, 10.f);
 
 // TODO: This should be weak according to the demo map
+#if VERSION < VERSION_GM8P_00
 CDestroyableRock::~CDestroyableRock() {}
+#endif
 CDestroyableRock::CDestroyableRock(
     TUniqueId id, bool active, const rstl::string& name, const CEntityInfo& info,
     const CTransform4f& xf, const CModelData& modelData, float mass, const CHealthInfo& health,

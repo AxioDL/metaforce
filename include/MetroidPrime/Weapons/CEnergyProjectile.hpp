@@ -21,7 +21,9 @@ public:
 
   // CEntity
   DECLARE_TYPES_MATCH_OR_ACCEPT;
+#if VERSION < VERSION_GM8P_00
   ~CEnergyProjectile() override;
+#endif
   void Think(float dt, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
 

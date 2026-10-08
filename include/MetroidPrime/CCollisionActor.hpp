@@ -23,7 +23,9 @@ public:
   };
 
   // CEntity
+#if VERSION < VERSION_GM8P_00
   ~CCollisionActor() override;
+#endif
   DECLARE_TYPES_MATCH_OR_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
 
@@ -36,8 +38,15 @@ public:
   void Touch(CActor&, CStateManager&) override;
   CVector3f GetOrbitPosition(const CStateManager&) const override;
   CVector3f GetScanObjectIndicatorPosition(const CStateManager&) const override;
+#if VERSION < VERSION_GM8P_00
   EWeaponCollisionResponseTypes GetCollisionResponseType(const CVector3f&, const CVector3f&,
                                                          const CWeaponMode&, int) const override;
+#else
+  EWeaponCollisionResponseTypes GetCollisionResponseType(const CVector3f&, const CVector3f&,
+                                                         const CWeaponMode&, int) const override {
+    return mResponseType;
+  }
+#endif
   void OnScanStateChange(EScanState, CStateManager&) override;
 
   // CPhysicsActor

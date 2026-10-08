@@ -418,4 +418,6 @@ CTransform4f CPuddleToadGamma::GetPrimitiveTransform() const {
   return xf;
 }
 
+#if VERSION < VERSION_GM8P_00
 CPuddleToadGamma::~CPuddleToadGamma() {}
+#endif

@@ -511,4 +511,6 @@ void CScriptMazeNode::LoadMazeSeeds() {
   }
 }
 
+#if VERSION < VERSION_GM8P_00
 CScriptMazeNode::~CScriptMazeNode() {}
+#endif

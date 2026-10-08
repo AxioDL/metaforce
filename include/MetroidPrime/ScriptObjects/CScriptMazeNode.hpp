@@ -78,7 +78,9 @@ public:
                   const CTransform4f& xf, bool active, int col, int row, int side,
                   const CVector3f& actorPos, const CVector3f& triggerPos,
                   const CVector3f& effectPos);
+#if VERSION < VERSION_GM8P_00
   ~CScriptMazeNode() override;
+#endif
 
   DECLARE_TYPES_MATCH_OR_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;

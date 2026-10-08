@@ -16,7 +16,9 @@ private:
 public:
   CScriptAiJumpPoint(TUniqueId, const rstl::string&, const CEntityInfo&, const CTransform4f&, bool,
                      float);
+#if VERSION < VERSION_GM8P_00
   ~CScriptAiJumpPoint();
+#endif
   
   DECLARE_TYPES_MATCH_OR_ACCEPT;
   void Think(float, CStateManager&) override;
