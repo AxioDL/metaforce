@@ -1761,6 +1761,30 @@ void CPlayerGun::EnterFreeLook(CStateManager& mgr) {
   mGrappleArm->EnterFreeLook(mInPhazonBeam ? 1 : mEquippedBeamId, setId, mgr);
 }
 
+void CPlayerGun::EnterFidget(CStateManager& mgr) {
+  SamusGun::EFidgetType type = mFidget.GetType();
+  int animSet = mFidget.GetAnimSet();
+
+  if ((mFidgetAnimBits & 0x1) == 0x1) {
+    mGunMotion->EnterFidget(mgr, type, animSet);
+    mGunMotionFidgeting = true;
+  } else {
+    mGunMotionFidgeting = false;
+  }
+
+  if ((mFidgetAnimBits & 0x2) == 0x2) {
+    mCurrentBeam->EnterFidget(mgr, type, animSet);
+  }
+
+  if ((mFidgetAnimBits & 0x4) == 0x4) {
+    mGrappleArm->EnterFidget(mgr, type, type != SamusGun::kFT_Minor ? mEquippedBeamId : 0,
+                           animSet);
+  }
+
+  UnLoadFidget();
+  mFidget.DoneLoading();
+}
+
 void CPlayerGun::UpdateLeftArmTransform(const CModelData& modelData, const CStateManager& mgr) {
   CVector3f elbowOffset(-0.9f, -0.4f, 0.4f);
   CTransform4f& auxXf = mGrappleArm->AuxTransform();
@@ -2043,6 +2067,88 @@ void CPlayerGun::ProcessGunMorph(float dt, CStateManager& mgr) {
     break;
   default:
     break;
+  }
+}
+
+void CPlayerGun::AsyncLoadFidget(CStateManager& mgr) {
+  SamusGun::EFidgetType type = mFidget.GetType();
+  int animSet = mFidget.GetAnimSet();
+  SamusGun::EFidgetType beamType = type;
+  bool beamOnly = mFidget.GetState() == CFidget::kS_HolsterBeam;
+
+  SetFidgetAnimBits(animSet, beamOnly);
+
+  if ((mFidgetAnimBits & 0x1) == 0x1) {
+    mGunMotion->GunController().LoadFidgetAnimAsync(mgr, type, mEquippedBeamId, animSet);
+  }
+
+  if ((mFidgetAnimBits & 0x2) == 0x2) {
+    mCurrentBeam->AsyncLoadFidget(mgr, beamOnly ? SamusGun::kFT_Minor : beamType, animSet);
+    mInRestPose = false;
+  }
+
+  if ((mFidgetAnimBits & 0x4) == 0x4) {
+    if (CGunController* gc = mGrappleArm->GunController()) {
+      gc->LoadFidgetAnimAsync(mgr, type, type != SamusGun::kFT_Minor ? mEquippedBeamId : 0,
+                              animSet);
+    }
+  }
+}
+
+void CPlayerGun::UnLoadFidget() {
+  if ((mFidgetAnimBits & 0x1) == 0x1)
+    mGunMotion->GunController().UnLoadFidget();
+  if ((mFidgetAnimBits & 0x2) == 0x2)
+    mCurrentBeam->UnLoadFidget();
+  if ((mFidgetAnimBits & 0x4) == 0x4)
+    if (CGunController* gc = mGrappleArm->GunController())
+      gc->UnLoadFidget();
+  mFidgetAnimBits = 0;
+}
+
+bool CPlayerGun::IsFidgetLoaded() {
+  uint loadFlags = 0;
+  if ((mFidgetAnimBits & 0x1) == 0x1 && mGunMotion->GunController().IsFidgetLoaded()) {
+    loadFlags |= 0x1;
+  }
+  if ((mFidgetAnimBits & 0x2) == 0x2 && mCurrentBeam->IsFidgetLoaded()) {
+    loadFlags |= 0x2;
+  }
+  if ((mFidgetAnimBits & 0x4) == 0x4) {
+    if (CGunController* gc = mGrappleArm->GunController()) {
+      if (gc->IsFidgetLoaded()) {
+        loadFlags |= 0x4;
+      }
+    }
+  }
+  return loadFlags == mFidgetAnimBits;
+}
+
+void CPlayerGun::SetFidgetAnimBits(int animSet, bool beamOnly) {
+  mFidgetAnimBits = 0;
+  if (beamOnly) {
+    mFidgetAnimBits = 2;
+    return;
+  }
+
+  switch (mFidget.GetType()) {
+  case SamusGun::kFT_Minor:
+    mFidgetAnimBits = 1;
+    if (animSet != 1) {
+      return;
+    }
+    mFidgetAnimBits |= 4;
+    return;
+  case SamusGun::kFT_Major:
+    if (animSet >= 6 || animSet < 4) {
+      mFidgetAnimBits = 2;
+    } else {
+      mFidgetAnimBits = 1;
+    }
+    mFidgetAnimBits |= 4;
+    return;
+  default:
+    return;
   }
 }
 
