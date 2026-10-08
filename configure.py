@@ -1470,7 +1470,10 @@ config.libs = [
             Object(MatchingFor(*NTSC_GC_VERSIONS), "MetroidPrime/CNESEmulator.cpp"),
             Object(MatchingFor(*NTSC_GC_VERSIONS), "MetroidPrime/Enemies/CPhazonHealingNodule.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02"), "MetroidPrime/Player/CMorphBallShadow.cpp"),
-            Object(MatchingFor(*NTSC_GC_VERSIONS), "MetroidPrime/Player/CPlayerStuckTracker.cpp"),
+            Object(
+                MatchingFor(*NTSC_GC_VERSIONS, "R3ME01_00"),
+                "MetroidPrime/Player/CPlayerStuckTracker.cpp",
+            ),
             Object(NonMatching, "MetroidPrime/CSlideShow.cpp"),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02", "GM8P01_00", "GM8J01_00"),

@@ -151,6 +151,10 @@ MetroidPrime/Player/CPlayerState.cpp:
 	.sdata      start:0x805C1688 end:0x805C1690 align:4
 	.sdata2     start:0x805C5E48 end:0x805C5E70
 
+MetroidPrime/Player/CPlayerStuckTracker.cpp:
+	.text       start:0x801A15CC end:0x801A227C
+	.sdata2     start:0x805C5E70 end:0x805C5E88
+
 MetroidPrime/Player/CPlayerVisor.cpp:
 	.text       start:0x801A227C end:0x801A63C0
 	.rodata     start:0x80474C58 end:0x80474DA0
