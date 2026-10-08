@@ -311,10 +311,11 @@ void RenderStripWithRipples(CFluidPlaneCPURender::SHFieldSample (&heights)[45][4
   CVector3f curPos(info.mLocalMinX, curY, 0.f);
   int iDiv = (startYDiv + numSubdivisions - 1) / numSubdivisions;
   CFluidPlaneCPURender::SHFieldSample* curSamples = &heights[startYDiv][1];
-  float halfRes = info.mRippleResolution * static_cast< float >(numSubdivisions / 2);
+  const int halfSubdivs = numSubdivisions / 2;
+  float halfRes = info.mRippleResolution * static_cast< float >(halfSubdivs);
   float centerY = halfRes + curPos.GetY();
   int numSubTimesStride = numSubdivisions * 45;
-  int centerOffset = numSubdivisions / 2 + numSubTimesStride / 2;
+  int centerOffset = halfSubdivs + numSubTimesStride / 2;
   int xSubdivs = info.mXSubdivs;
   int numTilesX = (xSubdivs + numSubdivisions - 4) / numSubdivisions;
   int gridOffset =
