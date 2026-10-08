@@ -235,6 +235,9 @@ private:
   void UpdateTractorBeams(float dt, CStateManager& mgr);
   void UpdateUnderbodyDamage(CStateManager& mgr);
   void DoFaceHitCheck(TUniqueId uid, CStateManager& mgr);
+#if VERSION >= VERSION_GM8P_00
+  void DoBodyHitCheck(TUniqueId uid, CStateManager& mgr);
+#endif
   int SeverityForAttackType(EAttackType attack) const;
   pas::ELocomotionType SeverityForLocomotionType(EAttackType attack) const;
   bool CanTransitionFromReady(EAttackType attack);
@@ -299,7 +302,7 @@ private:
   uint x57c_;
   uint x580_;
   bool x584_;
-#if VERSION >= VERSION_R3IJ_00
+#if VERSION >= VERSION_GM8P_00
   float mDeflectionSfxTimer;
 #endif
   rstl::reserved_vector< CVulnerabilityEntry, kVuln_Count > x588_;
@@ -387,7 +390,7 @@ private:
   rstl::reserved_vector< CMetroidPrimeAttackWeights, 4 > x1160_;
   int x1254_;
   rstl::reserved_vector< float, 14 > x1258_;
-#if VERSION >= VERSION_R3IJ_00
+#if VERSION >= VERSION_GM8P_00
   CRandom16 mAttackRandom;
 #endif
   CCameraShakeData x1294_;
@@ -399,6 +402,8 @@ private:
 };
 #if VERSION >= VERSION_R3IJ_00
 CHECK_CHILD_SIZEOF(CMetroidPrime, CPatterned, 0xef0)
+#elif VERSION >= VERSION_GM8P_00
+CHECK_CHILD_SIZEOF(CMetroidPrime, CPatterned, 0xee8)
 #else
 CHECK_CHILD_SIZEOF(CMetroidPrime, CPatterned, 0xee0)
 #endif

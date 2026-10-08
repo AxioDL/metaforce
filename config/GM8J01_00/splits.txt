@@ -1181,7 +1181,9 @@ MetroidPrime/Weapons/CPhazonBeam.cpp:
 	.sdata2     start:0x80595340 end:0x805953A8
 
 MetroidPrime/ScriptObjects/CScriptTargetingPoint.cpp:
-	.text       start:0x80182D80 end:0x80182E10
+	.text       start:0x80182D5C end:0x80182F1C
+	.sdata      start:0x80590B28 end:0x80590B30
+	.sdata2     start:0x805953A8 end:0x805953B0
 
 MetroidPrime/BodyState/CBSWallHang.cpp:
 	.text       start:0x80182F1C end:0x801845A4

@@ -101,6 +101,8 @@
 
 #include "MetroidPrime/CCollisionActorManager.hpp"
 #include "WorldFormat/COBBTree.hpp"
+#include "MetroidPrime/CProjectedShadow.hpp"
+#include "Kyoto/Particles/CParticleElectric.hpp"
 
 enum ETypeId {
   kTI_CEntity,
