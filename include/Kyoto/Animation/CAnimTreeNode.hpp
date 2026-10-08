@@ -38,7 +38,11 @@ public:
 protected:
   rstl::string mName;
 };
+#if VERSION >= VERSION_R3IJ_00
+CHECK_SIZEOF(CAnimTreeNode, 0x10)
+#else
 CHECK_SIZEOF(CAnimTreeNode, 0x14)
+#endif
 
 rstl::ncrc_ptr< CAnimTreeNode > Cast(const rstl::ownership_transfer< IAnimReader >& ptr);
 
