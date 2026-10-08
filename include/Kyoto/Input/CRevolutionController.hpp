@@ -107,6 +107,10 @@ private:
   float mPointerMaxScale;
   bool mAcceptAdditionalConnections;
 };
+#if VERSION >= VERSION_R3MP_00
+CHECK_SIZEOF(CRevolutionController, 0xd40)
+#else
 CHECK_SIZEOF(CRevolutionController, 0xc90)
+#endif
 
 #endif // _CREVOLUTIONCONTROLLER
