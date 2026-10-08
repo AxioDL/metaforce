@@ -193,7 +193,11 @@ private:
 #define GXFIFO_ADDR 0xCC008000
 #endif
 
+#if VERSION >= VERSION_R3IJ_00
+#define RSWrite(T, n) (*(volatile T*)GXFIFO_ADDR) = n
+#else
 #define RSWrite(T, n) (*(T*)GXFIFO_ADDR) = n
+#endif
 #define RSPosition3f32(x, y, z)                                                                    \
   {                                                                                                \
     RSWrite(f32, x);                                                                               \

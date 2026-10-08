@@ -5,6 +5,12 @@
 #if VERSION >= VERSION_R3IJ_00
 
 #include "Collision/CRayCastResult.hpp"
+#include "Kyoto/Graphics/CGX.hpp"
+#include "Kyoto/Basics/CCast.hpp"
+#include "dolphin/gx/GXFrameBuffer.h"
+#include "dolphin/gx/GXManage.h"
+#include "MetaRender/CCubeRenderer.hpp"
+#include "MetroidPrime/Enemies/CMetroidBeta.hpp"
 #include "Kyoto/Animation/CPrimitive.hpp"
 #include "Kyoto/Audio/CSfxManager.hpp"
 #include "Kyoto/IObjectStore.hpp"
@@ -22,6 +28,7 @@
 #include "MetroidPrime/CRumbleManager.hpp"
 #include "MetroidPrime/CStateManager.hpp"
 #include "MetroidPrime/CWorldShadow.hpp"
+#include "MetroidPrime/CWorld.hpp"
 #include "MetroidPrime/Cameras/CCameraManager.hpp"
 #include "MetroidPrime/Cameras/CFirstPersonCamera.hpp"
 #include "MetroidPrime/Cameras/CGameCamera.hpp"
@@ -53,6 +60,12 @@
 #include "rstl/set.hpp"
 
 class CMetroid;
+
+static const float kDepthFar = 1.f;
+static const float kDepthWorld = 1.f / 8.f;
+static const float kDepthGun = 1.f / 32.f;
+
+extern void DrawClipCube(const CAABox& aabb);
 
 static float kVerticalAngleTable[3] = {-30.f, 0.f, 30.f};
 static float kHorizontalAngleTable[3] = {30.f, 30.f, 30.f};
@@ -322,6 +335,303 @@ CPlayerGun::CPlayerGun(TUniqueId playerId)
 }
 
 CPlayerGun::~CPlayerGun() {}
+
+void CPlayerGun::AddToRenderer(const CFrustumPlanes& frustum, const CStateManager&) const {
+  rstl::optional_object< CModelData >& model = mCurrentBeam->SolidModelData();
+  if (model) {
+    model->RenderParticles(frustum);
+  }
+}
+
+void CPlayerGun::PreRender(CStateManager& mgr, const CFrustumPlanes& frustum,
+                           const CVector3f& camPos) {
+  const CPlayerState& playerState = *mgr.GetPlayerState();
+  if (playerState.GetCurrentVisor() == CPlayerState::kPV_Scan) {
+    return;
+  }
+
+  CPlayerState::EPlayerVisor activeVisor = playerState.GetActiveVisor(mgr);
+  switch (activeVisor) {
+  case CPlayerState::kPV_Thermal: {
+    float rgb = CMath::FastClamp(0.6f, 0.5f * mShotSmokeTimer + 0.6f - mShotSmokeStartTimer, 1.f);
+    mLights.BuildConstantAmbientLighting(CColor(rgb, rgb, rgb, 1.f));
+    break;
+  }
+  case CPlayerState::kPV_Combat: {
+    CTransform4f offsetXf = CTransform4f::Translate(camPos) * GetGunMotionTransform();
+    CAABox aabb = mCurrentBeam->GetBounds(offsetXf);
+    if (mgr.GetNextAreaId() != kInvalidAreaId) {
+      mLights.SetFindShadowLight(true);
+      mLights.SetShadowDynamicRangeThreshold(0.25f);
+      mLights.BuildAreaLightList(mgr, mgr.GetWorld()->GetAreaAlways(mgr.GetNextAreaId()), aabb);
+    }
+    mLights.BuildDynamicLightList(mgr, aabb);
+    if (mLights.HasShadowLight()) {
+      if (mCurrentBeam->IsLoaded()) {
+        mShadow->BuildLightShadowTexture(mgr, mgr.GetNextAreaId(), mLights.GetShadowLightIndex(),
+                                         aabb, true, false);
+      }
+    } else {
+      mShadow->ResetBlur();
+    }
+    break;
+  }
+  default:
+    break;
+  }
+
+  if (mGrappleArm->GetActive()) {
+    mGrappleArm->PreRender(mgr, frustum, camPos);
+  }
+
+  if (mMorph.GetGunState() != CGunMorph::kGS_OutWipeDone || activeVisor == CPlayerState::kPV_XRay) {
+    mRightHandModel.AnimationData()->PreRender();
+  }
+
+  if (mPhazonBeamActive) {
+    gpRender->AllocatePhazonSuitMaskTexture();
+  }
+}
+
+static void CopyScreenTex() {
+  GXSetTexCopySrc(0x140, 0xe0, 0x140, 0xe0);
+  GXSetTexCopyDst(0x140, 0xe0, GX_TF_RGBA8, false);
+  GXCopyTex(CGraphics::GetDolphinSpareBuffer(), false);
+  GXPixModeSync();
+}
+
+void DrawScreenTex(float z) {
+  const CTransform4f backupViewMtx(CGraphics::GetViewMatrix());
+  const CGraphics::CProjectionState backupProjectionState(CGraphics::GetProjectionState());
+  int left, top, width, height;
+  CGraphics::GetViewport(left, top, width, height);
+  CGraphics::SetOrtho(CCast::ToReal32(left), left + width, top + height, top, -1.f, 1.f);
+  CGraphics::SetViewPointMatrix(CTransform4f::Identity());
+  gpRender->SetModelMatrix(CTransform4f::Identity());
+  gpRender->SetBlendMode_AlphaBlended();
+  CGraphics::SetDepthWriteMode(true, kE_GEqual, true);
+
+  CGraphics::LoadDolphinSpareTexture(0x140, 0xe0, GX_TF_RGBA8, NULL,
+                                     CGraphics::kSpareBufferTexMapID);
+
+  const GXVtxDescList vtxDesc[3] = {
+      {GX_VA_POS, GX_DIRECT},
+      {GX_VA_TEX0, GX_DIRECT},
+      {GX_VA_NULL, GX_NONE},
+  };
+  CGX::SetVtxDescv(vtxDesc);
+  CGX::SetNumChans(0);
+  CGX::SetNumTexGens(1);
+  CGX::SetNumTevStages(1);
+  CGX::SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, CGraphics::kSpareBufferTexMapID, GX_COLOR_NULL);
+  CGX::SetChanCtrl(CGX::Channel0, false, GX_SRC_REG, GX_SRC_REG, GX_LIGHT_NULL, GX_DF_NONE,
+                   GX_AF_NONE);
+
+  const float screenWidth = 640.f;
+  const float screenRight = screenWidth;
+  CGX::Begin(GX_TRIANGLESTRIP, GX_VTXFMT0, 4);
+  RSPosition3f32(screenWidth / 2.f, z, 0.f);
+  GXTexCoord2f32(0.f, 1.f);
+  RSPosition3f32(screenRight, z, 0.f);
+  GXTexCoord2f32(1.f, 1.f);
+  RSPosition3f32(screenWidth / 2.f, z, 224.f);
+  GXTexCoord2f32(0.f, 0.f);
+  RSPosition3f32(screenRight, z, 224.f);
+  GXTexCoord2f32(1.f, 0.f);
+  CGX::End();
+
+  CGraphics::SetDepthWriteMode(true, kE_LEqual, true);
+  CGraphics::SetViewPointMatrix(backupViewMtx);
+  CGraphics::SetProjectionState(backupProjectionState);
+}
+
+void CPlayerGun::TouchModel(const CStateManager& mgr) const {
+  if (mgr.GetPlayer()->GetMorphballTransitionState() != CPlayer::kMS_Morphed) {
+    mGunMotion->GetModelData().Touch(mgr, 0);
+
+    switch (mPhazonBeamState) {
+    case kPBS_Entering:
+      if (mPhazonBeam.get()) {
+        mPhazonBeam->Touch(mgr);
+      }
+      break;
+    case kPBS_Exiting:
+      if (mNextBeam != nullptr) {
+        mNextBeam->Touch(mgr);
+      }
+      break;
+    default:
+      if (!mPhazonBeamActive) {
+        mCurrentBeam->Touch(mgr);
+      } else {
+        mPhazonBeam->Touch(mgr);
+      }
+      break;
+    }
+
+    mCurrentBeam->TouchHolo(mgr);
+    mGrappleArm->TouchModel(mgr);
+    mRightHandModel.Touch(mgr, 0);
+  }
+
+  if (mLoadingBeam != nullptr) {
+    mLoadingBeam->Touch(mgr);
+    mLoadingBeam->TouchHolo(mgr);
+  }
+}
+
+CVector3f CPlayerGun::ConvertToScreenSpace(const CVector3f& pos, const CGameCamera& cam) const {
+  CVector3f screenPos = cam.GetTransform().TransposeRotate(
+      CVector3f(pos.GetX() - cam.GetTransform().Get03(), pos.GetY() - cam.GetTransform().Get13(),
+                pos.GetZ() - cam.GetTransform().Get23()));
+
+  if (screenPos.IsNonZero()) {
+    return CGraphics::GetPerspectiveProjectionMatrix().MultiplyOneOverW(screenPos);
+  }
+
+  return CVector3f(-1.f, -1.f, 1.f);
+}
+inline void CPlayerGun::DrawArm(const CStateManager& mgr, const CVector3f& pos,
+                                const CModelFlags& flags) const {
+  if (!mGrappleArm->GetActive()) {
+    return;
+  }
+  if (mGrappleArm->GetAnimState() == CGrappleArm::kAS_Done) {
+    return;
+  }
+
+  const float dot = CVector3f::Dot(mGrappleArm->GetTransform().GetColumn(kDY),
+                                   mgr.GetPlayer()->GetTransform().GetColumn(kDY));
+  if (mgr.GetPlayer()->GetGrappleState() != CPlayer::kGS_None || dot > 0.1f) {
+    mGrappleArm->Render(mgr, pos, mGrappleArm->IsArmMoving() ? flags : CModelFlags::Normal(),
+                        &mLights);
+  }
+}
+
+void CPlayerGun::Render(const CStateManager& mgr, const CVector3f& pos,
+                        const CModelFlags& flags) const {
+  const CGraphics::CProjectionState projState = CGraphics::GetProjectionState();
+  const CPlayerState::EPlayerVisor visor = mgr.GetPlayerState()->GetCurrentVisor();
+  const bool thermalVisor = visor == CPlayerState::kPV_Thermal;
+  const CModelFlags& beamFlags =
+      thermalVisor          ? kThermalFlags[mEquippedBeamId]
+      : mPhazonBeamMorphing ? static_cast< const CModelFlags& >(CModelFlags::ColorModulate(
+                                  CColor(CColor::Lerp(0xffffffff, 0x000000ff, mPhazonMorphT))))
+                            : flags;
+
+  const CGameCamera& cam = mgr.GetCameraManager()->GetCurrentCamera(mgr);
+  CGraphics::SetDepthRange(kDepthGun, kDepthWorld);
+  CTransform4f offsetWorldXf(CTransform4f::Translate(pos) * GetGunMotionTransform());
+  CTransform4f elbowOffsetXf(offsetWorldXf * mElbowLocalXf);
+  if (mChargePhase != kCP_NotCharging && !IsWeaponStateSet(0x10)) {
+    offsetWorldXf.AddTranslation(CVector3f(mShakeX, 0.f, mShakeZ));
+  }
+
+  const CGunMorph::EGunState gunState = mMorph.GetGunState();
+  CTransform4f oldViewMtx(CGraphics::GetViewMatrix());
+  CGraphics::SetViewPointMatrix(offsetWorldXf.GetInverse() * oldViewMtx);
+  gpRender->SetModelMatrix(CTransform4f::Identity());
+  if (mChargePhase >= kCP_FxGrown && mChargePhase < kCP_ComboXfer) {
+    mAuxMuzzleGenerators[mCurrentAuxBeam]->Render();
+  }
+
+  if (mChargeEffectVisible && (mMuzzleEffectVisTimer > 0.f || mChargePhase > kCP_AnimAndSfx)) {
+    mCurrentBeam->DrawMuzzleFx(mgr);
+  }
+
+  if (gunState == CGunMorph::kGS_InWipe || gunState == CGunMorph::kGS_OutWipe) {
+    mHoloTransitionGen->Render();
+  }
+
+  CGraphics::SetViewPointMatrix(oldViewMtx);
+  if (IsWeaponStateSet(0x10)) {
+    mAuxWeapon->RenderMuzzleFx();
+  }
+  mCurrentBeam->PreRenderGunFx(mgr, offsetWorldXf);
+  const bool drawSuitArm = IsUpperRightArmVisible();
+  mGunMotion->Draw(mgr, offsetWorldXf);
+
+  switch (gunState) {
+  case CGunMorph::kGS_OutWipeDone:
+    if (mLights.HasShadowLight()) {
+      mShadow->EnableModelProjectedShadow(offsetWorldXf, mLights.GetShadowLightArrIndex(), 2.15f);
+    }
+    if (drawSuitArm && visor == CPlayerState::kPV_XRay) {
+      CTransform4f handXf(elbowOffsetXf * CTransform4f::Translate(0.f, -0.2f, 0.02f));
+      mRightHandModel.Render(mgr, handXf, &mLights,
+                             thermalVisor ? kHandThermalFlag : kHandHoloFlag);
+    }
+    DrawArm(mgr, pos, flags);
+    mCurrentBeam->Draw(drawSuitArm, mgr, offsetWorldXf, beamFlags, &mLights);
+    mShadow->DisableModelProjectedShadow();
+    break;
+  case CGunMorph::kGS_InWipeDone:
+  case CGunMorph::kGS_InWipe:
+  case CGunMorph::kGS_OutWipe: {
+    CTransform4f handXf(elbowOffsetXf * CTransform4f::Translate(0.f, -0.2f, 0.02f));
+    if (gunState != CGunMorph::kGS_InWipeDone) {
+      CTransform4f morphXf(elbowOffsetXf * CTransform4f::Translate(0.f, mMorph.GetYLerp(), 0.f));
+      CopyScreenTex();
+      mRightHandModel.Render(mgr, handXf, &mLights,
+                             thermalVisor ? kHandThermalFlag : kHandHoloFlag);
+      mCurrentBeam->DrawHologram(mgr, offsetWorldXf, CModelFlags::Normal());
+      const CVector3f& screenPos = ConvertToScreenSpace(morphXf.GetTranslation(), cam);
+      DrawScreenTex(screenPos.GetZ());
+      if (mLights.HasShadowLight()) {
+        mShadow->EnableModelProjectedShadow(offsetWorldXf, mLights.GetShadowLightArrIndex(), 2.15f);
+      }
+      gpRender->SetModelMatrix(morphXf);
+      DrawClipCube(mHologramClipCube);
+      mCurrentBeam->Draw(drawSuitArm, mgr, offsetWorldXf, beamFlags, &mLights);
+      DrawArm(mgr, pos, flags);
+      mShadow->DisableModelProjectedShadow();
+    } else {
+      mRightHandModel.Render(mgr, handXf, &mLights,
+                             thermalVisor ? kHandThermalFlag : kHandHoloFlag);
+      mCurrentBeam->DrawHologram(mgr, offsetWorldXf, CModelFlags::Normal());
+      if (mLights.HasShadowLight()) {
+        mShadow->EnableModelProjectedShadow(offsetWorldXf, mLights.GetShadowLightArrIndex(), 2.15f);
+      }
+      DrawArm(mgr, pos, flags);
+      mShadow->DisableModelProjectedShadow();
+    }
+    break;
+  }
+  }
+
+  CTransform4f oldViewMtx2(CGraphics::GetViewMatrix());
+  CGraphics::SetViewPointMatrix(offsetWorldXf.GetInverse() * oldViewMtx2);
+  gpRender->SetModelMatrix(CTransform4f::Identity());
+  mCurrentBeam->PostRenderGunFx(mgr, offsetWorldXf);
+  if (mComboFiring && mComboXferGen.get()) {
+    mComboXferGen->Render();
+  }
+  CGraphics::SetViewPointMatrix(oldViewMtx2);
+
+  RenderEnergyDrainEffects(mgr);
+
+  CGraphics::SetDepthRange(kDepthWorld, kDepthFar);
+  CGraphics::SetProjectionState(projState);
+}
+
+void CPlayerGun::RenderEnergyDrainEffects(const CStateManager& mgr) const {
+  const CEnergyDrainSource* it;
+  const CPlayer* const player = TCastToConstPtr< CPlayer >(mgr.GetObjectById(mPlayerId));
+  if (player != nullptr) {
+    it = player->GetPlayerEnergyDrain().GetEnergyDrainSources().data();
+    while (it != player->GetPlayerEnergyDrain().GetEnergyDrainSources().data() +
+                     player->GetPlayerEnergyDrain().GetEnergyDrainSources().size()) {
+      CMetroidBeta* metroid = PATTERNED_CAST_TO(
+          CMetroidBeta, const_cast< CEntity* >(mgr.GetObjectById(it->GetEnergyDrainSourceId())));
+      if (metroid != nullptr) {
+        metroid->RenderHitGunEffect();
+        return;
+      }
+      ++it;
+    }
+  }
+}
+
 static bool GetOrbitGunLock() { return false; }
 
 static inline float SmoothGunAim(float t) { return t * ((3.f - 2.f * t) * t); }
@@ -2416,6 +2726,21 @@ void CPlayerGun::ReturnToRestPose() {
   }
 
   mInRestPose = true;
+}
+
+TUniqueId CPlayerGun::DropPowerBomb(CStateManager& mgr) const {
+  const CDamageInfo dInfo = mgr.GetPlayer()->GetDeathTime() <= 0.f
+                                ? gpTweakPlayerGun->mPowerBomb
+                                : CDamageInfo(CWeaponMode::PowerBomb(), 0.f, 0.f, 0.f);
+  const CVector3f bombOffset(0.f, 0.f, gpTweakPlayer->GetPlayerBallHalfExtent());
+
+  TUniqueId uid = mgr.AllocateUniqueId();
+  CPowerBomb* pBomb = rs_new CPowerBomb(
+      mBombEffects[1][0], uid, kInvalidAreaId, mPlayerId,
+      CTransform4f::Translate(mgr.GetPlayer()->GetTransform().GetTranslation() + bombOffset),
+      dInfo);
+  mgr.AddObject(*pBomb);
+  return uid;
 }
 
 void CPlayerGun::SetPhazonBeamFeedback(bool active) {
