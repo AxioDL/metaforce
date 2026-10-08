@@ -43,12 +43,14 @@ public:
 
   const CControllerButton& GetButton(int button) const { return mButtons[button]; }
 
+  void SetButton(int index, CControllerButton button) { mButtons[index] = button; }
+
   const CControllerButton& GetMotionButton(int button) const { return mMotionButtons[button]; }
 
   const CControllerButton& GetSwingButton(int button) const { return mSwingButtons[button]; }
 
 private:
-  friend class CWiiInput;
+  friend class CRevolutionController;
   friend class CFinalInput;
 
   bool mConnected;

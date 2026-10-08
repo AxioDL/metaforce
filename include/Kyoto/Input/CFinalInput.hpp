@@ -9,6 +9,11 @@
 
 class CFinalInput {
 public:
+  static const float kAnalogAxisDigitalThreshold;
+  static const float kRollDigitalThreshold;
+  static const float kPitchDigitalThreshold;
+  static const float kPointerDigitalThreshold;
+
   // Control names are inferred from the Trilogy mapping and motion-mask ordering.
   enum EPhysicalControl {
     kPC_None = 0,

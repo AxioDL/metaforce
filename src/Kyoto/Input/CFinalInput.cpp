@@ -2,11 +2,15 @@
 
 #if VERSION >= VERSION_R3IJ_00
 
+const float CFinalInput::kAnalogAxisDigitalThreshold = 0.7f;
+const float CFinalInput::kRollDigitalThreshold = 0.5f;
+const float CFinalInput::kPitchDigitalThreshold = 0.5f;
+const float CFinalInput::kPointerDigitalThreshold = 0.7f;
+
 CFinalInput::CFinalInput(int channel, float dt, const CControllerData& data, uint inputType)
 : mDt(dt), mControllerIdx(channel), mInputType(inputType), mControllerData(data) {}
 
-CFinalInput::CFinalInput()
-: mDt(0.0166667f), mControllerIdx(0), mInputType(4), mControllerData() {}
+CFinalInput::CFinalInput() : mDt(0.0166667f), mControllerIdx(0), mInputType(4), mControllerData() {}
 
 CFinalInput CFinalInput::NoInput(int channel, float dt) {
   return CFinalInput(channel, dt, CControllerData(), 4);

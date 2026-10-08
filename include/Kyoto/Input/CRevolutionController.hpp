@@ -1,5 +1,5 @@
-#ifndef _CWIIINPUT
-#define _CWIIINPUT
+#ifndef _CREVOLUTIONCONTROLLER
+#define _CREVOLUTIONCONTROLLER
 
 #include "Kyoto/Input/IController.hpp"
 
@@ -11,10 +11,10 @@
 class CScalarInputFilter;
 class CWiiMotionProcessor;
 
-// Inferred class and method names; the layout and virtual order come from Trilogy.
-class CWiiInput : public IController {
+// Some method names are inferred; the layout and virtual order come from Trilogy.
+class CRevolutionController : public IController {
 public:
-  ~CWiiInput() override;
+  ~CRevolutionController() override;
   void Poll() override;
   void Update(float dt) override;
   uint GetDeviceCount() const override;
@@ -35,7 +35,7 @@ public:
   virtual float GetButtonIdleTime(uint channel) const;
   virtual bool IsControllerIdle(uint channel) const;
 
-  CWiiInput();
+  CRevolutionController();
   bool Initialize();
   bool IsPointerValid(int channel) const;
   bool IsPointerDevicePresent(int channel) const;
@@ -74,7 +74,7 @@ private:
   void UpdateContinuousAngleAxis(int channel, int axis);
   void ClearButtonEvents(int channel);
   void UpdateDigitalInput(int channel);
-  void UpdateButton(uint heldMask, CControllerButton& button, uint mask);
+  void UpdateButton(uint heldMask, CControllerButton& button, uint mask, int buttonId);
   void UpdateMotionButton(int channel, CControllerButton& button, uint mask);
   void UpdateMotionButtons(int channel);
   void UpdateSwingButton(int channel, CControllerButton& button, uint mask);
@@ -107,6 +107,6 @@ private:
   float mPointerMaxScale;
   bool mAcceptAdditionalConnections;
 };
-CHECK_SIZEOF(CWiiInput, 0xc90)
+CHECK_SIZEOF(CRevolutionController, 0xc90)
 
-#endif // _CWIIINPUT
+#endif // _CREVOLUTIONCONTROLLER

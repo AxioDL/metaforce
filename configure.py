@@ -2240,7 +2240,7 @@ config.libs = [
             Object(MatchingFor("R3ME01_00"), "Kyoto/Input/IController.cpp"),
             Object(
                 NonMatching,
-                "Kyoto/Input/CWiiInput.cpp",
+                "Kyoto/Input/CRevolutionController.cpp",
             ),
             Object(MatchingFor("R3ME01_00"), "Kyoto/Input/CControllerData.cpp"),
             Object(

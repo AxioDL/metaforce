@@ -212,7 +212,7 @@ Kyoto/Input/CInputFilter.cpp:
 Kyoto/Input/CFinalInput.cpp:
 	.text       start:0x802FB7C8 end:0x802FC254
 	.data       start:0x80492978 end:0x80492A04
-	.sdata2     start:0x805C7D40 end:0x805C7D50
+	.sdata2     start:0x805C7D30 end:0x805C7D50
 
 Kyoto/Streams/CInputStream.cpp:
 	.text       start:0x803025EC end:0x80302BA4
@@ -240,7 +240,7 @@ Kyoto/Input/CWiiMotionProcessor.cpp:
 	.rodata     start:0x8047BBF0 end:0x8047BC30
 	.sdata2     start:0x805C7F68 end:0x805C7FE8
 
-Kyoto/Input/CWiiInput.cpp:
+Kyoto/Input/CRevolutionController.cpp:
 	.text       start:0x80330D88 end:0x80333F84
 	.rodata     start:0x8047BC30 end:0x8047BC40
 	.data       start:0x80493400 end:0x804935C8
