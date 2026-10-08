@@ -1836,6 +1836,8 @@ void CPlayer::UpdateVisorState(const CFinalInput& input, float dt, CStateManager
   }
 }
 
+#endif
+
 void CPlayer::UpdateVisorTransition(float dt, CStateManager& mgr) {
   CPlayerState* playerState = mgr.PlayerState();
   if (playerState->GetIsVisorTransitioning()) {
@@ -1843,9 +1845,13 @@ void CPlayer::UpdateVisorTransition(float dt, CStateManager& mgr) {
   }
 }
 
+#if VERSION < VERSION_R3IJ_00
+
 void CPlayer::UpdateCrosshairsState(const CFinalInput& input) {
   mShowCrosshairs = ControlMapper::GetDigitalInput(ControlMapper::kC_ShowCrosshairs, input);
 }
+
+#endif
 
 void CPlayer::UpdatePlayerSounds(float dt) {
   if (mDamageSfxTimer > 0.f) {
@@ -1856,6 +1862,8 @@ void CPlayer::UpdatePlayerSounds(float dt) {
     }
   }
 }
+
+#if VERSION < VERSION_R3IJ_00
 
 int CPlayer::SfxIdFromMaterial(const CMaterialList& mat, const ushort* idList, int tableLen,
                                ushort defId) {
@@ -3085,23 +3093,36 @@ void CPlayer::ComputeFreeLook(const CFinalInput& input) {
   }
 }
 
+#endif
+
 void CPlayer::UpdateGunAlpha() {
   switch (mGunHolsterState) {
   case kGH_Holstered:
     mGunAlpha = 0.f;
     break;
   case kGH_Holstering:
+#if VERSION >= VERSION_R3IJ_00
+    mGunAlpha =
+        CMath::FastClamp(0.f, mGunHolsterRemTime / gpTweakPlayerGun->GetGunHolsterTime(), 1.f);
+#else
     mGunAlpha =
         CMath::Clamp(0.f, mGunHolsterRemTime / gpTweakPlayerGun->GetGunHolsterTime(), 1.f);
+#endif
     break;
   case kGH_Drawing:
+#if VERSION >= VERSION_R3IJ_00
+    mGunAlpha = 1.f - CMath::FastClamp(0.f, mGunHolsterRemTime / 0.45f, 1.f);
+#else
     mGunAlpha = 1.f - CMath::Clamp(0.f, mGunHolsterRemTime / 0.45f, 1.f);
+#endif
     break;
   case kGH_Drawn:
     mGunAlpha = 1.f;
     break;
   }
 }
+
+#if VERSION < VERSION_R3IJ_00
 
 void CPlayer::AddToRenderer(const CFrustumPlanes& frustum, const CStateManager& mgr) const {
   if (mCameraState != kCS_FirstPerson && mMorphBallState == kMS_Morphed) {
@@ -4156,14 +4177,14 @@ void CPlayer::UpdateSlideShowUnlocking(CStateManager& mgr) {
   }
 }
 
-#if VERSION < VERSION_R3IJ_00
-
 bool CPlayer::IsEnergyLow(const CStateManager& mgr) const {
-  CHealthInfo healthInfo = *GetHealthInfo(mgr);
+  const float health = GetHealthInfo(mgr)->GetHP();
   int numEnergyTanks = mgr.GetPlayerState()->GetItemCapacity(CPlayerState::kIT_EnergyTanks);
   float lowThreshold = numEnergyTanks >= 4 ? 100.f : 30.f;
-  return healthInfo.GetHP() < lowThreshold;
+  return health < lowThreshold;
 }
+
+#if VERSION < VERSION_R3IJ_00
 
 bool CPlayer::IsTransparent() const { return mAlpha < 1.f; }
 

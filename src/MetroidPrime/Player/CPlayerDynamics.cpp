@@ -851,6 +851,8 @@ void CPlayer::UpdateBombJumpStuff() {
   }
 }
 
+#endif
+
 void CPlayer::UpdateStepCameraZBias(float dt) {
   float newBias = GetTranslation()[kDZ] + GetUnbiasedEyeHeight();
   if (mMovementState == NPlayer::kMS_OnGround && !IsMorphBallTransitioning()) {
@@ -880,6 +882,8 @@ void CPlayer::UpdateStepCameraZBias(float dt) {
   mStepCameraZBias = newBias;
   mStepCameraZBiasDirty = false;
 }
+
+#if VERSION < VERSION_R3IJ_00
 
 bool CPlayer::SidewaysDashAllowed(float strafeInput, float forwardInput, const CFinalInput& input,
                                   CStateManager& mgr) const {
@@ -2072,9 +2076,9 @@ void CPlayer::AddToPlayerHintRemoveList(TUniqueId id, CStateManager& mgr) {
   }
 }
 
-void CPlayer::SetEyeOffset(float bias) { mEyeZBias = bias; }
-
 #endif
+
+void CPlayer::SetEyeOffset(float bias) { mEyeZBias = bias; }
 
 float CPlayer::UpdateCameraBob(float dt, CStateManager& mgr) {
   float magnitude = 0.f;
