@@ -324,8 +324,9 @@ void CRevolutionController::UpdatePointerState(int channel) {
       KPADStatus& status = mStatus[channel];
       status.pos.x = mPointerFilterX[filterChannel]->Filter(status.pos.x);
       status.pos.y = mPointerFilterY[filterChannel]->Filter(status.pos.y);
-      const float blend =
-          CMath::FastMin(CMath::FastMax(0.f, mPointerReacquireFrames[channel] / 10.f), 1.f);
+      const float& low = 0.f;
+      const float& high = 1.f;
+      const float blend = CMath::FastClamp(low, mPointerReacquireFrames[channel] / 10.f, high);
       const float currentX = status.pos.x;
       const float previousX = input.mPointerPosition.GetX();
       input.mPointerPosition[0] = (1.f - blend) * previousX + blend * currentX;
