@@ -102,12 +102,12 @@ MetroidPrime/Player/CMorphBall.cpp:
 MetroidPrime/Player/CPlayer.cpp:
 	.text       start:0x8017DD30 end:0x80187FE4
 	.ctors      start:0x8046D408 end:0x8046D40C
-	.rodata     start:0x80474830 end:0x804749E8
+	.rodata     start:0x80474820 end:0x804749E8
 	.data       start:0x8048AB20 end:0x8048AC08
 	.bss        start:0x804C0C18 end:0x804C33D0 align:4
 	.sdata      start:0x805C1580 end:0x805C15A8 align:4
-	.sbss       start:0x805C265C end:0x805C2664 align:4
-	.sdata2     start:0x805C5A68 end:0x805C5BB8
+	.sbss       start:0x805C2648 end:0x805C2664 align:4
+	.sdata2     start:0x805C5A5C end:0x805C5BB8
 
 MetroidPrime/Player/CPlayerCameraBob.cpp:
 	.text       start:0x80187FE4 end:0x80188EF0

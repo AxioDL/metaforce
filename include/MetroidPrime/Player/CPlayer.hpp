@@ -380,7 +380,7 @@ public:
   void StartLandingControlFreeze(); // name?
   void EndLandingControlFreeze();   // name?
   void AdjustEyeOffset(CStateManager& mgr);
-  void SetEyeZBias(float bias);
+  void SetEyeOffset(float bias);
   float GetEyeOffset() const { return mEyeZBias; }
   void UpdateStepCameraZBias(float dt);
   void UpdateEnvironmentDamageCameraShake(float dt, CStateManager& mgr);

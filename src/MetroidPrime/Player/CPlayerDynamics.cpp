@@ -873,9 +873,9 @@ void CPlayer::UpdateStepCameraZBias(float dt) {
         newBias = mStepCameraZBias - newDelta;
       }
     }
-    SetEyeZBias(newBias - oldBias);
+    SetEyeOffset(newBias - oldBias);
   } else {
-    SetEyeZBias(0.f);
+    SetEyeOffset(0.f);
   }
   mStepCameraZBias = newBias;
   mStepCameraZBiasDirty = false;
@@ -1797,7 +1797,7 @@ void CPlayer::Teleport(const CTransform4f& transform, CStateManager& mgr,
     SetTranslation(transform.GetTranslation());
   }
   mStepCameraZBiasDirty = true;
-  SetEyeZBias(0.f);
+  SetEyeOffset(0.f);
   SetLastNonCollidingState(GetMotionState());
   SetMoveState(NPlayer::kMS_OnGround, mgr);
   CTransform4f eyeTransform = GetTransform();
@@ -2072,7 +2072,7 @@ void CPlayer::AddToPlayerHintRemoveList(TUniqueId id, CStateManager& mgr) {
   }
 }
 
-void CPlayer::SetEyeZBias(float bias) { mEyeZBias = bias; }
+void CPlayer::SetEyeOffset(float bias) { mEyeZBias = bias; }
 
 #endif
 

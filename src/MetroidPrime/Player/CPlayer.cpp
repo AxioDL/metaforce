@@ -4,6 +4,7 @@
 
 #include "Collision/CCollidableAABox.hpp"
 #include "Kyoto/Audio/CSfxManager.hpp"
+#include "Kyoto/Audio/CStreamAudioManager.hpp"
 #include "Kyoto/CSimplePool.hpp"
 #include "Kyoto/CDependencyGroup.hpp"
 #include "Kyoto/Text/CStringTable.hpp"
@@ -31,6 +32,7 @@
 #include "Kyoto/Input/CInputFilter.hpp"
 #include "Kyoto/Math/CloseEnough.hpp"
 #include "MetroidPrime/CStateManager.hpp"
+#include "MetroidPrime/CWorld.hpp"
 #include "MetroidPrime/Cameras/CCameraManager.hpp"
 #include "MetroidPrime/Cameras/CFirstPersonCamera.hpp"
 #include "MetroidPrime/Cameras/CBallCamera.hpp"
@@ -1066,15 +1068,20 @@ static const ushort skRightStepSounds[24] = {
     SFXsam_b_wlkorg_01,
 };
 
+#endif
+
+#if VERSION >= VERSION_R3IJ_00
+static const char kGunLocatorStr[] = "GUN_LCTR";
+static const char* const kGunLocator = kGunLocatorStr;
+#else
 static const char* const kGunLocator = "GUN_LCTR";
+#endif
 
 const float CPlayer::skDefaultHudFadeOutSpeed = 0.5f;
 const float CPlayer::skDefaultHudFadeInSpeed = 2.5f;
 
 static bool gUseSurfaceHack;
 static CPlayer::ESurfaceRestraints gSR_Hack;
-
-#endif
 
 CAnimRes MakePlayerAnimres(CAssetId resId, const CVector3f& scale) {
   return CAnimRes(resId, CAnimRes::kDefaultCharIdx, scale, 0, true);
@@ -1671,7 +1678,12 @@ void CPlayer::ForceGunOrientation(const CTransform4f& xf, CStateManager& mgr) {
   UpdateArmAndGunTransforms(0.01f, mgr);
 }
 
+#endif
+
 void CPlayer::Update(float dt, CStateManager& mgr) {
+#if VERSION >= VERSION_R3IJ_00
+  UpdateTurnInputWarmup(dt, mgr);
+#endif
   SetCoefficientOfRestitutionModifier(0.f);
   UpdateMorphBallTransition(dt, mgr);
 
@@ -1684,8 +1696,8 @@ void CPlayer::Update(float dt, CStateManager& mgr) {
   }
 
   if (!mgr.GetPlayerState()->IsAlive()) {
-    const float prevDeathTime = mDeathTime;
-    if (0.f == prevDeathTime) {
+    const float prevDeathTime = GetDeathTime();
+    if (0.f == mDeathTime) {
       CSfxManager::KillAll(CSfxManager::kSC_Game);
       CStreamAudioManager::StopAll();
       if (mMorphBallState == kMS_Unmorphed) {
@@ -1704,7 +1716,7 @@ void CPlayer::Update(float dt, CStateManager& mgr) {
     }
   }
 
-  switch (mMorphBallState) {
+  switch (GetMorphballTransitionState()) {
   case kMS_Unmorphed:
   case kMS_Morphing:
   case kMS_Unmorphing: {
@@ -1740,9 +1752,10 @@ void CPlayer::Update(float dt, CStateManager& mgr) {
   }
 
   mStaticTimer = rstl::max_val(0.f, mStaticTimer - dt);
+  const bool active = mStaticTimer > 0.f;
   const float outSpeed = mStaticOutSpeed;
   const float inSpeed = mStaticInSpeed;
-  if (mStaticTimer > 0.f) {
+  if (active) {
     mVisorStaticAlpha = rstl::max_val(0.f, mVisorStaticAlpha - dt * outSpeed);
   } else {
     mVisorStaticAlpha = rstl::min_val(1.f, mVisorStaticAlpha + dt * inSpeed);
@@ -1763,6 +1776,8 @@ void CPlayer::Update(float dt, CStateManager& mgr) {
     mSamusExhaustedVoiceTimer = 4.f;
   }
 }
+
+#if VERSION < VERSION_R3IJ_00
 
 // TODO nonmatching
 bool CPlayer::ShouldSampleFailsafe(CStateManager& mgr) const {
@@ -2487,8 +2502,6 @@ void CPlayer::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CState
   CActor::AcceptScriptMsg(msg, sender, mgr);
 }
 
-#if VERSION < VERSION_R3IJ_00
-
 void CPlayer::PreThink(float dt, CStateManager& mgr) {
   mWasDamaged = false;
   mDamageAmt = 0.f;
@@ -2503,15 +2516,15 @@ void CPlayer::AdjustEyeOffset(CStateManager& mgr) {
     return;
   }
 
-  CVector3f bounds = water->GetTriggerBoundsWR().GetMaxPoint();
+  float waterTop = water->GetTriggerBoundsWR().GetMaxPoint().GetZ();
   CVector3f eyePos = GetEyePosition();
-  eyePos[kDZ] -= GetEyeOffset();
-  float waterToDeltaDelta = eyePos.GetZ() - bounds.GetZ();
+  eyePos[kDZ] -= mEyeZBias;
+  float waterToEyeDelta = eyePos.GetZ() - waterTop;
 
-  if (eyePos.GetZ() >= bounds.GetZ() && waterToDeltaDelta <= 0.25f) {
-    SetEyeZBias(GetEyeOffset() + bounds.GetZ() + 0.25f - eyePos.GetZ());
-  } else if (eyePos.GetZ() < bounds.GetZ() && waterToDeltaDelta >= -0.2f) {
-    SetEyeZBias(GetEyeOffset() + bounds.GetZ() - 0.2f - eyePos.GetZ());
+  if (eyePos.GetZ() >= waterTop && waterToEyeDelta <= 0.25f) {
+    SetEyeOffset(mEyeZBias + waterTop + 0.25f - eyePos[kDZ]);
+  } else if (eyePos.GetZ() < waterTop && waterToEyeDelta >= -0.2f) {
+    SetEyeOffset(mEyeZBias + waterTop - 0.2f - eyePos[kDZ]);
   }
 }
 
@@ -2520,7 +2533,11 @@ void CPlayer::Think(float dt, CStateManager& mgr) {
   AdjustEyeOffset(mgr);
   UpdateEnvironmentDamageCameraShake(dt, mgr);
   UpdatePhazonDamage(dt, mgr);
+#if VERSION >= VERSION_R3IJ_00
+  UpdateFreeLook(dt, mgr);
+#else
   UpdateFreeLook(dt);
+#endif
   UpdatePlayerHints(mgr);
 
   if (mOutOfWaterTicks < 2) {
@@ -2588,10 +2605,10 @@ void CPlayer::Think(float dt, CStateManager& mgr) {
   mCamSubmerged = mgr.GetCameraManager()->GetFluidCounter() != 0;
 
   if (mMorphBallState != kMS_Morphed) {
-    if (fabsf(GetTransform().GetColumn(kDX).GetZ()) > FLT_EPSILON ||
-        fabsf(GetTransform().GetColumn(kDY).GetZ()) > FLT_EPSILON) {
+    if (fabsf(GetTransform().GetRight().GetZ()) > FLT_EPSILON ||
+        fabsf(GetTransform().GetForward().GetZ()) > FLT_EPSILON) {
       CVector3f backupTranslation = GetTranslation();
-      CVector3f lookDirFlat = GetTransform().GetColumn(kDY);
+      CVector3f lookDirFlat = GetTransform().GetForward();
       lookDirFlat.SetZ(0.f);
       if (lookDirFlat.CanBeNormalized()) {
         SetTransform(CTransform4f::LookAt(CUnitVector3f(CVector3f::Zero()),
@@ -2605,8 +2622,6 @@ void CPlayer::Think(float dt, CStateManager& mgr) {
 
   mLastVelocity = GetVelocityWR();
 }
-
-#endif
 
 void CPlayer::SetFrozenState(CStateManager& stateMgr, CAssetId steamTxtr, const ushort sfx,
                              CAssetId iceTxtr) {
@@ -3502,6 +3517,8 @@ rstl::optional_object< CAABox > CPlayer::GetTouchBounds() const {
   }
 }
 
+#endif
+
 void CPlayer::SetHudDisable(float staticTimer, float outSpeed, float inSpeed) {
   mStaticTimer = staticTimer;
   mStaticOutSpeed = outSpeed;
@@ -3517,8 +3534,6 @@ void CPlayer::SetHudDisable(float staticTimer, float outSpeed, float inSpeed) {
     mVisorStaticAlpha = 0.f;
   }
 }
-
-#endif
 
 bool CPlayer::CanEnterMorphBallState(CStateManager& mgr, float f1) const {
 #if !NONMATCHING
@@ -3592,7 +3607,6 @@ bool CPlayer::IsUnderBetaMetroidAttack(CStateManager& mgr) const {
   return false;
 }
 
-#if VERSION < VERSION_R3IJ_00
 float CPlayer::GetTransitionAlpha(const CVector3f& camPos, float zNear) const {
   float zLimit =
       (mFpBounds.GetMaxPoint().GetX() - mFpBounds.GetMinPoint().GetX()) * 0.5f + zNear;
@@ -3607,6 +3621,8 @@ float CPlayer::GetTransitionAlpha(const CVector3f& camPos, float zNear) const {
   }
   return out;
 }
+
+#if VERSION < VERSION_R3IJ_00
 
 CHealthInfo* CPlayer::HealthInfo(CStateManager& mgr) { return mgr.PlayerState()->HealthInfo(); }
 
