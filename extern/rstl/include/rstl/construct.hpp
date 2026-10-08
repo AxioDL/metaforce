@@ -133,6 +133,15 @@ static inline D uninitialized_copy_n(S src, int n, D dest) {
 #endif
 }
 
+#if RSTL_VERSION >= RSTL_R3IJ
+template < typename T >
+static inline void uninitialized_fill_n(T** dest, int n, T* const& value) {
+  for (int i = 0; i < n; ++i, ++dest) {
+    *dest = value;
+  }
+}
+#endif
+
 template < typename D, typename S >
 static inline void uninitialized_fill_n(D dest, int n, const S& value) {
 #if RSTL_VERSION >= RSTL_R3ME_00
