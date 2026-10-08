@@ -192,11 +192,10 @@ public:
   void EnableBallShadow();
   void DisableBallShadow();
   void PreRenderBallShadow(CStateManager&);
-  void SetDisableSpiderBallTime(float time);
 
   u32 GetMorphballModelShader() const { return mBallModelShader; } // name?
 
-  void SetDamageTimer(const float time);
+  void SetDisableSpiderBallTime(const float time);
 
 private:
   static CColor GetBallGlowColor(const SColorRgb& color);
@@ -262,7 +261,7 @@ private:
   CVector2f mNormSpiderSurfaceForces;
   float mSpiderTrackForceMag;
   float mSpiderViewControlMag;
-  float mDamageTimer;
+  float mDisableSpiderBallTime;
   bool mSpiderForcesReset;
   CTransform4f mSurfaceToWorld;
   bool mIsProjectile;

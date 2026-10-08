@@ -393,6 +393,7 @@ public:
   void UpdatePlayerHints(CStateManager& mgr);
   void UpdateBombJumpStuff();
   void BombJump(const CVector3f& pos, CStateManager& mgr);
+  void BombJump(const CVector3f& pos, CStateManager& mgr, bool airborneBomb);
   void UpdateTransitionFilter(float dt, CStateManager& mgr);
   void CalculatePlayerControlDirection(CStateManager& mgr);
   void CalculatePlayerMovementDirection(float dt);
@@ -815,7 +816,7 @@ private:
   bool mBallJump : 1;
   bool mBallJumpFromPlatform : 1;
   bool mAccelerationChangeActive : 1;
-  bool x1194_27_ : 1;
+  bool mCanAirBombJump : 1;
   TUniqueId mBallJumpPlatform;
   rstl::single_ptr< CScalarInputFilter > mVerticalLookFilter;
   CRelAngle mFreeLookPitchRate;

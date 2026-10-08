@@ -511,6 +511,7 @@ private:
   void ProcessRadiusDamage(const CActor&, CActor&, TUniqueId, const CDamageInfo&,
                            const CMaterialFilter&);
   void ApplyRadiusDamage(const CActor&, const CVector3f&, CActor&, const CDamageInfo&);
+  void ApplyRadiusDamage(const CActor&, const CVector3f&, TUniqueId, CActor&, const CDamageInfo&);
   const bool TestRayDamage(const CVector3f&, const CActor&, const TEntityList&) const;
   const bool MultiRayCollideWorld(const CMRay&, const CMaterialFilter&) const;
   void TestBombHittingWater(const CActor&, const CVector3f&, CActor&);

@@ -20,12 +20,22 @@ static float kBombBoxAllowance = 0.2f;
 
 CBomb::CBomb(TToken< CGenDescription > particle1, TToken< CGenDescription > particle2,
              TUniqueId uid, TAreaId aid, TUniqueId playerId, float f1, const CTransform4f& xf,
+#if VERSION >= VERSION_R3IJ_00
+             const CDamageInfo& dInfo, int attribs)
+#else
              const CDamageInfo& dInfo)
+#endif
 : CWeapon(uid, aid, true, playerId, kWT_Bomb, rstl::string_l("Bomb"), xf,
           CMaterialFilter::MakeIncludeExclude(
               CMaterialList(kMT_Solid, kMT_Trigger, kMT_NonSolidDamageable),
               CMaterialList(kMT_Projectile, kMT_Bomb)),
-          CMaterialList(kMT_Projectile, kMT_Bomb), dInfo, kPA_Bombs, CModelData::CModelDataNull())
+          CMaterialList(kMT_Projectile, kMT_Bomb), dInfo,
+#if VERSION >= VERSION_R3IJ_00
+          attribs,
+#else
+          kPA_Bombs,
+#endif
+          CModelData::CModelDataNull())
 , mVelocity(CVector3f::Zero())
 , mAcceleration(CVector3f::Zero())
 , mPrevLocation(xf.GetTranslation())
@@ -61,8 +71,9 @@ void CBomb::AddToRenderer(const CFrustumPlanes& frustum, const CStateManager& mg
   CVector3f origin = GetTranslation();
   float ballRadius = mgr.GetPlayer()->GetMorphBall()->GetBallRadius();
 
-  CAABox aabox(origin - CVector3f(0.9f * ballRadius, 0.9f * ballRadius, 0.9f * ballRadius),
-               origin + CVector3f(0.9f * ballRadius, 0.9f * ballRadius, 0.9f * ballRadius));
+  float radius = 0.9f * ballRadius;
+  CVector3f extent(radius, radius, radius);
+  CAABox aabox(origin - extent, origin + extent);
   CVector3f forward = CGraphics::GetViewMatrix().GetForward();
   CVector3f closestPoint = aabox.ClosestPointAlongVector(forward);
 

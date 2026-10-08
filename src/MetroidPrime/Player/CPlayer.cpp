@@ -13,8 +13,14 @@
 #include "MetroidPrime/ScriptObjects/CHUDBillboardEffect.hpp"
 #include "MetroidPrime/ScriptObjects/CScriptWater.hpp"
 #include "MetroidPrime/SFX/IceCrack.h"
+#include "MetroidPrime/SFX/MiscSamus.h"
+#include "MetroidPrime/SFX/LavaWorld.h"
+#include "MetroidPrime/CRumbleManager.hpp"
+#include "MetroidPrime/Cameras/CCameraShakeData.hpp"
+#include "MetroidPrime/Weapons/CEnergyProjectile.hpp"
 #include "MetroidPrime/SFX/Weapons.h"
 #include "MetroidPrime/CGameCollision.hpp"
+#include "MetroidPrime/CFluidPlaneCPU.hpp"
 #include "MetroidPrime/CActorLights.hpp"
 #include "MetroidPrime/CActorParameters.hpp"
 #include "MetroidPrime/CModelData.hpp"
@@ -946,6 +952,8 @@ static TVisorToItemMapping skVisorToItemMapping[4] = {
     TVisorToItemMapping(CPlayerState::kIT_ThermalVisor, ControlMapper::kC_ThermoVisor),
 };
 
+#endif
+
 static const ushort skPlayerLandSfxSoft[24] = {
     0xFFFF,
     SFXsam_b_landston_00,
@@ -999,6 +1007,8 @@ static const ushort skPlayerLandSfxHard[24] = {
     SFXsam_b_landwood_02,
     SFXsam_b_landorg_02,
 };
+
+#if VERSION < VERSION_R3IJ_00
 
 static const ushort skLeftStepSounds[24] = {
     0xFFFF,
@@ -1298,7 +1308,7 @@ CPlayer::CPlayer(TUniqueId uid, const CTransform4f& xf, const CAABox& aabb, CAss
 , mBallJump(false)
 , mBallJumpFromPlatform(false)
 , mAccelerationChangeActive(false)
-, x1194_27_(true)
+, mCanAirBombJump(true)
 , mBallJumpPlatform(kInvalidUniqueId)
 , mVerticalLookFilter(rs_new CAdaptiveInputFilter(0, 4, 0, 0.1f))
 , mFreeLookPitchRate(CRelAngle::FromRadians(0.f))
@@ -2277,9 +2287,14 @@ void CPlayer::UpdateCameraTimers(float dt, const CFinalInput& input) {
   }
 }
 
+#endif
+
 void CPlayer::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) {
   switch (msg) {
   case kSM_OnFloor:
+#if VERSION >= VERSION_R3IJ_00
+    mCanAirBombJump = true;
+#endif
     if (mMovementState != NPlayer::kMS_OnGround && mMorphBallState != kMS_Morphed &&
         mFallingTime > 0.3f) {
       if (mMovementState != NPlayer::kMS_Falling) {
@@ -2287,7 +2302,11 @@ void CPlayer::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CState
         static const float maxLandVol = 127.f;
         float hardThres = CMath::FastSqrtF(-gpTweakPlayer->mNormalGravAccel * 2.f * 30.f);
         const float landVolume =
+#if VERSION >= VERSION_R3IJ_00
+            CMath::FastClamp(minLandVol, -mLastVelocity.GetZ() * 1.6f + 95.f, maxLandVol);
+#else
             CMath::Clamp(minLandVol, -mLastVelocity.GetZ() * 1.6f + 95.f, maxLandVol);
+#endif
         uchar landVol = CCast::ToUint8(landVolume);
         ushort landSfx;
         if (-mLastVelocity.GetZ() < hardThres) {
@@ -2309,7 +2328,12 @@ void CPlayer::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CState
 
         float rumbleMag = -mLastVelocity.GetZ() * (1.f / 110.f);
         if (rumbleMag > 0.f) {
-          mgr.GetRumbleManager()->Rumble(mgr, kRFX_PlayerLand, CMath::Limit(rumbleMag, 0.8f),
+          mgr.GetRumbleManager()->Rumble(mgr, kRFX_PlayerLand,
+#if VERSION >= VERSION_R3IJ_00
+                                       CMath::FastLimit(rumbleMag, 0.8f),
+#else
+                                       CMath::Limit(rumbleMag, 0.8f),
+#endif
                                          kRP_One);
         }
 
@@ -2323,19 +2347,35 @@ void CPlayer::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CState
       mMorphball->StartLandingSfx();
       if (GetVelocityWR().GetZ() < -5.f) {
         float rumbleMag = -GetVelocityWR().GetZ() * (1.f / 110.f) * 0.5f;
-        mgr.GetRumbleManager()->Rumble(mgr, kRFX_PlayerLand, CMath::Limit(rumbleMag, 0.8f),
+        mgr.GetRumbleManager()->Rumble(mgr, kRFX_PlayerLand,
+#if VERSION >= VERSION_R3IJ_00
+                                       CMath::FastLimit(rumbleMag, 0.8f),
+#else
+                                       CMath::Limit(rumbleMag, 0.8f),
+#endif
                                        kRP_One);
         x2a0_ = 0.f;
       }
       if (GetVelocityWR().GetZ() < -30.f) {
         float rumbleMag = -GetVelocityWR().GetZ() * (1.f / 110.f);
-        mgr.GetRumbleManager()->Rumble(mgr, kRFX_PlayerLand, CMath::Limit(rumbleMag, 0.8f),
+        mgr.GetRumbleManager()->Rumble(mgr, kRFX_PlayerLand,
+#if VERSION >= VERSION_R3IJ_00
+                                       CMath::FastLimit(rumbleMag, 0.8f),
+#else
+                                       CMath::Limit(rumbleMag, 0.8f),
+#endif
                                        kRP_One);
         x2a0_ = 0.f;
       }
     }
     mFallingTime = 0.f;
     SetMoveState(NPlayer::kMS_OnGround, mgr);
+#if VERSION >= VERSION_R3IJ_00
+    if (mRidingPlatform == kInvalidUniqueId) {
+      mBallJumpFromPlatform = false;
+      mBallJumpPlatform = kInvalidUniqueId;
+    }
+#endif
     break;
   case kSM_Falling:
     if (mMorphBallState == kMS_Morphed) {
@@ -2408,7 +2448,11 @@ void CPlayer::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CState
     mSplashUpdated = true;
     break;
   case kSM_RemoveSplashInhabitant:
+#if VERSION >= VERSION_R3IJ_00
+    SetInFluid(false, sender);
+#else
     SetInFluid(false, kInvalidUniqueId);
+#endif
     UpdateSubmerged(mgr);
     break;
   case kSM_ProjectileCollide:
@@ -2440,6 +2484,8 @@ void CPlayer::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CState
   mMorphball->AcceptScriptMsg(msg, sender, mgr);
   CActor::AcceptScriptMsg(msg, sender, mgr);
 }
+
+#if VERSION < VERSION_R3IJ_00
 
 void CPlayer::PreThink(float dt, CStateManager& mgr) {
   mWasDamaged = false;
@@ -3659,7 +3705,7 @@ void CPlayer::TakeDamage(bool significant, const CVector3f& location, float dama
 
     if (mMorphBallState != kMS_Unmorphed) {
       mMorphball->TakeDamage(mDamageAmt);
-      mMorphball->SetDamageTimer(0.4f);
+      mMorphball->SetDisableSpiderBallTime(0.4f);
     }
   }
 

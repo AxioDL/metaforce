@@ -11,7 +11,11 @@ class CBomb : public CWeapon {
 public:
   CBomb(TToken< CGenDescription > particle1, TToken< CGenDescription > particle2, TUniqueId uid,
         TAreaId aid, TUniqueId playerId, float f1, const CTransform4f& xf,
+#if VERSION >= VERSION_R3IJ_00
+        const CDamageInfo& dInfo, int attribs);
+#else
         const CDamageInfo& dInfo);
+#endif
   ~CBomb();
 
   void Explode(const CVector3f& pos, CStateManager& mgr);

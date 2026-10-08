@@ -1,3 +1,68 @@
+#include "types.h"
+
+#if VERSION >= VERSION_R3IJ_00
+
+#include "MetroidPrime/CStateManager.hpp"
+#include "MetroidPrime/CActor.hpp"
+#include "MetroidPrime/Player/CPlayer.hpp"
+#include "MetroidPrime/Player/CGameState.hpp"
+#include "MetroidPrime/HUD/CSamusHud.hpp"
+#include "MetroidPrime/Enemies/CWallCrawlerSwarm.hpp"
+#include "MetroidPrime/ScriptObjects/CSnakeWeedSwarm.hpp"
+#include "MetroidPrime/Weapons/CWeapon.hpp"
+#include "MetroidPrime/TCastTo.hpp"
+
+void CStateManager::ApplyDamageToWorld(TUniqueId damagerId, const CActor& actor,
+                                     const CVector3f& pos, const CDamageInfo& info,
+                                     const CMaterialFilter& filter) {
+  const CMaterialFilter useFilter = filter;
+  const float radius = info.GetRadius();
+  const CAABox aabb(pos + CVector3f(-radius, -radius, -radius),
+                   pos + CVector3f(radius, radius, radius));
+
+  const CWeapon* const weapon = TCastToConstPtr< CWeapon >(&actor);
+  bool bomb = false;
+  if (weapon != nullptr) {
+    bomb = (weapon->GetAttribField() & CWeapon::kPA_Bombs) == CWeapon::kPA_Bombs ||
+           (weapon->GetAttribField() & CWeapon::kPA_PowerBombs) == CWeapon::kPA_PowerBombs;
+  }
+
+  TEntityList nearList;
+  BuildNearList(nearList, aabb, useFilter, &actor);
+
+  for (TEntityList::iterator it = nearList.begin(); it != nearList.end(); ++it) {
+    CActor* const act = static_cast< CActor* >(ObjectById(*it));
+    CPlayer* const player = TCastToPtr< CPlayer >(act);
+    CWallCrawlerSwarm* const wallSwarm = TCastToPtr< CWallCrawlerSwarm >(ObjectById(*it));
+    CSnakeWeedSwarm* const snakeSwarm = TCastToPtr< CSnakeWeedSwarm >(ObjectById(*it));
+
+    if (bomb && player != nullptr) {
+      if (player->GetFrozenState()) {
+        gpGameState->SystemState().IncrementFrozenBallCount();
+        CSamusHud::ClearHudMemo();
+        player->BreakFrozenState(*this);
+      } else if ((weapon->GetAttribField() & CWeapon::kPA_Bombs) == CWeapon::kPA_Bombs) {
+        player->BombJump(pos, *this, weapon->HasAttrib(CWeapon::kPA_AirborneBomb));
+      }
+    } else if (act != nullptr && act->GetUniqueId() != damagerId) {
+      TestBombHittingWater(actor, pos, *act);
+      if (TestRayDamage(pos, *act, nearList)) {
+        ApplyRadiusDamage(actor, pos, damagerId, *act, info);
+      }
+    }
+
+    if (wallSwarm != nullptr) {
+      wallSwarm->ApplyRadiusDamage(pos, info, *this);
+    }
+
+    if (snakeSwarm != nullptr) {
+      snakeSwarm->ApplyRadiusDamage(pos, info, *this);
+    }
+  }
+}
+
+#else
+
 #define CSTATEMANAGER_OUT_OF_LINE_GETPLAYER
 #include "MetroidPrime/Player/CPlayer.hpp"
 #include "MetroidPrime/CStateManager.hpp"
@@ -3053,4 +3118,6 @@ void CStateManager::SetProjectedShadow(CProjectedShadow* shadow) {
   shadow->SetNextShadow(mProjectedShadow);
   mProjectedShadow = shadow;
 }
+#endif
+
 #endif

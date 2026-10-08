@@ -29,6 +29,7 @@ public:
     kPA_PlayerUnFreeze = (1 << 15),
     kPA_ParticleOPTS = (1 << 16),
     kPA_KeepInCinematic = (1 << 17),
+    kPA_AirborneBomb = (1 << 18),
   };
 
   CWeapon(const TUniqueId uid, const TAreaId areaId, const bool active, const TUniqueId owner,

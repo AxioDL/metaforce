@@ -29,9 +29,13 @@
 #include "MetroidPrime/Player/CGameState.hpp"
 #include "MetroidPrime/Player/CGrappleArm.hpp"
 #include "MetroidPrime/Player/CPlayer.hpp"
+#include "MetroidPrime/Player/CMorphBall.hpp"
+#include "MetroidPrime/Weapons/CBomb.hpp"
+#include "MetroidPrime/ScriptObjects/CScriptPlatform.hpp"
 #include "MetroidPrime/SFX/PhazonGun.h"
 #include "MetroidPrime/SFX/Weapons.h"
 #include "MetroidPrime/Tweaks/CTweakGunRes.hpp"
+#include "MetroidPrime/Tweaks/CTweakPlayer.hpp"
 #include "MetroidPrime/Tweaks/CTweakPlayerGun.hpp"
 #include "MetroidPrime/Weapons/CAuxWeapon.hpp"
 #include "MetroidPrime/Weapons/CGunWeapon.hpp"
@@ -928,6 +932,57 @@ void CPlayerGun::FireSecondary(float dt, CStateManager& mgr) {
     }
   } else {
     NWeaponTypes::play_sfx(mItemEmptySound[mComboAmmoIdx], mUnderwater, false, 0x4a);
+  }
+}
+
+void CPlayerGun::DropBomb(CPlayerGun::EBWeapon weapon, CStateManager& mgr) {
+  const CVector3f ballOffset(0.f, 0.f, gpTweakPlayer->GetPlayerBallHalfExtent());
+
+  switch (weapon) {
+  case kBW_Bomb: {
+    if (mChargePhase != kCP_NotCharging) {
+      mChargePhase = kCP_ChargeDone;
+      break;
+    }
+
+    if (mBombCount <= 0) {
+      break;
+    }
+
+    int attribs = CWeapon::kPA_Bombs;
+    if ((mgr.GetPlayer()->GetPlayerMovementState() == NPlayer::kMS_FallingMorphed ||
+         mgr.GetPlayer()->GetPlayerMovementState() == NPlayer::kMS_ApplyJump) &&
+        mgr.GetPlayer()->GetMorphBall()->GetSpiderBallState() != CMorphBall::kSBS_Active) {
+      attribs |= CWeapon::kPA_AirborneBomb;
+    }
+
+    CBomb* const bomb = rs_new CBomb(
+        mBombEffects[weapon][0], mBombEffects[weapon][1], mgr.AllocateUniqueId(),
+        mgr.GetPlayer()->GetCurrentAreaId(), mPlayerId, mBombFuseTime,
+        CTransform4f::Translate(mgr.GetPlayer()->GetTransform().GetTranslation() + ballOffset),
+        gpTweakPlayerGun->GetBombInfo(), attribs);
+    mgr.AddObject(*bomb);
+
+    if (mBombCount == 3) {
+      mBombTime = mBombDropDelayTime;
+    }
+
+    --mBombCount;
+
+    const TUniqueId platformId = mgr.GetPlayer()->GetRidingPlatformId();
+    if (CEntity* ent = mgr.ObjectById(platformId)) {
+      if (CScriptPlatform* plat = TCastToPtr< CScriptPlatform >(ent)) {
+        plat->AddSlave(bomb->GetUniqueId(), mgr);
+      }
+    }
+    break;
+  }
+  case kBW_PowerBomb:
+    mgr.PlayerState()->DecrPickUp(CPlayerState::kIT_PowerBombs, 1);
+    mPowerBomb = DropPowerBomb(mgr);
+    break;
+  default:
+    break;
   }
 }
 
