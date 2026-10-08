@@ -575,24 +575,29 @@ float CPlayer::TurnInput(const CFinalInput& input) const {
 
   const float& maxInput = 1.f;
   turn *= CMath::FastLimit(1.f - mControlMapper.GetSelectorFade(), maxInput);
-  if (!mPointerAimHeld) {
+  float pitchAdjustedTurn;
+  if (mPointerAimHeld) {
+    pitchAdjustedTurn = turn;
+  } else {
     const float pitch = GetFreeLookAngleX().AsDegrees();
     if (pitch > 0.f) {
-      turn *= gpTweakPlayerControlCurrent->GetTurnUpResponse().EvaluateAt(pitch);
+      pitchAdjustedTurn = turn * gpTweakPlayerControlCurrent->GetTurnUpResponse().EvaluateAt(pitch);
     } else {
-      turn *= gpTweakPlayerControlCurrent->GetTurnDownResponse().EvaluateAt(-pitch);
+      pitchAdjustedTurn =
+          turn * gpTweakPlayerControlCurrent->GetTurnDownResponse().EvaluateAt(-pitch);
     }
   }
+
   if (input.GetControllerData().GetPointerState() == CControllerData::kPS_Lost) {
     const float lostFrames =
         static_cast< int >(input.GetControllerData().GetPointerInvalidFrameCount());
     const float& fade = lostFrames / 120.f;
     const float& zero = 0.f;
     const float& one = 1.f;
-    turn *= one - CMath::FastClamp(zero, fade, one);
+    pitchAdjustedTurn *= one - CMath::FastClamp(zero, fade, one);
   }
-  turn *= GetTurnInputWarmupScale();
-  return turn;
+  pitchAdjustedTurn *= GetTurnInputWarmupScale();
+  return pitchAdjustedTurn;
 }
 
 void CPlayer::InitializeJumpBlockLocations() {
