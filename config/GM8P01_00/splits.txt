@@ -65,6 +65,7 @@ MetroidPrime/Player/CPlayer.cpp:
 MetroidPrime/CAxisAngle.cpp:
 	.text       start:0x8001BD94 end:0x8001BF34
 	.ctors      start:0x803B4F90 end:0x803B4F94
+	.bss        start:0x8042C688 end:0x8042C694 align:4 common
 
 MetroidPrime/CEulerAngles.cpp:
 	.text       start:0x8001BF34 end:0x8001C32C
@@ -101,6 +102,7 @@ MetroidPrime/CMFGame.cpp:
 	.text       start:0x800252E4 end:0x800268E0
 	.ctors      start:0x803B4F9C end:0x803B4FA0
 	.data       start:0x803C4E40 end:0x803C4EA8
+	.bss        start:0x803E2088 end:0x803E3020
 	.sdata      start:0x80468DF8 end:0x80468DFC
 	.sbss       start:0x8046ADC8 end:0x8046ADD8
 	.sdata2     start:0x8046C170 end:0x8046C174
@@ -304,6 +306,8 @@ MetroidPrime/Tweaks/CTweakPlayerGun.cpp:
 
 MetroidPrime/CPauseScreen.cpp:
 	.text       start:0x80071480 end:0x80074EC0
+	.data       start:0x803C56E8 end:0x803C5798
+	.sdata2     start:0x8046C6B8 end:0x8046C700
 
 MetroidPrime/Tweaks/CTweakGui.cpp:
 	.text       start:0x80074EC0 end:0x80075B70
@@ -350,6 +354,7 @@ MetroidPrime/CMapArea.cpp:
 	.text       start:0x80080B64 end:0x800819B8
 	.ctors      start:0x803B4FBC end:0x803B4FC0
 	.rodata     start:0x803B8018 end:0x803B8060
+	.data       start:0x803C5ED8 end:0x803C5EE8
 	.bss        start:0x803F4338 end:0x803F4360
 	.sdata      start:0x804690C0 end:0x804690C8
 	.sdata2     start:0x8046C818 end:0x8046C840
@@ -462,6 +467,7 @@ MetroidPrime/ScriptObjects/CScriptCameraWaypoint.cpp:
 
 MetroidPrime/Tweaks/CTweakTargeting.cpp:
 	.text       start:0x800AF4B4 end:0x800AF80C
+	.sbss       start:0x8046AFC0 end:0x8046AFC8
 
 MetroidPrime/Tweaks/CTweakAutoMapper.cpp:
 	.text       start:0x800AFDDC end:0x800AFEC4
@@ -500,6 +506,8 @@ MetroidPrime/CWeaponMgr.cpp:
 
 MetroidPrime/ScriptObjects/CScriptPickup.cpp:
 	.text       start:0x800BB454 end:0x800BBE50
+	.sdata      start:0x80469330 end:0x80469338
+	.sdata2     start:0x8046CC70 end:0x8046CCA8
 
 MetroidPrime/CDamageInfo.cpp:
 	.text       start:0x800BC1EC end:0x800BC3F0
@@ -560,7 +568,7 @@ MetroidPrime/Weapons/CWaveBeam.cpp:
 	.rodata     start:0x803B8FB8 end:0x803B8FE8
 	.data       start:0x803C9D40 end:0x803C9D88
 	.sbss       start:0x8046AFD0 end:0x8046AFD8
-	.sdata2     start:0x8046CE28 end:0x8046CE48
+	.sdata2     start:0x8046CE28 end:0x8046CE50
 
 MetroidPrime/Weapons/CIceBeam.cpp:
 	.text       start:0x800D9000 end:0x800D9B40
@@ -570,6 +578,7 @@ MetroidPrime/Weapons/CIceBeam.cpp:
 
 MetroidPrime/CScriptMailbox.cpp:
 	.text       start:0x800D9B40 end:0x800DA114
+	.sdata      start:0x804693D8 end:0x804693E0
 
 MetroidPrime/ScriptObjects/CScriptRelay.cpp:
 	.text       start:0x800DA114 end:0x800DA3EC
@@ -636,6 +645,7 @@ MetroidPrime/Player/CMorphBall.cpp:
 	.text       start:0x800E5660 end:0x800F23C0
 	.ctors      start:0x803B4FE4 end:0x803B4FE8
 	.rodata     start:0x803B9350 end:0x803B9838
+	.bss        start:0x803F4450 end:0x803F4478
 	.bss        start:0x8042F594 end:0x8042F618 align:4 common
 	.sdata      start:0x80469498 end:0x80469560
 	.sbss       start:0x8046B000 end:0x8046B018
@@ -734,7 +744,7 @@ MetroidPrime/CAudioStateWin.cpp:
 MetroidPrime/Player/CPlayerVisor.cpp:
 	.text       start:0x801098CC end:0x8010C600
 	.rodata     start:0x803B9C58 end:0x803B9D38
-	.sdata      start:0x804696A8 end:0x804696D8
+	.sdata      start:0x804696A8 end:0x804696E0
 	.sdata2     start:0x8046D488 end:0x8046D508
 
 MetroidPrime/CModelData.cpp:
@@ -758,6 +768,8 @@ MetroidPrime/ScriptObjects/CScriptSpiderBallWaypoint.cpp:
 MetroidPrime/Enemies/CBloodFlower.cpp:
 	.text       start:0x8011055C end:0x80111C7C
 	.data       start:0x803CA8D8 end:0x803CABC8
+	.sdata      start:0x804696E0 end:0x804696E8
+	.sbss       start:0x8046B058 end:0x8046B060
 	.sdata2     start:0x8046D53C end:0x8046D560
 
 MetroidPrime/TGameTypes.cpp:
@@ -798,20 +810,24 @@ MetroidPrime/Enemies/CSpacePirate.cpp:
 	.ctors      start:0x803B4FF8 end:0x803B4FFC
 	.rodata     start:0x803B9E78 end:0x803BAA78
 	.data       start:0x803CACA0 end:0x803CB198
+	.bss        start:0x803F44C8 end:0x803F4678
 	.bss        start:0x804318FC end:0x80431954 align:4 common
 	.sdata      start:0x80469708 end:0x80469760
 	.sdata2     start:0x8046D670 end:0x8046D758
 
 MetroidPrime/ScriptObjects/CScriptCoverPoint.cpp:
 	.text       start:0x801247C0 end:0x80124CFC
-	.sdata2     start:0x8046D758 end:0x8046D764
+	.sdata      start:0x80469760 end:0x80469768
+	.sdata2     start:0x8046D758 end:0x8046D768
 
 MetroidPrime/Cameras/CPathCamera.cpp:
 	.text       start:0x80124CFC end:0x80125CC0
 	.ctors      start:0x803B4FFC end:0x803B5000
+	.data       start:0x803CB198 end:0x803CB210
 	.bss        start:0x803F4678 end:0x803F4690
 	.sdata      start:0x80469768 end:0x80469770
 	.sbss       start:0x8046B078 end:0x8046B088
+	.sdata2     start:0x8046D768 end:0x8046D788
 
 MetroidPrime/CFluidPlane.cpp:
 	.text       start:0x80125CC0 end:0x801263CC
@@ -933,7 +949,10 @@ MetroidPrime/Enemies/CChozoGhost.cpp:
 	.text       start:0x8013658C end:0x80139A00
 	.ctors      start:0x803B5004 end:0x803B5008
 	.rodata     start:0x803BAAB0 end:0x803BAAD0
+	.data       start:0x803CBE18 end:0x803CC1B8
+	.bss        start:0x803F46A0 end:0x803F46B0
 	.bss        start:0x80433A6C end:0x80433A7C align:4 common
+	.sdata      start:0x80469810 end:0x80469838
 	.sdata2     start:0x8046DA1C end:0x8046DA80
 
 MetroidPrime/Enemies/CFireFlea.cpp:
@@ -941,7 +960,8 @@ MetroidPrime/Enemies/CFireFlea.cpp:
 	.ctors      start:0x803B5008 end:0x803B500C
 	.rodata     start:0x803BAAD0 end:0x803BAAD8
 	.data       start:0x803CC484 end:0x803CC4A8
-	.sbss       start:0x8046B0A8 end:0x8046B0B4
+	.sdata      start:0x80469838 end:0x80469858
+	.sbss       start:0x8046B0A8 end:0x8046B0B8
 	.sdata2     start:0x8046DA80 end:0x8046DAB0
 
 MetroidPrime/BodyState/CBSSlide.cpp:
@@ -988,8 +1008,10 @@ MetroidPrime/Enemies/CPuddleToadGamma.cpp:
 	.text       start:0x801425A4 end:0x801440B4
 	.ctors      start:0x803B500C end:0x803B5010
 	.rodata     start:0x803BABA8 end:0x803BABD8
+	.bss        start:0x803F46B0 end:0x803F46C8
 	.bss        start:0x80433A7C end:0x80433A88 align:4 common
 	.sdata      start:0x80469870 end:0x80469890
+	.sbss       start:0x8046B0B8 end:0x8046B0C0
 	.sdata2     start:0x8046DBB0 end:0x8046DBE0
 
 MetroidPrime/ScriptObjects/CScriptDistanceFog.cpp:
@@ -1013,6 +1035,8 @@ MetroidPrime/Weapons/CPowerBomb.cpp:
 MetroidPrime/Enemies/CMetaree.cpp:
 	.text       start:0x80145164 end:0x80145B88
 	.data       start:0x803CC7A0 end:0x803CCA70
+	.sdata      start:0x804698B0 end:0x804698C0
+	.sdata2     start:0x8046DC48 end:0x8046DC58
 
 MetroidPrime/ScriptObjects/CScriptDockAreaChange.cpp:
 	.text       start:0x80145F6C end:0x80146174
@@ -1023,10 +1047,12 @@ MetroidPrime/ScriptObjects/CScriptSpecialFunction.cpp:
 	.rodata     start:0x803BAC08 end:0x803BAC38
 	.data       start:0x803CCBC8 end:0x803CCC30
 	.sdata      start:0x804698C0 end:0x804698E8
-	.sdata2     start:0x8046DC58 end:0x8046DCB0
+	.sdata2     start:0x8046DC58 end:0x8046DCB8
 
 MetroidPrime/ScriptObjects/CScriptActorRotate.cpp:
 	.text       start:0x8014AA2C end:0x8014B55C
+	.data       start:0x803CCC30 end:0x803CCC50
+	.sdata2     start:0x8046DCB8 end:0x8046DCC0
 
 MetroidPrime/Player/CFidget.cpp:
 	.text       start:0x8014B62C end:0x8014BACC
@@ -1046,7 +1072,7 @@ MetroidPrime/Enemies/CParasite.cpp:
 	.rodata     start:0x803BAD70 end:0x803BAD80
 	.bss        start:0x803F46C8 end:0x803F46F8
 	.sdata      start:0x80469908 end:0x80469920
-	.sbss       start:0x8046B0C8 end:0x8046B0F8
+	.sbss       start:0x8046B0C8 end:0x8046B100
 	.sdata2     start:0x8046DD08 end:0x8046DD60
 
 MetroidPrime/Player/CSamusFaceReflection.cpp:
@@ -1059,10 +1085,13 @@ MetroidPrime/Player/CSamusFaceReflection.cpp:
 
 MetroidPrime/Enemies/CRipper.cpp:
 	.text       start:0x80152B44 end:0x80152FC0
+	.data       start:0x803CCFA0 end:0x803CD270
+	.sdata2     start:0x8046DD98 end:0x8046DDA0
 
 MetroidPrime/Cameras/CCameraShakeData.cpp:
 	.text       start:0x8015311C end:0x80154568
 	.ctors      start:0x803B501C end:0x803B5020
+	.bss        start:0x803F4728 end:0x803F47A0
 	.bss        start:0x80433A88 end:0x80433D04 align:4 common
 	.sdata      start:0x80469940 end:0x80469958
 	.sdata2     start:0x8046DDA0 end:0x8046DDE8
@@ -1081,6 +1110,8 @@ MetroidPrime/ScriptObjects/CScriptPointOfInterest.cpp:
 
 MetroidPrime/Enemies/CDrone.cpp:
 	.text       start:0x80155528 end:0x8015D78C
+	.sdata      start:0x80469970 end:0x80469A0C
+	.sdata2     start:0x8046DE28 end:0x8046DF28
 
 MetroidPrime/CMapWorldInfo.cpp:
 	.text       start:0x8015DB64 end:0x8015F650
@@ -1095,7 +1126,11 @@ MetroidPrime/Factories/CScannableObjectInfo.cpp:
 MetroidPrime/Enemies/CMetroid.cpp:
 	.text       start:0x8015FD38 end:0x801685C8
 	.ctors      start:0x803B5020 end:0x803B5024
+	.data       start:0x803CD450 end:0x803CD720
 	.bss        start:0x80433D04 end:0x804340AC align:4 common
+	.sdata      start:0x80469A10 end:0x80469AA0
+	.sbss       start:0x8046B100 end:0x8046B110
+	.sdata2     start:0x8046DF30 end:0x8046DFD0
 
 MetroidPrime/Player/CScanDisplay.cpp:
 	.text       start:0x801685C8 end:0x8016A700
@@ -1143,7 +1178,7 @@ MetroidPrime/Player/CPlayerOrbit.cpp:
 	.ctors      start:0x803B5028 end:0x803B502C
 	.bss        start:0x803F4818 end:0x803F4860
 	.sdata      start:0x80469AC8 end:0x80469B00
-	.sbss       start:0x8046B118 end:0x8046B134
+	.sbss       start:0x8046B118 end:0x8046B138
 	.sdata2     start:0x8046E0F0 end:0x8046E168
 
 MetroidPrime/CGameCollision.cpp:
@@ -1151,6 +1186,7 @@ MetroidPrime/CGameCollision.cpp:
 	.rodata     start:0x803BB0C0 end:0x803BB100
 	.data       start:0x803CD8F8 end:0x803CD970
 	.sdata      start:0x80469B00 end:0x80469B28
+	.sbss       start:0x8046B138 end:0x8046B140
 	.sdata2     start:0x8046E168 end:0x8046E1B8
 
 MetroidPrime/CBallFilter.cpp:
@@ -1174,7 +1210,7 @@ MetroidPrime/Enemies/CNewIntroBoss.cpp:
 
 MetroidPrime/Weapons/CPhazonBeam.cpp:
 	.text       start:0x80180B58 end:0x80181B8C
-	.rodata     start:0x803BB328 end:0x803BB334
+	.rodata     start:0x803BB328 end:0x803BB370
 	.data       start:0x803CD990 end:0x803CD9D8
 	.sdata2     start:0x8046E2C8 end:0x8046E330
 
@@ -1225,12 +1261,14 @@ MetroidPrime/HUD/CHudRadarInterface.cpp:
 
 MetroidPrime/HUD/CHudThreatInterface.cpp:
 	.text       start:0x80187550 end:0x8018828C
-	.rodata     start:0x803BB864 end:0x803BB88C
+	.rodata     start:0x803BB7C0 end:0x803BB898
 	.sdata      start:0x80469BF8 end:0x80469C20
 	.sdata2     start:0x8046E480 end:0x8046E4D0
 
 MetroidPrime/HUD/CHudVisorBeamMenu.cpp:
 	.text       start:0x8018828C end:0x80188EC4
+	.sdata      start:0x80469C20 end:0x80469C30
+	.sdata2     start:0x8046E4D0 end:0x8046E538
 
 MetroidPrime/HUD/CHudDecoInterface.cpp:
 	.text       start:0x801896A0 end:0x8018C1C8
@@ -1276,7 +1314,10 @@ MetroidPrime/ScriptObjects/CScriptRoomAcoustics.cpp:
 MetroidPrime/Enemies/CIceSheegoth.cpp:
 	.text       start:0x80192CA8 end:0x8019B380
 	.ctors      start:0x803B5034 end:0x803B5038
+	.data       start:0x803CDD30 end:0x803CE120
 	.bss        start:0x804340B8 end:0x804340C4 align:4 common
+	.sdata      start:0x80469C88 end:0x80469CC0
+	.sdata2     start:0x8046E610 end:0x8046E6D0
 
 MetroidPrime/CCollisionActorManager.cpp:
 	.text       start:0x8019B43C end:0x8019C914
@@ -1357,6 +1398,7 @@ MetroidPrime/ScriptObjects/CScriptAreaAttributes.cpp:
 MetroidPrime/Weapons/CWaveBuster.cpp:
 	.text       start:0x801B1794 end:0x801B3AF0
 	.ctors      start:0x803B5040 end:0x803B5044
+	.rodata     start:0x803BC450 end:0x803BC4D0
 	.bss        start:0x803F4860 end:0x803F4878
 	.sdata2     start:0x8046E8E4 end:0x8046E958
 
@@ -1368,7 +1410,10 @@ MetroidPrime/Player/CStaticInterference.cpp:
 MetroidPrime/Enemies/CMetroidBeta.cpp:
 	.text       start:0x801B40B4 end:0x801B9CAC
 	.ctors      start:0x803B5044 end:0x803B5048
+	.data       start:0x803CE928 end:0x803CECB8
 	.bss        start:0x804340E8 end:0x8043410C align:4 common
+	.sdata      start:0x80469DB8 end:0x80469E18
+	.sdata2     start:0x8046E960 end:0x8046EA08
 
 MetroidPrime/PathFinding/CPathFindSearch.cpp:
 	.text       start:0x801B9CAC end:0x801BC020
@@ -1413,6 +1458,7 @@ MetroidPrime/Tweaks/CTweakGuiColors.cpp:
 
 MetroidPrime/ScriptObjects/CFishCloud.cpp:
 	.text       start:0x801C1370 end:0x801C63D0
+	.sdata      start:0x80469E18 end:0x80469E28
 	.sdata2     start:0x8046EA94 end:0x8046EB00
 
 MetroidPrime/CHealthInfo.cpp:
@@ -1470,6 +1516,8 @@ MetroidPrime/Enemies/CThardus.cpp:
 	.text       start:0x801CD37C end:0x801D56C8
 	.ctors      start:0x803B5048 end:0x803B504C
 	.bss        start:0x8043410C end:0x80434118 align:4 common
+	.sdata      start:0x80469E78 end:0x80469EB8
+	.sbss       start:0x8046B190 end:0x8046B198
 
 MetroidPrime/CActorModelParticles.cpp:
 	.text       start:0x801D56C8 end:0x801D9398
@@ -1479,7 +1527,10 @@ MetroidPrime/CActorModelParticles.cpp:
 
 MetroidPrime/Enemies/CWallCrawlerSwarm.cpp:
 	.text       start:0x801DA61C end:0x801E0C08
+	.rodata     start:0x803BC970 end:0x803BC998
+	.data       start:0x803CF2E8 end:0x803CF378
 	.sdata      start:0x80469EE0 end:0x80469EE4
+	.sbss       start:0x8046B198 end:0x8046B1C0
 	.sdata2     start:0x8046EC90 end:0x8046ECDC
 
 MetroidPrime/CMessageScreen.cpp:
@@ -1521,8 +1572,10 @@ MetroidPrime/Enemies/CFlyingPirate.cpp:
 	.ctors      start:0x803B504C end:0x803B5050
 	.rodata     start:0x803BCEBC end:0x803BCFC0
 	.data       start:0x803CFB08 end:0x803CFB20
+	.bss        start:0x803F48A8 end:0x803F4A98
 	.bss        start:0x80434118 end:0x804341C8 align:4 common
 	.sdata      start:0x80469F7C end:0x80469F80
+	.sdata2     start:0x8046EE48 end:0x8046EF28
 
 MetroidPrime/ScriptObjects/CScriptColorModulate.cpp:
 	.text       start:0x801F20F8 end:0x801F3178
@@ -1533,6 +1586,8 @@ MetroidPrime/ScriptObjects/CScriptColorModulate.cpp:
 
 MetroidPrime/CMapUniverse.cpp:
 	.text       start:0x801F32AC end:0x801F4CD8
+	.rodata     start:0x803BCFC8 end:0x803BCFD0
+	.data       start:0x803CFB40 end:0x803CFB50
 	.sdata      start:0x80469FE0 end:0x80469FE8
 	.sdata2     start:0x8046EF40 end:0x8046EF70
 
@@ -1599,17 +1654,20 @@ MetroidPrime/CEnvFxManager.cpp:
 	.bss        start:0x803F4A98 end:0x803F5298
 	.sdata      start:0x8046A15C end:0x8046A180
 	.sbss       start:0x8046B1C8 end:0x8046B1D0
-	.sdata2     start:0x8046F160 end:0x8046F220
+	.sdata2     start:0x8046F160 end:0x8046F228
 
 MetroidPrime/Weapons/CEnergyProjectile.cpp:
 	.text       start:0x8020526C end:0x80206D18
 	.ctors      start:0x803B5050 end:0x803B5054
+	.rodata     start:0x803BD2E0 end:0x803BD358
+	.sdata2     start:0x8046F228 end:0x8046F260
 
 MetroidPrime/ScriptObjects/CScriptGunTurret.cpp:
 	.text       start:0x8020847C end:0x8020CEAC
 	.ctors      start:0x803B5054 end:0x803B5058
+	.data       start:0x803D0058 end:0x803D01D8
 	.sdata      start:0x8046A180 end:0x8046A194
-	.sbss       start:0x8046B1D8 end:0x8046B1E4
+	.sbss       start:0x8046B1D8 end:0x8046B1E8
 	.sdata2     start:0x8046F274 end:0x8046F2F8
 
 MetroidPrime/Weapons/CProjectileInfo.cpp:
@@ -1627,6 +1685,9 @@ MetroidPrime/Enemies/CBabygoth.cpp:
 
 MetroidPrime/Enemies/CEyeBall.cpp:
 	.text       start:0x802156F0 end:0x80215FBC
+	.rodata     start:0x803BDC98 end:0x803BDCC8
+	.sdata      start:0x8046A1D8 end:0x8046A1E0
+	.sbss       start:0x8046B1E8 end:0x8046B1F0
 
 MetroidPrime/CIkChain.cpp:
 	.text       start:0x8021659C end:0x802170CC
@@ -1650,6 +1711,8 @@ MetroidPrime/Enemies/CElitePirate.cpp:
 	.text       start:0x80217F6C end:0x8021E9EC
 	.ctors      start:0x803B5064 end:0x803B5068
 	.bss        start:0x80434480 end:0x804344A4 align:4 common
+	.sdata      start:0x8046A208 end:0x8046A258
+	.sdata2     start:0x8046F4B8 end:0x8046F540
 
 MetroidPrime/CRumbleManager.cpp:
 	.text       start:0x8021E9EC end:0x8021EC18
@@ -1708,6 +1771,8 @@ MetroidPrime/Enemies/CTeamAiMgr.cpp:
 
 MetroidPrime/Enemies/CSnakeWeedSwarm.cpp:
 	.text       start:0x8022B3D4 end:0x8022DF20
+	.rodata     start:0x803BEDD0 end:0x803BEDE8
+	.sdata2     start:0x8046F680 end:0x8046F6B8
 
 MetroidPrime/Cameras/CBallCameraFailsafeState.cpp:
 	.text       start:0x8022E12C end:0x8022E1EC
@@ -1721,6 +1786,9 @@ MetroidPrime/Enemies/CScriptContraption.cpp:
 MetroidPrime/ScriptObjects/CScriptSpindleCamera.cpp:
 	.text       start:0x80230924 end:0x80231240
 	.ctors      start:0x803B5074 end:0x803B5078
+	.data       start:0x803D0E88 end:0x803D0F00
+	.bss        start:0x803F52E8 end:0x803F5300
+	.sdata      start:0x8046A348 end:0x8046A368
 	.sdata2     start:0x8046F6E8 end:0x8046F728
 
 MetroidPrime/ScriptObjects/CScriptMemoryRelay.cpp:
@@ -1776,6 +1844,7 @@ MetroidPrime/CMemoryCardDriver.cpp:
 
 MetroidPrime/CSaveGameScreen.cpp:
 	.text       start:0x8023DA84 end:0x8023F2BC
+	.sdata2     start:0x8046F7D0 end:0x8046F7E8
 
 MetroidPrime/Enemies/CAtomicBeta.cpp:
 	.text       start:0x8023F398 end:0x80240490
@@ -1825,14 +1894,18 @@ MetroidPrime/CPauseScreenBlur.cpp:
 MetroidPrime/Enemies/CTryclops.cpp:
 	.text       start:0x8024D0CC end:0x8024FE30
 	.ctors      start:0x803B507C end:0x803B5080
+	.data       start:0x803D1F50 end:0x803D2250
 	.bss        start:0x804346B4 end:0x80434734 align:4 common
+	.sdata      start:0x8046A478 end:0x8046A4A0
 	.sdata2     start:0x8046F950 end:0x8046F998
 
 MetroidPrime/Weapons/CNewFlameThrower.cpp:
 	.text       start:0x802500D8 end:0x80253A8C
 	.ctors      start:0x803B5080 end:0x803B5084
+	.rodata     start:0x803BFBC8 end:0x803BFBE8
 	.bss        start:0x803F5D50 end:0x803F5D80
 	.sdata      start:0x8046A4A0 end:0x8046A4A4
+	.sdata2     start:0x8046F998 end:0x8046F9C8
 
 MetroidPrime/Cameras/CInterpolationCamera.cpp:
 	.text       start:0x80253D94 end:0x80254880
@@ -1884,6 +1957,7 @@ MetroidPrime/CFluidPlaneRender.cpp:
 MetroidPrime/Enemies/CBurrower.cpp:
 	.text       start:0x8025E8F0 end:0x8026006C
 	.ctors      start:0x803B5084 end:0x803B5088
+	.rodata     start:0x803C0900 end:0x803C0908
 	.data       start:0x803D2930 end:0x803D2C20
 	.bss        start:0x80434734 end:0x8043479C align:4 common
 	.sdata2     start:0x8046FAF0 end:0x8046FB08
@@ -1898,6 +1972,7 @@ MetroidPrime/Enemies/CMetroidPrime.cpp:
 
 MetroidPrime/Enemies/CMetroidPrimeStage2.cpp:
 	.text       start:0x8026AA98 end:0x8026D6FC
+	.data       start:0x803D30D0 end:0x803D3518
 
 MetroidPrime/Enemies/CMetroidPrimeRelay.cpp:
 	.text       start:0x8026E2B8 end:0x8026F3B0
@@ -1905,6 +1980,8 @@ MetroidPrime/Enemies/CMetroidPrimeRelay.cpp:
 MetroidPrime/Player/CPlayerDynamics.cpp:
 	.text       start:0x8026FEA8 end:0x80275BC4
 	.ctors      start:0x803B5090 end:0x803B5094
+	.bss        start:0x803F6198 end:0x803F61B0
+	.sdata      start:0x8046A5C0 end:0x8046A610
 	.sdata2     start:0x8046FCC0 end:0x8046FCE4
 
 MetroidPrime/ScriptObjects/CScriptMazeNode.cpp:
@@ -1919,6 +1996,9 @@ MetroidPrime/Weapons/WeaponTypes.cpp:
 
 MetroidPrime/Enemies/COmegaPirate.cpp:
 	.text       start:0x8027A110 end:0x8027F3F0
+	.data       start:0x803D3518 end:0x803D3998
+	.sdata      start:0x8046A610 end:0x8046A658
+	.sdata2     start:0x8046FDB0 end:0x8046FE58
 
 MetroidPrime/Enemies/CScriptPhazonPool.cpp:
 	.text       start:0x8027F3F0 end:0x8027F914
@@ -1936,6 +2016,10 @@ MetroidPrime/CNESEmulator.cpp:
 
 MetroidPrime/Enemies/CPhazonHealingNodule.cpp:
 	.text       start:0x80281A88 end:0x80282800
+	.rodata     start:0x803C10A8 end:0x803C10C8
+	.data       start:0x803D3AC0 end:0x803D3E08
+	.sdata      start:0x8046A660 end:0x8046A668
+	.sdata2     start:0x8046FED0 end:0x8046FED8
 
 MetroidPrime/Player/CMorphBallShadow.cpp:
 	.text       start:0x80282800 end:0x80283C70
@@ -1967,7 +2051,7 @@ MetroidPrime/CArtifactDoll.cpp:
 	.ctors      start:0x803B5098 end:0x803B509C
 	.rodata     start:0x803C1240 end:0x803C12AC
 	.sdata      start:0x8046A6A8 end:0x8046A6B8
-	.sbss       start:0x8046B288 end:0x8046B290
+	.sbss       start:0x8046B288 end:0x8046B298
 	.sdata2     start:0x8046FF88 end:0x8046FFD8
 
 MetroidPrime/CProjectedShadow.cpp:
@@ -1996,6 +2080,7 @@ MetroidPrime/ScriptObjects/CScriptProjectedShadow.cpp:
 
 MetroidPrime/ScriptObjects/CEnergyBall.cpp:
 	.text       start:0x8028C754 end:0x8028C8E4
+	.rodata     start:0x803C13A8 end:0x803C13D8
 	.sdata2     start:0x80470040 end:0x80470044
 
 MetroidPrime/ScriptObjects/CSustainedPlayerDamage.cpp:
@@ -2032,7 +2117,9 @@ WorldFormat/CAreaOctTree.cpp:
 
 WorldFormat/CMetroidAreaCollider.cpp:
 	.text       start:0x80290130 end:0x8029400C
+	.rodata     start:0x803C1510 end:0x803C1520
 	.bss        start:0x80434C4C end:0x80461C4C align:4 common
+	.sbss       start:0x8046B298 end:0x8046B2B0
 
 WorldFormat/CWorldLight.cpp:
 	.text       start:0x80294560 end:0x802948D8
@@ -2081,10 +2168,13 @@ Weapons/CProjectileWeapon.cpp:
 
 Weapons/CProjectileWeaponDataFactory.cpp:
 	.text       start:0x8029D598 end:0x8029E400
+	.rodata     start:0x803C1678 end:0x803C1680
+	.data       start:0x803D4358 end:0x803D4368
 
 Weapons/CCollisionResponseData.cpp:
 	.text       start:0x8029E6C0 end:0x8029F450
 	.rodata     start:0x803C1680 end:0x803C1A40
+	.data       start:0x803D4368 end:0x803D4378
 	.sdata2     start:0x80470190 end:0x804701A0
 
 Weapons/IWeaponRenderer.cpp:
@@ -2216,6 +2306,7 @@ GuiSys/CGuiTextPane.cpp:
 
 GuiSys/CGuiTextSupport.cpp:
 	.text       start:0x802B3B0C end:0x802B6524
+	.sdata      start:0x8046A7A0 end:0x8046A7B0
 	.sdata2     start:0x80470358 end:0x80470370
 
 GuiSys/CGuiWidget.cpp:
@@ -2947,7 +3038,7 @@ Kyoto/Math/CSphere.cpp:
 Kyoto/Math/CAABox.cpp:
 	.text       start:0x8031FBDC end:0x80320C08
 	.ctors      start:0x803B5104 end:0x803B5108
-	.data       start:0x803D6190 end:0x803D61B0
+	.data       start:0x803D6190 end:0x803D61E0
 	.bss        start:0x804687F4 end:0x8046883C align:4 common
 	.sdata2     start:0x80470AE8 end:0x80470B00
 	.sbss2      start:0x80471738 end:0x80471740
@@ -3094,6 +3185,7 @@ Kyoto/Graphics/CCubeMaterial.cpp:
 	.ctors      start:0x803B5118 end:0x803B511C
 	.rodata     start:0x803C33C8 end:0x803C34B8
 	.data       start:0x803D7488 end:0x803D74D8
+	.bss        start:0x80401FF8 end:0x80402038
 	.bss        start:0x80468854 end:0x80468860 align:4 common
 	.sdata      start:0x8046AA08 end:0x8046AA18
 	.sbss       start:0x8046B684 end:0x8046B6A8
@@ -3343,7 +3435,8 @@ Kyoto/Animation/CPoseAsTransformsVariableSize.cpp:
 	.sdata      start:0x8046AB40 end:0x8046AB48
 
 Kyoto/Input/CRumbleVoice.cpp:
-	.text       start:0x8035306C end:0x80353794
+	.text       start:0x8035306C end:0x8035384C
+	.sdata      start:0x8046AB48 end:0x8046AB50
 	.sdata2     start:0x80470D58 end:0x80470D68
 
 Kyoto/Input/RumbleAdsr.cpp:
@@ -3362,7 +3455,7 @@ Kyoto/Audio/CDSPStream.cpp:
 
 Kyoto/Audio/g721.cpp:
 	.text       start:0x80355154 end:0x80355AD0
-	.data       start:0x803D76B8 end:0x803D7758
+	.data       start:0x803D76B8 end:0x803D7738
 
 Kyoto/Audio/CStaticAudioPlayer.cpp:
 	.text       start:0x80355AD0 end:0x80356944
