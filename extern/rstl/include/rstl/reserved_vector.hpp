@@ -123,10 +123,16 @@ public:
   }
 
   void clear() {
-    T* ptr = data();
-    for (int i = 0; i < mCount; ++i) {
-      destroy(&ptr[i]);
+#if RSTL_VERSION >= RSTL_R3IJ
+    if (!reserved_vector_traits< T >::trivial_destructor) {
+#endif
+      T* ptr = data();
+      for (int i = 0; i < mCount; ++i) {
+        destroy(&ptr[i]);
+      }
+#if RSTL_VERSION >= RSTL_R3IJ
     }
+#endif
     mCount = 0;
   }
 
