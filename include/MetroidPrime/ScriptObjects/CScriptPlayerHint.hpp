@@ -30,4 +30,6 @@ private:
   void RemoveFromObjectList(TUniqueId uid, CStateManager& mgr);
 };
 
+CHECK_CHILD_SIZEOF(CScriptPlayerHint, CActor, 0x28)
+
 #endif // _CSCRIPTPLAYERHINT

@@ -40,6 +40,8 @@ static const CMaterialFilter BallTransitionCollide =
 #include "MetroidPrime/Tweaks/CTweakPlayerControl.hpp"
 #include "MetroidPrime/Tweaks/CTweaks.hpp"
 
+#include "rstl/algorithm.hpp"
+
 #include <float.h>
 
 CAnimRes MakePlayerAnimres(CAssetId resId, const CVector3f& scale);
@@ -1907,7 +1909,6 @@ CVector3f CPlayer::GetBallPosition() const {
   return GetTranslation() + CVector3f(0.f, 0.f, gpTweakPlayer->GetPlayerBallHalfExtent());
 }
 
-#if VERSION < VERSION_R3IJ_00
 void CPlayer::ResetPlayerHintState(CStateManager& mgr) {
   x9c4_26_ = true;
   mCanEnterMorphBall = true;
@@ -2030,7 +2031,10 @@ void CPlayer::UpdatePlayerHints(CStateManager& mgr) {
     bool foundInArea = false;
     for (AUTO(it, mPlayerHints.begin()); it != mPlayerHints.end(); ++it) {
       bestHint = TCastToPtr< CScriptPlayerHint >(mgr.ObjectById(it->second));
-      if (bestHint && bestHint->GetCurrentAreaId() == mgr.GetNextAreaId()) {
+      if (!bestHint) {
+        continue;
+      }
+      if (bestHint->GetCurrentAreaId() == mgr.GetNextAreaId()) {
         foundInArea = true;
         break;
       }
@@ -2040,12 +2044,19 @@ void CPlayer::UpdatePlayerHints(CStateManager& mgr) {
       mPlayerHintPriority = 1000;
       ResetPlayerHintState(mgr);
     }
-    if (bestHint && foundInArea && mPlayerHint != bestHint->GetUniqueId()) {
-      mPlayerHint = bestHint->GetUniqueId();
-      mPlayerHintPriority = bestHint->GetPriority();
-      if (SetAreaPlayerHint(*bestHint, mgr)) {
-        DeactivatePlayerHint(mPlayerHint, mgr);
-      }
+    if (!bestHint) {
+      return;
+    }
+    if (!foundInArea) {
+      return;
+    }
+    if (mPlayerHint == bestHint->GetUniqueId()) {
+      return;
+    }
+    mPlayerHint = bestHint->GetUniqueId();
+    mPlayerHintPriority = bestHint->GetPriority();
+    if (SetAreaPlayerHint(*bestHint, mgr)) {
+      DeactivatePlayerHint(mPlayerHint, mgr);
     }
   }
 }
@@ -2083,8 +2094,6 @@ void CPlayer::AddToPlayerHintRemoveList(TUniqueId id, CStateManager& mgr) {
     }
   }
 }
-
-#endif
 
 void CPlayer::SetEyeOffset(float bias) { mEyeZBias = bias; }
 
