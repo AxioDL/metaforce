@@ -839,22 +839,37 @@ float CPlayer::GetGravity() const {
 
 float CPlayer::GetWeight() const { return GetMass() * -GetGravity(); }
 
+#endif
+
 void CPlayer::UpdateBombJumpStuff() {
+#if VERSION >= VERSION_R3IJ_00
+  if (mBombJumpCount == 0 && !mBallJump) {
+    return;
+  }
+  if (mBombJumpCount >= 2) {
+    SetBallJump(false);
+  }
+#else
   if (mBombJumpCount == 0) {
     return;
   }
+#endif
   if (--mBombJumpCheckDelayFrames > 0) {
     return;
   }
+
+  float maxSpeed = 6.f;
   CVector3f flatVelocity = GetVelocityWR();
   flatVelocity.SetZ(0.f);
+
   if (mMovementState == NPlayer::kMS_OnGround ||
-      (flatVelocity.CanBeNormalized() && flatVelocity.Magnitude() > 6.f)) {
+      (flatVelocity.CanBeNormalized() && flatVelocity.Magnitude() > maxSpeed)) {
     mBombJumpCount = 0;
+#if VERSION >= VERSION_R3IJ_00
+    SetBallJump(false);
+#endif
   }
 }
-
-#endif
 
 void CPlayer::UpdateStepCameraZBias(float dt) {
   float newBias = GetTranslation()[kDZ] + GetUnbiasedEyeHeight();
@@ -1788,6 +1803,8 @@ void CPlayer::BombJump(const CVector3f& position, CStateManager& mgr) {
   }
 }
 
+#endif
+
 void CPlayer::Teleport(const CTransform4f& transform, CStateManager& mgr,
                        const bool resetBallCamera) {
   CVector3f direction = transform.GetForward();
@@ -1828,6 +1845,8 @@ void CPlayer::Teleport(const CTransform4f& transform, CStateManager& mgr,
   }
 #endif
 }
+
+#if VERSION < VERSION_R3IJ_00
 
 bool CPlayer::CheckSubmerged() const {
   if (!IsInFluid()) {
