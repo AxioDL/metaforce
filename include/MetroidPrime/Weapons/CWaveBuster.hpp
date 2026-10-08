@@ -83,6 +83,6 @@ private:
   bool mCollided : 1;
   bool mCollidedWithWorld : 1;
 };
-CHECK_CHILD_SIZEOF(CWaveBuster, CGameProjectile, 0xf0)
+CHECK_CHILD_SIZEOF(CWaveBuster, CGameProjectile, VERSION >= VERSION_R3IJ_00 ? 0xe8 : 0xf0)
 
 #endif // _CWAVEBUSTER

@@ -99,9 +99,17 @@ const bool CAuxWeapon::UpdateComboFx(float dt, const CVector3f& scale, const CVe
 
   bool firing = false;
   CPlayerState& playerState = *mgr.PlayerState();
+#if VERSION >= VERSION_R3IJ_00
+  if (!CSfxManager::IsPlaying(mComboSfx)) {
+    if (CSfxHandle::NullHandle() != mComboSfx) {
+      FreeComboVoiceId();
+    }
+  }
+#else
   if (!CSfxManager::IsPlaying(mComboSfx) && mComboSfx) {
     FreeComboVoiceId();
   }
+#endif
 
   switch (mFiringBeamId) {
   case CPlayerState::kBI_Wave:
@@ -206,8 +214,17 @@ bool CAuxWeapon::IsComboFxActive(const CStateManager& mgr) const {
 }
 
 void CAuxWeapon::InitComboData() {
+#if VERSION >= VERSION_R3IJ_00
+  static const char skSuperMissile[] = "SuperMissile";
+  static const char skIceCombo[] = "IceCombo";
+  static const char skWaveBuster[] = "WaveBuster";
+  static const char skFlameThrower[] = "FlameThrower";
+  static const char* const skComboNames[] = {skSuperMissile, skIceCombo, skWaveBuster,
+                                           skFlameThrower, skSuperMissile};
+#else
   static const char* const skComboNames[] = {"SuperMissile", "IceCombo", "WaveBuster",
                                              "FlameThrower", "SuperMissile"};
+#endif
   for (int i = 0; i < 5; ++i) {
     mCombos.push_back(gpSimplePool->GetObj(skComboNames[i]));
   }

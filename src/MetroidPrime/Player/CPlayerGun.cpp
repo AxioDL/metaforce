@@ -1801,6 +1801,49 @@ void CPlayerGun::ReturnArmAndGunToDefault(CStateManager& mgr, bool returnToDefau
   mGunMotionFidgeting = false;
 }
 
+void CPlayerGun::UpdateAuxWeapons(float dt, const CTransform4f& targetXf, CStateManager& mgr) {
+  const CVector3f firePoint = GetGunMotionTransform() * mBeamLocalXf.GetTranslation();
+  const CVector3f camPos = mgr.GetCameraManager()->GetGlobalCameraTranslation(mgr);
+  bool done = mAuxWeapon->UpdateComboFx(dt, kScaleVector, firePoint + camPos, targetXf, mgr);
+  if (IsWeaponStateSet(0x10)) {
+    if (mEquippedBeamId == CPlayerState::kBI_Wave) {
+      if (mAuxWeapon->HasTarget(mgr) == kInvalidUniqueId) {
+        TUniqueId targetId = GetTargetId(mgr);
+        if (targetId == kInvalidUniqueId) {
+          targetId = mgr.GetPlayer()->GetAimTargetId();
+        }
+        mAuxWeapon->SetNewTarget(targetId, mgr);
+      }
+    }
+    if (done == true) {
+      return;
+    }
+
+    bool comboDone =
+        mEquippedBeamId == CPlayerState::kBI_Wave || mEquippedBeamId == CPlayerState::kBI_Plasma;
+    if (comboDone != true) {
+      if (mCurrentBeam->ComboFireOver()) {
+        comboDone = true;
+      }
+    }
+
+    mCurrentBeam->EnableSecondaryFx(CGunWeapon::kSFT_CancelCharge);
+    if (comboDone) {
+      mChargePhase = kCP_ChargeDone;
+      ReturnArmAndGunToDefault(mgr, false);
+      ResetToBeam();
+    }
+  } else {
+    if (mPhazonBeamActive) {
+      CPhazonBeam* phazonBeam = static_cast< CPhazonBeam* >(mCurrentBeam);
+      phazonBeam->UpdateBeam(dt, targetXf, mBeamLocalXf.GetTranslation(), mgr);
+    } else if (mEquippedBeamId == CPlayerState::kBI_Plasma) {
+      CPlasmaBeam* plasmaBeam = static_cast< CPlasmaBeam* >(mCurrentBeam);
+      plasmaBeam->UpdateBeam(dt, targetXf, mBeamLocalXf.GetTranslation(), mgr);
+    }
+  }
+}
+
 void CPlayerGun::CancelLockOn() {
   if (mLockedOn) {
     mLockedOn = false;
