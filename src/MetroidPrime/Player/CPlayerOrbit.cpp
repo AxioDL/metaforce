@@ -1297,8 +1297,6 @@ void CPlayer::UpdateAimTarget(CStateManager& mgr) {
   }
 }
 
-#if VERSION < VERSION_R3IJ_00
-
 void CPlayer::SetOrbitPosition(float distance, CStateManager& mgr) {
   CTransform4f cameraXf = GetFirstPersonCameraTransform(mgr);
   if (mOrbitState == kOS_OrbitPoint && mOrbitBrokenType == kOB_BadVerticalAngle) {
@@ -1306,12 +1304,18 @@ void CPlayer::SetOrbitPosition(float distance, CStateManager& mgr) {
   }
   CVector3f flatForward = cameraXf.GetForward();
   flatForward.SetZ(0.f);
+#if VERSION >= VERSION_R3IJ_00
+  float maxDot = 1.f;
+#endif
   float dot = CVector3f::Dot(flatForward.AsNormalized(), cameraXf.GetForward());
+#if VERSION >= VERSION_R3IJ_00
+  dot = CMath::FastLimit(dot, maxDot);
+#else
   dot = CMath::Limit(dot, 1.f);
+#endif
   const CVector3f orbitVector(0.f, distance / dot, 0.f);
   mOrbitPoint = cameraXf.GetTranslation() + cameraXf.Rotate(orbitVector);
-  mOrbitVector =
-      CVector3f(0.f, distance, mOrbitPoint.GetZ() - cameraXf.GetTranslation().GetZ());
+  mOrbitVector = CVector3f(0.f, distance, mOrbitPoint.GetZ() - cameraXf.GetTranslation().GetZ());
 }
 
 void CPlayer::UpdateOrbitFixedPosition() {
@@ -1331,10 +1335,8 @@ void CPlayer::UpdateOrbitZPosition() {
   }
 }
 
-#endif
-
 void CPlayer::UpdateOrbitPosition(float distance, CStateManager& mgr) {
-  switch (mOrbitState) {
+  switch (GetOrbitState()) {
   case kOS_NoOrbit:
     break;
   case kOS_OrbitPoint:
@@ -1343,13 +1345,14 @@ void CPlayer::UpdateOrbitPosition(float distance, CStateManager& mgr) {
     break;
   case kOS_ForcedOrbitObject:
   case kOS_Grapple:
-  case kOS_OrbitObject:
-    if (const CActor* act = TCastToConstPtr< CActor >(mgr.GetObjectById(GetOrbitTargetId()))) {
-      if (mOrbitTargetId != kInvalidUniqueId) {
-        mOrbitPoint = act->GetOrbitPosition(mgr);
-      }
+  case kOS_OrbitObject: {
+    const CActor* act = TCastToConstPtr< CActor >(mgr.GetObjectById(GetOrbitTargetId()));
+    if (!act || GetOrbitTargetId() == kInvalidUniqueId) {
+      break;
     }
+    mOrbitPoint = act->GetOrbitPosition(mgr);
     break;
+  }
   default:
     break;
   }
@@ -1419,17 +1422,18 @@ CVector3f CPlayer::GetHUDOrbitTargetPosition() const {
   return mOrbitPoint + mCameraBob->GetCameraBobTransformation().GetTranslation();
 }
 
-#if VERSION < VERSION_R3IJ_00
-
 float CPlayer::CalculateOrbitZBasedDistance(EPlayerOrbitType type) {
   static const float maxScale = 4.f;
+#if VERSION >= VERSION_R3IJ_00
+  const float scale = CMath::AbsF(mOrbitPoint.GetZ() - GetTranslation().GetZ()) / 20.f;
+  return gpTweakPlayer->GetOrbitMinDistance(type) * CMath::FastClamp(1.f, scale, maxScale);
+#else
   float distance = gpTweakPlayer->GetOrbitMinDistance(type);
-  distance *= CMath::Clamp(
-      1.f, CMath::AbsF(mOrbitPoint.GetZ() - GetTranslation().GetZ()) / 20.f, maxScale);
+  distance *=
+      CMath::Clamp(1.f, CMath::AbsF(mOrbitPoint.GetZ() - GetTranslation().GetZ()) / 20.f, maxScale);
   return distance;
-}
-
 #endif
+}
 
 void CPlayer::OrbitPoint(EPlayerOrbitType type, CStateManager& mgr) {
   mOrbitType = type;
