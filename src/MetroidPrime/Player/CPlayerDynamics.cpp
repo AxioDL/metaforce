@@ -12,6 +12,7 @@ static const CMaterialFilter BallTransitionCollide =
 
 #include "MetroidPrime/CModelData.hpp"
 #include "MetroidPrime/CAnimPlaybackParms.hpp"
+#include "MetroidPrime/CFluidPlaneCPU.hpp"
 #include "MetroidPrime/Cameras/CCameraManager.hpp"
 #include "MetroidPrime/Cameras/CBallCamera.hpp"
 #include "MetroidPrime/Cameras/CFirstPersonCamera.hpp"
@@ -19,9 +20,11 @@ static const CMaterialFilter BallTransitionCollide =
 #include "MetroidPrime/Player/CPlayerGun.hpp"
 #include "MetroidPrime/Player/CPlayerCameraBob.hpp"
 #include "MetroidPrime/ScriptObjects/CScriptPlayerHint.hpp"
+#include "MetroidPrime/ScriptObjects/CScriptWater.hpp"
 #include "Kyoto/Audio/CSfxManager.hpp"
 #include "Kyoto/Input/CFinalInput.hpp"
 #include "Kyoto/Math/CMath.hpp"
+#include "Kyoto/Math/CPlane.hpp"
 #include "Kyoto/Math/CQuaternion.hpp"
 #include "Kyoto/Math/CRelAngle.hpp"
 #include "Kyoto/Math/CloseEnough.hpp"
@@ -1816,6 +1819,8 @@ bool CPlayer::CheckSubmerged() const {
   return mDistanceUnderWater >= height;
 }
 
+#endif
+
 void CPlayer::UpdateSubmerged(const CStateManager& mgr) {
   mInLava = false;
   mDistanceUnderWater = 0.f;
@@ -1823,9 +1828,17 @@ void CPlayer::UpdateSubmerged(const CStateManager& mgr) {
     return;
   }
   if (const CScriptWater* water = TCastToConstPtr< CScriptWater >(mgr.GetObjectById(InFluidId()))) {
+#if VERSION >= VERSION_R3IJ_00
+    const CVector3f& translation = GetTranslation();
+    mDistanceUnderWater =
+        -CPlane(water->GetTriggerBoundsWR().GetMaxPoint().GetZ(),
+                CUnitVector3f(0.f, 0.f, 1.f, CUnitVector3f::kN_Yes))
+             .GetHeight(translation);
+#else
     mDistanceUnderWater = -CPlane(water->GetTriggerBoundsWR().GetMaxPoint().GetZ(),
                                       CUnitVector3f(0.f, 0.f, 1.f, CUnitVector3f::kN_Yes))
                                    .GetHeight(GetTranslation());
+#endif
     bool lava = true;
     const CFluidPlane::EFluidType fluidType = water->GetFluidPlane().GetFluidType();
     if (fluidType != CFluidPlane::kFT_Lava && fluidType != CFluidPlane::kFT_ThickLava) {
@@ -1835,6 +1848,8 @@ void CPlayer::UpdateSubmerged(const CStateManager& mgr) {
     CheckSubmerged();
   }
 }
+
+#if VERSION < VERSION_R3IJ_00
 
 float CPlayer::GetStepDownHeight() const {
   if (mMovementState == NPlayer::kMS_Jump) {
@@ -2137,8 +2152,6 @@ float CPlayer::UpdateCameraBob(float dt, CStateManager& mgr) {
   return magnitude;
 }
 
-#if VERSION < VERSION_R3IJ_00
-
 void CPlayer::SetIntoBallReadyAnimation(CStateManager& mgr) {
   const CAnimPlaybackParms parms(2, -1, 1.f, true);
   AnimationData()->SetAnimation(parms, false);
@@ -2146,8 +2159,6 @@ void CPlayer::SetIntoBallReadyAnimation(CStateManager& mgr) {
   ModelData()->AdvanceAnimation(0.f, mgr, kInvalidAreaId, true);
   AnimationData()->SetIsAnimating(false);
 }
-
-#endif
 
 int CPlayer::ChoseTransitionToAnimation(float dt, CStateManager& mgr) const {
   if (mMovementState == NPlayer::kMS_ApplyJump) {
@@ -2365,7 +2376,6 @@ void CPlayer::TransitionFromMorphBallState(float dt, CStateManager& mgr) {
   }
 }
 
-#if VERSION < VERSION_R3IJ_00
 void CPlayer::ActivateMorphBallCamera(CStateManager& mgr) {
   SetCameraState(kCS_Ball, mgr);
   mgr.CameraManager()->BallCamera()->SetState(CBallCamera::kBCS_Default, mgr);
@@ -2392,13 +2402,20 @@ void CPlayer::LeaveMorphBallState(CStateManager& mgr) {
   SetHudDisable(FLT_EPSILON, 0.f, 2.f);
   SetIntoBallReadyAnimation(mgr);
   Stop();
+#if VERSION >= VERSION_R3IJ_00
+  mFreeLookYawAngle = CRelAngle::FromRadians(0.f);
+  mHorizFreeLookAngleVel = CRelAngle::FromRadians(0.f);
+  mFreeLookPitchAngle = CRelAngle::FromRadians(0.f);
+  mVertFreeLookAngleVel = CRelAngle::FromRadians(0.f);
+#else
   mFreeLookYawAngle = 0.f;
   mHorizFreeLookAngleVel = 0.f;
   mFreeLookPitchAngle = 0.f;
   mVertFreeLookAngleVel = 0.f;
+#endif
   mMorphball->LeaveMorphBallState(mgr);
   mgr.CameraManager()->SetPlayerCamera(
-      mgr, mgr.GetCameraManager()->GetFirstPersonCamera()->GetUniqueId());
+      mgr, mgr.CameraManager()->FirstPersonCamera()->GetUniqueId());
   mgr.CameraManager()->BallCamera()->SetState(CBallCamera::kBCS_Default, mgr);
   SetCameraState(kCS_FirstPerson, mgr);
   mgr.CameraManager()->FirstPersonCamera()->DeferBallTransitionProcessing();
@@ -2412,6 +2429,8 @@ void CPlayer::InitialiseAnimation() {
     AnimationData()->SetAnimation(CAnimPlaybackParms(2, -1, 1.f, true), false);
   }
 }
+
+#if VERSION < VERSION_R3IJ_00
 
 void CPlayer::UpdateTransitionFilter(float dt, CStateManager& mgr) {
   CCameraFilterPass& filter = mgr.CameraFilterPass(CStateManager::kCFS_Eight);
