@@ -69,6 +69,12 @@ MetroidPrime/CEntity.cpp:
 	.data       start:0x804865F8 end:0x80486618
 	.bss        start:0x804BD768 end:0x804BD780
 
+MetroidPrime/Cameras/CFirstPersonCamera.cpp:
+	.text       start:0x800975DC end:0x800991BC
+	.rodata     start:0x8046F7B8 end:0x8046F7CC
+	.data       start:0x804869B8 end:0x80486A30
+	.sdata2     start:0x805C44F8 end:0x805C4518
+
 MetroidPrime/Player/CGameOptions.cpp:
 	.text       start:0x800C9150 end:0x800C9E60
 	.rodata     start:0x80470008 end:0x80470040

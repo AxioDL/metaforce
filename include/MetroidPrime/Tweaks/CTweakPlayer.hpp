@@ -167,7 +167,13 @@ public:
   float GetVerticalFreeLookAngleVel() const { return mVerticalFreeLookAngleVel; }
   float GetOrbitCameraSpeed() const { return mOrbitCameraSpeed; }
   float GetOrbitPreventionTime() const { return mOrbitPreventionTime; }
-  bool GetFreeLookTurnsPlayer() const { return mFreelookTurnsPlayer; }
+  bool GetFreeLookTurnsPlayer() const {
+#if VERSION >= VERSION_R3IJ_00
+    return true;
+#else
+    return mFreelookTurnsPlayer;
+#endif
+  }
   float GetJumpCameraPitchDownStart() const { return mJumpCameraPitchDownStart; }
   float GetJumpCameraPitchDownFull() const { return mJumpCameraPitchDownFull; }
   float GetJumpCameraPitchDownAngle() const { return mJumpCameraPitchDownAngle; }

@@ -302,9 +302,12 @@ public:
   bool GetDoneSidewaysDashing() const { return mDoneSidewaysDashing; }
   float GetMorphBallTransitionFactor() const {
 #if VERSION >= VERSION_R3IJ_00
-    return mMorphDuration == 0.f
-               ? 0.f
-               : CMath::FastMin(CMath::FastMax(0.f, mMorphTime / mMorphDuration), 1.f);
+    if (mMorphDuration == 0.f) {
+      return 0.f;
+    }
+    float factor = mMorphDuration;
+    factor = mMorphTime / factor;
+    return CMath::FastMin(CMath::FastMax(0.f, factor), 1.f);
 #else
     return mMorphDuration == 0.f
                ? 0.f
@@ -513,7 +516,7 @@ public:
   bool IsInFreeLook() const { return mInFreeLook; }
   bool IsLookButtonHeld() const { return mLookButtonHeld; }
 #if VERSION >= VERSION_R3IJ_00
-  float GetFreeLookAngleZ() const { return mFreeLookYawAngle.AsRadians(); }
+  CRelAngle GetFreeLookAngleZ() const { return mFreeLookYawAngle; }
   CRelAngle GetFreeLookAngleX() const { return mFreeLookPitchAngle; }
 #else
   float GetFreeLookAngleZ() const { return mFreeLookYawAngle; }
