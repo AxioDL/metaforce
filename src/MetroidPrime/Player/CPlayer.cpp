@@ -441,7 +441,7 @@ void CPlayer::ProcessInput(const CFinalInput& input, CStateManager& mgr) {
       } else {
         float tmp = 7.5f * dt;
         tmp = tmp + mAttachedActorStruggle * tmp;
-        tmp = tmp <= 1.f ? tmp : 1.f;
+        tmp = rstl::min_val(tmp, 1.f);
         mAttachedActorStruggle -= dt * tmp;
         if (mAttachedActorStruggle < 0.f) {
           mAttachedActorStruggle = 0.f;
@@ -1012,8 +1012,6 @@ static const ushort skPlayerLandSfxHard[24] = {
     SFXsam_b_landorg_02,
 };
 
-#if VERSION < VERSION_R3IJ_00
-
 static const ushort skLeftStepSounds[24] = {
     0xFFFF,
     SFXsam_b_wlkstone_00,
@@ -1067,8 +1065,6 @@ static const ushort skRightStepSounds[24] = {
     SFXsam_b_wlkwood_01,
     SFXsam_b_wlkorg_01,
 };
-
-#endif
 
 #if VERSION >= VERSION_R3IJ_00
 static const char kGunLocatorStr[] = "GUN_LCTR";
@@ -1863,8 +1859,6 @@ void CPlayer::UpdatePlayerSounds(float dt) {
   }
 }
 
-#if VERSION < VERSION_R3IJ_00
-
 int CPlayer::SfxIdFromMaterial(const CMaterialList& mat, const ushort* idList, int tableLen,
                                ushort defId) {
   int id = defId;
@@ -1873,12 +1867,20 @@ int CPlayer::SfxIdFromMaterial(const CMaterialList& mat, const ushort* idList, i
       id = idList[i];
     }
   }
-  // Odd issue with return value, should be ushort
+#if VERSION >= VERSION_R3IJ_00
+  return id;
+#else
   return ushort(id);
+#endif
 }
 
+#if VERSION >= VERSION_R3IJ_00
+int CPlayer::GetMaterialSoundUnderPlayer(CStateManager& mgr, const ushort* table, int length,
+                                         ushort defId) {
+#else
 ushort CPlayer::GetMaterialSoundUnderPlayer(CStateManager& mgr, const ushort* table, int length,
                                             ushort defId) {
+#endif
   int ret = defId;
   static const CVector3f skDown(0.f, 0.f, -1.f);
   static const CMaterialFilter matFilter = CMaterialFilter::MakeInclude(CMaterialList(kMT_Solid));
@@ -1897,8 +1899,11 @@ ushort CPlayer::GetMaterialSoundUnderPlayer(CStateManager& mgr, const ushort* ta
 }
 
 void CPlayer::UpdateFootstepSounds(const CFinalInput& input, CStateManager& mgr, float dt) {
-  if (mMorphBallState == kMS_Unmorphed && mMovementState == NPlayer::kMS_OnGround &&
-      !mInFreeLook && !mLookButtonHeld) {
+  if (mMorphBallState == kMS_Unmorphed && mMovementState == NPlayer::kMS_OnGround
+#if VERSION < VERSION_R3IJ_00
+      && !mInFreeLook && !mLookButtonHeld
+#endif
+  ) {
     char sfxVol = 127;
     mFootstepSfxTimer += dt;
     float turn = TurnInput(input);
@@ -1953,7 +1958,11 @@ void CPlayer::UpdateFootstepSounds(const CFinalInput& input, CStateManager& mgr,
           }
         }
       } else {
+#if VERSION >= VERSION_R3IJ_00
+        int sfx;
+#else
         ushort sfx;
+#endif
         if (mFootstepSfxSel == kFS_Left) {
           sfx = GetMaterialSoundUnderPlayer(mgr, skLeftStepSounds, ARRAY_SIZE(skLeftStepSounds),
                                             0xffff);
@@ -1973,8 +1982,6 @@ void CPlayer::UpdateFootstepSounds(const CFinalInput& input, CStateManager& mgr,
     }
   }
 }
-
-#endif
 
 CPlayer::CVisorSteam::CVisorSteam(float targetAlpha, float alphaInDur, float alphaOutDur,
                                   CAssetId tex)

@@ -352,8 +352,13 @@ public:
   const bool StartSamusVoiceSfx(ushort sfx, short vol, int prio);
   void UpdateVisorState(const CFinalInput& input, float dt, CStateManager& mgr);
   void UpdateCrosshairsState(const CFinalInput& input);
+#if VERSION >= VERSION_R3IJ_00
+  int GetMaterialSoundUnderPlayer(CStateManager& mgr, const ushort* table, int length,
+                                  ushort defId);
+#else
   ushort GetMaterialSoundUnderPlayer(CStateManager& mgr, const ushort* table, int length,
                                      ushort defId);
+#endif
   void UpdateFootstepSounds(const CFinalInput& input, CStateManager& mgr, float dt);
 #if VERSION >= VERSION_R3IJ_00
   float JumpInput(float dt, const CFinalInput& input, CStateManager& mgr);
