@@ -144,6 +144,13 @@ MetroidPrime/Player/CPlayerOrbit.cpp:
 	.sdata      start:0x805C1640 end:0x805C1688
 	.sdata2     start:0x805C5DE8 end:0x805C5E48
 
+MetroidPrime/Player/CPlayerState.cpp:
+	.text       start:0x801A03A0 end:0x801A15CC
+	.rodata     start:0x80474B80 end:0x80474C58
+	.data       start:0x8048AD38 end:0x8048ADCC
+	.sdata      start:0x805C1688 end:0x805C1690 align:4
+	.sdata2     start:0x805C5E48 end:0x805C5E70
+
 MetroidPrime/Player/CPlayerVisor.cpp:
 	.text       start:0x801A227C end:0x801A63C0
 	.rodata     start:0x80474C58 end:0x80474DA0

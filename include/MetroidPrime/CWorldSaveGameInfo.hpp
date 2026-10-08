@@ -42,6 +42,10 @@ private:
   rstl::vector< ScanState > mScans;
 };
 
+#if VERSION >= VERSION_R3IJ_00
+CHECK_SIZEOF(CWorldSaveGameInfo, 0x40)
+#else
 CHECK_SIZEOF(CWorldSaveGameInfo, 0x54)
+#endif
 
 #endif // _CWORLDSAVEGAMEINFO

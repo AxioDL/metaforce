@@ -7,6 +7,7 @@ class CTrilogyState {
 public:
   CTrilogyOptions& Options() { return mOptions; }
   const CTrilogyOptions& GetOptions() const { return mOptions; }
+  bool IsGalleryItemActive(int item) const;
 
 private:
   CTrilogyOptions mOptions;
