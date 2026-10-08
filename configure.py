@@ -783,7 +783,7 @@ config.libs = [
                 MatchingFor(*NTSC_GC_VERSIONS, "GM8P01_00", "GM8J01_00"),
                 "MetroidPrime/CMemoryDrawEnum.cpp",
             ),
-            Object(NonMatching, "MetroidPrime/ScriptObjects/CScriptDock.cpp"),
+            Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/ScriptObjects/CScriptDock.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_48", "GM8E01_02"),
                    "MetroidPrime/ScriptObjects/CScriptCameraHint.cpp"),
             Object(NonMatching, "MetroidPrime/ScriptLoader.cpp"),
