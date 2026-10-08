@@ -59,6 +59,9 @@ private:
   CColor mOuterColor;
   CDamageInfo mPhazonDamage;
   EExpansionState mExpansionState;
+#if VERSION >= VERSION_R3IJ_00
+  float mInitialDamage;
+#endif
   float mBeamWidth;
   float mLifeTimer;
   float mExpansionT;
@@ -90,7 +93,15 @@ private:
   bool mTexturesLoaded : 1;
   bool mDrawOwnerFirst : 1;
   bool mActivePlayerPhazon : 1;
+#if VERSION >= VERSION_R3IJ_00
+  bool mEnableInitialDamage : 1;
+  bool mInitialDamagePending : 1;
+#endif
 };
+#if VERSION >= VERSION_R3IJ_00
+CHECK_CHILD_SIZEOF(CPlasmaProjectile, CBeamProjectile, 0xe0)
+#else
 CHECK_CHILD_SIZEOF(CPlasmaProjectile, CBeamProjectile, 0xe8)
+#endif
 
 #endif // _CPLASMAPROJECTILE

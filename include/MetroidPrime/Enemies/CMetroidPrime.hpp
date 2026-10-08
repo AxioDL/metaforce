@@ -15,6 +15,7 @@
 
 #include "Kyoto/Audio/CSfxHandle.hpp"
 
+#include "Kyoto/CRandom16.hpp"
 #include "Kyoto/Graphics/CColor.hpp"
 #include "Kyoto/SObjectTag.hpp"
 
@@ -298,6 +299,9 @@ private:
   uint x57c_;
   uint x580_;
   bool x584_;
+#if VERSION >= VERSION_R3IJ_00
+  float mDeflectionSfxTimer;
+#endif
   rstl::reserved_vector< CVulnerabilityEntry, kVuln_Count > x588_;
   rstl::reserved_vector< CBoneTracking, 6 > x76c_;
   CHealthInfo x8c0_;
@@ -383,6 +387,9 @@ private:
   rstl::reserved_vector< CMetroidPrimeAttackWeights, 4 > x1160_;
   int x1254_;
   rstl::reserved_vector< float, 14 > x1258_;
+#if VERSION >= VERSION_R3IJ_00
+  CRandom16 mAttackRandom;
+#endif
   CCameraShakeData x1294_;
   CCameraShakeData x1368_;
   rstl::single_ptr< CProjectedShadow > x143c_;
@@ -390,7 +397,11 @@ private:
   bool x1444_24_ : 1;
   bool x1444_25_ : 1;
 };
+#if VERSION >= VERSION_R3IJ_00
+CHECK_CHILD_SIZEOF(CMetroidPrime, CPatterned, 0xef0)
+#else
 CHECK_CHILD_SIZEOF(CMetroidPrime, CPatterned, 0xee0)
+#endif
 NESTED_CHECK_SIZEOF(CMetroidPrime, CMissileTarget, CPhysicsActor_FULL_SIZE)
 NESTED_CHECK_SIZEOF(CMetroidPrime, CMetroidPrimeAttackWeights, 0x3C)
 NESTED_CHECK_SIZEOF(CMetroidPrime, CVulnerabilityEntry, 0x78)
@@ -431,6 +442,10 @@ struct CMetroidPrimeData {
   static rstl::reserved_vector< CMetroidPrime::CVulnerabilityEntry, 4 >
   LoadVulnerabilities(CInputStream& in);
 };
+#if VERSION >= VERSION_R3IJ_00
+CHECK_SIZEOF(CMetroidPrimeData, 0xC14)
+#else
 CHECK_SIZEOF(CMetroidPrimeData, 0xC10)
+#endif
 
 #endif // _CMETROIDPRIME

@@ -1073,7 +1073,7 @@ config.libs = [
             ),
             Object(MatchingFor(*NTSC_GC_VERSIONS, "GM8P01_00"), "MetroidPrime/Player/CSamusFaceReflection.cpp"),
             Object(
-                MatchingFor("GM8EAB_00", *NTSC_GC_VERSIONS),
+                MatchingFor("GM8EAB_00", *NTSC_GC_VERSIONS, "R3ME01_00"),
                 "MetroidPrime/ScriptObjects/CScriptPlayerHint.cpp",
             ),
             Object(

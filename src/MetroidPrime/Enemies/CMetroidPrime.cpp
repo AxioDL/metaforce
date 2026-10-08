@@ -181,6 +181,9 @@ CMetroidPrime::CMetroidPrime(
 , x57c_(0)
 , x580_(0)
 , x584_(false)
+#if VERSION >= VERSION_R3IJ_00
+, mDeflectionSfxTimer(0.f)
+#endif
 , x588_(vulnerabilities)
 , x8c0_(150.f, 0.f)
 , x8c8_(0.f)
@@ -251,6 +254,9 @@ CMetroidPrime::CMetroidPrime(
 , x1084_(0.f)
 , x1088_(0.f)
 , x108c_(shakeData1)
+#if VERSION >= VERSION_R3IJ_00
+, mAttackRandom(0)
+#endif
 , x1294_(shakeData2)
 , x1368_(shakeData3)
 , x143c_(rs_new CProjectedShadow(128, 128, true))

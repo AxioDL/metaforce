@@ -14,20 +14,20 @@ public:
   int GetPriority() const { return mPriority; }
   int GetOverrideFlags() const { return mOverrideFlags; }
   TUniqueId GetActorId() const { return mMpId; }
-  void ClearObjectList();
-  uint GetObjectCount() const { return mObjectList.size(); }
+  void ClearSenders();
+  uint GetObjectCount() const { return mSenders.size(); }
   bool GetDeactivated() const { return mDeactivated; }
   void SetDeactivated() { mDeactivated = true; }
 
 private:
-  rstl::reserved_vector< TUniqueId, 8 > mObjectList;
+  rstl::reserved_vector< TUniqueId, 8 > mSenders;
   bool mDeactivated;
   int mPriority;
   int mOverrideFlags;
   TUniqueId mMpId;
 
-  void AddToObjectList(TUniqueId uid);
-  void RemoveFromObjectList(TUniqueId uid, CStateManager& mgr);
+  void AddSender(TUniqueId uid);
+  void RemoveSender(TUniqueId uid, CStateManager& mgr);
 };
 
 CHECK_CHILD_SIZEOF(CScriptPlayerHint, CActor, 0x28)

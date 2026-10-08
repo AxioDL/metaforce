@@ -2080,7 +2080,7 @@ void CPlayer::DeactivatePlayerHint(TUniqueId id, CStateManager& mgr) {
     AUTO(found, rstl::find(mPlayerHintsToRemove.begin(), mPlayerHintsToRemove.end(), id));
     if (found == mPlayerHintsToRemove.end() && mPlayerHintsToRemove.size() != 32) {
       mPlayerHintsToRemove.push_back(id);
-      hint->ClearObjectList();
+      hint->ClearSenders();
       hint->SetDeactivated();
     }
   }
