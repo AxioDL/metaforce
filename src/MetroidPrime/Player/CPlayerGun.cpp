@@ -367,8 +367,8 @@ void CPlayerGun::UpdateTransform(float dt, const CStateManager& mgr) {
       previousGunPosition, previousGunPosition + rotation.Transform(mGunWorldXf.GetForward()));
   mPreviousPlayerForward = player.GetTransform().GetForward();
 
-  CTransform4f bobXf = player.GetCameraBobObject()->GetGunBobTransformation();
-  CVector3f gunPosition = gpTweakPlayerGun->GetGunPosition() + bobXf.GetTranslation();
+  CVector3f gunPosition = gpTweakPlayerGun->GetGunPosition() +
+      player.GetCameraBobObject()->GetGunBobTransformation().GetTranslation();
   const CTransform4f& playerXf = player.GetTransform();
   const CTransform4f& cameraXf = mgr.GetCameraManager()->GetFirstPersonCamera()->GetTransform();
   const bool walkNoBob =
@@ -445,8 +445,9 @@ void CPlayerGun::UpdateTransform(float dt, const CStateManager& mgr) {
         direction = CVector3f::Slerp(from, to, turn);
       }
       gunXf = CTransform4f::LookAt(origin, origin + direction, cameraXf.GetUp());
-      gunPosition = origin + gunXf.Rotate(CVector3f(0.f, pullBack + 0.2f * SmoothGunAim(holster),
-                                                    -(0.2f * SmoothGunAim(holster))));
+      const float holsterZ = 0.2f * SmoothGunAim(holster);
+      const float holsterY = 0.2f * SmoothGunAim(holster);
+      gunPosition = origin + gunXf.Rotate(CVector3f(0.f, pullBack + holsterY, -holsterZ));
     } else {
       gunPosition = origin + gunXf.Rotate(CVector3f(0.f, pullBack, 0.f));
     }
