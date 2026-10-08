@@ -3928,6 +3928,8 @@ bool CPlayer::IsPlayerDeadEnough() const {
   return false;
 }
 
+#endif
+
 void CPlayer::SetControlDirectionInterpolation(float time) {
   mInterpolatingControlDir = true;
   mControlDirInterpTime = 0.f;
@@ -3938,6 +3940,8 @@ void CPlayer::ResetControlDirectionInterpolation() {
   mInterpolatingControlDir = false;
   mControlDirInterpTime = 0.f;
 }
+
+#if VERSION < VERSION_R3IJ_00
 
 void CPlayer::DoThink(float dt, CStateManager& mgr) {
   Think(dt, mgr);

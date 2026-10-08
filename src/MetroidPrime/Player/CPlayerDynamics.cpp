@@ -35,6 +35,7 @@ static const CMaterialFilter BallTransitionCollide =
 #include "MetroidPrime/CWorld.hpp"
 #include "MetroidPrime/Player/CGameState.hpp"
 #include "MetroidPrime/SFX/MiscSamus.h"
+#include "MetroidPrime/Tweaks/CTweakBall.hpp"
 #include "MetroidPrime/Tweaks/CTweakPlayer.hpp"
 #include "MetroidPrime/Tweaks/CTweakPlayerControl.hpp"
 #include "MetroidPrime/Tweaks/CTweaks.hpp"
@@ -1392,11 +1393,13 @@ void CPlayer::SetMoveState(NPlayer::EPlayerMovementState state, CStateManager& m
   }
 }
 
+#endif
+
 void CPlayer::CalculatePlayerMovementDirection(float dt) {
   if (mMorphBallState == kMS_Morphing || mMorphBallState == kMS_Unmorphing) {
     return;
   }
-  const CVector3f delta = GetTranslation() - mLastPosForDirCalc;
+  const CVector3f delta = GetTransform().GetTranslation() - mLastPosForDirCalc;
   if (delta.CanBeNormalized() && delta.Magnitude() > 0.02f) {
     mTimeMoving += dt;
     mMoveSpeed = CMath::AbsF(delta.Magnitude() / dt);
@@ -1406,13 +1409,13 @@ void CPlayer::CalculatePlayerMovementDirection(float dt) {
     if (flatDelta.CanBeNormalized()) {
       mFlatMoveSpeed = CMath::AbsF(flatDelta.Magnitude() / dt);
       flatDelta.Normalize();
-      switch (mMorphBallState) {
+      switch (GetMorphballTransitionState()) {
       case kMS_Morphed:
         if (mFlatMoveSpeed > 0.25f) {
           mMoveDir = flatDelta;
         }
         mGunDir = mMoveDir;
-        mLastPosForDirCalc = GetTranslation();
+        mLastPosForDirCalc = GetTransform().GetTranslation();
         break;
       case kMS_Unmorphed:
       case kMS_Morphing:
@@ -1424,7 +1427,7 @@ void CPlayer::CalculatePlayerMovementDirection(float dt) {
           mMoveDir.Normalize();
         }
         mGunDir = mMoveDir;
-        mLastPosForDirCalc = GetTranslation();
+        mLastPosForDirCalc = GetTransform().GetTranslation();
         break;
       }
     } else {
@@ -1436,13 +1439,13 @@ void CPlayer::CalculatePlayerMovementDirection(float dt) {
           mMoveDir.Normalize();
         }
         mGunDir = mMoveDir;
-        mLastPosForDirCalc = GetTranslation();
+        mLastPosForDirCalc = GetTransform().GetTranslation();
       }
       mFlatMoveSpeed = 0.f;
     }
   } else {
     mTimeMoving = 0.f;
-    switch (mMorphBallState) {
+    switch (GetMorphballTransitionState()) {
     case kMS_Morphed:
     case kMS_Morphing:
     case kMS_Unmorphing:
@@ -1456,7 +1459,7 @@ void CPlayer::CalculatePlayerMovementDirection(float dt) {
         mMoveDir.Normalize();
       }
       mGunDir = mMoveDir;
-      mLastPosForDirCalc = GetTranslation();
+      mLastPosForDirCalc = GetTransform().GetTranslation();
       break;
     }
     mMoveSpeed = 0.f;
@@ -1478,7 +1481,13 @@ void CPlayer::UpdatePlayerControlDirection(float dt, CStateManager& mgr) {
       mControlDirInterpTime = mControlDirInterpDur;
       ResetControlDirectionInterpolation();
     }
+#if VERSION >= VERSION_R3IJ_00
+    const float& factor = mControlDirInterpTime / mControlDirInterpDur;
+    const float& limit = 1.f;
+    const float blend = CMath::FastLimit(factor, limit);
+#else
     const float blend = CMath::Limit(mControlDirInterpTime / mControlDirInterpDur, 1.f);
+#endif
     mControlDir = CVector3f::Lerp(oldDirection, mControlDir, blend);
     mControlDirFlat = CVector3f::Lerp(oldFlatDirection, mControlDir, blend);
   }
@@ -1502,7 +1511,8 @@ void CPlayer::CalculatePlayerControlDirection(CStateManager& mgr) {
     }
   } else {
     const CVector3f cameraToPlayer =
-        GetTranslation() - mgr.GetCameraManager()->GetCurrentCamera(mgr).GetTranslation();
+        GetTransform().GetTranslation() -
+        mgr.GetCameraManager()->GetCurrentCamera(mgr).GetTransform().GetTranslation();
     if (!cameraToPlayer.CanBeNormalized()) {
       mControlDir = CVector3f(0.f, 1.f, 0.f);
       mControlDirFlat = CVector3f(0.f, 1.f, 0.f);
@@ -1514,7 +1524,7 @@ void CPlayer::CalculatePlayerControlDirection(CStateManager& mgr) {
           mControlDir = cameraToPlayer.AsNormalized();
           if (flatDirection.CanBeNormalized()) {
             flatDirection.Normalize();
-            switch (mMorphBallState) {
+            switch (GetMorphballTransitionState()) {
             case kMS_Morphed:
               mControlDirFlat = flatDirection;
               break;
@@ -1554,8 +1564,6 @@ void CPlayer::CalculatePlayerControlDirection(CStateManager& mgr) {
     }
   }
 }
-
-#endif
 
 void CPlayer::CalculateLeaveMorphBallDirection(const CFinalInput& input) {
   if (mMorphBallState != kMS_Morphed) {
