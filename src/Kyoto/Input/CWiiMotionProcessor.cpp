@@ -740,7 +740,7 @@ uint CWiiMotionProcessor::GetSwingMask(int device) const {
   return result;
 }
 
-CWiiMotionProcessor::CWiiMotionProcessor(int channel, int unused)
+CWiiMotionProcessor::CWiiMotionProcessor(int channel)
 : mHistory(SPairedSample())
 , mPreviousIndex(0)
 , mWriteIndex(0)

@@ -49,6 +49,21 @@ public:
 
   const CControllerButton& GetSwingButton(int button) const { return mSwingButtons[button]; }
 
+  CControllerButton& Button(int button) {
+    CControllerButton* buttons = mButtons.data();
+    return buttons[button];
+  }
+
+  CControllerButton& MotionButton(int button) {
+    CControllerButton* buttons = mMotionButtons.data();
+    return buttons[button];
+  }
+
+  CControllerButton& SwingButton(int button) {
+    CControllerButton* buttons = mSwingButtons.data();
+    return buttons[button];
+  }
+
 private:
   friend class CRevolutionController;
   friend class CFinalInput;

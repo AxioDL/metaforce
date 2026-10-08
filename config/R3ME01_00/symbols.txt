@@ -11007,7 +11007,7 @@ UpdateDirectionalGestures__19CWiiMotionProcessorFR20CMotionDeviceTrackerRC12WPAD
 GetMotionIntegralMask__19CWiiMotionProcessorCFRC20CMotionDeviceTrackerif = .text:0x80330240; // type:function size:0x2C
 UpdatePulseGestures__19CWiiMotionProcessorFRCQ219CWiiMotionProcessor13SDeviceSampleRQ219CWiiMotionProcessor17SMotionPulseStateif = .text:0x8033026C; // type:function size:0x1EC
 GetSwingMask__19CWiiMotionProcessorCFi = .text:0x80330458; // type:function size:0x5C
-__ct__19CWiiMotionProcessorFii = .text:0x803304B4; // type:function size:0x688
+__ct__19CWiiMotionProcessorFi = .text:0x803304B4; // type:function size:0x688
 ConfigureFiltersAndCalibration__19CWiiMotionProcessorFi = .text:0x80330B3C; // type:function size:0x24C
 AllocateWpadMemory__21CRevolutionControllerFUl = .text:0x80330D88; // type:function size:0x5C
 FreeWpadMemory__21CRevolutionControllerFPv = .text:0x80330DE4; // type:function size:0x24

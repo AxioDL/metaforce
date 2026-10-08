@@ -211,7 +211,7 @@ public:
     uint mShakeMask;
   };
 
-  CWiiMotionProcessor(int channel, int unused);
+  CWiiMotionProcessor(int channel);
   void Update(const WPADFSStatus& status, const KPADStatus& kpadStatus, float dt);
   void UpdateAverage();
   uint UpdateDirectionalGestures(CMotionDeviceTracker& tracker, const WPADFSStatus& status,

@@ -543,26 +543,27 @@ void CRevolutionController::UpdateContinuousAngleAxis(int channel, int axis) {
 }
 
 void CRevolutionController::ClearButtonEvents(int channel) {
-  CControllerData& input = mInput[channel];
-  if (!input.DeviceIsPresent()) {
+  if (!mInput[channel].DeviceIsPresent()) {
     return;
   }
+
+  CControllerData& input = mInput[channel];
   for (int i = 0; i < 64; ++i) {
     if (sButtonMasks[i] != 0) {
-      input.mButtons[i].SetPressEvent(false);
-      input.mButtons[i].SetReleaseEvent(false);
+      input.Button(i).SetPressEvent(false);
+      input.Button(i).SetReleaseEvent(false);
     }
   }
   for (int i = 0; i < 16; ++i) {
     if (sMotionButtonMasks[i] != 0) {
-      input.mMotionButtons[i].SetPressEvent(false);
-      input.mMotionButtons[i].SetReleaseEvent(false);
+      input.MotionButton(i).SetPressEvent(false);
+      input.MotionButton(i).SetReleaseEvent(false);
     }
   }
   for (int i = 0; i < 12; ++i) {
     if (sSwingButtonMasks[i] != 0) {
-      input.mSwingButtons[i].SetPressEvent(false);
-      input.mSwingButtons[i].SetReleaseEvent(false);
+      input.SwingButton(i).SetPressEvent(false);
+      input.SwingButton(i).SetReleaseEvent(false);
     }
   }
 }
@@ -765,7 +766,8 @@ void CRevolutionController::UpdateIdleTimes(uint channel, float dt) {
     if (HasButtonActivity(channel)) {
       mButtonIdleTimes[channel] = 0.f;
     } else {
-      const float previous = mButtonIdleTimes[channel];
+      const rstl::reserved_vector< float, 4 >& buttonIdleTimes = mButtonIdleTimes;
+      const float previous = buttonIdleTimes[channel];
       mButtonIdleTimes[channel] += dt;
       if (previous < 60.f && mButtonIdleTimes[channel] >= 60.f) {
         WPADControlMotor(channel, 0);
@@ -817,7 +819,7 @@ void CRevolutionController::InitializeController(uint channel) {
   }
   if (int(mControllerTypes[channel]) >= 0 && int(mControllerTypes[channel]) < 3) {
     if (mMotionProcessors[channel].null()) {
-      rstl::single_ptr< CWiiMotionProcessor > processor(rs_new CWiiMotionProcessor(channel, 0));
+      rstl::single_ptr< CWiiMotionProcessor > processor(rs_new CWiiMotionProcessor(channel));
       mMotionProcessors[channel] = processor;
     }
     if (!mMotionProcessors[channel].null()) {
