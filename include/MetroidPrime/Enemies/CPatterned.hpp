@@ -4,6 +4,7 @@
 #include "types.h"
 
 #include "MetroidPrime/BodyState/CBodyController.hpp"
+#include "MetroidPrime/CPatternedCollisionManager.hpp"
 #include "MetroidPrime/CSteeringBehaviors.hpp"
 #include "MetroidPrime/Enemies/CAi.hpp"
 #include "MetroidPrime/Enemies/CPatternedInfo.hpp"
@@ -481,6 +482,9 @@ protected:
   u32 mIceShatterSfx;
   CSteeringBehaviors mSteeringBehaviors;
   CKnockBackMgr mKnockBackController;
+#if VERSION >= VERSION_R3IJ_00
+  CPatternedCollisionManager mCollisionManager;
+#endif
   CVector3f mLatestPredictedTranslation;
   float mPredictedLeashTime;
   float mIntoFreezeDur;
@@ -499,7 +503,11 @@ protected:
   CVector3f mMoveScale;
 };
 NESTED_CHECK_SIZEOF(CPatterned, CPatternNode, 0x24)
+#if VERSION >= VERSION_R3IJ_00
+CHECK_CHILD_SIZEOF(CPatterned, CAi, 0x2B8)
+#else
 CHECK_CHILD_SIZEOF(CPatterned, CAi, 0x290)
+#endif
 
 #ifdef HAS_TYPES_MATCH
 #define PATTERNED_CAST_TO(CLS, obj) TCastToPtr< CLS >(obj)

@@ -842,6 +842,8 @@ void CPlayer::UpdateTurnInputWarmup(float dt, const CStateManager& mgr) {
   }
 }
 
+void CPlayer::AsyncLoadSuit(CStateManager& mgr) { mGun->AsyncLoadSuit(mgr); }
+
 void CPlayer::SetBallJump(bool enabled) {
   mBallJump = enabled;
   if (enabled && mRidingPlatform != kInvalidUniqueId) {
