@@ -24,12 +24,14 @@
 #include "MetroidPrime/Cameras/CCameraManager.hpp"
 #include "MetroidPrime/Cameras/CGameCamera.hpp"
 #include "MetroidPrime/Enemies/CMetroidBeta.hpp"
+#include "MetroidPrime/Player/CGameState.hpp"
 #include "MetroidPrime/Player/CMorphBallShadow.hpp"
 #include "MetroidPrime/Player/CPlayer.hpp"
 #include "MetroidPrime/SFX/IceWorld.h"
 #include "MetroidPrime/SFX/LavaWorld.h"
 #include "MetroidPrime/SFX/MiscSamus.h"
 #include "MetroidPrime/ScriptObjects/CScriptAreaAttributes.hpp"
+#include "MetroidPrime/ScriptObjects/CScriptPlatform.hpp"
 #include "MetroidPrime/ScriptObjects/CScriptSpiderBallAttractionSurface.hpp"
 #include "MetroidPrime/ScriptObjects/CScriptSpiderBallWaypoint.hpp"
 #include "MetroidPrime/ScriptObjects/CScriptWater.hpp"
@@ -399,22 +401,29 @@ float CMorphBall::ForwardInput(const CFinalInput& input) const {
     return 0.f;
   }
 
-  const float forwardInput = ControlMapper::GetAnalogInput(ControlMapper::kC_Forward, input);
-  const float backwardInput = ControlMapper::GetAnalogInput(ControlMapper::kC_Backward, input);
+  const float forwardInput =
+      mPlayer.GetControlMapper().GetAnalogInput(CControlMapper::kC_Forward, input);
+  const float backwardInput =
+      mPlayer.GetControlMapper().GetAnalogInput(CControlMapper::kC_Backward, input);
 
   return forwardInput - backwardInput;
 }
 
 void CMorphBall::ComputeBallMovement(const CFinalInput& input, CStateManager& mgr, float dt) {
+#if VERSION >= VERSION_R3IJ_00
+  CheckSpringBallJump(input, mgr);
+#endif
   ComputeBoostBallMovement(input, mgr, dt);
   ComputeMarioMovement(input, mgr, dt);
 }
 
 bool CMorphBall::IsMovementAllowed() const {
+#if VERSION < VERSION_R3IJ_00
   if (!gpTweakPlayer->GetMoveDuringFreeLook() &&
       (mPlayer.IsInFreeLook() || mPlayer.IsLookButtonHeld())) {
     return false;
   }
+#endif
 
   if (mPlayer.IsMorphBallTransitioning()) {
     return false;
@@ -491,10 +500,12 @@ CVector2f CMorphBall::CalculateSpiderBallAttractionSurfaceForces(const CFinalInp
     return CVector2f::Zero();
   }
 
-  const float forwardBack = ControlMapper::GetAnalogInput(ControlMapper::kC_Forward, input) -
-                            ControlMapper::GetAnalogInput(ControlMapper::kC_Backward, input);
-  const float rightLeft = ControlMapper::GetAnalogInput(ControlMapper::kC_TurnRight, input) -
-                          ControlMapper::GetAnalogInput(ControlMapper::kC_TurnLeft, input);
+  const float forwardBack =
+      mPlayer.GetControlMapper().GetAnalogInput(CControlMapper::kC_Forward, input) -
+      mPlayer.GetControlMapper().GetAnalogInput(CControlMapper::kC_Backward, input);
+  const float rightLeft =
+      mPlayer.GetControlMapper().GetAnalogInput(CControlMapper::kC_BallTurnRight, input) -
+      mPlayer.GetControlMapper().GetAnalogInput(CControlMapper::kC_BallTurnLeft, input);
   return CVector2f(rightLeft, forwardBack);
 }
 
@@ -834,10 +845,12 @@ float CMorphBall::GetSpiderBallControllerMovement(const CFinalInput& input) cons
     return 0.f;
   }
 
-  const float forward = ControlMapper::GetAnalogInput(ControlMapper::kC_Forward, input) -
-                        ControlMapper::GetAnalogInput(ControlMapper::kC_Backward, input);
-  const float turn = ControlMapper::GetAnalogInput(ControlMapper::kC_TurnRight, input) -
-                     ControlMapper::GetAnalogInput(ControlMapper::kC_TurnLeft, input);
+  const float forward =
+      mPlayer.GetControlMapper().GetAnalogInput(CControlMapper::kC_Forward, input) -
+      mPlayer.GetControlMapper().GetAnalogInput(CControlMapper::kC_Backward, input);
+  const float turn =
+      mPlayer.GetControlMapper().GetAnalogInput(CControlMapper::kC_BallTurnRight, input) -
+      mPlayer.GetControlMapper().GetAnalogInput(CControlMapper::kC_BallTurnLeft, input);
   const double angleTemp = atan2(forward, turn);
   const float angle = (180.f / M_PIF) * static_cast< float >(angleTemp);
   const float hyp = CMath::SqrtF(forward * forward + turn * turn);
@@ -911,7 +924,8 @@ void CMorphBall::ComputeMarioMovement(const CFinalInput& input, CStateManager& m
   }
 
   float spiderPullThreshold = gkSpiderBallControllerActivationPercentage / 100.f;
-  const float spiderPull = ControlMapper::GetAnalogInput(ControlMapper::kC_SpiderBall, input);
+  const float spiderPull =
+      mPlayer.GetControlMapper().GetAnalogInput(CControlMapper::kC_SpiderBall, input);
   mSpiderPullMovement = spiderPull >= spiderPullThreshold ? 1.f : 0.f;
 
   if (mgr.GetPlayerState()->HasPowerUp(CPlayerState::kIT_SpiderBall) &&
@@ -1138,8 +1152,10 @@ float CMorphBall::BallTurnInput(const CFinalInput& input) const {
     return 0.f;
   }
 
-  const float turnLeftInput = ControlMapper::GetAnalogInput(ControlMapper::kC_TurnLeft, input);
-  const float turnRightInput = ControlMapper::GetAnalogInput(ControlMapper::kC_TurnRight, input);
+  const float turnLeftInput =
+      mPlayer.GetControlMapper().GetAnalogInput(CControlMapper::kC_BallTurnLeft, input);
+  const float turnRightInput =
+      mPlayer.GetControlMapper().GetAnalogInput(CControlMapper::kC_BallTurnRight, input);
 
   return turnLeftInput - turnRightInput;
 }
@@ -1552,8 +1568,16 @@ void CMorphBall::ComputeBoostBallMovement(const CFinalInput& input, const CState
   if (!IsBoosting()) {
     mTimeNotInBoost += dt;
 
+#if VERSION >= VERSION_R3IJ_00
+    const bool boostHeld =
+        gpGameState->GameOptions().GetIsFireAndJumpSwapped()
+            ? mPlayer.GetControlMapper().GetDigitalInput(CControlMapper::kC_FireOrBomb, input)
+            : mPlayer.GetControlMapper().GetDigitalInput(CControlMapper::kC_JumpOrBoost, input);
+    if (boostHeld && mSpiderBallState != kSBS_Active) {
+#else
     if (ControlMapper::GetDigitalInput(ControlMapper::kC_JumpOrBoost, input) &&
         mSpiderBallState != kSBS_Active) {
+#endif
       if (mBallAnimIdx == 0) {
         CAnimPlaybackParms parms(1, -1, 1.f, true);
         mBallModel->AnimationData()->SetAnimation(parms, false);
@@ -3003,3 +3027,80 @@ void CMorphBall::CreateBallShadow() {
 }
 
 void CMorphBall::DeleteBallShadow() { mShadow = nullptr; }
+
+#if VERSION >= VERSION_R3IJ_00
+bool CMorphBall::CheckGroundUnderBallForSpring(const CStateManager& mgr) const {
+  bool grounded = false;
+  const CTransform4f xf =
+      CTransform4f::Translate(mPlayer.GetTranslation() + GetBallRadius() * CVector3f::Down());
+  static const CMaterialFilter filter = CMaterialFilter::MakeIncludeExclude(
+      CMaterialList(kMT_Solid), CMaterialList(kMT_Player, kMT_Character, kMT_NoPlayerCollision));
+  TEntityList nearList;
+  mgr.BuildNearList(nearList, mCollisionSphere.CalculateAABox(xf), filter, nullptr);
+  TUniqueId hitId = kInvalidUniqueId;
+  CCollisionInfoList contacts;
+  if (CGameCollision::DetectCollision(mgr, mCollisionSphere, xf, filter, nearList, hitId,
+                                    contacts)) {
+    for (int i = 0; i < contacts.GetCount(); ++i) {
+      if (contacts[i].GetNormalLeft().GetZ() > 0.70710677f) {
+        grounded = true;
+        break;
+      }
+    }
+  }
+
+  return grounded;
+}
+
+void CMorphBall::CheckSpringBallJump(const CFinalInput& input, CStateManager& mgr) {
+  if ((mPlayer.GetPlayerMovementState() != NPlayer::kMS_OnGround &&
+       mPlayer.GetPlayerMovementState() != NPlayer::kMS_FallingMorphed) ||
+      mPlayer.GetSurfaceRestraint() == CPlayer::kSR_Shrubbery || !IsMovementAllowed() ||
+      !mgr.GetPlayerState()->HasPowerUp(CPlayerState::kIT_MorphBallBombs)) {
+    return;
+  }
+
+  const bool blocked =
+      mPlayer.IsAttached() || mPlayer.GetPlayerEnergyDrain().GetEnergyDrainIntensity() > 0.f;
+  if (!blocked && mPlayer.GetControlMapper().GetPressInput(CControlMapper::kC_SpringBall, input) &&
+      CheckGroundUnderBallForSpring(mgr)) {
+    SpringBallJump(mgr);
+    mPlayer.SetBallJump(true);
+  }
+}
+
+float CMorphBall::CalculateJumpSpeed(const CStateManager& mgr) const {
+  float speed = CMath::SqrtF(2.f * CMath::AbsF(gpTweakPlayer->GetNormalGravAccel()) *
+                           gpTweakPlayer->GetBombJumpRadius());
+
+  switch (mPlayer.GetSurfaceRestraint()) {
+  case CPlayer::kSR_Water:
+    speed *= gpTweakPlayer->GetWaterBallJumpFactor();
+    break;
+  case CPlayer::kSR_Lava:
+    speed *= gpTweakPlayer->GetLavaBallJumpFactor();
+    break;
+  case CPlayer::kSR_Phazon:
+    speed *= gpTweakPlayer->GetPhazonBallJumpFactor();
+    break;
+  default:
+    break;
+  }
+
+  if (const CScriptPlatform* platform =
+          TCastToConstPtr< CScriptPlatform >(mgr.GetObjectById(mPlayer.GetRidingPlatformId()))) {
+    speed += platform->GetVelocityWR().GetZ();
+  }
+
+  return speed;
+}
+
+void CMorphBall::SpringBallJump(CStateManager& mgr) {
+  const float speed = CalculateJumpSpeed(mgr);
+  mPlayer.SetVelocityWR(CVector3f(mPlayer.GetVelocityWR().DropZ(), speed));
+  CancelBoosting();
+  const CSfxHandle sfx = CSfxManager::AddEmitter(
+      SFXsam_b_bombjump_00, GetBallToWorld().GetTranslation(), CVector3f::Zero());
+  mPlayer.DoSfxEffects(sfx);
+}
+#endif

@@ -35,6 +35,6 @@ private:
   CAABox mShadowVolume;
   bool mHasIds;
 };
-CHECK_SIZEOF(CMorphBallShadow, 0xd4)
+CHECK_SIZEOF(CMorphBallShadow, VERSION >= VERSION_R3IJ_00 ? 0xc8 : 0xd4)
 
 #endif // _CMORPHBALLSHADOW

@@ -133,11 +133,16 @@ public:
 
   explicit CControlMapper(float tapHoldThreshold = skDefaultTapHoldThreshold);
   void Update(const CFinalInput& input, const CStateManager& mgr, const CPlayer& player);
-  float GetAnalogInput(ECommands command, const CFinalInput& input, EFilterType filter) const;
-  bool GetDigitalInput(ECommands command, const CFinalInput& input, EFilterType filter) const;
-  bool GetPressInput(ECommands command, const CFinalInput& input, EFilterType filter) const;
-  bool GetReleaseInput(ECommands command, const CFinalInput& input, EFilterType filter) const;
-  bool GetTapInput(ECommands command, const CFinalInput& input, EFilterType filter) const;
+  float GetAnalogInput(ECommands command, const CFinalInput& input,
+                       EFilterType filter = kFT_Filtered) const;
+  bool GetDigitalInput(ECommands command, const CFinalInput& input,
+                       EFilterType filter = kFT_Filtered) const;
+  bool GetPressInput(ECommands command, const CFinalInput& input,
+                     EFilterType filter = kFT_Filtered) const;
+  bool GetReleaseInput(ECommands command, const CFinalInput& input,
+                       EFilterType filter = kFT_Filtered) const;
+  bool GetTapInput(ECommands command, const CFinalInput& input,
+                   EFilterType filter = kFT_Filtered) const;
   float GetDigitalTime(ECommands command) const {
 #if NONMATCHING
     if (command < 0 || command >= kC_MAX) {
@@ -271,7 +276,9 @@ public:
     kC_NextPauseScreen = 0x42,
     kC_UNKNOWN,
     kC_None,
-    kC_MAX
+    kC_MAX,
+    kC_BallTurnLeft = kC_TurnLeft,
+    kC_BallTurnRight = kC_TurnRight
   };
 
   enum EFunctionList {
@@ -316,6 +323,7 @@ public:
   static void SetCommandFiltered(ECommands cmd, bool filtered);
 };
 
+typedef ControlMapper CControlMapper;
 
 #endif
 

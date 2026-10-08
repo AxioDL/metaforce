@@ -75,6 +75,16 @@ MetroidPrime/HUD/CHudVisorSelect.cpp:
 MetroidPrime/CInputGenerator.cpp:
 	.text       start:0x800FF378 end:0x800FF5F4
 
+MetroidPrime/Player/CMorphBall.cpp:
+	.text       start:0x8013A200 end:0x80147AE4
+	.ctors      start:0x8046D3E8 end:0x8046D3EC
+	.rodata     start:0x80473390 end:0x804738E0
+	.data       start:0x80489A78 end:0x80489AB8
+	.bss        start:0x804C08C0 end:0x804C0988
+	.sdata      start:0x805C1448 end:0x805C1488 align:4
+	.sbss       start:0x805C25E0 end:0x805C25FC align:4
+	.sdata2     start:0x805C53C0 end:0x805C5560
+
 MetroidPrime/Player/CPlayer.cpp:
 	.text       start:0x8017DD30 end:0x80187FE4
 	.ctors      start:0x8046D408 end:0x8046D40C

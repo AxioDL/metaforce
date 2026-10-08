@@ -5,9 +5,9 @@
 #include "types.h"
 
 #include "MetroidPrime/CAnimRes.hpp"
+#include "MetroidPrime/CControlMapper.hpp"
 #if VERSION >= VERSION_R3IJ_00
 #include "MetroidPrime/CAimingCursor.hpp"
-#include "MetroidPrime/CControlMapper.hpp"
 #include "rstl/multimap.hpp"
 #endif
 #include "MetroidPrime/CPhysicsActor.hpp"
@@ -82,6 +82,11 @@ public:
   void SetBallJump(bool enabled);
   float GetTurnInputWarmupScale() const;
   void UpdateTurnInputWarmup(float dt, const CStateManager& mgr);
+#else
+  CControlMapper GetControlMapper() const {
+    CControlMapper mapper;
+    return mapper;
+  }
 #endif
   class CPlayerStuckTracker {
   public:

@@ -124,6 +124,9 @@ private:
   uint mMaxRainSplashes;
   uint mRainGenRate;
   TUniqueId mBoundsTrigger;
+#if VERSION >= VERSION_R3IJ_00
+  float mSortingBoundsScale;
+#endif
   bool mDead : 1;
   bool mControlledAnimation : 1;
   bool mDetectCollision : 1;

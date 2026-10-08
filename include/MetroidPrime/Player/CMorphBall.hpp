@@ -130,6 +130,10 @@ public:
   // GetWallBumpCounter__10CMorphBallCFv weak
   // GetBallContactMaterials__10CMorphBallCFv weak
   void ComputeBallMovement(const CFinalInput&, CStateManager&, float);
+  bool CheckGroundUnderBallForSpring(const CStateManager& mgr) const;
+  void CheckSpringBallJump(const CFinalInput& input, CStateManager& mgr);
+  float CalculateJumpSpeed(const CStateManager& mgr) const;
+  void SpringBallJump(CStateManager& mgr);
   void ComputeBoostBallMovement(const CFinalInput& input, const CStateManager& mgr, float dt);
   bool IsMovementAllowed() const;
   void EnterBoosting(CStateManager& mgr);
