@@ -8,12 +8,13 @@
 
 template < typename T >
 T GetAverageValue(const T* ptr, int count) {
-  const T* end = ptr + count;
-  T ret = *ptr++;
-  for (; ptr < end; ++ptr) {
-    ret = ret + *ptr;
+  T ret = *ptr;
+  for (const T* cur = ptr + 1; cur < ptr + count; ++cur) {
+    ret += *cur;
   }
-  return ret * (1.f / count);
+
+  const float scale = 1.f / count;
+  return ret * scale;
 }
 
 template < typename T >
