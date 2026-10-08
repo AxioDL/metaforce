@@ -660,7 +660,7 @@ float CPlayer::JumpInput(float dt, const CFinalInput& input, CStateManager& mgr)
       mDashTimer = 0.f;
       mStrafeInputAtDash = StrafeInput(input);
       const CVector3f impulse(0.f, 0.f, (doubleJumpImpulse - GetVelocityWR().GetZ()) * GetMass());
-      ApplyImpulseOR(impulse, CAxisAngle::Identity());
+      ApplyImpulseWR(impulse, CAxisAngle::Identity());
       float forward = mControlMapper.GetAnalogInput(CControlMapper::kC_Forward, input,
                                                     CControlMapper::kFT_Filtered);
       const float backward = mControlMapper.GetAnalogInput(CControlMapper::kC_Backward, input,
@@ -694,13 +694,12 @@ float CPlayer::JumpInput(float dt, const CFinalInput& input, CStateManager& mgr)
       forward = mControlMapper.GetAnalogInput(CControlMapper::kC_Backward, input,
                                               CControlMapper::kFT_Filtered);
     }
-    const float mass = GetMass();
     float jumpForce =
         jumpFactor *
-        ((verticalJumpAccel - forward * (verticalJumpAccel - horizontalJumpAccel)) * mass);
+        ((verticalJumpAccel - forward * (verticalJumpAccel - horizontalJumpAccel)) * GetMass());
     if (mStartingJumpTimeout < dt) {
       const float jumpFraction = mStartingJumpTimeout / dt;
-      return jumpFraction * jumpForce + (1.f - jumpFraction) * GetGravity() * mass;
+      return jumpFraction * jumpForce + (1.f - jumpFraction) * GetGravity() * GetMass();
     }
     return jumpForce;
   }

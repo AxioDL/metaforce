@@ -1245,7 +1245,11 @@ void CMorphBall::UpdateBallDynamics(CStateManager& mgr, float dt) {
   if (mSpiderBallState != kSBS_Active) {
     ApplyFriction(CalculateSurfaceFriction());
   } else {
+#if VERSION >= VERSION_R3IJ_00
+    DampLinearAndAngularVelocities(mLinVelDamp, mAngVelDamp, dt);
+#else
     DampLinearAndAngularVelocities(mLinVelDamp, mAngVelDamp);
+#endif
   }
 
   if (mSpiderBallState != kSBS_Active) {
@@ -1636,7 +1640,11 @@ void CMorphBall::ComputeBoostBallMovement(const CFinalInput& input, const CState
 
     if (!GetIsInHalfPipeMode() && !mBallCloseToCollision) {
       if (mBoostDrainTime / gpTweakBall->GetBoostBallDrainTime() < 0.3f) {
+#if VERSION >= VERSION_R3IJ_00
+        DampLinearAndAngularVelocities(0.5f, 0.01f, dt);
+#else
         DampLinearAndAngularVelocities(0.5f, 0.01f);
+#endif
       }
 
       LeaveBoosting();
@@ -1841,6 +1849,18 @@ void CMorphBall::ApplyFriction(float friction) {
   mPlayer.SetVelocityWR(vel);
 }
 
+#if VERSION >= VERSION_R3IJ_00
+void CMorphBall::DampLinearAndAngularVelocities(float linDamp, float angDamp, float dt) {
+  CVector3f vel = mPlayer.GetVelocityWR();
+  vel *= powf(1.f - linDamp, 60.f * dt);
+  mPlayer.SetVelocityWR(vel);
+
+  CAxisAngle angVel = mPlayer.GetAngularVelocityWR();
+  float damp = powf(1.f - angDamp, 60.f * dt);
+  angVel *= damp;
+  mPlayer.SetAngularVelocityWR(angVel);
+}
+#else
 void CMorphBall::DampLinearAndAngularVelocities(float linDamp, float angDamp) {
   CVector3f vel = mPlayer.GetVelocityWR();
   vel *= 1.f - linDamp;
@@ -1851,6 +1871,7 @@ void CMorphBall::DampLinearAndAngularVelocities(float linDamp, float angDamp) {
   angVel *= damp;
   mPlayer.SetAngularVelocityWR(angVel);
 }
+#endif
 
 float CMorphBall::GetMinimumAlignmentSpeed() const {
   if (mSpiderBallState == kSBS_Active) {
@@ -2366,7 +2387,11 @@ void CMorphBall::CollidedWith(const TUniqueId& id, const CCollisionInfoList& lis
       if (!info.GetMaterialLeft().HasMaterial(kMT_HalfPipe) &&
           CVector3f::Dot(info.GetNormalLeft(), velNorm) < -0.4f) {
         LeaveBoosting();
+#if VERSION >= VERSION_R3IJ_00
+        DampLinearAndAngularVelocities(0.4f, 0.01f, 1.f / 60.f);
+#else
         DampLinearAndAngularVelocities(0.4f, 0.01f);
+#endif
         break;
       }
     }

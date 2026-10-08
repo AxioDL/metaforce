@@ -90,6 +90,7 @@ public:
   void SwitchToMarble();
   bool GetIsInHalfPipeMode() const;
   void DampLinearAndAngularVelocities(float linDamp, float angDamp);
+  void DampLinearAndAngularVelocities(float linDamp, float angDamp, float dt);
   bool IsClimbable(const CCollisionInfo&) const;
   void FluidFXThink(CActor::EFluidState state, CScriptWater& water, CStateManager& mgr);
   const CCollidableSphere& GetCollidableSphere() const { return mCollisionSphere; }
