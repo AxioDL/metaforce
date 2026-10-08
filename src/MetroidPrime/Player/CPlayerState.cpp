@@ -56,8 +56,7 @@ const uint CPlayerState::GetBitCount(uint val) {
   return bits;
 }
 
-CPlayerState::CPowerUp::CPowerUp(int amount, int capacity)
-: mAmount(amount), mCapacity(capacity) {}
+CPlayerState::CPowerUp::CPowerUp(int amount, int capacity) : mAmount(amount), mCapacity(capacity) {}
 
 CPlayerState::CPlayerState()
 : mAlive(true)
@@ -78,24 +77,24 @@ CPlayerState::CPlayerState()
 , mScanCompletionRateFirst(0)
 , mScanCompletionRateSecond(0)
 #endif
-, mStaticIntf(5) {}
+, mStaticIntf(5) {
+}
 
 CPlayerState::CPlayerState(CInputStream& stream)
 : mAlive(true)
 
 #if VERSION == VERSION_GM8EAB_00
 , mEnabledItems(stream.ReadLong())
-, mCurrentBeam(static_cast<EBeamId>(stream.ReadLong()))
+, mCurrentBeam(static_cast< EBeamId >(stream.ReadLong()))
 , mHealth(stream)
-, mCurrentVisor(static_cast<EPlayerVisor>(stream.ReadLong()))
+, mCurrentVisor(static_cast< EPlayerVisor >(stream.ReadLong()))
 , mTransitioningVisor(mCurrentVisor)
 , mVisorTransitionFactor(kMaxVisorTransitionFactor)
 , mCurrentSuit(kPS_Power)
 , mUnknown(3)
 , mPowerups(stream)
 , mScanTimes(stream)
-, mStaticIntf(5) 
-{}
+, mStaticIntf(5){}
 #else
 , mFiringComboBeam(false)
 #if VERSION < VERSION_R3IJ_00
@@ -153,12 +152,12 @@ CPlayerState::CPlayerState(CInputStream& stream)
 }
 #endif
 
-void CPlayerState::PutTo(COutputStream& stream) {
+void CPlayerState::PutTo(COutputStream & stream) {
 #if VERSION == VERSION_GM8EAB_00
   stream.Put(mEnabledItems);
-  stream.Put(static_cast<const int>(mCurrentBeam));
+  stream.Put(static_cast< const int >(mCurrentBeam));
   mHealth.PutTo(stream);
-  stream.Put(static_cast<const int>(mCurrentVisor));
+  stream.Put(static_cast< const int >(mCurrentVisor));
   mPowerups.PutTo(stream);
   mScanTimes.PutTo(stream);
 #else
@@ -210,7 +209,8 @@ void CPlayerState::InitializePowerUp(CPlayerState::EItemType type, int capacity)
 
 #if VERSION == VERSION_GM8EAB_00
   if (capacity < 0) {
-    rs_debugger_printf("invalid powerup, taking power away is bad, type %i, value %i\n", type, capacity);
+    rs_debugger_printf("invalid powerup, taking power away is bad, type %i, value %i\n", type,
+                       capacity);
   } else {
     CPowerUp& pup = mPowerups[uint(type)];
     int newCapacity = capacity + pup.mCapacity;
@@ -218,7 +218,7 @@ void CPlayerState::InitializePowerUp(CPlayerState::EItemType type, int capacity)
       newCapacity = kPowerUpMax[uint(type)];
     }
     pup.mCapacity = newCapacity;
-    
+
     if (type >= kIT_PowerSuit && type <= kIT_PhazonSuit) {
       switch (type) {
       case kIT_PowerSuit:
@@ -240,8 +240,9 @@ void CPlayerState::InitializePowerUp(CPlayerState::EItemType type, int capacity)
 #if VERSION >= VERSION_R3IJ_00
   int maxCapacity = kPowerUpMax[uint(type)];
   int newCapacity = capacity + mPowerups[uint(type)].mCapacity;
-  mPowerups[uint(type)].mCapacity =
-      newCapacity < 0 ? 0 : maxCapacity < newCapacity ? maxCapacity : newCapacity;
+  mPowerups[uint(type)].mCapacity = newCapacity < 0             ? 0
+                                    : maxCapacity < newCapacity ? maxCapacity
+                                                                : newCapacity;
   int amount = mPowerups[uint(type)].mAmount;
   if (mPowerups[uint(type)].mCapacity < amount) {
     amount = mPowerups[uint(type)].mCapacity;
@@ -269,7 +270,7 @@ void CPlayerState::InitializePowerUp(CPlayerState::EItemType type, int capacity)
 #if VERSION == VERSION_GM8EAB_00
 inline
 #endif
-const float CPlayerState::CalculateHealth() {
+    const float CPlayerState::CalculateHealth() {
   return (kEnergyTankCapacity * mPowerups[kIT_EnergyTanks].mAmount) + kBaseHealthCapacity;
 }
 
@@ -285,13 +286,13 @@ void CPlayerState::IncrPickUp(EItemType type, int amount) {
 
 #if VERSION == VERSION_GM8EAB_00
   if (amount < 0) {
-    rs_debugger_printf("invalid pickup, taking pickups away is bad, type %i, value %i\n", type, amount);
-  }
-  else
+    rs_debugger_printf("invalid pickup, taking pickups away is bad, type %i, value %i\n", type,
+                       amount);
+  } else
 #else
-  if (0 <= amount) 
+  if (0 <= amount)
 #endif
-{
+  {
     switch (type) {
     case kIT_Missiles:
     case kIT_PowerBombs:
@@ -315,7 +316,7 @@ void CPlayerState::IncrPickUp(EItemType type, int amount) {
     case kIT_Spirit:
     case kIT_Newborn:
 #endif
-{
+    {
       mPowerups[type].Add(amount);
       break;
     }
@@ -477,8 +478,7 @@ float CPlayerState::GetVisorTransitionFactor() const {
 }
 
 bool CPlayerState::GetIsVisorTransitioning() const {
-  return mCurrentVisor != mTransitioningVisor ||
-         kMaxVisorTransitionFactor > mVisorTransitionFactor;
+  return mCurrentVisor != mTransitioningVisor || kMaxVisorTransitionFactor > mVisorTransitionFactor;
 }
 
 bool CPlayerState::HasVisor(EPlayerVisor visor) const {
@@ -504,7 +504,7 @@ void CPlayerState::InitializeScanTimes() {
   if (mScanTimes.size())
     return;
 
-  #if VERSION > VERSION_GM8EAB_00
+#if VERSION > VERSION_GM8EAB_00
   const rstl::vector< CMemoryCard::ScanState >& scanStates = gpMemoryCard->GetScanStates();
   mScanTimes.reserve(scanStates.size());
   for (rstl::vector< CMemoryCard::ScanState >::const_iterator it = scanStates.begin();
@@ -515,7 +515,7 @@ void CPlayerState::InitializeScanTimes() {
     mScanTimes.push_back(rstl::pair< CAssetId, float >(it->first, 0.f));
 #endif
   }
-  #endif
+#endif
 }
 
 const float CPlayerState::GetScanTime(const CAssetId res) const {
@@ -556,7 +556,7 @@ bool CPlayerState::GetIsFusionEnabled() const {
 #if VERSION >= VERSION_R3IJ_00
   return gpTrilogyState->IsGalleryItemActive(64);
 #else
-  return mFusion || false;
+  return mFusion ? true : false;
 #endif
 }
 
@@ -587,9 +587,7 @@ int CPlayerState::CalculateItemCollectionPercentage() const {
   return CalculateItemCollectionRate() * 100 / GetTotalPickupCount();
 }
 
-int CPlayerState::GetMissileCostForAltAttack() const {
-  return kMissileCosts[size_t(mCurrentBeam)];
-}
+int CPlayerState::GetMissileCostForAltAttack() const { return kMissileCosts[size_t(mCurrentBeam)]; }
 
 float CPlayerState::GetComboFireAmmoPeriod() const {
   return kComboAmmoPeriods[size_t(mCurrentBeam)];
