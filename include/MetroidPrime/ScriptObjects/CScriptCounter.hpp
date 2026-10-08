@@ -15,7 +15,11 @@ public:
   ~CScriptCounter();
 
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) override;
+#if VERSION >= VERSION_R3IJ_00
+  DECLARE_TYPES_MATCH;
+#else
   DECLARE_ACCEPT;
+#endif
 };
 
 #endif // _CSCRIPTCOUNTER

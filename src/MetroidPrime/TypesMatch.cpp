@@ -30,6 +30,7 @@
 #include "MetroidPrime/ScriptObjects/CScriptCameraHint.hpp"
 #include "MetroidPrime/ScriptObjects/CScriptCameraPitchVolume.hpp"
 #include "MetroidPrime/ScriptObjects/CScriptCameraWaypoint.hpp"
+#include "MetroidPrime/ScriptObjects/CScriptCounter.hpp"
 #include "MetroidPrime/ScriptObjects/CScriptCoverPoint.hpp"
 #include "MetroidPrime/ScriptObjects/CScriptDebugCameraWaypoint.hpp"
 #include "MetroidPrime/ScriptObjects/CScriptDistanceFog.hpp"
@@ -101,103 +102,111 @@
 #include "MetroidPrime/CCollisionActorManager.hpp"
 #include "WorldFormat/COBBTree.hpp"
 
-#define ID_CEntity 0
-#define ID_CActor 1
-#define ID_CGameCamera 2
-#define ID_CPhysicsActor 3
-#define ID_CWeapon 4
-#define ID_CAi 5
-#define ID_CEffect 6
-#define ID_CPatterned 7
-#define ID_CGameProjectile 8
-#define ID_CBallCamera 9
-#define ID_CBomb 10
-#define ID_CCinematicCamera 11
-#define ID_CCollisionActor 12
-#define ID_CDestroyableRock 13
-#define ID_CEnergyProjectile 14
-#define ID_CExplosion 15
-#define ID_CFirstPersonCamera 16
-#define ID_CFishCloud 17
-#define ID_CGameLight 18
-#define ID_CHUDBillboardEffect 19
-#define ID_CMetroidPrimeRelay 20
-#define ID_CPathCamera 21
-#define ID_CPlayer 22
-#define ID_CRepulsor 23
-#define ID_CScriptActor 24
-#define ID_CScriptActorKeyframe 25
-#define ID_CScriptAiJumpPoint 26
-#define ID_CScriptCameraHint 27
-#define ID_CScriptCameraPitchVolume 28
-#define ID_CScriptCameraWaypoint 29
-#define ID_CScriptCoverPoint 30
-#define ID_CScriptDebugCameraWaypoint 31
-#define ID_CScriptDistanceFog 32
-#define ID_CScriptDock 33
-#define ID_CScriptDoor 34
-#define ID_CScriptEffect 35
-#define ID_CScriptGrapplePoint 36
-#define ID_CScriptGunTurret 37
-#define ID_CScriptMazeNode 38
-#define ID_CScriptPickup 39
-#define ID_CScriptPlatform 40
-#define ID_CScriptPlayerHint 41
-#define ID_CScriptPointOfInterest 42
-#define ID_CScriptRoomAcoustics 43
-#define ID_CScriptSound 44
-#define ID_CScriptSpawnPoint 45
-#define ID_CScriptSpecialFunction 46
-#define ID_CScriptSpiderBallAttractionSurface 47
-#define ID_CScriptSpiderBallWaypoint 48
-#define ID_CScriptTargetingPoint 49
-#define ID_CTeamAiMgr 50
-#define ID_CScriptTimer 51
-#define ID_CScriptTrigger 52
-#define ID_CScriptVisorFlare 53
-#define ID_CScriptWater 54
-#define ID_CScriptWaypoint 55
-#define ID_CSnakeWeedSwarm 56
-#define ID_CScriptSpindleCamera 57
-#define ID_CWallCrawlerSwarm 58
-#define ID_CWallWalker 59
-#define ID_CAtomicAlpha 60
-#define ID_CAtomicBeta 61
-#define ID_CBabygoth 62
-#define ID_CBeetle 63
-#define ID_CBloodFlower 64
-#define ID_CBurrower 65
-#define ID_CChozoGhost 66
-#define ID_CDrone 67
-#define ID_CElitePirate 68
-#define ID_CEnergyBall 69
-#define ID_CEyeBall 70
-#define ID_CFireFlea 71
-#define ID_CFlaahgra 72
-#define ID_CFlaahgraTentacle 73
-#define ID_CFlickerBat 74
-#define ID_CFlyingPirate 75
-#define ID_CIceSheegoth 76
-#define ID_CJellyZap 77
-#define ID_CMagdolite 78
-#define ID_CMetaree 79
-#define ID_CMetroid 80
-#define ID_CMetroidBeta 81
-#define ID_CMetroidPrime 82
-#define ID_CNewIntroBoss 83
-#define ID_CParasite 84
-#define ID_CPuddleSpore 85
-#define ID_CPuddleToadGamma 86
-#define ID_CPuffer 87
-#define ID_CRipper 88
-#define ID_CRidley 89
-#define ID_CSeedling 90
-#define ID_CSpacePirate 91
-#define ID_CSpankWeed 92
-#define ID_CThardus 93
-#define ID_CThardusRockProjectile 94
-#define ID_CTryclops 95
-#define ID_CWarWasp 96
+enum ETypeId {
+  kTI_CEntity,
+  kTI_CActor,
+  kTI_CGameCamera,
+  kTI_CPhysicsActor,
+  kTI_CWeapon,
+  kTI_CAi,
+  kTI_CEffect,
+  kTI_CPatterned,
+  kTI_CGameProjectile,
+  kTI_CBallCamera,
+  kTI_CBomb,
+  kTI_CCinematicCamera,
+  kTI_CCollisionActor,
+  kTI_CDestroyableRock,
+  kTI_CEnergyProjectile,
+  kTI_CExplosion,
+  kTI_CFirstPersonCamera,
+  kTI_CFishCloud,
+  kTI_CGameLight,
+  kTI_CHUDBillboardEffect,
+  kTI_CMetroidPrimeRelay,
+  kTI_CPathCamera,
+  kTI_CPlayer,
+  kTI_CRepulsor,
+  kTI_CScriptActor,
+  kTI_CScriptActorKeyframe,
+  kTI_CScriptAiJumpPoint,
+  kTI_CScriptCameraHint,
+  kTI_CScriptCameraPitchVolume,
+  kTI_CScriptCameraWaypoint,
+#if VERSION >= VERSION_R3IJ_00
+  kTI_CScriptCounter,
+#endif
+  kTI_CScriptCoverPoint,
+  kTI_CScriptDebugCameraWaypoint,
+  kTI_CScriptDistanceFog,
+  kTI_CScriptDock,
+  kTI_CScriptDoor,
+  kTI_CScriptEffect,
+  kTI_CScriptGrapplePoint,
+  kTI_CScriptGunTurret,
+  kTI_CScriptMazeNode,
+  kTI_CScriptPickup,
+  kTI_CScriptPlatform,
+  kTI_CScriptPlayerHint,
+  kTI_CScriptPointOfInterest,
+  kTI_CScriptRoomAcoustics,
+  kTI_CScriptSound,
+  kTI_CScriptSpawnPoint,
+  kTI_CScriptSpecialFunction,
+  kTI_CScriptSpiderBallAttractionSurface,
+  kTI_CScriptSpiderBallWaypoint,
+#if VERSION >= VERSION_R3IJ_00
+  kTI_CScriptStreamedMusic,
+#endif
+  kTI_CScriptTargetingPoint,
+  kTI_CTeamAiMgr,
+  kTI_CScriptTimer,
+  kTI_CScriptTrigger,
+  kTI_CScriptVisorFlare,
+  kTI_CScriptWater,
+  kTI_CScriptWaypoint,
+  kTI_CSnakeWeedSwarm,
+  kTI_CScriptSpindleCamera,
+  kTI_CWallCrawlerSwarm,
+  kTI_CWallWalker,
+  kTI_CAtomicAlpha,
+  kTI_CAtomicBeta,
+  kTI_CBabygoth,
+  kTI_CBeetle,
+  kTI_CBloodFlower,
+  kTI_CBurrower,
+  kTI_CChozoGhost,
+  kTI_CDrone,
+  kTI_CElitePirate,
+  kTI_CEnergyBall,
+  kTI_CEyeBall,
+  kTI_CFireFlea,
+  kTI_CFlaahgra,
+  kTI_CFlaahgraTentacle,
+  kTI_CFlickerBat,
+  kTI_CFlyingPirate,
+  kTI_CIceSheegoth,
+  kTI_CJellyZap,
+  kTI_CMagdolite,
+  kTI_CMetaree,
+  kTI_CMetroid,
+  kTI_CMetroidBeta,
+  kTI_CMetroidPrime,
+  kTI_CNewIntroBoss,
+  kTI_CParasite,
+  kTI_CPuddleSpore,
+  kTI_CPuddleToadGamma,
+  kTI_CPuffer,
+  kTI_CRipper,
+  kTI_CRidley,
+  kTI_CSeedling,
+  kTI_CSpacePirate,
+  kTI_CSpankWeed,
+  kTI_CThardus,
+  kTI_CThardusRockProjectile,
+  kTI_CTryclops,
+  kTI_CWarWasp,
+};
 
 CEntity* TryCast(CEntity* entity, int type) {
   if (entity != nullptr) {
@@ -208,8 +217,8 @@ CEntity* TryCast(CEntity* entity, int type) {
 
 #define TYPES_MATCH_IMPL(CLS, PARENT) \
 CEntity* CLS::TypesMatch(int type) { \
-  if (type == ID_##CLS) return this; \
-  if (type > ID_##CLS) return nullptr; \
+  if (type == kTI_##CLS) return this; \
+  if (type > kTI_##CLS) return nullptr; \
   return PARENT::TypesMatch(type); \
 }
 
@@ -249,6 +258,9 @@ TYPES_MATCH_IMPL(CScriptAiJumpPoint, CActor)
 TYPES_MATCH_IMPL(CScriptCameraHint, CActor)
 TYPES_MATCH_IMPL(CScriptCameraPitchVolume, CActor)
 TYPES_MATCH_IMPL(CScriptCameraWaypoint, CActor)
+#if VERSION >= VERSION_R3IJ_00
+TYPES_MATCH_IMPL(CScriptCounter, CEntity)
+#endif
 TYPES_MATCH_IMPL(CScriptCoverPoint, CActor)
 TYPES_MATCH_IMPL(CScriptDebugCameraWaypoint, CActor)
 TYPES_MATCH_IMPL(CScriptDistanceFog, CEntity)
@@ -320,13 +332,13 @@ TYPES_MATCH_IMPL(CWarWasp, CPatterned)
 #define CAST_TO_PTR_IMPL(CLS) \
 template <> \
 CLS* TCastToPtr< CLS >(CEntity* entity) { \
-  return static_cast< CLS* >(TryCast(entity, ID_##CLS)); \
+  return static_cast< CLS* >(TryCast(entity, kTI_##CLS)); \
 }
 
 #define CAST_TO_REF_IMPL(CLS) \
 template <> \
 CLS* TCastToPtr< CLS >(CEntity& entity) { \
-  return static_cast< CLS* >(entity.TypesMatch(ID_##CLS)); \
+  return static_cast< CLS* >(entity.TypesMatch(kTI_##CLS)); \
 }
 
 CAST_TO_PTR_IMPL(CEntity)
@@ -368,6 +380,10 @@ CAST_TO_PTR_IMPL(CScriptAiJumpPoint)
 CAST_TO_PTR_IMPL(CScriptCameraHint)
 CAST_TO_PTR_IMPL(CScriptCameraPitchVolume)
 CAST_TO_PTR_IMPL(CScriptCameraWaypoint)
+#if VERSION >= VERSION_R3IJ_00
+CAST_TO_REF_IMPL(CScriptCounter)
+CAST_TO_PTR_IMPL(CScriptCounter)
+#endif
 CAST_TO_REF_IMPL(CScriptCoverPoint)
 CAST_TO_PTR_IMPL(CScriptCoverPoint)
 CAST_TO_PTR_IMPL(CScriptDistanceFog)
