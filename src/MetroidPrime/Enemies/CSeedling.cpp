@@ -18,7 +18,11 @@ CSeedling::CSeedling(const TUniqueId uid, const rstl::string& name, const CEntit
                      const CDamageInfo& deathDamage, const float f1, const float f2, const float f3,
                      const float f4)
 : CWallWalker(kC_Seedling, uid, name, kFT_Zero, info, xf, mData, pInfo, kMT_Flyer, kCT_Zero,
-              kBT_WallWalker, actParms, kCS_Small, f3, kWT_Seedling, false, f2, f1, f4)
+              kBT_WallWalker, actParms, kCS_Small, f3, kWT_Seedling, false, f2, f1, f4
+#if VERSION >= VERSION_GM8P_00
+              , 1.f
+#endif
+              )
 , mSearchPath(nullptr, 1, pInfo.GetPathfindingIndex(), 1.f, 1.f)
 , mSpikeData(rs_new CModelData(CStaticRes(needleModel, mData.ScaleCopy())))
 , mProjectileInfo(weaponId, projectileDamage)

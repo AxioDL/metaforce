@@ -45,10 +45,17 @@ CParasite::CParasite(TUniqueId uid, const rstl::string& name, CPatterned::EFlavo
                      bool disableMove, CWallWalker::EType wType, const CDamageVulnerability& dVuln,
                      const CDamageInfo& dInfo, ushort haltSfx, ushort getUpSfx, ushort crouchSfx,
                      CAssetId modelRes, CAssetId skinRes, float iceZoomerJointHP,
+#if VERSION >= VERSION_GM8P_00
+                     float touchBoundsScale,
+#endif
                      const CActorParameters& aParams)
 : CWallWalker(kC_Parasite, uid, name, flavor, info, xf, mData, pInfo, kMT_Flyer, kCT_Zero, bodyType,
               aParams, kCS_Small, collisionCloseMargin, wType, disableMove, alignAngVel,
-              advanceWpRadius, playerObstructionMinDist)
+              advanceWpRadius, playerObstructionMinDist
+#if VERSION >= VERSION_GM8P_00
+              , touchBoundsScale
+#endif
+              )
 , mDoorRepulsors()
 , mStateProgress(-1)
 , x5ec_(0.f, 0.f, 0.f)

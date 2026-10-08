@@ -1832,7 +1832,7 @@ MetroidPrime/Cameras/CInterpolationCamera.cpp:
 
 MetroidPrime/Enemies/CSeedling.cpp:
 	.text       start:0x80256848 end:0x80257954
-	.rodata     start:0x803C1628 end:0x803C1658
+	.rodata     start:0x803C1628 end:0x803C1738
 	.data       start:0x803D32C8 end:0x803D35B0
 	.sdata      start:0x80591490 end:0x80591498
 	.sdata2     start:0x80596AB8 end:0x80596AC8
@@ -1844,7 +1844,7 @@ MetroidPrime/CGameHintInfo.cpp:
 	.sdata2     start:0x80596AC8 end:0x80596AF0
 
 MetroidPrime/Enemies/CWallWalker.cpp:
-	.text       start:0x80258FE8 end:0x80259E80
+	.text       start:0x80258F28 end:0x80259E80
 	.data       start:0x803D35C0 end:0x803D3890
 	.sdata2     start:0x80596AF0 end:0x80596B20
 

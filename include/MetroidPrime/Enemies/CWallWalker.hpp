@@ -24,7 +24,11 @@ public:
               const CActorParameters& actParms, const ECreatureSize kbVariant,
               const float collisionCloseMargin, const EType walkerType, const bool disableMove,
               const float alignAngVel, const float advanceWpRadius,
-              const float playerObstructionMinDist);
+              const float playerObstructionMinDist
+#if VERSION >= VERSION_GM8P_00
+              , const float touchBoundsScale
+#endif
+  );
 
   // CEntity
   ~CWallWalker() override {}
@@ -35,6 +39,9 @@ public:
   // CActor
   void Render(const CStateManager& mgr) const override;
   const CCollisionPrimitive* GetCollisionPrimitive() const override { return &mColSphere; }
+#if VERSION >= VERSION_GM8P_00
+  rstl::optional_object< CAABox > GetTouchBounds() const override;
+#endif
 
   static bool PointOnSurface(const CCollisionSurface& surface, const CVector3f& point);
   static CVector3f ProjectPointToPlane(const CVector3f& point, const CVector3f& planePoint,
@@ -64,7 +71,10 @@ protected:
   bool mDisableMove : 1;
   bool mAddBendingWeight : 1;
   bool mApplyBendingHack : 1;
+#if VERSION >= VERSION_GM8P_00
+  float mTouchBoundsScale;
+#endif
 };
-CHECK_CHILD_SIZEOF(CWallWalker, CPatterned, 0x70)
+CHECK_CHILD_SIZEOF(CWallWalker, CPatterned, VERSION >= VERSION_GM8P_00 ? 0x78 : 0x70)
 
 #endif // _CWALLWALKER

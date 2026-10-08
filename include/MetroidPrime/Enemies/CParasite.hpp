@@ -43,7 +43,11 @@ public:
             float playerObstructionMinDist, float haltDelay, bool disableMove,
             CWallWalker::EType wType, const CDamageVulnerability& dVuln, const CDamageInfo& dInfo,
             ushort haltSfx, ushort getUpSfx, ushort crouchSfx, CAssetId modelRes, CAssetId skinRes,
-            float iceZoomerJointHP, const CActorParameters& aParams);
+            float iceZoomerJointHP,
+#if VERSION >= VERSION_GM8P_00
+            float touchBoundsScale,
+#endif
+            const CActorParameters& aParams);
 
   // CEntity
 #if VERSION < VERSION_GM8P_00
