@@ -2,6 +2,7 @@
 #define _RSTL_SINGLE_PTR
 
 #include "types.h"
+#include "rstl/RstlVersions.h"
 #include "rstl/allocator.hpp"
 
 namespace rstl {
@@ -13,7 +14,15 @@ public:
   single_ptr() : mPtr(nullptr) {}
   single_ptr(T* ptr) : mPtr(ptr) {}
   single_ptr(single_ptr& other) : mPtr(other.mPtr) { other.mPtr = nullptr; }
-  ~single_ptr() { delete mPtr; }
+
+  ~single_ptr() {
+#if RSTL_VERSION >= RSTL_R3IJ
+    delete get();
+#else
+    delete mPtr;
+#endif
+  }
+
   single_ptr& operator=(single_ptr& other) {
     if (&other == this) {
       return *this;
