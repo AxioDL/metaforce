@@ -494,6 +494,7 @@ MetroidPrime/CMemoryDrawEnum.cpp:
 
 MetroidPrime/ScriptObjects/CScriptDock.cpp:
 	.text       start:0x800C3C84 end:0x800C4C10
+	.data       start:0x803E0640 end:0x803E0748
 	.sdata      start:0x805A8308 end:0x805A8318
 	.sdata2     start:0x805ABBF0 end:0x805ABC00
 
