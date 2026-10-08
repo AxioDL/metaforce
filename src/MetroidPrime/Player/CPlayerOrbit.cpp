@@ -1,6 +1,7 @@
 #include "MetroidPrime/Player/CPlayer.hpp"
 
 #include "MetroidPrime/CStateManager.hpp"
+#include "MetroidPrime/CHealthInfo.hpp"
 #include "MetroidPrime/Player/CPlayerGun.hpp"
 #include "MetroidPrime/Player/CGrappleArm.hpp"
 #include "MetroidPrime/TCastTo.hpp"
@@ -58,7 +59,6 @@ bool CPlayer::CheckPostGrapple() const {
 #include "MetroidPrime/CControlMapper.hpp"
 #include "MetroidPrime/CGameArea.hpp"
 #include "MetroidPrime/CWorld.hpp"
-#include "MetroidPrime/CHealthInfo.hpp"
 #include "MetroidPrime/Player/CPlayerCameraBob.hpp"
 #include "MetroidPrime/CGameCollision.hpp"
 #include "Collision/CCollidableAABox.hpp"
@@ -1016,17 +1016,26 @@ TUniqueId CPlayer::FindOrbitTargetId(CStateManager& mgr) {
   return FindBestOrbitableObject(mOnScreenOrbitObjects, mOrbitZoneMode, mgr);
 }
 
-#if VERSION < VERSION_R3IJ_00
-
 TUniqueId CPlayer::CheckEnemiesAgainstOrbitZone(const rstl::reserved_vector< TUniqueId, 1024 >& ids,
                                                 EPlayerZoneInfo zone, EPlayerZoneType type,
                                                 CStateManager& mgr) const {
+  const CVector3f position = GetTranslation();
   const CVector3f eyePosition = GetEyePosition();
   CVector3f forward = GetTransform().GetForward();
   forward.Normalize();
   float minDistance = 10000.f;
   float minScreenDistanceSq = 10000.f;
   TUniqueId bestId = kInvalidUniqueId;
+#if VERSION >= VERSION_R3IJ_00
+  const int viewportWidth = CGraphics::GetViewportWidth();
+  const float idealX = static_cast< float >(gpTweakPlayer->GetOrbitZoneCentreX(zone, mgr));
+  float boxLeft = idealX - static_cast< float >(viewportWidth / 2);
+  boxLeft /= static_cast< float >(CGraphics::GetViewportWidth() / 2);
+  const int viewportHeight = CGraphics::GetViewportHeight();
+  const float idealY = static_cast< float >(gpTweakPlayer->GetOrbitZoneCentreY(zone, mgr));
+  float boxTop = idealY - static_cast< float >(viewportHeight / 2);
+  boxTop /= static_cast< float >(CGraphics::GetViewportHeight() / 2);
+#else
   const int viewportHalfX = CGraphics::GetViewportWidth() / 2;
   const int idealX = gpTweakPlayer->GetOrbitZoneIdealX(zone);
   const int viewportHalfY = CGraphics::GetViewportHeight() / 2;
@@ -1035,46 +1044,29 @@ TUniqueId CPlayer::CheckEnemiesAgainstOrbitZone(const rstl::reserved_vector< TUn
   boxLeft /= CCast::LtoF(viewportHalfX);
   float boxTop = CCast::LtoF(idealY) - CCast::LtoF(viewportHalfY);
   boxTop /= CCast::LtoF(viewportHalfY);
+#endif
   const CFirstPersonCamera* const fpCamera = mgr.GetCameraManager()->GetFirstPersonCamera();
   for (AUTO(it, ids.begin()); it != ids.end(); ++it) {
     const CActor* act = static_cast< const CActor* >(mgr.GetObjectById(*it));
-    if (act && act->GetUniqueId() != GetUniqueId() &&
-        ValidateObjectForMode(act->GetUniqueId(), mgr)) {
-      const CVector3f aimPosition = act->GetAimPosition(mgr, 0.f);
-      CVector3f positionInBox = fpCamera->ConvertToScreenSpace(aimPosition);
-      positionInBox.SetX(positionInBox.GetX() * CCast::LtoF(CGraphics::GetViewportWidth()) / 2.f +
-                         CCast::LtoF(CGraphics::GetViewportWidth()) / 2.f);
-      positionInBox.SetY(positionInBox.GetY() * CCast::LtoF(CGraphics::GetViewportHeight()) / 2.f +
-                         CCast::LtoF(CGraphics::GetViewportHeight()) / 2.f);
-      if (WithinOrbitScreenBox(positionInBox, zone, type)) {
-        CVector3f eyeToAim = aimPosition - eyePosition;
-        const float distance = eyeToAim.Magnitude();
-        if (distance <= gpTweakPlayer->GetAimMaxDistance()) {
-          if (minDistance - distance > gpTweakPlayer->GetAimThresholdDistance()) {
-            TEntityList nearList;
-            TUniqueId intersectId = kInvalidUniqueId;
-            mgr.BuildNearList(nearList, eyePosition, eyeToAim.Normalize(), distance,
-                              kOccluderFilter, act);
-            const CRayCastResult result =
-                mgr.RayWorldIntersection(intersectId, eyePosition, eyeToAim.Normalize(), distance,
-                                         kLineOfSightFilter, nearList);
-            if (result.IsInvalid()) {
-              bestId = act->GetUniqueId();
-              const float screenX = positionInBox.GetX() - boxLeft;
-              const float screenY = positionInBox.GetY() - boxTop;
-              const float screenXSq = screenX * screenX;
-              const float screenYSq = screenY * screenY;
-              minDistance = distance;
-              minScreenDistanceSq = screenXSq + screenYSq;
-            }
-          } else if (CMath::AbsF(distance - minDistance) <
-                     gpTweakPlayer->GetAimThresholdDistance()) {
-            const float screenX = positionInBox.GetX() - boxLeft;
-            const float screenY = positionInBox.GetY() - boxTop;
-            const float screenXSq = screenX * screenX;
-            const float screenYSq = screenY * screenY;
-            const float screenDistanceSq = screenXSq + screenYSq;
-            if (screenDistanceSq < minScreenDistanceSq) {
+    if (act && act->GetUniqueId() != GetUniqueId()) {
+      if (ValidateObjectForMode(act->GetUniqueId(), mgr)) {
+        const CVector3f aimPosition = act->GetAimPosition(mgr, 0.f);
+        CVector3f positionInBox = fpCamera->ConvertToScreenSpace(aimPosition);
+        positionInBox.SetX(positionInBox.GetX() *
+                               static_cast< float >(CGraphics::GetViewportWidth()) / 2.f +
+                           static_cast< float >(CGraphics::GetViewportWidth()) / 2.f);
+        positionInBox.SetY(positionInBox.GetY() *
+                               static_cast< float >(CGraphics::GetViewportHeight()) / 2.f +
+                           static_cast< float >(CGraphics::GetViewportHeight()) / 2.f);
+#if VERSION >= VERSION_R3IJ_00
+        if (WithinOrbitScreenBox(positionInBox, zone, type, mgr)) {
+#else
+        if (WithinOrbitScreenBox(positionInBox, zone, type)) {
+#endif
+          CVector3f eyeToAim = aimPosition - eyePosition;
+          const float distance = eyeToAim.Magnitude();
+          if (distance <= gpTweakPlayer->GetAimMaxDistance()) {
+            if (minDistance - distance > gpTweakPlayer->GetAimThresholdDistance()) {
               TEntityList nearList;
               TUniqueId intersectId = kInvalidUniqueId;
               mgr.BuildNearList(nearList, eyePosition, eyeToAim.Normalize(), distance,
@@ -1084,8 +1076,29 @@ TUniqueId CPlayer::CheckEnemiesAgainstOrbitZone(const rstl::reserved_vector< TUn
                                            kLineOfSightFilter, nearList);
               if (result.IsInvalid()) {
                 bestId = act->GetUniqueId();
-                minScreenDistanceSq = screenDistanceSq;
                 minDistance = distance;
+                minScreenDistanceSq =
+                    (positionInBox.GetX() - boxLeft) * (positionInBox.GetX() - boxLeft) +
+                    (positionInBox.GetY() - boxTop) * (positionInBox.GetY() - boxTop);
+              }
+            } else if (CMath::AbsF(distance - minDistance) <
+                       gpTweakPlayer->GetAimThresholdDistance()) {
+              const float screenDistanceSq =
+                  (positionInBox.GetX() - boxLeft) * (positionInBox.GetX() - boxLeft) +
+                  (positionInBox.GetY() - boxTop) * (positionInBox.GetY() - boxTop);
+              if (screenDistanceSq < minScreenDistanceSq) {
+                TEntityList nearList;
+                TUniqueId intersectId = kInvalidUniqueId;
+                mgr.BuildNearList(nearList, eyePosition, eyeToAim.Normalize(), distance,
+                                  kOccluderFilter, act);
+                const CRayCastResult result =
+                    mgr.RayWorldIntersection(intersectId, eyePosition, eyeToAim.Normalize(),
+                                             distance, kLineOfSightFilter, nearList);
+                if (result.IsInvalid()) {
+                  bestId = act->GetUniqueId();
+                  minScreenDistanceSq = screenDistanceSq;
+                  minDistance = distance;
+                }
               }
             }
           }
@@ -1175,37 +1188,46 @@ bool CPlayer::ValidateAimTargetId(const TUniqueId id, CStateManager& mgr) {
     }
     return true;
   }
-  if (act->GetMaterialList().HasMaterial(kMT_Target) && id != kInvalidUniqueId &&
-      ValidateObjectForMode(id, mgr)) {
-    const CVector3f aimPosition = act->GetAimPosition(mgr, 0.f);
-    const CVector3f eyePosition = GetEyePosition();
-    CVector3f eyeToAim = aimPosition - eyePosition;
-    const CVector3f screenPosition =
-        mgr.GetCameraManager()->GetFirstPersonCamera()->ConvertToScreenSpace(aimPosition);
-    CVector3f positionInBox = screenPosition;
-    positionInBox.SetX(positionInBox.GetX() * CCast::LtoF(CGraphics::GetViewportWidth()) / 2.f +
-                       CCast::LtoF(CGraphics::GetViewportWidth()) / 2.f);
-    positionInBox.SetY(positionInBox.GetY() * CCast::LtoF(CGraphics::GetViewportHeight()) / 2.f +
-                       CCast::LtoF(CGraphics::GetViewportHeight()) / 2.f);
-    if (WithinOrbitScreenBox(positionInBox, mOrbitZoneMode, mOrbitZoneType) ||
-        (mOrbitZoneMode != kZI_Targeting &&
-         WithinOrbitScreenBox(positionInBox, kZI_Targeting, mOrbitZoneType))) {
-      const float distance = eyeToAim.Magnitude();
-      if (distance <= gpTweakPlayer->GetAimMaxDistance()) {
-        TEntityList nearList;
-        TUniqueId intersectId = kInvalidUniqueId;
-        mgr.BuildNearList(nearList, eyePosition, eyeToAim.Normalize(), distance, kOccluderFilter,
-                          nullptr);
-        const CRayCastResult result = mgr.RayWorldIntersection(
-            intersectId, eyePosition, eyeToAim.Normalize(), distance, kLineOfSightFilter, nearList);
-        if (result.IsInvalid()) {
-          mAimTargetTimer = gpTweakPlayer->GetAimTargetTimer();
-          return true;
+  if (act->GetMaterialList().HasMaterial(kMT_Target) && id != kInvalidUniqueId) {
+    if (ValidateObjectForMode(id, mgr)) {
+      const CVector3f aimPosition = act->GetAimPosition(mgr, 0.f);
+      const CVector3f eyePosition = GetEyePosition();
+      CVector3f eyeToAim = aimPosition - eyePosition;
+      CVector3f positionInBox =
+          mgr.GetCameraManager()->GetFirstPersonCamera()->ConvertToScreenSpace(aimPosition);
+      positionInBox.SetX(positionInBox.GetX() *
+                             static_cast< float >(CGraphics::GetViewportWidth()) / 2.f +
+                         static_cast< float >(CGraphics::GetViewportWidth()) / 2.f);
+      positionInBox.SetY(positionInBox.GetY() *
+                             static_cast< float >(CGraphics::GetViewportHeight()) / 2.f +
+                         static_cast< float >(CGraphics::GetViewportHeight()) / 2.f);
+#if VERSION >= VERSION_R3IJ_00
+      if (WithinOrbitScreenBox(positionInBox, mOrbitZoneMode, mOrbitZoneType, mgr) ||
+          (mOrbitZoneMode != kZI_Targeting &&
+           WithinOrbitScreenBox(positionInBox, kZI_Targeting, mOrbitZoneType, mgr))) {
+#else
+      if (WithinOrbitScreenBox(positionInBox, mOrbitZoneMode, mOrbitZoneType) ||
+          (mOrbitZoneMode != kZI_Targeting &&
+           WithinOrbitScreenBox(positionInBox, kZI_Targeting, mOrbitZoneType))) {
+#endif
+        const float distance = eyeToAim.Magnitude();
+        if (distance <= gpTweakPlayer->GetAimMaxDistance()) {
+          TEntityList nearList;
+          TUniqueId intersectId = kInvalidUniqueId;
+          mgr.BuildNearList(nearList, eyePosition, eyeToAim.Normalize(), distance, kOccluderFilter,
+                            nullptr);
+          const CRayCastResult result =
+              mgr.RayWorldIntersection(intersectId, eyePosition, eyeToAim.Normalize(), distance,
+                                       kLineOfSightFilter, nearList);
+          if (result.IsInvalid()) {
+            mAimTargetTimer = gpTweakPlayer->GetAimTargetTimer();
+            return true;
+          }
         }
       }
-    }
-    if (mAimTargetTimer > 0.f) {
-      return true;
+      if (mAimTargetTimer > 0.f) {
+        return true;
+      }
     }
   }
   SetAimTargetId(kInvalidUniqueId);
@@ -1214,10 +1236,7 @@ bool CPlayer::ValidateAimTargetId(const TUniqueId id, CStateManager& mgr) {
 }
 
 void CPlayer::UpdateAimTargetTimer(float dt) {
-  if (GetAimTargetId() == kInvalidUniqueId) {
-    return;
-  }
-  if (mAimTargetTimer > 0.f) {
+  if (GetAimTargetId() != kInvalidUniqueId && mAimTargetTimer > 0.f) {
     mAimTargetTimer -= dt;
   }
 }
@@ -1246,7 +1265,9 @@ void CPlayer::UpdateAimTarget(CStateManager& mgr) {
   if (act && !act->GetMaterialList().HasMaterial(kMT_Target)) {
     act = nullptr;
   }
+#if VERSION < VERSION_R3IJ_00
   if (gpTweakPlayer->GetAimWhenOrbitingPoint()) {
+#endif
     switch (mOrbitState) {
     case kOS_OrbitObject:
     case kOS_ForcedOrbitObject:
@@ -1260,17 +1281,23 @@ void CPlayer::UpdateAimTarget(CStateManager& mgr) {
       needsReset = true;
       break;
     }
+#if VERSION < VERSION_R3IJ_00
   } else if (mOrbitState == kOS_NoOrbit) {
     needsReset = true;
   }
-  if (needsReset && !ValidateAimTargetId(GetAimTargetId(), mgr)) {
-    if (act && ValidateObjectForMode(GetAimTargetId(), mgr)) {
-      SetAimTargetId(kInvalidUniqueId);
-    } else {
-      SetAimTargetId(FindAimTargetId(mgr));
+#endif
+  if (needsReset) {
+    if (!ValidateAimTargetId(GetAimTargetId(), mgr)) {
+      if (act && ValidateObjectForMode(GetAimTargetId(), mgr)) {
+        SetAimTargetId(kInvalidUniqueId);
+      } else {
+        SetAimTargetId(FindAimTargetId(mgr));
+      }
     }
   }
 }
+
+#if VERSION < VERSION_R3IJ_00
 
 void CPlayer::SetOrbitPosition(float distance, CStateManager& mgr) {
   CTransform4f cameraXf = GetFirstPersonCameraTransform(mgr);
