@@ -17,9 +17,9 @@ const EWeaponCollisionResponseTypes CCollisionResponseData::skWorldMaterialTable
 CCollisionResponseData::CCollisionResponseData(CInputStream& in, CSimplePool* sp)
 : mAudibleRange(50.f), mAudibleFallOff(0.2f) {
   bool done = false;
-  mGeneratorTokens.assign(94);
-  mSoundEffectIds.assign(94, kInvalidSFX);
-  mDecalTokens.assign(94);
+  mGeneratorTokens.assign(kWCR_Count);
+  mSoundEffectIds.assign(kWCR_Count, kInvalidSFX);
+  mDecalTokens.assign(kWCR_Count);
 
   if (CParticleDataFactory::GetClassID(in) != 'CRSM') {
     return;
@@ -77,11 +77,21 @@ bool CCollisionResponseData::CheckAndAddParticleSystemToResponse(const FourCC cl
       '1SAN', '1PRJ', 'DCHR', 'DCHS', 'DCSH', 'DENM', 'DESP', 'DESH', 'BTLE', 'WASP', 'TALP',
       'PTGM', 'SPIR', 'FPIR', 'FFLE', 'PARA', 'BMON', 'BFLR', 'PBOS', 'IBOS', '1SVA', '1RPR',
       '1MTR', '1PDS', '1FLB', '1DRN', '1MRE', 'CHOZ', 'JZAP', '1ISE', '1BSE', '1ATB', '1ATA',
+#if VERSION >= VERSION_GM8P_00
+      '1MPR',
+#endif
       'BTSP', 'WWSP', 'TASP', 'TGSP', 'SPSP', 'FPSP', 'FFSP', 'PSSP', 'BMSP', 'BFSP', 'PBSP',
       'IBSP', '2SVA', '2RPR', '2MTR', '2PDS', '2FLB', '2DRN', '2MRE', 'CHSP', 'JZSP', '3ISE',
-      '3BSE', '3ATB', '3ATA', 'BTSH', 'WWSH', 'TASH', 'TGSH', 'SPSH', 'FPSH', 'FFSH', 'PSSH',
+      '3BSE', '3ATB', '3ATA',
+#if VERSION >= VERSION_GM8P_00
+      '3MPR',
+#endif
+      'BTSH', 'WWSH', 'TASH', 'TGSH', 'SPSH', 'FPSH', 'FFSH', 'PSSH',
       'BMSH', 'BFSH', 'PBSH', 'IBSH', '3SVA', '3RPR', '3MTR', '3PDS', '3FLB', '3DRN', '3MRE',
       'CHSH', 'JZSH', '5ISE', '5BSE', '5ATB', '5ATA',
+#if VERSION >= VERSION_GM8P_00
+      '5MPR',
+#endif
   };
 
   for (int i = 0; i < ARRAY_SIZE(kWCRTIDs); i++) {
@@ -101,11 +111,21 @@ bool CCollisionResponseData::CheckAndAddSoundFXToResponse(const FourCC clsId, CI
       '2SAN', '2PRJ', 'DCFX', 'DSFX', 'DSHX', 'DEFX', 'ESFX', 'SHFX', 'BEFX', 'WWFX', 'TAFX',
       'GTFX', 'SPFX', 'FPFX', 'FFFX', 'PAFX', 'BMFX', 'BFFX', 'PBFX', 'IBFX', '4SVA', '4RPR',
       '4MTR', '4PDS', '4FLB', '4DRN', '4MRE', 'CZFX', 'JZAS', '2ISE', '2BSE', '2ATB', '2ATA',
+#if VERSION >= VERSION_GM8P_00
+      '2MPR',
+#endif
       'BSFX', 'WSFX', 'TSFX', 'GSFX', 'SSFX', 'FSFX', 'SFFX', 'PSFX', 'MSFX', 'SBFX', 'PBSX',
       'IBSX', '5SVA', '5RPR', '5MTR', '5PDS', '5FLB', '5DRN', '5MRE', 'CSFX', 'JZPS', '4ISE',
-      '4BSE', '4ATB', '4ATA', 'BHFX', 'WHFX', 'THFX', 'GHFX', 'SHFX', 'FHFX', 'HFFX', 'PHFX',
+      '4BSE', '4ATB', '4ATA',
+#if VERSION >= VERSION_GM8P_00
+      '4MPR',
+#endif
+      'BHFX', 'WHFX', 'THFX', 'GHFX', 'SHFX', 'FHFX', 'HFFX', 'PHFX',
       'MHFX', 'HBFX', 'PBHX', 'IBHX', '6SVA', '6RPR', '6MTR', '6PDS', '6FLB', '6DRN', '6MRE',
       'CHFX', 'JZHS', '6ISE', '6BSE', '6ATB', '6ATA',
+#if VERSION >= VERSION_GM8P_00
+      '6MPR',
+#endif
   };
 
   for (int i = 0; i < ARRAY_SIZE(kCRTSFXIDs); i++) {
@@ -218,7 +238,11 @@ CCollisionResponseData::GetDecalDescription(const EWeaponCollisionResponseTypes 
 }
 
 bool CCollisionResponseData::ResponseTypeIsEnemyShielded(const EWeaponCollisionResponseTypes type) {
+#if VERSION >= VERSION_GM8P_00
+  if (type >= kWCR_Unknown69 && type <= kWCR_MetroidPrimeReflect) {
+#else
   if (type >= kWCR_Unknown69 && type <= kWCR_AtomicAlphaReflect) {
+#endif
     return true;
   }
   
@@ -226,7 +250,11 @@ bool CCollisionResponseData::ResponseTypeIsEnemyShielded(const EWeaponCollisionR
 }
 
 bool CCollisionResponseData::ResponseTypeIsEnemyNormal(const EWeaponCollisionResponseTypes type) {
+#if VERSION >= VERSION_GM8P_00
+  if (type >= kWCR_Unknown19 && type <= kWCR_MetroidPrime) {
+#else
   if (type >= kWCR_Unknown19 && type <= kWCR_AtomicAlpha) {
+#endif
     return true;
   }
   
@@ -234,7 +262,11 @@ bool CCollisionResponseData::ResponseTypeIsEnemyNormal(const EWeaponCollisionRes
 }
 
 bool CCollisionResponseData::ResponseTypeIsEnemySpecial(const EWeaponCollisionResponseTypes type) {
+#if VERSION >= VERSION_GM8P_00
+  if (type >= kWCR_Unknown44 && type <= kWCR_MetroidPrimeSpecial) {
+#else
   if (type >= kWCR_Unknown44 && type <= kWCR_Unknown68) {
+#endif
     return true;
   }
   

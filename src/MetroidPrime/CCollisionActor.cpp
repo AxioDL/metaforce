@@ -166,6 +166,9 @@ void CCollisionActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender
   case kSM_Touched:
   case kSM_Damage:
   case kSM_InvulnDamage:
+#if VERSION >= VERSION_GM8P_00
+  case kSM_Deflected:
+#endif
     if (CEntity* ent = mgr.ObjectById(mOwner)) {
       mLastTouched = sender;
       mgr.DeliverScriptMsg(ent, GetUniqueId(), msg);

@@ -13,10 +13,12 @@ void CLineInstruction::Invoke(CFontRenderState& state, CTextRenderBuffer* buf) c
 }
 
 void CLineInstruction::PageInvoke(CFontRenderState& state, CTextRenderBuffer* buf) const {
+#if VERSION < VERSION_GM8P_00
   if (state.GetLine() != nullptr) {
     return;
   }
   Invoke(state, buf);
+#endif
 }
 
 void CLineInstruction::InvokeTTB(CFontRenderState& state) const {

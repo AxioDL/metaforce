@@ -747,7 +747,7 @@ config.libs = [
                 MatchingFor(*NTSC_GC_VERSIONS), "MetroidPrime/CGameLight.cpp"
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02", "GM8P01_00"),
                 "MetroidPrime/Tweaks/CTweakTargeting.cpp",
             ),
             Object(
@@ -775,7 +775,7 @@ config.libs = [
                 cflags=cflags_retro,
             ),
             Object(
-                MatchingFor("GM8EAB_00", *NTSC_GC_VERSIONS),
+                MatchingFor("GM8EAB_00", *NTSC_GC_VERSIONS, "GM8P01_00"),
                 "MetroidPrime/ScriptObjects/CScriptPickup.cpp",
             ),
             Object(MatchingFor(*NTSC_GC_VERSIONS, "GM8P01_00", "GM8J01_00"), "MetroidPrime/CDamageInfo.cpp"),
@@ -1251,7 +1251,7 @@ config.libs = [
                 MatchingFor(*NTSC_GC_VERSIONS),
                 "MetroidPrime/ScriptObjects/CScriptVisorGoo.cpp",
             ),
-            Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02"), "MetroidPrime/Enemies/CJellyZap.cpp"),
+            Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02", "GM8P01_00"), "MetroidPrime/Enemies/CJellyZap.cpp"),
             Object(
                 MatchingFor(*NTSC_GC_VERSIONS, "GM8P01_00", "GM8J01_00"),
                 "MetroidPrime/ScriptObjects/CScriptControllerAction.cpp",
@@ -1350,7 +1350,7 @@ config.libs = [
                 cflags=cflags_retro,
             ),
             Object(NonMatching, "MetroidPrime/Enemies/CBabygoth.cpp"),
-            Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02"), "MetroidPrime/Enemies/CEyeBall.cpp"),
+            Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02", "GM8P01_00"), "MetroidPrime/Enemies/CEyeBall.cpp"),
             Object(
                 MatchingFor(*NTSC_GC_VERSIONS), "MetroidPrime/CIkChain.cpp"
             ),
@@ -1417,8 +1417,8 @@ config.libs = [
             ),
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02"), "MetroidPrime/CMemoryCardDriver.cpp"),
             Object(EquivalentFor("GM8E01_00"), "MetroidPrime/CSaveGameScreen.cpp"),
-            Object(MatchingFor(*NTSC_GC_VERSIONS), "MetroidPrime/Enemies/CAtomicBeta.cpp"),
-            Object(MatchingFor(*NTSC_GC_VERSIONS),
+            Object(MatchingFor(*NTSC_GC_VERSIONS, "GM8P01_00"), "MetroidPrime/Enemies/CAtomicBeta.cpp"),
+            Object(MatchingFor(*NTSC_GC_VERSIONS, "GM8P01_00"),
                    "MetroidPrime/Weapons/CElectricBeamProjectile.cpp"),
             Object(
                 NonMatching,
@@ -1468,7 +1468,7 @@ config.libs = [
             Object(NonMatching, "MetroidPrime/Enemies/COmegaPirate.cpp"),
             Object(MatchingFor(*NTSC_GC_VERSIONS, "GM8P01_00"), "MetroidPrime/Enemies/CScriptPhazonPool.cpp"),
             Object(MatchingFor(*NTSC_GC_VERSIONS), "MetroidPrime/CNESEmulator.cpp"),
-            Object(MatchingFor(*NTSC_GC_VERSIONS), "MetroidPrime/Enemies/CPhazonHealingNodule.cpp"),
+            Object(MatchingFor(*NTSC_GC_VERSIONS, "GM8P01_00"), "MetroidPrime/Enemies/CPhazonHealingNodule.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02"), "MetroidPrime/Player/CMorphBallShadow.cpp"),
             Object(
                 MatchingFor(*NTSC_GC_VERSIONS, "R3ME01_00"),
@@ -1557,8 +1557,8 @@ config.libs = [
                     else []
                 ),
             ),
-            Object(MatchingFor("GM8E01_00", "GM8E01_48", "GM8E01_02"), "Weapons/CProjectileWeaponDataFactory.cpp"),
-            Object(MatchingFor(*NTSC_GC_VERSIONS), "Weapons/CCollisionResponseData.cpp"),
+            Object(MatchingFor("GM8E01_00", "GM8E01_48", "GM8E01_02", "GM8P01_00"), "Weapons/CProjectileWeaponDataFactory.cpp"),
+            Object(MatchingFor(*NTSC_GC_VERSIONS, "GM8P01_00"), "Weapons/CCollisionResponseData.cpp"),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02", "GM8P01_00", "GM8J01_00"), "Weapons/IWeaponRenderer.cpp"
             ),
@@ -2055,7 +2055,7 @@ config.libs = [
             ),
             Object(NonMatching, "Kyoto/Particles/CParticleSwoosh.cpp"),
             Object(
-                MatchingFor(*NTSC_GC_VERSIONS),
+                MatchingFor(*NTSC_GC_VERSIONS, "GM8P01_00"),
                 "Kyoto/Particles/CParticleSwooshDataFactory.cpp"
                 ,
             ),

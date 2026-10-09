@@ -12,7 +12,8 @@ const CFactoryFnReturn FProjectileWeaponDataFactory(const SObjectTag& tag, CInpu
                                                     const CVParamTransfer& xfer) {
   rstl::rc_ptr< IVParamObj > obj = xfer.mObj;
   CSimplePool* pool = static_cast< TObjOwnerParam< CSimplePool* >* >(obj.GetPtr())->GetData();
-  return CProjectileWeaponDataFactory::GetGeneratorDesc(in, pool);
+  CWeaponDescription* desc = CProjectileWeaponDataFactory::GetGeneratorDesc(in, pool);
+  return desc;
 }
 
 static void hack() {
