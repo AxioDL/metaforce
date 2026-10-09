@@ -673,15 +673,15 @@ config.libs = [
                    if version_num == VERSIONS.index("GM8E01_02")
                    else [],
                    ),
-            Object(MatchingFor(*NTSC_GC_VERSIONS), "MetroidPrime/ScriptObjects/CScriptDoor.cpp"),
+            Object(MatchingFor(*NTSC_GC_VERSIONS, "GM8P01_00"), "MetroidPrime/ScriptObjects/CScriptDoor.cpp"),
             Object(EquivalentFor("GM8E01_00"), "MetroidPrime/Enemies/CStateMachine.cpp"),
-            Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02"), "MetroidPrime/CMapArea.cpp"),
+            Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02", "GM8P01_00"), "MetroidPrime/CMapArea.cpp"),
             Object(NonMatching, "MetroidPrime/Cameras/CBallCamera.cpp"),
             Object(
-                MatchingFor(*NTSC_GC_VERSIONS),
+                MatchingFor(*NTSC_GC_VERSIONS, "GM8P01_00"),
                 "MetroidPrime/ScriptObjects/CScriptEffect.cpp",
             ),
-            Object(MatchingFor("GM8EAB_00", "GM8E01_00", "GM8E01_01", "GM8E01_02"), "MetroidPrime/Weapons/CBomb.cpp"),
+            Object(MatchingFor("GM8EAB_00", "GM8E01_00", "GM8E01_01", "GM8E01_02", "GM8P01_00"), "MetroidPrime/Weapons/CBomb.cpp"),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02", "GM8P01_00", "GM8J01_00"),
                 "MetroidPrime/Tweaks/CTweakBall.cpp",
@@ -784,7 +784,7 @@ config.libs = [
                 "MetroidPrime/CMemoryDrawEnum.cpp",
             ),
             Object(MatchingFor(*NTSC_GC_VERSIONS), "MetroidPrime/ScriptObjects/CScriptDock.cpp"),
-            Object(MatchingFor("GM8E01_00", "GM8E01_48", "GM8E01_02"),
+            Object(MatchingFor("GM8E01_00", "GM8E01_48", "GM8E01_02", "GM8P01_00"),
                    "MetroidPrime/ScriptObjects/CScriptCameraHint.cpp"),
             Object(NonMatching, "MetroidPrime/ScriptLoader.cpp"),
             Object(NonMatching, "MetroidPrime/CSamusDoll.cpp"),
@@ -867,7 +867,7 @@ config.libs = [
             ),
             Object(NonMatching, "MetroidPrime/ScriptObjects/CScriptWater.cpp"),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02", "GM8P01_00"),
                 "MetroidPrime/Weapons/CWeapon.cpp",
             ),
             Object(MatchingFor(*NTSC_GC_VERSIONS), "MetroidPrime/CDamageVulnerability.cpp"),
@@ -942,7 +942,7 @@ config.libs = [
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02", "GM8P01_00", "GM8J01_00"),
                 "MetroidPrime/ScriptObjects/CHUDBillboardEffect.cpp",
             ),
-            Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02"), "MetroidPrime/Enemies/CFlickerBat.cpp"),
+            Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02", "GM8P01_00"), "MetroidPrime/Enemies/CFlickerBat.cpp"),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02", "GM8P01_00", "GM8J01_00"),
                 "MetroidPrime/BodyState/CBodyStateCmdMgr.cpp",
@@ -1048,7 +1048,7 @@ config.libs = [
                 "MetroidPrime/BodyState/CBSProjectileAttack.cpp",
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02", "GM8P01_00"),
                 "MetroidPrime/Weapons/CPowerBomb.cpp",
             ),
             Object(MatchingFor(*NTSC_GC_VERSIONS), "MetroidPrime/Enemies/CMetaree.cpp"),
@@ -1113,7 +1113,7 @@ config.libs = [
                 "MetroidPrime/BodyState/CBSCover.cpp",
             ),
             Object(
-                MatchingFor(*NTSC_GC_VERSIONS),
+                MatchingFor(*NTSC_GC_VERSIONS, "GM8P01_00"),
                 "MetroidPrime/ScriptObjects/CScriptBallTrigger.cpp",
             ),
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02"), "MetroidPrime/Weapons/CPlasmaProjectile.cpp"),
@@ -1140,7 +1140,7 @@ config.libs = [
             ),
             Object(EquivalentFor("GM8E01_00") or MatchingFor("GM8P01_00", "GM8J01_00"), "MetroidPrime/BodyState/CBSWallHang.cpp"),
             Object(
-                MatchingFor(*NTSC_GC_VERSIONS),
+                MatchingFor(*NTSC_GC_VERSIONS, "GM8P01_00"),
                 "MetroidPrime/ScriptObjects/CScriptEMPulse.cpp",
             ),
             Object(MatchingFor(*NTSC_GC_VERSIONS), "MetroidPrime/HUD/CHudEnergyInterface.cpp"),
@@ -1160,7 +1160,7 @@ config.libs = [
                 NonMatching,
                 "MetroidPrime/Weapons/CFlameThrower.cpp",
             ),
-            Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02"), "MetroidPrime/Weapons/CBeamProjectile.cpp"),
+            Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02", "GM8P01_00"), "MetroidPrime/Weapons/CBeamProjectile.cpp"),
             Object(NonMatching, "MetroidPrime/CFluidPlaneCPU.cpp"),
             Object(
                 MatchingFor("GM8EAB_00"),
@@ -1228,7 +1228,7 @@ config.libs = [
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02", "GM8P01_00", "GM8J01_00"),
                 "MetroidPrime/Tweaks/CTweakGuiColors.cpp",
             ),
-            Object(MatchingFor(*NTSC_GC_VERSIONS), "MetroidPrime/ScriptObjects/CFishCloud.cpp"),
+            Object(MatchingFor(*NTSC_GC_VERSIONS, "GM8P01_00"), "MetroidPrime/ScriptObjects/CFishCloud.cpp"),
             Object(
                 MatchingFor("GM8EAB_00", "GM8E01_00", "GM8E01_01", "GM8E01_02", "GM8P01_00", "GM8J01_00"), "MetroidPrime/CHealthInfo.cpp"
             ),
@@ -1283,7 +1283,7 @@ config.libs = [
                 "MetroidPrime/ScriptObjects/CScriptAiJumpPoint.cpp",
             ),
             Object(MatchingFor(*NTSC_GC_VERSIONS), "MetroidPrime/CMessageScreen.cpp"),
-            Object(MatchingFor(*NTSC_GC_VERSIONS), "MetroidPrime/Enemies/CFlaahgraTentacle.cpp"),
+            Object(MatchingFor(*NTSC_GC_VERSIONS, "GM8P01_00"), "MetroidPrime/Enemies/CFlaahgraTentacle.cpp"),
             Object(
                 MatchingFor(*NTSC_GC_VERSIONS, "GM8P01_00", "GM8J01_00"),
                 "MetroidPrime/Weapons/GunController/CGSFidget.cpp",
@@ -1303,12 +1303,12 @@ config.libs = [
                 "MetroidPrime/ScriptObjects/CScriptColorModulate.cpp",
             ),
             Object(NonMatching, "MetroidPrime/CMapUniverse.cpp"),
-            Object(MatchingFor(*NTSC_GC_VERSIONS),
+            Object(MatchingFor(*NTSC_GC_VERSIONS, "GM8P01_00"),
                    "MetroidPrime/Enemies/CThardusRockProjectile.cpp"),
             Object(MatchingFor(*NTSC_GC_VERSIONS), "MetroidPrime/CInventoryScreen.cpp"),
             Object(MatchingFor("GM8EAB_00", *NTSC_GC_VERSIONS), "MetroidPrime/CVisorFlare.cpp"),
             Object(
-                MatchingFor(*NTSC_GC_VERSIONS),
+                MatchingFor(*NTSC_GC_VERSIONS, "GM8P01_00"),
                 "MetroidPrime/Enemies/CFlaahgraPlants.cpp",
             ),
             Object(
@@ -1330,7 +1330,7 @@ config.libs = [
                 else [],
             ),
             Object(
-                MatchingFor("GM8EAB_00", *NTSC_GC_VERSIONS),
+                MatchingFor("GM8EAB_00", *NTSC_GC_VERSIONS, "GM8P01_00"),
                 "MetroidPrime/ScriptObjects/CRepulsor.cpp",
             ),
             Object(NonMatching, "MetroidPrime/CEnvFxManager.cpp"),
@@ -1366,7 +1366,7 @@ config.libs = [
                 MatchingFor(*NTSC_GC_VERSIONS, "GM8P01_00", "GM8J01_00"), "MetroidPrime/CRumbleManager.cpp"
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02", "GM8P01_00"),
                 "MetroidPrime/Enemies/CBouncyGrenade.cpp",
             ),
             Object(
@@ -1425,9 +1425,9 @@ config.libs = [
                 "MetroidPrime/Enemies/CRidley.cpp",
                 extra_cflags=['-pragma "inline_max_total_size(10000)"'],
             ),
-            Object(MatchingFor(*NTSC_GC_VERSIONS), "MetroidPrime/Enemies/CPuffer.cpp"),
+            Object(MatchingFor(*NTSC_GC_VERSIONS, "GM8P01_00"), "MetroidPrime/Enemies/CPuffer.cpp"),
             Object(
-                MatchingFor(*NTSC_GC_VERSIONS),
+                MatchingFor(*NTSC_GC_VERSIONS, "GM8P01_00"),
                 "MetroidPrime/ScriptObjects/CFire.cpp",
             ),
             Object(
@@ -1466,7 +1466,7 @@ config.libs = [
             ),
             Object(MatchingFor(*NTSC_GC_VERSIONS), "MetroidPrime/Weapons/WeaponTypes.cpp"),
             Object(NonMatching, "MetroidPrime/Enemies/COmegaPirate.cpp"),
-            Object(MatchingFor(*NTSC_GC_VERSIONS), "MetroidPrime/Enemies/CScriptPhazonPool.cpp"),
+            Object(MatchingFor(*NTSC_GC_VERSIONS, "GM8P01_00"), "MetroidPrime/Enemies/CScriptPhazonPool.cpp"),
             Object(MatchingFor(*NTSC_GC_VERSIONS), "MetroidPrime/CNESEmulator.cpp"),
             Object(MatchingFor(*NTSC_GC_VERSIONS), "MetroidPrime/Enemies/CPhazonHealingNodule.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02"), "MetroidPrime/Player/CMorphBallShadow.cpp"),
@@ -2343,7 +2343,7 @@ config.libs = [
                 "Kyoto/Animation/CAdditiveAnimPlayback.cpp",
             ),
             Object(
-                MatchingFor(*NTSC_GC_VERSIONS),
+                MatchingFor(*NTSC_GC_VERSIONS, "GM8P01_00"),
                 "Kyoto/Particles/CParticleElectricDataFactory.cpp",
             ),
             Object(EquivalentFor("GM8E01_00"), "Kyoto/Particles/CParticleElectric.cpp"),

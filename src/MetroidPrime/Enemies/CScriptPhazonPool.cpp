@@ -67,7 +67,7 @@ void CScriptPhazonPool::Render(const CStateManager& mgr) const {
   const CTransform4f& xf = GetTransform();
 
   bool depth = x1a4 > 0.25f;
-  const CModelFlags flags = CModelFlags::AlphaBlendedDepthCompareUpdate(x1a4, depth, depth);
+  const CModelFlags flags = CModelFlags::AlphaBlended(x1a4).DepthCompareUpdate(depth, depth);
 
   if (!mModelData1.null()) {
     mModelData1->Render(mgr, xf * CTransform4f::RotateZ(mRotZ), nullptr, flags);
