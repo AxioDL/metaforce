@@ -1702,8 +1702,11 @@ MetroidPrime/CInGameTweakManager.cpp:
 MetroidPrime/Enemies/CBabygoth.cpp:
 	.text       start:0x8020E5A8 end:0x80215490
 	.ctors      start:0x803B5058 end:0x803B505C
+	.rodata     start:0x803BDBF8 end:0x803BDC98
+	.data       start:0x803D01D8 end:0x803D05C8
 	.bss        start:0x804341C8 end:0x804341D4 align:4 common
-	.sdata2     start:0x8046F318 end:0x8046F364
+	.sdata      start:0x8046A194 end:0x8046A1D8
+	.sdata2     start:0x8046F308 end:0x8046F388
 
 MetroidPrime/Enemies/CEyeBall.cpp:
 	.text       start:0x80215490 end:0x8021659C

@@ -310,7 +310,6 @@ public:
   u8 ApplyBoneTracking() const;
   CVector3f GetGunEyePos() const;
 
-  
 #ifndef HAS_TYPES_MATCH
   template < class T >
   static T* CastTo(const TPatternedCast< T >& ent);
@@ -384,6 +383,8 @@ public:
   static const float skActorApproachDistance;
   static const CColor skDamageColor;
   static const CColor skFrozenDamageColor;
+
+  void SetOnGround(const bool onGround) { mOnGround = onGround; }
 
 protected:
   EPatrolState mPatrolState;

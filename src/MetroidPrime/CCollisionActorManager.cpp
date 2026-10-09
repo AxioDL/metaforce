@@ -235,7 +235,7 @@ void CCollisionActorManager::Destroy(CStateManager& mgr) const {
 
 uchar CCollisionActorManager::GetActive() const { return mActive; }
 
-void CCollisionActorManager::SetActive(CStateManager& mgr, bool active) {
+void CCollisionActorManager::SetActive(CStateManager& mgr, const bool active) {
   mActive = active;
   for (int i = 0; i < mJointDescriptions.size(); ++i) {
     CActor* act =

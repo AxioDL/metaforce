@@ -34,9 +34,7 @@ public:
   CAssetId GetFireBreathResId() const { return mFireBreathRes; }
   const CDamageInfo& GetFireBreathDamage() const { return mFireBreathDamage; }
   const CDamageVulnerability& GetMouthVulnerabilities() const { return mMouthVulnerabilities; }
-  const CDamageVulnerability& GetShellDamageVulnerability() const {
-    return mShellVulnerabilities;
-  }
+  const CDamageVulnerability& GetShellDamageVulnerability() const { return mShellVulnerabilities; }
   CAssetId GetNoShellModel() const { return mNoShellModel; }
   CAssetId GetNoShellSkin() const { return mNoShellSkin; }
   float GetShellHitPoints() const { return mShellHitPoints; }
@@ -149,10 +147,10 @@ public:
   bool LostInterest(CStateManager& mgr, float arg) override;
   void Shock(CStateManager& mgr, float duration, float damage) override;
   CPathFindSearch* GetSearchPath() override;
-  float GetGravityConstant() const override;// { return 10.f * CPhysicsActor::GravityConstant(); }
-  CProjectileInfo* ProjectileInfo() override;// { return &x958_iceProjectile; }
+  float GetGravityConstant() const override;  // { return 10.f * CPhysicsActor::GravityConstant(); }
+  CProjectileInfo* ProjectileInfo() override; // { return &x958_iceProjectile; }
 
-  CBabygoth(TUniqueId uid, const rstl::string& name, const CEntityInfo& info,
+  CBabygoth(const TUniqueId uid, const rstl::string& name, const CEntityInfo& info,
             const CTransform4f& xf, const CModelData& mData, const CPatternedInfo& pInfo,
             const CActorParameters& actParms, const CBabygothData& babyData);
 
@@ -167,37 +165,40 @@ private:
   static const char* const skpPelvisDamageJoint;
   static const char* const skpButtDamageJoint;
   void UpdateAttackPosition(CStateManager& mgr, CVector3f& attackPos);
-  void ApplyContactDamage(TUniqueId uid, CStateManager& mgr);
+  void ApplyContactDamage(const TUniqueId uid, CStateManager& mgr);
   void SetupCollisionManager(CStateManager& mgr);
-  void AddSphereCollisionList(const SSphereJointInfo* joints, int count,
+  void AddSphereCollisionList(const SSphereJointInfo* joints, const int count,
                               rstl::vector< CJointCollisionDescription >& list);
   bool IsMouthCollisionActor(const TUniqueId& uid) const;
   bool IsShellCollisionActor(const TUniqueId& uid) const;
   void ExtendTouchBounds(CStateManager& mgr, const CVector3f& bounds) const;
-  void PreventPlayerInterpenetration(CStateManager& mgr, float dt);
+  void PreventPlayerInterpenetration(CStateManager& mgr, const float dt);
   void SetupHealthInfo(CStateManager& mgr);
   void SetupShellDestroyedHealthInfo(CStateManager& mgr);
   void UpdateHealthInfo(CStateManager& mgr);
   void UpdateShellHealthInfo(CStateManager& mgr);
   void UpdateAttackTimeLeft(CStateManager& mgr);
-  void UpdateAILogicTimers(float dt);
+  void UpdateAILogicTimers(const float dt);
   void CreateFlameThrower(CStateManager& mgr);
-  void UpdateParticleEffects(float dt, CStateManager& mgr);
+  void UpdateParticleEffects(const float dt, CStateManager& mgr);
   bool IsOtherCharacterNearPathDest(CStateManager& mgr);
   void ApplySeparationBehavior(CStateManager& mgr);
-  void ProcessCharge(CStateManager& mgr, float dt);
+  void ProcessCharge(CStateManager& mgr, const float dt);
   bool CheckShouldGetUp(CStateManager& mgr);
-  void ReDirectDamage(CStateManager& mgr, TUniqueId uid);
+  void ReDirectDamage(CStateManager& mgr, const TUniqueId uid);
   void SetShootThrough(CStateManager& mgr) const;
   void RemoveFromTeam(CStateManager& mgr);
   void AddToTeam(CStateManager& mgr);
   float GetShellStateHP(EShellCrackState state) const;
   void StartCrackShellEffect(CStateManager& mgr, const TLockedToken< CGenDescription >& particle,
-                             const CTransform4f& xf, const ushort sfx, bool nonEmitter);
+                             const CTransform4f& xf, const ushort sfx, const bool nonEmitter);
   void SwapSkinnedModel(CStateManager& mgr);
   bool CheckShouldWakeUp(CStateManager& mgr, float dt);
   void UpdateTouchBounds();
   void SetPathFindMode(EPathFindMode mode);
+  void SetObjectSpaceCollision(const bool objectSpaceCollision) {
+    mObjectSpaceCollision = objectSpaceCollision;
+  }
 
   int mStateProg;
   EShellCrackState mShellState;

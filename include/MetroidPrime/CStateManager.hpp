@@ -307,7 +307,7 @@ public:
                    const CMaterialFilter& filter,
                    const CVector3f& knockbackVec = CVector3f::Zero());
 
-  void InformListeners(const CVector3f&, EListenNoiseType);
+  void InformListeners(const CVector3f&, const EListenNoiseType);
 
   // Fog
   void SetupFogForArea3XRange(TAreaId area) const;

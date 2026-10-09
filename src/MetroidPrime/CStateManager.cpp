@@ -1781,7 +1781,7 @@ void CStateManager::KnockBackPlayer(CPlayer& player, const CVector3f& dir, float
   }
 }
 
-void CStateManager::InformListeners(const CVector3f& pos, EListenNoiseType type) {
+void CStateManager::InformListeners(const CVector3f& pos, const EListenNoiseType type) {
   CObjectList* list = mObjectLists[kOL_ListeningAi].get();
   for (int i = list->GetFirstObjectIndex(); i != -1; i = list->GetNextObjectIndex(i)) {
     CPatterned* patterned = TCastToPtr< CPatterned >((*list)[i]);
