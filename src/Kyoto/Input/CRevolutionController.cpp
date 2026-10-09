@@ -158,7 +158,7 @@ void CRevolutionController::Update(float dt) {
         CInterruptGuard interrupts;
         const int count = KPADRead(channel, samples, 16);
         if (count != 0 && samples[0].wpad_err == WPAD_ERR_OK) {
-          CBasics::CopyMemory(&mStatus[channel], samples, sizeof(KPADStatus));
+          CBasics::CopyMem(&mStatus[channel], samples, sizeof(KPADStatus));
           mInfoPollTimers[channel] -= dt;
           if (mInfoPollTimers[channel] < 0.f) {
             mInfoPollTimers[channel] = 5.f;
@@ -181,12 +181,12 @@ void CRevolutionController::Update(float dt) {
         }
       }
       if (uint(mControllerTypes[channel] - kDT_Unsupported) <= 1) {
-        CBasics::ZeroMemory(&mStatus[channel], sizeof(KPADStatus));
+        CBasics::ZeroMem(&mStatus[channel], sizeof(KPADStatus));
         mStatus[channel].dev_type = 0xff;
         mStatus[channel].wpad_err = 0;
       }
     } else {
-      CBasics::ZeroMemory(&mStatus[channel], sizeof(KPADStatus));
+      CBasics::ZeroMem(&mStatus[channel], sizeof(KPADStatus));
       mStatus[channel].dev_type = 0xff;
       mStatus[channel].wpad_err = 0;
     }
@@ -392,7 +392,7 @@ void CRevolutionController::ProcessControllerInput(int channel) {
   if (mControllerTypes[channel] != kDT_Unsupported) {
     UpdateDigitalInput(channel);
   } else {
-    CBasics::ZeroMemory(&mStatus[channel], sizeof(KPADStatus));
+    CBasics::ZeroMem(&mStatus[channel], sizeof(KPADStatus));
     mStatus[channel].dev_type = 0xff;
     const CControllerButton button;
     for (int i = 0; i < 64; ++i) {
