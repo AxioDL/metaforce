@@ -151,7 +151,7 @@ CHECK_SIZEOF(CMotionDeviceTracker, 0x980)
 
 struct KPADStatus;
 
-class CWiiMotionProcessor {
+class CRevolutionMotionProcessor {
 public:
   struct SDeviceSample {
     SDeviceSample()
@@ -193,7 +193,7 @@ public:
   };
 
   struct SPairedSample {
-    void Update(CWiiMotionProcessor& processor, const WPADFSStatus& status);
+    void Update(CRevolutionMotionProcessor& processor, const WPADFSStatus& status);
 
     SDeviceSample mWiimote;
     SDeviceSample mNunchuk;
@@ -211,7 +211,7 @@ public:
     uint mShakeMask;
   };
 
-  CWiiMotionProcessor(int channel);
+  CRevolutionMotionProcessor(int channel);
   void Update(const WPADFSStatus& status, const KPADStatus& kpadStatus, float dt);
   void UpdateAverage();
   uint UpdateDirectionalGestures(CMotionDeviceTracker& tracker, const WPADFSStatus& status,
@@ -256,9 +256,9 @@ private:
   CVector3f mWiimoteGravityUnits;
   CVector3f mNunchukGravityUnits;
 };
-CHECK_SIZEOF(CWiiMotionProcessor, 0xef1c)
-NESTED_CHECK_SIZEOF(CWiiMotionProcessor, SDeviceSample, 0x5c)
-NESTED_CHECK_SIZEOF(CWiiMotionProcessor, SPairedSample, 0xb8)
-NESTED_CHECK_SIZEOF(CWiiMotionProcessor, SMotionPulseState, 0xc)
+CHECK_SIZEOF(CRevolutionMotionProcessor, 0xef1c)
+NESTED_CHECK_SIZEOF(CRevolutionMotionProcessor, SDeviceSample, 0x5c)
+NESTED_CHECK_SIZEOF(CRevolutionMotionProcessor, SPairedSample, 0xb8)
+NESTED_CHECK_SIZEOF(CRevolutionMotionProcessor, SMotionPulseState, 0xc)
 
 #endif // _CWIIMOTIONPROCESSOR

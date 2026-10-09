@@ -2249,7 +2249,7 @@ config.libs = [
             Object(MatchingFor("R3ME01_00"), "Kyoto/Input/CControllerData.cpp"),
             Object(
                 NonMatching,
-                "Kyoto/Input/CWiiMotionProcessor.cpp",
+                "Kyoto/Input/CRevolutionMotionProcessor.cpp",
             ),
             Object(
                 MatchingFor("GM8EAB_00", *NTSC_GC_VERSIONS, "GM8P01_00", "GM8J01_00"),

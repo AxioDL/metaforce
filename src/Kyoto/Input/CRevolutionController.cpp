@@ -4,7 +4,7 @@
 #include "Kyoto/Basics/CBasics.hpp"
 #include "Kyoto/Input/CFinalInput.hpp"
 #include "Kyoto/Input/CInputFilter.hpp"
-#include "Kyoto/Input/CWiiMotionProcessor.hpp"
+#include "Kyoto/Input/CRevolutionMotionProcessor.hpp"
 #include "Kyoto/Math/CMath.hpp"
 
 #include <dolphin/vi.h>
@@ -820,7 +820,7 @@ void CRevolutionController::InitializeController(uint channel) {
   }
   if (int(mControllerTypes[channel]) >= 0 && int(mControllerTypes[channel]) < 3) {
     if (mMotionProcessors[channel].null()) {
-      rstl::single_ptr< CWiiMotionProcessor > processor(rs_new CWiiMotionProcessor(channel));
+      rstl::single_ptr< CRevolutionMotionProcessor > processor(rs_new CRevolutionMotionProcessor(channel));
       mMotionProcessors[channel] = processor;
     }
     if (!mMotionProcessors[channel].null()) {

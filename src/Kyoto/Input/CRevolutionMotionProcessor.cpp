@@ -1,4 +1,4 @@
-#include "Kyoto/Input/CWiiMotionProcessor.hpp"
+#include "Kyoto/Input/CRevolutionMotionProcessor.hpp"
 
 #include "Kyoto/Math/CMath.hpp"
 #include "Kyoto/Math/CloseEnough.hpp"
@@ -10,8 +10,8 @@ CMotionSampleHistory::CMotionSampleHistory() : mWriteIndex(0), mSamples(CVector3
 
 void CMotionSampleHistory::AddSample(const CVector3f& acceleration, const CVector3f& gravityUnits,
                                      float deadzone) {
-  mSamples[mWriteIndex] = CWiiMotionProcessor::NormalizeAcceleration(
-      CWiiMotionProcessor::ApplyAccelerationDeadzone(acceleration, gravityUnits, deadzone),
+  mSamples[mWriteIndex] = CRevolutionMotionProcessor::NormalizeAcceleration(
+      CRevolutionMotionProcessor::ApplyAccelerationDeadzone(acceleration, gravityUnits, deadzone),
       gravityUnits);
   mWriteIndex = (mWriteIndex + 1) % 30;
 }
@@ -175,7 +175,7 @@ void CVectorBiquadFilter::Update(const CVector3f& value, float magnitude) {
                                  mFeedforward[2], mFeedback[0], mFeedback[1]);
 }
 
-void CWiiMotionProcessor::SPairedSample::Update(CWiiMotionProcessor& processor,
+void CRevolutionMotionProcessor::SPairedSample::Update(CRevolutionMotionProcessor& processor,
                                                 const WPADFSStatus& status) {
   UpdateDeviceSample(processor.mWiimoteLowPass, processor.mWiimoteHighPass, status,
                      mWiimote, 0);
@@ -183,7 +183,7 @@ void CWiiMotionProcessor::SPairedSample::Update(CWiiMotionProcessor& processor,
                      mNunchuk, 1);
 }
 
-void CWiiMotionProcessor::SPairedSample::UpdateDeviceSample(CVectorBiquadFilter& lowPass,
+void CRevolutionMotionProcessor::SPairedSample::UpdateDeviceSample(CVectorBiquadFilter& lowPass,
                                                             CVectorBiquadFilter& highPass,
                                                             const WPADFSStatus& status,
                                                             SDeviceSample& result, int device) {
@@ -199,7 +199,7 @@ void CWiiMotionProcessor::SPairedSample::UpdateDeviceSample(CVectorBiquadFilter&
       CVector3f(result.mBasis.Get02(), result.mBasis.Get12(), result.mBasis.Get22());
 }
 
-CVector3f CWiiMotionProcessor::GetAcceleration(const WPADFSStatus& status, int device) {
+CVector3f CRevolutionMotionProcessor::GetAcceleration(const WPADFSStatus& status, int device) {
   if (device == 0) {
     const float x = (1.f / 512.f) * status.accX;
     const float y = (1.f / 512.f) * status.accY;
@@ -212,7 +212,7 @@ CVector3f CWiiMotionProcessor::GetAcceleration(const WPADFSStatus& status, int d
   return CVector3f(x, y, z);
 }
 
-void CWiiMotionProcessor::UpdateAverage() {
+void CRevolutionMotionProcessor::UpdateAverage() {
   int sampleCount = 4;
   float weight = mSampleWeight;
   if (sampleCount < weight) {
@@ -359,7 +359,7 @@ void CMotionDeviceTracker::Update(const WPADFSStatus& status, const CVector3f& g
   const CVector3f rawAcceleration = mNormalizedAcceleration;
   mHistory.AddSample(mNormalizedAcceleration, gravityUnits, deadzone);
   mNormalizedAcceleration =
-      CWiiMotionProcessor::NormalizeAcceleration(mNormalizedAcceleration, gravityUnits);
+      CRevolutionMotionProcessor::NormalizeAcceleration(mNormalizedAcceleration, gravityUnits);
   {
     const float& limit = 1.f;
     mNormalizedAcceleration.SetX(
@@ -459,8 +459,8 @@ void CMotionDeviceTracker::Update(const WPADFSStatus& status, const CVector3f& g
     mContinuousPitch = mWrappedPitch + mPitchWrapOffset;
 
     CVector3f motion = rawAcceleration;
-    motion = CWiiMotionProcessor::ApplyAccelerationDeadzone(motion, gravityUnits, deadzone);
-    motion = CWiiMotionProcessor::NormalizeAcceleration(motion, gravityUnits);
+    motion = CRevolutionMotionProcessor::ApplyAccelerationDeadzone(motion, gravityUnits, deadzone);
+    motion = CRevolutionMotionProcessor::NormalizeAcceleration(motion, gravityUnits);
     if (mOrientationMode == 1) {
       mMotionMagnitude = sqrtf(motion.GetX() * motion.GetX() + motion.GetZ() * motion.GetZ());
     } else {
@@ -508,7 +508,7 @@ void CMotionDeviceTracker::Update(const WPADFSStatus& status, const CVector3f& g
     mMotionIntegral = 0.f;
   }
   CVector3f motion = rawAcceleration;
-  motion = CWiiMotionProcessor::ApplyAccelerationDeadzone(motion, gravityUnits, deadzone);
+  motion = CRevolutionMotionProcessor::ApplyAccelerationDeadzone(motion, gravityUnits, deadzone);
   if (motion.GetX() > 0.1f * dt) {
     mPositiveAxisIntegrals[kDX] += dt * motion.GetX();
   } else {
@@ -526,7 +526,7 @@ void CMotionDeviceTracker::Update(const WPADFSStatus& status, const CVector3f& g
   }
 }
 
-void CWiiMotionProcessor::Update(const WPADFSStatus& status, const KPADStatus& kpadStatus,
+void CRevolutionMotionProcessor::Update(const WPADFSStatus& status, const KPADStatus& kpadStatus,
                                  float dt) {
   mPreviousIndex = mWriteIndex;
   ++mWriteIndex;
@@ -562,7 +562,7 @@ void CWiiMotionProcessor::Update(const WPADFSStatus& status, const KPADStatus& k
   UpdateAverage();
 }
 
-uint CWiiMotionProcessor::UpdateDirectionalGestures(CMotionDeviceTracker& tracker,
+uint CRevolutionMotionProcessor::UpdateDirectionalGestures(CMotionDeviceTracker& tracker,
                                                     const WPADFSStatus& status, int device,
                                                     float dt) {
   uint result = 0;
@@ -617,7 +617,7 @@ uint CWiiMotionProcessor::UpdateDirectionalGestures(CMotionDeviceTracker& tracke
   return result;
 }
 
-uint CWiiMotionProcessor::GetMotionIntegralMask(const CMotionDeviceTracker& tracker, int device,
+uint CRevolutionMotionProcessor::GetMotionIntegralMask(const CMotionDeviceTracker& tracker, int device,
                                                 float dt) const {
   uint result = 0;
   if (tracker.GetMotionIntegral() > 0.01f) {
@@ -630,7 +630,7 @@ uint CWiiMotionProcessor::GetMotionIntegralMask(const CMotionDeviceTracker& trac
   return result;
 }
 
-uint CWiiMotionProcessor::UpdatePulseGestures(const SDeviceSample& sample, SMotionPulseState& state,
+uint CRevolutionMotionProcessor::UpdatePulseGestures(const SDeviceSample& sample, SMotionPulseState& state,
                                               int device, float dt) {
   uint result = 0;
   if (state.mImpulseTime <= 0.f) {
@@ -727,7 +727,7 @@ uint CWiiMotionProcessor::UpdatePulseGestures(const SDeviceSample& sample, SMoti
   return result;
 }
 
-uint CWiiMotionProcessor::GetSwingMask(int device) const {
+uint CRevolutionMotionProcessor::GetSwingMask(int device) const {
   uint result = 0;
   switch (device) {
   case 0:
@@ -740,7 +740,7 @@ uint CWiiMotionProcessor::GetSwingMask(int device) const {
   return result;
 }
 
-CWiiMotionProcessor::CWiiMotionProcessor(int channel)
+CRevolutionMotionProcessor::CRevolutionMotionProcessor(int channel)
 : mHistory(SPairedSample())
 , mPreviousIndex(0)
 , mWriteIndex(0)
@@ -755,7 +755,7 @@ CWiiMotionProcessor::CWiiMotionProcessor(int channel)
   ConfigureFiltersAndCalibration(channel);
 }
 
-void CWiiMotionProcessor::ConfigureFiltersAndCalibration(int channel) {
+void CRevolutionMotionProcessor::ConfigureFiltersAndCalibration(int channel) {
   const float sqrt2 = CMath::SqrtF(2.f);
   const float lowCutoff = 1.f / static_cast< float >(tan(0.05f * M_PIF));
   float lowB1;

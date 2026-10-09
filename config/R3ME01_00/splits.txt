@@ -246,7 +246,7 @@ Kyoto/Math/CQuaternion.cpp:
 	.sbss       start:0x805C2A50 end:0x805C2A58
 	.sdata2     start:0x805C7F18 end:0x805C7F40
 
-Kyoto/Input/CWiiMotionProcessor.cpp:
+Kyoto/Input/CRevolutionMotionProcessor.cpp:
 	.text       start:0x8032D774 end:0x80330D88
 	.rodata     start:0x8047BBF0 end:0x8047BC30
 	.sdata2     start:0x805C7F68 end:0x805C7FE8

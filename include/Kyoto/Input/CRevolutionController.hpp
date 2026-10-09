@@ -9,7 +9,7 @@
 #include <revolution/kpad.h>
 
 class CScalarInputFilter;
-class CWiiMotionProcessor;
+class CRevolutionMotionProcessor;
 
 // Some method names are inferred; the layout and virtual order come from Trilogy.
 class CRevolutionController : public IController {
@@ -89,7 +89,7 @@ private:
   rstl::reserved_vector< CControllerData, 4 > mInput;
   rstl::reserved_vector< EPointerRecenterMode, 4 > mPointerRecenterMode;
   rstl::reserved_vector< int, 4 > mPointerReacquireFrames;
-  rstl::reserved_vector< rstl::single_ptr< CWiiMotionProcessor >, 4 > mMotionProcessors;
+  rstl::reserved_vector< rstl::single_ptr< CRevolutionMotionProcessor >, 4 > mMotionProcessors;
   rstl::reserved_vector< SUnknownInputData, 4 > mUnknownInputData;
   rstl::reserved_vector< WPADInfo, 4 > mWpadInfo;
   rstl::reserved_vector< WPADInfo, 4 > mWpadInfoBuf;
