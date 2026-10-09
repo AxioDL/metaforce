@@ -30,12 +30,6 @@ public:
   bool LoadToARAM();
   bool RefreshStatus();
   static void UpdateAllDMAs();
-#if !defined(TARGET_PC)
-  void InitiallyMoveToList();
-  void MoveToList(EStatus status);
-  void RemoveFromList();
-#endif
-  void MakeInvalid();
 
   void* ForceSyncMRAM();
   void ForceSyncARAM();
@@ -43,6 +37,11 @@ public:
   void* GetMRAMSafe();
 
 private:
+  void InitiallyMoveToList();
+  void MoveToList(EStatus status);
+  void RemoveFromList();
+  void MakeInvalid();
+
 #if defined(TARGET_PC)
   mutable EStatus mStatus;
   mutable void* mMramPtr;

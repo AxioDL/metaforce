@@ -42,6 +42,9 @@ bool CARAMToken::LoadToMRAM() { return mStatus == kS_One; }
 bool CARAMToken::LoadToARAM() { return mStatus == kS_One; }
 bool CARAMToken::RefreshStatus() { return mStatus == kS_One; }
 void CARAMToken::UpdateAllDMAs() {}
+void CARAMToken::InitiallyMoveToList() {}
+void CARAMToken::MoveToList(EStatus status) {}
+void CARAMToken::RemoveFromList() {}
 void CARAMToken::ForceSyncARAM() {}
 void* CARAMToken::GetMRAMSafe() { return mMramPtr; }
 

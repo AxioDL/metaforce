@@ -301,9 +301,7 @@ void CMain::InitializeSubsystems() {
 #endif
   CElementGen::Initialize();
   CAnimData::InitializeCache();
-#if !defined(TARGET_PC)
   CARAMManager::Initialize(0x800);
-#endif
   CDecalManager::Initialize();
   CFrameDelayedKiller::Initialize();
 }
@@ -934,10 +932,8 @@ int CMain::RsMain(int argc, const char* const* argv) {
       if (gpMemoryCard == nullptr && gpResourceFactory->GetResLoader().AreAllPaksLoaded()) {
         MemoryCardInitializePump();
       }
-#if !defined(TARGET_PC)
       CARAMManager::CollectGarbage();
       CARAMToken::UpdateAllDMAs();
-#endif
       if (!archSupport->UpdateTicks()) {
         mFinished = true;
       }
@@ -1037,9 +1033,7 @@ int CMain::RsMain(int argc, const char* const* argv) {
   }
   ShutdownSubsystems();
   gameGlobalObjects = nullptr;
-#if !defined(TARGET_PC)
   CARAMManager::Shutdown();
-#endif
   return 0;
 }
 
