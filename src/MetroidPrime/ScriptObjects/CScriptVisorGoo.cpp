@@ -11,6 +11,8 @@
 
 #include "rstl/math.hpp"
 
+#include "GameVersions.h"
+
 CScriptVisorGoo::CScriptVisorGoo(TUniqueId uid, const rstl::string& name, const CEntityInfo& info,
                                  const CTransform4f& xf, CAssetId particle, CAssetId electric,
                                  float minRange, float maxRange, float chanceMinRange,
@@ -72,9 +74,15 @@ void CScriptVisorGoo::Think(float, CStateManager& mgr) {
                                     .GetColumn(kDY)
                                     .AsNormalized();
             float angleThresh = 45.f;
+#if VERSION >= VERSION_GM8P_00
+            float angle = CMath::Rad2Rev(CMath::FastArcCosR(CMath::Limit(
+                              CVector3f::Dot(eyeToGoo.AsNormalized(), colNorm), 1.f))) *
+                          360.f;
+#else
             float angle = CMath::Rad2Rev(CMath::FastArcCosR(
                               CVector3f::Dot(eyeToGoo.AsNormalized(), colNorm))) *
                           360.f;
+#endif
             if (eyeToGooDist < 4.f) {
               angleThresh *= 4.f / eyeToGooDist;
               angleThresh = rstl::min_val(angleThresh, 90.f);

@@ -445,7 +445,11 @@ void CGameOptions::SetScreenBrightness(int value, bool apply) {
 
 const float CGameOptions::TuneScreenBrightness() {
   float f = mScreenBrightness - 4;
+#if VERSION >= VERSION_GM8J_00
+  return f / 4.f * 0.375f + 1.125f;
+#else
   return f / 4.f * 0.375f + 1.f;
+#endif
 }
 
 void CGameOptions::SetScreenPositionX(int position, bool apply) {
@@ -513,7 +517,15 @@ void CGameOptions::SetHudAlpha(int hudAlpha) {
 
 const float CGameOptions::GetHudAlpha() const { return mHudAlpha * 0.003921569f; }
 
-#if VERSION >= VERSION_GM8P_00
+#if VERSION >= VERSION_GM8J_00
+
+void CGameOptions::SetHelmetAlpha(const int alpha) { mHelmetAlpha = alpha; }
+
+int CGameOptions::GetHelmetAlphaRaw() const { return GetHudAlphaRaw(); }
+
+const float CGameOptions::GetHelmetAlpha() const { return GetHudAlpha(); }
+
+#elif VERSION >= VERSION_GM8P_00
 
 void CGameOptions::SetHelmetAlpha(const int alpha) { mHelmetAlpha = alpha; }
 
