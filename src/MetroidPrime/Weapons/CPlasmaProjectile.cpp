@@ -64,13 +64,13 @@ CPlasmaProjectile::CPlasmaProjectile(const TToken< CWeaponDescription >& wDesc,
 , mFreezeSteamTxtr(res.data[0])
 , mFreezeIceTxtr(res.data[1])
 , mVisorElectric(res.data[2] != kInvalidAssetId
-                         ? rstl::optional_object< TToken< CElectricDescription > >(
-                               gpSimplePool->GetObj(SObjectTag('ELSC', res.data[2])))
-                         : rstl::optional_object_null())
+                     ? rstl::optional_object< TToken< CElectricDescription > >(
+                           gpSimplePool->GetObj(SObjectTag('ELSC', res.data[2])))
+                     : rstl::optional_object_null())
 , mVisorParticle(res.data[3] != kInvalidAssetId
-                         ? rstl::optional_object< TToken< CGenDescription > >(
-                               gpSimplePool->GetObj(SObjectTag('PART', res.data[3])))
-                         : rstl::optional_object_null())
+                     ? rstl::optional_object< TToken< CGenDescription > >(
+                           gpSimplePool->GetObj(SObjectTag('PART', res.data[3])))
+                     : rstl::optional_object_null())
 , mFreezeSfx(CSfxManager::TranslateSFXID(res.data[4]))
 , mElectricSfx(CSfxManager::TranslateSFXID(res.data[5]))
 , x548_24_(false)
@@ -339,7 +339,9 @@ void CPlasmaProjectile::RenderBeam(int subdivs, float width, const CColor& color
   const int count = subdivs + 1;
   const float angleStep = (2.f * M_PIF) / subdivs;
   const float uvY0 = -(0.0625f * mEnergyPulseStartY);
-  const float uvY1 = uvY0 + ((flags & 3) == 3) ? 2.f : 0.5f * GetCurrentLength();
+  const float uvY1 = static_cast< bool >(uvY0 + static_cast< float >((flags & 3) == 3))
+                         ? 2.f
+                         : 0.5f * GetCurrentLength();
   const CVector3f beamEnd(0.f, GetCurrentLength(), 0.f);
   float angle = 0.f;
   CGraphics::SetAlphaCompare(kAF_Always, 0, kAO_And, kAF_Always, 0);
