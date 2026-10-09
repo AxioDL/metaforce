@@ -172,6 +172,6 @@ private:
 };
 typedef CTeamAiMgr::CUnknown CTeamAiMgr_CUnknown;
 CHECK_SIZEOF(CTeamAiMgr_CUnknown, 0x24)
-CHECK_SIZEOF(CTeamAiMgr, 0x98)
+CHECK_CHILD_SIZEOF(CTeamAiMgr, CEntity, 0x64)
 
 #endif

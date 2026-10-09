@@ -94,6 +94,6 @@ private:
   void CenterPlayer(CStateManager& mgr, const CVector3f& dest, float f);
   void AttractBomb(CStateManager& mgr, float f);
 };
-CHECK_SIZEOF(CTryclops, (VERSION >= VERSION_GM8E_02 ? 0x6b0 : 0x6A0))
+CHECK_CHILD_SIZEOF(CTryclops, CPatterned, 0x138)
 
 #endif // _CTRYCLOPS

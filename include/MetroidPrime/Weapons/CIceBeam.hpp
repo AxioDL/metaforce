@@ -39,6 +39,10 @@ private:
 
   void ReInitVariables();
 };
+#if VERSION >= VERSION_R3IJ_00
+CHECK_SIZEOF(CIceBeam, 0x240)
+#else
 CHECK_SIZEOF(CIceBeam, 0x24c)
+#endif
 
 #endif // _CICEBEAM

@@ -1,6 +1,8 @@
 #ifndef _ACTORCOMMON
 #define _ACTORCOMMON
 
+#include "GameVersions.h"
+
 enum EWeaponCollisionResponseTypes {
   kWCR_None,
   kWCR_Default,
@@ -47,6 +49,9 @@ enum EWeaponCollisionResponseTypes {
   kWCR_Unknown41,
   kWCR_AtomicBeta,
   kWCR_AtomicAlpha,
+#if VERSION >= VERSION_GM8P_00
+  kWCR_MetroidPrime,
+#endif
   // Enemy Special
   kWCR_Unknown44,
   kWCR_Unknown45,
@@ -73,6 +78,9 @@ enum EWeaponCollisionResponseTypes {
   kWCR_Unknown66,
   kWCR_Unknown67,
   kWCR_Unknown68,
+#if VERSION >= VERSION_GM8P_00
+  kWCR_MetroidPrimeSpecial,
+#endif
   // Enemy Shielded
   kWCR_Unknown69,
   kWCR_Unknown70,
@@ -99,6 +107,10 @@ enum EWeaponCollisionResponseTypes {
   kWCR_Unknown91,
   kWCR_AtomicBetaReflect,
   kWCR_AtomicAlphaReflect,
+#if VERSION >= VERSION_GM8P_00
+  kWCR_MetroidPrimeReflect,
+#endif
+  kWCR_Count,
 };
 enum EUserEventType {
   kUE_Projectile = 0,

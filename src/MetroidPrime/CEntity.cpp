@@ -1,6 +1,7 @@
 #include "MetroidPrime/CEntity.hpp"
 
 #include "MetroidPrime/CValidEntityPredicate.hpp"
+#include "MetroidPrime/TGameTypes.hpp"
 
 rstl::vector< SConnection > CEntity::NullConnectionList;
 
@@ -18,36 +19,54 @@ u64 CEntityInfo::GetGloballyUniqueIdForScriptObject(uint worldId) const {
 CEntity::CEntity(const TUniqueId id, const CEntityInfo& info, bool active, const rstl::string& name)
 : mAreaId(info.GetAreaId())
 , mUid(id)
-, mEditorId(info.GetEditorId())
+, mEditorId(
+#if VERSION == VERSION_GM8EAB_00
+  kInvalidEditorId
+#else
+  info.GetEditorId()
+#endif
+)
 , mName(name)
 , mConns(info.GetConnectionList())
 , mActive(active)
 , mInGraveyard(false)
+#if VERSION > VERSION_GM8EAB_00
 , mScriptingBlocked(false)
-, mNotInArea(mAreaId == kInvalidAreaId) {}
+, mNotInArea(mAreaId == kInvalidAreaId)
+#endif
+{}
 
 CEntity::~CEntity() {}
 
 void CEntity::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
   switch (msg) {
   case kSM_Activate:
-    if (!mActive) {
+    if (!GetActive()) {
       SetActive(true);
       SendScriptMsgs(kSS_Active, mgr, kSM_None);
     }
     break;
   case kSM_Deactivate:
-    if (mActive) {
+    if (GetActive()) {
       SetActive(false);
       SendScriptMsgs(kSS_Inactive, mgr, kSM_None);
     }
     break;
   case kSM_ToggleActive:
-    if (!mActive) {
+    #if VERSION == VERSION_GM8EAB_00
+    SetActive(!GetActive());
+    if (GetActive()) {
+      SendScriptMsgs(kSS_Active, mgr, kSM_None);
+    } else {
+      SendScriptMsgs(kSS_Inactive, mgr, kSM_None);
+    }
+    #else
+    if (!GetActive()) {
       AcceptScriptMsg(kSM_Activate, uid, mgr);
     } else {
       AcceptScriptMsg(kSM_Deactivate, uid, mgr);
     }
+    #endif
     break;
   }
 }
@@ -66,10 +85,16 @@ void CEntity::PreThink(float dt, CStateManager& mgr) {}
 
 void CEntity::Think(float dt, CStateManager& mgr) {}
 
+#if VERSION == VERSION_GM8EAB_00
+bool CEntity::GetActive() const { return mActive; }
+#endif
+
 void CEntity::SetActive(const bool active) { mActive = active; }
 
-const TAreaId CEntity::GetAreaId() const { return mNotInArea ? kInvalidAreaId : mAreaId; }
 
+#if VERSION > VERSION_GM8EAB_00
+const TAreaId CEntity::GetAreaId() const { return mNotInArea ? kInvalidAreaId : mAreaId; }
+#endif
 TUniqueId CEntity::CheckConnectedObject_if(const CStateManager& mgr, EScriptObjectState state,
                                           EScriptObjectMessage msg,
                                           const CValidEntityPredicate& predicate) const {

@@ -201,6 +201,6 @@ private:
   bool x840_30_ : 1;
   bool x840_31_ : 1;
 };
-CHECK_SIZEOF(CMetroidBeta, (VERSION >= VERSION_GM8E_02 ? 0x858 : 0x848))
+CHECK_CHILD_SIZEOF(CMetroidBeta, CPatterned, 0x2e0)
 
 #endif // _CMETROIDBETA

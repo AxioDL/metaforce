@@ -313,7 +313,6 @@ private:
   static const rstl::string skHead;
   static const rstl::string skRoot;
 };
-CHECK_SIZEOF(CRidley,
-             (VERSION < VERSION_GM8E_02 ? 0xd18 : (VERSION == VERSION_GM8E_02 ? 0xd28 : 0xd08)))
+CHECK_CHILD_SIZEOF(CRidley, CPatterned, VERSION < VERSION_GM8P_00 ? 0x7b0 : 0x790)
 
 #endif // _CRIDLEY

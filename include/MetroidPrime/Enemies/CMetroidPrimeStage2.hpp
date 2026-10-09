@@ -132,6 +132,6 @@ private:
   bool mIsMorphing : 1;
   bool mHasEventStarted : 1;
 };
-CHECK_SIZEOF(CMetroidPrimeStage2, (VERSION >= VERSION_GM8E_02 ? 0x720 : 0x710))
+CHECK_CHILD_SIZEOF(CMetroidPrimeStage2, CPatterned, 0x1a8)
 
 #endif // _CMETROIDPRIMESTAGE2

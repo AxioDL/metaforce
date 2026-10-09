@@ -9,6 +9,7 @@ class CVector2f {
   static const CVector2f skZeroVector;
 
 public:
+  CVector2f() {}
   CVector2f(float x, float y);
   CVector2f(CInputStream& in) : mX(in.Get< float >()), mY(in.Get< float >()) {}
 
@@ -23,14 +24,13 @@ public:
   CVector2f& Normalize();
 
   float Magnitude() const;
+  bool IsMagnitudeSafe() const;
   float MagSquared() const;
   CVector2f AsNormalized() const;
 
   float& operator[](int idx) { return *(&mX + idx); }
 
-  const float& operator[](int idx) const {
-    return reinterpret_cast< const float* >(this)[idx];
-  }
+  const float& operator[](int idx) const { return reinterpret_cast< const float* >(this)[idx]; }
 
   static float GetAngleDiff(const CVector2f& a, const CVector2f& b);
   static float Dot(const CVector2f& a, const CVector2f& b);
@@ -39,11 +39,13 @@ public:
 
   static CVector2f Lerp(const CVector2f& a, const CVector2f& b, const float t) {
     const float negT = 1.f - t;
-    const float aX = a.GetX();
-    const float bX = b.GetX();
-    const float aY = a.GetY();
-    const float bY = b.GetY();
-    return CVector2f(aX * negT + bX * t, aY * negT + bY * t);
+#if VERSION >= VERSION_R3IJ_00
+    // Wii rounds each product before adding the two contributions.
+    return CVector2f(static_cast< float >(a.mX * negT) + static_cast< float >(b.mX * t),
+                     static_cast< float >(a.mY * negT) + static_cast< float >(b.mY * t));
+#else
+    return CVector2f(a.mX * negT + b.mX * t, a.mY * negT + b.mY * t);
+#endif
   }
 
   void PutTo(COutputStream& out) const {

@@ -3,6 +3,7 @@
 
 #include "types.h"
 
+#include "rstl/RstlVersions.h"
 #include "rstl/allocator.hpp"
 
 namespace rstl {
@@ -18,7 +19,11 @@ public:
 #if defined(TARGET_PC)
     pointer_deleter< T >::destroy(mPtr);
 #else
+#if RSTL_VERSION >= RSTL_R3IJ
+    delete get();
+#else
     delete mPtr;
+#endif
 #endif
   }
   single_ptr& operator=(single_ptr& other) {

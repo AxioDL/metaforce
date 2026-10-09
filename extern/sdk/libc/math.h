@@ -1,6 +1,8 @@
 #ifndef _MATH_H_
 #define _MATH_H_
 
+#include "GameVersions.h"
+
 #include <stdint.h>
 
 #ifdef __cplusplus
@@ -65,6 +67,7 @@ extern _INT32 __double_max[];
 
 double fabs(double x);
 double fmod(double x, double m);
+double modf(double x, double* integerPart);
 double sin(double x);
 double cos(double x);
 double atan(double x);
@@ -75,6 +78,7 @@ double ceil(double x);
 _MATH_INLINE float fabsf(float x) { return (float)fabs((double)x); }
 _MATH_INLINE float sinf(float x) { return (float)sin((double)x); }
 _MATH_INLINE float cosf(float x) { return (float)cos((double)x); }
+_MATH_INLINE float atanf(float x) { return (float)atan((double)x); }
 _MATH_INLINE float atan2f(float y, float x) { return (float)atan2((double)y, (double)x); }
 _MATH_INLINE float fmodf(float x, float m) { return (float)fmod((double)x, (double)m); }
 float tanf(float x);
@@ -113,6 +117,16 @@ _MATH_INLINE float powf(float __x, float __y) { return pow(__x, __y); }
 
 #define signbit(x)((int)(__HI(x)&0x80000000))
 
+#if VERSION >= VERSION_R3IJ_00
+#define FP_NAN 1
+#define FP_INFINITE 2
+#define FP_ZERO 3
+#define FP_NORMAL 4
+#define FP_SUBNORMAL 5
+
+int __fpclassifyf(float x);
+
+#else
 /* The pre-2.4.7 runtime headers use different floating-point classification values. */
 #if !defined(__MWERKS__) || __MWERKS__ >= 0x2407
 #define FP_NAN 0
@@ -167,6 +181,8 @@ static inline int __fpclassifyf(float x) {
 
 #endif
 
+#endif
+
 static inline int __fpclassifyd(double x) {
   switch (__HI(x) & 0x7ff00000) {
   case 0x7ff00000: {
@@ -195,6 +211,26 @@ static inline int __fpclassifyd(double x) {
 #define isfinite(x) ((fpclassify(x) > FP_INFINITE))
 
 #ifdef __MWERKS__
+#if VERSION >= VERSION_R3IJ_00
+static inline float sqrtf(float x) {
+  static const double _half = .5;
+  static const double _three = 3.0;
+  if (x > 0.0f) {
+    double dmag = x;
+    double guess = __frsqrte(dmag);
+    guess = _half * guess * (_three - guess * guess * dmag);
+    guess = _half * guess * (_three - guess * guess * dmag);
+    guess = _half * guess * (_three - guess * guess * dmag);
+    return static_cast< float >(dmag * guess);
+  } else if (x < 0.0) {
+    return NAN;
+  } else if (isnan(x)) {
+    return NAN;
+  } else {
+    return x;
+  }
+}
+#else
 extern inline float sqrtf(float x) {
   static const double _half = .5;
   static const double _three = 3.0;
@@ -213,6 +249,7 @@ extern inline float sqrtf(float x) {
   }
   return x;
 }
+#endif
 
 _MATH_INLINE double sqrt(double x) {
   if (x > 0.0) {

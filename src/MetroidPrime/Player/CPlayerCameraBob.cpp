@@ -47,10 +47,13 @@ CPlayerCameraBob::CPlayerCameraBob(ECameraBobType type, const CVector2f& vec, fl
 , mApplyLandingTrans(false)
 , mHardLand(false)
 , mCameraBobTransform(CTransform4f::Identity())
-, mPlayerVelocity(CVector3f(0.f, 0.f, 0.f))
+, mPlayerVelocity(0.f, 0.f, 0.f)
 , mPlayerPeakFallVel(0.f)
 , mLandingVelocity(0.f)
 , mLandingTranslation(0.f)
+#if VERSION >= VERSION_R3IJ_00
+, mPreviousLandingTranslation(0.f)
+#endif
 , mCamVelocity(0.f)
 , mCamTranslation(0.f)
 , mWanderTime(0.f)
@@ -82,10 +85,23 @@ void CPlayerCameraBob::ReadTweaks(CInputStream& in) {
   kViewWanderRollVariation = in.ReadFloat();
   kGunBobMagnitude = in.ReadFloat();
   kHelmetBobMagnitude = in.ReadFloat();
+#if VERSION >= VERSION_R3IJ_00
+  kCameraBobExtentX = 0.04f;
+  kCameraBobExtentY = 0.06f;
+#endif
 }
 
 void CPlayerCameraBob::Update(float dt, CStateManager& mgr) {
+#if VERSION >= VERSION_R3IJ_00
+  if (mgr.GetGameState() == CStateManager::kGS_SoftPaused) {
+    return;
+  }
+#endif
+
   mBobTime += dt * mBobTimeScale;
+#if VERSION >= VERSION_R3IJ_00
+  mPreviousLandingTranslation = mLandingTranslation;
+#endif
   if (mApplyLandingTrans) {
     float damping = kLandingBobDamping;
     float spring = kLandingBobSpringConstant;
@@ -119,10 +135,21 @@ void CPlayerCameraBob::Update(float dt, CStateManager& mgr) {
   mCamTranslation *= magnitude;
   mTargetWanderMagnitude *= magnitude;
   if (mgr.GetPlayer()->GetDoneSidewaysDashing()) {
-    mLandingTranslation *= 0.2f;
-    mCamTranslation *= 0.2f;
-    mTargetWanderMagnitude *= 0.2f;
+#if VERSION >= VERSION_R3IJ_00
+    const float scale = 0.f;
+#else
+    const float scale = 0.2f;
+#endif
+    mLandingTranslation *= scale;
+    mCamTranslation *= scale;
+    mTargetWanderMagnitude *= scale;
   }
+#if VERSION >= VERSION_R3IJ_00
+  if (mgr.GetPlayer()->GetAimingCursor().GetCursorValid() ||
+      mgr.GetCameraManager()->IsInCinematicCamera()) {
+    mTargetWanderMagnitude = 0.f;
+  }
+#endif
 
   mWanderMagnitude +=
       kTargetMagnitudeTrackingRate * (mTargetWanderMagnitude - mWanderMagnitude);
@@ -139,32 +166,47 @@ void CPlayerCameraBob::Update(float dt, CStateManager& mgr) {
 
 void CPlayerCameraBob::SetBobTimeScale(const float scale) {
   mBobTimeScale = scale;
+#if VERSION >= VERSION_R3IJ_00
+  mBobTimeScale = mBobTimeScale < 0.f ? 0.f : mBobTimeScale;
+  mBobTimeScale = 1.f < mBobTimeScale ? 1.f : mBobTimeScale;
+#else
   mBobTimeScale = rstl::max_val(mBobTimeScale, 0.f);
   mBobTimeScale = rstl::min_val(mBobTimeScale, 1.f);
+#endif
 }
 
 void CPlayerCameraBob::SetBobMagnitude(const float scale) {
   mTargetBobMagnitude = scale;
+#if VERSION >= VERSION_R3IJ_00
+  mTargetBobMagnitude = mTargetBobMagnitude < 0.f ? 0.f : mTargetBobMagnitude;
+  mTargetBobMagnitude = 1.f < mTargetBobMagnitude ? 1.f : mTargetBobMagnitude;
+#else
   mTargetBobMagnitude = rstl::max_val(mTargetBobMagnitude, 0.f);
   mTargetBobMagnitude = rstl::min_val(mTargetBobMagnitude, 1.f);
+#endif
 }
 
 CTransform4f CPlayerCameraBob::CalculateCameraBobTransformation() const {
   float x = 0.f;
+  float y = 0.f;
   float z = 0.f;
   CalculateMovingTranslation(x, z);
   if (mApplyLandingTrans) {
     z += CalculateLandingTranslation();
   }
 
-  return CTransform4f::Translate(x, 0.f, z);
+  return CTransform4f::Translate(x, y, z);
 }
 
 CTransform4f CPlayerCameraBob::GetCameraBobTransformation() const { return mCameraBobTransform; }
 
 CTransform4f CPlayerCameraBob::GetGunBobTransformation() const {
+#if VERSION >= VERSION_R3IJ_00
+  return CTransform4f::Identity();
+#else
   return CTransform4f(
       CTransform4f::Translate(GetCameraBobTranslation() * (kGunBobMagnitude + 1.f)));
+#endif
 }
 
 CVector3f CPlayerCameraBob::GetHelmetBobTranslation() const {
@@ -177,13 +219,21 @@ float CPlayerCameraBob::CalculateLandingTranslation() const { return mLandingTra
 void CPlayerCameraBob::CalculateMovingTranslation(float& x, float& z) const {
   switch (mType) {
   case kCBT_Zero: {
+#if VERSION >= VERSION_R3IJ_00
+    double angle = 2.0 * M_PI * fmodf(mBobTime, 2.f * mBobPeriod) / mBobPeriod;
+#else
     double angle = 2.0 * M_PI * fmod(mBobTime, 2.0 * mBobPeriod) / mBobPeriod;
+#endif
     x = (mBobMagnitude * mVec[0]) * CCast::ToReal32(sin(angle));
     z = (mBobMagnitude * mVec[1]) * CCast::ToReal32(cos(angle / 2.0) * fabs(cos(angle / 2.0)));
     break;
   }
   case kCBT_One: {
+#if VERSION >= VERSION_R3IJ_00
+    float time = CCast::ToReal32(fmodf(mBobTime, 2.f * mBobPeriod));
+#else
     float time = CCast::ToReal32(fmod(mBobTime, 2.0 * mBobPeriod));
+#endif
     double angle = (M_PI * time) / mBobPeriod;
     if (time > mBobPeriod) {
       x = (2.f - time / mBobPeriod) * (mBobMagnitude * mVec[0]);
@@ -191,8 +241,15 @@ void CPlayerCameraBob::CalculateMovingTranslation(float& x, float& z) const {
       x = time / mBobPeriod * (mBobMagnitude * mVec[0]);
     }
     float sine = CCast::ToReal32(sin(fmod(angle, M_PI)));
+#if VERSION >= VERSION_R3IJ_00
+    const float curve2 = (1.f - sine * sine) * (mBobMagnitude * mVec[1]);
+    const float curve1 = (1.f - sine) * (mBobMagnitude * mVec[1]);
+    float blend = 0.5f;
+    z = curve1 * blend + (1.f - blend) * curve2;
+#else
     z = ((1.f - sine) * (mBobMagnitude * mVec[1])) / 2.f +
         0.5f * (-(sine * sine - 1.f) * (mBobMagnitude * mVec[1]));
+#endif
     break;
   }
   }
@@ -210,8 +267,14 @@ void CPlayerCameraBob::SetState(ECameraBobState state, CStateManager& mgr) {
 
   if (mOldState == kCBS_InAir) {
     mApplyLandingTrans = true;
+#if VERSION >= VERSION_R3IJ_00
+    mPlayerPeakFallVel = mPlayerPeakFallVel < kMaxNegativeVerticalSpeedConsidered
+                            ? kMaxNegativeVerticalSpeedConsidered
+                            : mPlayerPeakFallVel;
+#else
     mPlayerPeakFallVel =
         rstl::max_val(mPlayerPeakFallVel, kMaxNegativeVerticalSpeedConsidered);
+#endif
     mHardLand = mPlayerPeakFallVel < kPeakNegativeVerticalSpeedForHeavyLanding;
     if (mHardLand) {
       mCamVelocity += mPlayerPeakFallVel;
@@ -227,7 +290,11 @@ void CPlayerCameraBob::SetState(ECameraBobState state, CStateManager& mgr) {
 
 void CPlayerCameraBob::SetPlayerVelocity(const CVector3f& velocity) {
   mPlayerVelocity = velocity;
+#if VERSION >= VERSION_R3IJ_00
+  mPlayerPeakFallVel = mPlayerPeakFallVel < velocity[kDZ] ? mPlayerPeakFallVel : velocity[kDZ];
+#else
   mPlayerPeakFallVel = rstl::min_val(velocity[kDZ], mPlayerPeakFallVel);
+#endif
 }
 
 void CPlayerCameraBob::InitViewWander(CStateManager& mgr) {
@@ -248,12 +315,15 @@ void CPlayerCameraBob::InitViewWander(CStateManager& mgr) {
 CVector3f CPlayerCameraBob::CalculateRandomViewWanderPosition(CStateManager& mgr) {
   float angle = 2.f * (M_PIF * mgr.Random()->Float());
   float radius = kViewWanderRadius * mgr.Random()->Float();
+#if VERSION >= VERSION_R3IJ_00
+  return CVector3f(radius * sinf(angle), 1.f, radius * cosf(angle));
+#else
   return CVector3f(radius * CMath::SlowSineR(angle), 1.f, radius * CMath::SlowCosineR(angle));
+#endif
 }
 
 float CPlayerCameraBob::CalculateRandomViewWanderPitch(CStateManager& mgr) {
-  return CRelAngle::FromDegrees(2.f * (mgr.Random()->Float() - 0.5f) * kViewWanderRollVariation)
-      .AsRadians();
+  return (M_PIF / 180.f) * (2.f * (mgr.Random()->Float() - 0.5f) * kViewWanderRollVariation);
 }
 
 void CPlayerCameraBob::UpdateViewWander(float dt, CStateManager& mgr) {

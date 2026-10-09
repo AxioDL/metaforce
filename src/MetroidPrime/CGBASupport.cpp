@@ -9,7 +9,7 @@
 #include "rstl/math.hpp"
 
 void joyboot_callback(s32 chan, s32 ret) {}
-#if VERSION < VERSION_GM8E_48
+#if VERSION != VERSION_GM8E_48 && VERSION < VERSION_GM8P_00
 const uint MAGIC = 0x414d5445;
 #endif
 
@@ -18,7 +18,7 @@ CGBASupport* g_GBA;
 inline bool GetFontEncoding() { return OSGetFontEncode() == 1; }
 
 CGBASupport::CGBASupport()
-#if VERSION >= VERSION_GM8E_48
+#if VERSION == VERSION_GM8E_48 || VERSION >= VERSION_GM8P_00
 : mFile(GetFontEncoding() ? "client_jap.bin" : "client_pad.bin")
 #else
 : mFile("client_pad.bin")
@@ -34,7 +34,7 @@ CGBASupport::CGBASupport()
 , mFusionBeat(false) {
   GBAInit();
   g_GBA = this;
-#if VERSION >= VERSION_GM8E_48
+#if VERSION == VERSION_GM8E_48 || VERSION >= VERSION_GM8P_00
   OSGetFontEncode();
 #endif
 }
@@ -67,7 +67,7 @@ inline bool CGBASupport::CheckReadyStatus() {
     buff[0xc9] = (tick >> 8);
     buff[0xca] = (tick >> 16);
     buff[0xcb] = (tick >> 24);
-#if VERSION < VERSION_GM8E_48
+#if VERSION != VERSION_GM8E_48 && VERSION < VERSION_GM8P_00
     buff[0xaf] = 'E'; // set region to 'E' instead of 'J'
     buff[0xbd] = 0xc9;
 #else
@@ -186,7 +186,7 @@ bool CGBASupport::PollResponse() {
     return false;
   }
 
-#if VERSION >= VERSION_GM8E_48
+#if VERSION == VERSION_GM8E_48 || VERSION >= VERSION_GM8P_00
   const uint targetMagic = GetFontEncoding() ? 0x414D544A : 0x414D5445;
 #endif
 
@@ -194,7 +194,7 @@ bool CGBASupport::PollResponse() {
   if (GBARead(mSiChan, (u8*)(&magic), &gbaStatus) == GBA_NOT_READY) {
     return false;
   }
-#if VERSION < VERSION_GM8E_48
+#if VERSION != VERSION_GM8E_48 && VERSION < VERSION_GM8P_00
   if (magic != 0x414d5445) { // "AMTE"
     return false;
   }
@@ -209,7 +209,7 @@ bool CGBASupport::PollResponse() {
   if (gbaStatus != 0x20) {
     return false;
   }
-#if VERSION < VERSION_GM8E_48
+#if VERSION != VERSION_GM8E_48 && VERSION < VERSION_GM8P_00
   if (GBAWrite(mSiChan, (u8*)(&MAGIC), &gbaStatus) == GBA_NOT_READY) {
     return false;
   }

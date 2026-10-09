@@ -14,7 +14,7 @@ public:
              TUniqueId playerId, const CTransform4f& xf, const CDamageInfo& dInfo);
   ~CPowerBomb();
 
-  DECLARE_TYPES_MATCH_OR_ACCEPT;
+  DECLARE_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   void Think(float, CStateManager&) override;
   void AddToRenderer(const CFrustumPlanes&, const CStateManager&) const override;

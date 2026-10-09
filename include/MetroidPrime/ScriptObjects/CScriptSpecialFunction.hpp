@@ -123,8 +123,8 @@ public:
                          const CVector3f&, const CColor&, const bool, const CDamageInfo&, int, int,
                          CPlayerState::EItemType, const ushort, const ushort, const ushort);
 
-  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void Think(float, CStateManager&) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   void PreRender(CStateManager&, const CFrustumPlanes&) override;
   void AddToRenderer(const CFrustumPlanes&, const CStateManager&) const override;
@@ -151,6 +151,6 @@ public:
   int GetSpecialEnding(const CStateManager&) const;
   void AddOrUpdateEmitter(float pitch, CSfxHandle& handle, ushort id, CVector3f pos, uchar vol);
 };
-CHECK_SIZEOF(CScriptSpecialFunction, (VERSION >= VERSION_GM8E_02 ? 0x208 : 0x1f8))
+CHECK_CHILD_SIZEOF(CScriptSpecialFunction, CActor, 0x110)
 
 #endif // _CSCRIPTSPECIALFUNCTION

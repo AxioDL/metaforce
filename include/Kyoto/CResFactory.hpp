@@ -84,8 +84,10 @@ private:
   rstl::map< SObjectTag, LoadList::iterator > mLoadMap;
   LoadList mCancelledList;
 };
+#if VERSION < VERSION_R3IJ_00
 NESTED_CHECK_SIZEOF(CResFactory, SLoadingData, 0x38)
 CHECK_SIZEOF(CResFactory, 0xc8)
+#endif
 
 extern CResFactory* gpResourceFactory;
 

@@ -19,19 +19,19 @@ public:
 
   TAnimSourceInfo(const TSubAnimTypeToken< T >& source) : mSource(source) {}
   bool HasPOIData() const override { return mSource->HasPOIData(); }
-  const rstl::vector< CBoolPOINode >& GetBoolPOIStream() const override {
-    return mSource->GetBoolPOIStream();
-  }
-  const rstl::vector< CInt32POINode >& GetInt32POIStream() const override {
-    return mSource->GetInt32POIStream();
+  CCharAnimTime GetAnimationDuration() const override { return mSource->GetAnimationDuration(); }
+  const rstl::vector< CSoundPOINode >& GetSoundPOIStream() const override {
+    return mSource->GetSoundPOIStream();
   }
   const rstl::vector< CParticlePOINode >& GetParticlePOIStream() const override {
     return mSource->GetParticlePOIStream();
   }
-  const rstl::vector< CSoundPOINode >& GetSoundPOIStream() const override {
-    return mSource->GetSoundPOIStream();
+  const rstl::vector< CInt32POINode >& GetInt32POIStream() const override {
+    return mSource->GetInt32POIStream();
   }
-  CCharAnimTime GetAnimationDuration() const override { return mSource->GetAnimationDuration(); }
+  const rstl::vector< CBoolPOINode >& GetBoolPOIStream() const override {
+    return mSource->GetBoolPOIStream();
+  }
 
 private:
   TSubAnimTypeToken< T > mSource;

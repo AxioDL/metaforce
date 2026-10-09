@@ -19,7 +19,7 @@ class CNewFlameThrower : public CGameProjectile {
 public:
   // CEntity
   ~CNewFlameThrower() override;
-  DECLARE_TYPES_MATCH_OR_ACCEPT;
+  DECLARE_ACCEPT;
   void Think(float dt, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
 
@@ -103,8 +103,6 @@ private:
   int mNumSmokeParticlesSpawned;
   rstl::reserved_vector< TUniqueId, 4 > mLightIds;
 };
-CHECK_SIZEOF(CNewFlameThrower, (VERSION >= VERSION_GM8P_00 ? 0x3f0
-                                : VERSION >= VERSION_GM8E_02                             ? 0x3d8
-                                                                                         : 0x3c8))
+CHECK_CHILD_SIZEOF(CNewFlameThrower, CGameProjectile, VERSION >= VERSION_R3IJ_00 ? 0xd0 : 0xe0)
 
 #endif // _CNEWFLAMETHROWER

@@ -318,6 +318,13 @@ bool CWarWasp::ShouldSpecialAttack(CStateManager& mgr, float arg) {
                 mgr.GetPlayer()->GetTranslation().DropZ() - mCircleBurstPos.DropZ();
             if (delta.MagSquared() < 90.25f) {
               CVector3f fromCenter = GetTranslation() - mCircleBurstPos;
+#if VERSION >= VERSION_GM8E_02
+              CVector3f offset(CMath::FastCosR(mCircleBurstOffTotemAngle),
+                               CMath::FastSinR(mCircleBurstOffTotemAngle), 0.f);
+              CTransform4f xf = CTransform4f::LookAt(
+                  mCircleBurstPos, mCircleBurstPos + mCircleBurstDir, CVector3f::Up());
+              CVector3f threshold = xf.Rotate(offset);
+#else
               CVector3f threshold = mCircleBurstDir;
               if (mCircleBurstOffTotemAngle <= M_PIF / 2.f) {
                 threshold = CVector3f::Slerp(mCircleBurstRight, mCircleBurstDir,
@@ -327,6 +334,7 @@ bool CWarWasp::ShouldSpecialAttack(CStateManager& mgr, float arg) {
                     mCircleBurstDir, -mCircleBurstRight,
                     CRelAngle::FromRadians(mCircleBurstOffTotemAngle - M_PIF / 2.f));
               }
+#endif
               if (CVector3f::GetAngleDiff(threshold, fromCenter) <
                   CRelAngle::FromDegrees(10.f).AsRadians()) {
                 return CTeamAiMgr::AddAttacker(kAT_Melee, mgr, mAiMgr, GetUniqueId());
@@ -855,6 +863,13 @@ void CWarWasp::SpecialAttack(CStateManager& mgr, EStateMsg msg, float dt) {
     mCanApplyDamage = true;
     mStateProg = 0;
     mSpeed = mInitialSpeed;
+#if VERSION >= VERSION_GM8E_02
+    {
+      CMaterialFilter filter = GetMaterialFilter();
+      filter.ExcludeList().Add(CMaterialList(kMT_Floor, kMT_Wall));
+      SetMaterialFilter(filter);
+    }
+#endif
     break;
   case kStateMsg_Update:
     switch (mStateProg) {
@@ -1380,7 +1395,11 @@ float CWarWasp::GetTeamZStratum(int team) const {
 }
 
 float CWarWasp::CalcOffTotemAngle(CStateManager& mgr) const {
+#if VERSION >= VERSION_GM8E_02
+  float angle = 1.3962636f * mgr.Random()->Float();
+#else
   float angle = 1.3962636f * mgr.Random()->Float() + 0.17453292f;
+#endif
   return angle;
 }
 

@@ -21,7 +21,9 @@ public:
 
   // CEntity
   DECLARE_TYPES_MATCH_OR_ACCEPT;
+#if VERSION < VERSION_GM8P_00
   ~CEnergyProjectile() override;
+#endif
   void Think(float dt, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
 
@@ -63,8 +65,6 @@ private:
 
   static const CMaterialList kCheckMaterial;
 };
-CHECK_SIZEOF(CEnergyProjectile, (VERSION >= VERSION_GM8P_00 ? 0x400
-                                 : VERSION >= VERSION_GM8E_02                             ? 0x3e8
-                                                                                          : 0x3d8));
+CHECK_CHILD_SIZEOF(CEnergyProjectile, CGameProjectile, 0xf0);
 
 #endif // _CENERGYPROJECTILE

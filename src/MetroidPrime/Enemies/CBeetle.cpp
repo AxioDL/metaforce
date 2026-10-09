@@ -892,7 +892,7 @@ void CBeetle::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUs
     const CVector3f extent = CVector3f::ByElementMultiply(scale, CVector3f(2.f, 2.f, 0.5f));
     const CAABox biteBox(bitePos - extent, bitePos + extent);
     if (biteBox.DoBoundsOverlap(mgr.GetPlayer()->GetBoundingBox())) {
-      CMaterialFilter filter =
+      const CMaterialFilter& filter =
           CMaterialFilter::MakeIncludeExclude(CMaterialList(kMT_Solid), CMaterialList());
       mgr.ApplyDamage(GetUniqueId(), mgr.GetPlayer()->GetUniqueId(), GetUniqueId(),
                       mTouchDamage, filter, CVector3f::Zero());

@@ -16,8 +16,8 @@ public:
                const CAssetId partId2, const CAssetId partId3, const CAssetId partId4,
                const float f1, const CAssetId partId5, const uint soundId);
 
-  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   CProjectileInfo* ProjectileInfo() override;
 
   void InActive(CStateManager&, EStateMsg, float) override;

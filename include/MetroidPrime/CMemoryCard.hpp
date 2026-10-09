@@ -34,7 +34,11 @@ private:
   rstl::auto_ptr< CDummyWorld > mDummyWorld;
   rstl::auto_ptr< TCachedToken< CWorldSaveGameInfo > > mSaveWorld;
 };
+#if VERSION >= VERSION_R3IJ_00
+CHECK_SIZEOF(CSaveWorldIntermediate, 0x34)
+#else
 CHECK_SIZEOF(CSaveWorldIntermediate, 0x3c)
+#endif
 
 class CMemoryCard {
 public:
@@ -65,7 +69,11 @@ private:
   rstl::vector< ScanState > mScanStates;
   rstl::reserved_vector< uint, 6 > mScanCategoryCounts;
 };
+#if VERSION >= VERSION_R3IJ_00
+CHECK_SIZEOF(CMemoryCard, 0x44)
+#else
 CHECK_SIZEOF(CMemoryCard, 0x4c)
+#endif
 
 extern CMemoryCard* gpMemoryCard;
 

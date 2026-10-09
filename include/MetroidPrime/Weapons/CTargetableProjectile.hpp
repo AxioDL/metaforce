@@ -16,7 +16,7 @@ public:
 
   // CEntity
   ~CTargetableProjectile() override;
-  DECLARE_TYPES_MATCH_OR_ACCEPT;
+  DECLARE_ACCEPT;
 
   // CACtor
   CVector3f GetAimPosition(const CStateManager&, float) const override;

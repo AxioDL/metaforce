@@ -186,8 +186,13 @@ void CScriptPickup::Touch(CActor& act, CStateManager& mgr) {
       CSystemState& state = gpGameState->SystemState();
       if (state.GetShowPowerBombAmmoMessage()) {
         state.IncrementPowerBombAmmoCount();
+#if VERSION >= VERSION_GM8P_00
+        CSamusHud::DisplayHudMemo(rstl::wstring_l(gpStringTable->GetString(103)),
+                                  CHUDMemoParms(5.f, true, false, false));
+#else
         CSamusHud::DisplayHudMemo(rstl::wstring_l(gpStringTable->GetString(109)),
                                   CHUDMemoParms(5.f, true, false, false));
+#endif
       }
     }
   }

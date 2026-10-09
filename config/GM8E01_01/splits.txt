@@ -1704,7 +1704,7 @@ MetroidPrime/BodyState/CABSReaction.cpp:
 	.data       start:0x803E6938 end:0x803E6958
 	.sdata2     start:0x805ACDD0 end:0x805ACDE0
 
-MetroidPrime/Weapons/CIceProjectile.cpp:
+MetroidPrime/Weapons/CIceAttackProjectile.cpp:
 	.text       start:0x801F1AE4 end:0x801F4144
 	.rodata     start:0x803D2230 end:0x803D2250
 	.data       start:0x803E6958 end:0x803E69C8
@@ -2903,14 +2903,14 @@ Kyoto/Animation/CAnimTreeTransition.cpp:
 	.rodata     start:0x803D6FF0 end:0x803D7000
 	.data       start:0x803ED500 end:0x803ED580
 	.sdata      start:0x805A89A8 end:0x805A89B0
-	.sdata2     start:0x805AE5A8 end:0x805AE5C0
+	.sdata2     start:0x805AE5A8 end:0x805AE5B8
 
 Kyoto/Animation/CAnimTreeTweenBase.cpp:
 	.text       start:0x802F6AB4 end:0x802F7B94
 	.rodata     start:0x803D7000 end:0x803D7008
 	.data       start:0x803ED580 end:0x803ED600
 	.sbss       start:0x805A94E0 end:0x805A94F8
-	.sdata2     start:0x805AE5C0 end:0x805AE5D8
+	.sdata2     start:0x805AE5B8 end:0x805AE5D8
 
 Kyoto/Animation/CBoolPOINode.cpp:
 	.text       start:0x802F7B94 end:0x802F7C88
@@ -3352,10 +3352,13 @@ rstl/rstl_strings.cpp:
 	.rodata     start:0x803D7C28 end:0x803D7C30
 	.sbss       start:0x805A96B8 end:0x805A96C8
 
-rstl/RstlExtras.cpp:
-	.text       start:0x8033E510 end:0x8033ED08
-	.ctors      start:0x803CB524 end:0x803CB528
+rstl/CStringExtras.cpp:
+	.text       start:0x8033E510 end:0x8033EC80
 	.rodata     start:0x803D7C30 end:0x803D7C48
+
+rstl/RstlExtras.cpp:
+	.text       start:0x8033EC80 end:0x8033ED08
+	.ctors      start:0x803CB524 end:0x803CB528
 	.bss        start:0x804C0110 end:0x804C0120
 	.sbss       start:0x805A96C8 end:0x805A96D0
 

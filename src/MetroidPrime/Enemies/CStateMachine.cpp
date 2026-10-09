@@ -144,8 +144,8 @@ CStateMachine::CStateMachine(CInputStream& in) {
 
         const CAiTriggerFunc func = CAi::GetTriggerFunc(name[0] == '!' ? name + 1 : name);
         const float arg = in.Get< float >();
-        const bool isNot = name[0] == '!';
         CAiTrigger* newTrig;
+        const bool isNot = name[0] == '!';
         if (k < lastTriggerIdx) {
           mTriggers.push_back(CAiTrigger());
           newTrig = &mTriggers.back();

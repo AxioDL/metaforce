@@ -43,10 +43,16 @@ public:
             float playerObstructionMinDist, float haltDelay, bool disableMove,
             CWallWalker::EType wType, const CDamageVulnerability& dVuln, const CDamageInfo& dInfo,
             ushort haltSfx, ushort getUpSfx, ushort crouchSfx, CAssetId modelRes, CAssetId skinRes,
-            float iceZoomerJointHP, const CActorParameters& aParams);
+            float iceZoomerJointHP,
+#if VERSION >= VERSION_GM8P_00
+            float touchBoundsScale,
+#endif
+            const CActorParameters& aParams);
 
   // CEntity
+#if VERSION < VERSION_GM8P_00
   ~CParasite() override;
+#endif
   DECLARE_TYPES_MATCH_OR_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
   void PreThink(float dt, CStateManager& mgr) override;
@@ -64,7 +70,11 @@ public:
 
   // CPatterned
   void Death(CStateManager& mgr, const CVector3f& direction, EScriptObjectState state) override;
+#if VERSION < VERSION_GM8P_00
   bool IsOnGround() const override;
+#else
+  bool IsOnGround() const override { return mOnGround; }
+#endif
   void ThinkAboutMove(float dt) override;
   CDamageInfo GetContactDamage() const override;
   void MassiveDeath(CStateManager& mgr) override;
@@ -175,6 +185,6 @@ private:
   bool mOculusShotAt : 1;
   bool mInJump : 1;
 };
-CHECK_SIZEOF(CParasite, (VERSION >= VERSION_GM8E_02 ? 0x758 : 0x748))
+CHECK_CHILD_SIZEOF(CParasite, CWallWalker, 0x170)
 
 #endif // _CPARASITE

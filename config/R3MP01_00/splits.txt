@@ -1,0 +1,29 @@
+Sections:
+	.init       type:code align:4
+	extab       type:rodata align:32
+	extabindex  type:rodata align:32
+	.text       type:code align:32
+	.ctors      type:rodata align:32
+	.dtors      type:rodata align:8
+	.rodata     type:rodata align:32
+	.data       type:data align:32
+	.bss        type:bss align:64
+	.sdata      type:data align:16
+	.sbss       type:bss align:32
+	.sdata2     type:rodata align:32
+	.sbss2      type:bss align:32
+
+Kyoto/Input/CControllerData.cpp:
+	.text       start:0x802E4A1C end:0x802E4DE0
+	.sdata2     start:0x805CBFD8 end:0x805CBFE0
+
+Kyoto/Input/CInputFilter.cpp:
+	.text       start:0x802FB0FC end:0x802FBA60
+	.rodata     start:0x8047EB50 end:0x8047EB58
+	.data       start:0x80495E30 end:0x80495E58
+	.sdata2     start:0x805CC0D8 end:0x805CC110
+
+Kyoto/Input/CFinalInput.cpp:
+	.text       start:0x802FBA60 end:0x802FC4EC
+	.data       start:0x80495E58 end:0x80495EE4
+	.sdata2     start:0x805CC120 end:0x805CC130

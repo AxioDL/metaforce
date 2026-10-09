@@ -13,7 +13,9 @@
 
 class CFishCloud : public CActor {
 public:
+#if VERSION < VERSION_GM8P_00
   ~CFishCloud();
+#endif
   DECLARE_TYPES_MATCH_OR_ACCEPT;
   void Think(float dt, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) override;
@@ -154,6 +156,6 @@ private:
   bool mEnablePlayerRepelDamping : 1;
   bool mUpdateWithoutPartitions : 1;
 };
-CHECK_SIZEOF(CFishCloud, (VERSION >= VERSION_GM8E_02 ? 0x268 : 0x258))
+CHECK_CHILD_SIZEOF(CFishCloud, CActor, 0x170)
 
 #endif // _CFISHCLOUD

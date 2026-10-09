@@ -24,7 +24,11 @@ CRasterFont::CRasterFont(CInputStream& in, IObjectStore* store)
 , mLineMargin(0) {
   if (in.ReadInt32() == 'FONT') {
     int version = in.ReadInt32();
+#if VERSION >= VERSION_GM8P_00
+    if (version >= 0 && version <= 4) {
+#else
     if (version >= 0 && version <= 2) {
+#endif
       mMonoWidth = in.ReadInt32();
       mMonoHeight = in.ReadInt32();
       if (version >= 1) {
@@ -59,17 +63,39 @@ CRasterFont::CRasterFont(CInputStream& in, IObjectStore* store)
       case 1:
         mMode = kFM_OneLayerOutline;
         break;
+#if VERSION >= VERSION_GM8P_00
+      case 2:
+        mMode = kFM_FourLayers;
+        break;
+      case 3:
+        mMode = kFM_TwoLayersOutline;
+        break;
+      case 4:
+        mMode = kFM_TwoLayers;
+        break;
+#endif
       }
 
       int glyphCount = in.ReadInt32();
       mGlyphs.reserve(glyphCount);
 
       for (int i = 0; i < glyphCount; ++i) {
-        wchar_t chr = in.Get< ushort >();
+        ushort chr = in.Get< ushort >();
         float startU = in.ReadFloat();
         float startV = in.ReadFloat();
         float endU = in.ReadFloat();
         float endV = in.ReadFloat();
+#if VERSION >= VERSION_GM8P_00
+        int layer = version >= 3 ? in.Get< uchar >() : 0;
+        schar a = version >= 4 ? in.Get< schar >() : static_cast< schar >(in.ReadInt32());
+        schar b = version >= 4 ? in.Get< schar >() : static_cast< schar >(in.ReadInt32());
+        schar c = version >= 4 ? in.Get< schar >() : static_cast< schar >(in.ReadInt32());
+        uchar cellWidth = version >= 4 ? in.Get< uchar >() : static_cast< uchar >(in.ReadInt32());
+        uchar cellHeight = version >= 4 ? in.Get< uchar >() : static_cast< uchar >(in.ReadInt32());
+        uchar baseline = version >= 4 ? in.Get< uchar >() : static_cast< uchar >(in.ReadInt32());
+        int kernStart = version >= 4 ? in.ReadShort() : static_cast< short >(in.ReadInt32());
+#else
+        int layer = 0;
         int a = in.ReadInt32();
         int b = in.ReadInt32();
         int c = in.ReadInt32();
@@ -77,9 +103,10 @@ CRasterFont::CRasterFont(CInputStream& in, IObjectStore* store)
         int cellHeight = in.ReadInt32();
         int baseline = in.ReadInt32();
         int kernStart = in.ReadInt32();
-        mGlyphs.push_back(
-            rstl::pair< wchar_t, CGlyph >(chr, CGlyph(a, b, c, startU, startV, endU, endV,
-                                                      cellWidth, cellHeight, baseline, kernStart)));
+#endif
+        mGlyphs.push_back(rstl::pair< wchar_t, CGlyph >(
+            static_cast< wchar_t >(chr), CGlyph(a, b, c, startU, startV, endU, endV, cellWidth,
+                                               cellHeight, baseline, kernStart, layer)));
       }
       rstl::sort_by_key(mGlyphs);
 
@@ -115,7 +142,8 @@ void CRasterFont::GetSize(const CDrawStringOptions& options, int& width, int& he
     if (glyph != nullptr) {
       int kerning =
           prevGlyph != nullptr ? KernLookup(mKerning, prevGlyph->GetKernStart(), *ptr) : 0;
-      int newWidth = curWidth + glyph->GetA() + glyph->GetB() + glyph->GetC() + kerning;
+      int newWidth = curWidth + glyph->GetA() + glyph->GetB() + glyph->GetC() + kerning +
+                     options.GetExtraCharacterSpacing();
       int newHeight = mMonoHeight - glyph->GetBaseLine() + glyph->GetCellHeight();
       if (options.GetTextDirection() == kTD_Horizontal) {
         width = newWidth;
@@ -129,11 +157,17 @@ void CRasterFont::GetSize(const CDrawStringOptions& options, int& width, int& he
   }
 }
 
+#if VERSION < VERSION_GM8P_00
 int CRasterFont::GetMonoWidth() const { return mMonoWidth; }
+
 int CRasterFont::GetMonoHeight() const { return mMonoHeight; }
+#endif
+
 int CRasterFont::GetCarriageAdvance() { return GetMonoHeight() + GetLineMargin(); }
 
+#if VERSION < VERSION_GM8P_00
 const CGlyph* CRasterFont::GetGlyph(wchar_t c) const { return InternalGetGlyph(c); }
+#endif
 
 void CRasterFont::DrawString(const CDrawStringOptions& options, int x, int y, int& xOut, int& yOut,
                              CTextRenderBuffer* buffer, const wchar_t* str, int length) const {
@@ -149,7 +183,11 @@ void CRasterFont::DrawString(const CDrawStringOptions& options, int x, int y, in
     data[2] = CBasics::SwapBytes(CColor(options.GetPaletteEntry(1)).ToRGB5A3());
     data[3] = CBasics::SwapBytes(CColor(0.f, 0.f, 0.f, 0.f).ToRGB5A3());
     pal.UnLock();
+#if VERSION >= VERSION_GM8P_00
+    buffer->AddPaletteChange(pal, GetMode());
+#else
     buffer->AddPaletteChange(pal);
+#endif
   }
 
   SinglePassDrawString(options, x, y, xOut, yOut, buffer, str, length);
@@ -207,7 +245,7 @@ void CRasterFont::SinglePassDrawString(const CDrawStringOptions& options, const 
         }
 
         if (options.GetTextDirection() == kTD_Horizontal) {
-          curX += curGlyph->GetB() + curGlyph->GetC();
+          curX += curGlyph->GetB() + curGlyph->GetC() + options.GetExtraCharacterSpacing();
         }
       }
       prevGlyph = curGlyph;
@@ -230,7 +268,7 @@ const CGlyph* CRasterFont::InternalGetGlyph(const wchar_t chr) const {
 }
 
 const CFactoryFnReturn FRasterFontFactory(const SObjectTag& tag, CInputStream& in,
-                                    const CVParamTransfer& xfer) {
+                                          const CVParamTransfer& xfer) {
   const rstl::rc_ptr< IVParamObj > obj = xfer.mObj;
   CSimplePool* pool = static_cast< TObjOwnerParam< CSimplePool* >* >(obj.GetPtr())->GetData();
 
@@ -261,8 +299,11 @@ void CRasterFont::SetupRenderState() {
   CGX::SetTexCoordGen(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_TEX0, GX_IDENTITY, GX_FALSE, GX_PTIDENTITY);
 }
 
+#if VERSION < VERSION_GM8P_00
 int CRasterFont::GetBaseLine() const { return mBaseline; }
+
 int CRasterFont::GetLineMargin() { return mLineMargin; }
+#endif
 
 bool CRasterFont::IsFinishedLoading() { return mTexture && mTexture->IsLoaded(); }
 

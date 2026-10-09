@@ -337,10 +337,9 @@ void CBloodFlower::LaunchPollenProjectile(const CTransform4f& xf, CStateManager&
   }
   const float riseTime = CMath::SqrtF(2.f * rise / 4.905f);
   const float flightTime = riseTime + CMath::SqrtF(2.f * height / 4.905f);
-  const float invTime = 1.f / flightTime;
   const CVector3f& position = xf.GetTranslation();
-  const CVector3f velocity(invTime * (aimPos.GetX() - position.GetX()),
-                           invTime * (aimPos.GetY() - position.GetY()),
+  const CVector3f velocity((1.f / flightTime) * (aimPos.GetX() - position.GetX()),
+                           (1.f / flightTime) * (aimPos.GetY() - position.GetY()),
                            2.4525f * flightTime + (-zDiff / flightTime));
   const CTransform4f projXf = CTransform4f::Translate(position);
 

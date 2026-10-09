@@ -92,6 +92,8 @@ static const char* const skPressStartTextures[] = {
 const char MetroidBuildInfo[] = BUILD_INFO_TAG "Build v1.088 10/29/2002 2:21:25\0PAD";
 #elif VERSION == VERSION_GM8E_01
 const char MetroidBuildInfo[] = BUILD_INFO_TAG "Build v1.093 11/5/2002 19:50:01\0PAD";
+#elif VERSION == VERSION_GM8E_02
+const char MetroidBuildInfo[] = BUILD_INFO_TAG "Build v1.111 3/10/2003 17:56:21\0PAD";
 #elif VERSION == VERSION_GM8P_00
 const char MetroidBuildInfo[] = BUILD_INFO_TAG "Build v1.110 2/4/2003 22:16:07\0_PAD";
 #else
@@ -763,7 +765,7 @@ CIOWin::EMessageReturn CStateSetterFlow::OnMessage(const CArchitectureMessage& m
   switch (message.GetType()) {
   case kAM_TimerTick:
     gpMain->RefreshGameState();
-#if VERSION >= VERSION_GM8P_00
+#if VERSION >= VERSION_GM8E_02
     gpGameState->HintOptions().EnsureHintNextTime();
 #endif
     return kMR_RemoveIOWinAndExit;

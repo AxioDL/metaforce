@@ -28,7 +28,7 @@ public:
 };
 
 class CHudThreatInterface
-#if VERSION < VERSION_GM8E_02
+#if VERSION < VERSION_GM8P_00
 : public IHudThreatInterface 
 #endif
 {
@@ -44,12 +44,12 @@ public:
   void Update(float dt);
   void SetIsVisibleDebug(bool visible);
   void SetIsVisibleGame(bool visible);
-#if VERSION >= VERSION_GM8E_02
+#if VERSION >= VERSION_GM8P_00
   ~CHudThreatInterface();
 #endif
   CHudThreatInterface(
     CGuiFrame& hud,
-#if VERSION >= VERSION_GM8E_02
+#if VERSION >= VERSION_GM8P_00
     StringTableHolder* stringTable,
 #endif
     EHudType type, 
@@ -66,7 +66,7 @@ private:
 
   const rstl::wstring BuildWarningString(EThreatStatus status);
 
-#if VERSION >= VERSION_GM8E_02
+#if VERSION >= VERSION_GM8P_00
   StringTableHolder* mStringTable;
 #endif
 

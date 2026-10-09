@@ -8,7 +8,8 @@ const CFactoryFnReturn FParticleSwooshDataFactory(const SObjectTag& tag, CInputS
                                             const CVParamTransfer& transfer) {
   rstl::rc_ptr< IVParamObj > obj = transfer.mObj;
   CSimplePool* pool = static_cast< TObjOwnerParam< CSimplePool* >* >(obj.GetPtr())->GetData();
-  return CParticleSwooshDataFactory::GetGeneratorDesc(in, pool);
+  CSwooshDescription* desc = CParticleSwooshDataFactory::GetGeneratorDesc(in, pool);
+  return desc;
 }
 
 // Force function ordering

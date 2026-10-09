@@ -183,7 +183,7 @@ void CBodyController::FaceDirection3D(const CVector3f& v0, const CVector3f& v1, 
           actor->RotateInOneFrameOR(localRot, dt);
         } else {
           const CQuaternion rot =
-              CQuaternion::ClampedRotateTo(uv1, uv0, CRelAngle::FromDegrees(dt * mTurnSpeed));
+              CQuaternion::ShortestRotationArcClamped(uv1, uv0, CRelAngle::FromDegrees(dt * mTurnSpeed));
           const CQuaternion localRot = CQuaternion::ScalarVector(
               rot.GetScalar(), GetOwner().TransformWorldToLocalRotation(rot.GetVector()));
           actor->RotateInOneFrameOR(localRot, dt);

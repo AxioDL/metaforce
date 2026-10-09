@@ -59,8 +59,8 @@ public:
               float f3, float f4, uint nearChance, uint midChance);
 
   // CEntity
-  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void Think(float dt, CStateManager& mgr) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
 
   // CActor
@@ -176,6 +176,6 @@ private:
 
   static const rstl::string skSpeedSwooshName;
 };
-CHECK_SIZEOF(CChozoGhost, (VERSION >= VERSION_GM8E_02 ? 0x6f0 : 0x6E0))
+CHECK_CHILD_SIZEOF(CChozoGhost, CPatterned, 0x178)
 
 #endif // _CCHOZOGHOST

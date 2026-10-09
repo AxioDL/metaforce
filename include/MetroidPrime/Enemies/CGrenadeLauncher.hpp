@@ -62,7 +62,7 @@ public:
   ~CGrenadeLauncher() override;
   void Think(float dt, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
-  DECLARE_TYPES_MATCH_OR_ACCEPT;
+  DECLARE_ACCEPT;
   void Render(const CStateManager& mgr) const override;
   void PreRender(CStateManager& mgr, const CFrustumPlanes& frustum) override;
   void AddToRenderer(const CFrustumPlanes& frustum, const CStateManager& mgr) const override;
@@ -122,5 +122,5 @@ private:
   bool mVisible;
   bool mFollowPlayer;
 };
-CHECK_SIZEOF(CGrenadeLauncher, (VERSION >= VERSION_GM8E_02 ? 0x410 : 0x400))
+CHECK_CHILD_SIZEOF(CGrenadeLauncher, CPhysicsActor, 0x1a8)
 #endif // _CGRENADELAUNCHER

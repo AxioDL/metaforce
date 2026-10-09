@@ -1,6 +1,8 @@
 #ifndef _RSTL_ITERATOR
 #define _RSTL_ITERATOR
 
+#include "rstl/RstlVersions.h"
+
 #include <stddef.h>
 
 namespace rstl {
@@ -38,12 +40,18 @@ typename iterator_traits< It >::difference_type __distance(It first, It last,
 }
 
 template < typename It >
+#if RSTL_VERSION >= RSTL_R3IJ
+inline
+#endif
 typename iterator_traits< It >::difference_type __distance(It first, It last,
                                                            random_access_iterator_tag) {
   return last - first;
 }
 
 template < typename It >
+#if RSTL_VERSION >= 30
+inline
+#endif
 typename iterator_traits< It >::difference_type distance(It first, It last) {
   return __distance(first, last, typename iterator_traits< It >::iterator_category());
 }
@@ -69,11 +77,17 @@ void __advance(It& it, S count, bidirectional_iterator_tag) {
 }
 
 template < typename It, typename S >
+#if RSTL_VERSION >= RSTL_R3IJ
+inline
+#endif
 void __advance(It& it, S count, random_access_iterator_tag) {
   it += count;
 }
 
 template < typename It, typename S >
+#if RSTL_VERSION >= RSTL_R3IJ
+inline
+#endif
 void advance(It& it, S count) {
   __advance(it, count, typename iterator_traits< It >::iterator_category());
 }

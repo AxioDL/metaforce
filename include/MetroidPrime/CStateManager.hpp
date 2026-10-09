@@ -107,6 +107,31 @@ public:
 
   enum EGameState { kGS_Running, kGS_SoftPaused, kGS_Paused };
 
+  struct SAchievementInfo {
+    enum EDisplayType { kDT_HudMemo, kDT_Subtitle, kDT_None };
+    enum ECinematicMode { kCM_Disallow, kCM_Allow };
+
+    // Enum identities are known from SEL exports; their full value sets remain unknown.
+    int mAchievement; // NBonusCreditState::EBonusAchievement
+    int mBonusCredit; // CTrilogyState::EBonusCredit
+    const char* mMessageName;
+    EDisplayType mDisplayType;
+    float mDelay;
+    float mDisplayTime;
+    ECinematicMode mCinematicMode;
+
+    SAchievementInfo(int achievement, const char* messageName, int bonusCredit,
+                     EDisplayType displayType, float delay, float displayTime,
+                     ECinematicMode cinematicMode)
+    : mAchievement(achievement)
+    , mBonusCredit(bonusCredit)
+    , mMessageName(messageName)
+    , mDisplayType(displayType)
+    , mDelay(delay)
+    , mDisplayTime(displayTime)
+    , mCinematicMode(cinematicMode) {}
+  };
+
   enum ECameraFilterStage {
     kCFS_Zero,
     kCFS_One,
@@ -131,7 +156,7 @@ public:
   void SetProjectedShadow(CProjectedShadow* shadow) { mProjectedShadow = shadow; }
 #endif
 
-  void PreRender();
+  void PreRender(); 
   bool RenderLast(const TUniqueId&);
   void ResetEscapeSequenceTimer(float);
   float GetEscapeSequenceTimer() const;
@@ -171,6 +196,7 @@ public:
   void FrameEnd();
   void UpdateObjectInLists(CEntity&);
   rstl::pair< int, int > CalculateScanCompletionRate() const;
+  void EarnAchievementAndNotify(const SAchievementInfo& info);
 
   void BuildNearList(TEntityList& nearList, const CVector3f& pos, const CVector3f& dir, float mag,
                      const CMaterialFilter& filter = CMaterialFilter::skPassEverything,
@@ -281,7 +307,7 @@ public:
                    const CMaterialFilter& filter,
                    const CVector3f& knockbackVec = CVector3f::Zero());
 
-  void InformListeners(const CVector3f&, EListenNoiseType);
+  void InformListeners(const CVector3f&, const EListenNoiseType);
 
   // Fog
   void SetupFogForArea3XRange(TAreaId area) const;
@@ -485,6 +511,7 @@ private:
   void ProcessRadiusDamage(const CActor&, CActor&, TUniqueId, const CDamageInfo&,
                            const CMaterialFilter&);
   void ApplyRadiusDamage(const CActor&, const CVector3f&, CActor&, const CDamageInfo&);
+  void ApplyRadiusDamage(const CActor&, const CVector3f&, TUniqueId, CActor&, const CDamageInfo&);
   const bool TestRayDamage(const CVector3f&, const CActor&, const TEntityList&) const;
   const bool MultiRayCollideWorld(const CMRay&, const CMaterialFilter&) const;
   void TestBombHittingWater(const CActor&, const CVector3f&, CActor&);
@@ -500,6 +527,7 @@ private:
   static void RendererDrawCallback(const void*, const void*, int);
   static const bool MemoryAllocatorAllocationFailedCallback(const void*, unsigned int);
 };
+NESTED_CHECK_SIZEOF(CStateManager, SAchievementInfo, 0x1c)
 // The Trilogy field layout is not yet reconstructed.
 #if VERSION < VERSION_R3IJ_00
 CHECK_SIZEOF(CStateManager, 0xf98)

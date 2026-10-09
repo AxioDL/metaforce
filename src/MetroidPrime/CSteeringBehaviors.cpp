@@ -207,9 +207,9 @@ bool CSteeringBehaviors::SolveQuartic(const rstl::reserved_vector< float, 5 >& c
     cubic.push_back(coefficients[3]);
     return SolveCubic(cubic, roots);
   } else {
-    rstl::reserved_vector< float, 4 > cubic;
     float shift = coefficients[3] / (4.f * coefficients[4]);
     float p = -6.f * shift * shift + coefficients[2] / coefficients[4];
+    rstl::reserved_vector< float, 4 > cubic;
     float q = shift * (8.f * shift * shift - 2.f * coefficients[2] / coefficients[4]) +
               coefficients[1] / coefficients[4];
     float r = shift * (shift * (-3.f * shift * shift + coefficients[2] / coefficients[4]) -

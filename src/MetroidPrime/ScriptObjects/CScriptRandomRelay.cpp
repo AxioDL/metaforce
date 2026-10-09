@@ -67,17 +67,17 @@ void CScriptRandomRelay::SendLocalScriptMsgs(EScriptObjectState state, CStateMan
       rstl::vector< rstl::pair< CEntity*, EScriptObjectMessage > >::iterator it = objs.begin();
       for (int i = 0; i < randomRemoveIdx; ++i) {
         ++it;
-        if (it == objs.end()) {
+        if (objs.end() == it) {
           break;
         }
       }
-      if (it != objs.end()) {
+      if (objs.end() != it) {
         objs.erase(it);
       }
     }
 
     for (rstl::vector< rstl::pair< CEntity*, EScriptObjectMessage > >::iterator it = objs.begin();
-         it != objs.end(); ++it) {
+         objs.end() != it; ++it) {
       stateMgr.DeliverScriptMsg(it->first, GetUniqueId(), it->second);
     }
     break;

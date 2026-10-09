@@ -24,6 +24,9 @@ public:
   virtual void PreThink(float dt, CStateManager& mgr);
   virtual void Think(float dt, CStateManager& mgr);
   virtual void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr);
+#if VERSION == VERSION_GM8EAB_00
+  virtual bool GetActive() const;
+#endif
   virtual void SetActive(const bool active);
 
   CEntity(TUniqueId id, const CEntityInfo& info, const bool active, const rstl::string& name);
@@ -38,10 +41,18 @@ public:
                                     EScriptObjectMessage msg,
                                     const CValidEntityPredicate& predicate) const;
   const TAreaId GetCurrentAreaId() const { return mAreaId; }
+#if VERSION > VERSION_GM8EAB_00
   const bool GetActive() const { return mActive; }
+#endif
   bool IsInGraveyard() const { return mInGraveyard; }
   void SetIsInGraveyard() { mInGraveyard = true; }
-  bool IsScriptingBlocked() const { return mScriptingBlocked; }
+  bool IsScriptingBlocked() const {
+    #if VERSION > VERSION_GM8EAB_00
+      return mScriptingBlocked;
+    #else
+      return false;  // Helps compile code with less version checks
+    #endif
+  }
 
   // might be fake?
   rstl::vector< SConnection >& ConnectionList() { return mConns; }
@@ -65,10 +76,12 @@ private:
   rstl::vector< SConnection > mConns;
   bool mActive : 1;
   bool mInGraveyard : 1;
+#if VERSION > VERSION_GM8EAB_00
   bool mScriptingBlocked : 1;
   bool mNotInArea : 1;
+#endif
 };
-
-CHECK_SIZEOF(CEntity, (VERSION >= VERSION_R3IJ_00 ? 0x2c : 0x34))
+DECLARE_FULL_SIZE_FOR(CEntity, VERSION < VERSION_R3IJ_00 ? 0x34 : 0x2c)
+CHECK_SIZEOF(CEntity, CEntity_FULL_SIZE)
 
 #endif // _CENTITY

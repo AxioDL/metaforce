@@ -39,6 +39,8 @@ private:
   rstl::vector< CEnergyDrainSource > mSources;
   float mEnergyDrainTime;
 };
+#if VERSION < VERSION_R3IJ_00
 CHECK_SIZEOF(CPlayerEnergyDrain, 0x14)
+#endif
 
 #endif // _CPLAYERENERGYDRAIN

@@ -25,15 +25,15 @@ CTargetableProjectile::CTargetableProjectile(
 ENTITY_ACCEPT_IMPL(CTargetableProjectile)
 
 const bool CTargetableProjectile::Explode(const CVector3f& pos, const CVector3f& normal,
-                                    const EWeaponCollisionResponseTypes type, CStateManager& mgr,
-                                    const CDamageVulnerability& dVuln, const TUniqueId hitActor) {
+                                          const EWeaponCollisionResponseTypes type,
+                                          CStateManager& mgr, const CDamageVulnerability& dVuln,
+                                          const TUniqueId hitActor) {
   const bool ret = CEnergyProjectile::Explode(pos, normal, type, mgr, dVuln, hitActor);
 
   if (!GetWeaponActive()) {
     const TUniqueId projOwner = GetHitProjectileOwner();
     if (projOwner != kInvalidUniqueId && projOwner == mgr.GetPlayer()->GetUniqueId()) {
-      const CActor* act = TCastToConstPtr< CActor >(mgr.GetObjectById(GetOwnerId()));
-      if (act) {
+      if (const CActor* const act = TCastToConstPtr< CActor >(mgr.GetObjectById(GetOwnerId()))) {
         const TUniqueId uid = mgr.AllocateUniqueId();
         const CVector3f aimPosition = act->GetAimPosition(mgr, 0.f);
 
@@ -56,12 +56,14 @@ const bool CTargetableProjectile::Explode(const CVector3f& pos, const CVector3f&
 }
 
 CVector3f CTargetableProjectile::GetAimPosition(const CStateManager& mgr, const float dt) const {
-  static float tickRecip = 1.f / CProjectileWeapon::GetTickPeriod();
+  static const float tickRecip = 1.f / CProjectileWeapon::GetTickPeriod();
   CVector3f translation = GetTranslation();
-  CVector3f velocity = tickRecip * GetProjectile().GetVelocity();
-  CVector3f gravity = tickRecip * GetProjectile().GetGravity();
+  const CProjectileWeapon& projectile = GetProjectile();
+  CVector3f velocity = tickRecip * projectile.GetVelocity();
+  CVector3f gravity = tickRecip * projectile.GetGravity();
 
-  return (dt * (dt * (gravity * 0.5f))) + (dt * velocity) + translation;
+  const CVector3f aimPos = (dt * (dt * (gravity * 0.5f))) + (dt * velocity) + translation;
+  return aimPos;
 
   // return (dt * (dt * ((tickRecip * projectile.GetGravity()) * 0.5f))) +
   //        (dt * (tickRecip * projectile.GetVelocity())) + translation;
@@ -77,6 +79,8 @@ void CTargetableProjectile::ResolveCollisionWithActor(const CRayCastResult& res,
   CEnergyProjectile::ResolveCollisionWithActor(res, act, mgr);
 }
 
+#if VERSION < VERSION_GM8P_00
 CEnergyProjectile::~CEnergyProjectile() {}
+#endif
 
 CTargetableProjectile::~CTargetableProjectile() {}

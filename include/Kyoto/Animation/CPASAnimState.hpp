@@ -43,6 +43,8 @@ private:
   rstl::vector< CPASAnimInfo > mAnims;
   mutable rstl::vector< int > mSelectionCache;
 };
+#if VERSION < VERSION_R3IJ_00
 CHECK_SIZEOF(CPASAnimState, 0x34)
+#endif
 
 #endif // _CPASANIMSTATE

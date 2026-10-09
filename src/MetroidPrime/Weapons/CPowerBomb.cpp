@@ -16,8 +16,13 @@ const float CPowerBomb::kEndingTime = 4.25f;
 CPowerBomb::CPowerBomb(TToken< CGenDescription > particle, TUniqueId uid, TAreaId aid,
                        TUniqueId playerId, const CTransform4f& xf, const CDamageInfo& dInfo)
 : CWeapon(uid, aid, true, playerId, kWT_PowerBomb, rstl::string_l("PowerBomb"), xf,
-          CMaterialFilter::MakeIncludeExclude(CMaterialList(kMT_Trigger, kMT_Immovable, kMT_Solid),
-                                              CMaterialList(kMT_Projectile, kMT_PowerBomb)),
+          CMaterialFilter::MakeIncludeExclude(
+#if VERSION >= VERSION_GM8P_00
+              CMaterialList(kMT_Trigger, kMT_Immovable, kMT_Solid, kMT_NonSolidDamageable),
+#else
+              CMaterialList(kMT_Trigger, kMT_Immovable, kMT_Solid),
+#endif
+              CMaterialList(kMT_Projectile, kMT_PowerBomb)),
           CMaterialList(kMT_Projectile, kMT_PowerBomb), dInfo, CWeapon::kPA_PowerBombs,
           CModelData::CModelDataNull())
 

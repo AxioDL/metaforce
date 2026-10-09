@@ -94,7 +94,7 @@ private:
   rstl::vector< CAiTrigger > mTriggers;
 };
 
-CHECK_SIZEOF(CStateMachine, 0x20)
+CHECK_SIZEOF(CStateMachine, VERSION >= VERSION_R3IJ_00 ? 0x18 : 0x20)
 
 class CStateMachineState {
 public:

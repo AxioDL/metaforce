@@ -40,6 +40,9 @@ CPlasmaProjectile::CPlasmaProjectile(const TToken< CWeaponDescription >& wDesc,
 , mOuterColor(bInfo.GetOuterColor())
 , mPhazonDamage(CDamageInfo())
 , mExpansionState(kES_Inactive)
+#if VERSION >= VERSION_R3IJ_00
+, mInitialDamage(0.f)
+#endif
 , mBeamWidth(0.f)
 , mLifeTimer(0.f)
 , mExpansionT(0.f)
@@ -75,7 +78,12 @@ CPlasmaProjectile::CPlasmaProjectile(const TToken< CWeaponDescription >& wDesc,
 , mFiring(false)
 , mTexturesLoaded(false)
 , mDrawOwnerFirst(growingBeam)
-, mActivePlayerPhazon(false) {
+, mActivePlayerPhazon(false)
+#if VERSION >= VERSION_R3IJ_00
+, mEnableInitialDamage(false)
+, mInitialDamagePending(false)
+#endif
+{
   mTexture.Lock();
   mGlowTexture.Lock();
   mContactGen->SetGlobalScale(

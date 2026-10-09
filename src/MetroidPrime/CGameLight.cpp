@@ -52,4 +52,6 @@ void CGameLight::SetLightPriorityAndId() {
   mLight.SetId(mLightId);
 }
 
+#if VERSION < VERSION_GM8P_00
 CGameLight::~CGameLight() {}
+#endif

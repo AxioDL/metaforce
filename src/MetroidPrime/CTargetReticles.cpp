@@ -1,6 +1,11 @@
 #include "MetroidPrime/CTargetReticles.hpp"
 
 #include "MetroidPrime/CEulerAngles.hpp"
+#if VERSION >= VERSION_R3IJ_00
+#include "MetroidPrime/CCollisionActor.hpp"
+#include "MetroidPrime/CValidEntityPredicate.hpp"
+#include "MetroidPrime/ScriptObjects/CScriptPointOfInterest.hpp"
+#endif
 #include "MetroidPrime/CStateManager.hpp"
 #include "MetroidPrime/Cameras/CCameraManager.hpp"
 #include "MetroidPrime/Cameras/CGameCamera.hpp"
@@ -18,9 +23,12 @@
 #include "Kyoto/Audio/CSfxManager.hpp"
 #include "Kyoto/Basics/CCast.hpp"
 #include "Kyoto/CSimplePool.hpp"
+#include "Kyoto/CTimeProvider.hpp"
+#include "Kyoto/Graphics/CGX.hpp"
 #include "Kyoto/Graphics/CGraphics.hpp"
 #include "Kyoto/Graphics/CModel.hpp"
 #include "Kyoto/Math/CFrustumPlanes.hpp"
+#include "Kyoto/Math/CAbsAngle.hpp"
 #include "Kyoto/Math/CMath.hpp"
 #include "Kyoto/Math/CMatrix3f.hpp"
 #include "Kyoto/Math/CRelAngle.hpp"
@@ -30,6 +38,7 @@
 #include "MetaRender/CCubeRenderer.hpp"
 
 #include "rstl/math.hpp"
+#include "rstl/algorithm.hpp"
 
 #include "MetroidPrime/SFX/UI.h"
 
@@ -38,8 +47,22 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#if VERSION >= VERSION_R3IJ_00
+static const char skCombatAimingCenterAssetName[] = "CMDL_CombatAimingCenter";
+static const char skCombatAimingArmAssetName[] = "CMDL_CombatAimingArm";
+static const char skOrbitLockArmAssetName[] = "CMDL_OrbitLockArm";
+static const char skOrbitLockTechAssetName[] = "CMDL_OrbitLockTech";
+static const char skOrbitLockBracketsAssetName[] = "CMDL_OrbitLockBrackets";
+static const char skOrbitLockBaseAssetName[] = "CMDL_OrbitLockBase";
+static const char skOffScreenAssetName[] = "CMDL_OffScreen";
+static const char skScanReticleBracketAssetName[] = "CMDL_ScanReticleBracket";
+static const char skScanReticleProgressAssetName[] = "CMDL_ScanReticleProgress";
+static const char skScanReticleRingAssetName[] = "CMDL_ScanReticleRing";
+#endif
 static const char skCrosshairsReticleAssetName[] = "CMDL_Crosshairs";
+#if VERSION < VERSION_R3IJ_00
 static const char skOrbitZoneReticleAssetName[] = "CMDL_OrbitZone";
+#endif
 static const char skSeekerAssetName[] = "CMDL_Seeker";
 static const char skLockConfirmAssetName[] = "CMDL_LockConfirm";
 static const char skTargetFlowerAssetName[] = "CMDL_TargetFlower";
@@ -57,6 +80,10 @@ static const char skOrbitPointAssetName[] = "CMDL_OrbitPoint";
 
 static const float gkEpsilon = FLT_EPSILON;
 
+#if VERSION >= VERSION_R3IJ_00
+static CColor skOffScreenColor(0.7f, 0.7f, 0.062f, 1.f);
+#endif
+
 static CTargetReticleRenderState skZeroRenderState(kInvalidUniqueId, 1.f, CVector3f::Zero(), 0.f,
                                                    1.f, true);
 
@@ -73,8 +100,13 @@ static bool IsDamageOrbit(CPlayer::EOrbitBrokenType type) {
   }
 }
 
-static float offshoot_func(float f1, float f2, float f3) {
-  return f1 * CMath::FastSinR((f3 - 0.5f) * f2) + 0.5f;
+static float offshoot_func(float amplitude, float frequency, float t) {
+#if VERSION >= VERSION_R3IJ_00
+  const float wave = amplitude * CMath::FastSinR((t - 0.5f) * frequency);
+  return wave + 0.5f;
+#else
+  return amplitude * CMath::FastSinR((t - 0.5f) * frequency) + 0.5f;
+#endif
 }
 
 static float calculate_premultiplied_overshoot_offset(float f) {
@@ -82,12 +114,171 @@ static float calculate_premultiplied_overshoot_offset(float f) {
   return 2.f * (M_PIF - x);
 }
 
+#if VERSION >= VERSION_R3IJ_00
+class CActivePointOfInterestPredicate : public CValidEntityPredicate {
+public:
+  bool operator()(const CStateManager& mgr, TUniqueId id) const override {
+    if (const CScriptPointOfInterest* point =
+            TCastToConstPtr< CScriptPointOfInterest >(mgr.GetObjectById(id))) {
+      return point->GetActive();
+    }
+    return false;
+  }
+};
+
+TUniqueId CCompoundTargetReticle::ResolveScanTarget(const CStateManager& mgr, TUniqueId id) const {
+  if (const CActor* actor = TCastToConstPtr< CActor >(mgr.GetObjectById(id))) {
+    if (actor->GetScannableObjectInfo() && actor->GetActive()) {
+      return id;
+    }
+    CActivePointOfInterestPredicate predicate;
+    TUniqueId target = actor->CheckConnectedObject_if(mgr, kSS_Play, kSM_Activate, predicate);
+    return target;
+  }
+  return kInvalidUniqueId;
+}
+
+static CVector3f CalculateScanTargetExtent(const CAABox& bounds, const CStateManager& mgr) {
+  CAABox cameraBounds =
+      bounds.GetTransformedAABox(mgr.GetCameraManager()->GetCurrentCameraTransform(mgr));
+  float x = cameraBounds.GetWidth();
+  float y = cameraBounds.GetHeight();
+  float z = cameraBounds.GetDepth();
+  return CVector3f(x, y, z);
+}
+
+void CCompoundTargetReticle::UpdateScanTargetBounds(const CStateManager& mgr) {
+  const CPlayer& player = *mgr.GetPlayer();
+  if (mgr.GetPlayerState()->GetCurrentVisor() != CPlayerState::kPV_Scan) {
+    return;
+  }
+
+  const TUniqueId& firstId = mScanTargets.empty() ? kInvalidUniqueId : mScanTargets.front();
+  const CActor* firstActor = TCastToConstPtr< CActor >(mgr.GetObjectById(firstId));
+  CVector3f extent = CVector3f::Zero();
+  CVector3f position = player.GetAimingCursor().GetCursorInWorld();
+  if (firstActor) {
+    CAABox bounds = CAABox::MakeMaxInvertedBox();
+    bool haveBounds = false;
+    for (AUTO(it, mScanTargets.begin()); it != mScanTargets.end(); ++it) {
+      if (const CActor* actor = TCastToConstPtr< CActor >(mgr.GetObjectById(*it))) {
+        if (actor->HasModelData()) {
+          const CModelData* model = actor->GetModelData();
+          if (!model->IsNull()) {
+            CAABox modelBounds = CAABox::MakeMaxInvertedBox();
+            if (model->HasAnimation()) {
+              CAABox animBounds = actor->GetAnimationData()->GetBoundingBox();
+              CVector3f a = actor->GetTransform() *
+                           CVector3f::ByElementMultiply(model->ScaleCopy(), animBounds.GetMinPoint());
+              CVector3f b = actor->GetTransform() *
+                           CVector3f::ByElementMultiply(model->ScaleCopy(), animBounds.GetMaxPoint());
+              CVector3f min(CMath::FastMin(a.GetX(), b.GetX()), CMath::FastMin(a.GetY(), b.GetY()),
+                            CMath::FastMin(a.GetZ(), b.GetZ()));
+              CVector3f max(CMath::FastMax(a.GetX(), b.GetX()), CMath::FastMax(a.GetY(), b.GetY()),
+                            CMath::FastMax(a.GetZ(), b.GetZ()));
+              bounds.Include(CAABox(min, max));
+            } else {
+              modelBounds = model->GetBounds(actor->GetTransform());
+              CVector3f halfExtent = 0.5f * (modelBounds.GetMaxPoint() - modelBounds.GetMinPoint());
+              CVector3f center = modelBounds.GetCenterPoint();
+              CVector3f scaledExtent = CVector3f::ByElementMultiply(halfExtent, model->ScaleCopy());
+              bounds.Include(CAABox(center - scaledExtent, center + scaledExtent));
+            }
+            haveBounds = true;
+          }
+        }
+      }
+    }
+    if (haveBounds) {
+      position = bounds.GetCenterPoint();
+      extent = CalculateScanTargetExtent(bounds, mgr);
+      if (mgr.GetCameraManager()->GetCurrentCamera(mgr).ConvertToScreenSpace(position).GetZ() >= 1.f) {
+        position = player.GetAimingCursor().GetCursorInWorld();
+        extent = CVector3f::One();
+      }
+    }
+  }
+  mScanTargetPosition = position;
+  mScanTargetExtent = extent;
+}
+
+void CCompoundTargetReticle::UpdateScanTargetReticle(float dt, const CStateManager& mgr) {
+  const CPlayer& player = *mgr.GetPlayer();
+  if (mgr.GetPlayerState()->GetCurrentVisor() != CPlayerState::kPV_Scan) {
+    mScanTargetExtent = CVector3f::Zero();
+    mScanTargetPosition = player.GetAimingCursor().GetCursorInWorld();
+    mScanTargetInterpFactor = 0.f;
+    mScanTargets.clear();
+    return;
+  }
+
+  TUniqueId scanningId = player.GetScanningObjectId();
+  TUniqueId target = scanningId != kInvalidUniqueId ? scanningId : TUniqueId(mResolvedScanTargetId);
+  rstl::reserved_vector< TUniqueId, 8 > targets;
+  if (target != kInvalidUniqueId) {
+    targets.push_back(target);
+  }
+  bool sameTargets = targets.size() == mScanTargets.size() &&
+                     rstl::mismatch(targets.begin(), targets.end(), mScanTargets.begin()).first ==
+                         targets.end();
+  if (!sameTargets) {
+    mScanTargets = targets;
+    mScanTargetFromExtent = CVector3f::Lerp(mScanTargetExtent, mScanTargetFromExtent, mScanTargetInterpFactor);
+    mScanTargetFromPosition = CVector3f::Lerp(mScanTargetPosition, mScanTargetFromPosition, mScanTargetInterpFactor);
+    mScanTargetInterpFactor = 1.f;
+  } else {
+    float blend = mScanTargetInterpFactor - dt / gpTweakTargeting->x360_;
+    mScanTargetInterpFactor = 0.f < blend ? blend : 0.f;
+  }
+
+  bool hasActor = false;
+  for (AUTO(it, mScanTargets.begin()); it != mScanTargets.end(); ++it) {
+    if (TCastToConstPtr< CActor >(mgr.GetObjectById(*it))) {
+      hasActor = true;
+      break;
+    }
+  }
+  if (mPrevState == kRS_Scan && hasActor) {
+    float alpha = mScanTargetBlend + dt / gpTweakTargeting->x360_;
+    mScanTargetBlend = alpha < 1.f ? alpha : 1.f;
+  } else {
+    float alpha = mScanTargetBlend - dt / gpTweakTargeting->x360_;
+    mScanTargetBlend = 0.f < alpha ? alpha : 0.f;
+  }
+  if (scanningId != kInvalidUniqueId) {
+    float blend = mScanningBlend + dt;
+    mScanningBlend = blend < 1.f ? blend : 1.f;
+  } else {
+    float blend = mScanningBlend - dt;
+    mScanningBlend = 0.f < blend ? blend : 0.f;
+  }
+  if (mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::kPV_Scan) {
+    TUniqueId candidate = player.GetOrbitNextTargetId();
+    if (!player.GetAimingCursor().GetCursorValid()) {
+      candidate = kInvalidUniqueId;
+    }
+    if (candidate != mScanOrbitTargetId) {
+      mScanOrbitTargetId = candidate;
+      mResolvedScanTargetId = ResolveScanTarget(mgr, candidate);
+    }
+  }
+}
+#endif
+
 CCompoundTargetReticle::SOuterItemInfo::SOuterItemInfo(const char* modelName)
 : mModel(gpSimplePool->GetObj(modelName))
-, mOffshootBaseAngle(0.f)
-, mRotAng(0.f)
-, mBaseAngle(0.f)
-, mOffshootAngleDelta(0.f) {}
+#if VERSION >= VERSION_R3IJ_00
+, mOffshootBaseAngle(CAbsAngle::FromRadians(0.f))
+, mRotAng(CAbsAngle::FromRadians(0.f))
+, mBaseAngle(CAbsAngle::FromRadians(0.f))
+, mOffshootAngleDelta(CRelAngle::FromRadians(0.f))
+#else
+, mOffshootBaseAngle(CAbsAngle::FromRadians(0.f).AsRadians())
+, mRotAng(CAbsAngle::FromRadians(0.f).AsRadians())
+, mBaseAngle(CAbsAngle::FromRadians(0.f).AsRadians())
+, mOffshootAngleDelta(CRelAngle::FromRadians(0.f).AsRadians())
+#endif
+{}
 
 CCompoundTargetReticle::CCompoundTargetReticle(const CStateManager& mgr)
 : mLeadingOrientation(
@@ -132,8 +323,8 @@ CCompoundTargetReticle::CCompoundTargetReticle(const CStateManager& mgr)
 , mGrapplePoint0T(0.f)
 , mGrapplePoint1T(0.f)
 , mCrosshairsScale(0.f)
-, mSeekerAngle(0.f)
-, mXrayRetAngle(0.f)
+, mSeekerAngle(CAbsAngle::FromRadians(0.f).AsRadians())
+, mXrayRetAngle(CAbsAngle::FromRadians(0.f).AsRadians())
 , mMissileActive(false)
 , mMissileBracketTimer(0.f)
 , mMissileBracketScaleTimer(0.f)
@@ -143,9 +334,94 @@ CCompoundTargetReticle::CCompoundTargetReticle(const CStateManager& mgr)
 , mUnk(0.f)
 , mLockFireTimer(0.f)
 , mFullChargeFadeTimer(0.f)
+#if VERSION >= VERSION_R3IJ_00
+, x214_(0.f)
+#endif
 , mBeamShot(false)
 , mMissileShot(false)
-, mFullyCharged(false) {
+, mFullyCharged(false)
+#if VERSION >= VERSION_R3IJ_00
+, mOrbitPresenceAlpha(0.f)
+, x220_(0.f)
+, mOrbitTransientAlpha(0.f)
+, mCursorWorldPosition(CVector3f::Zero())
+, mOrbitTargetPosition(CVector3f::Zero())
+, mCursorPlanePosition(CVector3f::Zero())
+, x24c_(CRelAngle::FromRadians(0.f).AsRadians())
+, mAimingScale(1.f)
+, mAimingArmColor(CColor::Purple())
+, mAimingArmAlpha(1.f)
+, mAimingCenterColor(CColor::Purple())
+, mAimingCenterAlpha(1.f)
+, mCursorTargetColorBlend(0.f)
+, mAimingArmOffset(CVector3f::Zero())
+, mAimingArmLengthScale(1.f)
+, mAimingCenterScale(1.f)
+, mNextReticleTargetId(kInvalidUniqueId)
+, mNextReticlePosition(CVector3f::Zero())
+, mNextReticleAngle(CRelAngle::FromRadians(0.f))
+, mNextReticleScale(CVector3f::One())
+, mNextReticleColor(CColor::Green())
+, mNextReticleAlpha(0.f)
+, mNextReticleArmOffset(CVector3f::Zero())
+, x2b0_(0.f)
+, mNextReticleTargetPosition(CVector3f::Zero())
+, mNextReticleWorldPosition(CVector3f::Zero())
+, mNextReticleInterpolating(false)
+, mNextReticleInterpDuration(0.f)
+, mNextReticleInterpTime(0.f)
+, mNextReticleDestPosition(CVector3f::Zero())
+, mNextReticleFromPosition(CVector3f::Zero())
+, mCurrReticleTargetId(kInvalidUniqueId)
+, mCurrReticlePosition(CVector3f::Zero())
+, mCurrReticleArmColor(CColor::Green())
+, mCurrReticleArmAlpha(1.f)
+, mCurrReticleDetailColor(CColor::Green())
+, mCurrReticleDetailAlpha(1.f)
+, x310_(0.f)
+, x314_(0.f)
+, x318_(CVector3f::Zero())
+, mCurrReticleLockTime(0.f)
+, mCurrReticleBaseScale(CVector3f::One())
+, mCurrReticleBracketAlpha(0.f)
+, mCurrReticleBracketAngle(CRelAngle::FromRadians(0.f))
+, mCurrReticleBracketHeading(CAbsAngle::FromRadians(0.f))
+, mCurrReticleTechTime(0.f)
+, mCurrReticleTechAngle(CRelAngle::FromRadians(0.f))
+, mCurrReticleTechHeading(CAbsAngle::FromRadians(0.f))
+, mCurrReticleAimHeld(false)
+, mCurrReticleReleaseAlpha(0.f)
+, x354_(CVector3f::Zero())
+, x360_(CVector3f::One())
+, x36c_(CColor::Red())
+, x370_(1.f)
+, x374_(0.f)
+, x378_(0.f)
+, x37c_(0.f)
+, x380_(0.f)
+, mOffScreenBlinkTime(0.f)
+, mOffScreenFrameCount(0)
+, mCombatAimingCenter(gpSimplePool->GetObj(skCombatAimingCenterAssetName))
+, mCombatAimingArm(gpSimplePool->GetObj(skCombatAimingArmAssetName))
+, mOrbitLockArm(gpSimplePool->GetObj(skOrbitLockArmAssetName))
+, mOrbitLockTech(gpSimplePool->GetObj(skOrbitLockTechAssetName))
+, mOrbitLockBrackets(gpSimplePool->GetObj(skOrbitLockBracketsAssetName))
+, mOrbitLockBase(gpSimplePool->GetObj(skOrbitLockBaseAssetName))
+, mOffScreen(gpSimplePool->GetObj(skOffScreenAssetName))
+, mScanReticleRing(gpSimplePool->GetObj(skScanReticleRingAssetName))
+, mScanReticleBracket(gpSimplePool->GetObj(skScanReticleBracketAssetName))
+, mScanReticleProgress(gpSimplePool->GetObj(skScanReticleProgressAssetName))
+, mScanTargetBlend(0.f)
+, mScanTargetInterpFactor(0.f)
+, mScanningBlend(0.f)
+, mScanTargetFromPosition(CVector3f::Zero())
+, mScanTargetPosition(CVector3f::Zero())
+, mScanTargetFromExtent(CVector3f::Zero())
+, mScanTargetExtent(CVector3f::Zero())
+, mScanOrbitTargetId(kInvalidUniqueId)
+, mResolvedScanTargetId(kInvalidUniqueId)
+#endif
+{
   mOuterBeamIconSquares.reserve(9);
   for (int i = 0; i < 9; ++i) {
     char buf[64];
@@ -154,7 +430,11 @@ CCompoundTargetReticle::CCompoundTargetReticle(const CStateManager& mgr)
 #else
     sprintf(buf, "%s%d", skOuterBeamIconSquareNameBase, i);
 #endif
+#if VERSION >= VERSION_R3IJ_00
+    mOuterBeamIconSquares.push_back_unsafe(SOuterItemInfo(buf));
+#else
     mOuterBeamIconSquares.push_back(SOuterItemInfo(buf));
+#endif
   }
   mCrosshairs.Lock();
 }
@@ -162,6 +442,14 @@ CCompoundTargetReticle::CCompoundTargetReticle(const CStateManager& mgr)
 bool CCompoundTargetReticle::CheckLoadComplete() { return true; }
 
 EReticleState CCompoundTargetReticle::GetDesiredReticleState(const CStateManager& mgr) const {
+#if VERSION >= VERSION_R3IJ_00
+  if (mgr.GetPlayer()->GetMorphballTransitionState() != CPlayer::kMS_Unmorphed) {
+    return kRS_Four;
+  }
+  if (mgr.GetPlayer()->GetControlMapper().GetSelectorActive() == 1) {
+    return kRS_Selector;
+  }
+#endif
   switch (mgr.GetPlayerState()->GetCurrentVisor()) {
   case CPlayerState::kPV_Scan:
     return kRS_Scan;
@@ -176,10 +464,509 @@ EReticleState CCompoundTargetReticle::GetDesiredReticleState(const CStateManager
   }
 }
 
+#if VERSION >= VERSION_R3IJ_00
+void CCompoundTargetReticle::UpdateOffScreenReticle(float dt, const CStateManager& mgr) {
+  if (mgr.GetPlayer()->GetAimingCursor().ShowOffScreen(mgr)) {
+    ++mOffScreenFrameCount;
+    if (mOffScreenFrameCount > 300) {
+      mOffScreenBlinkTime += dt;
+      if (mOffScreenBlinkTime > 2.5f) {
+        mOffScreenBlinkTime -= 2.5f;
+      }
+    }
+  } else {
+    mOffScreenBlinkTime = 0.f;
+    mOffScreenFrameCount = 0;
+  }
+}
+
+void CCompoundTargetReticle::DrawOffScreenReticle(const CMatrix3f& rot,
+                                                const CStateManager& mgr) const {
+  const CPlayer& player = *mgr.GetPlayer();
+  bool show = true;
+  if (mOffScreenFrameCount < 300 || !player.GetAimingCursor().ShowOffScreen(mgr)) {
+    show = false;
+  }
+  if (show) {
+    const float scale = 0.75f * mAimingScale;
+    const CMatrix3f scaleMatrix = CMatrix3f::Scale(scale);
+    const CTransform4f scaleXf(scaleMatrix, CVector3f::Zero());
+    const CTransform4f reticleXf(rot, mCursorPlanePosition);
+    const CTransform4f xf = reticleXf * scaleXf;
+    float alpha;
+    if (mOffScreenBlinkTime > 1.5f) {
+      float rampTime = 0.5f;
+      const float& t = (mOffScreenBlinkTime - 1.5f) / rampTime;
+      alpha = 1.f - CMath::FastClamp(0.f, t, 1.f);
+    } else {
+      float rampTime = 0.5f;
+      const float& t = mOffScreenBlinkTime / rampTime;
+      alpha = CMath::FastClamp(0.f, t, 1.f);
+    }
+    alpha *= gpTweakTargeting->x35c_;
+    gpRender->SetModelMatrix(xf);
+    mOffScreen->Draw(CModelFlags::AlphaBlendedDepthCompareUpdate(alpha, false, false));
+  }
+}
+
+void CCompoundTargetReticle::UpdateOrbitLockPosition(float dt, const CStateManager& mgr) {
+  const CPlayer& player = *mgr.GetPlayer();
+  mCursorWorldPosition = player.GetAimingCursor().GetCursorInWorld();
+  float duration = 1.f;
+  const float step = dt / duration;
+  if (const CActor* actor = TCastToConstPtr< CActor >(mgr.GetObjectById(player.GetOrbitTargetId()))) {
+    const float alpha = mOrbitPresenceAlpha + step;
+    mOrbitPresenceAlpha = 1.f < alpha ? 1.f : alpha;
+    mOrbitTargetPosition = CalculatePositionWorld(*actor, mgr);
+  } else {
+    const float alpha = mOrbitPresenceAlpha - step;
+    mOrbitPresenceAlpha = alpha < 0.f ? 0.f : alpha;
+  }
+  const float alpha = mOrbitTransientAlpha - step;
+  mOrbitTransientAlpha = alpha < 0.f ? 0.f : alpha;
+}
+
+void CCompoundTargetReticle::DrawCombatAimingReticle(const CMatrix3f& rot,
+                                                   const CStateManager& mgr) const {
+  if (mAimingArmAlpha > 0.f) {
+    const CMatrix3f centerScale = CMatrix3f::Scale(mAimingCenterScale);
+    const CTransform4f centerScaleXf(centerScale, CVector3f::Zero());
+    const CMatrix3f aimingScale = CMatrix3f::Scale(mAimingScale);
+    const CTransform4f aimingScaleXf(aimingScale, CVector3f::Zero());
+    const CTransform4f centerPositionXf(rot, mCursorPlanePosition);
+    const CTransform4f centerXf = centerPositionXf * aimingScaleXf * centerScaleXf;
+    gpRender->SetModelMatrix(centerXf);
+    const CModelFlags centerFlags = CModelFlags::AlphaBlendedDepthCompareUpdate(
+        mAimingCenterColor.WithAlphaOf(mAimingCenterAlpha), false, false);
+    mCombatAimingCenter->Draw(centerFlags);
+
+    for (int i = 0; i < 3; ++i) {
+      const CVector3f offset = mAimingArmOffset;
+      const CMatrix3f lengthScale = CMatrix3f::Scale(1.f, 1.f, mAimingArmLengthScale);
+      const CTransform4f lengthXf(lengthScale, offset);
+      const CMatrix3f armRotation = CMatrix3f::RotateY(CRelAngle::FromDegrees(120.f * i));
+      const CMatrix3f armScale = CMatrix3f::Scale(mAimingScale);
+      const CTransform4f armOrientationXf(armRotation * armScale, CVector3f::Zero());
+      const CTransform4f armPositionXf(rot, mCursorPlanePosition);
+      const CTransform4f armXf = armPositionXf * armOrientationXf * lengthXf;
+      gpRender->SetModelMatrix(armXf);
+      const CModelFlags armFlags = CModelFlags::AlphaBlendedDepthCompareUpdate(
+          mAimingArmColor.WithAlphaOf(mAimingArmAlpha), false, false);
+      mCombatAimingArm->Draw(armFlags);
+    }
+  }
+}
+
+void CCompoundTargetReticle::DrawNextLockOnGroupRS5(const CMatrix3f& rot,
+                                                  const CStateManager& mgr) const {
+  if (mNextReticleAlpha > 0.f) {
+    for (int i = 0; i < 3; ++i) {
+      const CVector3f offset = mNextReticleArmOffset;
+      const CTransform4f offsetXf(CMatrix3f::Identity(), offset);
+      const CVector3f zero = CVector3f::Zero();
+      const CMatrix3f rotation =
+          CMatrix3f::RotateY(CRelAngle::FromDegrees(120.f * i) + mNextReticleAngle);
+      const CMatrix3f scale = CMatrix3f::Scale(
+          mNextReticleScale.GetX(), mNextReticleScale.GetY(), mNextReticleScale.GetZ());
+      const CTransform4f orientationXf(rotation * scale, zero);
+      const CTransform4f positionXf(rot, mNextReticlePosition);
+      const CTransform4f xf = positionXf * orientationXf * offsetXf;
+      gpRender->SetModelMatrix(xf);
+      const CModelFlags flags = CModelFlags::AlphaBlendedDepthCompareUpdate(
+          mNextReticleColor.WithAlphaOf(mNextReticleAlpha), false, false);
+      mOrbitLockArm->Draw(flags);
+    }
+  }
+
+  if (mCurrReticleReleaseAlpha > 0.f) {
+    for (int i = 0; i < 3; ++i) {
+      const CVector3f offset = mNextReticleArmOffset;
+      const CTransform4f offsetXf(CMatrix3f::Identity(), offset);
+      const CVector3f zero = CVector3f::Zero();
+      const CMatrix3f rotation = CMatrix3f::RotateY(CRelAngle::FromDegrees(120.f * i));
+      const CMatrix3f scale = CMatrix3f::Scale(
+          mNextReticleScale.GetX(), mNextReticleScale.GetY(), mNextReticleScale.GetZ());
+      const CTransform4f orientationXf(rotation * scale, zero);
+      const CTransform4f positionXf(rot, mCurrReticlePosition);
+      const CTransform4f xf = positionXf * orientationXf * offsetXf;
+      const CColor& color = gpTweakTargeting->x2d0_;
+      gpRender->SetModelMatrix(xf);
+      const CModelFlags flags = CModelFlags::AlphaBlendedDepthCompareUpdate(
+          color.WithAlphaOf(mCurrReticleReleaseAlpha), false, false);
+      mOrbitLockArm->Draw(flags);
+    }
+  }
+}
+
+void CCompoundTargetReticle::DrawCurrLockOnGroupRS5(const CMatrix3f& rot,
+                                                  const CStateManager& mgr) const {
+  if (mCurrReticleTargetId != kInvalidUniqueId && mCurrReticleArmAlpha > 0.f) {
+    for (int i = 0; i < 3; ++i) {
+      const CVector3f offset = mNextReticleArmOffset;
+      const CTransform4f offsetXf(CMatrix3f::Identity(), offset);
+      const CVector3f zero = CVector3f::Zero();
+      const CMatrix3f rotation = CMatrix3f::RotateY(CRelAngle::FromDegrees(120.f * i));
+      const CMatrix3f scale = CMatrix3f::Scale(
+          mNextReticleScale.GetX(), mNextReticleScale.GetY(), mNextReticleScale.GetZ());
+      const CTransform4f orientationXf(rotation * scale, zero);
+      const CTransform4f positionXf(rot, mCurrReticlePosition);
+      const CTransform4f armXf = positionXf * orientationXf * offsetXf;
+      gpRender->SetModelMatrix(armXf);
+      const CModelFlags armFlags = CModelFlags::AlphaBlendedDepthCompareUpdate(
+          mCurrReticleArmColor.WithAlphaOf(mCurrReticleArmAlpha), false, false);
+      mOrbitLockArm->Draw(armFlags);
+
+      const CMatrix3f baseScale = CMatrix3f::Scale(
+          mCurrReticleBaseScale.GetX(), mCurrReticleBaseScale.GetY(), mCurrReticleBaseScale.GetZ());
+      const CTransform4f baseOrientationXf(rotation * baseScale, zero);
+      const CTransform4f baseXf = positionXf * baseOrientationXf;
+      gpRender->SetModelMatrix(baseXf);
+      const CModelFlags baseFlags = CModelFlags::AlphaBlendedDepthCompareUpdate(
+          mCurrReticleDetailColor.WithAlphaOf(mCurrReticleDetailAlpha), false, false);
+      mOrbitLockBase->Draw(baseFlags);
+    }
+
+    const CMatrix3f bracketRotation =
+        CMatrix3f::RotateY(CRelAngle::FromRadians(mCurrReticleBracketAngle.AsRadians()));
+    const CMatrix3f bracketScale = CMatrix3f::Scale(
+        mNextReticleScale.GetX(), mNextReticleScale.GetY(), mNextReticleScale.GetZ());
+    const CTransform4f bracketOrientationXf(bracketRotation * bracketScale, CVector3f::Zero());
+    const CTransform4f bracketPositionXf(rot, mCurrReticlePosition);
+    const CTransform4f bracketXf = bracketPositionXf * bracketOrientationXf;
+    gpRender->SetModelMatrix(bracketXf);
+    CGX::SetAlphaCompare(GX_ALWAYS, 0, GX_AOP_AND, GX_ALWAYS, 0);
+    const CModelFlags bracketFlags = CModelFlags::AlphaBlendedDepthCompareUpdate(
+        mCurrReticleDetailColor.WithAlphaOf(mCurrReticleBracketAlpha), false, false);
+    mOrbitLockBrackets->Draw(bracketFlags);
+
+    if (mCurrReticleTechTime > 0.f) {
+      const CMatrix3f techRotation =
+          CMatrix3f::RotateY(CRelAngle::FromRadians(mCurrReticleTechAngle.AsRadians()));
+      const CMatrix3f techScale = CMatrix3f::Scale(
+          mNextReticleScale.GetX(), mNextReticleScale.GetY(), mNextReticleScale.GetZ());
+      const CTransform4f techOrientationXf(techRotation * techScale, CVector3f::Zero());
+      const CTransform4f techPositionXf(rot, mCurrReticlePosition);
+      const CTransform4f techXf = techPositionXf * techOrientationXf;
+      const CTimeProvider time(mCurrReticleTechTime);
+      gpRender->SetModelMatrix(techXf);
+      CGX::SetAlphaCompare(GX_ALWAYS, 0, GX_AOP_AND, GX_ALWAYS, 0);
+      const CModelFlags techFlags = CModelFlags::AlphaBlendedDepthCompareUpdate(
+          mCurrReticleDetailColor.WithAlphaOf(mCurrReticleDetailAlpha), false, false);
+      mOrbitLockTech->Draw(techFlags);
+    }
+  }
+}
+
+bool CCompoundTargetReticle::IsHostileTarget(TUniqueId id, const CStateManager& mgr) const {
+  bool hostile = false;
+  if (const CActor* actor = TCastToConstPtr< CActor >(mgr.GetObjectById(id))) {
+    if (actor->GetHostileTarget()) {
+      hostile = true;
+    } else if (const CCollisionActor* collision = TCastToConstPtr< CCollisionActor >(actor)) {
+      if (const CActor* owner = TCastToConstPtr< CActor >(mgr.GetObjectById(collision->GetOwnerId()))) {
+        hostile = owner->GetHostileTarget();
+      }
+    }
+  }
+  return hostile;
+}
+
+void CCompoundTargetReticle::UpdateCurrLockOnGroupRS5(float dt, const CStateManager& mgr) {
+  const CPlayer& player = *mgr.GetPlayer();
+  const TUniqueId target = player.GetOrbitTargetId();
+  if (target != kInvalidUniqueId && mCurrReticleTargetId != target &&
+      player.GetMorphballTransitionState() == CPlayer::kMS_Unmorphed) {
+    mgr.GetCameraManager()->IsInCinematicCamera();
+  }
+
+  bool suppressArms = false;
+  if (target != kInvalidUniqueId) {
+    bool nextGrapple = false;
+    if (TCastToConstPtr< CScriptGrapplePoint >(mgr.GetObjectById(mNextReticleTargetId))) {
+      nextGrapple = true;
+    }
+    if (TCastToConstPtr< CScriptGrapplePoint >(mgr.GetObjectById(target))) {
+      suppressArms = true;
+    }
+    if (!nextGrapple) {
+      mNextReticleTargetId = kInvalidUniqueId;
+      mNextReticleAlpha = 0.f;
+    }
+  }
+
+  const CTransform4f cameraXf = mgr.GetCameraManager()->GetCurrentCamera(mgr).GetTransform();
+  const CQuaternion cameraRotation = CQuaternion::FromMatrix(cameraXf.GetRotation().BuildMatrix3f());
+  mCurrReticlePosition = cameraXf.GetTranslation() +
+                        cameraRotation.Transform(CVector3f(0.f, CAimingCursor::GetCursorPlaneDistance(), 0.f));
+  const bool hasTarget = target != kInvalidUniqueId;
+  const bool hadTarget = mCurrReticleTargetId != kInvalidUniqueId;
+  const bool aimHeld = !hasTarget && player.GetPointerAimHeld();
+  if (target != kInvalidUniqueId && target == mCurrReticleTargetId) {
+    mCurrReticleLockTime += dt;
+  } else if (target == kInvalidUniqueId && mCurrReticleTargetId != kInvalidUniqueId) {
+    if (aimHeld) {
+      bool flash = mPrevState == kRS_Combat;
+      if (TCastToConstPtr< CScriptGrapplePoint >(mgr.GetObjectById(mCurrReticleTargetId))) {
+        flash = false;
+      }
+      if (flash) {
+        mCurrReticleReleaseAlpha = 1.f;
+      }
+    }
+  } else {
+    mCurrReticleLockTime = 0.f;
+  }
+
+  mCurrReticleArmColor = gpTweakTargeting->x2d8_;
+  CColor lockedColor = gpTweakTargeting->x304_;
+  float lockedAlpha = gpTweakTargeting->x308_;
+  if (IsActiveGrappleTarget(target, mgr)) {
+    mCurrReticleArmColor = gpTweakTargeting->x320_;
+    lockedColor = gpTweakTargeting->x320_;
+    lockedAlpha = gpTweakTargeting->x324_;
+  }
+  const CColor& idleColor = gpTweakTargeting->x30c_;
+  const float idleAlpha = gpTweakTargeting->x310_;
+  const float maxVisibility = gpTweakTargeting->x314_;
+  const float colorDuration = gpTweakTargeting->x318_;
+  const float visibilityDuration = gpTweakTargeting->x31c_;
+  if (hasTarget) {
+    x37c_ = CMath::FastClamp(0.f, x37c_ + dt, colorDuration);
+    x380_ = CMath::FastClamp(0.f, x380_ + dt, visibilityDuration);
+  } else if (aimHeld) {
+    x37c_ = CMath::FastClamp(0.f, x37c_ - dt, colorDuration);
+    x380_ = CMath::FastClamp(0.f, x380_ + dt, visibilityDuration);
+    if (!mCurrReticleAimHeld && player.GetMorphballTransitionState() == CPlayer::kMS_Unmorphed) {
+      mgr.GetCameraManager()->IsInCinematicCamera();
+    }
+  } else {
+    x37c_ = CMath::FastClamp(0.f, x37c_ - dt, colorDuration);
+    x380_ = CMath::FastClamp(0.f, x380_ - dt, visibilityDuration);
+    if ((mCurrReticleAimHeld || hadTarget) &&
+        player.GetMorphballTransitionState() == CPlayer::kMS_Unmorphed) {
+      mgr.GetCameraManager()->IsInCinematicCamera();
+    }
+  }
+
+  const float releaseMax = gpTweakTargeting->x354_;
+  const float releaseDuration = player.GetMorphballTransitionState() == CPlayer::kMS_Unmorphed
+                                    ? gpTweakTargeting->x358_ : 0.f;
+  const float releaseStep = releaseDuration > 0.f ? dt * (releaseMax / releaseDuration) : 1.f;
+  const float colorT = x37c_ / colorDuration;
+  const float visibilityT = x380_ / visibilityDuration;
+  mCurrReticleReleaseAlpha =
+      CMath::FastClamp(0.f, mCurrReticleReleaseAlpha - releaseStep, releaseMax);
+  x36c_ = CColor::Lerp(idleColor, lockedColor, colorT);
+  x378_ = visibilityT;
+  float zero = 0.f;
+  x370_ = static_cast< float >((1.f - colorT) * idleAlpha) +
+          static_cast< float >(colorT * lockedAlpha);
+  x374_ = static_cast< float >((1.f - visibilityT) * zero) +
+          static_cast< float >(visibilityT * maxVisibility);
+
+  const float lockTime = mCurrReticleLockTime;
+  const float scaleT =
+      CMath::FastClamp(0.f, (lockTime - gpTweakTargeting->x330_) / gpTweakTargeting->x334_, 1.f);
+  const float startScale = gpTweakTargeting->x338_;
+  const CVector3f fromScale(startScale, startScale, startScale);
+  mCurrReticleBaseScale = CVector3f::Lerp(fromScale, mNextReticleScale, scaleT);
+  const float bracketsT =
+      CMath::FastClamp(0.f, (lockTime - gpTweakTargeting->x33c_) / gpTweakTargeting->x340_, 1.f);
+  mCurrReticleDetailColor = gpTweakTargeting->x328_;
+  mCurrReticleDetailAlpha = gpTweakTargeting->x32c_;
+  mCurrReticleBracketAlpha = static_cast< float >((1.f - bracketsT) * zero) +
+                            static_cast< float >(bracketsT * mCurrReticleDetailAlpha);
+
+  const CVector3f direction =
+      CVector3f(player.GetTransform().GetForward().ToVec2f(), 0.f).AsNormalized();
+  const CVector3f forward(0.f, 1.f, 0.f);
+  const float degrees = 360.f * CMath::Rad2Rev(CVector3f::GetAngleDiff(direction, forward));
+  const CAbsAngle heading = CVector3f::Cross(direction, forward).GetZ() < 0.f
+                               ? CAbsAngle::FromDegrees(360.f - degrees)
+                               : CAbsAngle::FromDegrees(degrees);
+  if (bracketsT >= 1.f) {
+    mCurrReticleBracketAngle += heading - mCurrReticleBracketHeading;
+  } else {
+    mCurrReticleBracketAngle = CRelAngle::FromRadians(0.f);
+  }
+  mCurrReticleBracketHeading = heading;
+
+  const float techT = (mCurrReticleLockTime - gpTweakTargeting->x344_) / gpTweakTargeting->x348_;
+  mCurrReticleTechTime = CMath::FastClamp(0.f, static_cast< float >(techT * 0.5f), 0.496f);
+  if (techT >= 1.f) {
+    mCurrReticleTechAngle += CRelAngle::FromDegrees(gpTweakTargeting->x34c_ * dt);
+  } else {
+    mCurrReticleTechAngle = CRelAngle::FromRadians(0.f);
+  }
+  mCurrReticleTechHeading = heading;
+
+  if (mPrevState != kRS_Combat && mPrevState != kRS_Selector) {
+    suppressArms = true;
+    x374_ = 0.f;
+  }
+  if (suppressArms) {
+    mCurrReticleArmAlpha = 0.f;
+  } else {
+    const float maxAlpha = gpTweakTargeting->x2dc_;
+    const float step = gpTweakTargeting->x2fc_ > 0.f
+                           ? dt * (maxAlpha / gpTweakTargeting->x2fc_) : 1.f;
+    if (mCurrReticleLockTime >= gpTweakTargeting->x2f8_) {
+      mCurrReticleArmAlpha =
+          CMath::FastClamp(gpTweakTargeting->x300_, mCurrReticleArmAlpha - step, maxAlpha);
+    } else {
+      mCurrReticleArmAlpha = maxAlpha;
+    }
+  }
+  mCurrReticleAimHeld = aimHeld;
+  mCurrReticleTargetId = target;
+}
+
+void CCompoundTargetReticle::UpdateNextLockOnGroupRS5(float dt, const CStateManager& mgr) {
+  mNextReticleArmOffset = gpTweakTargeting->x2e0_;
+  const TUniqueId target = mgr.GetPlayer()->GetOrbitNextTargetId();
+  const float scale = gpTweakTargeting->x2cc_;
+  mNextReticleScale = CVector3f(scale, scale, scale);
+  if (target != kInvalidUniqueId) {
+    mNextReticleColor = gpTweakTargeting->x2d0_;
+  }
+  const float fadeDuration = gpTweakTargeting->x2ec_;
+  const float maxAlpha = gpTweakTargeting->x2d4_;
+  const float alphaStep = dt * (maxAlpha / fadeDuration);
+  if (const CActor* actor = TCastToConstPtr< CActor >(mgr.GetObjectById(target))) {
+    mNextReticleTargetPosition = actor->GetOrbitPosition(mgr);
+  } else {
+    mNextReticleTargetPosition = mNextReticleWorldPosition;
+  }
+
+  const CTransform4f cameraXf = mgr.GetCameraManager()->GetCurrentCamera(mgr).GetTransform();
+  const CVector3f cameraPosition = cameraXf.GetTranslation();
+  const CVector3f cameraForward = cameraXf.GetForward().AsNormalized();
+  const CVector3f targetDirection = (mNextReticleTargetPosition - cameraPosition).AsNormalized();
+  const float targetDistance =
+      CAimingCursor::GetCursorPlaneDistance() / CVector3f::Dot(targetDirection, cameraForward);
+  mNextReticleDestPosition = cameraPosition + targetDistance * targetDirection;
+
+  if (target != kInvalidUniqueId && mNextReticleTargetId != target) {
+    if (0.f == mNextReticleAlpha) {
+      mNextReticleFromPosition = mNextReticleDestPosition;
+    } else {
+      mNextReticleFromPosition = mNextReticleWorldPosition;
+      mNextReticleInterpolating = true;
+      mNextReticleInterpDuration = gpTweakTargeting->x2f0_;
+      mNextReticleInterpTime = 0.f;
+    }
+  }
+
+  if (target == kInvalidUniqueId) {
+    mNextReticleAlpha = CMath::FastClamp(0.f, mNextReticleAlpha - alphaStep, maxAlpha);
+  } else {
+    mNextReticleAlpha = CMath::FastClamp(0.f, mNextReticleAlpha + alphaStep, maxAlpha);
+  }
+
+  if (mNextReticleInterpolating && mNextReticleInterpDuration > 0.f) {
+    const float& duration = mNextReticleInterpDuration;
+    mNextReticleInterpTime = CMath::FastClamp(0.f, mNextReticleInterpTime + dt, duration);
+    if (mNextReticleInterpTime < mNextReticleInterpDuration) {
+      const CVector3f fromDirection = (mNextReticleFromPosition - cameraPosition).AsNormalized();
+      const float fromDistance =
+          CAimingCursor::GetCursorPlaneDistance() / CVector3f::Dot(fromDirection, cameraForward);
+      const CVector3f fromPosition = cameraPosition + fromDistance * fromDirection;
+      const float t = mNextReticleInterpTime / mNextReticleInterpDuration;
+      const CVector3f position = CVector3f::Lerp(fromPosition, mNextReticleDestPosition, t);
+      mNextReticlePosition = position;
+      const CVector3f direction = (mNextReticlePosition - cameraPosition).AsNormalized();
+      const float distance = (mNextReticleTargetPosition - cameraPosition).Magnitude();
+      mNextReticleWorldPosition = cameraPosition + distance * direction;
+    } else {
+      mNextReticleInterpolating = false;
+      mNextReticlePosition = mNextReticleDestPosition;
+      mNextReticleWorldPosition = mNextReticleTargetPosition;
+    }
+  } else {
+    mNextReticlePosition = mNextReticleDestPosition;
+    mNextReticleWorldPosition = mNextReticleTargetPosition;
+  }
+
+  mNextReticleTargetId = target;
+  mNextReticleAngle += CRelAngle::FromDegrees(dt * gpTweakTargeting->x2f4_);
+}
+
+void CCompoundTargetReticle::UpdateCombatAimingReticle(float dt, const CStateManager& mgr) {
+  const CPlayer& player = *mgr.GetPlayer();
+  const CAimingCursor& cursor = player.GetAimingCursor();
+  mCursorPlanePosition = cursor.GetCursorOnPlane();
+  mAimingScale = gpTweakTargeting->x220_;
+  mAimingArmOffset = gpTweakTargeting->x23c_;
+  const float distance = (cursor.GetCursorInWorld() - player.GetTransform().GetTranslation()).Magnitude();
+  const CMayaSpline& scaleCurveA = gpTweakTargeting->x248_;
+  const CMayaSpline& scaleCurveB = gpTweakTargeting->x288_;
+  const float scaleA = scaleCurveA.EvaluateAt(distance);
+  const float scaleB = scaleCurveB.EvaluateAt(distance);
+  const float deltaA = CMath::FastLimit(scaleA - mAimingArmLengthScale, 1.f / 45.f);
+  const float deltaB = CMath::FastLimit(scaleB - mAimingCenterScale, 1.f / 45.f);
+  mAimingArmLengthScale = CMath::FastClamp(0.f, mAimingArmLengthScale + deltaA, 1.f);
+  mAimingCenterScale = CMath::FastClamp(0.f, mAimingCenterScale + deltaB, 1.f);
+
+  CColor armColor = gpTweakTargeting->x224_;
+  CColor targetArmColor = gpTweakTargeting->x22c_;
+  const float armAlpha = gpTweakTargeting->x230_;
+  const float targetArmAlpha = gpTweakTargeting->x228_;
+  CColor centerColor = CColor::Green();
+  CColor targetCenterColor = CColor::Red();
+  switch (mPrevState) {
+  case kRS_XRay:
+    armColor = gpTweakTargeting->x374_;
+    targetArmColor = gpTweakTargeting->x378_;
+    centerColor = gpTweakTargeting->x374_;
+    targetCenterColor = gpTweakTargeting->x378_;
+    break;
+  case kRS_Thermal:
+    armColor = gpTweakTargeting->x37c_;
+    targetArmColor = gpTweakTargeting->x380_;
+    centerColor = gpTweakTargeting->x37c_;
+    targetCenterColor = gpTweakTargeting->x380_;
+    break;
+  default:
+    break;
+  }
+
+  const float step = (1.f / gpTweakTargeting->x2c8_) * dt;
+  const TUniqueId target = cursor.GetCursorObjectId();
+  const CActor* actor = TCastToConstPtr< CActor >(mgr.GetObjectById(target));
+  if (actor && actor->GetActive() && IsHostileTarget(target, mgr)) {
+    mCursorTargetColorBlend = CMath::FastClamp(0.f, mCursorTargetColorBlend + step, 1.f);
+  } else {
+    mCursorTargetColorBlend = CMath::FastClamp(0.f, mCursorTargetColorBlend - step, 1.f);
+  }
+  mAimingArmColor = CColor::Lerp(armColor, targetArmColor, mCursorTargetColorBlend);
+  const float alphaA = (1.f - mCursorTargetColorBlend) * armAlpha;
+  const float alphaB = mCursorTargetColorBlend * targetArmAlpha;
+  const float armBlendAlpha = alphaA + alphaB;
+  const float alpha = CMath::FastMin(cursor.GetCursorAlpha(), armBlendAlpha);
+  mAimingArmAlpha = CMath::FastClamp(0.f, alpha, 1.f);
+  mAimingCenterColor = CColor::Lerp(centerColor, targetCenterColor, mCursorTargetColorBlend);
+  mAimingCenterAlpha = cursor.GetCursorAlpha();
+
+  if (player.GetGunHolsterState() == CPlayer::kGH_Holstered ||
+      (mPrevState != kRS_Combat && mPrevState != kRS_XRay && mPrevState != kRS_Thermal)) {
+    mAimingArmAlpha = 0.f;
+    mAimingCenterAlpha = 0.f;
+  }
+  if (mOffScreenFrameCount != 0) {
+    mAimingArmColor = skOffScreenColor.WithAlphaModulatedBy(player.GetAimingCursor().GetCursorAlpha());
+    mAimingCenterColor = skOffScreenColor.WithAlphaModulatedBy(player.GetAimingCursor().GetCursorAlpha());
+  }
+}
+#endif
+
 void CCompoundTargetReticle::Update(float dt, const CStateManager& mgr) {
   // 1. Orientation slerp
+#if VERSION >= VERSION_R3IJ_00
+  float angleDeg = mLaggingOrientation.AngleFrom(mLeadingOrientation).AsDegrees();
+#else
   CRelAngle angle = mLaggingOrientation.AngleFrom(mLeadingOrientation);
   float angleDeg = angle.AsDegrees();
+#endif
   bool extreme = false;
   if (angleDeg < 0.1f || angleDeg > 45.f) {
     extreme = true;
@@ -200,6 +987,14 @@ void CCompoundTargetReticle::Update(float dt, const CStateManager& mgr) {
   mLaggingTargetPos = CalculateOrbitZoneReticlePosition(mgr, true);
 
   // 3. Sub-updates
+#if VERSION >= VERSION_R3IJ_00
+  UpdateOrbitLockPosition(dt, mgr);
+  UpdateCombatAimingReticle(dt, mgr);
+  UpdateScanTargetReticle(dt, mgr);
+  UpdateNextLockOnGroupRS5(dt, mgr);
+  UpdateCurrLockOnGroupRS5(dt, mgr);
+  UpdateScanTargetBounds(mgr);
+#endif
   UpdateCurrLockOnGroup(dt, mgr);
   UpdateNextLockOnGroup(dt, mgr);
   UpdateOrbitZoneGroup(dt, mgr);
@@ -294,6 +1089,23 @@ void CCompoundTargetReticle::Update(float dt, const CStateManager& mgr) {
     } else {
       mGrapple.Lock();
     }
+#if VERSION >= VERSION_R3IJ_00
+    if (scan) {
+      mScanReticleRing.Lock();
+    } else {
+      mScanReticleRing.Unlock();
+    }
+    if (scan) {
+      mScanReticleBracket.Lock();
+    } else {
+      mScanReticleBracket.Unlock();
+    }
+    if (scan) {
+      mScanReticleProgress.Lock();
+    } else {
+      mScanReticleProgress.Unlock();
+    }
+#endif
     for (AUTO(it, mOuterBeamIconSquares.begin()); it != mOuterBeamIconSquares.end(); ++it) {
       if (combat) {
         it->mModel.Lock();
@@ -321,7 +1133,11 @@ void CCompoundTargetReticle::Update(float dt, const CStateManager& mgr) {
   bool missileActive = mgr.GetPlayer()->GetPlayerGun()->GetMissileMode() == CPlayerGun::kMM_Active;
   if (missileActive != mMissileActive) {
     if (mMissileBracketTimer != 0.f) {
+#if VERSION >= VERSION_R3IJ_00
+      mMissileBracketTimer = FLT_EPSILON + -mMissileBracketTimer;
+#else
       mMissileBracketTimer = FLT_EPSILON - mMissileBracketTimer;
+#endif
     } else {
       mMissileBracketTimer = FLT_EPSILON;
     }
@@ -329,6 +1145,43 @@ void CCompoundTargetReticle::Update(float dt, const CStateManager& mgr) {
   }
 
   // 7. Beam change
+#if VERSION >= VERSION_R3IJ_00
+  CPlayerState::EBeamId beam = mgr.GetPlayer()->GetPlayerGun()->GetPrimaryWeaponId();
+  if (beam != mBeam) {
+    mChargeGaugeOvershootTimer = gpTweakTargeting->mChargeGaugeOvershootDuration;
+    for (int i = 0; i < 9; ++i) {
+      SOuterItemInfo& icon = mOuterBeamIconSquares[i];
+      const CAbsAngle baseAngle =
+          CAbsAngle::FromRadians(gpTweakTargeting->mOuterBeamSquareAngles[beam][i]);
+      CRelAngle offshootAngleDelta =
+          CRelAngle::FromRadians(baseAngle.AsRadians() - icon.mRotAng.AsRadians());
+      if (i % 2 == 1) {
+        offshootAngleDelta = offshootAngleDelta.AsRadians() > 0.f
+                                 ? CRelAngle::FromRadians(-1.f * (M_2PIF - offshootAngleDelta.AsRadians()))
+                                 : CRelAngle::FromRadians(M_2PIF + offshootAngleDelta.AsRadians());
+      }
+      icon.mOffshootBaseAngle = icon.mRotAng;
+      icon.mOffshootAngleDelta = offshootAngleDelta;
+      icon.mBaseAngle = baseAngle;
+    }
+
+    const CAbsAngle chargeBaseAngle = CAbsAngle::FromRadians(gpTweakTargeting->mChargeGaugeAngles[beam]);
+    bool odd = rand() % 2 == 1;
+    CRelAngle chargeOffshootAngleDelta =
+        CRelAngle::FromRadians(chargeBaseAngle.AsRadians() - mChargeGauge.mRotAng.AsRadians());
+    if (odd) {
+      chargeOffshootAngleDelta =
+          chargeOffshootAngleDelta.AsRadians() > 0.f
+              ? CRelAngle::FromRadians(-1.f * (M_2PIF - chargeOffshootAngleDelta.AsRadians()))
+              : CRelAngle::FromRadians(M_2PIF + chargeOffshootAngleDelta.AsRadians());
+    }
+    mChargeGauge.mOffshootBaseAngle = mChargeGauge.mRotAng;
+    mChargeGauge.mOffshootAngleDelta = chargeOffshootAngleDelta;
+    mChargeGauge.mBaseAngle = chargeBaseAngle;
+    mBeam = beam;
+    mLockonTimer = 0.f;
+  }
+#else
   CPlayerState::EBeamId beam = mgr.GetPlayer()->GetPlayerGun()->GetPrimaryWeaponId();
   if (beam != mBeam) {
     mChargeGaugeOvershootTimer = gpTweakTargeting->mChargeGaugeOvershootDuration;
@@ -361,6 +1214,7 @@ void CCompoundTargetReticle::Update(float dt, const CStateManager& mgr) {
     mBeam = beam;
     mLockonTimer = 0.f;
   }
+#endif
 
   // 8. Beam shot / lock fire
   const CPlayerGun* gun = mgr.GetPlayer()->GetPlayerGun();
@@ -384,8 +1238,14 @@ void CCompoundTargetReticle::Update(float dt, const CStateManager& mgr) {
   }
 
   // 10. Grapple point tracking
+#if VERSION >= VERSION_R3IJ_00
+  const CObjectList& objects = mgr.GetObjectListById(kOL_All);
+  const CScriptGrapplePoint* castResult =
+      TCastToConstPtr< CScriptGrapplePoint >(objects.GetObjectById(mNextTargetId));
+#else
   const CScriptGrapplePoint* castResult = TCastToConstPtr< CScriptGrapplePoint >(
       mgr.GetObjectListById(kOL_All).GetObjectById(mNextTargetId));
+#endif
   const CScriptGrapplePoint* grapplePoint = nullptr;
   if (mNextTargetId != kInvalidUniqueId) {
     grapplePoint = castResult;
@@ -431,6 +1291,9 @@ void CCompoundTargetReticle::Update(float dt, const CStateManager& mgr) {
   mSeekerAngle = CMath::ClampRadians(
       mSeekerAngle +
       CRelAngle::FromDegrees(dt * gpTweakTargeting->mSeekerAngleSpeed).AsRadians());
+#if VERSION >= VERSION_R3IJ_00
+  UpdateOffScreenReticle(dt, mgr);
+#endif
 }
 
 void CCompoundTargetReticle::UpdateCurrLockOnGroup(float dt, const CStateManager& mgr) {
@@ -488,8 +1351,8 @@ void CCompoundTargetReticle::UpdateCurrLockOnGroup(float dt, const CStateManager
     if (mMissileBracketTimer < 0.f) {
       mMissileBracketTimer = rstl::min_val(mMissileBracketTimer + dt, 0.f);
     } else {
-      mMissileBracketTimer = rstl::min_val(mMissileBracketTimer + dt,
-                                               gpTweakTargeting->mMissileBracketDuration);
+      mMissileBracketTimer =
+          rstl::min_val(mMissileBracketTimer + dt, gpTweakTargeting->mMissileBracketDuration);
     }
   }
 
@@ -505,6 +1368,17 @@ void CCompoundTargetReticle::UpdateCurrLockOnGroup(float dt, const CStateManager
       float offshoot = offshoot_func(mOvershootOffsetHalf, mPremultOvershootOffset,
                                      1.f - mChargeGaugeOvershootTimer /
                                                gpTweakTargeting->mChargeGaugeOvershootDuration);
+#if VERSION >= VERSION_R3IJ_00
+      for (int i = 0; i < 9; ++i) {
+        SOuterItemInfo& item = mOuterBeamIconSquares[i];
+        const float angleDelta = offshoot * item.mOffshootAngleDelta.AsRadians();
+        const float baseAngle = item.mOffshootBaseAngle.AsRadians();
+        item.mRotAng = CAbsAngle::FromRadians(angleDelta + baseAngle);
+      }
+      const float angleDelta = offshoot * mChargeGauge.mOffshootAngleDelta.AsRadians();
+      const float baseAngle = mChargeGauge.mOffshootBaseAngle.AsRadians();
+      mChargeGauge.mRotAng = CAbsAngle::FromRadians(baseAngle + angleDelta);
+#else
       for (int i = 0; i < 9; ++i) {
         SOuterItemInfo& item = mOuterBeamIconSquares[i];
         float angleDelta = offshoot * item.mOffshootAngleDelta;
@@ -512,6 +1386,7 @@ void CCompoundTargetReticle::UpdateCurrLockOnGroup(float dt, const CStateManager
       }
       mChargeGauge.mRotAng = CMath::ClampRadians(
           mChargeGauge.mOffshootBaseAngle + offshoot * mChargeGauge.mOffshootAngleDelta);
+#endif
     }
   }
 
@@ -526,23 +1401,60 @@ void CCompoundTargetReticle::UpdateCurrLockOnGroup(float dt, const CStateManager
   if (mMissileBracketScaleTimer > 0.f) {
     mMissileBracketScaleTimer = rstl::max_val(0.f, mMissileBracketScaleTimer - dt);
   }
+#if VERSION >= VERSION_R3IJ_00
+  bool hasScanTarget = false;
+  const CPlayer& scanPlayer = *mgr.GetPlayer();
+  if (mPrevState == kRS_Scan && mResolvedScanTargetId != kInvalidUniqueId) {
+    hasScanTarget = true;
+  }
+
+  if (hasScanTarget) {
+    const float blend = mScanTargetBlend + dt / gpTweakTargeting->x360_;
+    mScanTargetBlend = blend < 1.f ? blend : 1.f;
+  } else {
+    const float blend = mScanTargetBlend - dt / gpTweakTargeting->x360_;
+    mScanTargetBlend = 0.f < blend ? blend : 0.f;
+  }
+
+  if (scanPlayer.GetScanningObjectId() != kInvalidUniqueId) {
+    const float blend = x214_ - static_cast< float >(4.f * dt);
+    x214_ = 0.f < blend ? blend : 0.f;
+  } else {
+    const float blend = x214_ + static_cast< float >(4.f * dt);
+    x214_ = blend < 1.f ? blend : 1.f;
+  }
+#endif
 }
 
 void CCompoundTargetReticle::UpdateNextLockOnGroup(float dt, const CStateManager& mgr) {
   const CPlayer* player = mgr.GetPlayer();
   TUniqueId nextTargetId = player->GetOrbitNextTargetId();
+#if VERSION >= VERSION_R3IJ_00
+  if (mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::kPV_Scan) {
+    const TUniqueId target = player->GetOrbitTargetId();
+    if (target != kInvalidUniqueId) {
+      nextTargetId = target;
+    }
+  }
+#else
   if (mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::kPV_Scan &&
       player->GetOrbitTargetId() != kInvalidUniqueId) {
     nextTargetId = player->GetOrbitTargetId();
   }
+#endif
 
   if (nextTargetId != mNextTargetId) {
     if (kInvalidUniqueId == nextTargetId) {
       mNextGroupA = mNextGroupInterp;
       mNextGroupA.SetIsOrbitZoneIdlePosition(false);
       bool lag = (mPrevState == kRS_XRay || mPrevState == kRS_Thermal);
+#if VERSION >= VERSION_R3IJ_00
+      const CVector3f& pos = lag ? mLaggingTargetPos : mTargetPos;
+      mNextGroupB = CTargetReticleRenderState(kInvalidUniqueId, 1.f, pos, 0.f, 1.f, true);
+#else
       mNextGroupB = CTargetReticleRenderState(
           kInvalidUniqueId, 1.f, lag ? mLaggingTargetPos : mTargetPos, 0.f, 1.f, true);
+#endif
       mNextGroupDur = gpTweakTargeting->mNextLockOnExitDuration;
       mNextGroupTimer = mNextGroupDur;
       mNextTargetId = nextTargetId;
@@ -575,9 +1487,17 @@ void CCompoundTargetReticle::UpdateNextLockOnGroup(float dt, const CStateManager
 
 void CCompoundTargetReticle::UpdateOrbitZoneGroup(float dt, const CStateManager& mgr) {
   if (mTargetId == kInvalidUniqueId && mNextTargetId != kInvalidUniqueId) {
+#if VERSION >= VERSION_R3IJ_00
+    mUnk = rstl::min_val(mUnk + static_cast< float >(2.f * dt), 1.f);
+#else
     mUnk = rstl::min_val(2.f * dt + mUnk, 1.f);
+#endif
   } else {
+#if VERSION >= VERSION_R3IJ_00
+    mUnk = rstl::max_val(mUnk - static_cast< float >(2.f * dt), 0.f);
+#else
     mUnk = rstl::max_val(mUnk - 2.f * dt, 0.f);
+#endif
   }
 
   if (mgr.GetPlayer()->IsCrosshairsOpen() &&
@@ -593,16 +1513,29 @@ void CCompoundTargetReticle::UpdateOrbitZoneGroup(float dt, const CStateManager&
 void CCompoundTargetReticle::Draw(const CStateManager& mgr, bool hideLockon) const {
   if (mgr.GetPlayer()->GetMorphballTransitionState() == CPlayer::kMS_Unmorphed &&
       !mgr.GetCameraManager()->IsInCinematicCamera()) {
+#if VERSION >= VERSION_R3IJ_00
+    CTransform4f camXf = mgr.GetCameraManager()->GetCurrentCamera(mgr).GetTransform();
+#else
     CTransform4f camXf = mgr.GetCameraManager()->GetCurrentCameraTransform(mgr);
+#endif
     CGraphics::SetViewPointMatrix(camXf);
     CMatrix3f rot = camXf.BuildMatrix3f();
 
     CGraphics::SetCullMode(kCM_None);
 
     if (!hideLockon) {
+#if VERSION >= VERSION_R3IJ_00
+      DrawNextLockOnGroupRS5(rot, mgr);
+      DrawCurrLockOnGroupRS5(rot, mgr);
+      DrawOrbitZoneGroup(rot, mgr);
+      DrawScanTargetReticle(rot, mgr);
+      DrawCombatAimingReticle(rot, mgr);
+      DrawOffScreenReticle(rot, mgr);
+#else
       DrawCurrLockOnGroup(rot, mgr);
       DrawNextLockOnGroup(rot, mgr);
       DrawOrbitZoneGroup(rot, mgr);
+#endif
     }
 
     DrawGrappleGroup(rot, mgr, hideLockon);
@@ -680,8 +1613,14 @@ void CCompoundTargetReticle::DrawGrapplePoint(const CScriptGrapplePoint& point, 
                                   : gpTweakTargeting->mGrapplePointSelectColor;
   CColor color = CColor::Lerp(gpTweakTargeting->mGrapplePointColor, selectColor, t);
 
+#if VERSION >= VERSION_R3IJ_00
+  const float baseScale = (1.f - t) * gpTweakTargeting->mGrappleScale;
+  const float selectScale = t * gpTweakTargeting->mGrappleSelectScale;
+  t = baseScale + selectScale;
+#else
   t = (1.f - t) * gpTweakTargeting->mGrappleScale +
       t * gpTweakTargeting->mGrappleSelectScale;
+#endif
   float scale = CalculateClampedScale(orbitPos, 1.f, gpTweakTargeting->mGrappleClampMin,
                                       gpTweakTargeting->mGrappleClampMax, mgr);
   scale *= t;
@@ -693,6 +1632,7 @@ void CCompoundTargetReticle::DrawGrapplePoint(const CScriptGrapplePoint& point, 
   model->Draw(CModelFlags::Additive(color).DepthCompareUpdate(zEqual, false));
 }
 
+#if VERSION < VERSION_R3IJ_00
 void CCompoundTargetReticle::DrawCurrLockOnGroup(const CMatrix3f& rot,
                                                  const CStateManager& mgr) const {
   if (mNoDrawTicks > 0)
@@ -1034,7 +1974,9 @@ void CCompoundTargetReticle::DrawCurrLockOnGroup(const CMatrix3f& rot,
     }
   }
 }
+#endif
 
+#if VERSION < VERSION_R3IJ_00
 void CCompoundTargetReticle::DrawNextLockOnGroup(const CMatrix3f& rot,
                                                  const CStateManager& mgr) const {
   if (mNoDrawTicks > 0)
@@ -1179,6 +2121,7 @@ void CCompoundTargetReticle::DrawNextLockOnGroup(const CMatrix3f& rot,
     CGraphics::SetLineWidth(1.f, kTO_Zero);
   }
 }
+#endif
 
 void CCompoundTargetReticle::DrawOrbitZoneGroup(const CMatrix3f& rot,
                                                 const CStateManager& mgr) const {
@@ -1202,8 +2145,8 @@ void CCompoundTargetReticle::DrawOrbitZoneGroup(const CMatrix3f& rot,
 
 void CCompoundTargetReticle::UpdateTargetParameters(CTargetReticleRenderState& state,
                                                     const CStateManager& mgr) {
-  if (const CActor* act = TCastToConstPtr< CActor >(
-          mgr.GetObjectListById(kOL_All).GetObjectById(state.GetTargetId()))) {
+  const CObjectList& objects = mgr.GetObjectListById(kOL_All);
+  if (const CActor* act = TCastToConstPtr< CActor >(objects.GetObjectById(state.GetTargetId()))) {
     state.SetRadiusWorld(CalculateRadiusWorld(*act, mgr));
     CVector3f pos = CalculatePositionWorld(*act, mgr);
     state.SetTargetPositionWorld(pos);
@@ -1222,6 +2165,38 @@ float CCompoundTargetReticle::CalculateRadiusWorld(const CActor& actor,
                            ? *touchBounds
                            : CAABox(actor.GetAimPosition(mgr, 0.f), actor.GetAimPosition(mgr, 0.f));
 
+#if VERSION >= VERSION_R3IJ_00
+  const CVector3f& min = aabb.GetMinPoint();
+  const CVector3f& max = aabb.GetMaxPoint();
+
+  float radius;
+  switch (static_cast< int >(gpTweakTargeting->mTargetRadiusMode)) {
+  case 0: {
+    const float height = max.GetY() - min.GetY();
+    const float depth = max.GetZ() - min.GetZ();
+    const float yz = rstl::min_val(depth, height);
+    const float width = max.GetX() - min.GetX();
+    radius = rstl::min_val(width, yz) * 0.5f;
+    break;
+  }
+  case 1: {
+    const float height = max.GetY() - min.GetY();
+    const float depth = max.GetZ() - min.GetZ();
+    const float yz = rstl::max_val(depth, height);
+    const float width = max.GetX() - min.GetX();
+    radius = rstl::max_val(width, yz) * 0.5f;
+    break;
+  }
+  default: {
+    float d = max.GetZ() - min.GetZ();
+    float w = max.GetX() - min.GetX();
+    float h = max.GetY() - min.GetY();
+    radius = (w + d + h) * (1.f / 6.f);
+    break;
+  }
+  }
+
+#else
   const CVector3f min = aabb.GetMinPoint();
   const CVector3f max = aabb.GetMaxPoint();
 
@@ -1244,6 +2219,8 @@ float CCompoundTargetReticle::CalculateRadiusWorld(const CActor& actor,
   }
   }
 
+#endif
+
   return radius > 0.f ? radius : 1.f;
 }
 
@@ -1252,6 +2229,145 @@ CVector3f CCompoundTargetReticle::CalculatePositionWorld(const CActor& actor,
   return mPrevState == kRS_Scan ? actor.GetOrbitPosition(mgr) : actor.GetAimPosition(mgr, 0.f);
 }
 
+#if VERSION >= VERSION_R3IJ_00
+void CCompoundTargetReticle::DrawScanTargetReticle(const CMatrix3f& rot,
+                                                   const CStateManager& mgr) const {
+  if (mNoDrawTicks > 0) {
+    return;
+  }
+
+  if (mgr.GetPlayerState()->GetCurrentVisor() != CPlayerState::kPV_Scan) {
+    return;
+  }
+  const CPlayer& player = *mgr.GetPlayer();
+  if (mPrevState != kRS_Scan) {
+    return;
+  }
+  TUniqueId scanningId = player.GetScanningObjectId();
+  TUniqueId target = scanningId != kInvalidUniqueId ? scanningId : TUniqueId(mResolvedScanTargetId);
+  if (const CActor* actor = TCastToConstPtr< CActor >(mgr.GetObjectById(target))) {
+    actor->GetScannableObjectInfo();
+  }
+
+  const_cast< TCachedToken< CModel >& >(mScanReticleRing).TryCache();
+  const_cast< TCachedToken< CModel >& >(mScanReticleBracket).TryCache();
+  const_cast< TCachedToken< CModel >& >(mScanReticleProgress).TryCache();
+  CModel* ring = mScanReticleRing.GetObject();
+  CModel* bracket = mScanReticleBracket.GetObject();
+  CModel* progress = mScanReticleProgress.GetObject();
+  float alpha = player.GetScanningObjectId() != kInvalidUniqueId
+                    ? 1.f
+                    : player.GetAimingCursor().GetCursorAlpha();
+  alpha *= 1.f - player.GetOrbitModeBlend();
+  if (ring && bracket && progress) {
+    CVector3f ringPosition =
+        CalculateOrbitZoneReticlePosition(mgr, CalculateOrbitZoneReticleDistance(mgr));
+    CColor ringColor = CColor::Lerp(CColor(gpTweakTargeting->x368_),
+                                    CColor(gpTweakTargeting->x370_), mScanTargetBlend)
+                           .WithAlphaModulatedBy(alpha);
+    CColor bracketColor = CColor::Lerp(CColor(gpTweakTargeting->x370_),
+                                       CColor(gpTweakTargeting->x36c_), mScanTargetBlend)
+                              .WithAlphaModulatedBy(alpha);
+    if (player.GetScanningObjectId() == kInvalidUniqueId && mOffScreenFrameCount != 0) {
+      ringColor = skOffScreenColor.WithAlphaModulatedBy(alpha * gpTweakTargeting->x35c_);
+      bracketColor = skOffScreenColor.WithAlphaModulatedBy(alpha * gpTweakTargeting->x35c_);
+    }
+
+    CVector3f extent =
+        CVector3f::Lerp(mScanTargetExtent, mScanTargetFromExtent, mScanTargetInterpFactor);
+    CVector3f position =
+        CVector3f::Lerp(mScanTargetPosition, mScanTargetFromPosition, mScanTargetInterpFactor);
+    float scale = CalculateClampedScale(position, 1.f, 120.f, 120.f, mgr);
+    float width = 0.85f * extent.GetX();
+    width = (0.f < width ? width : 0.f) * 0.5f;
+    float height = 0.85f * extent.GetZ();
+    height = -((0.f < height ? height : 0.f) * 0.5f);
+    const CVector3f cornerOffset(width, 0.f, height);
+    CTransform4f xf(CTransform4f::Identity());
+    gpRender->SetModelMatrix(CTransform4f(rot, ringPosition) *
+                             CTransform4f::Scale(1.8f * gpTweakTargeting->x364_));
+    ring->Draw(CModelFlags(CModelFlags::kT_Additive, 0, CModelFlags::kF_Nothing, ringColor));
+
+    rstl::reserved_vector< CVector3f, 4 > corners;
+    if (mScanTargetBlend > 0.f) {
+      for (int i = 0; i < 4; ++i) {
+        CVector3f signs((i & 1) ? -1.f : 1.f, 1.f, i < 2 ? -1.f : 1.f);
+        if (mScanTargetBlend > 0.f) {
+          CVector3f worldCorner =
+              rot * CVector3f::ByElementMultiply(cornerOffset, signs) + position;
+          CVector3f positionToClamp = worldCorner;
+          CVector3f clamped = ClampToScreenCircle(positionToClamp, mgr, 1.f);
+          CVector3f localCorner = rot.TransposeMultiply(clamped - position);
+          corners.push_back(CVector3f::ByElementMultiply(localCorner, signs));
+        }
+      }
+    }
+    if (corners.size() == 4) {
+      float left = corners[2].GetX() < corners[0].GetX() ? corners[2].GetX() : corners[0].GetX();
+      left = -100.f < left ? left : -100.f;
+      float right = corners[3].GetX() < corners[1].GetX() ? corners[3].GetX() : corners[1].GetX();
+      right = -100.f < right ? right : -100.f;
+      float top = corners[0].GetZ() < corners[1].GetZ() ? corners[1].GetZ() : corners[0].GetZ();
+      top = top < 100.f ? top : 100.f;
+      float bottom = corners[2].GetZ() < corners[3].GetZ() ? corners[3].GetZ() : corners[2].GetZ();
+      bottom = bottom < 100.f ? bottom : 100.f;
+      corners[0] = CVector3f(left, 0.f, top);
+      corners[1] = CVector3f(right, 0.f, top);
+      corners[2] = CVector3f(left, 0.f, bottom);
+      corners[3] = CVector3f(right, 0.f, bottom);
+    }
+
+    float inverseScale = 1.f / scale;
+    for (int i = 0; i < 4; ++i) {
+      CVector3f signs((i & 1) ? -1.f : 1.f, 1.f, i < 2 ? -1.f : 1.f);
+      CVector3f offset = cornerOffset;
+      if (!corners.empty()) {
+        offset = CVector3f::Lerp(CVector3f::Zero(), corners[i], mScanTargetBlend);
+      }
+      gpRender->SetModelMatrix(CTransform4f(rot * CMatrix3f::Scale(scale), position) *
+                               CTransform4f::Scale(signs.GetX(), signs.GetY(), signs.GetZ()) *
+                               CTransform4f::Translate(inverseScale * offset));
+      bracket->Draw(CModelFlags(CModelFlags::kT_Additive, 0, CModelFlags::kF_Nothing,
+                                bracketColor.WithAlphaModulatedBy(1.f - mScanningBlend)));
+    }
+  }
+}
+
+float CCompoundTargetReticle::CalculateOrbitZoneReticleDistance(const CStateManager& mgr) const {
+  float halfFov = 0.5f * mgr.GetCameraManager()->GetCurrentCamera(mgr).GetFov();
+  float distance = 224.f / CCast::LtoF(gpTweakPlayer->GetOrbitZoneHeight(0));
+  return distance / static_cast< float >(tan(CMath::Deg2Rad(halfFov)));
+}
+
+CVector3f CCompoundTargetReticle::ClampToScreenCircle(CVector3f position, const CStateManager& mgr,
+                                                      float radius) const {
+  const CGameCamera& camera = mgr.GetCameraManager()->GetCurrentCamera(mgr);
+  CVector3f viewPosition = camera.GetTransform().TransposeMultiply(position);
+  CVector3f projected =
+      mgr.GetCameraManager()->GetCurrentCamera(mgr).GetPerspectiveMatrix().MultiplyOneOverW(
+          viewPosition);
+  CVector3f screenPosition(projected.GetX(), projected.GetY(), 0.f);
+  if (CVector3f::Dot(screenPosition, screenPosition) > radius * radius) {
+    CVector3f tangent = CVector3f::Cross(CVector3f::Forward(), viewPosition);
+    float tangentMagnitude = tangent.Magnitude();
+    CVector3f inward = CVector3f::Cross(CVector3f::Forward(), tangent / tangentMagnitude);
+    float screenMagnitude = screenPosition.Magnitude();
+    CVector3f clamped =
+        viewPosition + (tangentMagnitude * ((screenMagnitude - radius) / screenMagnitude)) * inward;
+    CVector3f result = mgr.GetCameraManager()->GetCurrentCamera(mgr).GetTransform() * clamped;
+    return result;
+  }
+  return position;
+}
+
+CVector3f CCompoundTargetReticle::CalculateOrbitZoneReticlePosition(const CStateManager& mgr,
+                                                                  float distance) const {
+  const CVector3f position = mgr.GetCameraManager()->GetCurrentCamera(mgr).GetTranslation();
+  const CVector3f& offset =
+      distance * (mgr.GetPlayer()->GetAimingCursor().GetCursorOnPlane() - position).AsNormalized();
+  return offset + position;
+}
+#else
 CVector3f CCompoundTargetReticle::CalculateOrbitZoneReticlePosition(const CStateManager& mgr,
                                                                     bool lag) const {
   const CGameCamera& cam = mgr.GetCameraManager()->GetCurrentCamera(mgr);
@@ -1268,14 +2384,32 @@ CVector3f CCompoundTargetReticle::CalculateOrbitZoneReticlePosition(const CState
 
   return camXf.GetTranslation() + dist * fwd;
 }
+#endif
+
+#if VERSION >= VERSION_R3IJ_00
+bool CCompoundTargetReticle::IsActiveGrappleTarget(TUniqueId id, const CStateManager& mgr) {
+  const CScriptGrapplePoint* point = TCastToConstPtr< CScriptGrapplePoint >(mgr.GetObjectById(id));
+  return point && point->GetActive();
+}
+#endif
 
 bool CCompoundTargetReticle::IsGrappleTarget(TUniqueId id, const CStateManager& mgr) {
-  return TCastToConstPtr< CScriptGrapplePoint >(mgr.GetObjectListById(kOL_All).GetObjectById(id)) !=
-         nullptr;
+  const CObjectList& objects = mgr.GetObjectListById(kOL_All);
+  return TCastToConstPtr< CScriptGrapplePoint >(objects.GetObjectById(id)) != nullptr;
 }
 
 float CCompoundTargetReticle::CalculateClampedScale(CVector3f pos, float scale, float clampMin,
                                                     float clampMax, const CStateManager& mgr) {
+#if VERSION >= VERSION_R3IJ_00
+  const CCameraManager& cameras = *mgr.GetCameraManager();
+  const CGameCamera& cam = cameras.GetCurrentCamera(mgr);
+  CTransform4f camXf = cameras.GetCurrentCameraTransform(mgr);
+  CVector3f viewSpace = cam.GetTransform().TransposeMultiply(pos);
+  CVector3f projected = cam.GetPerspectiveMatrix().MultiplyOneOverW(viewSpace);
+  CVector3f projectedScale =
+      cam.GetPerspectiveMatrix().MultiplyOneOverW(viewSpace + CVector3f(scale, 0.f, 0.f));
+  float pixelScale = projectedScale.GetX() - projected.GetX();
+#else
   const CGameCamera& cam = mgr.GetCameraManager()->GetCurrentCamera(mgr);
   CTransform4f camXf = mgr.GetCameraManager()->GetCurrentCameraTransform(mgr);
   CVector3f viewSpace = cam.GetTransform().TransposeMultiply(pos);
@@ -1283,8 +2417,14 @@ float CCompoundTargetReticle::CalculateClampedScale(CVector3f pos, float scale, 
   float pixelScale =
       cam.GetPerspectiveMatrix().MultiplyOneOverW(viewSpace + CVector3f(scale, 0.f, 0.f)).GetX() -
       projX1;
+#endif
+#if VERSION >= VERSION_R3IJ_00
+  pixelScale *= 640.f;
+  return scale * (CMath::FastClamp(clampMin, pixelScale, clampMax) / pixelScale);
+#else
   pixelScale *= static_cast< float >(CGraphics::GetViewport().mWidth);
   return scale * (CMath::Clamp(clampMin, pixelScale, clampMax) / pixelScale);
+#endif
 }
 
 CTargetReticleRenderState::CTargetReticleRenderState(TUniqueId target, float radiusWorld,
@@ -1301,12 +2441,28 @@ CTargetReticleRenderState::CTargetReticleRenderState(TUniqueId target, float rad
 void CTargetReticleRenderState::InterpolateWithClamp(const CTargetReticleRenderState& a,
                                                      CTargetReticleRenderState& out,
                                                      const CTargetReticleRenderState& b, float t) {
+#if VERSION >= VERSION_R3IJ_00
+  float lower = CMath::FastMax(0.f, t);
+  float t2 = CMath::FastFSel(lower - 1.f, 1.f, lower);
+
+  out.SetRadiusWorld(static_cast< float >((1.f - t2) * a.GetRadiusWorld()) +
+                     static_cast< float >(t2 * b.GetRadiusWorld()));
+  out.SetFactor(static_cast< float >((1.f - t2) * a.GetFactor()) +
+                static_cast< float >(t2 * b.GetFactor()));
+  out.SetMinViewportClampScale(
+      static_cast< float >((1.f - t2) * a.GetMinViewportClampScale()) +
+      static_cast< float >(t2 * b.GetMinViewportClampScale()));
+  out.SetTargetPositionWorld(
+      CVector3f::Lerp(a.GetTargetPositionWorld(), b.GetTargetPositionWorld(), t2));
+#else
   float t2 = CMath::Clamp(0.f, t, 1.f);
   float omt = 1.f - t2;
   out.mRadiusWorld = omt * a.mRadiusWorld + t2 * b.mRadiusWorld;
   out.mFactor = omt * a.mFactor + t2 * b.mFactor;
   out.mMinVpClampScale = omt * a.mMinVpClampScale + t2 * b.mMinVpClampScale;
   out.mPositionWorld = CVector3f::Lerp(a.mPositionWorld, b.mPositionWorld, t2);
+#endif
+
   if (t2 == 1.f)
     out.SetTargetId(b.GetTargetId());
   else if (t2 == 0.f)
@@ -1329,20 +2485,34 @@ void CTargetingManager::Update(float dt, const CStateManager& mgr) {
 void CTargetingManager::Draw(const CStateManager& mgr, bool hideLockon) const {
   CGraphics::SetAmbientColor(CColor::White());
   CGraphics::DisableAllLights();
+#if VERSION < VERSION_R3IJ_00
   mOrbitPointMarker.Draw(mgr);
+#endif
   const CGameCamera& curCam = mgr.GetCameraManager()->GetCurrentCamera(mgr);
   CTransform4f camXf = mgr.GetCameraManager()->GetCurrentCameraTransform(mgr);
   CGraphics::SetViewPointMatrix(camXf);
+#if VERSION >= VERSION_R3IJ_00
+  CFrustumPlanes frustum(camXf, CRelAngle::FromDegrees(curCam.GetFov()).AsRadians(),
+                         curCam.GetAspectRatio(), 1.f, false, 100.f);
+#else
   CFrustumPlanes frustum(camXf, curCam.GetFov() * 0.01745329238474369f, curCam.GetAspectRatio(),
                          1.f, false, 100.f);
+#endif
   gpRender->SetClippingPlanes(frustum);
 #if defined(TARGET_PC)
   gpRender->SetPerspective(curCam.GetFov(), curCam.GetAspectRatio(),
                            curCam.GetNearClipDistance(), curCam.GetFarClipDistance());
 #else
+#if VERSION >= VERSION_R3IJ_00
+  const float height = CGraphics::GetViewportHeight();
+  const float width = CGraphics::GetViewportWidth();
+  gpRender->SetPerspective(curCam.GetFov(), width, height, curCam.GetNearClipDistance(),
+                           curCam.GetFarClipDistance());
+#else
   gpRender->SetPerspective(curCam.GetFov(), static_cast< float >(CGraphics::GetViewport().mWidth),
                            static_cast< float >(CGraphics::GetViewport().mHeight),
                            curCam.GetNearClipDistance(), curCam.GetFarClipDistance());
+#endif
 #endif
   mTargetReticle.Draw(mgr, hideLockon);
 }
@@ -1387,6 +2557,17 @@ void CCompoundTargetReticle::Touch() const {
   if (mChargeGauge.mModel.GetObject()) {
     mChargeGauge.mModel.GetObject()->Touch(0);
   }
+#if VERSION >= VERSION_R3IJ_00
+  if (mScanReticleRing.GetObject()) {
+    mScanReticleRing.GetObject()->Touch(0);
+  }
+  if (mScanReticleBracket.GetObject()) {
+    mScanReticleBracket.GetObject()->Touch(0);
+  }
+  if (mScanReticleProgress.GetObject()) {
+    mScanReticleProgress.GetObject()->Touch(0);
+  }
+#endif
   for (AUTO(it, mOuterBeamIconSquares.begin()); it != mOuterBeamIconSquares.end(); ++it) {
     if (it->mModel.GetObject()) {
       it->mModel.GetObject()->Touch(0);
@@ -1430,21 +2611,33 @@ void COrbitPointMarker::Update(float dt, const CStateManager& mgr) {
                                          mZOffset + curCam.GetTranslation().GetZ());
       CEulerAngles euler =
           CEulerAngles::FromQuaternion(CQuaternion::FromMatrix(curCam.GetTransform()));
+#if VERSION >= VERSION_R3IJ_00
+      mLagAzimuth = M_PIF / 4.f + euler.GetZ();
+#else
       mLagAzimuth = CMath::Deg2Rad(45.f) + euler.GetZ();
+#endif
     } else {
       ResetInterpolationTimer(gpTweakTargeting->mOrbitPointOutTime);
     }
     mLastFreeOrbit = !mLastFreeOrbit;
   }
 
+#if VERSION >= VERSION_R3IJ_00
+  if (IsInterpolating()) {
+#else
   if (mInterpTimer > 0.f) {
+#endif
     mInterpTimer = rstl::max_val(0.f, mInterpTimer - dt);
   }
 
   if (!mCamRelZPos) {
     CVector3f orbitPos = player->GetHUDOrbitTargetPosition();
+#if VERSION >= VERSION_R3IJ_00
+    float delta = (mZOffset + orbitPos.GetZ()) - mLagTargetPos.GetZ();
+#else
     float targetZ = mZOffset + orbitPos.GetZ();
     float delta = targetZ - mLagTargetPos.GetZ();
+#endif
     if (delta < 0.1f) {
       mLagTargetPos = orbitPos + CVector3f(0.f, 0.f, mZOffset);
     } else if (delta < 0.f) {
@@ -1463,7 +2656,11 @@ void COrbitPointMarker::Update(float dt, const CStateManager& mgr) {
   if (mLastFreeOrbit) {
     CEulerAngles euler =
         CEulerAngles::FromQuaternion(CQuaternion::FromMatrix(curCam.GetTransform()));
+#if VERSION >= VERSION_R3IJ_00
+    float newAzimuth = M_PIF / 4.f + euler.GetZ();
+#else
     float newAzimuth = CMath::Deg2Rad(45.f) + euler.GetZ();
+#endif
     float aziDelta = newAzimuth - mAzimuth;
     if (mgr.GetPlayer()->IsInFreeLook()) {
       mLagAzimuth += aziDelta;
@@ -1472,6 +2669,7 @@ void COrbitPointMarker::Update(float dt, const CStateManager& mgr) {
   }
 }
 
+#if VERSION < VERSION_R3IJ_00
 void COrbitPointMarker::Draw(const CStateManager& mgr) const {
   if ((mLastFreeOrbit || mInterpTimer > 0.f) && gpTweakTargeting->mDrawOrbitPoint) {
     const_cast< TCachedToken< CModel >& >(mOrbitPointModel).TryCache();
@@ -1514,5 +2712,6 @@ void COrbitPointMarker::Draw(const CStateManager& mgr) const {
     }
   }
 }
+#endif
 
 void COrbitPointMarker::ResetInterpolationTimer(float time) { mInterpTimer = time; }

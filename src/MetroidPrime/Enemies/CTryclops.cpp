@@ -82,7 +82,7 @@ bool CTryclops::InMaxRange(CStateManager& mgr, float arg) {
       if (!bomb->IsBeingDragged()) {
         const CVector3f delta = bomb->GetTranslation() - GetTranslation();
         const float distSq = delta.MagSquared();
-        if (distSq < nearestDistSq) {
+        if (distSq < nearestDistSq && ((VERSION < VERSION_GM8E_02) || distSq > 6.25f)) {
           bool inHeightRange = true;
           if (detectionHeight > 0.f) {
             inHeightRange = delta.GetZ() * delta.GetZ() < heightSq;

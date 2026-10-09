@@ -5,6 +5,7 @@
 
 #include "MetroidPrime/CGameArea.hpp"
 #include "MetroidPrime/Cameras/CCameraShakeData.hpp"
+#include "MetroidPrime/Cameras/CGameCamera.hpp"
 #include "MetroidPrime/TGameTypes.hpp"
 
 #include "Kyoto/Math/CVector3f.hpp"
@@ -70,7 +71,13 @@ public:
   int AddCameraShaker(const CCameraShakeData& data, bool sfx);
   void RemoveCameraShaker(int id);
   CTransform4f GetCurrentCameraTransform(const CStateManager& mgr) const;
+#if VERSION >= VERSION_R3IJ_00
+  CVector3f GetGlobalCameraTranslation(const CStateManager& mgr) const {
+    return GetCurrentCamera(mgr).GetTransform().Rotate(mShakeOffset);
+  }
+#else
   CVector3f GetGlobalCameraTranslation(const CStateManager& mgr) const;
+#endif
   bool IsInFPCamera() const;
   bool IsInterpolationCameraActive() const;
   bool ShouldBypassInterpolationCamera() const;
@@ -127,6 +134,9 @@ private:
   CGameArea::CAreaFog mFog;
   int mFluidCounter;
   TUniqueId mFluidId;
+#if VERSION == VERSION_GM8E_02 || VERSION == VERSION_GM8J_00
+  rstl::reserved_vector< TUniqueId, 4 > x7c_;
+#endif
   CFirstPersonCamera* mFpCamera;
   CBallCamera* mBallCamera;
   int mRumbleId;
@@ -151,6 +161,8 @@ private:
   bool x3b8_25_ : 1;
   float mCurFov;
 };
-CHECK_SIZEOF(CCameraManager, 0x3c0)
+#if VERSION < VERSION_R3IJ_00
+CHECK_SIZEOF(CCameraManager, (VERSION == VERSION_GM8E_02 || VERSION == VERSION_GM8J_00) ? 0x3cc : 0x3c0)
+#endif
 
 #endif // _CCAMERAMANAGER

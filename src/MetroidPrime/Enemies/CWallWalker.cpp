@@ -22,7 +22,11 @@ CWallWalker::CWallWalker(const EPatternedAI chr, const TUniqueId uid, const rstl
                          const CActorParameters& actParms, const ECreatureSize kbVariant,
                          const float collisionCloseMargin, const EType walkerType,
                          const bool disableMove, const float alignAngVel,
-                         const float advanceWpRadius, const float playerObstructionMinDist)
+                         const float advanceWpRadius, const float playerObstructionMinDist
+#if VERSION >= VERSION_GM8P_00
+                         , const float touchBoundsScale
+#endif
+                         )
 : CPatterned(chr, uid, name, flavorType, info, xf, mData, pInfo, moveType, colType, bodyType,
              actParms, kbVariant)
 , mAlignNormal(CVector3f::Zero(), CVector3f::Right(), CVector3f::Forward(), 0xffffffff)
@@ -43,7 +47,12 @@ CWallWalker::CWallWalker(const EPatternedAI chr, const TUniqueId uid, const rstl
 , mPlayerObstructed(false)
 , mDisableMove(disableMove)
 , mAddBendingWeight(false)
-, mApplyBendingHack(false) {}
+, mApplyBendingHack(false)
+#if VERSION >= VERSION_GM8P_00
+, mTouchBoundsScale(touchBoundsScale)
+#endif
+{
+}
 
 CVector3f CWallWalker::ProjectPointToPlane(const CVector3f& point, const CVector3f& planePoint,
                                            const CVector3f& normal) {
@@ -77,7 +86,7 @@ void CWallWalker::OrientToSurfaceNormal(const CVector3f& normal, float clampAngl
   if (dot < -0.999f) {
     return;
   }
-  const CQuaternion rotation = CQuaternion::ClampedRotateTo(GetTransform().GetUp(), normal,
+  const CQuaternion rotation = CQuaternion::ShortestRotationArcClamped(GetTransform().GetUp(), normal,
                                                             CRelAngle::FromDegrees(clampAngle));
   const CQuaternion localRotation(rotation.GetScalar(),
                                   GetTransform().TransposeRotate(rotation.GetVector()));
@@ -213,3 +222,10 @@ void CWallWalker::Think(float dt, CStateManager& mgr) {
     }
   }
 }
+
+#if VERSION >= VERSION_GM8P_00
+rstl::optional_object< CAABox > CWallWalker::GetTouchBounds() const {
+  return GetBaseBoundingBox().GetTransformedAABox(GetPrimitiveTransform() *
+                                                  CTransform4f::Scale(mTouchBoundsScale));
+}
+#endif

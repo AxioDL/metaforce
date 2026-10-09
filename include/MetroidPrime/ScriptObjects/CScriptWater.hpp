@@ -53,6 +53,9 @@ public:
   CAABox GetSortingBounds(const CStateManager&) const override;
 
   bool CanRippleAtPoint(const CVector3f&) const;
+#if VERSION >= VERSION_GM8E_02
+  void RemoveSplashInhabitants(CStateManager&);
+#endif
   void UpdateSplashInhabitants(CStateManager&);
   void SetupGrid(bool recomputeClipping);
   void SetupGridClipping(CStateManager&, int computeVerts);
@@ -156,6 +159,6 @@ private:
   bool mAlphaOut : 1;
 };
 
-CHECK_SIZEOF(CScriptWater, (VERSION >= VERSION_GM8E_02 ? 0x300 : 0x2f0))
+CHECK_CHILD_SIZEOF(CScriptWater, CScriptTrigger, VERSION >= VERSION_R3IJ_00 ? 0x198 : 0x1a0)
 
 #endif // _CSCRIPTWATER

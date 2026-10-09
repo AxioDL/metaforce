@@ -293,6 +293,9 @@ void CInventoryScreen::UpdateRightTable() {
       }
     } else {
       title->TextSupport().SetText(rstl::wstring_l(L""));
+#if VERSION >= VERSION_GM8E_02
+      mTablegroup_rightlog->GetWorkerWidget(i + 1)->SetIsSelectable(false);
+#endif
     }
   }
 

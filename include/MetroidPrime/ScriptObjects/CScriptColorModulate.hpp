@@ -34,7 +34,7 @@ public:
   CModelFlags CalculateFlags(const CColor& col) const;
   void Think(float dt, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
-  DECLARE_TYPES_MATCH_OR_ACCEPT;
+  DECLARE_ACCEPT;
   void SetParent(const TUniqueId& parent) { mParent = parent; }
   void SetDoReverse(const bool doReverse) { mDoReverse = doReverse; }
   void SetResetTargetWhenDone(const bool resetTargetWhenDone) {
@@ -67,6 +67,6 @@ private:
   bool mDieOnEnd : 1;
   bool mIsFadeOutHelper : 1;
 };
-CHECK_SIZEOF(CScriptColorModulate, 0x58)
+CHECK_CHILD_SIZEOF(CScriptColorModulate, CEntity, 0x24)
 
 #endif // _CSCRIPTCOLORMODULATE

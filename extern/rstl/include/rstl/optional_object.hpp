@@ -66,7 +66,7 @@ public:
   const T* operator->() const { return &data(); }
 
 private:
-#ifdef __MWERKS__
+#if defined(__MWERKS__) || CLANGD
   // MWCC 1.3.2 does not support template-dependent alignment, so it's assumed
   // that Retro used a uint array here to get 4-byte alignment. Clever!
   uint m_data[(sizeof(T) + sizeof(uint) - 1) / sizeof(uint)];

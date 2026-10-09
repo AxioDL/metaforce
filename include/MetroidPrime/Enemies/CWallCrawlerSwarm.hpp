@@ -194,7 +194,12 @@ private:
   bool mUseSoftwareLight : 1;
   bool mModelAssetDirty : 1;
 };
+#if VERSION >= VERSION_R3IJ_00
+NESTED_CHECK_SIZEOF(CWallCrawlerSwarm, CBoid, 0x80)
+CHECK_CHILD_SIZEOF(CWallCrawlerSwarm, CActor, 0x4A0)
+#else
 NESTED_CHECK_SIZEOF(CWallCrawlerSwarm, CBoid, 0x84)
-CHECK_SIZEOF(CWallCrawlerSwarm, (VERSION >= VERSION_GM8E_02 ? 0x578 : 0x568))
+CHECK_CHILD_SIZEOF(CWallCrawlerSwarm, CActor, 0x480)
+#endif
 
 #endif // _CWALLCRAWLERSWARM

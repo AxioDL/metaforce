@@ -48,7 +48,7 @@ public:
   void Clear();
 
   void AddVelocity(const CVector3f& vel) { mVel.push_back(vel); }
-#if VERSION >= VERSION_GM8P_00
+#if VERSION >= VERSION_GM8E_02
   void AddTargetHoming(const bool homing) { mTargetHoming.push_back(homing); }
 #else
   void AddTargetHoming(const bool& homing) { mTargetHoming.push_back(homing); }
@@ -202,6 +202,10 @@ protected:
 
   static void PointGenerator(void*, const CVector3f*, const CVector3f*, int);
 };
+#if VERSION >= VERSION_R3IJ_00
+CHECK_SIZEOF(CGunWeapon, 0x210)
+#else
 CHECK_SIZEOF(CGunWeapon, 0x21c)
+#endif
 
 #endif // _CGUNWEAPON

@@ -17,39 +17,38 @@ CScriptPlayerHint::CScriptPlayerHint(TUniqueId uid, const rstl::string& name,
 , mOverrideFlags(overrideFlags)
 , mMpId(kInvalidUniqueId) {}
 
-void CScriptPlayerHint::ClearObjectList() { mObjectList.clear(); }
+void CScriptPlayerHint::ClearSenders() { mSenders.clear(); }
 
-void CScriptPlayerHint::AddToObjectList(TUniqueId uid) {
+void CScriptPlayerHint::AddSender(TUniqueId uid) {
   rstl::reserved_vector< TUniqueId, 8 >::iterator it =
-      rstl::find(mObjectList.begin(), mObjectList.end(), uid);
-  if (it != mObjectList.end()) {
+      rstl::find(mSenders.begin(), mSenders.end(), uid);
+  if (it != mSenders.end()) {
     return;
   }
-  mObjectList.push_back(uid);
+  mSenders.push_back(uid);
 }
 
-void CScriptPlayerHint::RemoveFromObjectList(TUniqueId uid, CStateManager& mgr) {
-  if (mObjectList.empty()) {
+void CScriptPlayerHint::RemoveSender(TUniqueId uid, CStateManager& mgr) {
+  if (mSenders.empty()) {
     return;
   }
 
   rstl::reserved_vector< TUniqueId, 8 >::iterator it =
-      rstl::find(mObjectList.begin(), mObjectList.end(), uid);
+      rstl::find(mSenders.begin(), mSenders.end(), uid);
 
-  if (it == mObjectList.end()) {
-    mObjectList.erase(mObjectList.begin());
+  if (it == mSenders.end()) {
+    mSenders.erase(mSenders.begin());
   } else {
-    mObjectList.erase(it);
+    mSenders.erase(it);
   }
 }
 
 void CScriptPlayerHint::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender,
                                         CStateManager& mgr) {
-
   switch (msg) {
-  case kSM_Deactivate:
-  case kSM_Deleted: {
-    RemoveFromObjectList(sender, mgr);
+  case kSM_Deleted:
+  case kSM_Deactivate: {
+    RemoveSender(sender, mgr);
     CPlayer* player = mgr.Player();
     player->AddToPlayerHintRemoveList(GetUniqueId(), mgr);
     mDeactivated = true;
@@ -80,13 +79,13 @@ void CScriptPlayerHint::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId send
 
     switch (msg) {
     case kSM_Increment:
-      AddToObjectList(sender);
+      AddSender(sender);
       player->AddToPlayerHintAddList(GetUniqueId(), mgr);
       mDeactivated = false;
       break;
 
     case kSM_Decrement:
-      RemoveFromObjectList(sender, mgr);
+      RemoveSender(sender, mgr);
       player->AddToPlayerHintRemoveList(GetUniqueId(), mgr);
       break;
 

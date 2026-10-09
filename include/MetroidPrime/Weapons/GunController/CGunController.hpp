@@ -53,7 +53,12 @@ public:
 
   int GetCurAnimId() const { return mCurAnimId; }
   int GetFreeLookSetId() const { return mFreeLook.GetSetId(); }
+  EGunState GetGunState() const { return mGunState; }
 };
+#if VERSION >= VERSION_R3IJ_00
+CHECK_SIZEOF(CGunController, 0x58)
+#else
 CHECK_SIZEOF(CGunController, 0x5C)
+#endif
 
 #endif // _CGUNCONTROLLER

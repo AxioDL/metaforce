@@ -62,7 +62,7 @@ class CBouncyGrenade : public CPhysicsActor {
 public:
   // CEntity
   ~CBouncyGrenade() override;
-  DECLARE_TYPES_MATCH_OR_ACCEPT;
+  DECLARE_ACCEPT;
   void Think(float dt, CStateManager& mgr) override;
 
   // CActor
@@ -95,6 +95,6 @@ private:
   bool mExploded : 1;
   bool x2b4_25_ : 1;
 };
-CHECK_SIZEOF(CBouncyGrenade, (VERSION >= VERSION_GM8E_02 ? 0x2c8 : 0x2b8))
+CHECK_CHILD_SIZEOF(CBouncyGrenade, CPhysicsActor, 0x60)
 
 #endif // _CBOUNCYGRENADE

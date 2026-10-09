@@ -276,8 +276,8 @@ void CInGameGuiManager::Draw(const CStateManager& mgr) const {
     gpRender->SetBlendMode_AlphaBlended();
     CGraphics::SetTevOp(kTS_Stage0, CGraphics::kEnvModulate);
     CGraphics::SetTevOp(kTS_Stage1, CGraphics::kEnvPassthru);
-    const int w = mOnScreenTex.mExtent[0];
     const int h = mOnScreenTex.mExtent[1];
+    const int w = mOnScreenTex.mExtent[0];
     const CViewport& viewport = CGraphics::GetViewport();
     const int x = viewport.mLeft + (viewport.mWidth - w) / 2 + mOnScreenTex.mOffset.GetX();
     const int y = viewport.mTop + (viewport.mHeight - h) / 2 - mOnScreenTex.mOffset.GetY();

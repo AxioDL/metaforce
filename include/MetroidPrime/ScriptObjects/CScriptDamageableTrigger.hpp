@@ -27,7 +27,7 @@ public:
                            CAssetId colorTex, ECanOrbit canOrbit, bool active,
                            const CVisorParameters& vParams);
 
-  DECLARE_TYPES_MATCH_OR_ACCEPT;
+  DECLARE_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   EWeaponCollisionResponseTypes GetCollisionResponseType(const CVector3f&, const CVector3f&,
                                                          const CWeaponMode&, int) const override;
@@ -63,6 +63,6 @@ private:
   const CFluidPlane& GetFluidPlane() const { return mFluidPlane; }
   const CFrustumPlanes& GetFrustumPlanes() const { return mFrustum; }
 };
-CHECK_SIZEOF(CScriptDamageableTrigger, (VERSION >= VERSION_GM8E_02 ? 0x318 : 0x308))
+CHECK_CHILD_SIZEOF(CScriptDamageableTrigger, CActor, 0x220)
 
 #endif // _CSCRIPTDAMAGEABLETRIGGER

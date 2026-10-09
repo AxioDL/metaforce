@@ -16,16 +16,17 @@ public:
   rstl::optional_object< rstl::ownership_transfer< IAnimReader > > VReverseSimplified() override;
   float VGetBlendingWeight() const override;
 
-  CAnimTreeTransition(bool b1, const rstl::ncrc_ptr< CAnimTreeNode >& a,
+  CAnimTreeTransition(const bool b1, const rstl::ncrc_ptr< CAnimTreeNode >& a,
                       const rstl::ncrc_ptr< CAnimTreeNode >& b, const CCharAnimTime& transDur,
-                      bool runA, int flags, const rstl::string& name);
-  CAnimTreeTransition(bool b1, const rstl::ncrc_ptr< CAnimTreeNode >& a,
+                      const bool runA, const int flags, const rstl::string& name);
+  CAnimTreeTransition(const bool b1, const rstl::ncrc_ptr< CAnimTreeNode >& a,
                       const rstl::ncrc_ptr< CAnimTreeNode >& b, const CCharAnimTime& transDur,
-                      const CCharAnimTime& timeInTrans, bool runA, bool loopA, int flags,
-                      const rstl::string& name, bool initialized);
+                      const CCharAnimTime& timeInTrans, const bool runA, const bool loopA,
+                      const int flags, const rstl::string& name, const bool initialized);
 
   static rstl::string CreatePrimitiveName(const rstl::ncrc_ptr< CAnimTreeNode >& a,
-                                          const rstl::ncrc_ptr< CAnimTreeNode >& b, float duration);
+                                          const rstl::ncrc_ptr< CAnimTreeNode >& b,
+                                          const float duration);
 
 private:
   rstl::pair< CCharAnimTime, CAdvancementDeltas >

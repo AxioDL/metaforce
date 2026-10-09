@@ -3,7 +3,6 @@
 
 #include "types.h"
 
-#include "Kyoto/Animation/CAnimCharacterSet.hpp"
 #include "Kyoto/Audio/CSfxHandle.hpp"
 #include "Kyoto/Math/CTransform4f.hpp"
 #include "MetroidPrime/ActorCommon.hpp"
@@ -15,6 +14,7 @@
 #include <rstl/pair.hpp>
 #include <rstl/single_ptr.hpp>
 
+class CAnimCharacterSet;
 class CVector3f;
 class CModelData;
 class CStateManager;
@@ -57,6 +57,9 @@ public:
   void EnterIdle(CStateManager& mgr);
   void EnterStruck(CStateManager&, float, bool, bool);
   void DisconnectGrappleBeam();
+#if VERSION == VERSION_GM8E_02 || VERSION == VERSION_GM8J_00
+  void Reset();
+#endif
   void ResetAuxParams(bool resetGunController);
   static void PointGenerator(void* context, const CVector3f* vertices, const CVector3f* normals,
                              int count);
@@ -156,6 +159,10 @@ private:
   bool mIsGrappling : 1;
   bool mSuitLoading : 1;
 };
+#if VERSION >= VERSION_R3IJ_00
+CHECK_SIZEOF(CGrappleArm, 0x390)
+#else
 CHECK_SIZEOF(CGrappleArm, 0x3b4)
+#endif
 
 #endif // _CGRAPPLEARM

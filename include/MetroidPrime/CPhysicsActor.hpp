@@ -127,8 +127,8 @@ public:
   void Stop();
 
   CVector3f GetPrimitiveOffset() const;
-  const bool IsStandardCollider() const { return mStandardCollider; } // name and type?
-  void SetStandardCollider(const bool v) { mStandardCollider = v; }   // name and type?
+  const bool IsStandardCollider() const { return mStandardCollider; } // name?
+  void SetStandardCollider(const bool v) { mStandardCollider = v; }   // name?
   const CVector3f& GetConstantForceWR() const { return mConstantForce; }
   void SetConstantForceWR(const CVector3f& force) { mConstantForce = force; }
   const CAxisAngle& GetAngularMomentumWR() const { return mAngularMomentum; }
@@ -212,7 +212,7 @@ protected:
   float mInertiaTensorRecip;
   bool mMovable : 1;
   bool mAngularEnabled : 1;
-  uchar mStandardCollider;
+  bool mStandardCollider;
   CVector3f mConstantForce;
   CAxisAngle mAngularMomentum;
   CMatrix3f x114_;
@@ -237,8 +237,7 @@ protected:
   float mCollisionAccuracyModifier;
   uint mNumTicksStuck;
   uint mNumTicksPartialUpdate;
-  uint x254_;
 };
-CHECK_SIZEOF(CPhysicsActor, (VERSION >= VERSION_GM8E_02 ? 0x268 : 0x258))
+CHECK_CHILD_SIZEOF(CPhysicsActor, CActor, 0x170)
 
 #endif // _CPHYSICSACTOR

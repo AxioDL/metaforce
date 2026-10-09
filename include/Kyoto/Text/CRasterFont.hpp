@@ -39,6 +39,11 @@ public:
     mFirst = first;
   }
 
+  CKernPair(const CKernPair& other)
+  : mFirst(other.mFirst)
+  , mSecond(other.mSecond)
+  , mHowMuch(other.mHowMuch) {}
+
   wchar_t GetFirst() const { return mFirst; }
   wchar_t GetSecond() const { return mSecond; }
   int GetHowMuch() const { return mHowMuch; }
@@ -55,7 +60,7 @@ class CGlyph {
 public:
   CGlyph(const int a, const int b, const int c, const float startU, const float startV,
          const float endU, const float endV, const int cellWidth, const int cellHeight,
-         const int baseline, const int kernStart)
+         const int baseline, const int kernStart, const uchar layer = 0)
   : mA(a)
   , mB(b)
   , mC(c)
@@ -63,6 +68,9 @@ public:
   , mStartV(startV)
   , mEndU(endU)
   , mEndV(endV)
+#if VERSION >= VERSION_GM8P_00
+  , mLayer(layer)
+#endif
   , mCellWidth(cellWidth)
   , mCellHeight(cellHeight)
   , mBaseline(baseline)
@@ -75,10 +83,17 @@ public:
   float GetStartV() const { return mStartV; }
   float GetEndU() const { return mEndU; }
   float GetEndV() const { return mEndV; }
-  short GetCellWidth() const { return mCellWidth; }
-  short GetCellHeight() const { return mCellHeight; }
-  short GetBaseLine() const { return mBaseline; }
+  int GetCellWidth() const { return mCellWidth; }
+  int GetCellHeight() const { return mCellHeight; }
+  int GetBaseLine() const { return mBaseline; }
   int GetKernStart() const { return mKernStart; }
+  int GetLayer() const {
+#if VERSION >= VERSION_GM8P_00
+    return mLayer;
+#else
+    return 0;
+#endif
+  }
 
 private:
   short mA;
@@ -88,9 +103,16 @@ private:
   float mStartV;
   float mEndU;
   float mEndV;
+#if VERSION >= VERSION_GM8P_00
+  uchar mLayer;
+  uchar mCellWidth;
+  uchar mCellHeight;
+  uchar mBaseline;
+#else
   short mCellWidth;
   short mCellHeight;
   short mBaseline;
+#endif
   short mKernStart;
 };
 
@@ -112,11 +134,20 @@ public:
 
   EFontMode GetMode() const;
 
+#if VERSION >= VERSION_GM8P_00
+  int GetMonoWidth() const { return mMonoWidth; }
+  int GetMonoHeight() const { return mMonoHeight; }
+#else
   int GetMonoWidth() const;
   int GetMonoHeight() const;
+#endif
   int GetCarriageAdvance();
 
+#if VERSION >= VERSION_GM8P_00
+  const CGlyph* GetGlyph(wchar_t c) const { return InternalGetGlyph(c); }
+#else
   const CGlyph* GetGlyph(wchar_t c) const;
+#endif
   bool HasGlyph(wchar_t c) const { return GetGlyph(c) != nullptr; }
 
   void GetSize(const CDrawStringOptions&, int&, int&, const wchar_t*, int) const;
@@ -133,8 +164,13 @@ public:
 
   void SetupRenderState();
 
+#if VERSION >= VERSION_GM8P_00
+  int GetBaseLine() const { return mBaseline; }
+  int GetLineMargin() { return mLineMargin; }
+#else
   int GetBaseLine() const;
   int GetLineMargin();
+#endif
   bool IsFinishedLoading();
 
 private:

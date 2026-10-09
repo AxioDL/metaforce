@@ -11,6 +11,6 @@ public:
 private:
   rstl::string mString;
 };
-CHECK_SIZEOF(CArchMsgParmString, 0x14)
+CHECK_SIZEOF(CArchMsgParmString, (RSTL_VERSION >= RSTL_R3IJ ? 0x10 : 0x14))
 
 #endif // _CARCHMSGPARMSTRING

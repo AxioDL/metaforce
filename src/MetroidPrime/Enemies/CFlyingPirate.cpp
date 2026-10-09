@@ -111,7 +111,7 @@ CFlyingPirateRagDoll::CFlyingPirateRagDoll(CStateManager& mgr, CFlyingPirate* ac
   SetNumParticles(15);
   SetNumLengthConstraints(45);
   SetNumJointConstraints(4);
-  const CVector3f& scale = CVector3f(actor->GetModelData()->GetScale());
+  const CVector3f& scale = CVector3f(actor->ModelData()->GetScale());
   const CTransform4f& xf = actor->GetTransform();
   CAnimData* animData = actor->AnimationData();
   animData->BuildPose();
@@ -1881,7 +1881,8 @@ void CFlyingPirate::Think(const float dt, CStateManager& mgr) {
       float change = x898_ - mPitchBend;
       change = CMath::Clamp(-dt, change, dt);
       mPitchBend += change;
-      CSfxManager::PitchBend(handle, static_cast< int >(8192.f * mPitchBend));
+      const float pitchBend = 8192.f * mPitchBend;
+      CSfxManager::PitchBend(handle, static_cast< int >(pitchBend));
     }
     x87c_ = CVector3f::Zero();
     x898_ = 1.f;

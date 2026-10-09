@@ -175,14 +175,16 @@ void CFluidPlaneDoor::Render(const CStateManager& mgr, float alpha, const CAABox
   for (; curX < maxX; curX += ripplePitch.GetX()) {
     float remSubdivsX = ooSubdivSize * (maxX - curX);
     float curY = aabbMin.GetY();
+    short clampedX;
+    short clampedY;
+    short remYi;
     for (; curY < maxY; curY += ripplePitch.GetY()) {
       short remXi = CCast::FtoS(remSubdivsX);
-      short clampedX =
+      clampedX =
           rstl::min_val(static_cast< short >(CFluidPlaneCPURender::numSubdivisionsInHField), remXi);
 
-      float remSubdivsY = ooSubdivSize * (maxY - curY);
-      short remYi = CCast::FtoS(remSubdivsY);
-      short clampedY =
+      remYi = CCast::FtoS(ooSubdivSize * (maxY - curY));
+      clampedY =
           rstl::min_val(static_cast< short >(CFluidPlaneCPURender::numSubdivisionsInHField), remYi);
 
       CVector3f localMax(rippleResolution * CCast::StoF(clampedX) + curX,

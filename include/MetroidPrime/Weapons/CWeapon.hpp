@@ -29,6 +29,7 @@ public:
     kPA_PlayerUnFreeze = (1 << 15),
     kPA_ParticleOPTS = (1 << 16),
     kPA_KeepInCinematic = (1 << 17),
+    kPA_AirborneBomb = (1 << 18),
   };
 
   CWeapon(const TUniqueId uid, const TAreaId areaId, const bool active, const TUniqueId owner,
@@ -62,7 +63,7 @@ public:
   bool HasAttrib(EProjectileAttrib attrib) const {
     return (mProjectileAttribs & attrib) == attrib; // maybe wrong
   }
-  TUniqueId GetOwnerId() const { return mOwnerId; }
+  const TUniqueId GetOwnerId() const { return mOwnerId; }
   EWeaponType GetType() const { return mWeaponType; }
   CMaterialFilter GetFilter() const { return mFilter; }
 
@@ -89,6 +90,6 @@ protected:
   float mDamageDuration;
   float mInterferenceDuration;
 };
-CHECK_SIZEOF(CWeapon, (VERSION >= VERSION_GM8E_02 ? 0x168 : 0x158))
+CHECK_CHILD_SIZEOF(CWeapon, CActor, 0x70)
 
 #endif // _CWEAPON

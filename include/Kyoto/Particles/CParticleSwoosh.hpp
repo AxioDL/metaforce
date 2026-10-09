@@ -159,7 +159,7 @@ private:
   static uint mSwooshAliveCount;
 };
 
-CHECK_SIZEOF(CParticleSwoosh, 0x210)
+CHECK_SIZEOF(CParticleSwoosh, VERSION >= VERSION_R3IJ_00 ? 0x200 : 0x210)
 NESTED_CHECK_SIZEOF(CParticleSwoosh, SSwooshData, 0x80)
 
 #endif // _CPARTICLESWOOSH

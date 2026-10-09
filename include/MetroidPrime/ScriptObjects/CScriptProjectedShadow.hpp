@@ -12,7 +12,7 @@ public:
   CScriptShadowProjector(TUniqueId, const rstl::string&, const CEntityInfo&, const CTransform4f&,
                          bool, const CVector3f&, bool, float, float, float, float, int);
 
-  DECLARE_TYPES_MATCH_OR_ACCEPT;
+  DECLARE_ACCEPT;
   void Think(float, CStateManager&) override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   void PreRender(CStateManager&, const CFrustumPlanes&) override;
@@ -33,6 +33,6 @@ private:
   uchar mPersistent : 1;
   bool mShadowInvalidated : 1;
 };
-CHECK_SIZEOF(CScriptShadowProjector, (VERSION >= VERSION_GM8E_02 ? 0x128 : 0x118))
+CHECK_CHILD_SIZEOF(CScriptShadowProjector, CActor, 0x30)
 
 #endif // _CSCRIPTPROJECTEDSHADOW

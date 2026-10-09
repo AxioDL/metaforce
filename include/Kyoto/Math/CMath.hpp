@@ -28,9 +28,17 @@ inline int __abs(int value) { return ::abs(value); }
 
 class CMath {
 public:
+  enum EEaseTypes { kET_Sinusoidal, kET_Quadratic };
+
+  static float EaseInOut(float t, EEaseTypes type, float easeInEnd, float easeOutStart,
+                        float start, float end, float slope);
   static float FastFmod(float x, float y) {
     int v = static_cast< int >(x * (1.f / y));
+#if VERSION >= VERSION_R3IJ_00
+    return x - static_cast< float >(v * y);
+#else
     return x - v * y;
+#endif
   }
   template < typename T >
   static const T& Clamp(const T& min, const T& val, const T& max);
@@ -109,7 +117,25 @@ public:
   static double SqrtD(double x);
   static bool IsEpsilon(float x, float y, float epsilon) { return AbsF(x - y) < epsilon; }
   static float FastMin(float a, float b) { return FastFSel(a - b, b, a); }
-  static float FastMax(float a, float b) { return FastFSel(a - b, a, b); }
+
+  static float FastMax(float a, float b) {
+    a = FastFSel(a - b, a, b);
+    return a;
+  }
+
+  static float FastClamp(float min, float val, float max) {
+    min = FastMax(min, val);
+    float diff = min - max;
+    return FastFSel(diff, max, min);
+  }
+
+  static float FastLimit(float v, float h) {
+    float low = -h;
+    float diff = low - v;
+    float limited = FastFSel(diff, low, v);
+    return FastFSel(limited - h, h, limited);
+  }
+
   // PowF__5CMathFff global
   // Rev2Deg__5CMathFf weak
   // SlowTangentR__5CMathFf global

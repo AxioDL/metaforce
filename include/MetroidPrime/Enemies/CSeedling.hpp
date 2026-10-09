@@ -61,6 +61,6 @@ private:
 
   static const char* const skSpikeLocators[12];
 };
-CHECK_SIZEOF(CSeedling, (VERSION >= VERSION_GM8E_02 ? 0x738 : 0x728))
+CHECK_CHILD_SIZEOF(CSeedling, CWallWalker, 0x150)
 
 #endif // _CSEEDLING

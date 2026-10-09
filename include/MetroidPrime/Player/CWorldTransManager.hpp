@@ -8,6 +8,7 @@
 
 #include "rstl/optional_object.hpp"
 #include "rstl/single_ptr.hpp"
+#include "rstl/string.hpp"
 
 class CAnimRes;
 class CGuiTextSupport;
@@ -27,6 +28,10 @@ public:
 
   void EnableTransition(const CAnimRes&, const CAssetId, const CVector3f&, const CAssetId, const CVector3f&, bool);
   void EnableTransition(int fontId, int stringId, int stringIdx, bool fadeWhite, float chFadeTime, float chFadeRate, float textStartTime);
+  void EnableTransition(int fontId, int stringId, int stringIdx, bool fadeWhite,
+                        const rstl::string& audioFile, int volume, bool showSecondaryText,
+                        float chFadeTime, float chFadeRate, float textStartTime, float textEndDelay,
+                        float secondaryTextStartTime, float secondaryTextFadeDuration);
   void DisableTransition();
   void StartTransition();
   void EndTransition();
@@ -57,6 +62,9 @@ private:
   float mCurTime;
   rstl::single_ptr< SModelDatas > mModelData;
   rstl::single_ptr< CGuiTextSupport > mTextData;
+#if VERSION >= VERSION_GM8P_00
+  rstl::single_ptr< CGuiTextSupport > mSecondaryTextData;
+#endif
   rstl::optional_object< TToken< CStringTable > > mStrTable;
   float mBgOffset;
   float mBgHeight;
@@ -68,14 +76,26 @@ private:
   ETransType mTransType;
   float mStopTime;
   float mTextStartTime;
+#if VERSION >= VERSION_GM8P_00
+  float mTextEndDelay;
+  float mSecondaryTextStartTime;
+  float mSecondaryTextFadeDuration;
+#endif
   float mSfxInterval;
+#if VERSION >= VERSION_GM8P_00
+  rstl::string mAudioFile;
+#endif
   int mStrIdx;
   bool mTransitionFinished : 1;
   bool mStopSoon : 1;
   bool mGoingUp : 1;
   bool mFadeWhite : 1;
   bool mTextDirty : 1;
+#if VERSION >= VERSION_GM8P_00
+  bool mShowSecondaryText : 1;
+#endif
 };
-CHECK_SIZEOF(CWorldTransManager, 0x48)
+CHECK_SIZEOF(CWorldTransManager,
+             VERSION >= VERSION_R3IJ_00 ? 0x64 : (VERSION >= VERSION_GM8P_00 ? 0x68 : 0x48))
 
 #endif // _CWORLDTRANSMANAGER

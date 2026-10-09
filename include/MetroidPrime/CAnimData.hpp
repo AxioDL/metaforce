@@ -150,8 +150,8 @@ public:
   bool IsAdditiveAnimation(uint idx) const;
   const rstl::rc_ptr< CAnimTreeNode >& GetAdditiveAnimationTree(uint idx) const;
   const rstl::ncrc_ptr< CAnimTreeNode >& GetRootAnimationTree() const;
-  // GetAnimationTree__9CAnimDataCFv
-  // AnimationTree__9CAnimDataFv
+  const rstl::ncrc_ptr< CAnimTreeNode >& GetAnimationTree() const;
+  rstl::ncrc_ptr< CAnimTreeNode >& AnimationTree();
   // IsAdditiveAnimation__9CAnimDataCFUi
   bool IsAdditiveAnimationAdded(uint idx) const;
   CAdvancementDeltas UpdateAdditiveAnims(float);
@@ -256,6 +256,10 @@ private:
   static rstl::reserved_vector< CSoundPOINode, 20 > mSoundPOINodes;
   // in cpp -> rstl::reserved_vector< CInt32POINode, 16 > sInt32TransientCache;
 };
+#if VERSION >= VERSION_R3IJ_00
+CHECK_SIZEOF(CAnimData, 0x588)
+#else
 CHECK_SIZEOF(CAnimData, 0x434 + 0x144)
+#endif
 
 #endif // _CANIMDATA

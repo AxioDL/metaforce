@@ -32,8 +32,8 @@ public:
             const CTransform4f& xf, const CModelData& mData, const CActorParameters& actParams,
             const CPatternedInfo& pInfo, float f1);
 
-  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void Think(float dt, CStateManager& mgr) override;
 
   bool HearShot(CStateManager& mgr, float arg) override;
@@ -59,6 +59,6 @@ private:
   static int sLightIdx;
 };
 
-CHECK_SIZEOF(CFireFlea, (VERSION >= VERSION_GM8E_02 ? 0xe80 : 0xe70))
+CHECK_CHILD_SIZEOF(CFireFlea, CPatterned, 0x908)
 
 #endif // _CFIREFLEA

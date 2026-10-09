@@ -511,8 +511,8 @@ public:
   void DeliverTargetVector(const CVector3f& t) { mTarget = t; }
   void DeliverAdditiveTargetVector(const CVector3f& t) { mAdditiveTarget = t; }
   void BlendSteeringCmds();
-  void SetSteeringBlendMode(ESteeringBlendMode mode) { mSteeringMode = mode; }
-  void SetSteeringSpeedRange(float rmin, float rmax);
+  void SetSteeringBlendMode(const ESteeringBlendMode mode) { mSteeringMode = mode; }
+  void SetSteeringSpeedRange(const float rmin, const float rmax);
   void Reset();
   CBodyStateCmd* GetCmd(EBodyStateCmd cmd);
   const CBodyStateCmd* GetCmd(EBodyStateCmd cmd) const;

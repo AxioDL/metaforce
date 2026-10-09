@@ -14,7 +14,7 @@ public:
                      const CVector3f& pos, bool isRepulsor, bool swirl, float radius,
                      float priority);
 
-  DECLARE_TYPES_MATCH_OR_ACCEPT;
+  DECLARE_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
 
   void AddSelf(CStateManager& mgr);
@@ -26,6 +26,6 @@ public:
   bool GetSwirl() const { return mSwirl; }
 };
 
-CHECK_SIZEOF(CFishCloudModifier, (VERSION >= VERSION_GM8E_02 ? 0x108 : 0xf8))
+CHECK_CHILD_SIZEOF(CFishCloudModifier, CActor, 0x10)
 
 #endif // _CFISHCLOUDMODIFIER

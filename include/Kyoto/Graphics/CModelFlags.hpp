@@ -79,9 +79,13 @@ public:
     return CModelFlags(static_cast< ETrans >(mBlendMode), GetShaderSet(), flags, mColor);
   }
 
+  CModelFlags DrawNormal(bool draw) const {
+    return CModelFlags(*this, draw ? mFlags | kF_DrawNormal : mFlags & ~kF_DrawNormal);
+  }
+
   const uchar GetBlendMode() const { return mBlendMode; }
   const ETrans GetTrans() const { return static_cast< ETrans >(mBlendModeChar); }
-  const int GetShaderSet() const { return mMatSetIdxChar; }
+  const int GetShaderSet() const { return mMatSetIdx; }
   const int GetOtherFlags() const { return mFlags; }
   const CColor GetColor() const { return mColor; }
   const CColor& GetColorRef() const { return mColor; }
@@ -119,10 +123,7 @@ public:
     uchar mBlendMode;
     char mBlendModeChar;
   };
-  union {
-    uchar mMatSetIdx;
-    char mMatSetIdxChar;
-  };
+  mutable char mMatSetIdx;
   ushort mFlags;
   CColor mColor;
 };

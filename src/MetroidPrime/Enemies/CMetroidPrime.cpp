@@ -181,6 +181,9 @@ CMetroidPrime::CMetroidPrime(
 , x57c_(0)
 , x580_(0)
 , x584_(false)
+#if VERSION >= VERSION_GM8P_00
+, mDeflectionSfxTimer(0.f)
+#endif
 , x588_(vulnerabilities)
 , x8c0_(150.f, 0.f)
 , x8c8_(0.f)
@@ -251,6 +254,9 @@ CMetroidPrime::CMetroidPrime(
 , x1084_(0.f)
 , x1088_(0.f)
 , x108c_(shakeData1)
+#if VERSION >= VERSION_GM8P_00
+, mAttackRandom(0)
+#endif
 , x1294_(shakeData2)
 , x1368_(shakeData3)
 , x143c_(rs_new CProjectedShadow(128, 128, true))
@@ -841,6 +847,9 @@ void CMetroidPrime::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId other, C
     if (xfac_.get()) {
       xfac_->SetParticleEmission(false);
     }
+#if VERSION >= VERSION_GM8P_00
+    mAttackRandom.SetSeed(mgr.Random()->GetSeed());
+#endif
     break;
   case kSM_Deleted:
     mCollisionManager->Destroy(mgr);
@@ -862,6 +871,12 @@ void CMetroidPrime::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId other, C
   case kSM_InvulnDamage:
     handled = true;
     break;
+#if VERSION >= VERSION_GM8P_00
+  case kSM_Deflected:
+    DoBodyHitCheck(other, mgr);
+    handled = true;
+    break;
+#endif
   }
   if (!handled) {
     CPatterned::AcceptScriptMsg(msg, other, mgr);
@@ -911,6 +926,33 @@ void CMetroidPrime::DoFaceHitCheck(const TUniqueId uid, CStateManager& mgr) {
     }
   }
 }
+
+#if VERSION >= VERSION_GM8P_00
+void CMetroidPrime::DoBodyHitCheck(const TUniqueId uid, CStateManager& mgr) {
+  const CCollisionActor* const actor = TCastToConstPtr< CCollisionActor >(mgr.GetObjectById(uid));
+  if (actor && IsAlive()) {
+    const TUniqueId touched = actor->GetLastTouchedObject();
+    const CWeapon* const weapon = TCastToConstPtr< CWeapon >(mgr.GetObjectById(touched));
+    if (weapon) {
+      const CDamageVulnerability* const vuln = actor->GetDamageVulnerability();
+      const CWeaponMode& mode = weapon->GetCurrentDamageInfo().GetWeaponMode();
+      if (vuln->GetDeflectionType(mode) == kDT_Ricochet ||
+          vuln->GetDeflectionType(mode) == kDT_RetargetPlayer ||
+          vuln->GetDeflectionType(mode) == kDT_RetargetPlayerCombo) {
+        if (mDeflectionSfxTimer <= 0.f) {
+          CAudioSys::C3DEmitterParmData parms(1000.f, 0.1f, 1, 127, 60);
+          parms.mPos = GetTranslation();
+          parms.mDir = CVector3f::Zero();
+          parms.mSfxId = 0x776;
+          CSfxManager::AddEmitter(parms, true, CSfxManager::kMedPriority, false,
+                                  GetCurrentAreaId().Value());
+          mDeflectionSfxTimer = 0.1f;
+        }
+      }
+    }
+  }
+}
+#endif
 
 void CMetroidPrime::UpdateUnderbodyDamage(CStateManager& mgr) {
   const CModelData* modelData = GetModelData();
@@ -1416,7 +1458,11 @@ void CMetroidPrime::PickNextAttack(CStateManager& mgr, int attack) {
   if (total > 30000.f) {
     NormalizeAttackDistribution();
   }
+#if VERSION >= VERSION_GM8P_00
+  const float selected = mAttackRandom.Range(0.f, total);
+#else
   const float selected = mgr.Random()->Range(0.f, total);
+#endif
   x1254_ = -1;
   float accumulated = 0.f;
   for (int i = 0; i <= 13; ++i) {
@@ -1540,6 +1586,11 @@ void CMetroidPrime::UpdateTimers(float dt) {
     x1084_ -= dt * GetAnimationData()->GetPlaybackRate();
     x920_ -= dt;
   }
+#if VERSION >= VERSION_GM8P_00
+  if (mDeflectionSfxTimer > 0.f) {
+    mDeflectionSfxTimer -= dt;
+  }
+#endif
 }
 
 void CMetroidPrime::RemoveFaceLockOn(CStateManager& mgr) {
@@ -1842,7 +1893,9 @@ CProjectileInfo* CMetroidPrime::ProjectileInfo() {
 
 void CMetroidPrime::Touch(CActor& actor, CStateManager& mgr) {}
 
+#if VERSION < VERSION_GM8P_00
 CMetroidPrime::~CMetroidPrime() {}
+#endif
 
 void CMetroidPrime::InActive(CStateManager& mgr, EStateMsg msg, float arg) {
   switch (msg) {

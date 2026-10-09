@@ -14,7 +14,7 @@ static inline void AddSample(rstl::reserved_vector< T, N >& samples, const T& va
     samples.push_back(value);
   }
   for (int i = samples.size() - 1; i > 0; --i) {
-    samples[i] = samples[i - 1];
+    samples[i] = samples[i - 1u];
   }
   samples[0] = value;
 }
@@ -30,8 +30,19 @@ void CPlayer::CPlayerStuckTracker::AddState(EPlayerState state, const CVector3f&
 }
 
 template < typename T, int N >
-rstl::optional_object< T > _getElementBoundsCheck(const rstl::reserved_vector< T, N >& v, int idx);
+rstl::optional_object< T > _getElementBoundsCheck(const rstl::reserved_vector< T, N >& v, int idx) {
+  if (idx >= v.size()) {
+    return rstl::optional_object_null();
+  }
 
+  return v[idx];
+}
+
+#if VERSION >= VERSION_R3ME_00
+template <>
+rstl::optional_object< int > _getElementBoundsCheck(const rstl::reserved_vector< int, 20 >& v,
+                                                    int idx);
+#else
 template <>
 rstl::optional_object< CVector3f >
 _getElementBoundsCheck(const rstl::reserved_vector< CVector3f, 20 >& v, int idx) {
@@ -41,6 +52,7 @@ _getElementBoundsCheck(const rstl::reserved_vector< CVector3f, 20 >& v, int idx)
 
   return v[idx];
 }
+
 template <>
 rstl::optional_object< CVector2f >
 _getElementBoundsCheck(const rstl::reserved_vector< CVector2f, 20 >& v, int idx) {
@@ -60,6 +72,7 @@ rstl::optional_object< int > _getElementBoundsCheck(const rstl::reserved_vector<
 
   return v[idx];
 }
+#endif
 
 bool CPlayer::CPlayerStuckTracker::IsPlayerStuck() const {
   if (mStates.size() == 20) {
@@ -80,7 +93,13 @@ bool CPlayer::CPlayerStuckTracker::IsPlayerStuck() const {
       if (deltaSq > FLT_EPSILON) {
         distance += CMath::FastSqrtF(deltaSq);
       }
+#if VERSION >= VERSION_R3ME_00 && !NONMATCHING
+      // Matching code retains a reference after the temporary optional is destroyed.
+      const CVector3f& position = *_getElementBoundsCheck(mPositions, i);
+      positionBounds.AccumulateBounds(position);
+#else
       positionBounds.AccumulateBounds(*_getElementBoundsCheck(mPositions, i));
+#endif
       const CVector3f velocity = *_getElementBoundsCheck(mVelocities, i);
       velocityBounds.AccumulateBounds(velocity);
       const float speed = velocity.Magnitude();
@@ -105,6 +124,19 @@ bool CPlayer::CPlayerStuckTracker::IsPlayerStuck() const {
   }
   return false;
 }
+
+#if VERSION >= VERSION_R3ME_00
+template <>
+rstl::optional_object< int > _getElementBoundsCheck(const rstl::reserved_vector< int, 20 >& v,
+                                                    int idx) {
+  if (idx >= v.size()) {
+    return rstl::optional_object_null();
+  }
+
+  const int element = v[idx];
+  return element;
+}
+#endif
 
 void CPlayer::CPlayerStuckTracker::ResetStats() {
   mStates.clear();

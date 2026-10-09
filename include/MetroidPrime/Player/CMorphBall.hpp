@@ -90,6 +90,7 @@ public:
   void SwitchToMarble();
   bool GetIsInHalfPipeMode() const;
   void DampLinearAndAngularVelocities(float linDamp, float angDamp);
+  void DampLinearAndAngularVelocities(float linDamp, float angDamp, float dt);
   bool IsClimbable(const CCollisionInfo&) const;
   void FluidFXThink(CActor::EFluidState state, CScriptWater& water, CStateManager& mgr);
   const CCollidableSphere& GetCollidableSphere() const { return mCollisionSphere; }
@@ -130,6 +131,10 @@ public:
   // GetWallBumpCounter__10CMorphBallCFv weak
   // GetBallContactMaterials__10CMorphBallCFv weak
   void ComputeBallMovement(const CFinalInput&, CStateManager&, float);
+  bool CheckGroundUnderBallForSpring(const CStateManager& mgr) const;
+  void CheckSpringBallJump(const CFinalInput& input, CStateManager& mgr);
+  float CalculateJumpSpeed(const CStateManager& mgr) const;
+  void SpringBallJump(CStateManager& mgr);
   void ComputeBoostBallMovement(const CFinalInput& input, const CStateManager& mgr, float dt);
   bool IsMovementAllowed() const;
   void EnterBoosting(CStateManager& mgr);
@@ -187,11 +192,10 @@ public:
   void EnableBallShadow();
   void DisableBallShadow();
   void PreRenderBallShadow(CStateManager&);
-  void SetDisableSpiderBallTime(float time);
 
   u32 GetMorphballModelShader() const { return mBallModelShader; } // name?
 
-  void SetDamageTimer(const float time);
+  void SetDisableSpiderBallTime(const float time);
 
 private:
   static CColor GetBallGlowColor(const SColorRgb& color);
@@ -257,7 +261,7 @@ private:
   CVector2f mNormSpiderSurfaceForces;
   float mSpiderTrackForceMag;
   float mSpiderViewControlMag;
-  float mDamageTimer;
+  float mDisableSpiderBallTime;
   bool mSpiderForcesReset;
   CTransform4f mSurfaceToWorld;
   bool mIsProjectile;
@@ -338,6 +342,10 @@ private:
   float mDamageTime;
   rstl::single_ptr< CMorphBallShadow > mShadow;
 };
+#if VERSION < VERSION_R3IJ_00
 CHECK_SIZEOF(CMorphBall, 0x1e58);
+#else
+CHECK_SIZEOF(CMorphBall, 0x1e50);
+#endif
 
 #endif // _CMORPHBALL

@@ -78,7 +78,7 @@ public:
   CScriptControllerAction(TUniqueId uid, const rstl::string& name, const CEntityInfo& info,
                           bool active, ECommands command, bool b1, uint w1, bool b2);
 
-  DECLARE_TYPES_MATCH_OR_ACCEPT;
+  DECLARE_ACCEPT;
   void Think(float, CStateManager&) override;
 
   static ControlMapper::ECommands GetCommand(ECommands cmd);

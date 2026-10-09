@@ -129,7 +129,9 @@ private:
   rstl::pair< bool, float > mBlock; /* Blocked-bool, Z-coordinate */
   rstl::vector< CVectorFixed8_8 > mParticles;
 };
+#if VERSION < VERSION_R3IJ_00
 CHECK_SIZEOF(CEnvFxManagerGrid, 0x2c);
+#endif
 
 class CEnvFxManager {
 public:
@@ -191,6 +193,8 @@ private:
   rstl::reserved_vector< CVector3f, 16 > mSnowZDeltas;
   rstl::optional_object< TLockedToken< CTexture > > mUnderwaterFlake;
 };
+#if VERSION < VERSION_R3IJ_00
 CHECK_SIZEOF(CEnvFxManager, 0xc58);
+#endif
 
 #endif // _CENVFXMANAGER

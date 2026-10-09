@@ -6,6 +6,12 @@
 #include "rstl/pointer_iterator.hpp"
 
 namespace rstl {
+template < typename I1, typename I2 >
+pair< I1, I2 > mismatch(I1 first, I1 last, I2 second) {
+  for (; first != last && *first == *second; ++first, ++second) {}
+  return pair< I1, I2 >(first, second);
+}
+
 template < typename It, typename T >
 int count(It first, It last, const T& val) {
   int result = 0;
@@ -62,12 +68,13 @@ void __sort3(T& a, T& b, T& c, const Cmp comp) {
 }
 
 template < typename It, class Cmp >
-void __insertion_sort(It first, It last, Cmp cmp) {
+void __insertion_sort(const It first, It last, Cmp cmp) {
   It next = first;
   for (++next; next < last; ++next) {
     typename iterator_traits< It >::value_type value = *next;
 
-    It t1 = next - 1;
+    It t1 = next;
+    --t1;
     It t2 = next;
     while (first < t2 && cmp(value, *t1)) {
       *t2 = *t1;
@@ -89,8 +96,15 @@ void sort(It first, It last, Cmp cmp) {
     return;
   }
 
+#if RSTL_VERSION >= RSTL_R3ME_00
+  It mid = first;
+  mid = mid + count / 2;
+  It end = last;
+  --end;
+#else
   It mid = first + count / 2;
   It end = last - 1;
+#endif
   __sort3(*first, *mid, *end, cmp);
 
   typename iterator_traits< It >::value_type pivot = *mid;
@@ -284,7 +298,12 @@ typename Vec::iterator lower_bound(typename Vec::iterator start, typename Vec::i
 template < typename It, typename T, typename Cmp >
 inline It binary_find(It start, It end, const T& value, Cmp cmp) {
   It lower = lower_bound(start, end, value, cmp);
+#if RSTL_VERSION >= RSTL_R3IJ
+  bool found = lower != end && !cmp(value, *lower);
+  return found ? lower : end;
+#else
   return It((lower != end && !cmp(value, *lower)) ? lower : end);
+#endif
 }
 
 template < typename It, typename T >
@@ -402,8 +421,10 @@ typename T::iterator inline find_by_key_nc(
 
 template < typename T >
 inline void sort_by_key(T& container) {
-  less< typename select1st< typename T::value_type >::value_type > cmp;
-  sort_by_key(container, cmp);
+  sort(container.begin(), container.end(),
+       pair_sorter_finder< typename T::value_type,
+                           less< typename select1st< typename T::value_type >::value_type > >(
+           less< typename select1st< typename T::value_type >::value_type >()));
 }
 
 template < typename T, class Cmp >

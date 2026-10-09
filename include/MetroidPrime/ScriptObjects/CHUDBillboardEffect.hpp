@@ -3,7 +3,7 @@
 
 #include "MetroidPrime/CEffect.hpp"
 
-class CGenDescription ;
+class CGenDescription;
 class CElectricDescription;
 class CParticleGen;
 
@@ -38,10 +38,14 @@ private:
   bool mRunIndefinitely : 1l; // = false;
   float mTimeoutTimer; // = 0.f;
 
-  static int g_IndirectTexturedBillboardCount;
-  static int g_BillboardCount;
+  static int mIndirectTexturedBillboardCount;
+  static int mBillboardCount;
 
   static float CalcGenRate();
 };
+
+#if VERSION >= VERSION_R3IJ_00
+CHECK_SIZEOF(CHUDBillboardEffect, 0x118)
+#endif
 
 #endif // _CHUDBILLBOARDEFFECT

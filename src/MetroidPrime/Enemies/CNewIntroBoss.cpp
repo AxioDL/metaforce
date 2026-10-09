@@ -208,7 +208,7 @@ void CNewIntroBoss::Think(float dt, CStateManager& mgr) {
   AnimationData()->PreRender();
   if (IsAlive()) {
     mBoneTracking.PreRender(mgr, *ModelData()->AnimationData(), GetTransform(),
-                                ModelData()->ScaleCopy(), *BodyCtrl());
+                            GetModelData()->ScaleCopy(), *BodyCtrl());
   }
   mCollisionManager->Update(dt, mgr, CCollisionActorManager::kUO_ObjectSpace);
 
@@ -220,7 +220,7 @@ void CNewIntroBoss::Think(float dt, CStateManager& mgr) {
       const float& weight = rstl::min_val(1.f, mFiringTime / 1.5f);
       const CVector3f target =
           mLookPos + weight * (mStartPlayerPos - mLookPos) - xf.GetTranslation();
-      const CQuaternion rotation = CQuaternion::ClampedRotateTo(CUnitVector3f(xf.GetForward()),
+      const CQuaternion rotation = CQuaternion::ShortestRotationArcClamped(CUnitVector3f(xf.GetForward()),
                                                                 CUnitVector3f(CVector3f(target)),
                                                                 CRelAngle::FromDegrees(30.f));
       CTransform4f beamXf = rotation.BuildTransform4f() * xf.GetRotation();

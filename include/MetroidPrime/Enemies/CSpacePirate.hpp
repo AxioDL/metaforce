@@ -19,8 +19,8 @@ class CSpacePirate : public CPatterned {
 
 public:
   ~CSpacePirate() override {}
-  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void Think(float dt, CStateManager& mgr) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) override;
   void PreRender(CStateManager& mgr, const CFrustumPlanes& frustum) override;
   void Render(const CStateManager& mgr) const override;
@@ -327,6 +327,6 @@ private:
   float mHoldPositionTime;
   float mLeashTimer;
 };
-CHECK_SIZEOF(CSpacePirate, (VERSION >= VERSION_GM8E_02 ? 0x8f0 : 0x8e0))
+CHECK_CHILD_SIZEOF(CSpacePirate, CPatterned, 0x378)
 
 #endif // _CSPACEPIRATE

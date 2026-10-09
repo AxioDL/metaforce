@@ -10,8 +10,7 @@
 #include <math.h>
 
 COBBox::COBBox(const CTransform4f& xf, const CVector3f& extents)
-: mTransform(xf)
-, mExtents(extents) {}
+: mTransform(xf), mExtents(extents) {}
 
 COBBox::COBBox(CInputStream& in) : mTransform(in), mExtents(in) {}
 
@@ -49,16 +48,17 @@ bool COBBox::AABoxIntersectsBox(const CAABox& box) const {
   return OBBIntersectsBox(FromAABox(box, CTransform4f::Identity()));
 }
 
-bool COBBox::OBBIntersectsBox(const COBBox& other) const {
-  const CVector3f delta = other.mTransform.GetTranslation() - mTransform.GetTranslation();
-  const CVector3f axes[3] = {mTransform.GetColumn(0), mTransform.GetColumn(1),
-                             mTransform.GetColumn(2)};
-  const CVector3f otherAxes[3] = {other.mTransform.GetColumn(0), other.mTransform.GetColumn(1),
-                                  other.mTransform.GetColumn(2)};
+#pragma sym on
+bool COBBox::OBBIntersectsBox(const COBBox& box) const {
+  const CVector3f delta = box.mTransform.GetTranslation() - mTransform.GetTranslation();
+  const CVector3f axes[3] = {mTransform.GetColumn(kDX), mTransform.GetColumn(kDY),
+                             mTransform.GetColumn(kDZ)};
+  const CVector3f otherAxes[3] = {box.mTransform.GetColumn(kDX), box.mTransform.GetColumn(kDY),
+                                  box.mTransform.GetColumn(kDZ)};
   const CVector3f translation(CVector3f::Dot(delta, axes[0]), CVector3f::Dot(delta, axes[1]),
                               CVector3f::Dot(delta, axes[2]));
   const CVector3f& extents = mExtents;
-  const CVector3f& otherExtents = other.GetSize();
+  const CVector3f& otherExtents = box.GetSize();
   float rotation[3][3];
   float ra, rb, t;
   for (int i = 0; i < 3; ++i) {

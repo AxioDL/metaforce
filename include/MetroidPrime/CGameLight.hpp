@@ -10,13 +10,15 @@ public:
   CGameLight(const TUniqueId uid, const TAreaId aid, const bool active, const rstl::string& name,
              const CTransform4f& xf, const TUniqueId parentId, const CLight& light,
              const CAssetId sourceId, const uint priority, const float lifeTime);
+#if VERSION < VERSION_GM8P_00
   ~CGameLight();
+#endif
 
   void SetLight(const CLight& light);
   CLight GetLight() const;
   TUniqueId GetParentId() const { return mParentId; }
-  void Think(float dt, CStateManager& mgr) override;
   DECLARE_TYPES_MATCH_OR_ACCEPT;
+  void Think(float dt, CStateManager& mgr) override;
   void SetLightPriorityAndId();
 
 private:
@@ -26,6 +28,6 @@ private:
   uint mPriority;
   float mLifeTime;
 };
-CHECK_SIZEOF(CGameLight, (VERSION >= VERSION_GM8E_02 ? 0x158 : 0x148))
+CHECK_CHILD_SIZEOF(CGameLight, CActor, 0x60)
 
 #endif // _CGAMELIGHT

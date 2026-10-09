@@ -691,8 +691,8 @@ CTransform4f CTransform4f::GetInverse() const {
   register CTransform4f* ret;
 #endif
 
-  float fVar1 = m22;
   float fVar2 = m12;
+  float fVar1 = m22;
   float fVar11 = m03 * fVar1;
   float fVar3 = m21;
   float fVar6 = m03 * fVar2;

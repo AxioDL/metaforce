@@ -30,6 +30,8 @@ private:
   mutable rstl::vector< rstl::pair< TEditorId, bool > > mVisitedDoors;
   bool mMapStationUsed;
 };
+#if VERSION < VERSION_R3IJ_00
 CHECK_SIZEOF(CMapWorldInfo, 0x3c)
+#endif
 
 #endif // _CMAPWORLDINFO

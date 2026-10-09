@@ -6,7 +6,7 @@
 class CInterpolationCamera : public CGameCamera {
 public:
   ~CInterpolationCamera() override;
-  DECLARE_TYPES_MATCH_OR_ACCEPT;
+  DECLARE_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) override;
   void Think(float dt, CStateManager& mgr) override;
   void Render(const CStateManager& mgr) const override;
@@ -39,6 +39,6 @@ private:
   bool mSinusoidal : 1;
   float mCloseInAngle;
 };
-CHECK_SIZEOF(CInterpolationCamera, (VERSION >= VERSION_GM8E_02 ? 0x1f0 : 0x1e0))
+CHECK_CHILD_SIZEOF(CInterpolationCamera, CGameCamera, 0x58)
 
 #endif // _CINTERPOLATIONCAMERA

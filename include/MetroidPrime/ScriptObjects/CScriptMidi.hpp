@@ -13,7 +13,7 @@ public:
 
   void Stop(CStateManager& mgr, float fadeTime);
   void Play(CStateManager& mgr, float fadeTime);
-  DECLARE_TYPES_MATCH_OR_ACCEPT;
+  DECLARE_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) override;
 
 private:
@@ -25,6 +25,6 @@ private:
 
   void StopInternal(float fadeTime);
 };
-CHECK_SIZEOF(CScriptMidi, 0x4c)
+CHECK_CHILD_SIZEOF(CScriptMidi, CEntity, 0x18)
 
 #endif // _CSCRIPTMIDI

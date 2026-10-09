@@ -24,7 +24,7 @@ template < typename T, int N >
     this->push_back(value);
   }
   for (int i = this->size() - 1; i > 0; --i) {
-    this->operator[](i) = this->operator[](i - 1);
+    this->operator[](i) = this->operator[](i - 1u);
   }
   this->operator[](0) = value;
 }

@@ -3,6 +3,8 @@
 
 #include <dolphin/types.h>
 
+#include "GameVersions.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -23,7 +25,11 @@ typedef union {
 } PPCWGPipe;
 
 #if defined(__MWERKS__) || defined(__SN__)
-/*volatile*/ PPCWGPipe GXWGFifo AT_ADDRESS(GXFIFO_ADDR);
+#if VERSION >= VERSION_R3IJ_00
+volatile PPCWGPipe GXWGFifo AT_ADDRESS(GXFIFO_ADDR);
+#else
+PPCWGPipe GXWGFifo AT_ADDRESS(GXFIFO_ADDR);
+#endif
 #else
 #define GXWGFifo (*(volatile PPCWGPipe*)GXFIFO_ADDR)
 #endif

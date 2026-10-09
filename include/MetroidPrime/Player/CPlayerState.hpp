@@ -13,6 +13,20 @@
 #include "rstl/reserved_vector.hpp"
 #include "rstl/vector.hpp"
 
+#if RSTL_VERSION >= RSTL_R3ME_00
+namespace rstl {
+template < >
+struct is_trivially_destructible< pair< CAssetId, float > > {
+  enum { value = true };
+};
+
+template < >
+inline void construct< pair< CAssetId, float > >(void* dest, const pair< CAssetId, float >& src) {
+  *static_cast< pair< CAssetId, float >* >(dest) = src;
+}
+} // namespace rstl
+#endif
+
 class CStateManager;
 
 class CPlayerState {
@@ -61,8 +75,12 @@ public:
     kIT_Spirit = 39,
     kIT_Newborn = 40,
 
+    #if VERSION == VERSION_GM8EAB_00
+    kIT_Max = 29
+    #else
     /* This must remain at the end of the list */
     kIT_Max
+    #endif
   };
 
   enum EPlayerVisor {
@@ -141,6 +159,7 @@ public:
   void DisableItem(const EItemType type);
   void EnableItem(const EItemType type);
   const bool HasPowerUp(const EItemType type) const;
+  bool HasVisor(const EPlayerVisor visor) const;
   const uint GetPowerUp(const EItemType type);
   const int GetItemCapacity(const EItemType type) const;
   const int GetItemAmount(const EItemType type) const;
@@ -153,8 +172,16 @@ public:
   void InitializePowerUp(CPlayerState::EItemType type, int capacity);
   void SetPowerUp(CPlayerState::EItemType type, int capacity);
   static bool IsValidScan(CAssetId res);
-  void SetScanCompletionRateFirst(int rate) { mScanCompletionRateFirst = rate; }   // name?
-  void SetScanCompletionRateSecond(int rate) { mScanCompletionRateSecond = rate; } // name?
+  void SetScanCompletionRateFirst(int rate) { // name?
+  #if VERSION > VERSION_GM8EAB_00
+    mScanCompletionRateFirst = rate;
+  #endif
+  }
+  void SetScanCompletionRateSecond(int rate) {  // name?
+  #if VERSION > VERSION_GM8EAB_00
+    mScanCompletionRateSecond = rate;
+  #endif
+  }
 
   void InitializeScanTimes();
 
@@ -164,11 +191,25 @@ public:
   CStaticInterference& StaticInterference() { return mStaticIntf; }
   const CStaticInterference& GetStaticInterference() const { return mStaticIntf; }
 
+  #if VERSION == VERSION_GM8EAB_00
+  const rstl::reserved_vector< rstl::pair< CAssetId, float >, 512 >& GetScanTimes() const {
+    return mScanTimes;
+  }
+  const int GetLogScans() const { return 0; }
+  const int GetTotalLogScans() const { return 0; }
+  #else
   const rstl::vector< rstl::pair< CAssetId, float > >& GetScanTimes() const {
     return mScanTimes;
   }
   const int GetLogScans() const { return mScanCompletionRateFirst; }
   const int GetTotalLogScans() const { return mScanCompletionRateSecond; }
+  int GetScanPercent() const {
+    if (mScanCompletionRateSecond > 0) {
+      return mScanCompletionRateFirst * 100 / mScanCompletionRateSecond;
+    }
+    return 0;
+  }
+  #endif
 
   CHealthInfo* HealthInfo() { return &mHealth; }
   const CHealthInfo& GetHealthInfo() const { return mHealth; }
@@ -179,6 +220,7 @@ private:
     int mCapacity;
     CPowerUp() : mAmount(0), mCapacity(0) {}
     CPowerUp(int amount, int capacity);
+    CPowerUp(CInputStream&);
 
     void Add(int amount) {
       int capacity = mCapacity;
@@ -194,6 +236,8 @@ private:
         mAmount = 0;
       }
     }
+
+    void PutTo(COutputStream& stream) const;
   };
 
   bool mAlive : 1;
@@ -206,12 +250,22 @@ private:
   EPlayerVisor mTransitioningVisor;
   float mVisorTransitionFactor;
   EPlayerSuit mCurrentSuit;
-  rstl::reserved_vector< CPowerUp, 41 > mPowerups;
+  #if VERSION == VERSION_GM8EAB_00
+  int mUnknown;
+  rstl::reserved_vector< CPowerUp, kIT_Max > mPowerups;
+  rstl::reserved_vector< rstl::pair< CAssetId, float >, 512 > mScanTimes;
+  #else
+  rstl::reserved_vector< CPowerUp, kIT_Max > mPowerups;
   rstl::vector< rstl::pair< CAssetId, float > > mScanTimes;
   int mScanCompletionRateFirst; // pair?
   int mScanCompletionRateSecond;
+  #endif
   CStaticInterference mStaticIntf;
 };
+#if VERSION >= VERSION_R3IJ_00
+CHECK_SIZEOF(CPlayerState, 0x194)
+#elif VERSION != VERSION_GM8EAB_00
 CHECK_SIZEOF(CPlayerState, 0x198)
+#endif
 
 #endif // _CPLAYERSTATE

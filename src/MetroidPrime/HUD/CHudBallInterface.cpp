@@ -21,8 +21,9 @@ static const char skPowerBombIconName[] = "model_bombicon";
 static const char skEnergyDecoName[] = "basewidget_energydeco";
 static const char skBombDecoName[] = "basewidget_bombdeco";
 
-CHudBallInterface::CHudBallInterface(CGuiFrame& selHud, int pbAmount, int pbCapacity,
-                                     int availableBombs, bool hasBombs, bool hasPb)
+CHudBallInterface::CHudBallInterface(CGuiFrame& selHud, const int pbAmount, const int pbCapacity,
+                                     const int availableBombs, const bool hasBombs,
+                                     const bool hasPb)
 : mCamPos(CVector3f::Zero())
 , mPbAmount(pbAmount)
 , mPbCapacity(pbCapacity)
@@ -35,11 +36,13 @@ CHudBallInterface::CHudBallInterface(CGuiFrame& selHud, int pbAmount, int pbCapa
   mModel_bombicon = static_cast< CGuiModel* >(selHud.FindWidget(skPowerBombIconName));
   mBasewidget_bombdeco = selHud.FindWidget(skBombDecoName);
 
+  CGuiWidget* filled;
+  CGuiWidget* empty;
   for (int i = 0; i < 3; ++i) {
     rstl::string groupName(CBasics::Stringize("%s%d", skBombCounterBaseName, i));
     CGuiGroup* grp = static_cast< CGuiGroup* >(selHud.FindWidget(groupName));
-    CGuiWidget* filled = grp->GetWorkerWidget(1);
-    CGuiWidget* empty = grp->GetWorkerWidget(0);
+    filled = grp->GetWorkerWidget(1);
+    empty = grp->GetWorkerWidget(0);
     mGroup_bombfilled.push_back(filled);
     mGroup_bombempty.push_back(empty);
     if (filled)
@@ -57,8 +60,9 @@ CHudBallInterface::CHudBallInterface(CGuiFrame& selHud, int pbAmount, int pbCapa
   SetBombParams(mPbAmount, pbCapacity, availableBombs, hasBombs, hasPb, true);
 }
 
-void CHudBallInterface::SetBombParams(int pbAmount, int pbCapacity, int availableBombs,
-                                      bool hasBombs, bool hasPb, bool init) {
+void CHudBallInterface::SetBombParams(const int pbAmount, const int pbCapacity,
+                                      const int availableBombs, const bool hasBombs,
+                                      const bool hasPb, const bool init) {
 
   if (pbAmount != mPbAmount || init) {
     char buffer[4];
@@ -97,8 +101,8 @@ void CHudBallInterface::SetBallModeFactor(float t) {
   float tmp = gpTweakGui->GetBallViewportYReduction() * 448.0f * 0.5f;
   float zOffset = t * tmp - tmp;
   zOffset *= 0.01f;
-  mCamera->SetO2PTransform(CTransform4f::Translate(
-      CVector3f(mCamPos.GetX(), mCamPos.GetY(), zOffset + mCamPos.GetZ())));
+  mCamera->SetO2PTransform(
+      CTransform4f::Translate(CVector3f(mCamPos.GetX(), mCamPos.GetY(), zOffset + mCamPos.GetZ())));
 }
 
 void CHudBallInterface::UpdatePowerBombReadoutColors() {

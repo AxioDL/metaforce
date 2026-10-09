@@ -13,7 +13,7 @@ class CWaveBuster : public CGameProjectile {
 public:
   // CEntity
   ~CWaveBuster() override;
-  DECLARE_TYPES_MATCH_OR_ACCEPT;
+  DECLARE_ACCEPT;
   void Think(float dt, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) override;
 
@@ -83,8 +83,6 @@ private:
   bool mCollided : 1;
   bool mCollidedWithWorld : 1;
 };
-CHECK_SIZEOF(CWaveBuster, (VERSION >= VERSION_GM8P_00 ? 0x400
-                           : VERSION >= VERSION_GM8E_02                             ? 0x3e8
-                                                                                    : 0x3d8))
+CHECK_CHILD_SIZEOF(CWaveBuster, CGameProjectile, VERSION >= VERSION_R3IJ_00 ? 0xe8 : 0xf0)
 
 #endif // _CWAVEBUSTER

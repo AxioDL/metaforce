@@ -78,9 +78,15 @@ public:
   void insert(iterator at, int count, bool value) {
     int bit = at.get_current_bit();
     make_room(bit, count);
+#if RSTL_VERSION >= RSTL_R3ME_00
+    for (int i = 0; i < count; ++i, ++bit) {
+      set_bit(bit, value);
+    }
+#else
     while (count-- > 0) {
       set_bit(bit++, value);
     }
+#endif
   }
 
   bool get_bit(int bit) { return (mData[get_real_index(bit)] & get_real_bit_mask(bit)) != 0; }
@@ -96,10 +102,19 @@ public:
   int get_data_size(int count) { return count / 32 + (count % 32 ? 1 : 0); }
   void make_room(int bit, int count) {
     int available = mData.size() * 32 - mSize;
+#if RSTL_VERSION >= RSTL_R3ME_00
+    // Insertion requires reserve(size() + count) before making room.
+    uint zero = 0;
+    while (available < count) {
+      mData.push_back_unsafe(zero);
+      available += 32;
+    }
+#else
     while (available < count) {
       mData.push_back(0u);
       available += 32;
     }
+#endif
     for (int i = mSize - 1; i >= bit; --i) {
       set_bit(i + count, get_bit(i));
     }

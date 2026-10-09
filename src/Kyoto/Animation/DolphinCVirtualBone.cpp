@@ -184,7 +184,7 @@ void CVirtualBone::BuildAccumulatedTransform(const CPoseAsTransforms& pose,
 void PSMTXROMultS16VecArrayGathered(ROMtx mtx, const ushort* in, volatile void* out,
                                     size_t pointCount);
 
-#if VERSION >= VERSION_GM8P_00
+#if VERSION >= VERSION_GM8E_02
 void PSMTXROMultS16VecArrayGatheredSingle(ROMtx mtx, const ushort* in, volatile void* out,
                                           size_t pointCount);
 #endif
@@ -211,7 +211,7 @@ void CVirtualBone::BuildPoints(const ushort* in, volatile void* out, int pointCo
   } else {
     ROMtx mtx;
     PSMTXReorder(TransformToMtx(mXf), mtx);
-#if VERSION >= VERSION_GM8P_00
+#if VERSION >= VERSION_GM8E_02
     PSMTXROMultS16VecArrayGatheredSingle(mtx, in, out, pointCount);
 #else
     PSMTXROMultS16VecArrayGathered(mtx, in, out, pointCount);
@@ -358,9 +358,9 @@ void PSMTXROMultS16VecArrayGathered(ROMtx mtx, const ushort* in, volatile void* 
   }
 }
 #endif
-#if VERSION >= VERSION_GM8P_00
+#if VERSION >= VERSION_GM8E_02
 #ifdef __MWERKS__
-// PAL point skinning writes each float separately, including the original FIFO pacing.
+// Point skinning writes each float separately, including the original FIFO pacing.
 asm void PSMTXROMultS16VecArrayGatheredSingle(ROMtx mtx, const ushort* in, volatile void* out,
                                                 size_t pointCount) {
   nofralloc

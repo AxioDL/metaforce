@@ -201,7 +201,7 @@ CPirateRagDoll::CPirateRagDoll(CStateManager& mgr, CSpacePirate* pirate, ushort 
   SetNumParticles(14);
   SetNumLengthConstraints(47);
   SetNumJointConstraints(4);
-  const CVector3f& scale = CVector3f(pirate->GetModelData()->GetScale());
+  const CVector3f& scale = CVector3f(pirate->ModelData()->GetScale());
   const CTransform4f& xf = pirate->GetTransform();
   CAnimData* animData = pirate->AnimationData();
   animData->BuildPose();
@@ -385,10 +385,9 @@ void CPirateRagDoll::PreRender(const CVector3f& pos, CModelData& mData) {
     CSegId rootId = animData->GetLocatorSegId(rstl::string_l("Skeleton_Root"));
     CVector3f rootOffset =
         0.5f * (mParticles[8].GetPosition() + mParticles[11].GetPosition()) - pos;
-    const CVector3f& scale = CVector3f(mData.GetScale());
-    builder.Insert(rootId,
-                   CVector3f(rootOffset.GetX() / scale.GetX(), rootOffset.GetY() / scale.GetY(),
-                             rootOffset.GetZ() / scale.GetZ()));
+    builder.Insert(rootId, CVector3f(rootOffset.GetX() / mData.ScaleCopy().GetX(),
+                                     rootOffset.GetY() / mData.ScaleCopy().GetY(),
+                                     rootOffset.GetZ() / mData.ScaleCopy().GetZ()));
     CVector3f right = mParticles[2].GetPosition() - mParticles[5].GetPosition();
     CVector3f up = (mParticles[0].GetPosition() -
                     (mParticles[8].GetPosition() + mParticles[11].GetPosition()) * 0.5f)

@@ -35,7 +35,7 @@ public:
                      bool active);
 
   // CEntity
-  DECLARE_TYPES_MATCH_OR_ACCEPT;
+  DECLARE_ACCEPT;
   void Think(float dt, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
 
@@ -51,6 +51,6 @@ private:
   CAssetId mFlameFxId;
   CDamageInfo mDInfo;
 };
-CHECK_SIZEOF(CScriptContraption, (VERSION >= VERSION_GM8E_02 ? 0x338 : 0x328))
+CHECK_CHILD_SIZEOF(CScriptContraption, CScriptActor, 0x40)
 
 #endif // _CSCRIPTCONTRAPTION

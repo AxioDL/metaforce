@@ -5,6 +5,11 @@
 #include "types.h"
 
 #include "MetroidPrime/CAnimRes.hpp"
+#include "MetroidPrime/CControlMapper.hpp"
+#if VERSION >= VERSION_R3IJ_00
+#include "MetroidPrime/CAimingCursor.hpp"
+#include "rstl/multimap.hpp"
+#endif
 #include "MetroidPrime/CPhysicsActor.hpp"
 #include "MetroidPrime/Player/CPlayerEnergyDrain.hpp"
 #include "MetroidPrime/Player/CPlayerState.hpp"
@@ -19,6 +24,7 @@ class CPlayerGun;
 class CMorphBall;
 class CPlayerCameraBob;
 class CCollidableSphere;
+class CScalarInputFilter;
 
 namespace NPlayer {
 enum EPlayerMovementState {
@@ -34,14 +40,21 @@ class CPlayer : public CPhysicsActor, public TOneStatic< CPlayer > {
   friend class CMorphBall;
 
   struct CVisorSteam {
-    float mCurTargetAlpha;
-    float mCurAlphaInDur;
-    float mCurAlphaOutDur;
-    CAssetId mTex;
-    float mNextTargetAlpha;
-    float mNextAlphaInDur;
-    float mNextAlphaOutDur;
-    CAssetId mTxtr;
+    struct SParameters {
+      float mTargetAlpha;
+      float mAlphaInDur;
+      float mAlphaOutDur;
+      CAssetId mTexture;
+
+      SParameters(float targetAlpha, float alphaInDur, float alphaOutDur, CAssetId texture)
+      : mTargetAlpha(targetAlpha)
+      , mAlphaInDur(alphaInDur)
+      , mAlphaOutDur(alphaOutDur)
+      , mTexture(texture) {}
+    };
+
+    SParameters mCurrent;
+    SParameters mNext;
     float mAlpha;
     float mDelayTimer;
     bool mAffectsThermal;
@@ -49,11 +62,7 @@ class CPlayer : public CPhysicsActor, public TOneStatic< CPlayer > {
   public:
     CVisorSteam();
     CVisorSteam(float targetAlpha, float alphaInDur, float alphaOutDur, CAssetId tex);
-    // : x0_curTargetAlpha(targetAlpha)
-    // , x4_curAlphaInDur(alphaInDur)
-    // , x8_curAlphaOutDur(alphaOutDur)
-    // , xc_tex(tex) {}
-    CAssetId GetTextureId() const { return mTex; }
+    CAssetId GetTextureId() const { return mCurrent.mTexture; }
     void SetSteam(float targetAlpha, float alphaInDur, float alphaOutDur, CAssetId txtr,
                   bool affectsThermal);
     void Update(float dt);
@@ -62,6 +71,23 @@ class CPlayer : public CPhysicsActor, public TOneStatic< CPlayer > {
   };
 
 public:
+#if VERSION >= VERSION_R3IJ_00
+  bool CanOpenSelector(const CStateManager& mgr, CControlMapper::ECommands command) const;
+  const CFinalInput& GetLastInput() const { return mLastInput; }
+  CControlMapper& ControlMapper() { return mControlMapper; }
+  const CControlMapper& GetControlMapper() const { return mControlMapper; }
+  const CAimingCursor& GetAimingCursor() const { return mAimingCursor; }
+  float GetOrbitModeBlend() const { return mOrbitModeBlend; }
+  bool GetPointerAimHeld() const { return mPointerAimHeld; }
+  void SetBallJump(bool enabled);
+  float GetTurnInputWarmupScale() const;
+  void UpdateTurnInputWarmup(float dt, const CStateManager& mgr);
+#else
+  CControlMapper GetControlMapper() const {
+    CControlMapper mapper;
+    return mapper;
+  }
+#endif
   class CPlayerStuckTracker {
   public:
     enum EPlayerState {
@@ -183,8 +209,8 @@ public:
 
   // CEntity
   // ~CPlayer() override;
-  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void PreThink(float dt, CStateManager& mgr) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void Think(float dt, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
 
@@ -229,6 +255,7 @@ public:
   float GetOrbitMaxLockDistance(const CStateManager& mgr) const;
   bool ValidateOrbitTargetIdAndPointer(TUniqueId id, CStateManager& mgr) const;
   EPlayerOrbitState GetOrbitState() const { return mOrbitState; }
+  static bool GetOrbitLockGun();
   const CVector3f& GetMovementDirection() const { return mMoveDir; }
   float GetMoveSpeed() const { return mMoveSpeed; }
   const CVector3f& GetLeaveMorphDirection() const { return mLeaveMorphDir; }
@@ -251,9 +278,16 @@ public:
   void RemoveOrbitDisableSource(TUniqueId uid);
   bool CheckOrbitDisableSourceList() const;
   bool CheckOrbitDisableSourceList(const CStateManager& mgr);
+#if VERSION >= VERSION_R3IJ_00
+  bool WithinOrbitScreenEllipse(const CVector3f& screenCoords, EPlayerZoneInfo zone,
+                                const CStateManager& mgr) const;
+  bool WithinOrbitScreenBox(const CVector3f& screenCoords, EPlayerZoneInfo zone,
+                            EPlayerZoneType type, const CStateManager& mgr) const;
+#else
   bool WithinOrbitScreenEllipse(const CVector3f& screenCoords, EPlayerZoneInfo zone) const;
   bool WithinOrbitScreenBox(const CVector3f& screenCoords, EPlayerZoneInfo zone,
                             EPlayerZoneType type) const;
+#endif
   void SetAimTargetId(TUniqueId target);
   EOrbitValidationResult ValidateCurrentOrbitTargetId(CStateManager& mgr);
   EOrbitValidationResult ValidateOrbitTargetId(TUniqueId target, CStateManager& mgr) const;
@@ -267,9 +301,18 @@ public:
   bool IsSidewaysDashing() const { return mSidewaysDashing; }
   bool GetDoneSidewaysDashing() const { return mDoneSidewaysDashing; }
   float GetMorphBallTransitionFactor() const {
+#if VERSION >= VERSION_R3IJ_00
+    if (mMorphDuration == 0.f) {
+      return 0.f;
+    }
+    float factor = mMorphDuration;
+    factor = mMorphTime / factor;
+    return CMath::FastMin(CMath::FastMax(0.f, factor), 1.f);
+#else
     return mMorphDuration == 0.f
                ? 0.f
                : CMath::Clamp(0.f, mMorphTime / mMorphDuration, 1.f);
+#endif
   }
   void InitialiseAnimation();
   void SetIntoBallReadyAnimation(CStateManager& mgr);
@@ -309,10 +352,21 @@ public:
   const bool StartSamusVoiceSfx(ushort sfx, short vol, int prio);
   void UpdateVisorState(const CFinalInput& input, float dt, CStateManager& mgr);
   void UpdateCrosshairsState(const CFinalInput& input);
+#if VERSION >= VERSION_R3IJ_00
+  int GetMaterialSoundUnderPlayer(CStateManager& mgr, const ushort* table, int length,
+                                  ushort defId);
+#else
   ushort GetMaterialSoundUnderPlayer(CStateManager& mgr, const ushort* table, int length,
                                      ushort defId);
+#endif
   void UpdateFootstepSounds(const CFinalInput& input, CStateManager& mgr, float dt);
+#if VERSION >= VERSION_R3IJ_00
+  float JumpInput(float dt, const CFinalInput& input, CStateManager& mgr);
+  bool IsJumpBlocked(CStateManager& mgr, const CFinalInput& input) const;
+  void InitializeJumpBlockLocations();
+#else
   float JumpInput(const CFinalInput& input, CStateManager& mgr);
+#endif
   float TurnInput(const CFinalInput& input) const;
   float StrafeInput(const CFinalInput& input) const;
   float ForwardInput(const CFinalInput& input, float turnInput) const;
@@ -334,15 +388,20 @@ public:
   void StartLandingControlFreeze(); // name?
   void EndLandingControlFreeze();   // name?
   void AdjustEyeOffset(CStateManager& mgr);
-  void SetEyeZBias(float bias);
+  void SetEyeOffset(float bias);
   float GetEyeOffset() const { return mEyeZBias; }
   void UpdateStepCameraZBias(float dt);
   void UpdateEnvironmentDamageCameraShake(float dt, CStateManager& mgr);
   void UpdatePhazonDamage(float dt, CStateManager& mgr);
+#if VERSION >= VERSION_R3IJ_00
+  void UpdateFreeLook(float dt, CStateManager& mgr);
+#else
   void UpdateFreeLook(float dt);
+#endif
   void UpdatePlayerHints(CStateManager& mgr);
   void UpdateBombJumpStuff();
   void BombJump(const CVector3f& pos, CStateManager& mgr);
+  void BombJump(const CVector3f& pos, CStateManager& mgr, bool airborneBomb);
   void UpdateTransitionFilter(float dt, CStateManager& mgr);
   void CalculatePlayerControlDirection(CStateManager& mgr);
   void CalculatePlayerMovementDirection(float dt);
@@ -354,8 +413,13 @@ public:
   void UpdateScanningState(const CFinalInput& input, CStateManager& mgr, float dt);
   bool IsUnderBetaMetroidAttack(CStateManager& mgr) const;
   void UpdateGrappleState(const CFinalInput& input, CStateManager& mgr);
+  void UpdateGrappleState(CStateManager& mgr, float dt);
   void ApplyGrappleForces(const CFinalInput& input, CStateManager& mgr, float dt);
+#if VERSION >= VERSION_R3IJ_00
+  void ComputeFreeLook(const CFinalInput& input, CStateManager& mgr);
+#else
   void ComputeFreeLook(const CFinalInput& input);
+#endif
   void UpdateOrbitInput(const CFinalInput& input, CStateManager& mgr);
   void UpdateOrbitZone(CStateManager& mgr);
   void UpdateMorphBallState(float dt, const CFinalInput& input, CStateManager& mgr);
@@ -375,7 +439,7 @@ public:
   EPlayerScanState GetPlayerScanState() const { return mScanState; }
   float GetThreatOverride() const { return mThreatOverride; }
   void UpdateSlideShowUnlocking(CStateManager& mgr); // name?
-  bool ValidateScanning(const CFinalInput& input, CStateManager& mgr) const;
+  bool ValidateScanning(const CFinalInput& input, CStateManager& mgr);
   float GetTransitionAlpha(const CVector3f& camPos, float zNear) const;
   void TakeDamage(bool significant, const CVector3f& location, float damage, EWeaponType type,
                   CStateManager& mgr);
@@ -391,7 +455,7 @@ public:
   void DoThink(float dt, CStateManager& mgr);    // name?
   void DoPreThink(float dt, CStateManager& mgr); // name?
   void SetPlayerHitWallDuringMove();
-  void DoPostCameraStuff(float dt, CStateManager& mgr); // name?
+  void DoPostCameraStuff(float dt, CStateManager& mgr);
   float UpdateCameraBob(float dt, CStateManager& mgr);
   const CPlayerCameraBob* GetCameraBobObject() const { return mCameraBob.get(); }
   CPlayerCameraBob* CameraBobObject() { return mCameraBob.get(); }
@@ -419,6 +483,7 @@ public:
   void OrbitCarcass(CStateManager& mgr);
   void UpdateOrbitTarget(CStateManager& mgr);
   void UpdateOrbitOrientation(CStateManager& mgr);
+  void UpdateOrbitOrientation(CStateManager& mgr, float dt);
 
   CPlayerGun* PlayerGun() { return mGun.get(); }
   const CPlayerGun* GetPlayerGun() const { return mGun.get(); }
@@ -455,8 +520,13 @@ public:
   EGrappleState GetGrappleState() const { return mGrappleState; }
   bool IsInFreeLook() const { return mInFreeLook; }
   bool IsLookButtonHeld() const { return mLookButtonHeld; }
+#if VERSION >= VERSION_R3IJ_00
+  CRelAngle GetFreeLookAngleZ() const { return mFreeLookYawAngle; }
+  CRelAngle GetFreeLookAngleX() const { return mFreeLookPitchAngle; }
+#else
   float GetFreeLookAngleZ() const { return mFreeLookYawAngle; }
   float GetFreeLookAngleX() const { return mFreeLookPitchAngle; }
+#endif
   float GetJumpCameraTimer() const { return mJumpCameraTimer; }
   float GetFallCameraTimer() const { return mFallCameraTimer; }
   bool GetOrbitLockAcquired() const { return mOrbitLockEstablished; }
@@ -466,6 +536,7 @@ public:
   TUniqueId GetRidingPlatformId() const { return mRidingPlatform; }
   void SetCameraState(EPlayerCameraState state, CStateManager& mgr);
   EGunHolsterState GetGunHolsterState() const { return mGunHolsterState; }
+  float GetGunHolsterFraction() const;
   NPlayer::EPlayerMovementState GetPlayerMovementState() const { return mMovementState; }
   float GetTimeSinceJump() const { return mTimeSinceJump; }
   void SetTimeSinceJump(float v) { mTimeSinceJump = v; }
@@ -487,11 +558,21 @@ public:
   void SetVisorSteam(float targetAlpha, float alphaInDur, float alphaOutDir, CAssetId txtr,
                      bool affectsThermal);
 
+#if VERSION >= VERSION_R3IJ_00
+  CVector3f GetDampedClampedVelocityWR(float dt) const;
+  CVector2f Compute2DMovementForce(float forwardInput, float strafeInput, float dt) const;
+  float ComputeMovementForce(int axis, float input, float velocity, float dt) const;
+#else
   CVector3f GetDampedClampedVelocityWR() const;
+#endif
   float GetAverageSpeed() const;
   float GetAcceleration() const;
   float GetGravity() const;
+#if VERSION >= VERSION_R3IJ_00
+  void CancelDash();
+#else
   void FinishSidewaysDash();
+#endif
   bool SidewaysDashAllowed(float strafeInput, float forwardInput, const CFinalInput& input,
                           CStateManager& mgr) const;
   void ComputeDash(const CFinalInput& input, float dt, CStateManager& mgr);
@@ -592,10 +673,17 @@ private:
   bool mLookButtonHeld;
   bool mLookAnalogHeld;
   float mCurFreeLookCenteredTime;
+#if VERSION >= VERSION_R3IJ_00
+  CRelAngle mFreeLookYawAngle;
+  CRelAngle mHorizFreeLookAngleVel;
+  CRelAngle mFreeLookPitchAngle;
+  CRelAngle mVertFreeLookAngleVel;
+#else
   float mFreeLookYawAngle;
   float mHorizFreeLookAngleVel;
   float mFreeLookPitchAngle;
   float mVertFreeLookAngleVel;
+#endif
   TUniqueId mAimTarget;
   CVector3f mTargetAimPosition;
   TReservedAverage< CVector3f, 10 > mAimTargetAverage;
@@ -723,10 +811,34 @@ private:
   float mAttachedActorStruggle;
   int mDamageLoopSfxDelayTicks;
   float mSamusExhaustedVoiceTimer;
+#if VERSION >= VERSION_R3IJ_00
+  CControlMapper mControlMapper;
+  CAimingCursor mAimingCursor;
+  CFinalInput mLastInput;
+  float mPointerAimHoldTime;
+  float mPointerAimHoldBlend;
+  bool mPointerAimHeld : 1;
+  bool mTurnToCursor : 1;
+  float mTurnInputWarmupRemaining;
+  float mTurnInputWarmupDuration;
+  bool mBallJump : 1;
+  bool mBallJumpFromPlatform : 1;
+  bool mAccelerationChangeActive : 1;
+  bool mCanAirBombJump : 1;
+  TUniqueId mBallJumpPlatform;
+  rstl::single_ptr< CScalarInputFilter > mVerticalLookFilter;
+  CRelAngle mFreeLookPitchRate;
+  float mContinuousTurnTime;
+  float mOrbitModeBlend;
+  rstl::multimap< unsigned long long, CVector3f > mJumpBlockLocations;
+#endif
 };
 NESTED_CHECK_SIZEOF(CPlayer, CPlayerStuckTracker, 0x2e0);
-CHECK_SIZEOF(CPlayer,
-             (VERSION < VERSION_GM8E_02 ? 0xa38 : (VERSION == VERSION_GM8E_02 ? 0xa48 : 0xa68)))
+#if VERSION < VERSION_R3IJ_00
+CHECK_CHILD_SIZEOF(CPlayer, CPhysicsActor, VERSION < VERSION_GM8P_00 ? 0x7e0 : 0x800)
+#else
+CHECK_CHILD_SIZEOF(CPlayer, CPhysicsActor, 0xf60)
+#endif
 
 extern const bool gkAutoAim;
 extern const bool gkAutoAimAtOrbitedObject;

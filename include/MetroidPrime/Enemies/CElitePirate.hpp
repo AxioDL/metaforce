@@ -268,6 +268,6 @@ protected:
   bool mRunning : 1;
   bool mOnPath : 1;
 };
-CHECK_SIZEOF(CElitePirate, (VERSION >= VERSION_GM8E_02 ? 0x9a0 : 0x990))
+CHECK_CHILD_SIZEOF(CElitePirate, CPatterned, 0x428)
 
 #endif // _CELITEPIRATE

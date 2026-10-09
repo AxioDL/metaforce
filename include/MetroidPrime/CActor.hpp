@@ -73,6 +73,11 @@ public:
   virtual const CDamageVulnerability* GetDamageVulnerability() const;
   virtual const CDamageVulnerability* GetDamageVulnerability(const CVector3f&, const CVector3f&,
                                                              const CDamageInfo&) const;
+#if VERSION >= VERSION_R3IJ_00
+  virtual void NotifyDamageEvent(CStateManager&, const TUniqueId&, const TUniqueId&,
+                                 const CDamageInfo&, float, bool, const CVector3f&,
+                                 const CVector3f&);
+#endif
   virtual rstl::optional_object< CAABox > GetTouchBounds() const;
   virtual void Touch(CActor&, CStateManager&);
   virtual CVector3f GetOrbitPosition(const CStateManager&) const;
@@ -138,7 +143,7 @@ public:
   bool HasModelData() const {
     return !mModelData.null() && (GetModelData()->HasAnimation() || GetModelData()->HasNormalModel());
   }
-  CModelData* ModelData() { return mModelData.get(); }
+  CModelData* ModelData() { return &*mModelData; }
   const CModelData* GetModelData() const { return mModelData.get(); }
 
   bool HasAnimation() const { return !mModelData.null() && GetModelData()->HasAnimation(); }
@@ -191,6 +196,9 @@ public:
   uchar GetTargetableVisorFlags() const { return mTargetableVisorFlags; }
   bool GetDoTargetDistanceTest() const { return mDoTargetDistanceTest; }
   bool GetTargetable() const { return mTargetable; }
+#if VERSION >= VERSION_R3IJ_00
+  bool GetHostileTarget() const { return mHostileTarget; }
+#endif
 
   void SetTransformDirty(bool b) { mNotInSortedLists = b; }
   void SetTransformDirtySpare(bool b) { mTransformDirty = b; }
@@ -301,7 +309,15 @@ private:
   uint mDrawEnabled : 1;
   uint mDoTargetDistanceTest : 1;
   uint mTargetable : 1;
+#if VERSION >= VERSION_R3IJ_00
+  uint mHostileTarget : 1;
+#endif
 };
-CHECK_SIZEOF(CActor, (VERSION >= VERSION_GM8E_02 ? 0xf8 : 0xe8))
+
+CHECK_CHILD_SIZEOF(
+  CActor,
+  CEntity,
+  VERSION < VERSION_GM8E_02 ? 0xb4 : 0xc4
+)
 
 #endif // _CACTOR

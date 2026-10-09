@@ -771,8 +771,13 @@ void CFishCloud::ApplyRotation(CBoid& boid, float magnitude, const CVector3f& po
   CVector3f delta = boid.mPos - point;
   delta[kDZ] = 0.f;
   const float distance = delta.Magnitude();
+#if VERSION >= VERSION_GM8P_00
+  const CVector3f align = clockwise ? CVector3f::Cross(delta.AsNormalized(), CVector3f::Up())
+                                    : CVector3f::Cross(CVector3f::Up(), delta / distance);
+#else
   const CVector3f align = clockwise ? FishCloudCross(delta.AsNormalized(), CVector3f::Up())
                                     : FishCloudCross(CVector3f::Up(), delta / distance);
+#endif
   const CVector3f velocity = boid.mVel;
   const float weight = distance > radius ? 0.f : 1.f - distance / radius;
   const float angle = CVector3f::GetAngleDiff(velocity, align) / M_PIF;
@@ -900,4 +905,6 @@ void CFishCloud::RenderParticles() const {
   }
 }
 
+#if VERSION < VERSION_GM8P_00
 CFishCloud::~CFishCloud() {}
+#endif

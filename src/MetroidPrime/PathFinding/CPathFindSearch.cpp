@@ -20,6 +20,7 @@ CPathFindSearch::CPathFindSearch(CPFArea* area, uint flags, uint index, float ch
 , mFlags(flags)
 , mIndexMask(1 << index) {}
 
+#pragma sym on
 CPathFindSearch::EResult CPathFindSearch::Search(const CVector3f& source,
                                                  const CVector3f& destination) {
   int i;
@@ -146,7 +147,7 @@ CPathFindSearch::EResult CPathFindSearch::Search(const CVector3f& source,
 
   includeDest = true;
   int firstPoint = (outsideSource ? 1 : 0) + 1;
-  int lastPoint = numLinks - 1;
+  int lastPoint = (numLinks - 1);
   lastPoint += firstPoint;
   if (lastPoint >= points.capacity()) {
     lastPoint = points.capacity() - 1;

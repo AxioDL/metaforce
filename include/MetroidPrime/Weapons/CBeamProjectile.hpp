@@ -21,7 +21,7 @@ public:
                   EProjectileAttrib attribs, bool growingBeam);
 
   // CEntity
-  DECLARE_TYPES_MATCH_OR_ACCEPT;
+  DECLARE_ACCEPT;
   ~CBeamProjectile() override;
 
   // CActor
@@ -70,8 +70,6 @@ private:
 
   void SetCollisionResultData(EDamageType dType, CRayCastResult& res, TUniqueId id);
 };
-CHECK_SIZEOF(CBeamProjectile, (VERSION >= VERSION_GM8P_00 ? 0x490
-                               : VERSION >= VERSION_GM8E_02                             ? 0x478
-                                                                                        : 0x468))
+CHECK_CHILD_SIZEOF(CBeamProjectile, CGameProjectile, 0x180)
 
 #endif // _CBEAMPROJECTILE

@@ -58,6 +58,12 @@ public:
                    float bobPeriod = kCameraBobPeriod);
 
   CVector3f GetCameraBobTranslation() const { return mCameraBobTransform.GetTranslation(); }
+  ECameraBobState GetState() const { return mCurState; }
+#if VERSION >= VERSION_R3IJ_00
+  CVector3f GetPreviousLandingTranslation() const {
+    return CVector3f(0.f, 0.f, mPreviousLandingTranslation);
+  }
+#endif
   const CTransform4f& GetViewWanderTransform() const;
   CVector3f GetHelmetBobTranslation() const;
   CTransform4f GetGunBobTransformation() const;
@@ -107,6 +113,9 @@ private:
   float mPlayerPeakFallVel;
   float mLandingVelocity;
   float mLandingTranslation;
+#if VERSION >= VERSION_R3IJ_00
+  float mPreviousLandingTranslation;
+#endif
   float mCamVelocity;
   float mCamTranslation;
   rstl::reserved_vector< CVector3f, 4 > mWanderPoints;
@@ -118,6 +127,10 @@ private:
   float mWanderMagnitude;
   float mTargetWanderMagnitude;
 };
+#if VERSION >= VERSION_R3IJ_00
+CHECK_SIZEOF(CPlayerCameraBob, 0x10c)
+#else
 CHECK_SIZEOF(CPlayerCameraBob, 0x108)
+#endif
 
 #endif // _CPLAYERCAMERABOB

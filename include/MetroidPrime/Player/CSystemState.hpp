@@ -71,7 +71,9 @@ private:
 #endif
   rstl::reserved_vector< uchar, kNESStateSize > mNesState;
   rstl::reserved_vector< uchar, 64 > x68_;
+#if VERSION < VERSION_R3IJ_00
   rstl::vector< rstl::pair< CAssetId, TEditorId > > mCinematicStates;
+#endif
 #if VERSION >= VERSION_GM8P_00
   int mLanguage;
 #endif
@@ -87,7 +89,9 @@ private:
   bool mFusionSuitActive : 1;
   bool mAllItemsCollected : 1;
 };
-#if VERSION == VERSION_GM8J_00
+#if VERSION >= VERSION_R3IJ_00
+CHECK_SIZEOF(CSystemState, 0x78)
+#elif VERSION == VERSION_GM8J_00
 CHECK_SIZEOF(CSystemState, 0x66c)
 #elif VERSION >= VERSION_GM8P_00
 CHECK_SIZEOF(CSystemState, 0x88)

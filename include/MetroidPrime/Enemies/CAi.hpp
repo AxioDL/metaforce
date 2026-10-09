@@ -14,7 +14,6 @@ class CStateMachine;
 
 class CAi : public CPhysicsActor {
 public:
-  DECLARE_TYPES_MATCH;
   static void CreateFuncLookup(CAiFuncMap* funcMap);
   static const CAiStateFunc GetStateFunc(const char* func);
   static const CAiTriggerFunc GetTriggerFunc(const char* func);
@@ -25,6 +24,7 @@ public:
       const CMaterialList&, unsigned int, const CActorParameters&, float, float);
   ~CAi();
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId other, CStateManager& mgr) override;
+  DECLARE_TYPES_MATCH;
   CHealthInfo* HealthInfo(CStateManager&) override;
   const CDamageVulnerability* GetDamageVulnerability() const override;
 
@@ -175,5 +175,7 @@ private:
 
   static CAiFuncMap* mFuncMap;
 };
+
+CHECK_CHILD_SIZEOF(CAi, CPhysicsActor, 0x80)
 
 #endif // _CAI

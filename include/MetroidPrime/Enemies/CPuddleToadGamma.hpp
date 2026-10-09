@@ -22,7 +22,9 @@ public:
                    const CDamageInfo& dInfo2, const CAssetId dcln);
 
   // CEntity
+#if VERSION < VERSION_GM8P_00
   ~CPuddleToadGamma() override;
+#endif
   DECLARE_TYPES_MATCH_OR_ACCEPT;
   void Think(float dt, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
@@ -81,6 +83,6 @@ private:
   bool mWaitTimerActive : 1;
   bool mShotPlayer : 1;
 };
-CHECK_SIZEOF(CPuddleToadGamma, (VERSION >= VERSION_GM8E_02 ? 0x600 : 0x5F0))
+CHECK_CHILD_SIZEOF(CPuddleToadGamma, CPatterned, 0x88)
 
 #endif // _CPUDDLETOADGAMMA

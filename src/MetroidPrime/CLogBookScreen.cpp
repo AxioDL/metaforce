@@ -349,8 +349,7 @@ void CLogBookScreen::PumpArticleLoad() {
 
 int CLogBookScreen::NextSurroundingArticleIndex(int cur) {
   if (cur < mFirstViewRightSel) {
-    int next = mFirstViewRightSel - cur + 6;
-    next += mFirstViewRightSel;
+    int next = mFirstViewRightSel - cur + mFirstViewRightSel + 6;
     return next < mCurViewScans.size() ? next : cur - 1;
   }
 

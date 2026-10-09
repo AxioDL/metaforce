@@ -557,7 +557,7 @@ void CThardusRockProjectile::AddParticleEffect(CStateManager& mgr, CAssetId part
   sprintf(buf, "ROCK_PROJECTILE_EFFECT-%u-%i", particle, uid.Value());
 #endif
 
-  CEntity* ent = rs_new CExplosion(
+  CExplosion* ent = rs_new CExplosion(
       TLockedToken< CGenDescription >(gpSimplePool->GetObj(SObjectTag('PART', particle))), uid,
       true, CEntityInfo(mgr.GetNextAreaId(), rstl::vector< SConnection >()), rstl::string(buf),
       CTransform4f(CMatrix3f::Identity(), position), unk, scale, CColor::White());

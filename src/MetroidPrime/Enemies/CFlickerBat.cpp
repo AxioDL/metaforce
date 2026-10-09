@@ -40,7 +40,7 @@ void CFlickerBat::AcceptScriptMsg(const EScriptObjectMessage msg, const TUniqueI
   switch (msg) {
   case kSM_Registered:
     RemoveMaterial(kMT_Solid, mgr);
-    mgr.AddActiveFlickerBat(GetUniqueId());
+    mgr.GetActiveFlickerBats().push_back(GetUniqueId());
     BodyCtrl()->Activate(mgr);
     BodyCtrl()->BodyStateInfo().SetMaximumPitch(CMath::Deg2Rad(60.f));
     break;

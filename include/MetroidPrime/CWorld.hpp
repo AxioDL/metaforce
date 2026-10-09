@@ -168,6 +168,9 @@ private:
     kP_Done,
   };
 
+#if VERSION >= VERSION_R3IJ_00
+  rstl::vector< CToken > mWorldTokens;
+#endif
   Phase mPhase;
   CAssetId mMlvlId;
   CAssetId mStrgId;
@@ -196,8 +199,13 @@ private:
   EEnvFxType mNeededFx;
   rstl::reserved_vector< rstl::pair< ushort, CSfxHandle >, 10 > mGlobalSfxHandles;
 };
+#if VERSION >= VERSION_R3IJ_00
+CHECK_SIZEOF(CWorld, 0x118)
+NESTED_CHECK_SIZEOF(CWorld, CSoundGroupData, 0x24)
+#else
 CHECK_SIZEOF(CWorld, 0x11c)
 NESTED_CHECK_SIZEOF(CWorld, CSoundGroupData, 0x28)
+#endif
 
 class CDummyWorld : public IWorld {
   enum Phase {
@@ -235,6 +243,6 @@ public:
   rstl::string IGetDefaultAudioTrack() const override;
   int IGetAreaCount() const override;
 };
-CHECK_SIZEOF(CDummyWorld, 0x40)
+CHECK_SIZEOF(CDummyWorld, VERSION >= VERSION_R3IJ_00 ? 0x3c : 0x40)
 
 #endif // _CWORLD

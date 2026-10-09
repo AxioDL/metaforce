@@ -94,8 +94,7 @@ void CActorModelParticles::CSystem::Update() {
 CActorModelParticles::CItem::CItem(const CEntity& ent, CActorModelParticles& parent)
 : mId(ent.GetUniqueId())
 , mAreaId(ent.GetCurrentAreaId())
-, mOnFireGens(
-      rstl::pair< rstl::auto_ptr< CElementGen >, uint >(rstl::auto_ptr< CElementGen >(), 0))
+, mOnFireGens(rstl::pair< rstl::auto_ptr< CElementGen >, uint >(rstl::auto_ptr< CElementGen >(), 0))
 , mOnFireDelayTimer(0.f)
 , mOnFire(false)
 , mAshPointIterator(0)
@@ -178,6 +177,19 @@ bool CActorModelParticles::CItem::Update(float dt, CStateManager& mgr) {
   return active;
 }
 
+bool CActorModelParticles::CItem::UpdateRainSplash(float dt, const CActor* actor,
+                                                   CStateManager& mgr) {
+  if (!mRainSplashGen.null()) {
+    if (!mRainSplashGen->IsRaining()) {
+      mRainSplashGen = rstl::auto_ptr< CRainSplashGenerator >();
+    } else {
+      mRainSplashGen->Update(dt, mgr);
+      return true;
+    }
+  }
+  return false;
+}
+
 bool CActorModelParticles::CItem::UpdateElectric(float dt, const CActor* actor,
                                                  CStateManager& mgr) {
   if (!mElectricGen.null()) {
@@ -205,19 +217,6 @@ bool CActorModelParticles::CItem::UpdateElectric(float dt, const CActor* actor,
     return true;
   }
   DontUseType(kST_Electric);
-  return false;
-}
-
-bool CActorModelParticles::CItem::UpdateRainSplash(float dt, const CActor* actor,
-                                                   CStateManager& mgr) {
-  if (!mRainSplashGen.null()) {
-    if (!mRainSplashGen->IsRaining()) {
-      mRainSplashGen = rstl::auto_ptr< CRainSplashGenerator >();
-    } else {
-      mRainSplashGen->Update(dt, mgr);
-      return true;
-    }
-  }
   return false;
 }
 
@@ -319,6 +318,13 @@ bool CActorModelParticles::CItem::UpdateAshGen(float dt, const CActor* actor, CS
   return false;
 }
 
+bool CActorModelParticles::CItem::UpdateBurn(float dt, const CActor* actor, CStateManager& mgr) {
+  if (actor == nullptr) {
+    mAshy.Unlock();
+  }
+  return mAshy.IsLocked();
+}
+
 bool CActorModelParticles::CItem::UpdateOnFire(float dt, CActor* actor, CStateManager& mgr) {
   bool sfxActive = false;
   bool effectActive = false;
@@ -394,13 +400,6 @@ bool CActorModelParticles::CItem::UpdateOnFire(float dt, CActor* actor, CStateMa
   return effectActive;
 }
 
-bool CActorModelParticles::CItem::UpdateBurn(float dt, const CActor* actor, CStateManager& mgr) {
-  if (actor == nullptr) {
-    mAshy.Unlock();
-  }
-  return mAshy.IsLocked();
-}
-
 void CActorModelParticles::CItem::UseType(ESystemTypes dep) {
   const uchar mask = 1 << dep;
   if (!(mLockDeps & mask)) {
@@ -417,52 +416,6 @@ void CActorModelParticles::CItem::DontUseType(ESystemTypes dep) {
   }
 }
 
-void CActorModelParticles::PointGenerator(void* context, const CVector3f* vertices,
-                                          const CVector3f* normals, int count) {
-  reinterpret_cast< CItem* >(context)->GeneratePoints(vertices, normals, count);
-}
-
-void CActorModelParticles::SetupHook(TUniqueId uid) const {
-  AUTO(it, FindSystem(uid));
-  if (it != mItems.end()) {
-    CSkinnedModel::SetPointGeneratorFunc(const_cast< CItem* >(&*it), PointGenerator);
-  }
-}
-
-rstl::list< CActorModelParticles::CItem >::iterator
-CActorModelParticles::FindOrCreateSystem(CActor& actor) {
-  const TUniqueId uid = actor.GetUniqueId();
-  if (actor.GetPointGeneratorParticles()) {
-    for (AUTO(it, mItems.begin()); it != mItems.end(); ++it) {
-      if (it->mId == uid) {
-        return it;
-      }
-    }
-  }
-  actor.SetPointGeneratorParticles(true);
-  return mItems.insert(mItems.begin(), CItem(actor, *this));
-}
-
-rstl::list< CActorModelParticles::CItem >::const_iterator
-CActorModelParticles::FindSystem(TUniqueId uid) const {
-  for (AUTO(it, mItems.begin()); it != mItems.end(); ++it) {
-    if (it->mId == uid) {
-      return it;
-    }
-  }
-  return mItems.end();
-}
-
-rstl::list< CActorModelParticles::CItem >::iterator
-CActorModelParticles::FindSystem(TUniqueId uid) {
-  for (AUTO(it, mItems.begin()); it != mItems.end(); ++it) {
-    if (it->mId == uid) {
-      return it;
-    }
-  }
-  return mItems.end();
-}
-
 CActorModelParticles::CActorModelParticles()
 : mOnFire(gpSimplePool->GetObj(*gpResourceFactory->GetResourceIdByName(skParticleNames[0])))
 , mAsh(gpSimplePool->GetObj(*gpResourceFactory->GetResourceIdByName(skParticleNames[2])))
@@ -472,6 +425,21 @@ CActorModelParticles::CActorModelParticles()
 , mElectric(gpSimplePool->GetObj(*gpResourceFactory->GetResourceIdByName(skParticleNames[4])))
 , mAshy(gpSimplePool->GetObj(*gpResourceFactory->GetResourceIdByName("TXTR_Ashy"))) {
   InitializeSystemTypes();
+}
+
+void CActorModelParticles::Update(float dt, CStateManager& mgr) {
+  UpdateSystemTypes();
+  AUTO(it, mItems.begin());
+  while (it != mItems.end()) {
+    if (!it->Update(dt, mgr)) {
+      if (CActor* actor = static_cast< CActor* >(mgr.ObjectById(it->mId))) {
+        actor->SetPointGeneratorParticles(false);
+      }
+      it = mItems.erase(it);
+    } else {
+      ++it;
+    }
+  }
 }
 
 CElementGen* CActorModelParticles::MakeAshGen() { return rs_new CElementGen(mAsh); }
@@ -565,80 +533,9 @@ void CActorModelParticles::RemoveRainSplashGenerator(CActor& actor) {
   }
 }
 
-CElementGen* CActorModelParticles::MakeIceGen() { return rs_new CElementGen(mIceBreak); }
-
-void CActorModelParticles::InitializeSystemTypes() {
-  for (int i = 0; i < 6; ++i) {
-    const rstl::string name = rstl::string_l(skParticleNames[i]) + rstl::string_l("_DGRP");
-    mDgrps.push_back(CSystem(name.data()));
-  }
-}
-
-void CActorModelParticles::AddTypeRef(ESystemTypes dep) {
-  const uchar mask = 1 << dep;
-  mDgrps[dep].AddRef();
-  if (!(mLoadedDeps & mask)) {
-    mLoadingDeps |= mask;
-  }
-}
-
-void CActorModelParticles::DelTypeRef(ESystemTypes dep) {
-  CSystem& system = mDgrps[dep];
-  system.DelRef();
-  if (system.mRefCount == 0) {
-    const uchar mask = ~(1 << dep);
-    mLoadingDeps &= mask;
-    mLoadedDeps &= mask;
-    mJustLoadedDeps &= mask;
-  }
-}
-
-void CActorModelParticles::UpdateSystemTypes() {
-  if (mLoadingDeps != 0) {
-    mJustLoadedDeps = 0;
-    for (int i = 0; i < 6; ++i) {
-      const uchar mask = 1 << i;
-      CSystem& system = mDgrps[i];
-      if (mLoadingDeps & mask) {
-        system.Update();
-        if (system.mLoaded) {
-          mJustLoadedDeps |= mask;
-          mLoadingDeps &= ~mask;
-        }
-      }
-    }
-    mLoadedDeps |= mJustLoadedDeps;
-  }
-}
-
-void CActorModelParticles::StartBurnDeath(CActor& actor) {
-  AUTO(it, FindOrCreateSystem(actor));
-  const short sfx = IsMediumOrLarge(actor) ? SFXeff_x_ash_00 : SFXeff_x_ash_01;
-  CSfxManager::AddEmitter(sfx, actor.GetTranslation(), CVector3f::Zero(), true, false);
-  it->mAshy.Lock();
-}
-
-CTexture* CActorModelParticles::GetAshyTexture(const CActor& actor) const {
-  AUTO(it, FindSystem(actor.GetUniqueId()));
-  if (it != mItems.end() && it->mAshy.IsLocked() && it->mAshy.IsLoaded()) {
-    return *TToken< CTexture >(it->mAshy);
-  }
-  return nullptr;
-}
-
-void CActorModelParticles::Update(float dt, CStateManager& mgr) {
-  UpdateSystemTypes();
-  AUTO(it, mItems.begin());
-  while (it != mItems.end()) {
-    if (!it->Update(dt, mgr)) {
-      if (CActor* actor = static_cast< CActor* >(mgr.ObjectById(it->mId))) {
-        actor->SetPointGeneratorParticles(false);
-      }
-      it = mItems.erase(it);
-    } else {
-      ++it;
-    }
-  }
+void CActorModelParticles::PointGenerator(void* context, const CVector3f* vertices,
+                                          const CVector3f* normals, int count) {
+  reinterpret_cast< CItem* >(context)->GeneratePoints(vertices, normals, count);
 }
 
 static int GetNextBestPt(int start, const CVector3f* vertices, int count, CRandom16& random) {
@@ -675,15 +572,13 @@ void CActorModelParticles::CItem::GeneratePoints(const CVector3f* vertices,
     int previousIndex = mAshPointIterator;
     for (int i = 0; i < numParticles; ++i) {
       const int index = GetNextBestPt(previousIndex, vertices, count, random);
-      mAshGen->SetTranslation(
-          CVector3f::ByElementMultiply(mParticleOffsetScale, vertices[index]));
+      mAshGen->SetTranslation(CVector3f::ByElementMultiply(mParticleOffsetScale, vertices[index]));
       CVector3f normal = normals[index];
       normal.SetZ(0.f);
       if (normal.CanBeNormalized()) {
         normal.Normalize();
-        const CVector3f& right = CVector3f::Cross(normal, CVector3f::Up());
-        CElementGen* gen = mAshGen.get();
-        gen->SetOrientation(CTransform4f::FromColumns(right, normal, CVector3f::Up(), CVector3f::Zero()));
+        mAshGen->SetOrientation(CTransform4f::FromColumns(
+            CVector3f::Cross(normal, CVector3f::Up()), normal, CVector3f::Up(), CVector3f::Zero()));
       }
       mAshGen->ForceParticleCreation(1);
       previousIndex = index;
@@ -727,6 +622,47 @@ void CActorModelParticles::CItem::GeneratePoints(const CVector3f* vertices,
   if (!mRainSplashGen.null()) {
     mRainSplashGen->GeneratePoints(vertices, normals, count);
   }
+}
+
+void CActorModelParticles::SetupHook(TUniqueId uid) const {
+  AUTO(it, FindSystem(uid));
+  if (it != mItems.end()) {
+    CSkinnedModel::SetPointGeneratorFunc(const_cast< CItem* >(&*it), PointGenerator);
+  }
+}
+
+rstl::list< CActorModelParticles::CItem >::iterator
+CActorModelParticles::FindOrCreateSystem(CActor& actor) {
+  const TUniqueId uid = actor.GetUniqueId();
+  if (actor.GetPointGeneratorParticles()) {
+    for (AUTO(it, mItems.begin()); it != mItems.end(); ++it) {
+      if (it->mId == uid) {
+        return it;
+      }
+    }
+  }
+  actor.SetPointGeneratorParticles(true);
+  return mItems.insert(mItems.begin(), CItem(actor, *this));
+}
+
+rstl::list< CActorModelParticles::CItem >::const_iterator
+CActorModelParticles::FindSystem(TUniqueId uid) const {
+  for (AUTO(it, mItems.begin()); it != mItems.end(); ++it) {
+    if (it->mId == uid) {
+      return it;
+    }
+  }
+  return mItems.end();
+}
+
+rstl::list< CActorModelParticles::CItem >::iterator
+CActorModelParticles::FindSystem(TUniqueId uid) {
+  for (AUTO(it, mItems.begin()); it != mItems.end(); ++it) {
+    if (it->mId == uid) {
+      return it;
+    }
+  }
+  return mItems.end();
 }
 
 void CActorModelParticles::AddStragglersToRenderer(const CStateManager& mgr) const {
@@ -821,4 +757,65 @@ void CActorModelParticles::Render(const CStateManager& mgr, const CActor& actor)
     item.mThermalHot = true;
   }
   CGraphics::SetModelMatrix(modelMatrix);
+}
+
+CElementGen* CActorModelParticles::MakeIceGen() { return rs_new CElementGen(mIceBreak); }
+
+void CActorModelParticles::InitializeSystemTypes() {
+  for (int i = 0; i < 6; ++i) {
+    const rstl::string name = rstl::string_l(skParticleNames[i]) + rstl::string_l("_DGRP");
+    mDgrps.push_back(CSystem(name.data()));
+  }
+}
+
+void CActorModelParticles::AddTypeRef(ESystemTypes dep) {
+  const uchar mask = 1 << dep;
+  mDgrps[dep].AddRef();
+  if (!(mLoadedDeps & mask)) {
+    mLoadingDeps |= mask;
+  }
+}
+
+void CActorModelParticles::DelTypeRef(ESystemTypes dep) {
+  CSystem& system = mDgrps[dep];
+  system.DelRef();
+  if (system.mRefCount == 0) {
+    const uchar mask = ~(1 << dep);
+    mLoadingDeps &= mask;
+    mLoadedDeps &= mask;
+    mJustLoadedDeps &= mask;
+  }
+}
+
+void CActorModelParticles::UpdateSystemTypes() {
+  if (mLoadingDeps != 0) {
+    mJustLoadedDeps = 0;
+    for (int i = 0; i < 6; ++i) {
+      const uchar mask = 1 << i;
+      CSystem& system = mDgrps[i];
+      if (mLoadingDeps & mask) {
+        system.Update();
+        if (system.mLoaded) {
+          mJustLoadedDeps |= mask;
+          mLoadingDeps &= ~mask;
+        }
+      }
+    }
+    mLoadedDeps |= mJustLoadedDeps;
+  }
+}
+
+void CActorModelParticles::StartBurnDeath(CActor& actor) {
+  AUTO(it, FindOrCreateSystem(actor));
+  SND_FXID sfx = IsMediumOrLarge(actor) ? SFXeff_x_ash_00 : SFXeff_x_ash_01;
+  CSfxManager::AddEmitter(sfx, actor.GetTranslation(), CVector3f::Zero(), true, false);
+  it->mAshy.Lock();
+}
+
+CTexture* CActorModelParticles::GetAshyTexture(const CActor& actor) const {
+  AUTO(it, FindSystem(actor.GetUniqueId()));
+  if (it != mItems.end() && it->mAshy.IsLocked() && it->mAshy.IsLoaded()) {
+    return *TToken< CTexture >(it->mAshy);
+  }
+  return nullptr;
 }

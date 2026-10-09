@@ -65,7 +65,7 @@ private:
     : mSlope(slope), mYIntercept(yIntercept), mT1(t1), mT2(t2) {}
 
     CFunctionDescription FunctionMirroredAround(const float& value) const {
-#if VERSION >= VERSION_GM8E_02
+#if VERSION >= VERSION_GM8P_00
       float twiceValue = 2.f * value;
       return CFunctionDescription(-mSlope, mYIntercept - mSlope * twiceValue,
                                   twiceValue - mT2, twiceValue - mT1);

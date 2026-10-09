@@ -77,8 +77,8 @@ public:
   float GetFloatingGravityConstant() const { return skFloatingGravityConstant; }
 
   // CEntity
-  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
 
   // CActor
   void AddToRenderer(const CFrustumPlanes& frustum, const CStateManager& mgr) const override;
@@ -231,7 +231,7 @@ private:
   TUniqueId mPatrolTarget;
   float x8a4_;
 };
-CHECK_SIZEOF(CFlyingPirate, (VERSION >= VERSION_GM8E_02 ? 0x8b8 : 0x8A8))
+CHECK_CHILD_SIZEOF(CFlyingPirate, CPatterned, 0x340)
 
 NESTED_CHECK_SIZEOF(CFlyingPirate, CFlyingPirateData, 0xF4)
 

@@ -51,6 +51,6 @@ private:
   float mLength;
   bool mClosedLoop;
 };
-CHECK_SIZEOF(CCameraSpline, 0x4c)
+CHECK_SIZEOF(CCameraSpline, (VERSION >= VERSION_R3IJ_00 ? 0x3c : 0x4c))
 
 #endif // _CCAMERASPLINE

@@ -792,4 +792,6 @@ void CMagdolite::DoContactDamage(TUniqueId uid, CStateManager& mgr) {
   }
 }
 
+#if VERSION < VERSION_GM8P_00
 CMagdolite::~CMagdolite() {}
+#endif

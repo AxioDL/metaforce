@@ -84,10 +84,10 @@ void CAuiImagePane::Draw(const CGuiWidgetDrawParms& parms) const {
   const CColor color = GetModifiedColor().WithAlphaModulatedBy(parms.GetAlpha());
   CGraphics::SetDepthWriteMode(true, kE_LEqual,
                                GetDrawFlags() == kGMDF_Shadeless || GetDrawFlags() == kGMDF_Opaque);
+  int frame1 = 0;
   float alpha0 = 1.f;
   float alpha1 = 0.f;
   int frame0 = 0;
-  int frame1 = 0;
   if (mInterval < 1.f && mInterval > 0.f) {
     frame0 = CCast::ToInt(mFrameTimer);
     const float columns = texture->GetWidth() / mTileSize.GetX();

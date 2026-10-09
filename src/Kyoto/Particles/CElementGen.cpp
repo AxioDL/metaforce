@@ -1778,6 +1778,8 @@ void CElementGen::RenderParticlesFlameThrower(CElementGen* const* gens, int coun
   CElementGen* gen = nullptr;
   int emitterTime = 0;
 
+  float cosMinusSin;
+  float sinPlusCos;
   for (int i = 0; i < activeCount; ++i) {
     CTexturedParticleListItem* readPtr = &sortItems[i];
     ushort map = readPtr->mTexMapIdx;
@@ -1818,8 +1820,8 @@ void CElementGen::RenderParticlesFlameThrower(CElementGen* const* gens, int coun
     float sinT = halfSize * CMath::FastSinR(theta);
     float cosT = halfSize * CMath::FastCosR(theta);
 
-    float sinPlusCos = sinT + cosT;
-    float cosMinusSin = cosT - sinT;
+    sinPlusCos = sinT + cosT;
+    cosMinusSin = cosT - sinT;
     float sinMinusCos = sinT - cosT;
     float negSinPlusCos = -sinT + cosT;
     float negCos = -cosT;

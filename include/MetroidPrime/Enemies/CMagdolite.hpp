@@ -30,7 +30,9 @@ public:
              float f9);
 
   // CEntity
+#if VERSION < VERSION_GM8P_00
   ~CMagdolite() override;
+#endif
   DECLARE_TYPES_MATCH_OR_ACCEPT;
   void Think(float dt, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
@@ -119,6 +121,6 @@ private:
   bool mInProjectileAttack : 1;
   float x758_;
 };
-CHECK_SIZEOF(CMagdolite, (VERSION >= VERSION_GM8E_02 ? 0x770 : 0x760))
+CHECK_CHILD_SIZEOF(CMagdolite, CPatterned, 0x1f8)
 
 #endif // _CMAGDOLITE

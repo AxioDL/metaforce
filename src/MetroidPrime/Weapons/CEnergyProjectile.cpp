@@ -309,6 +309,9 @@ void CEnergyProjectile::ResolveCollisionWithActor(const CRayCastResult& res, CAc
   if (!Explode(res.GetPoint(), res.GetPlane().GetNormal(), type, mgr, *act.GetDamageVulnerability(),
                act.GetUniqueId())) {
     mgr.DeliverScriptMsg(&act, GetUniqueId(), kSM_Touched);
+#if VERSION >= VERSION_GM8P_00
+    mgr.DeliverScriptMsg(&act, GetUniqueId(), kSM_Deflected);
+#endif
     act.SendScriptMsgs(kSS_ReflectedDamage, mgr, kSM_None);
   } else {
     CGameProjectile::ResolveCollisionWithActor(res, act, mgr);

@@ -1,0 +1,6 @@
+object_base: orig/R3MP01_00
+object: files/rs5mp1_p.dol
+hash: e4ca752835a7cb5d971b97d64799ba1ba4b98e92
+symbols: config/R3MP01_00/symbols.txt
+splits: config/R3MP01_00/splits.txt
+mw_comment_version: 8

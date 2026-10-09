@@ -13,11 +13,217 @@ Sections:
 	.sdata2     type:rodata align:4
 	.sbss2      type:bss align:32
 
+MetroidPrime/CAimingCursor.cpp:
+	.text       start:0x80014B8C end:0x80015EFC
+	.rodata     start:0x8046DC08 end:0x8046DC18
+	.bss        start:0x804B7900 end:0x804B7928
+	.sdata      start:0x805C0C68 end:0x805C0C80
+	.sbss       start:0x805C24B0 end:0x805C24B8
+	.sdata2     start:0x805C38D8 end:0x805C3920
+
+MetroidPrime/CArchMsgParmControllerStatus.cpp:
+	.text       start:0x8001F088 end:0x8001F0E0
+	.data       start:0x80483AA8 end:0x80483AB8
+
+MetroidPrime/CArchMsgParmInt32.cpp:
+	.text       start:0x8001F0E0 end:0x8001F134
+	.data       start:0x80483AB8 end:0x80483AC8
+
+MetroidPrime/CArchMsgParmInt32Int32VoidPtr.cpp:
+	.text       start:0x8001F134 end:0x8001F190
+	.data       start:0x80483AC8 end:0x80483AD8
+
+MetroidPrime/CArchMsgParmNull.cpp:
+	.text       start:0x8001F190 end:0x8001F1E0
+	.data       start:0x80483AD8 end:0x80483AE8
+
+MetroidPrime/CArchMsgParmReal32.cpp:
+	.text       start:0x8001F1E0 end:0x8001F234
+	.data       start:0x80483AE8 end:0x80483AF8
+
+MetroidPrime/CArchMsgParmUserInput.cpp:
+	.text       start:0x8001F234 end:0x8001F50C
+	.data       start:0x80483AF8 end:0x80483B08
+
+MetroidPrime/Weapons/CAuxWeapon.cpp:
+	.text       start:0x8002B6AC end:0x8002C9C4
+	.rodata     start:0x8046DFA0 end:0x8046E0A8
+	.sdata2     start:0x805C3A30 end:0x805C3A48
+
+MetroidPrime/Weapons/CBomb.cpp:
+	.text       start:0x8005B1D0 end:0x8005C168
+	.rodata     start:0x8046E258 end:0x8046E270
+	.data       start:0x804853D0 end:0x80485440
+	.bss        start:0x804BB338 end:0x804BB350 align:4
+	.sdata      start:0x805C0DD8 end:0x805C0E08 align:4
+	.sbss       start:0x805C24E8 end:0x805C24F0
+	.sdata2     start:0x805C3E98 end:0x805C3EA8
+
+MetroidPrime/CControlMapper.cpp:
+	.text       start:0x80075968 end:0x800773E8
+	.sdata2     start:0x805C4100 end:0x805C4120
+
 MetroidPrime/CEntity.cpp:
 	.text       start:0x8008E814 end:0x8008EE9C
 	.ctors      start:0x8046D3A4 end:0x8046D3A8
 	.data       start:0x804865F8 end:0x80486618
 	.bss        start:0x804BD768 end:0x804BD780
+
+MetroidPrime/Cameras/CFirstPersonCamera.cpp:
+	.text       start:0x800975DC end:0x800991BC
+	.rodata     start:0x8046F7B8 end:0x8046F7CC
+	.data       start:0x804869B8 end:0x80486A30
+	.sdata2     start:0x805C44F8 end:0x805C4518
+
+MetroidPrime/Player/CGameOptions.cpp:
+	.text       start:0x800C9150 end:0x800C9E60
+	.rodata     start:0x80470008 end:0x80470040
+	.sdata2     start:0x805C4910 end:0x805C4928
+
+MetroidPrime/HUD/CHudBeamSelect.cpp:
+	.text       start:0x800E04B4 end:0x800E0F8C
+	.rodata     start:0x80470790 end:0x80470890
+	.data       start:0x80487E20 end:0x80487E30
+	.sdata2     start:0x805C4B10 end:0x805C4B40
+
+MetroidPrime/HUD/CHudVisorSelect.cpp:
+	.text       start:0x800E8EDC end:0x800E992C
+	.rodata     start:0x804710B0 end:0x804711C0
+	.data       start:0x80487F88 end:0x80487F98
+	.sdata2     start:0x805C4CD0 end:0x805C4D00
+
+MetroidPrime/CInputGenerator.cpp:
+	.text       start:0x800FF378 end:0x800FF5F4
+
+MetroidPrime/Player/CMorphBall.cpp:
+	.text       start:0x8013A200 end:0x80147AE4
+	.ctors      start:0x8046D3E8 end:0x8046D3EC
+	.rodata     start:0x80473390 end:0x804738E0
+	.data       start:0x80489A78 end:0x80489AB8
+	.bss        start:0x804C08C0 end:0x804C0988
+	.sdata      start:0x805C1448 end:0x805C1488 align:4
+	.sbss       start:0x805C25E0 end:0x805C25FC align:4
+	.sdata2     start:0x805C53C0 end:0x805C5560
+
+MetroidPrime/Player/CPlayer.cpp:
+	.text       start:0x8017DD30 end:0x80187FE4
+	.ctors      start:0x8046D408 end:0x8046D40C
+	.rodata     start:0x80474820 end:0x804749E8
+	.data       start:0x8048AB20 end:0x8048AC08
+	.bss        start:0x804C0C18 end:0x804C33D0 align:4
+	.sdata      start:0x805C1580 end:0x805C15A8 align:4
+	.sbss       start:0x805C2648 end:0x805C2664 align:4
+	.sdata2     start:0x805C5A5C end:0x805C5BB8
+
+MetroidPrime/Player/CPlayerCameraBob.cpp:
+	.text       start:0x80187FE4 end:0x80188EF0
+	.ctors      start:0x8046D40C end:0x8046D410
+	.rodata     start:0x804749E8 end:0x80474A00
+	.sdata      start:0x805C15A8 end:0x805C15F8 align:4
+	.sbss       start:0x805C2668 end:0x805C2678 align:4
+	.sdata2     start:0x805C5BB8 end:0x805C5BE8
+
+MetroidPrime/Player/CPlayerGun.cpp:
+	.text       start:0x80189568 end:0x80192C50
+	.ctors      start:0x8046D410 end:0x8046D414
+	.rodata     start:0x80474A00 end:0x80474AE0
+	.data       start:0x8048AC08 end:0x8048AD00
+	.bss        start:0x804C33D0 end:0x804C3478
+	.sdata      start:0x805C15F8 end:0x805C1628 align:4
+	.sbss       start:0x805C2678 end:0x805C2698 align:4
+	.sdata2     start:0x805C5BF0 end:0x805C5CD8
+
+MetroidPrime/Player/CPlayerDynamics.cpp:
+	.text       start:0x80192C50 end:0x8019A67C
+	.ctors      start:0x8046D414 end:0x8046D418
+	.rodata     start:0x80474AE0 end:0x80474B60
+	.data       start:0x8048AD00 end:0x8048AD38
+	.bss        start:0x804C3478 end:0x804C34A0
+	.sdata      start:0x805C1628 end:0x805C1640 align:4
+	.sdata2     start:0x805C5CD8 end:0x805C5DE8
+
+MetroidPrime/Player/CPlayerOrbit.cpp:
+	.text       start:0x8019A67C end:0x801A03A0
+	.ctors      start:0x8046D418 end:0x8046D41C
+	.rodata     start:0x80474B60 end:0x80474B80
+	.bss        start:0x804C34A0 end:0x804C3528
+	.sdata      start:0x805C1640 end:0x805C1688
+	.sdata2     start:0x805C5DE8 end:0x805C5E48
+
+MetroidPrime/Player/CPlayerState.cpp:
+	.text       start:0x801A03A0 end:0x801A15CC
+	.rodata     start:0x80474B80 end:0x80474C58
+	.data       start:0x8048AD38 end:0x8048ADCC
+	.sdata      start:0x805C1688 end:0x805C1690 align:4
+	.sdata2     start:0x805C5E48 end:0x805C5E70
+
+MetroidPrime/Player/CPlayerStuckTracker.cpp:
+	.text       start:0x801A15CC end:0x801A227C
+	.sdata2     start:0x805C5E70 end:0x805C5E88
+
+MetroidPrime/Player/CPlayerVisor.cpp:
+	.text       start:0x801A227C end:0x801A63C0
+	.rodata     start:0x80474C58 end:0x80474DA0
+	.bss        start:0x804C3528 end:0x804C3538
+	.sbss       start:0x805C2698 end:0x805C26A8
+	.sdata2     start:0x805C5E88 end:0x805C5F40
+
+MetroidPrime/ScriptObjects/CScriptPlayerHint.cpp:
+	.text       start:0x801F7514 end:0x801F7980
+	.data       start:0x8048C948 end:0x8048C9B8
+	.sdata      start:0x805C1918 end:0x805C191C
+
+MetroidPrime/CStateManager.cpp:
+	.text       start:0x8022ADD8 end:0x8022B0D4
+
+MetroidPrime/CTargetReticles.cpp:
+	.text       start:0x80234C7C end:0x8023C750
+	.ctors      start:0x8046D454 end:0x8046D458
+	.rodata     start:0x80477A38 end:0x80477C50
+	.data       start:0x8048DE10 end:0x8048DE20
+	.bss        start:0x804D4DE0 end:0x804D4E00
+	.sbss       start:0x805C2758 end:0x805C275C align:4
+	.sdata2     start:0x805C6C80 end:0x805C6D10
+
+MetroidPrime/Player/CTrilogyOptions.cpp:
+	.text       start:0x8024A110 end:0x8024A8D0
+	.sdata      start:0x805C1AB8 end:0x805C1AC0
+
+MetroidPrime/Tweaks/CTweakPlayer.cpp:
+	.text       start:0x80253608 end:0x802543D8
+	.rodata     start:0x80478290 end:0x80478298
+	.data       start:0x8048E8C0 end:0x8048E8D0
+	.sbss       start:0x805C27B0 end:0x805C27B8
+	.sdata2     start:0x805C6ED8 end:0x805C6EE8
+
+MetroidPrime/Tweaks/CTweakPlayerControl.cpp:
+	.text       start:0x802543D8 end:0x80266F1C
+	.ctors      start:0x8046D460 end:0x8046D464
+	.rodata     start:0x80478298 end:0x804782A0
+	.data       start:0x8048E8D0 end:0x8048E8E0
+	.bss        start:0x804D4EA8 end:0x804DCE20
+	.sbss       start:0x805C27B8 end:0x805C27C0
+	.sdata2     start:0x805C6EE8 end:0x805C6FD8
+
+MetroidPrime/Decode.cpp:
+	.text       start:0x8028B7EC end:0x8028BD64
+	.rodata     start:0x804786F0 end:0x804786F8
+	.data       start:0x8048F1C8 end:0x8048F1D0
+
+Kyoto/Input/CControllerData.cpp:
+	.text       start:0x802E47B4 end:0x802E4B78
+	.sdata2     start:0x805C7BF8 end:0x805C7C00
+
+Kyoto/Input/CInputFilter.cpp:
+	.text       start:0x802FAE64 end:0x802FB7C8
+	.rodata     start:0x8047B670 end:0x8047B678
+	.data       start:0x80492950 end:0x80492978
+	.sdata2     start:0x805C7CF8 end:0x805C7D30
+
+Kyoto/Input/CFinalInput.cpp:
+	.text       start:0x802FB7C8 end:0x802FC254
+	.data       start:0x80492978 end:0x80492A04
+	.sdata2     start:0x805C7D30 end:0x805C7D50
 
 Kyoto/Streams/CInputStream.cpp:
 	.text       start:0x803025EC end:0x80302BA4
@@ -25,6 +231,44 @@ Kyoto/Streams/CInputStream.cpp:
 	.data       start:0x80492AB8 end:0x80492AC8
 	.bss        start:0x804E4438 end:0x804E4448
 	.sbss       start:0x805C29E0 end:0x805C29EC
+
+Kyoto/Math/CMayaSpline.cpp:
+	.text       start:0x80305B10 end:0x80307F10
+	.rodata     start:0x8047B9C0 end:0x8047B9D0
+	.sdata      start:0x805C1CE0 end:0x805C1CE8
+	.sdata2     start:0x805C7DD0 end:0x805C7E08
+
+Kyoto/Math/CQuaternion.cpp:
+	.text       start:0x80324CF4 end:0x80326230
+	.ctors      start:0x8046D4C0 end:0x8046D4C4
+	.rodata     start:0x8047BB80 end:0x8047BBA0
+	.bss        start:0x804E4680 end:0x804E46B8
+	.sbss       start:0x805C2A50 end:0x805C2A58
+	.sdata2     start:0x805C7F18 end:0x805C7F40
+
+Kyoto/Input/CWiiMotionProcessor.cpp:
+	.text       start:0x8032D774 end:0x80330D88
+	.rodata     start:0x8047BBF0 end:0x8047BC30
+	.sdata2     start:0x805C7F68 end:0x805C7FE8
+
+Kyoto/Input/CRevolutionController.cpp:
+	.text       start:0x80330D88 end:0x80333F84
+	.rodata     start:0x8047BC30 end:0x8047BC40
+	.data       start:0x80493400 end:0x804935C8
+	.sbss       start:0x805C2A60 end:0x805C2A68
+	.sdata2     start:0x805C7FE8 end:0x805C8040
+
+Kyoto/Math/RMathUtils.cpp:
+	.text       start:0x803635B4 end:0x80364104
+	.ctors      start:0x8046D4FC end:0x8046D500
+	.rodata     start:0x8047C980 end:0x8047C9F8
+	.bss        start:0x804E8B00 end:0x804E8B08
+	.sdata2     start:0x805C8228 end:0x805C82A0
+
+Kyoto/Input/IController.cpp:
+	.text       start:0x80364104 end:0x80364190
+	.rodata     start:0x8047C9F8 end:0x8047CA00
+	.data       start:0x80493DA8 end:0x80493DF0
 
 Weapons/CDecalDataFactory.cpp:
 	.text       start:0x8038D638 end:0x8038E5F0

@@ -237,7 +237,7 @@ int CGraphics::mSpareBufferTexCacheSize;
 GXTexRegionCallback CGraphics::mGXDefaultTexRegionCallback;
 void* CGraphics::mpFifo;
 GXFifoObj* CGraphics::mpFifoObj;
-#if (VERSION == VERSION_GM8E_02 || VERSION >= VERSION_GM8J_00)
+#if VERSION >= VERSION_GM8J_00
 uint CGraphics::mFifoSize = 0;
 #endif
 uint CGraphics::mRenderTimings;
@@ -268,7 +268,7 @@ bool CGraphics::mUseVideoFilter = true;
 float CGraphics::mBrightness = 1.f;
 
 const GXTexMapID CGraphics::kSpareBufferTexMapID = GX_TEXMAP7;
-#if (VERSION == VERSION_GM8E_02 || VERSION >= VERSION_GM8J_00)
+#if VERSION >= VERSION_GM8J_00
 void CGraphics::InitGraphicsFifo(GXFifoObj* obj, void* fifo, uint fifoSize) {
   GXFifoObj fifoObj;
   GXInitFifoBase(&fifoObj, fifo, fifoSize);
@@ -289,7 +289,7 @@ bool CGraphics::Startup(const COsContext& osContext, uint fifoSize, void* fifoBa
 #endif
   mpFifo = fifoBase;
   mpFifoObj = GXInit(fifoBase, fifoSize);
-#if (VERSION == VERSION_GM8E_02 || VERSION >= VERSION_GM8J_00)
+#if VERSION >= VERSION_GM8J_00
   mFifoSize = fifoSize;
   InitGraphicsFifo(mpFifoObj, mpFifo, fifoSize);
 #else
@@ -1265,7 +1265,7 @@ void CGraphics::SetDepthRange(float near, float far) {
 }
 
 static inline GXTevStageID get_texture_unit(const ERglTevStage stage) {
-#if VERSION >= VERSION_GM8E_02
+#if VERSION >= VERSION_GM8P_00
   return static_cast< GXTevStageID >(stage);
 #else
   if (stage == kTS_Stage0) {

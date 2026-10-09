@@ -4,6 +4,7 @@
 #include "types.h"
 
 #include "MetroidPrime/BodyState/CBodyController.hpp"
+#include "MetroidPrime/CPatternedCollisionManager.hpp"
 #include "MetroidPrime/CSteeringBehaviors.hpp"
 #include "MetroidPrime/Enemies/CAi.hpp"
 #include "MetroidPrime/Enemies/CPatternedInfo.hpp"
@@ -176,8 +177,8 @@ public:
 
   // CEntity
   ~CPatterned() override {}
-  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void PreThink(float dt, CStateManager& mgr) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void Think(float dt, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
 
@@ -309,7 +310,6 @@ public:
   u8 ApplyBoneTracking() const;
   CVector3f GetGunEyePos() const;
 
-  
 #ifndef HAS_TYPES_MATCH
   template < class T >
   static T* CastTo(const TPatternedCast< T >& ent);
@@ -383,6 +383,8 @@ public:
   static const float skActorApproachDistance;
   static const CColor skDamageColor;
   static const CColor skFrozenDamageColor;
+
+  void SetOnGround(const bool onGround) { mOnGround = onGround; }
 
 protected:
   EPatrolState mPatrolState;
@@ -481,6 +483,9 @@ protected:
   u32 mIceShatterSfx;
   CSteeringBehaviors mSteeringBehaviors;
   CKnockBackMgr mKnockBackController;
+#if VERSION >= VERSION_R3IJ_00
+  CPatternedCollisionManager mCollisionManager;
+#endif
   CVector3f mLatestPredictedTranslation;
   float mPredictedLeashTime;
   float mIntoFreezeDur;
@@ -499,7 +504,11 @@ protected:
   CVector3f mMoveScale;
 };
 NESTED_CHECK_SIZEOF(CPatterned, CPatternNode, 0x24)
-CHECK_SIZEOF(CPatterned, (VERSION >= VERSION_GM8E_02 ? 0x578 : 0x568))
+#if VERSION >= VERSION_R3IJ_00
+CHECK_CHILD_SIZEOF(CPatterned, CAi, 0x2B8)
+#else
+CHECK_CHILD_SIZEOF(CPatterned, CAi, 0x290)
+#endif
 
 #ifdef HAS_TYPES_MATCH
 #define PATTERNED_CAST_TO(CLS, obj) TCastToPtr< CLS >(obj)

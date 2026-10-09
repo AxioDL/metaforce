@@ -139,12 +139,13 @@ void CScriptDock::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStat
           mgr.GetWorld()->GetArea(mgr.GetNextAreaId())->GetDock(mDock);
       areaId = dock.GetConnectedAreaId(dock.GetReferenceCount());
     }
-    if (areaId.Value() >= 0 && mgr.GetWorld()->GetNumAreas() > areaId.Value() &&
-        mgr.GetWorld()->IsAreaValid(areaId)) {
-      CWorld::PropogateAreaChain(msg == kSM_Increment ? CGameArea::kOS_Visible
-                                                      : CGameArea::kOS_Occluded,
-                                 mgr.World()->Area(areaId), mgr.World());
+    if (areaId.Value() < 0 || mgr.GetWorld()->GetNumAreas() <= areaId.Value() ||
+        !mgr.GetWorld()->IsAreaValid(areaId)) {
+      return;
     }
+    CWorld::PropogateAreaChain(msg == kSM_Increment ? CGameArea::kOS_Visible
+                                                    : CGameArea::kOS_Occluded,
+                               mgr.World()->Area(areaId), mgr.World());
     break;
   }
   default:

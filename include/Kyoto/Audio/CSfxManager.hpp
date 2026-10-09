@@ -145,7 +145,7 @@ public:
                           const CVector3f vec1 = CVector3f::Zero(),
                           const CVector3f vec2 = CVector3f::Zero(), const float f1 = 0.f,
                           const float f2 = 0.f, const float f3 = 0.f, const uint w1 = 0,
-#if VERSION >= VERSION_GM8E_02
+#if VERSION >= VERSION_GM8P_00
                           uchar maxVolume = 0)
 #else
                           const uchar maxVolume = 0)
@@ -219,6 +219,7 @@ public:
                              bool useAcoustics = false, const short prio = kMedPriority,
                              const bool looped = false, const int areaId = kAllAreas);
   static void SfxStop(CSfxHandle handle);
+  static void SfxStop(ESfxChannels channel, CSfxHandle handle);
   static void SfxVolume(CSfxHandle handle, uchar volume);
   static void SfxSpan(CSfxHandle, uchar);
 

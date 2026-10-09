@@ -219,6 +219,24 @@ void CStaticAudioPlayer::DoMix() {
 }
 #endif
 
+#if VERSION == VERSION_GM8E_02 || VERSION == VERSION_GM8J_00
+void MixStereoToMono(short* buf, int numSamples) {
+  for (int i = 0; i < numSamples * 2; i += 2) {
+    int avg = (buf[i] + buf[i + 1]) / 2;
+    short sample;
+    if (avg < -0x8000) {
+      sample = -0x8000;
+    } else if (avg > 0x7fff) {
+      sample = 0x7fff;
+    } else {
+      sample = avg;
+    }
+    buf[i] = sample;
+    buf[i + 1] = sample;
+  }
+}
+
+#endif
 void CStaticAudioPlayer::Decode(const ushort* bufIn, ushort* bufOut, int numSamples) {
   int curSamp = mCurSamp / 2;
   int loopEndSamp = mLoopEndSamp / 2;
@@ -229,11 +247,16 @@ void CStaticAudioPlayer::Decode(const ushort* bufIn, ushort* bufOut, int numSamp
   int halfLen = mRsfLength / 2;
   DecodeMonoAndMix(const_cast< ushort* >(bufIn + 1), bufOut + 1, numSamples, curSamp + halfLen,
                    loopEndSamp + halfLen, loopStartSamp + halfLen, mVolume, mRightState);
+#if VERSION == VERSION_GM8E_02 || VERSION == VERSION_GM8J_00
+  if (CAudioSys::GetSurroundMode() == CAudioSys::kSM_Mono) {
+    MixStereoToMono(reinterpret_cast< short* >(bufOut), numSamples);
+  }
+#endif
 
   int remSamples = numSamples;
   while (remSamples != 0) {
-    int remTillLoop = mLoopEndSamp - mCurSamp;
     int rs = remSamples;
+    int remTillLoop = mLoopEndSamp - mCurSamp;
     int consumed = rstl::min_val(rs, remTillLoop);
     mCurSamp += consumed;
     remSamples -= consumed;
@@ -246,6 +269,7 @@ void CStaticAudioPlayer::Decode(const ushort* bufIn, ushort* bufOut, int numSamp
 void CStaticAudioPlayer::DecodeMonoAndMix(ushort* bufIn, ushort* bufOut, int numSamples,
                                           int curSample, int sampleEnd, int sampleStart, int vol,
                                           g72x_state& state) {
+  int i;
   for (int remBytes = numSamples / 2; remBytes != 0;) {
     int rb = remBytes;
     int curBuf = curSample / 0x20000;
@@ -256,14 +280,14 @@ void CStaticAudioPlayer::DecodeMonoAndMix(ushort* bufIn, ushort* bufOut, int num
     thisBytes = rstl::min_val(thisBytes, remTillLoop);
 
     uchar* byte = mBuffers[curBuf].get() + (curSample - (curBuf * 0x20000));
-    int i = 0;
+    i = 0;
+    short clamped1;
     while (i < thisBytes) {
       int samp1 =
           reinterpret_cast< short* >(bufOut)[0] + ((vol * g721_decoder(*byte & 0xf, &state)) >> 15);
       int samp2 =
           reinterpret_cast< short* >(bufOut)[2] + ((vol * g721_decoder(*byte >> 4, &state)) >> 15);
 
-      short clamped1;
       if (samp1 < -0x8000) {
         clamped1 = -0x8000;
       } else if (samp1 > 0x7fff) {

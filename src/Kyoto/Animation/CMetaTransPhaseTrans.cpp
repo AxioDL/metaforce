@@ -4,6 +4,9 @@
 #include "Kyoto/Streams/CInputStream.hpp"
 #include "Kyoto/Streams/COutputStream.hpp"
 
+CMetaTransPhaseTrans::CMetaTransPhaseTrans(CInputStream& in)
+: mTransDur(CCharAnimTime(in)), xc_(in.ReadBool()), mRunA(in.ReadBool()), mFlags(in.ReadLong()) {}
+
 CAnimTreeTimeScale::CAnimTreeTimeScale(
     const rstl::ncrc_ptr< CAnimTreeNode >& node,
     const rstl::ownership_transfer< IVaryingAnimationTimeScale >& timeScale,
@@ -13,12 +16,6 @@ CAnimTreeTimeScale::CAnimTreeTimeScale(
 , mCurAccelTime(0.f)
 , mTargetAccelTime(time)
 , mInitialTime(node->GetSteadyStateAnimInfo().GetDuration() - node->GetTimeRemaining()) {}
-
-CMetaTransPhaseTrans::CMetaTransPhaseTrans(CInputStream& in)
-: mTransDur(CCharAnimTime(in))
-, xc_(in.ReadBool())
-, mRunA(in.ReadBool())
-, mFlags(in.ReadLong()) {}
 
 rstl::ncrc_ptr< CAnimTreeNode >
 CMetaTransPhaseTrans::VGetTransitionTree(const rstl::ncrc_ptr< CAnimTreeNode >& a,
@@ -39,11 +36,9 @@ CMetaTransPhaseTrans::VGetTransitionTree(const rstl::ncrc_ptr< CAnimTreeNode >& 
   rstl::ownership_transfer< IVaryingAnimationTimeScale > timeScaleB =
       rs_new CLinearAnimationTimeScale(CCharAnimTime::ZeroFlat(), scaleB, mTransDur, 1.f);
   rstl::ncrc_ptr< CAnimTreeNode > treeA = rs_new CAnimTreeTimeScale(
-      a, timeScaleA, mTransDur,
-      CAnimTreeTimeScale::CreatePrimitiveName(a, 1.f, mTransDur, scaleA));
+      a, timeScaleA, mTransDur, CAnimTreeTimeScale::CreatePrimitiveName(a, 1.f, mTransDur, scaleA));
   rstl::ncrc_ptr< CAnimTreeNode > treeB = rs_new CAnimTreeTimeScale(
-      b, timeScaleB, mTransDur,
-      CAnimTreeTimeScale::CreatePrimitiveName(b, scaleB, mTransDur, 1.f));
+      b, timeScaleB, mTransDur, CAnimTreeTimeScale::CreatePrimitiveName(b, scaleB, mTransDur, 1.f));
   return rs_new CAnimTreeTransition(
       xc_, treeA, treeB, mTransDur, mRunA, mFlags,
       CAnimTreeTransition::CreatePrimitiveName(treeA, treeB, mTransDur.GetSeconds()));

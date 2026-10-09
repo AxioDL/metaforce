@@ -34,6 +34,10 @@ private:
   rstl::optional_object< TCachedToken< CStringTable > > mWorldName;
   rstl::optional_object< CToken > mSaveWorld;
 };
+#if VERSION >= VERSION_R3IJ_00
+CHECK_SIZEOF(CSaveWorldMemory, 0x40)
+#else
 CHECK_SIZEOF(CSaveWorldMemory, 0x48)
+#endif
 
 #endif // _CSAVEWORLDMEMORY

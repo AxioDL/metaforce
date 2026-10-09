@@ -137,7 +137,7 @@ void CMetroidPrimeStage2::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId ui
           mCurDamageRemTime <= 0.f) {
         mgr.ApplyDamage(
             GetUniqueId(), mgr.GetPlayer()->GetUniqueId(), GetUniqueId(), GetContactDamage(),
-            CMaterialFilter::MakeIncludeExclude(CMaterialList(kMT_Solid), CMaterialList()),
+            CMaterialFilter::MakeIncludeExclude(CMaterialList(SolidMaterial), CMaterialList()),
             CVector3f::Zero());
         mCurDamageRemTime = mDamageWaitTime;
       }
@@ -168,7 +168,7 @@ void CMetroidPrimeStage2::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId ui
       mgr.ApplyDamage(
           uid, mLockOnTargetCollider, projectile->GetOwnerId(),
           projectile->GetCurrentDamageInfo(),
-          CMaterialFilter::MakeIncludeExclude(CMaterialList(kMT_Solid), CMaterialList()),
+          CMaterialFilter::MakeIncludeExclude(CMaterialList(SolidMaterial), CMaterialList()),
           CVector3f::Zero());
     }
     break;
@@ -264,7 +264,16 @@ void CMetroidPrimeStage2::Think(float dt, CStateManager& mgr) {
 }
 
 void CMetroidPrimeStage2::UpdateVisibleSpectrum(float dt, CStateManager& mgr) {
-  const int phase = skVisorPhases[mgr.GetPlayerState()->GetCurrentVisor()];
+#if VERSION >= VERSION_GM8E_02
+  const CPlayerState* playerState = mgr.GetPlayerState();
+#endif
+  const int phase = skVisorPhases[
+#if VERSION >= VERSION_GM8E_02
+      mgr.GetCameraManager()->IsInCinematicCamera() ? 0 : playerState->GetCurrentVisor()
+#else
+      mgr.GetPlayerState()->GetCurrentVisor()
+#endif
+  ];
   if (phase == mCurrentVisorPhase) {
     const float alpha = 1.f - mPhaseAlpha;
     mColor.SetAlpha(alpha);
@@ -735,7 +744,16 @@ void CMetroidPrimeStage2::StartSpectralFade(CStateManager& mgr) {
   mIsSpaceWarping = true;
   mPhaseAlpha = 1.f;
   mCanSpawnAi = false;
-  const int phase = skVisorPhases[mgr.GetPlayerState()->GetCurrentVisor()];
+#if VERSION >= VERSION_GM8E_02
+  const CPlayerState* playerState = mgr.GetPlayerState();
+#endif
+  const int phase = skVisorPhases[
+#if VERSION >= VERSION_GM8E_02
+      mgr.GetCameraManager()->IsInCinematicCamera() ? 0 : playerState->GetCurrentVisor()
+#else
+      mgr.GetPlayerState()->GetCurrentVisor()
+#endif
+  ];
   const ushort sfx =
       phase == mCurrentVisorPhase ? static_cast< ushort >(0xb7e) : static_cast< ushort >(0xb7d);
   if (phase == mCurrentVisorPhase) {

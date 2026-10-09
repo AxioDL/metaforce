@@ -302,8 +302,7 @@ void CAi::FluidFXThink(EFluidState state, CScriptWater& water, CStateManager& mg
         const float intensity =
             0.1f + 0.4f * (CMath::Min(energy, kMaxSplashEnergy) - 500.f) / 29500.f;
         const float surfaceZ = water.GetSurfaceZ();
-        const CVector3f& translation = GetTranslation();
-        CVector3f pos(translation.GetX(), translation.GetY(), surfaceZ);
+        CVector3f pos(GetTranslation().GetX(), GetTranslation().GetY(), surfaceZ);
         mgr.FluidPlaneManager()->CreateSplash(GetUniqueId(), mgr, water, pos, intensity, true);
       }
     }
@@ -313,8 +312,7 @@ void CAi::FluidFXThink(EFluidState state, CScriptWater& water, CStateManager& mg
     const float dt = mgr.FluidPlaneManager()->GetLastRippleDeltaTime(GetUniqueId());
     if (dt >= (HealthInfo(mgr)->GetHP() > 0.f ? 0.2f : 0.7f)) {
       const float surfaceZ = water.GetSurfaceZ();
-      const CVector3f& translation = GetTranslation();
-      CVector3f center(translation.GetX(), translation.GetY(), surfaceZ);
+      CVector3f center(GetTranslation().GetX(), GetTranslation().GetY(), surfaceZ);
       const CPlane& surface = water.GetWRSurfacePlane();
       const float mass = GetMass();
       water.FluidPlane().AddRipple(mass, GetUniqueId(), center, GetVelocityWR(), water, mgr,

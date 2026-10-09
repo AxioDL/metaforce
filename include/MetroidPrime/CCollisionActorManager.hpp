@@ -25,10 +25,10 @@ public:
 
   void Update(float dt, CStateManager& mgr, EUpdateOptions opts);
   void Destroy(CStateManager& mgr) const;
-  void SetActive(CStateManager& mgr, bool active);
+  void SetActive(CStateManager& mgr, const bool active);
   uchar GetActive() const;
   void AddMaterial(CStateManager& mgr, const CMaterialList& list);
-  void SetMovable(CStateManager& mgr, bool movable);
+  void SetMovable(CStateManager& mgr, const bool movable);
 
   uint GetNumCollisionActors() const;
   rstl::optional_object< CVector3f > GetDeviation(const CStateManager& mgr, CSegId seg) const;

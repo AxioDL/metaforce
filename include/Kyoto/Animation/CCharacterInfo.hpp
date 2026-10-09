@@ -69,6 +69,8 @@ public:
 
   CCharacterInfo(CInputStream& in);
 };
+#if VERSION < VERSION_R3IJ_00
 CHECK_SIZEOF(CCharacterInfo, 0xc0)
+#endif
 
 #endif // _CCHARACTERINFO

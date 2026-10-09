@@ -17,7 +17,7 @@ public:
                     TUniqueId owner, const CWeaponAssetInfo& res, bool growingBeam,
                     EProjectileAttrib attribs);
 
-  DECLARE_TYPES_MATCH_OR_ACCEPT;
+  DECLARE_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) override;
   void ResetBeam(CStateManager& mgr, bool fullReset) override;
   void UpdateFx(const CTransform4f& xf, float dt, CStateManager& mgr) override;
@@ -59,6 +59,9 @@ private:
   CColor mOuterColor;
   CDamageInfo mPhazonDamage;
   EExpansionState mExpansionState;
+#if VERSION >= VERSION_R3IJ_00
+  float mInitialDamage;
+#endif
   float mBeamWidth;
   float mLifeTimer;
   float mExpansionT;
@@ -90,9 +93,15 @@ private:
   bool mTexturesLoaded : 1;
   bool mDrawOwnerFirst : 1;
   bool mActivePlayerPhazon : 1;
+#if VERSION >= VERSION_R3IJ_00
+  bool mEnableInitialDamage : 1;
+  bool mInitialDamagePending : 1;
+#endif
 };
-CHECK_SIZEOF(CPlasmaProjectile, (VERSION >= VERSION_GM8P_00 ? 0x578
-                                 : VERSION >= VERSION_GM8E_02                             ? 0x560
-                                                                                          : 0x550))
+#if VERSION >= VERSION_R3IJ_00
+CHECK_CHILD_SIZEOF(CPlasmaProjectile, CBeamProjectile, 0xe0)
+#else
+CHECK_CHILD_SIZEOF(CPlasmaProjectile, CBeamProjectile, 0xe8)
+#endif
 
 #endif // _CPLASMAPROJECTILE

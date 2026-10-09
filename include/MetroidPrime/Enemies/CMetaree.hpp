@@ -17,8 +17,8 @@ public:
            float f3, float f4, const CActorParameters& aParms);
 
   // CEntity
-  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void Think(float dt, CStateManager& mgr) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
 
   // CActor

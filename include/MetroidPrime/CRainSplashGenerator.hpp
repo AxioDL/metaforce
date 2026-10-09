@@ -91,6 +91,10 @@ private:
 
   static int GetNextBestPt(int, const CVector3f*, const CVector3f*, int, CRandom16&, float);
 };
+#if VERSION >= VERSION_R3IJ_00
+CHECK_SIZEOF(CRainSplashGenerator, 0x48)
+#else
 CHECK_SIZEOF(CRainSplashGenerator, 0x4c)
+#endif
 
 #endif // _CRAINSPLASHGENERATOR

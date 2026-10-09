@@ -331,8 +331,15 @@ void CNESEmulator::Draw(const CColor& color, bool enableFiltering) {
 #if defined(TARGET_PC)
   GXCreateFrameBuffer(640, 480);
 #endif
+#if VERSION >= VERSION_GM8E_02
+  int vpLeft, vpTop, vpWidth, vpHeight;
+  CGraphics::GetViewport(vpLeft, vpTop, vpWidth, vpHeight);
+#endif
   GXSetViewport(0.f, 0.f, 640.f, 480.f, 0.1f, 100.f);
   sNesModule->draw(mWork, mState);
+#if VERSION >= VERSION_GM8E_02
+  CGraphics::SetViewport(vpLeft, vpTop, vpWidth, vpHeight);
+#endif
 #if defined(TARGET_PC)
   GXRestoreFrameBuffer();
   CGraphics::SetDepthRange(CGraphics::GetDepthNear(), CGraphics::GetDepthFar());

@@ -1,6 +1,7 @@
 #ifndef _DOLPHIN_GXPRIV
 #define _DOLPHIN_GXPRIV
 
+#include "GameVersions.h"
 #include "dolphin/gx/GXVert.h"
 
 typedef struct GXLightObjInt {
@@ -106,6 +107,9 @@ typedef struct __GXData_struct {
   u32 perfSel;
   GXBool inDispList;
   GXBool dlSaveContext;
+#if VERSION == VERSION_GM8E_02
+  GXBool abtWaitPECopy;
+#endif
   u8 dirtyVAT;
   u32 dirtyState;
 } GXData;
@@ -166,7 +170,7 @@ extern void* __memReg;
 #define GX_WRITE_SOME_REG3(command, address, value, index)                                         \
   GX_WRITE_SOME_REG4(command, address, value, index)
 
-#define GX_GET_MEM_REG(offset) (((volatile u16*)__memReg)[offset])
+#define GX_GET_MEM_REG(offset) (*(volatile u16*)((u8*)__memReg + (offset) * 2))
 #define GX_GET_CP_REG(offset) (((volatile u16*)__cpReg)[offset])
 #define GX_GET_PE_REG(offset) (((volatile u16*)__peReg)[offset])
 #define GX_GET_PI_REG(offset) (((volatile u32*)__piReg)[offset])
@@ -190,6 +194,21 @@ void __GXSendFlushPrim(void);
 void __GXSetMatrixIndex(GXAttr matIdxAttr);
 void __GXSetRange(f32 nearz, f32 sideX);
 void __GXInitGX();
+
+#if VERSION == VERSION_GM8E_02
+void __GXAbort(void);
+
+static inline u32 __GXReadMEMCounterU32(u32 addrHi, u32 addrLo) {
+  u32 ctrH0, ctrH1, ctrL;
+  ctrH0 = GX_GET_MEM_REG(addrHi);
+  do {
+    ctrH1 = ctrH0;
+    ctrH0 = GX_GET_MEM_REG(addrHi);
+    ctrL = GX_GET_MEM_REG(addrLo);
+  } while (ctrH0 != ctrH1);
+  return (ctrH0 << 16) | ctrL;
+}
+#endif
 
 #define GX_REG_ASSERT(c) ASSERTMSG(c, "GX Internal: Register field out of range")
 

@@ -1,5 +1,6 @@
 #include "MetroidPrime/Player/CGrappleArm.hpp"
 
+#include "Kyoto/Animation/CAnimCharacterSet.hpp"
 #include "Kyoto/Animation/CSkinnedModel.hpp"
 #include "Kyoto/Animation/CVertexMorphEffect.hpp"
 #include "Kyoto/Audio/CSfxManager.hpp"
@@ -397,6 +398,13 @@ void CGrappleArm::Activate(bool active) {
 }
 
 void CGrappleArm::SetAnimState(EArmState state) {
+#if VERSION == VERSION_GM8E_02 || VERSION == VERSION_GM8J_00
+  if (!mGrappleArmModel) {
+    mAnimState = kAS_Done;
+    mIsGrappling = false;
+    return;
+  }
+#endif
   if (mAnimState == state) {
     return;
   }
@@ -711,3 +719,16 @@ void CGrappleArm::DisconnectGrappleBeam() {
   mBeamActive = false;
   GrappleBeamDisconnected();
 }
+
+#if VERSION == VERSION_GM8E_02 || VERSION == VERSION_GM8J_00
+void CGrappleArm::Reset() {
+  if (mGrappleArmModel) {
+    const CAnimPlaybackParms parms(41, -1, 1.f, true);
+    mGrappleArmModel->AnimationData()->SetAnimation(parms, true);
+  }
+  DisconnectGrappleBeam();
+  mAnimState = kAS_Done;
+  mIsGrappling = false;
+  mActive = false;
+}
+#endif

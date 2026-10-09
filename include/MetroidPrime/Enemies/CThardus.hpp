@@ -19,22 +19,22 @@ public:
                    const CHealthInfo& health, const CDamageVulnerability& vulnerability,
                    const CMaterialList& matList, CAssetId fsm, const CActorParameters& actParams,
                    const CModelData& phazonModel, int w1);
+#if VERSION < VERSION_GM8P_00
+  ~CDestroyableRock() override;
+#endif
 
   DECLARE_TYPES_MATCH_OR_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
   void PreRender(CStateManager& mgr, const CFrustumPlanes& frustum) override;
   void Render(const CStateManager& mgr) const override;
-  bool CanRenderUnsorted(const CStateManager&) const override { return true; }
-  CVector3f GetAimPosition(const CStateManager&, float) const override { return GetTranslation(); }
-  CVector3f GetOrbitPosition(const CStateManager&) const override { return GetTranslation(); }
+  bool CanRenderUnsorted(const CStateManager&) const override;
+  CVector3f GetAimPosition(const CStateManager&, float) const override;
+  CVector3f GetOrbitPosition(const CStateManager&) const override;
   rstl::optional_object< CAABox > GetTouchBounds() const override;
-  void Death(CStateManager&, const CVector3f&, EScriptObjectState) override { mIsCold = true; }
+  void Death(CStateManager&, const CVector3f&, EScriptObjectState) override;
   void KnockBack(const CVector3f&, CStateManager&, const CDamageInfo&, float, bool,
-                 const bool) override {}
-  void TakeDamage(const CVector3f&, float) override {
-    x324_ = 1.f;
-    x328_ = 2.f;
-  }
+                 const bool) override;
+  void TakeDamage(const CVector3f&, float) override;
   float GetDamageFlashTimer() const { return x324_; }
   void UsePhazonModel();
   void SetThermalMag(float mag) { mThermalMag = mag; }
@@ -56,17 +56,17 @@ private:
   bool x341_;
 };
 
-CHECK_SIZEOF(CDestroyableRock, (VERSION >= VERSION_GM8E_02 ? 0x358 : 0x348))
+CHECK_CHILD_SIZEOF(CDestroyableRock, CAi, 0x70)
 
 class CThardus : public CPatterned {
 public:
-  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void Think(float dt, CStateManager& mgr) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
   void PreRender(CStateManager& mgr, const CFrustumPlanes& frustum) override;
   void Render(const CStateManager& mgr) const override;
   bool CanRenderUnsorted(const CStateManager&) const override { return false; }
-  void Touch(CActor&, CStateManager&) override {}
+  void Touch(CActor&, CStateManager&) override;
   CVector3f GetOrbitPosition(const CStateManager& mgr) const override;
   CVector3f GetAimPosition(const CStateManager& mgr, float dt) const override;
   CAABox GetSortingBounds(const CStateManager& mgr) const override;
@@ -138,6 +138,9 @@ private:
   void ShakePlayer(CStateManager& mgr, float intensity);
   void AddParticleEffect(CStateManager& mgr, const CVector3f& pos, CAssetId particle);
   static const char* const skHeadRockNameStr;
+  static const float skMinAttackTime;
+  static const float skThermalFlashFadeInTime;
+  static const float skThermalFlashFadeOutTime;
 
   bool IsEnraged() const;
   void BeginFlash(CStateManager& mgr, const CActor& actor);
@@ -295,6 +298,6 @@ private:
   uchar x95d_;
   bool x95e_;
 };
-CHECK_SIZEOF(CThardus, (VERSION >= VERSION_GM8E_02 ? 0x970 : 0x960))
+CHECK_CHILD_SIZEOF(CThardus, CPatterned, 0x3f8)
 
 #endif // _CTHARDUS

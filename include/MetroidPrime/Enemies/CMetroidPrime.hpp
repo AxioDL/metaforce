@@ -15,6 +15,7 @@
 
 #include "Kyoto/Audio/CSfxHandle.hpp"
 
+#include "Kyoto/CRandom16.hpp"
 #include "Kyoto/Graphics/CColor.hpp"
 #include "Kyoto/SObjectTag.hpp"
 
@@ -98,7 +99,9 @@ CHECK_SIZEOF(CMetroidPrimeParasiteQueenAttack, 0xA8)
 
 class CMetroidPrime : public CPatterned {
 public:
+#if VERSION < VERSION_GM8P_00
   ~CMetroidPrime() override;
+#endif
   DECLARE_TYPES_MATCH_OR_ACCEPT;
   void PreThink(float dt, CStateManager& mgr) override;
   void Think(float dt, CStateManager& mgr) override;
@@ -217,7 +220,7 @@ public:
   public:
     CMissileTarget(TUniqueId uid, bool active, const rstl::string& name, const CEntityInfo& info);
     ~CMissileTarget() override;
-    DECLARE_TYPES_MATCH_OR_ACCEPT;
+    DECLARE_ACCEPT;
   };
 
 private:
@@ -232,6 +235,9 @@ private:
   void UpdateTractorBeams(float dt, CStateManager& mgr);
   void UpdateUnderbodyDamage(CStateManager& mgr);
   void DoFaceHitCheck(TUniqueId uid, CStateManager& mgr);
+#if VERSION >= VERSION_GM8P_00
+  void DoBodyHitCheck(TUniqueId uid, CStateManager& mgr);
+#endif
   int SeverityForAttackType(EAttackType attack) const;
   pas::ELocomotionType SeverityForLocomotionType(EAttackType attack) const;
   bool CanTransitionFromReady(EAttackType attack);
@@ -296,6 +302,9 @@ private:
   uint x57c_;
   uint x580_;
   bool x584_;
+#if VERSION >= VERSION_GM8P_00
+  float mDeflectionSfxTimer;
+#endif
   rstl::reserved_vector< CVulnerabilityEntry, kVuln_Count > x588_;
   rstl::reserved_vector< CBoneTracking, 6 > x76c_;
   CHealthInfo x8c0_;
@@ -381,6 +390,9 @@ private:
   rstl::reserved_vector< CMetroidPrimeAttackWeights, 4 > x1160_;
   int x1254_;
   rstl::reserved_vector< float, 14 > x1258_;
+#if VERSION >= VERSION_GM8P_00
+  CRandom16 mAttackRandom;
+#endif
   CCameraShakeData x1294_;
   CCameraShakeData x1368_;
   rstl::single_ptr< CProjectedShadow > x143c_;
@@ -388,8 +400,14 @@ private:
   bool x1444_24_ : 1;
   bool x1444_25_ : 1;
 };
-CHECK_SIZEOF(CMetroidPrime, (VERSION >= VERSION_GM8E_02 ? 0x1458 : 0x1448))
-NESTED_CHECK_SIZEOF(CMetroidPrime, CMissileTarget, (VERSION >= VERSION_GM8E_02 ? 0x268 : 0x258))
+#if VERSION >= VERSION_R3IJ_00
+CHECK_CHILD_SIZEOF(CMetroidPrime, CPatterned, 0xef0)
+#elif VERSION >= VERSION_GM8P_00
+CHECK_CHILD_SIZEOF(CMetroidPrime, CPatterned, 0xee8)
+#else
+CHECK_CHILD_SIZEOF(CMetroidPrime, CPatterned, 0xee0)
+#endif
+NESTED_CHECK_SIZEOF(CMetroidPrime, CMissileTarget, CPhysicsActor_FULL_SIZE)
 NESTED_CHECK_SIZEOF(CMetroidPrime, CMetroidPrimeAttackWeights, 0x3C)
 NESTED_CHECK_SIZEOF(CMetroidPrime, CVulnerabilityEntry, 0x78)
 
@@ -429,6 +447,10 @@ struct CMetroidPrimeData {
   static rstl::reserved_vector< CMetroidPrime::CVulnerabilityEntry, 4 >
   LoadVulnerabilities(CInputStream& in);
 };
+#if VERSION >= VERSION_R3IJ_00
+CHECK_SIZEOF(CMetroidPrimeData, 0xC14)
+#else
 CHECK_SIZEOF(CMetroidPrimeData, 0xC10)
+#endif
 
 #endif // _CMETROIDPRIME

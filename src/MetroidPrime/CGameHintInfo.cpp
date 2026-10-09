@@ -93,7 +93,7 @@ void CHintOptions::SetHintNextTime() {
   it->mTime = hint.GetTextTime() + 5.f;
 }
 
-#if VERSION >= VERSION_GM8P_00
+#if VERSION >= VERSION_GM8E_02
 void CHintOptions::EnsureHintNextTime() {
   if (mNextHintIdx != -1) {
     SHintState& state = mHintStates[mNextHintIdx];

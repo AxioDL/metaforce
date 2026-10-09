@@ -80,6 +80,7 @@ public:
   uchar GetBlueu8() const { return mB; }
   uchar GetAlphau8() const { return mA; }
   ushort ToRGB5A3() const;
+  static CColor FromRGB5A3(uint color);
 #ifdef __MWERKS__
   uint GetColor_u32() const { return mRgba; }
 #else
@@ -129,14 +130,25 @@ public:
   // Fake?
   CVector3f ToVector3f() const { return CVector3f(GetRed(), GetGreen(), GetBlue()); }
 
+#if VERSION >= VERSION_R3IJ_00
+  static const CColor& Black() { return sBlackColor; }
+  static const CColor& White() { return sWhiteColor; }
+#else
   static const CColor& Black();
   static const CColor& White();
+#endif
   static const CColor& Grey();
+#if VERSION >= VERSION_R3IJ_00
+  static const CColor& Red() { return sRedColor; }
+  static const CColor& Green() { return sGreenColor; }
+  static const CColor& Purple() { return sPurpleColor; }
+#else
   static const CColor& Red();
   static const CColor& Green();
+  static const CColor& Purple();
+#endif
   static const CColor& Blue();
   static const CColor& Yellow();
-  static const CColor& Purple();
   static const CColor& Orange();
 
 private:

@@ -39,7 +39,7 @@ class COBBTree;
 class CIceImpact : public CEffect {
 public:
   ~CIceImpact() override;
-  DECLARE_TYPES_MATCH_OR_ACCEPT;
+  DECLARE_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
   void Think(float dt, CStateManager& mgr) override;
   void PreRender(CStateManager& mgr, const CFrustumPlanes& frustum) override;
@@ -97,6 +97,6 @@ private:
   bool mFollowPlayerArea : 1;
   bool mHasRenderBounds : 1;
 };
-CHECK_SIZEOF(CIceImpact, (VERSION >= VERSION_GM8E_02 ? 0x5b0 : 0x5a0))
+CHECK_CHILD_SIZEOF(CIceImpact, CEffect, 0x4b8)
 
 #endif // _CICEIMPACT

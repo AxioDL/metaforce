@@ -45,6 +45,7 @@ public:
   float Determinant() const;
   CMatrix3f Inverse() const;
   CMatrix3f GetTranspose() const { return CMatrix3f(m00, m10, m20, m01, m11, m21, m02, m12, m22); }
+  CVector3f TransposeMultiply(const CVector3f& vec) const;
   void AddScaledMatrix(const CMatrix3f& mat, float scale);
 
   // TODO: names/check
@@ -69,11 +70,27 @@ public:
   float Get22() const { return m22; }
 
   inline CVector3f GetColumn(EDimX dim) const {
+#if VERSION >= VERSION_R3IJ_00
+    float x, y, z;
+    z = GetRow(kDZ)[dim];
+    y = GetRow(kDY)[dim];
+    x = GetRow(kDX)[dim];
+    return CVector3f(x, y, z);
+#else
     return CVector3f(GetRow(kDX)[dim], GetRow(kDY)[dim], GetRow(kDZ)[dim]);
+#endif
   }
 
   inline CVector3f GetColumn(EDimY dim) const {
+#if VERSION >= VERSION_R3IJ_00
+    float x, y, z;
+    z = GetRow(kDZ)[dim];
+    y = GetRow(kDY)[dim];
+    x = GetRow(kDX)[dim];
+    return CVector3f(x, y, z);
+#else
     return CVector3f(GetRow(kDX)[dim], GetRow(kDY)[dim], GetRow(kDZ)[dim]);
+#endif
   }
 
   inline CVector3f GetColumn(EDimZ dim) const {

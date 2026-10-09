@@ -392,8 +392,9 @@ void CCubeRenderer::GenerateReflectionTex() {
 void CCubeRenderer::GenerateFogVolumeRampTex() {
   uchar* data = static_cast< uchar* >(mFogVolumeRamp.Lock());
   memset(data, 0xFF, 0x10000);
+  int tileXBase;
   for (int y = 0, yOff = 0; y < 2048; ++y, yOff += 32) {
-    int tileXBase = (y % 32) * 8;
+    tileXBase = (y % 32) * 8;
     int tileYBase = (y / 32) * 4;
     for (int x = 0; x < 32; ++x) {
       int tileX = tileXBase + (x & 7);
@@ -1766,11 +1767,11 @@ void CCubeRenderer::ReallyRenderFogVolume(const CColor& color, const CAABox& aab
     } else {
       const int edge = i - 8;
       const int idxA = skEdges[edge][0];
+      const CVector3f pA = clipPts[idxA];
       const int idxB = skEdges[edge][1];
 
       const float wA = clipWs[idxA];
       const float wB = clipWs[idxB];
-      const CVector3f pA = clipPts[idxA];
       const CVector3f pB = clipPts[idxB];
 
       if ((pA.GetZ() / wA > 1.f) != (pB.GetZ() / wB > 1.f)) {

@@ -314,8 +314,8 @@ CRidleyData::CRidleyData(CInputStream& in, int propCount)
 CRidley::CRidley(TUniqueId uid, const rstl::string& name, const CEntityInfo& info,
                  const CTransform4f& xf, const CModelData& modelDataIn, const CPatternedInfo& pInfo,
                  const CActorParameters& actParms, CInputStream& in, uint propCount)
-: CPatterned(kC_Ridley, uid, name, kFT_Zero, info, xf, modelDataIn, pInfo, kMT_Flyer, kCT_One, kBT_Flyer,
-             actParms, kCS_Large)
+: CPatterned(kC_Ridley, uid, name, kFT_Zero, info, xf, modelDataIn, pInfo, kMT_Flyer, kCT_One,
+             kBT_Flyer, actParms, kCS_Large)
 , mData(in, propCount)
 , mTailCollision(nullptr)
 , mBodyCollision(nullptr)
@@ -987,11 +987,10 @@ void CRidley::PreRender(CStateManager& mgr, const CFrustumPlanes& frustum) {
     const float height =
         rstl::max_val(0.f, GetTranslation().GetZ() - xa84_.GetTranslation().GetZ());
     xccc_ = 1.f + CMath::Clamp(0.f, 0.05f * (height - 20.f), 1.f);
-    const CVector3f& max = GetRenderBoundsCached().GetMaxPoint();
     const CVector3f& min = GetRenderBoundsCached().GetMinPoint();
-    const CVector3f extents = max - min;
+    const CVector3f extents = GetRenderBoundsCached().GetMaxPoint() - min;
     const CVector3f padding = 0.5f * (xccc_ * extents - extents);
-    const CAABox bounds(min - padding, max + padding);
+    const CAABox bounds(min - padding, GetRenderBoundsCached().GetMaxPoint() + padding);
     if ((visor == CPlayerState::kPV_Combat || visor == CPlayerState::kPV_Scan) &&
         xac4_.DoBoundsOverlap(bounds) && height > -10.f) {
       xd10_->RenderShadowBuffer(mgr, *GetModelData(), GetTransform(), lastMaterial ? 1 : 0,
@@ -1203,40 +1202,6 @@ void CRidley::SetupCollisionManagers(CStateManager& mgr) {
   AddMaterial(kMT_ProjectilePassthrough, mgr);
 }
 
-CVector3f CRidley::GetAimPosition(const CStateManager& mgr, float dt) const {
-  if (mAiStage == 3 && !mShotAt) {
-    return GetLctrTransform(mHeadSegId).GetTranslation();
-  }
-  return GetLctrTransform(mBreastPlateSegId).GetTranslation();
-}
-
-void CRidley::RandomSpeedUp(CStateManager& mgr) {
-  if (!xa31_24_) {
-    mSpeed = 1.2f;
-  }
-}
-
-void CRidley::RandomSlowDown() const {}
-
-void CRidley::ConstrainToHenge(float dt) {
-  if (mAiStage == 3 && !mVerticalMovement) {
-    SetTranslation(
-        CVector3f(GetTranslation().GetX(), GetTranslation().GetY(), xa84_.GetTranslation().GetZ()));
-    CVector3f delta = GetTranslation() - xa84_.GetTranslation();
-    const float mag = delta.Magnitude();
-    delta *= 1.f / mag;
-    float dot = CVector3f::Dot(xa84_.GetForward(), delta);
-    dot = CMath::Clamp(-1.f, dot, 0.f);
-    const float extension = -6.f * dot;
-    if (mag > xab4_ + extension) {
-      if (CVector3f::Dot(GetVelocityWR(), delta) > 0.f) {
-        Stop();
-      }
-      MoveToInOneFrameWR(GetTranslation() - delta, dt);
-    }
-  }
-}
-
 void CRidley::ActivateBeam(CStateManager& mgr) {
   if (mPlasmaProjectile == kInvalidUniqueId) {
     CPlasmaProjectile* projectile = rs_new CPlasmaProjectile(
@@ -1294,10 +1259,11 @@ void CRidley::UpdateBeam(CStateManager& mgr, float dt) {
 
       const CVector3f currentPos = projectile->GetCurrentPos();
       const CAABox playerBounds = mgr.GetPlayer()->GetBoundingBox();
-      if (mHasPreviousBeamPos && CollisionUtil::TriBoxOverlap(
-                          playerBounds.GetCenterPoint(),
-                          0.5f * (playerBounds.GetMaxPoint() - playerBounds.GetMinPoint()),
-                          beamXf.GetTranslation(), mPreviousBeamPos, currentPos)) {
+      if (mHasPreviousBeamPos &&
+          CollisionUtil::TriBoxOverlap(
+              playerBounds.GetCenterPoint(),
+              0.5f * (playerBounds.GetMaxPoint() - playerBounds.GetMinPoint()),
+              beamXf.GetTranslation(), mPreviousBeamPos, currentPos)) {
         mgr.ApplyDamage(GetUniqueId(), mgr.GetPlayer()->GetUniqueId(), GetUniqueId(),
                         xb68_.GetDamage().MakeScaledForTime(dt), CMaterialFilter::skPassEverything,
                         beamXf.GetForward());
@@ -1410,6 +1376,40 @@ void CRidley::UpdateWingElectricity(CStateManager& mgr, float dt) {
   }
 }
 
+CVector3f CRidley::GetAimPosition(const CStateManager& mgr, float dt) const {
+  if (mAiStage == 3 && !mShotAt) {
+    return GetLctrTransform(mHeadSegId).GetTranslation();
+  }
+  return GetLctrTransform(mBreastPlateSegId).GetTranslation();
+}
+
+void CRidley::RandomSpeedUp(CStateManager& mgr) {
+  if (!xa31_24_) {
+    mSpeed = 1.2f;
+  }
+}
+
+void CRidley::RandomSlowDown() const {}
+
+void CRidley::ConstrainToHenge(float dt) {
+  if (mAiStage == 3 && !mVerticalMovement) {
+    SetTranslation(
+        CVector3f(GetTranslation().GetX(), GetTranslation().GetY(), xa84_.GetTranslation().GetZ()));
+    CVector3f delta = GetTranslation() - xa84_.GetTranslation();
+    const float mag = delta.Magnitude();
+    delta *= 1.f / mag;
+    float dot = CVector3f::Dot(xa84_.GetForward(), delta);
+    dot = CMath::Clamp(-1.f, dot, 0.f);
+    const float extension = -6.f * dot;
+    if (mag > xab4_ + extension) {
+      if (CVector3f::Dot(GetVelocityWR(), delta) > 0.f) {
+        Stop();
+      }
+      MoveToInOneFrameWR(GetTranslation() - delta, dt);
+    }
+  }
+}
+
 void CRidley::Think(float dt, CStateManager& mgr) {
   if (!GetActive()) {
     return;
@@ -1492,13 +1492,13 @@ void CRidley::PushPlayer(CStateManager& mgr) const {
 
 void CRidley::ChooseStage2Attack(CStateManager& mgr) {
   const SStage2Attack& attack = skStage2Attacks[xcb0_][xcb4_];
-  xb04_ = mgr.Random()->Range(0.f, 100.f) <= attack.mProbability ? attack.mPrimary
-                                                                   : attack.mAlternate;
+  xb04_ =
+      mgr.Random()->Range(0.f, 100.f) <= attack.mProbability ? attack.mPrimary : attack.mAlternate;
   if (xb04_ == -1) {
     xcb4_ = 0;
     const SStage2Attack& attack = skStage2Attacks[xcb0_][xcb4_];
     xb04_ = mgr.Random()->Range(0.f, 100.f) <= attack.mProbability ? attack.mPrimary
-                                                                     : attack.mAlternate;
+                                                                   : attack.mAlternate;
   }
   ++xcb4_;
   xcc4_ = 1;
@@ -2092,6 +2092,33 @@ void CRidley::ProjectileAttack(CStateManager& mgr, EStateMsg msg, float arg) {
   }
 }
 
+void CRidley::FadeOut(CStateManager& mgr, EStateMsg msg, float arg) {
+  switch (msg) {
+  case kStateMsg_Activate:
+    mAnimState = kAS_Ready;
+    for (uint i = 0; i < 24; ++i) {
+      ModelData()->AnimationData()->SetParticleEffectState(skWingEffects[i], false, mgr);
+    }
+    if (!xa34_24_) {
+      xa34_24_ = true;
+    }
+    xb68_.SetDamage(mData.x3fc_);
+    break;
+  case kStateMsg_Update:
+    TryCommand(mgr, pas::kAS_KnockBack, static_cast< FTryCommandCallback >(&CRidley::TryKnockBack),
+               5);
+    break;
+  case kStateMsg_Deactivate:
+    mAnimState = kAS_NotReady;
+    xcbc_ = 0.6667f * mData.x3c_;
+#if VERSION >= VERSION_GM8P_00
+    xcb0_ = 0;
+    xcb4_ = 0;
+#endif
+    break;
+  }
+}
+
 bool CRidley::CanJumpAttack() const {
   const CVector3f forward = (0.5f * xae4_) * GetTransform().GetForward();
   const CVector3f target = GetTranslation() + forward;
@@ -2103,13 +2130,13 @@ bool CRidley::CanJumpAttack() const {
 #if VERSION >= VERSION_GM8P_00
 void CRidley::ChooseStage3Attack(CStateManager& mgr) {
   const SStage2Attack& attack = skStage3Attacks[xcb0_][xcb4_];
-  xb0c_ = mgr.Random()->Range(0.f, 100.f) <= attack.mProbability ? attack.mPrimary
-                                                                   : attack.mAlternate;
+  xb0c_ =
+      mgr.Random()->Range(0.f, 100.f) <= attack.mProbability ? attack.mPrimary : attack.mAlternate;
   if (xb0c_ == -1) {
     xcb4_ = 0;
     const SStage2Attack& attack = skStage3Attacks[xcb0_][xcb4_];
     xb0c_ = mgr.Random()->Range(0.f, 100.f) <= attack.mProbability ? attack.mPrimary
-                                                                     : attack.mAlternate;
+                                                                   : attack.mAlternate;
   }
   CVector3f delta = mgr.GetPlayer()->GetTranslation() - GetTranslation();
   const float distance = delta.Magnitude();
@@ -2186,33 +2213,6 @@ void CRidley::ChooseStage3Attack(CStateManager& mgr) {
   }
 }
 #endif
-
-void CRidley::FadeOut(CStateManager& mgr, EStateMsg msg, float arg) {
-  switch (msg) {
-  case kStateMsg_Activate:
-    mAnimState = kAS_Ready;
-    for (uint i = 0; i < 24; ++i) {
-      ModelData()->AnimationData()->SetParticleEffectState(skWingEffects[i], false, mgr);
-    }
-    if (!xa34_24_) {
-      xa34_24_ = true;
-    }
-    xb68_.SetDamage(mData.x3fc_);
-    break;
-  case kStateMsg_Update:
-    TryCommand(mgr, pas::kAS_KnockBack, static_cast< FTryCommandCallback >(&CRidley::TryKnockBack),
-               5);
-    break;
-  case kStateMsg_Deactivate:
-    mAnimState = kAS_NotReady;
-    xcbc_ = 0.6667f * mData.x3c_;
-#if VERSION >= VERSION_GM8P_00
-    xcb0_ = 0;
-    xcb4_ = 0;
-#endif
-    break;
-  }
-}
 
 bool CRidley::ShouldStrafe(CStateManager& mgr, float arg) { return mDoStrafe; }
 
@@ -2381,8 +2381,7 @@ void CRidley::Dodge(CStateManager& mgr, EStateMsg msg, float arg) {
       }
       Fly(movement, 10.f, arg);
     }
-    mBodyController->FaceDirection((xa84_.GetTranslation() - GetTranslation()).AsNormalized(),
-                                       arg);
+    mBodyController->FaceDirection((xa84_.GetTranslation() - GetTranslation()).AsNormalized(), arg);
     break;
   case kStateMsg_Deactivate:
     mAnimState = kAS_NotReady;
@@ -2466,9 +2465,7 @@ bool CRidley::ShouldAttack(CStateManager& mgr, float arg) {
   return ret;
 }
 
-bool CRidley::AIStage(CStateManager& mgr, float arg) {
-  return mAiStage >= static_cast< int >(arg);
-}
+bool CRidley::AIStage(CStateManager& mgr, float arg) { return mAiStage >= static_cast< int >(arg); }
 
 bool CRidley::InRange(CStateManager& mgr, float arg) {
   const CVector3f& pos = GetTranslation();

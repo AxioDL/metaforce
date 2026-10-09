@@ -19,7 +19,7 @@ public:
                 const TAreaId aId, const TUniqueId owner, EProjectileAttrib attribs,
                 const CAssetId playerSteamTxtr, const ushort playerHitSfx,
                 const CAssetId playerIceTxtr);
-  DECLARE_TYPES_MATCH_OR_ACCEPT;
+  DECLARE_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
   void Think(float dt, CStateManager& mgr) override;
   void AddToRenderer(const CFrustumPlanes& frustum, const CStateManager& mgr) const override;
@@ -43,8 +43,8 @@ private:
   void DoRadialFreeze(const CVector3f&, const CDamageInfo&, CStateManager& mgr);
   void ApplyFlameDamageToActor(TUniqueId id, CStateManager& mgr);
 #endif
-  void ApplyFlameDamageToActors(CStateManager& mgr, TUniqueId id, float dt);
-  void ApplyDamageToWorld(CStateManager& mgr, TUniqueId id, const CVector3f& point,
+  void ApplyFlameDamageToActors(CStateManager& mgr, const TUniqueId id, float dt);
+  void ApplyDamageToWorld(CStateManager& mgr, const TUniqueId id, const CVector3f& point,
                           const CDamageInfo& dInfo, const CMaterialFilter& filter);
 
   CTransform4f mFlameXf;
@@ -67,8 +67,6 @@ private:
 
   static const CVector3f kLightOffset;
 };
-CHECK_SIZEOF(CFlameThrower, (VERSION >= VERSION_GM8P_00 ? 0x430
-                             : VERSION >= VERSION_GM8E_02                             ? 0x418
-                                                                                      : 0x408))
+CHECK_CHILD_SIZEOF(CFlameThrower, CGameProjectile, 0x120)
 
 #endif // _CFLAMETHROWER

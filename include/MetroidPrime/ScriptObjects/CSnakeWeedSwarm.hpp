@@ -12,7 +12,9 @@ class CGenDescription;
 
 class CSnakeWeedSwarm : public CActor {
 public:
+#if VERSION < VERSION_GM8P_00
   ~CSnakeWeedSwarm() override;
+#endif
   DECLARE_TYPES_MATCH_OR_ACCEPT;
   void Think(float dt, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
@@ -116,7 +118,11 @@ private:
   float x200_;
   float mParticleTimer;
 };
-CHECK_SIZEOF(CSnakeWeedSwarm, (VERSION >= VERSION_GM8E_02 ? 0x218 : 0x208))
+#if VERSION >= VERSION_R3IJ_00
+CHECK_CHILD_SIZEOF(CSnakeWeedSwarm, CActor, 0x130)
+#else
+CHECK_CHILD_SIZEOF(CSnakeWeedSwarm, CActor, 0x120)
+#endif
 NESTED_CHECK_SIZEOF(CSnakeWeedSwarm, CBoid, 0x24)
 
 #endif // _CSNAKEWEEDSWARM

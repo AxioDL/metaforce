@@ -69,6 +69,6 @@ private:
   float mDestroyDelayTimer;
 };
 
-CHECK_SIZEOF(CScriptEffect, (VERSION >= VERSION_GM8E_02 ? 0x158 : 0x148))
+CHECK_CHILD_SIZEOF(CScriptEffect, CActor, 0x60)
 
 #endif // _CSCRIPTEFFECT

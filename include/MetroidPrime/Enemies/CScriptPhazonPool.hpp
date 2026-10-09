@@ -23,7 +23,7 @@ public:
   ~CScriptPhazonPool() override;
 
   // CEntity
-  DECLARE_TYPES_MATCH_OR_ACCEPT;
+  DECLARE_ACCEPT;
   void Think(float dt, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
 
@@ -66,6 +66,6 @@ private:
   void RemoveInhabitants(CStateManager& mgr);
   void SetEmitParticles(bool val);
 };
-CHECK_SIZEOF(CScriptPhazonPool, (VERSION >= VERSION_GM8E_02 ? 0x1f8 : 0x1e8))
+CHECK_CHILD_SIZEOF(CScriptPhazonPool, CScriptTrigger, 0x98)
 
 #endif // _CSCRIPTPHAZONPOOL

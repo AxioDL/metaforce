@@ -2,8 +2,8 @@
 #include "rstl/math.hpp"
 
 CRumbleVoice::CRumbleVoice()
-: mDatas(4, SAdsrData())
-, mDeltas(4, SAdsrDelta::Stopped())
+: mDatas(4, SAdsrData(), rstl::rmemory_allocator())
+, mDeltas(4, SAdsrDelta::Stopped(), rstl::rmemory_allocator())
 , mHandleIds(0)
 , mUsedChannels(0)
 , mLastId(0) {}

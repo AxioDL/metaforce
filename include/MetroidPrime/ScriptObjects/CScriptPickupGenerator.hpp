@@ -9,7 +9,7 @@ public:
                          float, bool);
   ~CScriptPickupGenerator();
 
-  DECLARE_TYPES_MATCH_OR_ACCEPT;
+  DECLARE_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender,
                        CStateManager& stateMgr) override;
 

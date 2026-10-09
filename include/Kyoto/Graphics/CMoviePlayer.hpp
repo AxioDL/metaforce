@@ -185,6 +185,9 @@ private:
   bool m_audioPrimed = false;
 #endif
 };
+// This is the GameCube instance layout; Trilogy currently uses only the static audio API.
+#if VERSION < VERSION_R3IJ_00
 CHECK_SIZEOF(CMoviePlayer, 0x100)
+#endif
 
 #endif // _CMOVIEPLAYER

@@ -67,6 +67,8 @@ private:
   int mSize;
   rstl::string mFilename;
 };
+#if VERSION < VERSION_R3IJ_00
 CHECK_SIZEOF(CDvdFile, 0x28)
+#endif
 
 #endif // _CDVDFILE

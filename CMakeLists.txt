@@ -281,7 +281,7 @@ set(GAME_FILES
       src/MetroidPrime/CActor.cpp
       src/MetroidPrime/Weapons/CPhazonBeam.cpp
       src/MetroidPrime/Weapons/CIceImpact.cpp
-      src/MetroidPrime/Weapons/CIceProjectile.cpp
+      src/MetroidPrime/Weapons/CIceAttackProjectile.cpp
       src/MetroidPrime/Weapons/CGunWeapon.cpp
       src/MetroidPrime/Weapons/CWeapon.cpp
       src/MetroidPrime/Weapons/CPlasmaBeam.cpp
@@ -719,6 +719,7 @@ set(GAME_FILES
       extern/rstl/src/rstl/rstl_map.cpp
       extern/rstl/src/rstl/rstl_allocator.cpp
       extern/rstl/src/rstl/RstlExtras.cpp
+      extern/rstl/src/rstl/CStringExtras.cpp
       extern/rstl/src/rstl/rstl_strings.cpp
       src/Metaforce/Alloc.cpp
       src/Metaforce/ARAMToken.cpp
@@ -747,7 +748,7 @@ if (ANDROID)
 else ()
     add_executable(metaforce ${GAME_FILES})
 endif ()
-target_compile_definitions(metaforce PRIVATE TARGET_PC=1 VERSION=0 NONMATCHING=1)
+target_compile_definitions(metaforce PRIVATE TARGET_PC=1 VERSION=1 NONMATCHING=1)
 target_include_directories(metaforce PRIVATE include extern/rstl/include)
 target_link_libraries(metaforce PRIVATE ${GAME_LIBS})
 include(extern/aurora/cmake/AuroraCopyRuntimeDLLs.cmake)

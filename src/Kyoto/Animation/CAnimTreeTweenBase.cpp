@@ -9,6 +9,9 @@
 #include "rstl/auto_ptr.hpp"
 #include "rstl/optional_object.hpp"
 
+
+const int CAnimTreeTweenBase::kBlendRoot_Offset = 1;
+const int CAnimTreeTweenBase::kBlendRoot_Rotation = 2;
 s32 CAnimTreeTweenBase::sAdvancementDepth = 0;
 
 CAnimTreeTweenBase::CAnimTreeTweenBase(bool b1, const rstl::ncrc_ptr< CAnimTreeNode >& a,

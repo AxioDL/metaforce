@@ -16,6 +16,8 @@ GXData *const __GXData = &gxData;
 
 #if VERSION < VERSION_GM8E_02
 char *__GXVersion = "<< Dolphin SDK - GX\trelease build: Sep  5 2002 05:33:28 (0x2301) >>";
+#elif VERSION == VERSION_GM8E_02
+char *__GXVersion = "<< Dolphin SDK - GX\trelease build: Feb  7 2003 04:01:13 (0x2301) >>";
 #else
 char *__GXVersion = "<< Dolphin SDK - GX	release build: Nov  7 2002 05:47:57 (0x2301) >>";
 #endif
@@ -79,6 +81,71 @@ static GXTlutRegion *__GXDefaultTlutRegionCallback(u32 tlut) {
   return &__GXData->TlutRegions[tlut];
 }
 
+#if VERSION == VERSION_GM8E_02
+static BOOL __GXShutdown(BOOL final) {
+  static u32 peCount;
+  static OSTime time;
+  static u32 calledOnce = 0;
+  u32 peCountNew;
+  OSTime timeNew;
+
+  if (!final) {
+    if (!calledOnce) {
+      peCount = __GXReadMEMCounterU32(0x27, 0x28);
+      time = OSGetTime();
+      calledOnce = 1;
+      return FALSE;
+    }
+
+    timeNew = OSGetTime();
+    peCountNew = __GXReadMEMCounterU32(0x27, 0x28);
+
+    if (timeNew - time < 10) {
+      return FALSE;
+    }
+
+    if (peCountNew != peCount) {
+      peCount = peCountNew;
+      time = timeNew;
+      return FALSE;
+    }
+  } else {
+    GXSetBreakPtCallback(NULL);
+    GXSetDrawSyncCallback(NULL);
+    GXSetDrawDoneCallback(NULL);
+
+    GX_WRITE_U32(0);
+    GX_WRITE_U32(0);
+    GX_WRITE_U32(0);
+    GX_WRITE_U32(0);
+    GX_WRITE_U32(0);
+    GX_WRITE_U32(0);
+    GX_WRITE_U32(0);
+    GX_WRITE_U32(0);
+    PPCSync();
+
+    GX_SET_CP_REG(1, 0);
+    GX_SET_CP_REG(2, 3);
+
+    __GXData->abtWaitPECopy = GX_TRUE;
+
+    __GXAbort();
+  }
+
+  return TRUE;
+}
+
+static OSResetFunctionInfo GXResetFuncInfo = {__GXShutdown, OS_RESET_PRIO_GX};
+
+static inline void RegisterResetFunction(void) {
+  static u32 resetFuncRegistered = 0;
+  if (resetFuncRegistered == 0) {
+    OSRegisterResetFunction(&GXResetFuncInfo);
+    resetFuncRegistered = 1;
+  }
+}
+#endif
+
 GXFifoObj *GXInit(void *base, u32 size) {
   u32 i;
   u32 freqBase;
@@ -88,6 +155,9 @@ GXFifoObj *GXInit(void *base, u32 size) {
   OSRegisterVersion(__GXVersion);
   __GXData->inDispList = GX_FALSE;
   __GXData->dlSaveContext = GX_TRUE;
+#if VERSION == VERSION_GM8E_02
+  __GXData->abtWaitPECopy = GX_TRUE;
+#endif
   __GXData->tcsManEnab = 0;
   __GXData->tevTcEnab = 0;
 
@@ -103,6 +173,10 @@ GXFifoObj *GXInit(void *base, u32 size) {
   GXInitFifoBase(&FifoObj, base, size);
   GXSetCPUFifo(&FifoObj);
   GXSetGPFifo(&FifoObj);
+
+#if VERSION == VERSION_GM8E_02
+  RegisterResetFunction();
+#endif
 
   __GXPEInit();
   EnableWriteGatherPipe();

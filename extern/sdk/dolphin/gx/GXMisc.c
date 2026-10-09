@@ -28,6 +28,11 @@ void GXSetMisc(GXMiscToken token, u32 val) {
   case GX_MT_DL_SAVE_CONTEXT:
     __GXData->dlSaveContext = (val != 0);
     break;
+#if VERSION == VERSION_GM8E_02
+  case GX_MT_ABORT_WAIT_COPYOUT:
+    __GXData->abtWaitPECopy = (val != 0);
+    break;
+#endif
   }
 }
 
@@ -55,8 +60,24 @@ static void __GXAbortWait(u32 clocks) {
   } while (time1 - time0 <= clocks / 4);
 }
 
-void __GXAbort(void) {
+#if VERSION == VERSION_GM8E_02
+static void __GXAbortWaitPECopyDone(void) {
+  u32 peCnt0, peCnt1;
+  peCnt0 = __GXReadMEMCounterU32(0x27, 0x28);
+  do {
+    peCnt1 = peCnt0;
+    __GXAbortWait(32);
+    peCnt0 = __GXReadMEMCounterU32(0x27, 0x28);
+  } while (peCnt0 != peCnt1);
+}
+#endif
 
+void __GXAbort(void) {
+#if VERSION == VERSION_GM8E_02
+  if (__GXData->abtWaitPECopy && GXGetGPFifo()) {
+    __GXAbortWaitPECopyDone();
+  }
+#endif
   __PIRegs[0x18 / 4] = 1;
   __GXAbortWait(200);
   __PIRegs[0x18 / 4] = 0;

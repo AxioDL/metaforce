@@ -19,7 +19,7 @@ public:
                            bool deactivateOnEnter, const bool deactivateOnExit);
   ~CScriptCameraHintTrigger();
   
-  DECLARE_TYPES_MATCH_OR_ACCEPT;
+  DECLARE_ACCEPT;
   void Think(float dt, CStateManager& mgr) override;
   void Touch(CActor& other, CStateManager& mgr) override;
   rstl::optional_object< CAABox > GetTouchBounds() const override;

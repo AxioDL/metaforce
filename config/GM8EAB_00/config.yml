@@ -1,0 +1,6 @@
+object_base: orig/GM8EAB_00
+object: sys/main.dol
+hash: 3884b46c50ea7dc94a569856fd07caa2e8b911e5
+symbols: config/GM8EAB_00/symbols.txt
+splits: config/GM8EAB_00/splits.txt
+mw_comment_version: 8

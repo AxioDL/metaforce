@@ -1,3 +1,4 @@
+#define RSTL_OUTLINE_RC_PTR_GET
 #include "MetroidPrime/ScriptObjects/CScriptTrigger.hpp"
 
 #include "MetroidPrime/CActorParameters.hpp"

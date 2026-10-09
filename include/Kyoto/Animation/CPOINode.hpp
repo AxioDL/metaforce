@@ -51,6 +51,8 @@ protected:
   int mCharIdx;
   int mFlags;
 };
+#if VERSION < VERSION_R3IJ_00
 CHECK_SIZEOF(CPOINode, 0x38)
+#endif
 
 #endif // _CPOINODE

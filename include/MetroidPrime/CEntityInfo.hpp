@@ -229,7 +229,10 @@ enum EScriptObjectMessage {
   kSM_AddPhazonPoolInhabitant = 45,
   kSM_UpdatePhazonPoolInhabitant = 46,
   kSM_RemovePhazonPoolInhabitant = 47,
-  kSM_SuspendedMove = 48
+  kSM_SuspendedMove = 48,
+#if VERSION >= VERSION_GM8P_00
+  kSM_Deflected = 49,
+#endif
 };
 
 struct SConnection {

@@ -33,6 +33,8 @@ private:
   rstl::vector< CPASAnimState > mStates;
   int mDefaultState;
 };
+#if VERSION < VERSION_R3IJ_00
 CHECK_SIZEOF(CPASDatabase, 0x14)
+#endif
 
 #endif // _CPASDATABASE

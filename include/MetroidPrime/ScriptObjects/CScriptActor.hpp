@@ -60,4 +60,6 @@ protected:
   bool mIsPlayerActor : 1;
 };
 
+CHECK_CHILD_SIZEOF(CScriptActor, CPhysicsActor, 0x90)
+
 #endif // _CSCRIPTACTOR

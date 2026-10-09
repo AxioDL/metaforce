@@ -213,7 +213,7 @@ void CParticleDatabase::AddAuxiliaryParticleEffect(const rstl::string& name, int
                                 scaleFactor * scale.GetZ());
     }
     rstl::auto_ptr< CParticleGenInfo > gen;
-    if (type == 'PART') {
+    if ('PART' == type) {
       AUTO(it, mParticleDescs.find(tag.GetId()));
       if (it != mParticleDescs.end()) {
         rstl::ncrc_ptr< CParticleGen > system = rs_new CElementGen(*it->second);
